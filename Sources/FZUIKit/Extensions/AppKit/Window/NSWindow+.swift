@@ -597,10 +597,18 @@ extension NSWindow {
         set { (contentViewController as? NSSplitViewController)?.isSidebarVisible = newValue }
     }
     
-    /// Sets the Boolean value that indicates whether the sidebar is visible.
+    /**
+     Collapses or expands the sidebar.
+          
+     If the window's content view controller isn't a split view controller or the split view doesn't contain a sidebar, calling this method does nothing.
+     
+     - Parameters:
+        - isVisible: A Boolean value that indicates whether the sidebar is visible.
+        - animated: A Boolean value that indicates whether the collapsing/expanding of the sidebar should be animated.
+     */
     @discardableResult
-    @objc open func isSidebarVisible(_ isVisible: Bool) -> Self {
-        self.isSidebarVisible = isVisible
+    @objc open func isSidebarVisible(_ isVisible: Bool, animated: Bool = true) -> Self {
+        (contentViewController as? NSSplitViewController)?.isSidebarVisible(isVisible, animated: animated)
         return self
     }
     

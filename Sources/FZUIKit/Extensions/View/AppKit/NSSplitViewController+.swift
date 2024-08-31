@@ -29,7 +29,7 @@ import FZSwiftUtils
         }
         
         /**
-         Collapses or expands the first split view item.
+         Collapses or expands the sidebar.
          
          If the split view controller doesn’t contain a sidebar, calling this method does nothing.
          
