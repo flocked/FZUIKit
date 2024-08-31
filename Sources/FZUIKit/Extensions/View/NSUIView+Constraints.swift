@@ -165,7 +165,7 @@
                 case .top, .topLeading, .topTrailing:
                     constraints.append(topAnchor.constraint(equalTo: view.topAnchor, constant: padding.x))
                 case .bottom, .bottomLeading, .bottomTrailing:
-                    constraints.append(bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: padding.x))
+                    constraints.append(bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -padding.x))
                 case .center, .leading, .trailing:
                     constraints.append(centerYAnchor.constraint(equalTo: view.centerYAnchor))
                 }
@@ -173,7 +173,7 @@
                 case .leading, .bottomLeading, .topLeading:
                     constraints.append(leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding.y))
                 case .trailing, .bottomTrailing, .topTrailing:
-                    constraints.append(trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: padding.y))
+                    constraints.append(trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding.y))
                 case .center, .bottom, .top:
                     constraints.append(centerXAnchor.constraint(equalTo: view.centerXAnchor))
                 }
