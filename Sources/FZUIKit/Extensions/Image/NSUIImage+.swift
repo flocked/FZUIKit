@@ -123,3 +123,14 @@ public extension NSUIImage {
     }
     #endif
 }
+
+extension Collection where Element == NSUIImage {
+    /// An array of unique images.
+    public func uniqueImages() -> [Element] {
+        reduce(into: [NSUIImage]()) { images, image in
+            if let last = images.last, !last.isEqual(to: image) {
+                images.append(image)
+            }
+        }
+    }
+}

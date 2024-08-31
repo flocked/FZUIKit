@@ -35,10 +35,12 @@ public extension CGImage {
         #endif
     }
     
+    #if os(macOS) || os(iOS) || os(tvOS)
     /// A `CIImage` representation of the image.
     var ciImage: CIImage {
         CIImage(cgImage: self)
     }
+    #endif
 
     /// The size of the image.
     var size: CGSize {
@@ -238,5 +240,16 @@ extension CGImage {
         guard let space = colorSpace, let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: space, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return nil }
         context.draw(self, in: CGRect(.zero, size))
         return context
+    }
+}
+
+extension Collection where Element == CGImage {
+    /// An array of unique images.
+    public func uniqueImages() -> [Element] {
+        reduce(into: [CGImage]()) { images, image in
+            if let last = images.last, !last.isEqual(to: image) {
+                images.append(image)
+            }
+        }
     }
 }

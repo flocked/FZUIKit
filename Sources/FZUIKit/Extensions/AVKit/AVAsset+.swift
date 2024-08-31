@@ -7,7 +7,10 @@
 
 import AVFoundation
 import Foundation
-import CoreImage
+import FZSwiftUtils
+#if os(macOS)
+import AppKit
+#endif
 
 public extension AVAsset {
     /// The natural dimensions of a video asset.
@@ -45,27 +48,43 @@ public extension AVAsset {
     }
 
     /// The number of audio channels.
-    var audioChannels: Int? {
-        tracks.compactMap(\.audioChannels).max()
+    var audioChannels: Int {
+        tracks.compactMap(\.audioChannels).max() ?? 0
+    }
+    
+    /// The duration of the asset.
+    @available(macOS 12, iOS 15, tvOS 15, watchOS 8, *)
+    var timeDuration: TimeDuration? {
+        (try? load(.duration))?.timeDuration
+    }
+    
+    /// A Boolean value that indicates whether the the asset has audio.
+    var hasAudio: Bool {
+        audioChannels > 0
+    }
+    
+    /// A Boolean value that indicates whether the the asset has video.
+    var hasVideo: Bool {
+        !tracks(withMediaType: .video).isEmpty
     }
 
     /// The video orientation.
     enum VideoOrientation: String {
-        /// Vertical orientation.
+        /// Vertical.
         case vertical
-        /// Horizontal orientation.
+        /// Horizontal.
         case horizontal
-        /// Square orientation.
+        /// Square.
         case square
     }
     
+    #if os(macOS) || os(iOS) || os(tvOS)
     /**
      Returns the video frames as an array of `CGImage`.
      
      If the asset doesn't contain a video track, it returns an empty array.
      
-     - Parameter unique: A 
-     
+     - Parameter unique: A Boolean value that indicates whether to return only unique frames.
      */
     func videoFrames(unique: Bool = false) -> [CGImage] {
         videoImageBuffers.reduce(into: [CGImage]()) { frames, sample in
@@ -85,46 +104,25 @@ public extension AVAsset {
         reader.startReading()
         return trackReaderOutput.imageBuffers()
     }
-}
-
-extension AVAssetReaderOutput {
-    func sampleBuffers() -> [CMSampleBuffer] {
-        var sampleBuffers: [CMSampleBuffer] = []
-        while let sampleBuffer = copyNextSampleBuffer() {
-            sampleBuffers.append(sampleBuffer)
+    #endif
+    
+    #if os(macOS)
+    internal func gifData() -> Data? {
+        let images = videoFrames(unique: true).compactMap({$0.nsUIImage})
+        if #available(macOS 12, iOS 15, tvOS 15, watchOS 8, *), let duration = timeDuration?.seconds {
+            return NSUIImage.gifData(from: images, duration: duration)
         }
-        return sampleBuffers
+        return NSUIImage.gifData(from: images, duration: duration.timeDuration.seconds)
     }
     
-    func imageBuffers() -> [CVImageBuffer] {
-        sampleBuffers().compactMap({ CMSampleBufferGetImageBuffer($0) })
-    }
-}
-
-extension Collection where Element == CGImage {
-    func uniqueImages() -> [Element] {
-        reduce(into: [CGImage]()) { images, image in
-            if let last = images.last, !last.isEqual(to: image) {
-                images.append(image)
-            }
+    internal func animatedImage() -> NSUIImage? {
+        let images = videoFrames(unique: true).compactMap({$0.nsUIImage})
+        if #available(macOS 12, iOS 15, tvOS 15, watchOS 8, *), let duration = timeDuration?.seconds {
+            return NSUIImage.animatedImage(images: images, duration: duration)
         }
+        return NSUIImage.animatedImage(images: images, duration: duration.timeDuration.seconds)
     }
-}
-
-extension Collection where Element == NSUIImage {
-    func uniqueImages() -> [Element] {
-        reduce(into: [NSUIImage]()) { images, image in
-            if let last = images.last, !last.isEqual(to: image) {
-                images.append(image)
-            }
-        }
-    }
-}
-
-extension CVImageBuffer {
-    public var cgImage: CGImage {
-        CIImage(cvPixelBuffer: self).cgImage
-    }
+    #endif
 }
 
 public extension AVAssetTrack {

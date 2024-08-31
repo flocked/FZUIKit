@@ -142,6 +142,7 @@
         }
 
         internal static func gifData(from images: [NSUIImage], frameDuration: TimeInterval, loopCount: Int = 0) -> Data? {
+            guard !images.isEmpty else { return nil }
             let data = NSMutableData()
             guard let destination = CGImageDestinationCreateWithData(data as CFMutableData, kUTTypeGIF, images.count, nil) else { return nil }
             let gifProperties = [kCGImagePropertyGIFDictionary as String: [kCGImagePropertyGIFLoopCount as String: loopCount]].cfDictionary

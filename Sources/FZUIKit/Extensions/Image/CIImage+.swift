@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 31.08.24.
 //
 
-import CoreImage
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 extension CIImage {
@@ -31,3 +31,5 @@ extension CIImage {
         cgImage.nsUIImage
     }
 }
+
+#endif
