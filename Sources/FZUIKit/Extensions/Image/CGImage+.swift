@@ -34,6 +34,11 @@ public extension CGImage {
             return Image(uiImage: uiImage)
         #endif
     }
+    
+    /// A `CIImage` representation of the image.
+    var ciImage: CIImage {
+        CIImage(cgImage: self)
+    }
 
     /// The size of the image.
     var size: CGSize {
@@ -210,5 +215,28 @@ public extension CGImage {
     func resized(toHeight height: CGFloat, quality: CGInterpolationQuality = .high) -> CGImage {
         let size = size.scaled(toHeight: height)
         return resized(to: size, quality: quality)
+    }
+}
+
+extension CGImage {
+    /**
+     Returns a Boolean value that indicates whether image is equal to the specified other image.
+     
+     - Parameter image: The image to comapare.
+     - Returns: `true` if the images are equal, otherwise `false`.
+     */
+    public func isEqual(to image: CGImage) -> Bool {
+        guard size == image.size else { return false }
+        guard let context = self.context else { return false }
+        guard let newContext = image.context else { return false }
+        guard let data = context.data else { return false }
+        guard let newData = newContext.data else { return false }
+        return memcmp(data, newData, context.height * context.bytesPerRow) == 0
+    }
+    
+    var context: CGContext? {
+        guard let space = colorSpace, let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: space, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return nil }
+        context.draw(self, in: CGRect(.zero, size))
+        return context
     }
 }

@@ -14,6 +14,26 @@ import FZSwiftUtils
 
 public extension NSUIImage {
     /**
+     Returns a Boolean value that indicates whether image is equal to the specified other image.
+     
+     - Parameter image: The image to comapare.
+     - Returns: `true` if the images are equal, otherwise `false`.
+     */
+    func isEqual(to image: NSUIImage) -> Bool {
+        #if os(macOS)
+        if framesCount == 1, let cgImage = cgImage, let other = image.cgImage {
+            return cgImage.isEqual(to: other)
+        }
+        return tiffData() == image.tiffData()
+        #else
+        if let cgImage = cgImage, let other = image.cgImage {
+            return cgImage.isEqual(to: other)
+        }
+        return pngData() == image.pngData()
+        #endif
+    }
+    
+    /**
      Creates an image object that contains a system symbol image.
      
      - Parameter systemName: The name of the system symbol image.

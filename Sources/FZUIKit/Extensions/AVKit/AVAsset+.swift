@@ -7,6 +7,7 @@
 
 import AVFoundation
 import Foundation
+import CoreImage
 
 public extension AVAsset {
     /// The natural dimensions of a video asset.
@@ -56,6 +57,73 @@ public extension AVAsset {
         case horizontal
         /// Square orientation.
         case square
+    }
+    
+    /**
+     Returns the video frames as an array of `CGImage`.
+     
+     If the asset doesn't contain a video track, it returns an empty array.
+     
+     - Parameter unique: A 
+     
+     */
+    func videoFrames(unique: Bool = false) -> [CGImage] {
+        videoImageBuffers.reduce(into: [CGImage]()) { frames, sample in
+            let image = sample.cgImage
+            if unique, let last = frames.last, !last.isEqual(to: image) {
+                frames.append(image)
+            } else if !unique {
+                frames.append(image)
+            }
+        }
+    }
+    
+    internal var videoImageBuffers: [CVImageBuffer] {
+        guard let reader = try? AVAssetReader(asset: self), let videoTrack = tracks(withMediaType: .video).first else { return [] }
+        let trackReaderOutput = AVAssetReaderTrackOutput(track: videoTrack, outputSettings: [String(kCVPixelBufferPixelFormatTypeKey): NSNumber(value: kCVPixelFormatType_32BGRA)])
+        reader.add(trackReaderOutput)
+        reader.startReading()
+        return trackReaderOutput.imageBuffers()
+    }
+}
+
+extension AVAssetReaderOutput {
+    func sampleBuffers() -> [CMSampleBuffer] {
+        var sampleBuffers: [CMSampleBuffer] = []
+        while let sampleBuffer = copyNextSampleBuffer() {
+            sampleBuffers.append(sampleBuffer)
+        }
+        return sampleBuffers
+    }
+    
+    func imageBuffers() -> [CVImageBuffer] {
+        sampleBuffers().compactMap({ CMSampleBufferGetImageBuffer($0) })
+    }
+}
+
+extension Collection where Element == CGImage {
+    func uniqueImages() -> [Element] {
+        reduce(into: [CGImage]()) { images, image in
+            if let last = images.last, !last.isEqual(to: image) {
+                images.append(image)
+            }
+        }
+    }
+}
+
+extension Collection where Element == NSUIImage {
+    func uniqueImages() -> [Element] {
+        reduce(into: [NSUIImage]()) { images, image in
+            if let last = images.last, !last.isEqual(to: image) {
+                images.append(image)
+            }
+        }
+    }
+}
+
+extension CVImageBuffer {
+    public var cgImage: CGImage {
+        CIImage(cvPixelBuffer: self).cgImage
     }
 }
 
