@@ -104,10 +104,12 @@ public extension AVAsset {
     /**
      Returns gif data for a video asset.
      
-     - Parameter duration: The gif animation duration, or `nil` to use the video duration.
+     - Parameters:
+        - uniqueFrames: A Boolean value that indicates whether the gif should only use unique video frames.
+        - duration: The gif animation duration, or `nil` to use the video duration.
      */
-    func gifData(duration: Double? = nil) -> Data? {
-        let images = videoFrames(unique: true).compactMap({$0.nsUIImage})
+    func gifData(uniqueFrames: Bool = true, duration: Double? = nil) -> Data? {
+        let images = videoFrames(unique: uniqueFrames).compactMap({$0.nsUIImage})
         if let duration = duration {
             return NSUIImage.gifData(from: images, duration: duration)
         }
@@ -120,10 +122,12 @@ public extension AVAsset {
     /**
      Returns an animated image for a video asset.
      
-     - Parameter duration: The image animation duration, or `nil` to use the video duration.
+     - Parameters:
+        - uniqueFrames: A Boolean value that indicates whether the animated image should only use unique video frames.
+        - duration: The image animation duration, or `nil` to use the video duration.
      */
-    func animatedImage(duration: CGFloat? = nil) -> NSUIImage? {
-        let images = videoFrames(unique: true).compactMap({$0.nsUIImage})
+    func animatedImage(uniqueFrames: Bool = true, duration: CGFloat? = nil) -> NSUIImage? {
+        let images = videoFrames(unique: uniqueFrames).compactMap({$0.nsUIImage})
         if let duration = duration {
             return NSUIImage.animatedImage(images: images, duration: duration)
         }
