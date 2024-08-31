@@ -87,14 +87,8 @@ public extension AVAsset {
      - Parameter unique: A Boolean value that indicates whether to return only unique frames.
      */
     func videoFrames(unique: Bool = false) -> [CGImage] {
-        videoImageBuffers.reduce(into: [CGImage]()) { frames, sample in
-            let image = sample.cgImage
-            if unique, let last = frames.last, !last.isEqual(to: image) {
-                frames.append(image)
-            } else if !unique {
-                frames.append(image)
-            }
-        }
+        let images = videoImageBuffers.compactMap({$0.cgImage})
+        return unique ? images.uniqueImages() : images
     }
     
     internal var videoImageBuffers: [CVImageBuffer] {
