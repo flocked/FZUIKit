@@ -25,18 +25,23 @@
             /// The view's frame is constraint to the edges of the other view with the specified insets.
             case insets(NSUIEdgeInsets)
             /// The view's frame is constraint to the specified position of the other view.
-            case positioned(Position, padding: CGFloat = 0)
+            case positioned(Position, padding: CGPoint = .zero)
+            
+            /// The view's frame is constraint to the specified position of the other view.
+            public static func positioned(_ position: Position, padding: CGFloat) -> Self {
+                .positioned(position, padding: CGPoint(padding, padding))
+            }
             
             public enum Position: Int {
                 case top
-                case topLeft
-                case topRight
+                case topLeading
+                case topTrailing
                 case center
-                case centerLeft
-                case centerRight
+                case leading
+                case trailing
                 case bottom
-                case bottomLeft
-                case bottomRight
+                case bottomLeading
+                case bottomTrailing
             }
         }
 
@@ -157,15 +162,21 @@
             switch mode {
             case let .positioned(position, padding):
                 switch position {
-                case .top, .topLeft, .topRight:
-                    constraints.append(topAnchor.constraint(equalTo: view.topAnchor, constant: padding))
-                case .center, .centerLeft, .centerRight:
-                    constraints.append(centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 0))
-                case .bottomLeft, .bottom, .bottomRight:
-                    constraints.append(bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: padding))
+                case .top, .topLeading, .topTrailing:
+                    constraints.append(topAnchor.constraint(equalTo: view.topAnchor, constant: padding.x))
+                case .bottom, .bottomLeading, .bottomTrailing:
+                    constraints.append(bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: padding.x))
+                case .center, .leading, .trailing:
+                    constraints.append(centerYAnchor.constraint(equalTo: view.centerYAnchor))
                 }
-                constraints.append(widthAnchor.constraint(equalTo: view.widthAnchor, constant: -(padding * 2.0)))
-                constraints.append(heightAnchor.constraint(equalToConstant: view.frame.size.height))
+                switch position {
+                case .leading, .bottomLeading, .topLeading:
+                    constraints.append(leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding.y))
+                case .trailing, .bottomTrailing, .topTrailing:
+                    constraints.append(trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: padding.y))
+                case .center, .bottom, .top:
+                    constraints.append(centerXAnchor.constraint(equalTo: view.centerXAnchor))
+                }
             default:
               //  self.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: constants[0]).
                 constraints = [
