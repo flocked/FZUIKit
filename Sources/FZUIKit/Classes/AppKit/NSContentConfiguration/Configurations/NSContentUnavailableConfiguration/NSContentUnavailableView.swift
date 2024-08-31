@@ -34,16 +34,13 @@ public class NSContentUnavailableView: NSView, NSContentView {
     public init(configuration: NSContentUnavailableConfiguration) {
         appliedConfiguration = configuration
         super.init(frame: .zero)
-        backgroundConstraints = addSubview(withConstraint: backgroundView)
-        hostingConstraints = addSubview(withConstraint: hostingView)
+        addSubview(backgroundView)
+        addSubview(hostingView)
         updateConfiguration()
     }
     
     lazy var hostingView = NSHostingView(rootView: ContentView(configuration: self.appliedConfiguration))
     lazy var backgroundView: (NSView & NSContentView) = appliedConfiguration.background.makeContentView()
-    
-    var hostingConstraints: [NSLayoutConstraint] = []
-    var backgroundConstraints: [NSLayoutConstraint] = []
     
     var appliedConfiguration: NSContentUnavailableConfiguration {
         didSet {
@@ -55,9 +52,17 @@ public class NSContentUnavailableView: NSView, NSContentView {
     func updateConfiguration() {
         backgroundView.configuration = appliedConfiguration.background
         hostingView.rootView = ContentView(configuration: appliedConfiguration)
-
-        hostingConstraints.constant(appliedConfiguration.directionalLayoutMargins)
-        backgroundConstraints.constant(appliedConfiguration.directionalLayoutMargins)
+        updateFrames()
+    }
+    
+    open override func layout() {
+        super.layout()
+        updateFrames()
+    }
+    
+    func updateFrames() {
+        backgroundView.frame = CGRect(x: appliedConfiguration.directionalLayoutMargins.bottom, y: appliedConfiguration.directionalLayoutMargins.leading, width: bounds.width - appliedConfiguration.directionalLayoutMargins.width, height: bounds.height - appliedConfiguration.directionalLayoutMargins.height)
+        hostingView.frame = backgroundView.frame
     }
     
     @available(*, unavailable)
