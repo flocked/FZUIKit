@@ -15,7 +15,7 @@ import FZSwiftUtils
          
          If the split view doesn't contain a sidebar, it returns `false`.
          
-         Changing this property animates the sidebar. If you don't want to animate the sidebar, use ``AppKit/NSSplitViewController/collapeSidebar(_:animated:)``.
+         Changing this property animates the sidebar. If you don't want to animate the sidebar, use ``isSidebarVisible(_:animated:)``.
          */
        @objc public dynamic var isSidebarVisible: Bool {
             get {
@@ -29,23 +29,22 @@ import FZSwiftUtils
         }
         
         /**
-         Collapses or expands the first sidebar in the split view controller using an animation.
+         Collapses or expands the first split view item.
          
          If the split view controller doesn’t contain a sidebar, calling this method does nothing.
          
          - Parameters:
-            - shouldCollapse: A Boolean value that indicates whether the sidebar should collapse or expand.
-            - animated: A Boolean value that indicates whether the sidebar the collapsing/expanding of the sidebar should be animated.
-         
+            - isVisible: A Boolean value that indicates whether the sidebar is visible.
+            - animated: A Boolean value that indicates whether the collapsing/expanding of the sidebar should be animated.
          */
-        @objc public dynamic func collapeSidebar(_ shouldCollapse: Bool, animated: Bool = false) {
-            guard splitViewItems.count > 1, let sidebarItem = splitViewItems.first, shouldCollapse != sidebarItem.isCollapsed else { return }
+        @discardableResult
+        @objc open func isSidebarVisible(_ isVisible: Bool, animated: Bool = true) -> Self {
             if animated {
-                toggleSidebar(nil)
-            } else {
-                sidebarItem.isCollapsed = shouldCollapse
+                self.isSidebarVisible = isVisible
+            } else if splitViewItems.count > 1, let sidebarItem = splitViewItems.first {
+                sidebarItem.isCollapsed = !isVisible
             }
-
+            return self
         }
     }
 
