@@ -127,6 +127,22 @@
             return self
         }
         
+        /// The selected string value, or `nil` if the no string is selected.
+        var selectedStringValue: String? {
+            get { selectedStringRange != nil ? String(stringValue[selectedStringRange!]) : nil }
+            set { selectedStringRange = newValue != nil ? (stringValue as NSString).range(of: newValue!) : nil }
+        }
+        
+        /// The range of the selected string, or `nil` if the no string is selected.
+        var selectedStringRange: NSRange? {
+            get { currentEditor()?.selectedRange }
+            set {
+                let newValue = newValue ?? NSRange(location: 0, length: 0)
+                guard newValue != .notFound else { return }
+                currentEditor()?.selectedRange = newValue
+            }
+        }
+        
         /// Deselects all text.
         func deselectAll() {
             currentEditor()?.selectedRange = NSRange(location: 0, length: 0)
@@ -139,9 +155,7 @@
         
         /// Selects the specified string.
         func select(_ string: String) {
-            let range = (stringValue as NSString).range(of: string)
-            guard range != .notFound else { return }
-            currentEditor()?.selectedRange = range
+            selectedStringValue = string
         }
         
         /// Selects the specified range.
@@ -166,10 +180,7 @@
         
         /// The range of the selected text while editing.
         var editingSelectedRange: Range<String.Index>? {
-            get {
-                let currentEditor = self.currentEditor() as? NSTextView
-                return currentEditor?.selectedStringRanges.first
-            }
+            get { (self.currentEditor() as? NSTextView)?.selectedStringRanges.first }
             set {
                 if let range = newValue {
                     let currentEditor = self.currentEditor() as? NSTextView
