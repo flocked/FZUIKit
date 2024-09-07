@@ -20,6 +20,11 @@ public extension CMTime {
         self = CMTime(seconds: duration.seconds, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
     }
     
+    /// `NSValue` representation of the time.
+    var nsValue: NSValue {
+        NSValue(time: self)
+    }
+    
     static func + (lhs: Self, rhs: TimeDuration) -> Self {
         CMTime(seconds: lhs.seconds + rhs.seconds)
     }
