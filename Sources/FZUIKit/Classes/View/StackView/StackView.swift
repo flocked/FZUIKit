@@ -263,11 +263,17 @@ open class StackView: NSUIView {
         let arrangedSubviews = arrangedSubviews.filter({!$0.isHidden})
         guard !arrangedSubviews.isEmpty, let calculation = calculateSizes() else { return }
         var offsetTracker: CGFloat = orientation == .horizontal ? layoutMargins.left : layoutMargins.bottom
-        let allSpacers = CGFloat((arrangedSubviews.count - 1).clamped(min: 0)) * spacing
         let total = calculation.fixedValueSum + (CGFloat((arrangedSubviews.count - 1).clamped(min: 0)) * spacing)
-        let width = bounds.size.width - (orientation == .horizontal ? total - layoutMargins.width : 0.0)
+        var width = bounds.size.width
+        if orientation == .horizontal {
+            width = width - total - layoutMargins.width
+        }
+        var height = bounds.size.height
+        if orientation == .vertical {
+            height = height - total - layoutMargins.height
+        }
         Swift.print("layoutArranged", bounds.width, width, layoutMargins.width, subviews.compactMap({$0.frame.width}).sum(), subviews.compactMap({$0.frame.width}), calculation.fixedValueSum, total,  bounds.size.width - total)
-        let height = bounds.size.height - (orientation == .horizontal ? 0.0 : total - layoutMargins.height)
+
         for arrangedSubview in arrangedSubviews {
             let id = ObjectIdentifier(arrangedSubview).hashValue
             let sizing = viewSizing(for: arrangedSubview)
