@@ -13,20 +13,20 @@ import UniformTypeIdentifiers
 extension AVPlayerView {
     /// Sets the value that determines how the player view displays video content within its bounds.
     @discardableResult
-    func videoGravity(_ videoGravity: AVLayerVideoGravity) -> Self {
+    public func videoGravity(_ videoGravity: AVLayerVideoGravity) -> Self {
         self.videoGravity = videoGravity
         return self
     }
     
     /// Sets the control style.
     @discardableResult
-    func controlStyle(_ style: AVPlayerViewControlsStyle) -> Self {
+    public func controlStyle(_ style: AVPlayerViewControlsStyle) -> Self {
         controlsStyle = style
         return self
     }
     
     /// A Boolean value indicating whether the playback position can be changed by scrolling the mouse/trackpad.
-    var isPlaybackPositionScrollable: Bool {
+    public var isPlaybackPositionScrollable: Bool {
         get { !isMethodReplaced(#selector(Self.scrollWheel(with:))) }
         set {
             guard newValue != isPlaybackPositionScrollable else { return }
@@ -51,7 +51,7 @@ extension AVPlayerView {
     
     /// Sets the Boolean value indicating whether the playback position can be changed by scrolling the mouse/trackpad.
     @discardableResult
-    func isPlaybackPositionScrollable(_ scrollable: Bool) -> Self {
+    public func isPlaybackPositionScrollable(_ scrollable: Bool) -> Self {
         isPlaybackPositionScrollable = scrollable
         return self
     }
