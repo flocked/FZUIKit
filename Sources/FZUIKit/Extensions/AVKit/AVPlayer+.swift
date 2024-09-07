@@ -22,6 +22,30 @@ public extension AVPlayer {
         /// The player has an error.
         case error(Error)
         
+        /// A Boolean value that indicates whether the player is playing.
+        public var isPlaying: Bool {
+            switch self {
+            case .isPlaying: return true
+            default: return false
+            }
+        }
+        
+        /// A Boolean value that indicates whether the player is paused.
+        public var isPaused: Bool {
+            switch self {
+            case .isPaused: return true
+            default: return false
+            }
+        }
+        
+        /// A Boolean value that indicates whether the player is stopped.
+        public var isStopped: Bool {
+            switch self {
+            case .isStopped: return true
+            default: return false
+            }
+        }
+        
         public var description: String {
             switch self {
             case .isPlaying: return "playing"
