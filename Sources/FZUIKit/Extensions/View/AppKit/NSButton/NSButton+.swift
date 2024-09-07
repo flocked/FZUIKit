@@ -259,6 +259,44 @@ public extension NSButton {
     }
     
     /**
+     Creates a borderless button.
+     
+     - Parameter title: The title of the button.
+     */
+    static func borderless(_ title: String) -> NSButton {
+        let button = NSButton.push(title).isBordered(false)
+        button.sizeToFit()
+        return button
+    }
+    
+    /**
+     Creates a borderless button.
+     
+     - Parameters:
+        - title: The title of the button.
+        - image: The image of the button.
+     */
+    static func borderless(_ title: String? = nil, image: NSImage) -> NSButton {
+        let button = NSButton.push(title, image: image).isBordered(false)
+        button.sizeToFit()
+        return button
+    }
+    
+    /**
+     Creates a borderless button.
+     
+     - Parameters:
+        - title: The title of the button.
+        - symbolName: The name of the symbol image.
+     */
+    @available(macOS 11.0, *)
+    static func borderless(_ title: String? = nil, symbolName: String) -> NSButton {
+        let button = NSButton.push(title, symbolName: symbolName).isBordered(false)
+        button.sizeToFit()
+        return button
+    }
+    
+    /**
      Creates a check box button.
      
      - Parameters:

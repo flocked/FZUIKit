@@ -170,9 +170,16 @@ open class ScrollPlayerView: AVPlayerView {
         }
     }
     
+    public var keyControllable: Bool = false
+    
     open override func hitTest(_ point: NSPoint) -> NSView? {
-        if volumeScrollControl != .off || playbackPositionScrollControl != .off, NSEvent.current?.type == .scrollWheel {
-            return self
+        if let event = NSEvent.current {
+            if event.type == .scrollWheel, volumeScrollControl != .off || playbackPositionScrollControl != .off {
+                return self
+            }
+            if event.type == .keyDown || event.type == .keyUp {
+                return keyControllable ? super.hitTest(point) : nil
+            }
         }
         return super.hitTest(point)
     }
