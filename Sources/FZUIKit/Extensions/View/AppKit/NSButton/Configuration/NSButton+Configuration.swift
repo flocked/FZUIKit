@@ -187,10 +187,6 @@ extension NSButton {
         (contentView as? NSButton.AdvanceButtonView)?.isPressed ?? false
     }
     
-    var buttonObserver: KeyValueObserver<NSButton> {
-        get { getAssociatedValue("buttonObserver", initialValue: KeyValueObserver(self)) }
-    }
-    
     var contentView: (NSView & NSContentView)? {
         get { getAssociatedValue("NSButton_contentView") }
         set {

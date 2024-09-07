@@ -469,6 +469,10 @@ public extension NSButton {
         set { setAssociatedValue(newValue, key: "buttonStateObserver") }
     }
     
+    internal var buttonObserver: KeyValueObserver<NSButton> {
+        get { getAssociatedValue("buttonObserver", initialValue: KeyValueObserver(self)) }
+    }
+    
     internal func updateButtonStateObserver() {
         var shouldObserveState = !stateContentTintColor.isEmpty
         if #available(macOS 11.0, *) {
@@ -684,6 +688,34 @@ public extension NSButton {
         keyEquivalentModifierMask = modifierMask
         return self
     }
+    
+    /// Sizes the button to fit it's content with the specified image to title spacing.
+    func sizeToFit(imageToTitleSpacing spacing: CGFloat) {
+        sizeToFit()
+        guard image != nil else { return }
+        switch imagePosition {
+        case .imageAbove, .imageBelow:
+            frame.size.height += spacing
+        case .imageLeft, .imageRight, .imageLeading, .imageTrailing:
+            frame.size.width += spacing
+        default: break
+        }
+    }
+    
+    /*
+    var autoSizes: Bool {
+        get { buttonObserver.isObserving(\.image) }
+        set {
+            guard newValue != autoSizes else { return }
+            if newValue {
+                
+            } else {
+                buttonObserver.remove(\.title)
+                buttonObserver.remove(\.image)
+            }
+        }
+    }
+    */
     
     internal convenience init(_ title: String? = nil, image: NSImage? = nil, style: BezelStyle? = nil) {
         self.init(title: title ?? "", target: nil, action: nil)
