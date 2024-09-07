@@ -63,6 +63,51 @@ public extension AVPlayer {
             }
         }
     }
+    
+    /// The handler that gets called when the playback state changes.
+    var stateHandler: ((State)->())? {
+        get { getAssociatedValue("stateHandler") }
+        set {
+            setAssociatedValue(newValue, key: "stateHandler")
+            if newValue == nil {
+                playerObserver = nil
+            } else if playerObserver == nil {
+                previousState = state
+                playerObserver = KeyValueObserver(self)
+                playerObserver?.add(\.error) { [weak self] _, error in
+                    guard let self = self else { return }
+                    self.callStateHandler()
+                }
+                playerObserver?.add(\.currentItem) { [weak self] _, item in
+                    guard let self = self else { return }
+                    self.callStateHandler()
+                }
+                playerObserver?.add(\.rate) { [weak self] old, new in
+                    guard let self = self else { return }
+                    self.callStateHandler()
+                }
+            }
+        }
+    }
+    
+    internal func callStateHandler() {
+        guard let stateHandler = stateHandler else { return }
+        let state = self.state
+        if state != previousState {
+            stateHandler(state)
+            previousState = state
+        }
+    }
+    
+    internal var playerObserver: KeyValueObserver<AVPlayer>? {
+        get { getAssociatedValue("playerObserver") }
+        set { setAssociatedValue(newValue, key: "playerObserver") }
+    }
+    
+    internal var previousState: State {
+        get { getAssociatedValue("previousState") ?? .isStopped }
+        set { setAssociatedValue(newValue, key: "previousState") }
+    }
 
     /// Stops playback of the current item and seeks it to the start.
     func stop() {

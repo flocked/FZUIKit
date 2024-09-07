@@ -84,14 +84,14 @@
                 guard self != .all else { return string }
                 var string = string
                 var characterSet = CharacterSet()
-                if contains(.lowercaseLetters) == false { characterSet += .lowercaseLetters }
-                if contains(.uppercaseLetters) == false { characterSet += .uppercaseLetters }
-                if contains(.digits) == false { characterSet += .decimalDigits }
-                if contains(.symbols) == false { characterSet += .symbols}
-                if contains(.newLines) == false { characterSet += .newlines }
+                if !contains(.lowercaseLetters) { characterSet += .lowercaseLetters }
+                if !contains(.uppercaseLetters) { characterSet += .uppercaseLetters }
+                if !contains(.digits) { characterSet += .decimalDigits }
+                if !contains(.symbols) { characterSet += .symbols}
                 if !characterSet.isEmpty { string = string.trimmingCharacters(in: characterSet) }
-                if contains(.whitespaces) == false { string = string.replacingOccurrences(of: " ", with: "") }
-                if contains(.emojis) == false { string = string.trimmingEmojis() }
+                if !contains(.newLines) { string = string.replacingOccurrences(of: "\n", with: "") }
+                if !contains(.whitespaces) { string = string.replacingOccurrences(of: " ", with: "") }
+                if !contains(.emojis) { string = string.trimmingEmojis() }
                 return string
             }
 
