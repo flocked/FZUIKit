@@ -11,6 +11,7 @@ import AVKit
 
 /// A player view that allows controlling the playback position and volume by scrolling.
 open class ScrollPlayerView: AVPlayerView {
+    
     open override func keyDown(with event: NSEvent) {
         
     }
@@ -21,7 +22,7 @@ open class ScrollPlayerView: AVPlayerView {
     
     
     /// A value that indicates whether the volume is controllable by scrolling up & down.
-    open var volumeScrollControl: VolumeScrollControl = .normal
+    open var volumeScrollControl: VolumeScrollControl = .off
     
     /// Sets the value that indicates whether the volume is controllable by scrolling up & down.
     @discardableResult
@@ -47,7 +48,7 @@ open class ScrollPlayerView: AVPlayerView {
     }
     
     /// A value that indicates whether the playback position is controllable by scrolling left & right.
-    open var playbackPositionScrollControl: PlaybackPositionScrollControl = .normal
+    open var playbackPositionScrollControl: PlaybackPositionScrollControl = .off
     
     /// Sets the value that indicates whether the playback position is controllable by scrolling left & right.
     @discardableResult
@@ -158,8 +159,6 @@ open class ScrollPlayerView: AVPlayerView {
                     }
                 }
             }
-        } else {
-            super.scrollWheel(with: event)
         }
     }
     
