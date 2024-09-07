@@ -692,7 +692,7 @@ public extension NSButton {
     /// Sizes the button to fit it's content with the specified image to title spacing.
     func sizeToFit(imageToTitleSpacing spacing: CGFloat) {
         sizeToFit()
-        guard image != nil else { return }
+        guard displayingImage != nil, displayingTitle != "" else { return }
         switch imagePosition {
         case .imageAbove, .imageBelow:
             frame.size.height += spacing
@@ -700,6 +700,45 @@ public extension NSButton {
             frame.size.width += spacing
         default: break
         }
+    }
+    
+    internal var displayingTitle: String {
+        state == .on && alternateTitle != "" ? alternateTitle : title
+    }
+    
+    internal var displayingImage: NSImage? {
+        state == .on ? alternateImage ?? image : image
+    }
+    
+    internal convenience init(_ title: String? = nil, image: NSImage? = nil, style: BezelStyle? = nil) {
+        self.init(title: title ?? "", target: nil, action: nil)
+        self.image = image
+        if image != nil {
+            imagePosition = .imageLeading
+        }
+        if let style = style {
+            bezelStyle = style
+        } else if title == nil {
+            bezelStyle = .smallSquare
+            isBordered = false
+        }
+        sizeToFit(imageToTitleSpacing: 4.0)
+    }
+    
+    @available(macOS 11.0, *)
+    internal convenience init(_ title: String? = nil, symbolName: String, style: BezelStyle? = nil) {
+        self.init(title: title ?? "", target: nil, action: nil)
+        image = NSImage(systemSymbolName: symbolName)
+        if image != nil {
+            imagePosition = .imageLeading
+        }
+        if let style = style {
+            bezelStyle = style
+        } else if title == nil {
+            bezelStyle = .smallSquare
+            isBordered = false
+        }
+        sizeToFit(imageToTitleSpacing: 4.0)
     }
     
     /*
@@ -716,37 +755,6 @@ public extension NSButton {
         }
     }
     */
-    
-    internal convenience init(_ title: String? = nil, image: NSImage? = nil, style: BezelStyle? = nil) {
-        self.init(title: title ?? "", target: nil, action: nil)
-        self.image = image
-        if image != nil {
-            imagePosition = .imageLeading
-        }
-        if let style = style {
-            bezelStyle = style
-        } else if title == nil {
-            bezelStyle = .smallSquare
-            isBordered = false
-        }
-        sizeToFit()
-    }
-    
-    @available(macOS 11.0, *)
-    internal convenience init(_ title: String? = nil, symbolName: String, style: BezelStyle? = nil) {
-        self.init(title: title ?? "", target: nil, action: nil)
-        image = NSImage(systemSymbolName: symbolName)
-        if image != nil {
-            imagePosition = .imageLeading
-        }
-        if let style = style {
-            bezelStyle = style
-        } else if title == nil {
-            bezelStyle = .smallSquare
-            isBordered = false
-        }
-        sizeToFit()
-    }
 }
 
 #endif
