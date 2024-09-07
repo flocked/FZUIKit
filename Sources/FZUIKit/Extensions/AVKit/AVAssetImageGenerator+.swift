@@ -10,6 +10,13 @@ import Foundation
 import AVFoundation
 import FZSwiftUtils
 
+public extension AVAsset {
+    /// Returns an `AVAssetImageGenerator` instance.
+    var imageGenerator: AVAssetImageGenerator {
+        AVAssetImageGenerator(asset: self)
+    }
+}
+
 public extension AVAssetImageGenerator {
     /**
      Generates images asynchronously for an array of requested times, and returns the results in a callback.
@@ -29,7 +36,7 @@ public extension AVAssetImageGenerator {
         - amount: The amount of images to generate.
         - handler: A callback that the image generator invokes for each requested image time.
      */
-    func generateCGImagesAsynchronously(amount: Int, completionHandler handler: @escaping AmountCompletionHandler) {
+    func generateCGImagesAsynchronously(amount: Int, completionHandler handler: @escaping CompletionHandler) {
         guard amount > 0 else { return }
         let times = times(amount: amount)
         generateCGImagesAsynchronously(forTimes: times) { requestedTime, image, actualTime, result, error in
@@ -96,7 +103,7 @@ public extension AVAssetImageGenerator {
         - result: A value that indicates the result of the image generation request.
         - error: An optional error. If an error occurs the system provides an error object that provides the details of the failure.
      */
-    typealias AmountCompletionHandler = (_ index: Int, _ image: CGImage?, _ time: CMTime, _ result: AVAssetImageGenerator.Result, _ error: Error?) -> Void
+    typealias CompletionHandler = (_ index: Int, _ image: CGImage?, _ time: CMTime, _ result: AVAssetImageGenerator.Result, _ error: Error?) -> Void
     
     internal func times(percentages: [CGFloat]) -> [CMTime] {
         let duration = duration
