@@ -54,14 +54,15 @@ public extension AVPlayer {
         if let error = error {
             return .error(error)
         } else {
-            if rate == 0, currentTime() != .zero {
-                return .isPaused
-            } else if rate != 0 {
-                return .isPlaying
-            } else {
-                return .isStopped
+            if currentItem != nil {
+                if rate == 0, currentTime() != .zero {
+                    return .isPaused
+                } else if rate != 0 {
+                    return .isPlaying
+                }
             }
         }
+        return .isStopped
     }
     
     /// The handler that gets called when the playback state changes.
