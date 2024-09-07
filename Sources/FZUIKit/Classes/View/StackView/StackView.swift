@@ -272,7 +272,6 @@ open class StackView: NSUIView {
         if orientation == .vertical {
             height = height - total - layoutMargins.height
         }
-        Swift.print("layoutArranged", bounds.width, width, layoutMargins.width, subviews.compactMap({$0.frame.width}).sum(), subviews.compactMap({$0.frame.width}), calculation.fixedValueSum, total,  bounds.size.width - total)
 
         for arrangedSubview in arrangedSubviews {
             let id = ObjectIdentifier(arrangedSubview).hashValue
