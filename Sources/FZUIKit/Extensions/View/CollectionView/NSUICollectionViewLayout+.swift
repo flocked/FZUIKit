@@ -186,13 +186,12 @@
             _grid(columns: columns, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer)
         }
         #endif
-        internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, prepareHandler: ((NSUICollectionViewCompositionalLayout)->())? = nil) -> NSUICollectionViewLayout {
+        internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, prepareHandler: ((NSUICollectionViewCompositionalLayout)->())? = nil, center: NSUIUserInterfaceLayoutOrientation? = nil) -> NSUICollectionViewLayout {
             var prepareLayoutHandler: ()->() = { }
             let layout = NSUICollectionViewCompositionalLayout { (_: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
                 
                 // Item
-                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(itemAspectRatio.width / itemAspectRatio.height),
-                                                      heightDimension: .fractionalHeight(1))
+                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(itemAspectRatio.width / itemAspectRatio.height), heightDimension: .fractionalHeight(1))
 
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
@@ -212,6 +211,20 @@
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: columns)
                 group.interItemSpacing = .fixed(spacing)
 
+                
+                if let center = center {
+                    let containerSize = layoutEnvironment.container.contentSize
+                    
+                    if center == .horizontal {
+                        let groupWidthDimension = group.layoutSize.widthDimension.dimension
+                        let itemWidth = containerSize.width * groupWidthDimension
+                        let inset = (containerSize.width - CGFloat(columns) * itemWidth) / 2.0
+                    } else {
+                        let groupHeightDimension = group.layoutSize.heightDimension.dimension
+                        let itemHeight = containerSize.height * groupHeightDimension
+                    }
+                }
+                
                 // Section
                 let section = NSCollectionLayoutSection(group: group)
                 section.interGroupSpacing = spacing
