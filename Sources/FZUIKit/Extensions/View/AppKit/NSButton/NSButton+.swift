@@ -270,7 +270,7 @@ public extension NSButton {
     }
     
     /**
-     Creates a borderless button.
+     Creates a push button.
      
      - Parameters:
         - title: The title of the button.
@@ -688,6 +688,9 @@ public extension NSButton {
     internal convenience init(_ title: String? = nil, image: NSImage? = nil, style: BezelStyle? = nil) {
         self.init(title: title ?? "", target: nil, action: nil)
         self.image = image
+        if image != nil {
+            imagePosition = .imageLeading
+        }
         if let style = style {
             bezelStyle = style
         } else if title == nil {
@@ -701,6 +704,9 @@ public extension NSButton {
     internal convenience init(_ title: String? = nil, symbolName: String, style: BezelStyle? = nil) {
         self.init(title: title ?? "", target: nil, action: nil)
         image = NSImage(systemSymbolName: symbolName)
+        if image != nil {
+            imagePosition = .imageLeading
+        }
         if let style = style {
             bezelStyle = style
         } else if title == nil {
