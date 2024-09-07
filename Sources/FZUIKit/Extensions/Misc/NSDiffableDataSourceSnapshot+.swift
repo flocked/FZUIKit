@@ -13,6 +13,16 @@
     #endif
 
     public extension NSDiffableDataSourceSnapshot {
+        /**
+         Creates a snapshot with the sections and items of the specified dictionary.
+         
+         - Parameter sectionItems: A dictionary of sections and items to add.
+         */
+        init(_ sectionItems: [SectionIdentifierType: [ItemIdentifierType]]) {
+            self.init()
+            append(sectionItems)
+        }
+        
         /// A Boolean value indicating whether the snapshot has no items and sections.
         var isEmpty: Bool {
             numberOfItems == 0 && numberOfSections == 0
