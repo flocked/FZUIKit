@@ -24,6 +24,37 @@ extension AVPlayerView {
         controlsStyle = style
         return self
     }
+    
+    /// A Boolean value indicating whether the playback position can be changed by scrolling the mouse/trackpad.
+    var isPlaybackPositionScrollable: Bool {
+        get { !isMethodReplaced(#selector(Self.scrollWheel(with:))) }
+        set {
+            guard newValue != isPlaybackPositionScrollable else { return }
+            if !newValue {
+                do {
+                    try replaceMethod(
+                        #selector(Self.scrollWheel(with:)),
+                        methodSignature: (@convention(c) (AnyObject, Selector, NSEvent) -> Void).self,
+                        hookSignature: (@convention(block) (AnyObject, NSEvent) -> Void).self
+                    ) { store in { object, event in
+                        
+                    }
+                    }
+                } catch {
+                    Swift.debugPrint(error)
+                }
+            } else {
+                resetMethod(#selector(Self.scrollWheel(with:)))
+            }
+        }
+    }
+    
+    /// Sets the Boolean value indicating whether the playback position can be changed by scrolling the mouse/trackpad.
+    @discardableResult
+    func isPlaybackPositionScrollable(_ scrollable: Bool) -> Self {
+        isPlaybackPositionScrollable = scrollable
+        return self
+    }
         
     /// The media content that a player view can display.
     public enum AVMediaContent: Int, Hashable {
