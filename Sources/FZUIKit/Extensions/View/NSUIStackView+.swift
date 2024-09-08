@@ -77,7 +77,14 @@
         /// Sets the views arranged by the stack view.
         @discardableResult
         @objc open func arrangedSubviews(_ views: [NSUIView]) -> Self {
-            self.arrangedViews = views
+            arrangedViews = views
+            return self
+        }
+        
+        /// Sets the views arranged by the stack view.
+        @discardableResult
+        @objc open func arrangedSubviews(@Builder views: () -> [NSUIView]) -> Self {
+            arrangedViews = views()
             return self
         }
     }
