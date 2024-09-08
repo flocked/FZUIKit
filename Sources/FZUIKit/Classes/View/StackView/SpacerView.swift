@@ -20,7 +20,6 @@
 open class SpacerView: NSUIView {
     
     weak var stackView: NSUIStackView? = nil
-    weak var previousStackView: NSUIStackView? = nil
     var orientation: NSUIUserInterfaceLayoutOrientation = .horizontal
     var constraint: NSLayoutConstraint? = nil
     
@@ -46,7 +45,7 @@ open class SpacerView: NSUIView {
     #if os(macOS)
     public override func viewWillMove(toSuperview newSuperview: NSUIView?) {
         if let stackView = stackView, newSuperview != stackView, length == nil, constraint != nil {
-            previousStackView = stackView
+            updateSpacers(exclude: true)
         }
         constraint?.activate(false)
         stackView = newSuperview as? NSUIStackView
@@ -55,10 +54,6 @@ open class SpacerView: NSUIView {
     
     public override func viewDidMoveToSuperview() {
         super.viewDidMoveToSuperview()
-        if let previousStackView = previousStackView {
-            updateSpacers(for: previousStackView)
-            self.previousStackView = nil
-        }
         update()
     }
     
@@ -71,7 +66,7 @@ open class SpacerView: NSUIView {
     #else
     public override func willMove(toSuperview newSuperview: UIView?) {
         if let stackView = stackView, newSuperview != stackView, length == nil, constraint != nil {
-            previousStackView = stackView
+            updateSpacers(exclude: true)
         }
         constraint?.activate(false)
         stackView = newSuperview as? NSUIStackView
@@ -80,10 +75,6 @@ open class SpacerView: NSUIView {
     
     public override func didMoveToSuperview() {
         super.didMoveToSuperview()
-        if let previousStackView = previousStackView {
-            updateSpacers(for: previousStackView)
-            self.previousStackView = nil
-        }
         update()
     }
     
@@ -110,10 +101,13 @@ open class SpacerView: NSUIView {
         }
     }
         
-    func updateSpacers(for stackView: NSUIStackView? = nil) {
-        guard let stackView = stackView ?? self.stackView else { return }
+    func updateSpacers(exclude: Bool = false) {
+        guard let stackView = stackView else { return }
         var spacerViews = stackView.subviews(type: SpacerView.self).filter({ stackView.arrangedViews.contains($0) && $0.length == nil })
         spacerViews.forEach({ $0.constraint?.activate(false) })
+        if exclude {
+            spacerViews = spacerViews.filter({ $0 != self })
+        }
         guard spacerViews.count >= 2 else { return }
         var view = spacerViews.removeFirst()
         for spacerView in spacerViews {
