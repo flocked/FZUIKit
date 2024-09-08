@@ -94,13 +94,6 @@ open class SpacerView: NSUIView {
     func update() {
         guard let stackView = self.stackView else { return }
         orientation = stackView._orientation
-        if orientation == .horizontal {
-            setContentHuggingPriority(.init(250), for: .vertical)
-            setContentHuggingPriority(.init(rawValue: 50), for: .horizontal)
-        } else {
-            setContentHuggingPriority(.init(250), for: .horizontal)
-            setContentHuggingPriority(.init(rawValue: 50), for: .vertical)
-        }
         if let length = length {
             constraint?.activate(false)
             if orientation == .horizontal {
@@ -132,16 +125,24 @@ open class SpacerView: NSUIView {
     /// Creates a spacer.
     public init() {
         super.init(frame: .zero)
+        initalSetup()
     }
     
     /// Creates a spacer with the specified length.
     public init(length: CGFloat) {
         super.init(frame: .zero)
+        initalSetup()
         self.length = length
     }
     
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
+        initalSetup()
+    }
+    
+    func initalSetup() {
+        setContentHuggingPriority(.init(rawValue: 50), for: .vertical)
+        setContentHuggingPriority(.init(rawValue: 50), for: .horizontal)
     }
 }
 
