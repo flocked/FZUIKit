@@ -81,4 +81,58 @@
             return self
         }
     }
+
+extension NSUIStackView {
+    #if os(macOS)
+    /**
+     Creates and returns a stack view with the specified views.
+     
+     - Parameter views: The views for the new stack view.
+     */
+    public convenience init(@Builder views: () -> [NSUIView]) {
+        self.init(views: views())
+    }
+    #else
+    /**
+     Returns a new stack view object that manages the provided views.
+     
+     - Parameter views: The views to be arranged by the stack view.
+     */
+    public convenience init(@Builder arrangedSubviews views: () -> [NSUIView]) {
+        self.init(arrangedSubviews: views())
+    }
+    #endif
+    
+    /// A function builder type that produces an array of views.
+    @resultBuilder
+    public enum Builder {
+        public static func buildBlock(_ block: [NSUIView]...) -> [NSUIView] {
+            block.flatMap { $0 }
+        }
+
+        public static func buildOptional(_ item: [NSUIView]?) -> [NSUIView] {
+            item ?? []
+        }
+
+        public static func buildEither(first: [NSUIView]?) -> [NSUIView] {
+            first ?? []
+        }
+
+        public static func buildEither(second: [NSUIView]?) -> [NSUIView] {
+            second ?? []
+        }
+
+        public static func buildArray(_ components: [[NSUIView]]) -> [NSUIView] {
+            components.flatMap { $0 }
+        }
+
+        public static func buildExpression(_ expr: [NSUIView]?) -> [NSUIView] {
+            expr ?? []
+        }
+
+        public static func buildExpression(_ expr: NSUIView?) -> [NSUIView] {
+            expr.map { [$0] } ?? []
+        }
+    }
+}
 #endif

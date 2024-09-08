@@ -211,7 +211,7 @@
                 let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: columns)
                 group.interItemSpacing = .fixed(spacing)
 
-                
+                /*
                 if let center = center {
                     let containerSize = layoutEnvironment.container.contentSize
                     
@@ -224,6 +224,7 @@
                         let itemHeight = containerSize.height * groupHeightDimension
                     }
                 }
+                */
                 
                 // Section
                 let section = NSCollectionLayoutSection(group: group)

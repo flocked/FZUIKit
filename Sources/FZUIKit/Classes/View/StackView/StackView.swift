@@ -103,7 +103,7 @@ open class StackView: NSUIView {
     }
     
     /// Applies custom spacing after the specified view.
-    open func setCustomSpacing(_ spacing: CGFloat?, after view: NSView) {
+    open func setCustomSpacing(_ spacing: CGFloat?, after view: NSUIView) {
         arrangedViewOptions[view.id]?.spacing = spacing
     }
     
@@ -392,7 +392,7 @@ open class StackView: NSUIView {
         var spacing: CGFloat? = nil
         var calculatedSize: CGSize = .zero
         
-        init(_ view: NSView, observation: KeyValueObservation?) {
+        init(_ view: NSUIView, observation: KeyValueObservation?) {
             if let spacer = view as? SpacerView {
                 if let length = spacer.length {
                    sizing = .fixed(length)
