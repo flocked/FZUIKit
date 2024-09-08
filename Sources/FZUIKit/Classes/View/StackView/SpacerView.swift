@@ -12,7 +12,11 @@
     import UIKit
 #endif
 
-/// A flexible spacer view for ``StackView`` that expands along the major axis of it's containing stack view.
+/**
+ A flexible spacer view for `NSStackView`, `UIStackView` and ``StackView`` that expands along the major axis of it's containing stack view.
+ 
+ The spacer view expands as much as it can inside stack views. For example, when placed within an horizontal stack view, the spacer expands horizontally as much as the stack view allows, moving sibling views out of the way, within the limits of the stack view’s size.
+ */
 open class SpacerView: NSUIView {
     
     weak var stackView: NSUIStackView? = nil
@@ -143,12 +147,6 @@ open class SpacerView: NSUIView {
     func initalSetup() {
         setContentHuggingPriority(.init(rawValue: 50), for: .vertical)
         setContentHuggingPriority(.init(rawValue: 50), for: .horizontal)
-    }
-}
-
-fileprivate extension NSUIView {
-    var id: Int {
-        ObjectIdentifier(self).hashValue
     }
 }
 
