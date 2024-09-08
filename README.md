@@ -320,6 +320,10 @@ textField.dateDisplayMode = .relative // It displays e.g. "2 mins ago"
 textField.dateDisplayMode = .absolute // It displays e.g. "04.04.2023 10:20pm"
 ```
 
+### SpacerView
+
+A spacer for `NSStackView/UIStackView` that expands along the major axis of it's containing stack view. It works as `SwiftUI` spacer.
+
 ### ResizingTextField
 
 A `NSTextField` that automatically resizes to fit it's text.
