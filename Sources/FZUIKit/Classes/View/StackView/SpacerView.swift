@@ -161,11 +161,13 @@ open class SpacerView: NSUIView {
         super.init(coder: coder)
     }
     
+    /*
     #if os(macOS)
     public override var firstBaselineOffsetFromTop: CGFloat {
         bounds.height-0.5
     }
     #endif
+     */
 }
 
 fileprivate extension NSUIView {
