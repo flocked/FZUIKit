@@ -91,13 +91,6 @@ open class SpacerView: NSUIView {
     }
     #endif
     
-    open override var isHidden: Bool {
-        didSet {
-            guard oldValue != isHidden, length == nil else { return }
-            update()
-        }
-    }
-    
     func update() {
         guard let stackView = self.stackView else { return }
         orientation = stackView._orientation
@@ -125,7 +118,6 @@ open class SpacerView: NSUIView {
         guard let stackView = stackView ?? self.stackView else { return }
         var spacerViews = stackView.subviews.compactMap({$0 as? SpacerView}).filter({ stackView.arrangedViews.contains($0) && $0.length == nil })
         spacerViews.forEach({ $0.constraint?.activate(false) })
-        spacerViews = spacerViews.filter({!$0.isHidden })
         guard spacerViews.count >= 2 else { return }
         var view = spacerViews.first!
         for spacerView in spacerViews[1..<spacerViews.count] {
@@ -136,7 +128,6 @@ open class SpacerView: NSUIView {
             }
             view = spacerView
         }
-        view.constraint = view.widthAnchor.constraint(equalTo: spacerViews.first!.widthAnchor).activate()
     }
     
     /// Creates a spacer.
