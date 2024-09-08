@@ -14,11 +14,7 @@
 
 /// A flexible spacer view for ``StackView`` that expands along the major axis of it's containing stack view.
 open class SpacerView: NSUIView {
-    var orientation: NSUIUserInterfaceLayoutOrientation = .horizontal
-    var constraint: NSLayoutConstraint? = nil
-    weak var stackView: NSUIStackView? = nil
-    weak var previousStackView: NSUIStackView? = nil
-
+    
     /// The length of the spacer.
     open var length: CGFloat? = nil {
         didSet {
@@ -37,9 +33,14 @@ open class SpacerView: NSUIView {
         self.length = length
         return self
     }
+    
+    var orientation: NSUIUserInterfaceLayoutOrientation = .horizontal
+    var constraint: NSLayoutConstraint? = nil
+    weak var stackView: NSUIStackView? = nil
+    weak var previousStackView: NSUIStackView? = nil
       
     #if os(macOS)
-    open override func viewWillMove(toSuperview newSuperview: NSUIView?) {
+    public override func viewWillMove(toSuperview newSuperview: NSUIView?) {
         if let stackView = stackView, newSuperview != stackView, length == nil, constraint != nil {
             previousStackView = stackView
         }
@@ -48,7 +49,7 @@ open class SpacerView: NSUIView {
         super.viewWillMove(toSuperview: newSuperview)
     }
     
-    open override func viewDidMoveToSuperview() {
+    public override func viewDidMoveToSuperview() {
         super.viewDidMoveToSuperview()
         if let previousStackView = previousStackView {
             updateSpacers(for: previousStackView)
@@ -57,14 +58,14 @@ open class SpacerView: NSUIView {
         update()
     }
     
-    open override func layout() {
+    public override func layout() {
         super.layout()
         if let stackView = stackView, stackView.orientation != orientation {
             update()
         }
     }
     #else
-    open override func willMove(toSuperview newSuperview: UIView?) {
+    public override func willMove(toSuperview newSuperview: UIView?) {
         if let stackView = stackView, newSuperview != stackView, length == nil, constraint != nil {
             previousStackView = stackView
         }
@@ -73,7 +74,7 @@ open class SpacerView: NSUIView {
         super.willMove(toSuperview: newSuperview)
     }
     
-    open override func didMoveToSuperview() {
+    public override func didMoveToSuperview() {
         super.didMoveToSuperview()
         if let previousStackView = previousStackView {
             updateSpacers(for: previousStackView)
@@ -82,7 +83,7 @@ open class SpacerView: NSUIView {
         update()
     }
     
-    open override func layoutSubviews() {
+    public override func layoutSubviews() {
         super.layoutSubviews()
         if let stackView = stackView, stackView.axis != orientation {
             update()
@@ -92,7 +93,7 @@ open class SpacerView: NSUIView {
     
     open override var isHidden: Bool {
         didSet {
-            guard oldValue != isHidden, length == nil, constraint != nil else { return }
+            guard oldValue != isHidden, length == nil else { return }
             update()
         }
     }
@@ -138,14 +139,6 @@ open class SpacerView: NSUIView {
         view.constraint = view.widthAnchor.constraint(equalTo: spacerViews.first!.widthAnchor).activate()
     }
     
-    struct Update: Hashable {
-        var length: CGFloat? = nil
-        var views: [Int] = []
-        var orientation: NSUIUserInterfaceLayoutOrientation = .horizontal
-    }
-    
-    var lastUpdate = Update()
-    
     /// Creates a spacer.
     public init() {
         super.init(frame: .zero)
@@ -160,14 +153,6 @@ open class SpacerView: NSUIView {
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
-    
-    /*
-    #if os(macOS)
-    public override var firstBaselineOffsetFromTop: CGFloat {
-        bounds.height-0.5
-    }
-    #endif
-     */
 }
 
 fileprivate extension NSUIView {
