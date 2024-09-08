@@ -15,6 +15,11 @@
 /// A flexible spacer view for ``StackView`` that expands along the major axis of it's containing stack view.
 open class SpacerView: NSUIView {
     
+    weak var stackView: NSUIStackView? = nil
+    weak var previousStackView: NSUIStackView? = nil
+    var orientation: NSUIUserInterfaceLayoutOrientation = .horizontal
+    var constraint: NSLayoutConstraint? = nil
+    
     /// The length of the spacer.
     open var length: CGFloat? = nil {
         didSet {
@@ -33,11 +38,6 @@ open class SpacerView: NSUIView {
         self.length = length
         return self
     }
-    
-    var orientation: NSUIUserInterfaceLayoutOrientation = .horizontal
-    var constraint: NSLayoutConstraint? = nil
-    weak var stackView: NSUIStackView? = nil
-    weak var previousStackView: NSUIStackView? = nil
       
     #if os(macOS)
     public override func viewWillMove(toSuperview newSuperview: NSUIView?) {
@@ -105,7 +105,6 @@ open class SpacerView: NSUIView {
             constraint?.activate(false)
             if orientation == .horizontal {
                 constraint = widthAnchor.constraint(greaterThanOrEqualToConstant: length).priority(.init(rawValue: 50)).activate()
-              //  constraint = widthAnchor.constraint(equalToConstant: length).priority(.fittingSizeCompression).activate()
             } else {
                 constraint = heightAnchor.constraint(greaterThanOrEqualToConstant: length).priority(.init(rawValue: 50)).activate()
             }
@@ -116,11 +115,11 @@ open class SpacerView: NSUIView {
         
     func updateSpacers(for stackView: NSUIStackView? = nil) {
         guard let stackView = stackView ?? self.stackView else { return }
-        var spacerViews = stackView.subviews.compactMap({$0 as? SpacerView}).filter({ stackView.arrangedViews.contains($0) && $0.length == nil })
+        var spacerViews = stackView.subviews(type: SpacerView.self).filter({ stackView.arrangedViews.contains($0) && $0.length == nil })
         spacerViews.forEach({ $0.constraint?.activate(false) })
         guard spacerViews.count >= 2 else { return }
-        var view = spacerViews.first!
-        for spacerView in spacerViews[1..<spacerViews.count] {
+        var view = spacerViews.removeFirst()
+        for spacerView in spacerViews {
             if stackView._orientation == .horizontal {
                 view.constraint = view.widthAnchor.constraint(equalTo: spacerView.widthAnchor).activate()
             } else {
