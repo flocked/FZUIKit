@@ -553,6 +553,13 @@
             return self
         }
         
+        /// Sets the view’s position on the z axis.
+        @discardableResult
+        @objc open func zPosition(_ zPosition: CGFloat) -> Self {
+            self.zPosition = zPosition
+            return self
+        }
+        
         /// Sets the options that determine how the view is resized relative to its superview.
         @discardableResult
         @objc open func autoresizingMask(_ mask: AutoresizingMask) -> Self {
