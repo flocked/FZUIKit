@@ -17,6 +17,20 @@ import FZSwiftUtils
 
 #if os(macOS) || os(iOS) || os(tvOS)
     extension CALayer {
+        /**
+         The center point of the layer's frame rectangle.
+
+         Setting this property updates the origin of the rectangle in the frame property appropriately.
+
+         Use this property, instead of the frame property, when you want to change the position of a layer. The center point is always valid, even when scaling or rotation factors are applied to the layer's transform.
+
+         Changes to this property can be animated via `animator().center`.
+         */
+        @objc open var center: CGPoint {
+            get { frame.center }
+            set { frame.center = newValue }
+        }
+        
         /// The shadow of the layer.
         @objc open var shadow: ShadowConfiguration {
             get { .init(color: shadowColor?.nsUIColor, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point) }
