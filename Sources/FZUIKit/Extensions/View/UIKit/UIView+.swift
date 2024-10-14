@@ -134,20 +134,6 @@
             get { layer.cornerRadius }
             set { layer.cornerRadius = newValue }
         }
-        
-        /**
-         The relative percentage (between `0.0` and `1.0`) for rounding the corners based on the view's height.
-         
-         For e.g. a  value of `0.5`  sets the corner radius to half the height of view. The value can be used for a circular or capsule appearence of the view depending if it's square.
-              
-         The corner radius updates automatically, if the height of the view changes.
-         
-         Changing the ``cornerRadius``, sets the value to `nil`.
-         */
-        public var relativeCornerRadius: CGFloat? {
-            get { layer.relativeCornerRadius }
-            set { layer.relativeCornerRadius = newValue }
-        }
 
         /// The corner curve of the view.
         @objc public var cornerCurve: CALayerCornerCurve {
