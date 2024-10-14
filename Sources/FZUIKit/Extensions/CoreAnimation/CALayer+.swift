@@ -119,7 +119,7 @@ import FZSwiftUtils
                     cornerRadiusObservation = nil
                 } else if cornerFrameObservation == nil {
                     self.cornerRadius = frame.height * newValue!
-                    cornerFrameObservation = observeChanges(for: \.frame) { [weak self] old, new in
+                    cornerFrameObservation = observeChanges(for: \.bounds) { [weak self] old, new in
                         guard let self = self, old.height != new.height, let relativeCornerRadius = self.relativeCornerRadius else { return }
                         self.isUpdatingCornerRadius = true
                         self.cornerRadius = new.height * relativeCornerRadius
