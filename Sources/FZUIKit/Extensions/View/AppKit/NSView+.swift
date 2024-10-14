@@ -337,7 +337,7 @@ extension NSViewProtocol {
          
          Changing the ``cornerRadius``, sets the value to `nil`.
          */
-        var relativeCornerRadius: CGFloat? {
+        public var relativeCornerRadius: CGFloat? {
             get { layer?.relativeCornerRadius }
             set { optionalLayer?.relativeCornerRadius = newValue }
         }
