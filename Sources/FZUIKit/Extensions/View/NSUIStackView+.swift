@@ -103,7 +103,7 @@ extension NSUIStackView {
     /**
      Returns a new stack view object that manages the provided views.
      
-     - Parameter views: The views to be arranged by the stack view.
+     - Parameter arrangedSubviews: The views to be arranged by the stack view.
      */
     public convenience init(@Builder arrangedSubviews views: () -> [NSUIView]) {
         self.init(arrangedSubviews: views())

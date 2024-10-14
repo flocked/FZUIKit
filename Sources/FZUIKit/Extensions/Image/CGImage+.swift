@@ -11,6 +11,7 @@
     import UIKit
 #endif
 import SwiftUI
+import FZSwiftUtils
 
 public extension CGImage {
     #if os(macOS)
@@ -253,5 +254,94 @@ extension Collection where Element == CGImage {
                 images.append(image)
             }
         }
+    }
+}
+
+extension CGImage {
+    enum PixelFormat {
+        /// Big-endian, alpha first.
+        case argb
+        /// Big-endian, alpha last.
+        case rgba
+        /// Little-endian, alpha first.
+        case bgra
+        /// Little-endian, alpha last.
+        case abgr
+
+        var title: String {
+            switch self {
+            case .argb:
+                "ARGB"
+            case .rgba:
+                "RGBA"
+            case .bgra:
+                "BGRA"
+            case .abgr:
+                "ABGR"
+            }
+        }
+    }
+}
+
+import Accelerate.vImage
+
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+extension CGImage {
+    /**
+    Convert an image to a `vImage` buffer of the given pixel format.
+
+    - Parameter premultiplyAlpha: Whether the alpha channel should be premultiplied.
+    */
+    func toVImageBuffer(
+        pixelFormat: PixelFormat,
+        premultiplyAlpha: Bool
+    ) throws -> vImage.PixelBuffer<vImage.Interleaved8x4> {
+        guard
+            var imageFormat = vImage_CGImageFormat(
+                bitsPerComponent: vImage.Interleaved8x4.bitCountPerComponent,
+                bitsPerPixel: vImage.Interleaved8x4.bitCountPerPixel,
+                colorSpace: CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: pixelFormat.toBitmapInfo(premultiplyAlpha: premultiplyAlpha),
+                renderingIntent: .perceptual
+            )
+        else {
+            throw NSError("Could not initialize vImage_CGImageFormat")
+        }
+
+        return try vImage.PixelBuffer(
+            cgImage: self,
+            cgImageFormat: &imageFormat,
+            pixelFormat: vImage.Interleaved8x4.self
+        )
+    }
+}
+
+extension CGImage.PixelFormat: CustomDebugStringConvertible {
+    var debugDescription: String { "CGImage.PixelFormat(\(title)" }
+}
+
+extension CGImage.PixelFormat {
+    func toBitmapInfo(premultiplyAlpha: Bool) -> CGBitmapInfo {
+        let alphaFirst = premultiplyAlpha ? CGImageAlphaInfo.premultipliedFirst : .first
+        let alphaLast = premultiplyAlpha ? CGImageAlphaInfo.premultipliedLast : .last
+
+        let byteOrder: CGBitmapInfo
+        let alphaInfo: CGImageAlphaInfo
+        switch self {
+        case .argb:
+            byteOrder = .byteOrder32Big
+            alphaInfo = alphaFirst
+        case .rgba:
+            byteOrder = .byteOrder32Big
+            alphaInfo = alphaLast
+        case .bgra:
+            byteOrder = .byteOrder32Little
+            alphaInfo = alphaFirst // This might look wrong, but the order is inverse because of little endian.
+        case .abgr:
+            byteOrder = .byteOrder32Little
+            alphaInfo = alphaLast
+        }
+
+        return CGBitmapInfo(rawValue: byteOrder.rawValue | alphaInfo.rawValue)
     }
 }

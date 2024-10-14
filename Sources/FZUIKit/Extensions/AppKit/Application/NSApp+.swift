@@ -44,6 +44,51 @@
             let path = Bundle.main.bundleURL.path.replacingOccurrences(of: " ", with: "\\ ")
             shell("open -n \(path)")
         }
+        
+        /**
+         The amount of seconds the user have to press CMD+Q to close the app via the keyboard.
+         
+         
+         Setting this value
+         If set, the
+         
+         */
+        var keyboardTerminationDelay: TimeInterval? {
+            get { getAssociatedValue("keyboardTerminationDelay") }
+            set {
+                setAssociatedValue(newValue, key: "keyboardTerminationDelay")
+                if let newValue = newValue {
+                    slowTerminationKeyDownMonitor = NSEvent.localMonitor(for: .keyDown) { event in
+                        if event.keyCode == 12 && event.modifierFlags.contains(.command) {
+                            if let startTime = self.slowTerminationStartTime {
+                                let timeElapsed = CFAbsoluteTimeGetCurrent() - startTime
+                                if timeElapsed >= newValue {
+                                    NSApp.terminate(nil)
+                                }
+                            } else {
+                                self.slowTerminationStartTime = CFAbsoluteTimeGetCurrent()
+                            }
+                            return nil
+                        } else {
+                            self.slowTerminationStartTime = nil
+                        }
+                        return event
+                    }
+                } else {
+                    slowTerminationKeyDownMonitor = nil
+                }
+            }
+        }
+                
+        internal var slowTerminationKeyDownMonitor: NSEvent.Monitor? {
+            get { getAssociatedValue("slowTerminationKeyDownMonitor") }
+            set { setAssociatedValue(newValue, key: "slowTerminationKeyDownMonitor") }
+        }
+        
+        internal var slowTerminationStartTime: CFAbsoluteTime? {
+            get { getAssociatedValue("slowTerminationStartTime") }
+            set { setAssociatedValue(newValue, key: "slowTerminationStartTime") }
+        }
     }
 
 @discardableResult

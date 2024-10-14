@@ -101,6 +101,53 @@ import FZSwiftUtils
             firstSublayer(type: DashedBorderLayer.self)
         }
         
+        /**
+         The relative percentage (between `0.0` and `1.0`) for rounding the corners based on the layer's height.
+         
+         For e.g. a  value of `0.5`  sets the corner radius to half the height of layer. The value can be used for a circular or capsule appearence of the layer depending if it's square.
+
+         The corner radius updates automatically, if the height of the layer changes.
+         
+         Changing the ``cornerRadius``, sets the value to `nil`.
+         */
+        public var relativeCornerRadius: CGFloat? {
+            get { getAssociatedValue("relativeCornerRadius") }
+            set {
+                setAssociatedValue(newValue?.clamped(to: 0...1), key: "relativeCornerRadius")
+                if newValue == nil {
+                    cornerFrameObservation = nil
+                    cornerRadiusObservation = nil
+                } else if cornerFrameObservation == nil {
+                    self.cornerRadius = frame.height * newValue!
+                    cornerFrameObservation = observeChanges(for: \.frame) { [weak self] old, new in
+                        guard let self = self, old.height != new.height, let relativeCornerRadius = self.relativeCornerRadius else { return }
+                        self.isUpdatingCornerRadius = true
+                        self.cornerRadius = new.height * relativeCornerRadius
+                        self.isUpdatingCornerRadius = false
+                    }
+                    cornerRadiusObservation = observeChanges(for: \.cornerRadius) { [weak self] old, new in
+                        guard let self = self, !self.isUpdatingCornerRadius else { return }
+                        self.relativeCornerRadius = nil
+                    }
+                }
+            }
+        }
+        
+        var cornerRadiusObservation: KeyValueObservation? {
+            get { getAssociatedValue("cornerRadiusObservation") }
+            set { setAssociatedValue(newValue, key: "cornerRadiusObservation") }
+        }
+        
+        var isUpdatingCornerRadius: Bool {
+            get { getAssociatedValue("isUpdatingCornerRadius") ?? false }
+            set { setAssociatedValue(newValue, key: "isUpdatingCornerRadius") }
+        }
+        
+        var cornerFrameObservation: KeyValueObservation? {
+            get { getAssociatedValue("cornerFrameObservation") }
+            set { setAssociatedValue(newValue, key: "cornerFrameObservation") }
+        }
+        
         /// Sends the layer to the front of it's superlayer.
         @objc open func sendToFront() {
             guard let superlayer = superlayer else { return }
