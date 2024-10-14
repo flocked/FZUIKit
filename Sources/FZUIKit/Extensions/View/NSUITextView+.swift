@@ -13,6 +13,27 @@
     #endif
 
     public extension NSUITextView {
+            /**
+             Initializes a text view.
+             
+             - Parameters:
+                - frame: The frame rectangle of the text view.
+                - layoutManager: The layout manager of the text view.
+
+             */
+            convenience init(frame: CGRect, layoutManager: NSLayoutManager) {
+                let textStorage = NSTextStorage()
+                textStorage.addLayoutManager(layoutManager)
+                #if os(macOS)
+                let textContainer = NSTextContainer(containerSize: frame.size)
+                #else
+                let textContainer = NSTextContainer(size: frame.size)
+                #endif
+                layoutManager.addTextContainer(textContainer)
+                self.init(frame: frame, textContainer: textContainer)
+            }
+        
+        
         #if os(macOS)
             /**
              The font size of the text.
