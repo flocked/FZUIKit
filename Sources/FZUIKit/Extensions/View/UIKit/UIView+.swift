@@ -74,7 +74,7 @@
          Changing the value of this property changes the front-to-back ordering of views onscreen. Higher values place the view visually closer to the viewer than views with lower values. This can affect the visibility of views whose frame rectangles overlap.         
          */
         @objc open var zPosition: CGFloat {
-            get { layer.zPosition ?? 0.0 }
+            get { layer.zPosition }
             set {
                 layer.zPosition = newValue
             }

@@ -33,6 +33,50 @@
                 self.init(frame: frame, textContainer: textContainer)
             }
         
+        /// Text line.
+        struct TextLine {
+            /// The rectangle of the text line.
+            public let rect: CGRect
+            
+            /// The text of the line.
+            public let text: String
+            
+            /// The rectangle of the text.
+            public let textRect: CGRect
+            
+            /// The range of the string.
+            public let textRange: Range<String.Index>
+            
+            init(rect: CGRect, textRect: CGRect, text: String, textRange: Range<String.Index>) {
+                self.rect = rect
+                self.textRect = textRect
+                self.text = text
+                self.textRange = textRange
+            }
+        }
+        
+        /**
+         The text lines of the text view.
+         
+         The text view needs to have a layout manager, text container and text storage, or else an empty array is returned.
+         */
+        var textLines: [TextLine] {
+            
+            #if os(macOS)
+            guard let layoutManager = layoutManager, let textStorage = textStorage, textContainer != nil else { return [] }
+            #endif
+            
+            var textLines: [TextLine] = []
+            layoutManager.enumerateLineFragments(forGlyphRange: NSRange(location: 0, length: textStorage.length)) { (rect, usedRect, textContainer, glyphRange, stop) in
+                #if os(macOS)
+                textLines.append(.init(rect: rect, textRect: usedRect, text: String(self.string[glyphRange]), textRange: Range(glyphRange, in: self.string)!))
+                #else
+                textLines.append(.init(rect: rect, textRect: usedRect, text: String(self.text[glyphRange]), textRange: Range(glyphRange, in: self.text)!))
+                #endif
+            }
+            return textLines
+        }
+        
         
         #if os(macOS)
             /**
