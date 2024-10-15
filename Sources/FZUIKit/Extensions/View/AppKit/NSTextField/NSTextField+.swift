@@ -191,17 +191,12 @@
                 
         /// Returns the number of visible lines.
         var numberOfVisibleLines: Int {
-            guard let font = font else { return -1 }
-            let charSize = font.lineHeight
-
-            let framesetter = CTFramesetterCreateWithAttributedString(attributedStringValue)
-            let textSize = CTFramesetterSuggestFrameSizeWithConstraints(framesetter, CFRange(), nil, CGSize(bounds.width, CGFloat.greatestFiniteMagnitude), nil)
-
-            var numberOfVisibleLines = Int((textSize.height / charSize).rounded(.down))
-            if maximumNumberOfLines != 0, numberOfVisibleLines > maximumNumberOfLines {
-                numberOfVisibleLines = maximumNumberOfLines
-            }
-            return numberOfVisibleLines
+            textLines().count
+        }
+        
+        /// Returns the total number of lines, including the hidden ones and ignoring the ``maximumNumberOfLines``.
+        var totalNumberOfLines: Int {
+            getTextLines(onlyVisible: false, useMaximumNumberOfLines: false).count
         }
 
         /**
@@ -353,172 +348,6 @@
             }
             return isTruncating
         }
-
-        /// Option how to count the lines of a text field.
-        enum LineCountOption {
-            /// Returns all lines
-            case all
-            /// Returns lines upto the maximum number of lines.
-            case limitToMaxNumberOfLines
-        }
-
-        /**
-         The number of lines.
-
-         - Parameter option: Option how to count the lines. The default value is `limitToMaxNumberOfLines`.
-         */
-        func linesCount(_ option: LineCountOption = .limitToMaxNumberOfLines) -> Int {
-            rangesOfLines(option).count
-        }
-
-        /**
-         An array of strings of the lines.
-
-         - Parameter option: Option which lines should be returned. The default value is `limitToMaxNumberOfLines`.
-         */
-        func lines(_ option: LineCountOption = .limitToMaxNumberOfLines) -> [String] {
-            let ranges = rangesOfLines(option)
-            return ranges.compactMap { String(self.stringValue[$0]) }
-        }
-
-        /// An array of frames for all visible lines.
-        func lineFrames() -> [CGRect] {
-            var lineFrames: [CGRect] = []
-            guard font != nil else { return [] }
-            let defaultLineHeight = lineHeight
-            let frame = cellFrame ?? frame
-            for index in 0 ..< numberOfVisibleLines - 1 {
-                var lineFrame = frame
-                lineFrame.size.height = defaultLineHeight
-                lineFrame.topLeft = frame.topLeft
-                lineFrame.origin.y = lineFrame.origin.y - (CGFloat(index) * defaultLineHeight)
-                lineFrames.append(lineFrame)
-            }
-            return lineFrames
-        }
-
-        /// The height of a singe line.
-        internal var lineHeight: CGFloat {
-            guard font != nil else { return 0 }
-            if stringValue == "" {
-                stringValue = " "
-                let height = attributedStringValue[0].height(withConstrainedWidth: CGFloat.greatestFiniteMagnitude)
-                stringValue = ""
-                return height
-            }
-            return attributedStringValue[0].height(withConstrainedWidth: CGFloat.greatestFiniteMagnitude)
-        }
-
-        /// The frame of the text cell.
-        internal var cellFrame: CGRect? {
-            let frame = isBezeled == false ? frame : frame.insetBy(dx: 0, dy: 1)
-            return cell?.drawingRect(forBounds: frame)
-        }
-
-        internal var numberOfVisibleLinesAlt: Int {
-            let maxSize = CGSize(width: bounds.width, height: CGFloat.infinity)
-            var numberOfVisibleLines = 0
-            let attributedStringValue = attributedStringValue
-            var height: CGFloat = 0
-            var string = ""
-            for character in attributedStringValue.string {
-                string += String(character)
-                let range = attributedStringValue.range(of: string)
-                self.attributedStringValue = attributedStringValue[range]
-                let boundingRect = self.attributedStringValue.boundingRect(with: maxSize, options: .usesLineFragmentOrigin)
-                if boundingRect.height != height {
-                    if boundingRect.height < frame.size.height {
-                        height = boundingRect.height
-                        numberOfVisibleLines = numberOfVisibleLines + 1
-                        if numberOfVisibleLines == maximumNumberOfLines {
-                            self.attributedStringValue = attributedStringValue
-                            return numberOfVisibleLines
-                        }
-                    } else {
-                        self.attributedStringValue = attributedStringValue
-                        return numberOfVisibleLines
-                    }
-                }
-            }
-            self.attributedStringValue = attributedStringValue
-            return numberOfVisibleLines
-        }
-
-        /**
-         An array of string ranges of the lines.
-
-         - Parameter option: Option which line ranges should be returned. The default value is `limitToMaxNumberOfLines`.
-         */
-        func rangesOfLines(_ option: LineCountOption = .limitToMaxNumberOfLines) -> [Range<String.Index>] {
-            let stringValue = stringValue
-            let attributedStringValue = attributedStringValue
-            let linebreakMode = lineBreakMode
-            if linebreakMode != .byCharWrapping || linebreakMode != .byWordWrapping, maximumNumberOfLines != 1 {
-                lineBreakMode = .byCharWrapping
-            }
-            var partialString = ""
-            var startIndex = stringValue.startIndex
-            var previousHeight: CGFloat = 0.0
-            var didStart = false
-            var nextIndex = stringValue.startIndex
-            var lineRanges: [Range<String.Index>] = []
-            var boundsSize = bounds.size
-            boundsSize.height = .infinity
-            attributedStringValue.attributedSubstring(from: NSRange(location: 0, length: 1))
-            for index in 0 ..< attributedStringValue.string.count {
-                let partialString = attributedStringValue[0 ... index]
-                self.attributedStringValue = partialString
-                let height = textSize(forSize: boundsSize, maximumNumberOfLines: option == .all ? 0 : maximumNumberOfLines + 1).height
-                if didStart == false {
-                    previousHeight = height
-                    didStart = true
-                } else {
-                    nextIndex = stringValue.index(after: nextIndex)
-                    if height > previousHeight {
-                        let endIndex = nextIndex
-                        let range = startIndex ..< endIndex
-                        startIndex = endIndex
-                        lineRanges.append(range)
-                        previousHeight = height
-                    } else if nextIndex == stringValue.index(before: stringValue.endIndex) {
-                        if maximumNumberOfLines == 0 || option == .all || lineRanges.count < maximumNumberOfLines {
-                            let endIndex = stringValue.endIndex
-                            let range = startIndex ..< endIndex
-                            lineRanges.append(range)
-                        }
-                    }
-                }
-            }
-
-            stringValue.forEach { char in
-                partialString = partialString + String(char)
-
-                self.stringValue = partialString
-                let height = self.textSize(forSize: boundsSize, maximumNumberOfLines: option == .all ? 0 : self.maximumNumberOfLines + 1).height
-                if didStart == false {
-                    previousHeight = height
-                    didStart = true
-                } else {
-                    nextIndex = stringValue.index(after: nextIndex)
-                    if height > previousHeight {
-                        let endIndex = nextIndex
-                        let range = startIndex ..< endIndex
-                        startIndex = endIndex
-                        lineRanges.append(range)
-                        previousHeight = height
-                    } else if nextIndex == stringValue.index(before: stringValue.endIndex) {
-                        if self.maximumNumberOfLines == 0 || option == .all || lineRanges.count < self.maximumNumberOfLines {
-                            let endIndex = stringValue.endIndex
-                            let range = startIndex ..< endIndex
-                            lineRanges.append(range)
-                        }
-                    }
-                }
-            }
-            self.stringValue = stringValue
-            lineBreakMode = linebreakMode
-            return lineRanges
-        }
         
         /// Text line.
         struct TextLine {
@@ -542,27 +371,248 @@
             }
         }
         
-        /// The text lines of the text field.
-        var textLines: [TextLine] {
+        /**
+         The text lines of the text field.
+         
+         - Parameter onlyVisible: A Boolean value that indicates whether to only return visible text lines.
+         */
+        func textLines(onlyVisible: Bool = true) -> [TextLine] {
+            getTextLines(onlyVisible: onlyVisible)
+        }
+                
+        /**
+         The text lines for the specified string.
+         
+         An empty array is returned, if the text field's string value isn't containing the string.
+
+         - Parameters:
+            - string: The string for the text lines.
+            - onlyVisible: A Boolean value that indicates whether to only return visible text lines.
+         */
+        func textLines(for string: String, onlyVisible: Bool = true) -> [TextLine] {
+            guard let range = stringValue.range(of: string) else { return [] }
+            return textLines(for: range, onlyVisible: onlyVisible)
+        }
+        
+        /**
+         The text lines for the specified string range.
+         
+         An empty array is returned, if the text field's string value isn't containing the range.
+         
+         - Parameters:
+            - range: The string range for the text lines.
+            - onlyVisible: A Boolean value that indicates whether to only return visible text lines.
+         */
+        func textLines(for range: Range<String.Index>, onlyVisible: Bool = true) -> [TextLine] {
+            guard range.clamped(to: stringValue.startIndex..<stringValue.endIndex) == range else { return [] }
+          return getTextLines(range: NSRange(range, in: stringValue), onlyVisible: onlyVisible)
+        }
+        
+        internal func getTextLines(range: NSRange? = nil, onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
+            var size = bounds.size
+            if let cell {
+                let rect = cell.drawingRect(forBounds: bounds)
+                size = cell.cellSize(forBounds: rect)
+            }
+            if !onlyVisible {
+                size.height = .greatestFiniteMagnitude
+            }
+                        
             let textStorage = NSTextStorage(attributedString: attributedStringValue)
             let layoutManager = NSLayoutManager()
-            let textContainer = NSTextContainer(size: bounds.size)
+            let textContainer = NSTextContainer(size: size)
             textContainer.lineBreakMode = lineBreakMode
-            textContainer.maximumNumberOfLines = maximumNumberOfLines
+            textContainer.maximumNumberOfLines = useMaximumNumberOfLines ? maximumNumberOfLines : 0
             textContainer.lineFragmentPadding = 0.0 // Match NSTextField padding
             layoutManager.addTextContainer(textContainer)
             textStorage.addLayoutManager(layoutManager)
             layoutManager.ensureLayout(for: textContainer)
             
             var textLines: [TextLine] = []
-            layoutManager.enumerateLineFragments(forGlyphRange: NSRange(location: 0, length: textStorage.length)) { (rect, usedRect, textContainer, glyphRange, stop) in
+            var glyphRange = NSRange(location: 0, length: textStorage.length)
+            if let range = range {
+                glyphRange =  layoutManager.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
+            }
+            layoutManager.enumerateLineFragments(forGlyphRange: glyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
+                guard rect != .zero else { return }
                 textLines.append(.init(frame: rect, textFrame: usedRect, text: String(self.stringValue[glyphRange]), textRange: Range(glyphRange, in: self.stringValue)!))
             }
             return textLines
         }
     }
 
+/*
+extension NSRange {
+    private init(string: String, lowerBound: String.Index, upperBound: String.Index) {
+        let utf16 = string.utf16
+
+        let lowerBound = lowerBound.samePosition(in: utf16)
+        let location = utf16.distance(from: utf16.startIndex, to: lowerBound)
+        let length = utf16.distance(from: lowerBound, to: upperBound.samePosition(in: utf16))
+
+        self.init(location: location, length: length)
+    }
+
+    public init(range: Range<String.Index>, in string: String) {
+        self.init(string: string, lowerBound: range.lowerBound, upperBound: range.upperBound)
+    }
+
+    public init(range: ClosedRange<String.Index>, in string: String) {
+        self.init(string: string, lowerBound: range.lowerBound, upperBound: range.upperBound)
+    }
+}
+ */
+
 #endif
+
+/*
+ /// The height of a singe line.
+ internal var lineHeight: CGFloat {
+     guard font != nil else { return 0 }
+     if stringValue == "" {
+         stringValue = " "
+         let height = attributedStringValue[0].height(withConstrainedWidth: CGFloat.greatestFiniteMagnitude)
+         stringValue = ""
+         return height
+     }
+     return attributedStringValue[0].height(withConstrainedWidth: CGFloat.greatestFiniteMagnitude)
+ }
+
+ /// The frame of the text cell.
+ internal var cellFrame: CGRect? {
+     let frame = isBezeled == false ? frame : frame.insetBy(dx: 0, dy: 1)
+     return cell?.drawingRect(forBounds: frame)
+ }
+ */
+
+/*
+ /**
+  An array of string ranges of the lines.
+
+  - Parameter option: Option which line ranges should be returned. The default value is `limitToMaxNumberOfLines`.
+  */
+ func rangesOfLines(_ option: LineCountOption = .limitToMaxNumberOfLines) -> [Range<String.Index>] {
+     let stringValue = stringValue
+     let attributedStringValue = attributedStringValue
+     let linebreakMode = lineBreakMode
+     if linebreakMode != .byCharWrapping || linebreakMode != .byWordWrapping, maximumNumberOfLines != 1 {
+         lineBreakMode = .byCharWrapping
+     }
+     var partialString = ""
+     var startIndex = stringValue.startIndex
+     var previousHeight: CGFloat = 0.0
+     var didStart = false
+     var nextIndex = stringValue.startIndex
+     var lineRanges: [Range<String.Index>] = []
+     var boundsSize = bounds.size
+     boundsSize.height = .infinity
+     attributedStringValue.attributedSubstring(from: NSRange(location: 0, length: 1))
+     for index in 0 ..< attributedStringValue.string.count {
+         let partialString = attributedStringValue[0 ... index]
+         self.attributedStringValue = partialString
+         let height = textSize(forSize: boundsSize, maximumNumberOfLines: option == .all ? 0 : maximumNumberOfLines + 1).height
+         if didStart == false {
+             previousHeight = height
+             didStart = true
+         } else {
+             if nextIndex != stringValue.endIndex {
+                 nextIndex = stringValue.index(after: nextIndex)
+             }
+             if height > previousHeight {
+                 let endIndex = nextIndex
+                 let range = startIndex ..< endIndex
+                 startIndex = endIndex
+                 lineRanges.append(range)
+                 previousHeight = height
+             } else if nextIndex == stringValue.index(before: stringValue.endIndex) {
+                 if maximumNumberOfLines == 0 || option == .all || lineRanges.count < maximumNumberOfLines {
+                     let endIndex = stringValue.endIndex
+                     let range = startIndex ..< endIndex
+                     lineRanges.append(range)
+                 }
+             }
+         }
+     }
+
+     stringValue.forEach { char in
+         partialString = partialString + String(char)
+
+         self.stringValue = partialString
+         let height = self.textSize(forSize: boundsSize, maximumNumberOfLines: option == .all ? 0 : self.maximumNumberOfLines + 1).height
+         if didStart == false {
+             previousHeight = height
+             didStart = true
+         } else {
+             if nextIndex != stringValue.endIndex {
+                 nextIndex = stringValue.index(after: nextIndex)
+             }
+             if height > previousHeight {
+                 let endIndex = nextIndex
+                 let range = startIndex ..< endIndex
+                 startIndex = endIndex
+                 lineRanges.append(range)
+                 previousHeight = height
+             } else if nextIndex == stringValue.index(before: stringValue.endIndex) {
+                 if self.maximumNumberOfLines == 0 || option == .all || lineRanges.count < self.maximumNumberOfLines {
+                     let endIndex = stringValue.endIndex
+                     let range = startIndex ..< endIndex
+                     lineRanges.append(range)
+                 }
+             }
+         }
+     }
+     self.stringValue = stringValue
+     lineBreakMode = linebreakMode
+     return lineRanges
+ }
+ */
+
+/*
+ /// Option how to count the lines of a text field.
+ enum LineCountOption {
+     /// Returns all lines
+     case all
+     /// Returns lines upto the maximum number of lines.
+     case limitToMaxNumberOfLines
+ }
+
+ /**
+  The number of lines.
+
+  - Parameter option: Option how to count the lines. The default value is `limitToMaxNumberOfLines`.
+  */
+ func linesCount(_ option: LineCountOption = .limitToMaxNumberOfLines) -> Int {
+     rangesOfLines(option).count
+ }
+
+ /**
+  An array of strings of the lines.
+
+  - Parameter option: Option which lines should be returned. The default value is `limitToMaxNumberOfLines`.
+  */
+ func lines(_ option: LineCountOption = .limitToMaxNumberOfLines) -> [String] {
+     let ranges = rangesOfLines(option)
+     return ranges.compactMap { String(self.stringValue[$0]) }
+ }
+ */
+
+/*
+ /// An array of frames for all visible lines.
+ func lineFrames() -> [CGRect] {
+     var lineFrames: [CGRect] = []
+     guard font != nil else { return [] }
+     let defaultLineHeight = lineHeight
+     let frame = cellFrame ?? frame
+     for index in 0 ..< numberOfVisibleLines - 1 {
+         var lineFrame = frame
+         lineFrame.size.height = defaultLineHeight
+         lineFrame.topLeft = frame.topLeft
+         lineFrame.origin.y = lineFrame.origin.y - (CGFloat(index) * defaultLineHeight)
+         lineFrames.append(lineFrame)
+     }
+     return lineFrames
+ }
+ */
 
 /*
  func textLines(width: CGFloat? = nil, numberOfLines: Int? = nil) -> [Range<String.Index>] {

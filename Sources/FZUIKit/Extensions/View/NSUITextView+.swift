@@ -61,22 +61,71 @@
          The text view needs to have a layout manager, text container and text storage, or else an empty array is returned.
          */
         var textLines: [TextLine] {
-            
+            getTextLines()
+        }
+        
+        /**
+         The text lines for the specified string.
+         
+         An empty array is returned, if the text view's string value isn't containing the string.
+
+         - Parameters:
+            - string: The string for the text lines.
+            - onlyVisible: A Boolean value that indicates whether to only return visible text lines.
+         */
+        func textLines(for string: String) -> [TextLine] {
             #if os(macOS)
-            guard let layoutManager = layoutManager, let textStorage = textStorage, textContainer != nil else { return [] }
+            guard let range = self.string.range(of: string) else { return [] }
+            #else
+            guard let range = text.range(of: string) else { return [] }
+            #endif
+            return textLines(for: range)
+        }
+        
+        /**
+         The text lines for the specified string range.
+         
+         An empty array is returned, if the text view's string value isn't containing the range.
+         
+         - Parameters:
+            - range: The string range for the text lines.
+            - onlyVisible: A Boolean value that indicates whether to only return visible text lines.
+         */
+        func textLines(for range: Range<String.Index>) -> [TextLine] {
+            #if os(macOS)
+            guard range.clamped(to: string.startIndex..<string.endIndex) == range else { return [] }
+            return getTextLines(range: NSRange(range, in: string))
+            #else
+            guard range.clamped(to: text.startIndex..<text.endIndex) == range else { return [] }
+            return getTextLines(range: NSRange(range, in: text))
+            #endif
+        }
+        
+        internal func getTextLines(range: NSRange? = nil, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
+            #if os(macOS)
+            guard let layoutManager = layoutManager, let textStorage = textStorage, let textContainer = textContainer else { return [] }
             #endif
             
             var textLines: [TextLine] = []
-            layoutManager.enumerateLineFragments(forGlyphRange: NSRange(location: 0, length: textStorage.length)) { (rect, usedRect, textContainer, glyphRange, stop) in
+            var glyphRange = NSRange(location: 0, length: textStorage.length)
+            if let range = range {
+                glyphRange =  layoutManager.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
+            }
+            let maximumNumberOfLines = textContainer.maximumNumberOfLines
+            if useMaximumNumberOfLines {
+                textContainer.maximumNumberOfLines = 0
+            }
+            layoutManager.enumerateLineFragments(forGlyphRange: glyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
+                guard rect != .zero else { return }
                 #if os(macOS)
                 textLines.append(.init(frame: rect, textFrame: usedRect, text: String(self.string[glyphRange]), textRange: Range(glyphRange, in: self.string)!))
                 #else
                 textLines.append(.init(frame: rect, textFrame: usedRect, text: String(self.text[glyphRange]), textRange: Range(glyphRange, in: self.text)!))
                 #endif
             }
-            return textLines
+            textContainer.maximumNumberOfLines = maximumNumberOfLines
+            return textContainer.maximumNumberOfLines > 0 ? Array(textLines[safe: 0..<textContainer.maximumNumberOfLines]) : textLines
         }
-        
         
         #if os(macOS)
             /**
