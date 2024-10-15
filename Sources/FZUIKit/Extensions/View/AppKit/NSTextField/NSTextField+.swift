@@ -349,28 +349,6 @@
             return isTruncating
         }
         
-        /// Text line.
-        struct TextLine {
-            /// The frame of the text line.
-            public let frame: CGRect
-            
-            /// The text of the line.
-            public let text: String
-            
-            /// The frame of the text.
-            public let textFrame: CGRect
-            
-            /// The range of the string.
-            public let textRange: Range<String.Index>
-            
-            init(frame: CGRect, textFrame: CGRect, text: String, textRange: Range<String.Index>) {
-                self.frame = frame
-                self.textFrame = textFrame
-                self.text = text
-                self.textRange = textRange
-            }
-        }
-        
         /**
          The text lines of the text field.
          
@@ -409,6 +387,43 @@
         }
         
         internal func getTextLines(range: NSRange? = nil, onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
+            let layoutManager = layoutManager(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
+            
+            
+            var glyphRange = NSRange(location: 0, length: layoutManager.textStorage!.length)
+            if let range = range {
+                glyphRange =  layoutManager.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
+            }
+            var textLines: [TextLine] = []
+            layoutManager.enumerateLineFragments(forGlyphRange: glyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
+                guard rect != .zero else { return }
+                textLines.append(.init(frame: rect, textFrame: usedRect, text: String(self.stringValue[glyphRange]), textRange: Range(glyphRange, in: self.stringValue)!))
+            }
+            return textLines
+        }
+        
+        /// The frame of the string at the range.
+        func boundingRect(for range: Range<String.Index>) -> CGRect? {
+            guard range.clamped(to: stringValue.startIndex..<stringValue.endIndex) == range else { return nil }
+            
+            let layoutManager = layoutManager()
+            var boundingRect: CGRect? = nil
+            layoutManager.enumerateEnclosingRects(forGlyphRange:  NSRange(range, in: stringValue), withinSelectedGlyphRange:  NSRange(range, in: stringValue), in: layoutManager.textContainers.first!) { rect, stop in
+                boundingRect = rect
+                stop.pointee = true
+            }
+            boundingRect?.origin.x += 2
+            boundingRect?.origin.y += 2
+            return boundingRect
+        }
+        
+        /// The frame of the string.
+        func boundingRect(for string: String) -> CGRect? {
+            guard let range = stringValue.range(of: string) else { return nil }
+            return boundingRect(for: range)
+        }
+        
+        internal func layoutManager(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> NSLayoutManager {
             var size = bounds.size
             if let cell {
                 let rect = cell.drawingRect(forBounds: bounds)
@@ -417,27 +432,20 @@
             if !onlyVisible {
                 size.height = .greatestFiniteMagnitude
             }
-                        
             let textStorage = NSTextStorage(attributedString: attributedStringValue)
+            
             let layoutManager = NSLayoutManager()
             let textContainer = NSTextContainer(size: size)
+            textContainer.size = size
+            
             textContainer.lineBreakMode = lineBreakMode
             textContainer.maximumNumberOfLines = useMaximumNumberOfLines ? maximumNumberOfLines : 0
-            textContainer.lineFragmentPadding = 0.0 // Match NSTextField padding
+            textContainer.lineFragmentPadding = 0.0
             layoutManager.addTextContainer(textContainer)
             textStorage.addLayoutManager(layoutManager)
             layoutManager.ensureLayout(for: textContainer)
-            
-            var textLines: [TextLine] = []
-            var glyphRange = NSRange(location: 0, length: textStorage.length)
-            if let range = range {
-                glyphRange =  layoutManager.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
-            }
-            layoutManager.enumerateLineFragments(forGlyphRange: glyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
-                guard rect != .zero else { return }
-                textLines.append(.init(frame: rect, textFrame: usedRect, text: String(self.stringValue[glyphRange]), textRange: Range(glyphRange, in: self.stringValue)!))
-            }
-            return textLines
+            layoutManager.replaceTextStorage(textStorage)
+            return layoutManager
         }
     }
 

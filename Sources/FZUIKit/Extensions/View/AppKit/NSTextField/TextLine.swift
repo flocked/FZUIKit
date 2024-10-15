@@ -1,0 +1,30 @@
+//
+//  TextLine.swift
+//
+//
+//  Created by Florian Zand on 15.10.24.
+//
+
+import Foundation
+
+/// Text line.
+public struct TextLine {
+    /// The frame of the text line.
+    public let frame: CGRect
+    
+    /// The text of the line.
+    public let text: String
+    
+    /// The frame of the text.
+    public let textFrame: CGRect
+    
+    /// The range of the string.
+    public let textRange: Range<String.Index>
+    
+    init(frame: CGRect, textFrame: CGRect, text: String, textRange: Range<String.Index>) {
+        self.frame = frame
+        self.textFrame = textFrame
+        self.text = text
+        self.textRange = textRange
+    }
+}

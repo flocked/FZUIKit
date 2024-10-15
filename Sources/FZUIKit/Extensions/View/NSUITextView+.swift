@@ -33,34 +33,14 @@
                 self.init(frame: frame, textContainer: textContainer)
             }
         
-        /// Text line.
-        struct TextLine {
-            /// The frame of the text line.
-            public let frame: CGRect
-            
-            /// The text of the line.
-            public let text: String
-            
-            /// The frame of the text.
-            public let textFrame: CGRect
-            
-            /// The range of the string.
-            public let textRange: Range<String.Index>
-            
-            init(frame: CGRect, textFrame: CGRect, text: String, textRange: Range<String.Index>) {
-                self.frame = frame
-                self.textFrame = textFrame
-                self.text = text
-                self.textRange = textRange
-            }
-        }
-        
         /**
          The text lines of the text view.
          
          The text view needs to have a layout manager, text container and text storage, or else an empty array is returned.
          */
         var textLines: [TextLine] {
+            
+            
             getTextLines()
         }
         
@@ -99,6 +79,37 @@
             guard range.clamped(to: text.startIndex..<text.endIndex) == range else { return [] }
             return getTextLines(range: NSRange(range, in: text))
             #endif
+        }
+        
+        /// The frame of the string at the range.
+        func boundingRect(for range: Range<String.Index>) -> CGRect? {
+            var boundingRect: CGRect? = nil
+            #if os(macOS)
+            guard let layoutManager = layoutManager, range.clamped(to: string.startIndex..<string.endIndex) == range else { return nil }
+            layoutManager.enumerateEnclosingRects(forGlyphRange:  NSRange(range, in: string), withinSelectedGlyphRange:  NSRange(range, in: string), in: layoutManager.textContainers.first!) { rect, stop in
+                boundingRect = rect
+                stop.pointee = true
+            }
+            #else
+            guard range.clamped(to: text.startIndex..<text.endIndex) == range else { return nil }
+            layoutManager.enumerateEnclosingRects(forGlyphRange:  NSRange(range, in: text), withinSelectedGlyphRange:  NSRange(range, in: text), in: layoutManager.textContainers.first!) { rect, stop in
+                boundingRect = rect
+                stop.pointee = true
+            }
+            #endif
+            boundingRect?.origin.x += 2
+            boundingRect?.origin.y += 2
+            return boundingRect
+        }
+        
+        /// The frame of the string.
+        func boundingRect(for string: String) -> CGRect? {
+            #if os(macOS)
+            guard let range = self.string.range(of: string) else { return nil }
+            #else
+            guard let range = text.range(of: string) else { return nil }
+            #endif
+            return boundingRect(for: range)
         }
         
         internal func getTextLines(range: NSRange? = nil, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
@@ -148,5 +159,4 @@
             }
         #endif
     }
-
 #endif
