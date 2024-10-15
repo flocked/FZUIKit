@@ -522,28 +522,28 @@
         
         /// Text line.
         struct TextLine {
-            /// The rectangle of the text line.
-            public let rect: CGRect
+            /// The frame of the text line.
+            public let frame: CGRect
             
             /// The text of the line.
             public let text: String
             
-            /// The rectangle of the text.
-            public let textRect: CGRect
+            /// The frame of the text.
+            public let textFrame: CGRect
             
             /// The range of the string.
             public let textRange: Range<String.Index>
             
-            init(rect: CGRect, textRect: CGRect, text: String, textRange: Range<String.Index>) {
-                self.rect = rect
-                self.textRect = textRect
+            init(frame: CGRect, textFrame: CGRect, text: String, textRange: Range<String.Index>) {
+                self.frame = frame
+                self.textFrame = textFrame
                 self.text = text
                 self.textRange = textRange
             }
         }
         
         /// The text lines of the text field.
-        public var textLines: [TextLine] {
+        var textLines: [TextLine] {
             let textStorage = NSTextStorage(attributedString: attributedStringValue)
             let layoutManager = NSLayoutManager()
             let textContainer = NSTextContainer(size: bounds.size)
@@ -556,7 +556,7 @@
             
             var textLines: [TextLine] = []
             layoutManager.enumerateLineFragments(forGlyphRange: NSRange(location: 0, length: textStorage.length)) { (rect, usedRect, textContainer, glyphRange, stop) in
-                textLines.append(.init(rect: rect, textRect: usedRect, string: String(self.stringValue[glyphRange]), stringRange: Range(glyphRange, in: self.stringValue)!))
+                textLines.append(.init(frame: rect, textFrame: usedRect, text: String(self.stringValue[glyphRange]), textRange: Range(glyphRange, in: self.stringValue)!))
             }
             return textLines
         }
