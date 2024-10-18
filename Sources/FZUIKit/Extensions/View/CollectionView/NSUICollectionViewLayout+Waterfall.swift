@@ -303,14 +303,26 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     var columnRange = 1...12
 #endif
     
-    /// The animation duration when changing the amount of columns, or `nil` for no animation.
-    open var animationDuration: TimeInterval? = 0.2 {
-        didSet { animationDuration?.clamp(min: 0.0) }
+    /**
+     The animation duration when the user changes the amount of columns.of columns via pinching the collection.
+     
+     The animatiion is only used, if ``isPinchable`` or ``keyDownColumnChangeAmount`` is enabled.
+     
+     A value of `0.0` changes the columns amount without animation.
+     */
+    open var animationDuration: TimeInterval = 0.2 {
+        didSet { animationDuration.clamp(min: 0.0) }
     }
     
-    /// Sets the animation duration when changing the amount of columns, or `nil` for no animation.
+    /**
+     Sets the animation duration when the user changes the amount of columns.of columns via pinching the collection.
+     
+     The animatiion is only used, if ``isPinchable`` or ``keyDownColumnChangeAmount`` is enabled.
+     
+     A value of `0.0` changes the columns amount without animation.
+     */
     @discardableResult
-    open func animationDuration(_ duration:  TimeInterval?) -> Self {
+    open func animationDuration(_ duration:  TimeInterval) -> Self {
         animationDuration = duration
         return self
     }
@@ -394,21 +406,21 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
     
     /// A Boolean value that indicates whether to apply the ``sectionInset`` to the  safe area of the collection view.
-    @available(macOS 11, iOS 13, *)
+    @available(macOS 11.0, iOS 13.0, tvOS 13.0, *)
     open var sectionInsetUsesSafeArea: Bool {
         get { _sectionInsetUsesSafeArea }
         set { _sectionInsetUsesSafeArea = newValue }
     }
     
     /// Sets the Boolean value that indicates whether to apply the ``sectionInset`` to the  safe area of the collection view.
-    @available(macOS 11, iOS 13, *)
+    @available(macOS 11.0, iOS 13.0, tvOS 13.0, *)
     @discardableResult
     open func sectionInsetUsesSafeArea(_ useSafeArea: Bool) -> Self {
         sectionInsetUsesSafeArea = useSafeArea
         return self
     }
     
-    private var columnHeights: [[CGFloat]] = []
+    private var columnSizes: [[CGFloat]] = []
     private var sectionItemAttributes: [[NSUICollectionViewLayoutAttributes]] = []
     private var allItemAttributes: [NSUICollectionViewLayoutAttributes] = []
     private var headersAttributes: [Int: NSUICollectionViewLayoutAttributes] = [:]
@@ -481,10 +493,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         unionRects = []
         allItemAttributes = []
         sectionItemAttributes = []
-        columnHeights = (0 ..< numberOfSections).map { section in
+        columnSizes = (0 ..< numberOfSections).map { section in
             let columns = self.columns(forSection: section)
-            let sectionColumnHeights = (0 ..< columns).map { CGFloat($0) }
-            return sectionColumnHeights
+            let columnSizes = (0 ..< columns).map { CGFloat($0) }
+            return columnSizes
         }
 
         var top: CGFloat = 0.0
@@ -493,7 +505,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         for section in 0 ..< numberOfSections {
             // MARK: 1. Get section-specific metrics (itemSpacing, sectionInset)
 
-            let columns = columnHeights[section].count
+            let columns = columnSizes[section].count
             let itemWidth = itemWidth(inSection: section)
 
             // MARK: 2. Section header
@@ -506,7 +518,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                 top = attributes.frame.maxY
             }
             top += sectionInset.top
-            columnHeights[section] = [CGFloat](repeating: top, count: columns)
+            columnSizes[section] = [CGFloat](repeating: top, count: columns)
 
             // MARK: 3. Section items
 
@@ -516,40 +528,37 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             // Item will be put into shortest column.
             for idx in 0 ..< itemCount {
                 let indexPath = IndexPath(item: idx, section: section)
-
                 let columnIndex = nextColumnIndexForItem(indexPath, keepItemOrder: keepItemOrder)
-                let xOffset = sectionInset.left + (itemWidth + columnSpacing) * CGFloat(columnIndex)
                 mappedItemColumns[indexPath] = columnIndex
-
-                let yOffset = columnHeights[section][columnIndex]
-                var itemHeight: CGFloat = 0.0
-                if let itemSize = itemSizeProvider?(indexPath),
-                   itemSize.height > 0
-                {
-                    itemHeight = itemSize.height
-                    if itemSize.width > 0 {
-                        itemHeight = (itemHeight * itemWidth / itemSize.width)
-                    } // else use default item width based on other parameters
-                }
-                if let itemAspectRatio = itemAspectRatio {
-                    itemHeight = (itemAspectRatio.height / itemAspectRatio.width) * itemWidth
-                }
+                
                 #if os(macOS)
-                    attributes = NSUICollectionViewLayoutAttributes(forItemWith: indexPath)
+                attributes = NSUICollectionViewLayoutAttributes(forItemWith: indexPath)
                 #elseif canImport(UIKit)
-                    attributes = NSUICollectionViewLayoutAttributes(forCellWith: indexPath)
+                attributes = NSUICollectionViewLayoutAttributes(forCellWith: indexPath)
                 #endif
-                attributes.frame = CGRect(x: xOffset, y: yOffset, width: itemWidth, height: itemHeight)
+                attributes.frame.origin.x = sectionInset.left + (itemWidth + columnSpacing) * CGFloat(columnIndex)
+                attributes.frame.origin.y = columnSizes[section][columnIndex]
+                attributes.frame.size.width = itemWidth
+                var itemHeight: CGFloat = 0.0
+                if let itemSize = itemSizeProvider?(indexPath), itemSize.height > 0 {
+                    attributes.frame.size.height = itemSize.height
+                    if itemSize.width > 0 {
+                        attributes.frame.size.height = (itemHeight * itemWidth / itemSize.width)
+                    }
+                } else {
+                    let itemAspectRatio = itemAspectRatio ?? CGSize(1.0, 1.0)
+                    attributes.frame.size.height = (itemAspectRatio.height / itemAspectRatio.width) * itemWidth
+                }
                 itemAttributes.append(attributes)
                 allItemAttributes.append(attributes)
-                columnHeights[section][columnIndex] = attributes.frame.maxY + itemSpacing
+                columnSizes[section][columnIndex] = attributes.frame.maxY + itemSpacing
             }
             sectionItemAttributes.append(itemAttributes)
 
             // MARK: 4. Section footer
 
             let columnIndex = longestColumnIndex(inSection: section)
-            top = columnHeights[section][columnIndex] - itemSpacing + sectionInset.bottom
+            top = columnSizes[section][columnIndex] - itemSpacing + sectionInset.bottom
 
             if footerHeight > 0 {
                 attributes = NSUICollectionViewLayoutAttributes(forSupplementaryViewOfKind: NSUICollectionView.elementKindSectionFooter, with: IndexPath(item: 0, section: section))
@@ -559,7 +568,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
                 top = attributes.frame.maxY
             }
 
-            columnHeights[section] = [CGFloat](repeating: top, count: columns)
+            columnSizes[section] = [CGFloat](repeating: top, count: columns)
         }
 
         var idx = 0
@@ -574,7 +583,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
     
     override open var collectionViewContentSize: CGSize {
-        guard let collectionView = collectionView, collectionView.numberOfSections > 0, let height = columnHeights.last?.first else {
+        guard let collectionView = collectionView, collectionView.numberOfSections > 0, let height = columnSizes.last?.first else {
             return .zero
         }
         return CGSize(collectionView.bounds.width, height)
@@ -591,6 +600,7 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
     
     open override func invalidationContext(forBoundsChange newBounds: CGRect) -> NSUICollectionViewLayoutInvalidationContext {
+        Swift.print("invalidationContext", newBounds, collectionView?.bounds ?? "nil")
         let context = super.invalidationContext(forBoundsChange: newBounds)
         let contentOffset = collectionView?.contentOffset.y ?? 0.0
         let oldSize = collectionViewContentSize
@@ -626,13 +636,13 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
 
     private func shortestColumnIndex(inSection section: Int) -> Int {
-        columnHeights[section].enumerated()
+        columnSizes[section].enumerated()
             .min(by: { $0.element < $1.element })?
             .offset ?? 0
     }
 
     private func longestColumnIndex(inSection section: Int) -> Int {
-        columnHeights[section].enumerated()
+        columnSizes[section].enumerated()
             .max(by: { $0.element < $1.element })?
             .offset ?? 0
     }
@@ -662,6 +672,7 @@ protocol PinchableCollectionViewLayout: NSUICollectionViewLayout {
     var keyDownColumnChangeAmount: Int { get }
     var keyDownAltColumnChangeAmount: Int { get }
     var keyDownAlt2ColumnChangeAmount: Int { get }
+    var animationDuration: TimeInterval { get }
 }
 
 #if os(macOS) || os(iOS)
@@ -732,7 +743,11 @@ extension NSUICollectionView {
                 guard newValue != columns else { return }
                 if let pinchLayout = pinchLayout {
                     pinchLayout.columns = newValue
-                    pinchLayout.invalidateLayoutAnimated(duration: 0.2)
+                    if pinchLayout.animationDuration > 0.0 {
+                        pinchLayout.invalidateLayoutAnimated(duration: pinchLayout.animationDuration)
+                    } else {
+                        pinchLayout.invalidateLayout()
+                    }
                 } else if let collectionView = collectionView, let layout = configuration?.invalidation(newValue) {
                     collectionView.setCollectionViewLayout(layout, animated: configuration?.animated == true)
                 }
