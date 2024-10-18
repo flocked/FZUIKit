@@ -420,14 +420,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     private var _sectionInsetUsesSafeArea: Bool = false
     private var previousBounds: CGRect = .zero
     private var didCalcuateItemAttributes: Bool = false
-
-    private func columns(forSection _: Int) -> Int {
-        var cCount = columns
-        if cCount == -1 {
-            cCount = columns
-        }
-        return cCount
-    }
     
 #if os(macOS)
     private var collectionViewContentWidth: CGFloat {
@@ -454,7 +446,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
     }
     
     private func itemWidth(inSection section: Int) -> CGFloat {
-        let columns = columns(forSection: section)
         let spaceColumCount = CGFloat(columns - 1)
         let width = collectionViewContentWidth(ofSection: section)
         return ((width - (spaceColumCount * columnSpacing)) / CGFloat(columns))
@@ -482,10 +473,10 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
         allItemAttributes = []
         sectionItemAttributes = []
         columnHeights = (0 ..< numberOfSections).map { section in
-            let columns = self.columns(forSection: section)
-            let sectionColumnHeights = (0 ..< columns).map { CGFloat($0) }
-            return sectionColumnHeights
+            return (0 ..< columns).map { CGFloat($0) }
         }
+        
+        Swift.print("columnHeights", columnHeights)
 
         var top: CGFloat = 0.0
         var attributes = NSUICollectionViewLayoutAttributes()
@@ -642,7 +633,6 @@ public class CollectionViewWaterfallLayout: NSUICollectionViewLayout, PinchableC
             return mappedColumn
         }
         var index = 0
-        let columns = columns(forSection: indexPath.section)
         switch itemOrder {
         case .shortestColumn:
             index = shortestColumnIndex(inSection: indexPath.section)
