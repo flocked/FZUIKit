@@ -24,7 +24,7 @@
         let collectionView = NSCollectionView()
         var dataSouze: DataSource!
         func updateCollectionViewLayout() {
-            collectionView.collectionViewLayout = .grid()
+            collectionView.collectionViewLayout = .gridCompositional()
         }
             
         func setupCollectionView() {
