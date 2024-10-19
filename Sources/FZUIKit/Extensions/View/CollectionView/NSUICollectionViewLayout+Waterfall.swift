@@ -588,6 +588,7 @@ public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, Interactive
                 
                 switch itemLayout {
                 case .waterfall(let itemSizeProvider):
+                    let itemSize = itemSizeProvider(indexPath)
                     if orientation == .horizontal {
                         if itemSize.height > 0.0 {
                             attributes.frame.size.height = itemSize.width > 0.0 ?  (itemSize.height * itemSizing / itemSize.width) : itemSize.height
@@ -685,6 +686,14 @@ public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, Interactive
             context.contentOffsetAdjustment.x = (contentOffset.x * (newSize.width / oldSize.width)) - contentOffset.x
         }
         didCalcuateItemAttributes = true
+        return context
+    }
+    
+    public override func invalidationContext(forPreferredLayoutAttributes preferredAttributes: NSCollectionViewLayoutAttributes, withOriginalAttributes originalAttributes: NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutInvalidationContext {
+        let context = super.invalidationContext(forPreferredLayoutAttributes: preferredAttributes, withOriginalAttributes: originalAttributes)
+        let oldSize = collectionViewContentSize
+
+        
         return context
     }
 
