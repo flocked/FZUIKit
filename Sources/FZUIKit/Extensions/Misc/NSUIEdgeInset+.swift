@@ -14,12 +14,10 @@ import FZSwiftUtils
 #endif
 import SwiftUI
 
-extension NSDirectionalRectEdge: Hashable { }
-
 #if os(macOS)
 public extension CGRect {
     func inset(by edgeInsets: EdgeInsets) -> CGRect {
-        inset(by: NSUIEdgeInsets(edgeInsets))
+        inset(by: edgeInsets.directional)
     }
 }
 #endif
@@ -33,11 +31,6 @@ public extension NSUIEdgeInsets {
     /// Creates an edge insets structure with the specified value for top, bottom, left and right.
     init(_ value: CGFloat) {
         self.init(top: value, left: value, bottom: value, right: value)
-    }
-
-    /// Creates an edge insets from a `EdgeInsets`.
-    init(_ edgeInsets: EdgeInsets) {
-        self.init(top: edgeInsets.top, left: edgeInsets.leading, bottom: edgeInsets.bottom, right: edgeInsets.trailing)
     }
 
     /// Creates an edge insets structure with the specified width (left + right) and height (top + bottom) values.
@@ -282,11 +275,13 @@ extension NSDirectionalEdgeInsets: Codable {
 #endif
 
 extension Edge.Set {
-    static var width: Self {
-        [.trailing, .trailing]
+    /// Leading and trailing edge.
+    public static var width: Self {
+        [.leading, .trailing]
     }
 
-    static var height: Self {
+    /// Top and bottom edge.
+    public static var height: Self {
         [.top, .bottom]
     }
 }
@@ -390,7 +385,6 @@ extension EdgeInsets: Hashable {
     }
 }
 
-#if os(macOS)
 extension EdgeInsets: Codable {
     public enum CodingKeys: String, CodingKey {
         case top
@@ -415,4 +409,3 @@ extension EdgeInsets: Codable {
                      trailing: try values.decode(CGFloat.self, forKey: .trailing))
     }
 }
-#endif
