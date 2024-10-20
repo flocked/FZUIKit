@@ -134,7 +134,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         public var isPinchable: Bool = false
         
         /// The range of columns that the user can change to.
-        public var columnRange: ClosedRange<Int> = 1...12 {
+        public var columnRange: ClosedRange<Int> = 2...12 {
             didSet { columnRange = columnRange.clamped(min: 1) }
         }
         
