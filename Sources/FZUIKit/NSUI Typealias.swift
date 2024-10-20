@@ -43,7 +43,7 @@ import SwiftUI
     public typealias NSUIControl = NSControl
     public typealias NSUIVisualEffectView = NSVisualEffectView
     public typealias NSUISymbolWeight = NSFont.Weight
-
+    public typealias NSUICollectionViewFlowLayout = NSCollectionViewFlowLayout
 #elseif canImport(UIKit)
     import UIKit
     public typealias NSUIBezierPath = UIBezierPath
@@ -85,4 +85,5 @@ import SwiftUI
     public typealias NSUICollectionViewLayoutInvalidationContext = UICollectionViewLayoutInvalidationContext
     public typealias NSUIControl = UIControl
     public typealias NSUIVisualEffectView = UIVisualEffectView
+    public typealias NSUICollectionViewFlowLayout = UICollectionViewFlowLayout
 #endif

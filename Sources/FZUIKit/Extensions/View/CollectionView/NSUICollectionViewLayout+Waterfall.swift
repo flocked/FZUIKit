@@ -28,7 +28,7 @@ public extension NSUICollectionViewLayout {
         - orientation: The orientation of the layout.
         - itemSizeProvider: The handler that provides the item sizes..
      */
-    public static func waterfall(columns: Int, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), orientation: NSUIUserInterfaceLayoutOrientation = .horizontal, itemSizeProvider: @escaping (_ indexPath: IndexPath) -> CGSize) -> CollectionViewColumnLayout {
+    static func waterfall(columns: Int, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), orientation: NSUIUserInterfaceLayoutOrientation = .horizontal, itemSizeProvider: @escaping (_ indexPath: IndexPath) -> CGSize) -> CollectionViewColumnLayout {
         let layout = CollectionViewColumnLayout.init(columns: columns, orientation: orientation, spacing: spacing, insets: insets)
         layout.itemLayout = .waterfall(itemSizeProvider)
         return layout
@@ -44,7 +44,7 @@ public extension NSUICollectionViewLayout {
         - orientation: The orientation of the layout.
         - itemAspectRatio: The aspect ratio of the items.
      */
-    public static func grid(columns: Int, orientation: NSUIUserInterfaceLayoutOrientation = .horizontal, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemAspectRatio: CGSize = CGSize(1,1)) -> CollectionViewColumnLayout {
+    static func grid(columns: Int, orientation: NSUIUserInterfaceLayoutOrientation = .horizontal, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemAspectRatio: CGSize = CGSize(1,1)) -> CollectionViewColumnLayout {
         let layout = CollectionViewColumnLayout.init(columns: columns, orientation: orientation, spacing: spacing, insets: insets)
         layout.itemLayout = .grid(itemAspectRatio)
         return layout
@@ -52,7 +52,7 @@ public extension NSUICollectionViewLayout {
 }
 
 /// A layout that organizes items into columns (either as `waterfall` or `grid`).
-public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, InteractiveCollectionViewLayout {
+public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, InteractiveCollectionViewLayout {
     /// Handler that provides the sizes for each item.
     public typealias ItemSizeProvider = (_ indexPath: IndexPath) -> CGSize
     
@@ -127,6 +127,7 @@ public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, Interactive
 #if os(macOS) || os(iOS)
     /// User interaction options for changing the amount of columns by pinching the collection view and pressing the `plus` or `minus` key.
     public struct UserInteraction {
+        #if os(macOS)
         public init(isPinchable: Bool = false, isKeyDownControllable: Bool = false, columnRange: ClosedRange<Int> = 1...12, animationDuration: CGFloat = 0.2) {
             self.isPinchable = isPinchable
             self.keyDownColumnControl = isKeyDownControllable ? .amount(1) : .disabled
@@ -135,9 +136,18 @@ public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, Interactive
             self.columnRange = columnRange
             self.animationDuration = animationDuration
         }
+        #else
+        public init(isPinchable: Bool = false, columnRange: ClosedRange<Int> = 1...12, animationDuration: CGFloat = 0.2) {
+            self.isPinchable = isPinchable
+            self.columnRange = columnRange
+            self.animationDuration = animationDuration
+        }
+        #endif
         
         /// A Boolean value that indicates whether the user can change the amount of columns by pinching the collection view.
         public var isPinchable: Bool = false
+        
+        #if os(macOS)
         
         /// The amount of columns added or removed when the user presses the `plus` / `minus` key.
         public var keyDownColumnControl: KeyDownColumnControl = .disabled
@@ -147,16 +157,6 @@ public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, Interactive
         
         /// The amount of columns added or removed when the user presses the `plus` / `minus` key while holding `command`.
         public var keyDownColumnControlCommand: KeyDownColumnControl = .disabled
-        
-        /// The range of columns that the user can change to.
-        public var columnRange: ClosedRange<Int> = 1...12
-        
-        /**
-         The animation duration when the user changes the amount of columns.
-                  
-         A value of `0.0` changes the columns amount without any animation.
-         */
-        public var animationDuration: CGFloat = 0.2
         
         /// Key down control of the column amount.
         public enum KeyDownColumnControl: Hashable {
@@ -182,182 +182,61 @@ public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, Interactive
                 }
             }
         }
+        
+        #endif
+        
+        /// The range of columns that the user can change to.
+        public var columnRange: ClosedRange<Int> = 1...12
+        
+        /**
+         The animation duration when the user changes the amount of columns.
+                  
+         A value of `0.0` changes the columns amount without any animation.
+         */
+        public var animationDuration: CGFloat = 0.25
     }
     
     /// User interaction options for changing the amount of columns by pinching the collection view and pressing the `plus` or `minus` key.
     public var userInteraction: UserInteraction = .init()
     
-    /**
-     A Boolean value that indicates whether the user can change the amount of columns by pinching the collection view.
-     
-     If the value is set to `true`, ``columnRange`` determinates the range of columns  that the user can change to.
-     */
-    open var isPinchable: Bool = false {
-        didSet {
-            collectionView?.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
-        }
-    }
-    
-    /**
-     Sets the Boolean value that indicates whether the user can change the amount of columns by pinching the collection view.
-     
-     If the value is set to `true`, ``columnRange`` determinates the range of columns  that the user can change to.
-     */
-    @discardableResult
-    open func isPinchable(_ isPinchable: Bool) -> Self {
-        self.isPinchable = isPinchable
-        return self
+    var isPinchable: Bool {
+        userInteraction.isPinchable
     }
     
     #if os(macOS)
-    /// Key down control of the column amount.
-    public enum KeyDownColumnControl: Hashable {
-        /// The amount of columns is changed by the specified amount.
-        case amount(Int)
-        /// The amount of columns is changed to the minimum column range.
-        case fullRange
-        /// Keyboard control is disabled.
-        case disabled
-        
-        var value: Int {
-            switch self {
-            case .amount(let value): return value
-            case .fullRange: return -1
-            case .disabled: return 0
-            }
-        }
-        
-        var clamped: Self {
-            switch self {
-            case .amount(let value): return value == 0 ? .disabled : .amount(value.clamped(min: 0))
-            default: return self
-            }
-        }
-    }
-    
-    /// The amount of columns added or removed when the user presses the `plus` / `minus` key.
-    public var keyDownColumnControl: KeyDownColumnControl = .disabled {
-        didSet {
-            keyDownColumnControl = keyDownColumnControl.clamped
-            collectionView?.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
-        }
-    }
-    
-    /// Sets the amount of columns added or removed when the user presses the `plus` / `minus` key.
-    @discardableResult
-    open func keyDownColumnControl(_ keyDownColumnControl: KeyDownColumnControl = .disabled ) -> Self {
-        self.keyDownColumnControl = keyDownColumnControl
-        return self
-    }
-    
-    /// The amount of columns added or removed when the user presses the `plus` / `minus` key while holding `command`.
-    public var keyDownColumnControlCommand: KeyDownColumnControl = .disabled {
-        didSet {
-            keyDownColumnControlCommand = keyDownColumnControlCommand.clamped
-            collectionView?.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
-        }
-    }
-    
-    /// Sets the amount of columns added or removed when the user presses the `plus` / `minus` key while holding `command`.
-    @discardableResult
-    open func keyDownColumnControlCommand(_ keyDownColumnControl: KeyDownColumnControl = .disabled ) -> Self {
-        self.keyDownColumnControlCommand = keyDownColumnControl
-        return self
-    }
-    
-    /// The amount of columns added or removed when the user presses the `plus` / `minus` key while holding `shift`.
-    public var keyDownColumnControlShift: KeyDownColumnControl = .disabled {
-        didSet {
-            keyDownColumnControlShift = keyDownColumnControlShift.clamped
-            collectionView?.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
-        }
-    }
-    
-    /// Sets the amount of columns added or removed when the user presses the `plus` / `minus` key while holding `shift`.
-    @discardableResult
-    open func keyDownColumnControlShift(_ keyDownColumnControl: KeyDownColumnControl = .disabled ) -> Self {
-        self.keyDownColumnControlShift = keyDownColumnControl
-        return self
-    }
-    
-    /// The amount of columns added or removed when the user presses the `plus` / `minus` key.
     var keyDownColumnChangeAmount: Int {
-        keyDownColumnControl.value
+        userInteraction.keyDownColumnControl.value
     }
     
-    var keyDownAltColumnChangeAmount: Int  {
-        keyDownColumnControlCommand.value
-        
+    var keyDownColumnChangeAmountAlt: Int  {
+        userInteraction.keyDownColumnControlCommand.value
     }
     
-    var keyDownAlt2ColumnChangeAmount: Int {
-        keyDownColumnControlShift.value
+    var keyDownColumnChangeAmountShift: Int {
+        userInteraction.keyDownColumnControlShift.value
     }
-    #else
-    let keyDownColumnChangeAmount = 0
-    let keyDownAltColumnChangeAmount = 0
-    let keyDownAlt2ColumnChangeAmount = 0
     #endif
     
-    /// The minimum amount of columns that the user can change to, if ``isPinchable`` or ``keyDownColumnControl`` is enabled.
-    open var minColumns: Int = 1
-    
-    /// Sets the minimum amount of columns that the user can change to, if ``isPinchable`` or ``keyDownColumnControl`` is enabled.
-    @discardableResult
-    open func minColumns(_ minimum: Int) -> Self {
-        minColumns = minimum
-        return self
-    }
-    
-    /// The maximum amount of columns that the user can change to, if ``isPinchable`` or ``keyDownColumnControl`` is enabled.
-    open var maxColumns: Int = 12
-    
-    /// Sets the maximum amount of columns that the user can change to, if ``isPinchable`` or ``keyDownColumnControl`` is enabled.
-    @discardableResult
-    open func maxColumns(_ maximum: Int) -> Self {
-        maxColumns = maximum
-        return self
-    }
-    
     var columnRange: ClosedRange<Int> {
-        minColumns...maxColumns
+        userInteraction.columnRange
     }
     
-    /**
-     The animation duration when the user changes the amount of columns via pinch gesture or `plus` / `minus` key.
-     
-     The value is only used, if ``isPinchable`` or ``keyDownColumnControl-swift.property`` is enabled.
-     
-     A value of `0.0` changes the columns amount without any animation.
-     */
-    open var animationDuration: TimeInterval = 0.2 {
-        didSet { animationDuration.clamp(min: 0.0) }
-    }
-    
-    /**
-     Sets the animation duration when the user changes the amount of columns via pinch gesture or `plus` / `minus` key.
-     
-     The value is only used, if ``isPinchable`` or ``keyDownColumnControl-swift.property`` is enabled.
-     
-     A value of `0.0` changes the columns amount without any animation.
-     */
-    @discardableResult
-    open func animationDuration(_ duration:  TimeInterval) -> Self {
-        animationDuration = duration
-        return self
+    var animationDuration: TimeInterval {
+        userInteraction.animationDuration
     }
     
     var needsPinchGestureRecognizer: Bool {
-        isPinchable || (keyDownColumnChangeAmount == -1 || keyDownColumnChangeAmount  > 0) || (keyDownAltColumnChangeAmount == -1 || keyDownAltColumnChangeAmount  > 0) || (keyDownAlt2ColumnChangeAmount == -1 || keyDownAlt2ColumnChangeAmount  > 0)
+        #if os(macOS)
+        isPinchable || (keyDownColumnChangeAmount == -1 || keyDownColumnChangeAmount  > 0) || (keyDownColumnChangeAmountAlt == -1 || keyDownColumnChangeAmountAlt  > 0) || (keyDownColumnChangeAmountShift == -1 || keyDownColumnChangeAmountShift  > 0)
+        #else
+        isPinchable
+        #endif
     }
     
 #else
     var isPinchable = false
-    var keyDownColumnChangeAmount = 0
-    var keyDownAltColumnChangeAmount = 0
-    var keyDownAlt2ColumnChangeAmount = 0
     var columnRange = 2...12
-    var animationDuration: TimeInterval = 0.2
+    var animationDuration: TimeInterval = 0.25
 #endif
     
     /// The spacing between the columns.
@@ -389,7 +268,7 @@ public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, Interactive
         public var height: CGFloat = 0.0
         
         /// The inset of the header/footer.
-        public var inset: NSEdgeInsets = .zero
+        public var inset: NSUIEdgeInsets = .zero
         
         /// A Boolean value indicating whether the header/footer is floating.
         public var floats: Bool = false
@@ -485,8 +364,8 @@ public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, Interactive
             size.height -= collectionView.enclosingScrollView?.contentInsets.height ?? 0
         }
         #else
-        size.width -= (sectionInsetUsesSafeArea ? collectionView.adjustedContentInset : collectionView.contentInsets).width
-        size.height -= (sectionInsetUsesSafeArea ? collectionView.adjustedContentInset : collectionView.contentInsets).height
+        size.width -= (sectionInsetUsesSafeArea ? collectionView.adjustedContentInset : collectionView.contentInset).width
+        size.height -= (sectionInsetUsesSafeArea ? collectionView.adjustedContentInset : collectionView.contentInset).height
         #endif
         if includingSectionInset {
             size.width -= sectionInset.width
@@ -511,6 +390,7 @@ public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, Interactive
     }
 
     override open func prepare() {
+        Swift.print("prepare")
         super.prepare()
         if didCalcuateItemAttributes == false {
             #if os(macOS) || os(iOS)
@@ -522,7 +402,7 @@ public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, Interactive
         }
     }
     
-    func prepareItemAttributes(keepItemOrder: Bool = false) {
+    public func prepareItemAttributes(keepItemOrder: Bool = false) {
         guard let collectionView = collectionView, collectionView.numberOfSections > 0  else { return }
         let numberOfSections = collectionView.numberOfSections
 
@@ -657,7 +537,6 @@ public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, Interactive
     }
     
     override open func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes {
-        var attribute: NSUICollectionViewLayoutAttributes?
         if elementKind == NSUICollectionView.elementKindSectionHeader, let attribute = headersAttributes[indexPath.section] {
             updateHeaderFooterAttributes(attribute, isHeader: true)
             return attribute
@@ -665,7 +544,7 @@ public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, Interactive
             updateHeaderFooterAttributes(attribute, isHeader: false)
             return attribute
         }
-        return attribute ?? NSUICollectionViewLayoutAttributes()
+        return NSUICollectionViewLayoutAttributes()
     }
     
     open override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
@@ -673,7 +552,7 @@ public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, Interactive
         previousBounds = newBounds
         return true
     }
-    
+        
     open override func invalidationContext(forBoundsChange newBounds: CGRect) -> NSUICollectionViewLayoutInvalidationContext {
         let context = super.invalidationContext(forBoundsChange: newBounds)
         let contentOffset = collectionView?.contentOffset ?? .zero
@@ -689,11 +568,8 @@ public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, Interactive
         return context
     }
     
-    public override func invalidationContext(forPreferredLayoutAttributes preferredAttributes: NSCollectionViewLayoutAttributes, withOriginalAttributes originalAttributes: NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutInvalidationContext {
+    public override func invalidationContext(forPreferredLayoutAttributes preferredAttributes: NSUICollectionViewLayoutAttributes, withOriginalAttributes originalAttributes: NSUICollectionViewLayoutAttributes) -> NSUICollectionViewLayoutInvalidationContext {
         let context = super.invalidationContext(forPreferredLayoutAttributes: preferredAttributes, withOriginalAttributes: originalAttributes)
-        let oldSize = collectionViewContentSize
-
-        
         return context
     }
 
@@ -725,7 +601,7 @@ public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, Interactive
         guard let collectionView = collectionView, (isHeader && header.floats) || (!isHeader && footer.floats) else { return }
         attributes.zIndex = 1
         attributes.isHidden = false
-        var yCenterOffset = isHeader ? (collectionView.bounds.y + attributes.size.height/2.0) : (collectionView.bounds.y + collectionView.bounds.height - attributes.size.height/2.0)
+        let yCenterOffset = isHeader ? (collectionView.bounds.y + attributes.size.height/2.0) : (collectionView.bounds.y + collectionView.bounds.height - attributes.size.height/2.0)
         attributes.frame.center = CGPoint(collectionView.bounds.midX, yCenterOffset)
     }
 
@@ -753,6 +629,7 @@ public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, Interactive
         return index
     }
     
+    #if os(macOS)
     public func invalidateLayout(animated: Bool, keepScrollPosition: Bool) {
         guard let collectionView = collectionView else { return }
         // collectionView.setCollectionViewLayout(copied(), animated: animated)
@@ -769,11 +646,10 @@ public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, Interactive
             #endif
         })
     }
+    #endif
     
     func copied(columns: Int? = nil) -> NSUICollectionViewLayout {
         let layout = CollectionViewColumnLayout()
-        layout.minColumns = minColumns
-        layout.maxColumns = maxColumns
         layout.columns = columns ?? self.columns
         layout.columnSpacing = columnSpacing
         layout.columnSizing = columnSizing
@@ -783,13 +659,11 @@ public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, Interactive
         layout.sectionInset = sectionInset
         layout.header = header
         layout.footer = footer
-        layout.isPinchable = isPinchable
-        layout.keyDownColumnControl = keyDownColumnControl
-        layout.keyDownColumnControlCommand = keyDownColumnControlCommand
-        layout.keyDownColumnControlShift = keyDownColumnControlShift
-        layout.animationDuration = animationDuration
         layout.itemOrder = itemOrder
         layout._sectionInsetUsesSafeArea = _sectionInsetUsesSafeArea
+        #if os(macOS) || os(iOS)
+        layout.userInteraction = userInteraction
+        #endif
         return layout
     }
     
@@ -865,14 +739,15 @@ public class CollectionViewColumnLayout: NSCollectionViewFlowLayout, Interactive
     }
 }
 
-
 protocol InteractiveCollectionViewLayout {
     var columns: Int { get set }
     var columnRange: ClosedRange<Int> { get }
     var isPinchable: Bool { get }
+    #if os(macOS)
     var keyDownColumnChangeAmount: Int { get }
-    var keyDownAltColumnChangeAmount: Int { get }
-    var keyDownAlt2ColumnChangeAmount: Int { get }
+    var keyDownColumnChangeAmountAlt: Int { get }
+    var keyDownColumnChangeAmountShift: Int { get }
+    #endif
     var animationDuration: TimeInterval { get }
     func copied(columns: Int?) -> NSUICollectionViewLayout
 }
@@ -916,30 +791,7 @@ extension NSUICollectionView {
             set {
                 let newValue = newValue.clamped(to: columnRange)
                 guard newValue != columns, let configuration = configuration, let collectionView = collectionView else { return }
-                collectionView.setCollectionViewLayout(configuration.copied(columns: newValue), animated: true)
-                /*
-                
-                guard newValue != columns, let layout = collectionViewLayout as? CollectionViewColumnLayout, let collectionView = collectionView else { return }
-                layout.columns = newValue
-              //  let context = NSCollectionViewLayoutInvalidationContext()
-                
-                let displayingIndexPaths = Set(collectionView.displayingIndexPaths())
-                layout.invalidateLayout()
-                collectionView.scrollToItems(at: displayingIndexPaths, scrollPosition: .centeredVertically)
-                /*
-               let union = collectionView.displayingIndexPaths().compactMap({ layout.layoutAttributesForItem(at: $0)?.frame }).union()
-                
-                
-                layout.prepareItemAttributes()
-                let context = layout.invalidationContext(forBoundsChange: union)
-                layout.invalidateLayout(with: context)
-                 */
-             //   layout.invalidateLayoutAnimated()
-                /*
-                guard newValue != columns, let configuration = configuration, collectionView = collectionView else { return }
-                collectionView.setCollectionViewLayout(configuration.copied(columns: newValue), animated: true)
-                 */
-                 */
+                collectionView.setCollectionViewLayout(configuration.copied(columns: newValue), animationDuration: configuration.animationDuration)
             }
         }
         
@@ -955,7 +807,7 @@ extension NSUICollectionView {
         override func keyDown(with event: NSEvent) {
             super.keyDown(with: event)
             guard event.keyCode == 44 || event.keyCode == 30, let configuration = configuration else { return }
-            var addition = event.modifierFlags.contains(.shift) ? configuration.keyDownAlt2ColumnChangeAmount : event.modifierFlags.contains(.command) ? configuration.keyDownAltColumnChangeAmount : configuration.keyDownColumnChangeAmount
+            let addition = event.modifierFlags.contains(.shift) ? configuration.keyDownColumnChangeAmountShift : event.modifierFlags.contains(.command) ? configuration.keyDownColumnChangeAmountAlt : configuration.keyDownColumnChangeAmount
             displayingIndexPaths = collectionView?.displayingIndexPaths() ?? []
             if addition == -1 {
                 columns = event.keyCode == 44 ? columnRange.upperBound : columnRange.lowerBound

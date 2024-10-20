@@ -19,7 +19,7 @@
          
          - Parameter duration: The animation duration.
          */
-        func invalidateLayoutAnimated(duration: TimeInterval = 0.2) {
+        func invalidateLayoutAnimated(duration: TimeInterval = 0.25) {
             if duration <= 0.0 {
                 invalidateLayout()
             } else {

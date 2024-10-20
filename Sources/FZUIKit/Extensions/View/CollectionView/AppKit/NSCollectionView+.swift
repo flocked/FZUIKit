@@ -39,10 +39,6 @@
             return item(at: indexPath)
         }
         
-        internal var itemFrames: [CGRect] {
-            indexPaths.compactMap({frameForItem(at: $0)})
-        }
-        
         /**
          The index paths in the specified rectangle.
          
@@ -83,7 +79,7 @@
             - completion: The completion handler that gets called when the layout transition finishes
          */
         func setCollectionViewLayout(_ layout: NSCollectionViewLayout, animated: Bool, completion: (() -> Void)? = nil) {
-            setCollectionViewLayout(layout, animationDuration: animated ? 0.2 : 0.0, completion: completion)
+            setCollectionViewLayout(layout, animationDuration: animated ? 0.25 : 0.0, completion: completion)
         }
 
         /**
@@ -104,6 +100,19 @@
                 collectionViewLayout = layout
                 completion?()
             }
+        }
+        
+        /**
+         Selects the specified items and optionally scrolls the items into position.
+         
+         - Parameters:
+            - indexPaths: The index paths of the items to select.
+            - scrollPosition: The options for scrolling the newly selected items into view.
+         */
+        func selectItems(exclusiveAt indexPaths: Set<IndexPath>, scrollPosition: ScrollPosition = []) {
+            let deselect = selectionIndexPaths.filter({ !indexPaths.contains($0) })
+            selectItems(at: indexPaths, scrollPosition: scrollPosition)
+            deselectItems(at: deselect)
         }
 
         /**
@@ -159,10 +168,7 @@
          */
         func saveScrollPosition() -> SavedScrollPosition {
             let indexPaths = displayingIndexPaths()
-            if contentOffset.y <= 0.0, indexPaths.contains(IndexPath(item: 0, section: 0)) {
-                return SavedScrollPosition(indexPaths: indexPaths, position: .nearestHorizontalEdge)
-            }
-            return SavedScrollPosition(indexPaths: indexPaths, position: (frame.height >= superview?.frame.height ?? frame.height) ? .centeredVertically : .centeredHorizontally)
+            return SavedScrollPosition(indexPaths: indexPaths, position: contentOffset.y <= 0.0 && indexPaths.contains(IndexPath(item: 0, section: 0)) ? .nearestHorizontalEdge : frame.height >= superview?.frame.height ?? frame.height ? .centeredVertically : .centeredHorizontally)
         }
 
         /**
@@ -173,10 +179,24 @@
          - Parameter scrollPosition: The scroll position to restore.
          */
         func restoreScrollPosition(_ scrollPosition: SavedScrollPosition) {
-            if scrollPosition.position == .nearestHorizontalEdge {
-                scrollToItems(at: .init(scrollPosition.indexPaths), scrollPosition: .nearestHorizontalEdge)
+            scrollToItems(at: .init(scrollPosition.indexPaths), scrollPosition: scrollPosition.position == .nearestHorizontalEdge ?  .nearestHorizontalEdge : (frame.height >= superview?.frame.height ?? frame.height) ? .centeredVertically : .centeredHorizontally)
+        }
+        
+        /**
+         Scrolls the collection view contents until the specified items are visible.
+         
+         - Parameters:
+            - indexPaths: The index paths of the items. The layout attributes of these items define the bounding box that needs to be scrolled onscreen.
+            - scrollPosition: The options for scrolling the bounding box of the specified items into view. Specifying more than one option for either the vertical or horizontal directions raises an exception.
+            - animated: Specify `true` to animate the scrolling behavior or `false` to adjust the scroll view’s visible content immediately.
+         */
+        func scrollToItems(at indexPaths: Set<IndexPath>, scrollPosition: ScrollPosition,  animated: Bool) {
+            if animated {
+                scrollToItems(at: indexPaths, scrollPosition: scrollPosition)
             } else {
-                scrollToItems(at: .init(scrollPosition.indexPaths), scrollPosition: (frame.height >= superview?.frame.height ?? frame.height) ? .centeredVertically : .centeredHorizontally)
+                NSAnimationContext.runAnimationGroup({ context in
+                    self.animator().scrollToItems(at: indexPaths, scrollPosition: scrollPosition)
+                })
             }
         }
     }

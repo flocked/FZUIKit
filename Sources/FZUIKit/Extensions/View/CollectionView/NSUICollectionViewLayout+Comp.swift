@@ -168,7 +168,7 @@ internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1,
                   
          A value of `0.0` changes the columns amount without any animation.
          */
-        public var animationDuration: CGFloat = 0.2
+        public var animationDuration: CGFloat = 0.25
         
         /// Key down control of the column amount.
         public enum KeyDownColumnControl: Hashable {
@@ -320,34 +320,38 @@ class ColumnsCollectionViewLayout: NSUICollectionViewCompositionalLayout, Intera
     var columns = 3
     var columnRange: ClosedRange<Int> = 2...12
     var isPinchable = false
-    var animationDuration: TimeInterval = 0.2
+    var animationDuration: TimeInterval = 0.25
     var keyDownColumnChangeAmount = 0
-    var keyDownAltColumnChangeAmount = 0
-    var keyDownAlt2ColumnChangeAmount = 0
+    var keyDownColumnChangeAmountAlt = 0
+    var keyDownColumnChangeAmountShift = 0
     var invalidation: ((_ columns: Int) -> NSUICollectionViewLayout)?
     
+    #if os(macOS) || os(iOS)
     func configurate(with userInteraction: ColumnsLayoutUserInteraction, invalidation: @escaping (_ columns: Int) -> NSUICollectionViewLayout) {
         self.columnRange = userInteraction.columnRange
         self.isPinchable = userInteraction.isPinchable
         self.keyDownColumnChangeAmount = userInteraction.keyDownColumnControl.value
-        self.keyDownAltColumnChangeAmount = userInteraction.keyDownColumnControlCommand.value
-        self.keyDownAlt2ColumnChangeAmount = userInteraction.keyDownColumnControlShift.value
+        self.keyDownColumnChangeAmountAlt = userInteraction.keyDownColumnControlCommand.value
+        self.keyDownColumnChangeAmountShift = userInteraction.keyDownColumnControlShift.value
         self.animationDuration = userInteraction.animationDuration
         self.invalidation = invalidation
     }
+    #endif
     
     func copied(columns: Int?) -> NSUICollectionViewLayout {
         invalidation?(columns ?? self.columns) ?? self
     }
     
     var needsPinchGestureRecognizer: Bool {
-        isPinchable || (keyDownColumnChangeAmount == -1 || keyDownColumnChangeAmount > 0) || (keyDownAltColumnChangeAmount == -1 || keyDownAltColumnChangeAmount > 0) || (keyDownAlt2ColumnChangeAmount == -1 || keyDownAlt2ColumnChangeAmount > 0)
+        isPinchable || (keyDownColumnChangeAmount == -1 || keyDownColumnChangeAmount > 0) || (keyDownColumnChangeAmountAlt == -1 || keyDownColumnChangeAmountAlt > 0) || (keyDownColumnChangeAmountShift == -1 || keyDownColumnChangeAmountShift > 0)
     }
     
+    #if os(macOS) || os(iOS)
     override func prepare() {
         super.prepare()
         collectionView?.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
     }
+    #endif
 }
 
 #endif
