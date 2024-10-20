@@ -667,8 +667,18 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         configuration = appliedConfiguration
         collectionView.setCollectionViewLayout(copy, animated: animated, completion: { collectionView.collectionViewLayout = self })
         guard !displayingIndexPaths.isEmpty else { return }
-        collectionView.scrollToItems(at: Set(displayingIndexPaths), scrollPosition: .centeredVertically)
+     //   collectionView.scrollToItems(at: Set(displayingIndexPaths), scrollPosition: .centeredVertically)
         configuration = current
+    }
+    
+    func copied(columns: Int? = nil) -> NSUICollectionViewLayout {
+        let layout = ColumnCollectionViewLayout()
+        layout.configuration = configuration
+        layout.columns = columns ?? self.columns
+        #if os(macOS) || os(iOS)
+        layout.userInteraction = userInteraction
+        #endif
+        return layout
     }
     
     struct LayoutConfiguration: Hashable, Equatable {
@@ -707,80 +717,9 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
     }
     
     class InvalidationContext: NSUICollectionViewLayoutInvalidationContext {
-        var cachedOrigin: CGPoint = .zero
         var invalidateHeaderFooterAttributes: Bool = false
         var invalidateItemAttributes: Bool = false
-        /*
-        var shouldInvalidate: Bool = false
-        
-        override var invalidateEverything: Bool {
-            shouldInvalidate
-        }
-        override var invalidateDataSourceCounts: Bool {
-            return false
-        }
-         */
     }
-    
-    func copied(columns: Int? = nil) -> NSUICollectionViewLayout {
-        let layout = ColumnCollectionViewLayout()
-        layout.configuration = configuration
-        layout.columns = columns ?? self.columns
-        #if os(macOS) || os(iOS)
-        layout.userInteraction = userInteraction
-        #endif
-        return layout
-    }
-    
-    /*
-    public override func invalidationContext(forPreferredLayoutAttributes preferredAttributes: NSUICollectionViewLayoutAttributes, withOriginalAttributes originalAttributes: NSUICollectionViewLayoutAttributes) -> NSUICollectionViewLayoutInvalidationContext {
-        Swift.print("invalidationContext LayoutAttributes", dateString)
-        let context = super.invalidationContext(forPreferredLayoutAttributes: preferredAttributes, withOriginalAttributes: originalAttributes)
-        return context
-    }
-    
-    var _invalidationContext: InvalidationContext? {
-        value(forKey: "_invalidationContext") as? InvalidationContext
-    }
-    
-    public override func invalidateLayout() {
-        if let context = _invalidationContext {
-            
-            Swift.print("invalidateLayout 0", context.value(forKey: "_updateItems"), context.invalidateEverything, context.invalidateDataSourceCounts, context.invalidatedItemIndexPaths ?? [], dateString)
-            super.invalidateLayout()
-            Swift.print("invalidateLayout 1", dateString)
-        } else {
-            Swift.print("invalidateLayout 0", dateString)
-            super.invalidateLayout()
-            Swift.print("invalidateLayout 1", dateString)
-        }
-    }
-    
-    public override func prepare(forCollectionViewUpdates updateItems: [NSCollectionViewUpdateItem]) {
-        Swift.print("prepareForCollectionViewUpdates", updateItems.count)
-        super.prepare(forCollectionViewUpdates: updateItems)
-    }
-    
-    public override func finalLayoutAttributesForDisappearingItem(at itemIndexPath: IndexPath) -> NSCollectionViewLayoutAttributes? {
-        Swift.print("finalLayoutAttributes", itemIndexPath)
-        return super.finalLayoutAttributesForDisappearingItem(at: itemIndexPath)
-    }
-    
-    public override func initialLayoutAttributesForAppearingItem(at itemIndexPath: IndexPath) -> NSCollectionViewLayoutAttributes? {
-        Swift.print("initialLayoutAttributes", itemIndexPath)
-        return super.initialLayoutAttributesForAppearingItem(at: itemIndexPath)
-    }
-        
-    var dateString: String {
-        let date = Date()
-        
-        let formatter = DateFormatter()
-        formatter.dateFormat = "mm:ss.SSSSSS"
-        return formatter.string(from: Date())
-        
-        return "\(date.minute)\(date.second):\(date.nanosecond)"
-    }
-     */
     
     /**
      A interactive waterfall layout where the user can change the amount of columns by pinching the collection view.
@@ -956,20 +895,12 @@ extension NSUICollectionView {
                 
         override var state: NSUIGestureRecognizer.State {
             didSet {
+                guard isPinchable else { return }
                 switch state {
                 case .began:
-                    initalColumns = isPinchable ? columns : -1
-                    displayingIndexPaths = isPinchable ? collectionView?.displayingIndexPaths() ?? [] : []
-                    if let collectionView = collectionView {
-                        let centerPoint = collectionView.visibleRect.center
-                       let mapped = displayingIndexPaths.compactMap({
-                        let frame = collectionView.frameForItem(at: $0 ) ?? .zero
-                          let distance = frame.center.distance(to: centerPoint)
-                           return (indexPath: $0, frame: frame, distance: distance) }).sorted(by: \.distance)
-                        Swift.print(CGRect(collectionView.contentOffset, collectionView.frame.size), collectionView.visibleRect)
-                    }
+                    initalColumns = columns
+                    displayingIndexPaths = collectionView?.displayingIndexPaths() ?? []
                 case .changed:
-                    guard initalColumns != -1 else { return }
                     #if os(macOS)
                     columns = initalColumns + Int((magnification/(-0.5)).rounded())
                     #else
