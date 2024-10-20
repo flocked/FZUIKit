@@ -127,25 +127,21 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
 #if os(macOS) || os(iOS)
     /// User interaction options for changing the amount of columns by pinching the collection view and pressing the `plus` or `minus` key.
     public struct UserInteraction {
-        #if os(macOS)
-        public init(isPinchable: Bool = false, isKeyDownControllable: Bool = false, columnRange: ClosedRange<Int> = 1...12, animationDuration: CGFloat = 0.2) {
-            self.isPinchable = isPinchable
-            self.keyDownColumnControl = isKeyDownControllable ? .amount(1) : .disabled
-            self.keyDownColumnControlShift = .disabled
-            self.keyDownColumnControlCommand = .disabled
-            self.columnRange = columnRange
-            self.animationDuration = animationDuration
-        }
-        #else
-        public init(isPinchable: Bool = false, columnRange: ClosedRange<Int> = 1...12, animationDuration: CGFloat = 0.2) {
-            self.isPinchable = isPinchable
-            self.columnRange = columnRange
-            self.animationDuration = animationDuration
-        }
-        #endif
         
         /// A Boolean value that indicates whether the user can change the amount of columns by pinching the collection view.
         public var isPinchable: Bool = false
+        
+        /// The range of columns that the user can change to.
+        public var columnRange: ClosedRange<Int> = 1...12 {
+            didSet { columnRange = columnRange.clamped(min: 1) }
+        }
+        
+        /**
+         The animation duration when the user changes the amount of columns.
+                  
+         A value of `0.0` changes the columns amount without any animation.
+         */
+        public var animationDuration: CGFloat = 0.25
         
         #if os(macOS)
         
@@ -183,17 +179,16 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
             }
         }
         
+        public init(isPinchable: Bool = false, isKeyDownControllable: Bool = false, columnRange: ClosedRange<Int> = 1...12, animationDuration: CGFloat = 0.2) {
+            self.isPinchable = isPinchable
+            self.keyDownColumnControl = isKeyDownControllable ? .amount(1) : .disabled
+            self.keyDownColumnControlShift = .disabled
+            self.keyDownColumnControlCommand = .disabled
+            self.columnRange = columnRange
+            self.animationDuration = animationDuration
+        }
+        
         #endif
-        
-        /// The range of columns that the user can change to.
-        public var columnRange: ClosedRange<Int> = 1...12
-        
-        /**
-         The animation duration when the user changes the amount of columns.
-                  
-         A value of `0.0` changes the columns amount without any animation.
-         */
-        public var animationDuration: CGFloat = 0.25
     }
     
     /// User interaction options for changing the amount of columns by pinching the collection view and pressing the `plus` or `minus` key.
@@ -791,9 +786,11 @@ extension NSUICollectionView {
             set {
                 let newValue = newValue.clamped(to: columnRange)
                 guard newValue != columns, let configuration = configuration, let collectionView = collectionView else { return }
-                collectionView.setCollectionViewLayout(configuration.copied(columns: newValue), animationDuration: configuration.animationDuration)
+                collectionView.setCollectionViewLayout(configuration.copied(columns: newValue), animationDuration: animateColumns ? configuration.animationDuration : 0.0)
             }
         }
+        
+        var animateColumns: Bool = true
         
         var columnRange: ClosedRange<Int> {
             configuration?.columnRange ?? 1...12
@@ -809,11 +806,13 @@ extension NSUICollectionView {
             guard event.keyCode == 44 || event.keyCode == 30, let configuration = configuration else { return }
             let addition = event.modifierFlags.contains(.shift) ? configuration.keyDownColumnChangeAmountShift : event.modifierFlags.contains(.command) ? configuration.keyDownColumnChangeAmountAlt : configuration.keyDownColumnChangeAmount
             displayingIndexPaths = collectionView?.displayingIndexPaths() ?? []
+            animateColumns = false
             if addition == -1 {
                 columns = event.keyCode == 44 ? columnRange.upperBound : columnRange.lowerBound
             } else {
                 columns += event.keyCode == 44 ? addition : -addition
             }
+            animateColumns = true
             scrollToDisplayingIndexPaths()
         }
         #endif

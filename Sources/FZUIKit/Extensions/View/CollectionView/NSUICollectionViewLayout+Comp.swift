@@ -163,6 +163,16 @@ internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1,
         /// The range of columns that the user can change to.
         public var columnRange: ClosedRange<Int> = 1...12
         
+        /*
+         /// The minimum amount of columns the user can change to by pinching the collection view or pressing the `plus` / `minus` key.
+         public var minColumns: Int = 2 {
+             didSet { minColumns = minColumns.clamped(min: 1) }
+         }
+         
+         /// The maximum amount of columns the user can change to by pinching the collection view or pressing the `plus` / `minus` key.
+         public var maxColumns: Int = 12
+         */
+        
         /**
          The animation duration when the user changes the amount of columns.
                   
