@@ -386,7 +386,11 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
     override open func prepare() {
         // Swift.print("prepare")
         if !didCalcuateItemAttributes {
+            #if os(macOS)
             previousBounds = collectionView?.visibleRect ?? previousBounds
+            #else
+            previousBounds = collectionView?.bounds ?? previousBounds
+            #endif
             #if os(macOS) || os(iOS)
             collectionView?.setupColumnInteractionGestureRecognizer(needsGestureRecognizer)
             #endif
@@ -520,18 +524,26 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         guard let collectionView = collectionView else { return }
         if header.pinToVisibleBounds {
             for attribute in headersAttributes {
+                #if os(macOS)
                 let nextHeaderOrigin = headersAttributes[safe: attribute.indexPath!.section + 1]?.frame.origin ?? CGPoint(.greatestFiniteMagnitude)
-                let nextHeaderOffset = nextHeaderOrigin.y - attribute.frame.size.height
+                #else
+                let nextHeaderOrigin = headersAttributes[safe: attribute.indexPath.section + 1]?.frame.origin ?? CGPoint(.greatestFiniteMagnitude)
+                #endif
                 let offsetAdjustment = collectionView.contentOffset.y
-                let nexHeaderOffset = nextHeaderOrigin.y - attribute.frame.size.height - footer.height
-                attribute.frame.origin.y = min(max(offsetAdjustment, attribute.cachedOrigin.y), nexHeaderOffset)
+                let nextHeaderOffset = nextHeaderOrigin.y - attribute.frame.size.height - footer.height
+                attribute.frame.origin.y = min(max(offsetAdjustment, attribute.cachedOrigin.y), nextHeaderOffset)
                 attribute.zIndex = attribute.frame.y ==  offsetAdjustment ? 1000 : 0
             }
         }
         if footer.pinToVisibleBounds {
             for attribute in footersAttributes {
+                #if os(macOS)
                 let previousFooterOrigin = footersAttributes[safe: attribute.indexPath!.section - 1]?.frame.origin ?? CGPoint(-CGFloat.greatestFiniteMagnitude)
                 let offsetAdjustment = collectionView.contentOffset.y + collectionView.visibleRect.height - attribute.frame.height
+                #else
+                let previousFooterOrigin = footersAttributes[safe: attribute.indexPath.section - 1]?.frame.origin ?? CGPoint(-CGFloat.greatestFiniteMagnitude)
+                let offsetAdjustment = collectionView.contentOffset.y + collectionView.bounds.height - attribute.frame.height
+                #endif
                 let previousFooterOffset = previousFooterOrigin.y + attribute.frame.size.height + header.height
                 attribute.frame.origin.y = max(min(offsetAdjustment, attribute.cachedOrigin.y), previousFooterOffset)
                 attribute.zIndex = 1000
@@ -576,8 +588,13 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         } else if context.invalidateHeaderFooterAttributes {
             updateHeaderFooterAttributes()
             updateUnionRects()
-            context.invalidateSupplementaryElements(ofKind: NSCollectionView.elementKindSectionHeader, at: Set(headersAttributes.compactMap({$0.indexPath})))
-            context.invalidateSupplementaryElements(ofKind: NSCollectionView.elementKindSectionFooter, at: Set(footersAttributes.compactMap({$0.indexPath})))
+            #if os(macOS)
+            context.invalidateSupplementaryElements(ofKind: NSUICollectionView.elementKindSectionHeader, at: Set(headersAttributes.compactMap({$0.indexPath})))
+            context.invalidateSupplementaryElements(ofKind: NSUICollectionView.elementKindSectionFooter, at: Set(footersAttributes.compactMap({$0.indexPath})))
+            #else
+            context.invalidateSupplementaryElements(ofKind: NSUICollectionView.elementKindSectionHeader, at: headersAttributes.compactMap({$0.indexPath}))
+            context.invalidateSupplementaryElements(ofKind: NSUICollectionView.elementKindSectionFooter, at: footersAttributes.compactMap({$0.indexPath}))
+            #endif
         }
         super.invalidateLayout(with: context)
     }
@@ -648,7 +665,11 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         let copy = copied(columns: columns)
         let current = configuration
         configuration = appliedConfiguration
+        #if os(macOS)
         collectionView.setCollectionViewLayout(copy, animated: animated, completion: { collectionView.collectionViewLayout = self })
+        #else
+        collectionView.setCollectionViewLayout(copy, animated: animated, completion: { _ in collectionView.collectionViewLayout = self })
+        #endif
         guard !displayingIndexPaths.isEmpty else { return }
      //   collectionView.scrollToItems(at: Set(displayingIndexPaths), scrollPosition: .centeredVertically)
         configuration = current
@@ -817,9 +838,10 @@ extension NSUICollectionView {
         
         var initalColumns: Int = 0
         var displayingIndexPaths: [IndexPath] = []
-        var keyDownMonitor: NSEvent.Monitor?
         
         #if os(macOS)
+        var keyDownMonitor: NSEvent.Monitor?
+
         func setupKeyDownMonitor() {
             if let interactiveLayout = interactiveLayout, interactiveLayout.keyDownColumnChangeAmount != 0 || interactiveLayout.keyDownColumnChangeAmountShift != 0 || interactiveLayout.keyDownColumnChangeAmountAlt != 0 {
                 guard keyDownMonitor == nil else { return }
@@ -870,7 +892,7 @@ extension NSUICollectionView {
             get { interactiveLayout?.columns ?? 2 }
             set {
                 let newValue = newValue.clamped(to: columnRange)
-                guard newValue != columns, let interactiveLayout = interactiveLayout, let collectionView = collectionView else { return }
+                guard newValue != columns, let interactiveLayout = interactiveLayout else { return }
                 interactiveLayout.columns = newValue
                 interactiveLayout.invalidateLayout(animated: true)
             }

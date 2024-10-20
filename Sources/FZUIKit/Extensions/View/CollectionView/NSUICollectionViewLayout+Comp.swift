@@ -454,7 +454,7 @@ class CollectionViewCompositionalColumnLayout: NSUICollectionViewCompositionalLa
     #endif
     
     func invalidateLayout(animated: Bool) {
-        collectionView?.setCollectionViewLayout(invalidation?(columns ?? columns) ?? self, animated: animated)
+        collectionView?.setCollectionViewLayout(invalidation?(columns) ?? self, animated: animated)
     }
 }
 

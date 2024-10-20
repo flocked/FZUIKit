@@ -23,14 +23,17 @@ import FZSwiftUtils
             return (displayingItems(in: rect).compactMap { self.indexPath(for: $0) }).sorted()
         }
         
+        #if os(macOS)
         /// Returns an array of all displayed items. Unlike `visibleItems()` it only returns the items with visible frame.
-        func displayingItems(in rect: CGRect) -> [NSCollectionViewItem] {
-            #if os(macOS)
-            return visibleItems().filter { $0.view.frame.intersects(rect) }
-            #else
-            return visibleCells.filter { $0.view.frame.intersects(rect) }
-            #endif
+        func displayingItems(in rect: CGRect) -> [NSUICollectionViewItem] {
+            visibleItems().filter { $0.view.frame.intersects(rect) }
         }
+        #else
+        /// Returns an array of all displayed items. Unlike `visibleItems()` it only returns the items with visible frame.
+        func displayingItems(in rect: CGRect) -> [UICollectionViewCell] {
+            visibleCells.filter { $0.frame.intersects(rect) }
+        }
+        #endif
         
         /**
          The item index paths for the specified section.
