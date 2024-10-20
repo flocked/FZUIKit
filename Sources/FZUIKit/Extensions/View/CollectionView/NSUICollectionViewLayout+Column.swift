@@ -58,24 +58,11 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
     public typealias ItemSizeProvider = (_ indexPath: IndexPath) -> CGSize
     
     /// The layout of the items.
-    public enum ItemLayout: Hashable {
+    public enum ItemLayout {
         /// Flexible item heights.
         case waterfall(_ itemSizeProvider: ItemSizeProvider)
         /// Fixed item sizes.
         case grid(_ aspectRatio: CGSize)
-        
-        public static func == (lhs: ItemLayout, rhs: ItemLayout) -> Bool {
-            lhs.hashValue == rhs.hashValue
-        }
-        
-        public func hash(into hasher: inout Hasher) {
-            switch self {
-            case .waterfall(_):
-                hasher.combine("Waterfall")
-            case .grid(let ratio):
-                hasher.combine(ratio)
-            }
-        }
     }
     
     /// The layout of the items.
@@ -677,7 +664,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         return layout
     }
     
-    struct LayoutConfiguration: Hashable, Equatable {
+    struct LayoutConfiguration {
          var columns: Int = 3
          var itemSpacing: CGFloat = 10.0
          var columnSpacing: CGFloat = 10.0
