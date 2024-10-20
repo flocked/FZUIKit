@@ -12,7 +12,7 @@ import FZSwiftUtils
 extension NSRotationGestureRecognizer: VelocityGestureRecognizer {
     
     /// The velocity of the rotation gesture in radians per second.
-    @objc dynamic public var velocity: CGFloat {
+    @objc dynamic public internal(set) var velocity: CGFloat {
         get{
             swizzleGestureState()
             return getAssociatedValue("velocity") ?? 1.0

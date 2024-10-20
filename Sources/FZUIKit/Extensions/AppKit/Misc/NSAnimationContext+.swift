@@ -37,5 +37,9 @@
                 changes()
             }
         }
+        
+        class var hasActiveGrouping: Bool {
+            value(forKey: "_hasActiveGrouping") as? Bool ?? false
+        }
     }
 #endif

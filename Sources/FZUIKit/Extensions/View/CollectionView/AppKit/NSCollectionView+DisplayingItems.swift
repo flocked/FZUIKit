@@ -14,14 +14,13 @@
     extension NSCollectionView {
         /// Returns the index paths of the currently displayed items. Unlike `indexPathsForVisibleItems()`  it only returns the items with visible frame.
         public func displayingIndexPaths() -> [IndexPath] {
-            (displayingItems().compactMap { self.indexPath(for: $0) }).sorted()
+            displayingItems().compactMap { indexPath(for: $0) }
         }
 
         /// Returns an array of all displayed items. Unlike `visibleItems()` it only returns the items with visible frame.
         public func displayingItems() -> [NSCollectionViewItem] {
-            let visibleItems = visibleItems()
             let visibleRect = visibleRect
-            return visibleItems.filter { $0.view.frame.intersects(visibleRect) }
+            return visibleItems().filter { $0.view.frame.intersects(visibleRect) }
         }
 
         /**

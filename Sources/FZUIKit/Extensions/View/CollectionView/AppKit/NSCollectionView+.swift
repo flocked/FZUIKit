@@ -27,6 +27,7 @@
         func frameForItem(at indexPath: IndexPath) -> CGRect? {
             layoutAttributesForItem(at: indexPath)?.frame
         }
+        
 
         /**
          The item item at the specified location.
@@ -197,6 +198,62 @@
                 NSAnimationContext.runAnimationGroup({ context in
                     self.animator().scrollToItems(at: indexPaths, scrollPosition: scrollPosition)
                 })
+            }
+        }
+        
+        /// A Boolean value indicating whether the selection of items is toggled when the uses clicks on them.
+        var togglesItemSelection: Bool {
+            get { toggleSelectionGestureRecognizer != nil }
+            set {
+                guard newValue != togglesItemSelection else { return }
+                if newValue {
+                    toggleSelectionGestureRecognizer = .init()
+                    addGestureRecognizer(toggleSelectionGestureRecognizer!)
+                } else {
+                    toggleSelectionGestureRecognizer?.removeFromView()
+                    toggleSelectionGestureRecognizer = nil
+                }
+            }
+        }
+        
+        internal var toggleSelectionGestureRecognizer: ToggleSelectionGestureRecognizer? {
+            get { getAssociatedValue("toggleSelectionGestureRecognizer") }
+            set { setAssociatedValue(newValue, key: "toggleSelectionGestureRecognizer") }
+        }
+        
+        internal class ToggleSelectionGestureRecognizer: NSGestureRecognizer {
+            var collectionView: NSUICollectionView? {
+                view as? NSUICollectionView
+            }
+                
+            init() {
+                super.init(target: nil, action: nil)
+                delaysPrimaryMouseButtonEvents = true
+            }
+            
+            required init?(coder: NSCoder) {
+                fatalError("init(coder:) has not been implemented")
+            }
+            
+            override func mouseDown(with event: NSEvent) {
+                Swift.print("gesture mouseDown")
+                state = .began
+                guard let collectionView = collectionView else {
+                    state = .failed
+                    return
+                }
+                let location = event.location(in: collectionView)
+                if let item = collectionView.item(at: location), let indexPath = collectionView.indexPath(for: item) {
+                    if collectionView.selectionIndexPaths.contains(indexPath) {
+                        collectionView.deselectItems(at: [indexPath])
+                        state = .ended
+                    } else {
+                        collectionView.selectItems(at: collectionView.selectionIndexPaths + indexPath, scrollPosition: [])
+                        state = .ended
+                    }
+                } else {
+                    state = .failed
+                }
             }
         }
     }

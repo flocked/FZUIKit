@@ -1,5 +1,5 @@
 //
-//  NSUICollectionViewLayout+Waterfall.swift
+//  NSUICollectionViewLayout+Column.swift
 //
 //  Parts taken from:
 //  Created by Nicholas Tau on 6/30/14.
@@ -28,8 +28,8 @@ public extension NSUICollectionViewLayout {
         - orientation: The orientation of the layout.
         - itemSizeProvider: The handler that provides the item sizes..
      */
-    static func waterfall(columns: Int, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), orientation: NSUIUserInterfaceLayoutOrientation = .horizontal, itemSizeProvider: @escaping (_ indexPath: IndexPath) -> CGSize) -> CollectionViewColumnLayout {
-        let layout = CollectionViewColumnLayout.init(columns: columns, orientation: orientation, spacing: spacing, insets: insets)
+    static func waterfall(columns: Int, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), orientation: NSUIUserInterfaceLayoutOrientation = .horizontal, itemSizeProvider: @escaping (_ indexPath: IndexPath) -> CGSize) -> ColumnCollectionViewLayout {
+        let layout = ColumnCollectionViewLayout.init(columns: columns, orientation: orientation, spacing: spacing, insets: insets)
         layout.itemLayout = .waterfall(itemSizeProvider)
         return layout
     }
@@ -44,24 +44,38 @@ public extension NSUICollectionViewLayout {
         - orientation: The orientation of the layout.
         - itemAspectRatio: The aspect ratio of the items.
      */
-    static func grid(columns: Int, orientation: NSUIUserInterfaceLayoutOrientation = .horizontal, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemAspectRatio: CGSize = CGSize(1,1)) -> CollectionViewColumnLayout {
-        let layout = CollectionViewColumnLayout.init(columns: columns, orientation: orientation, spacing: spacing, insets: insets)
+    static func grid(columns: Int, orientation: NSUIUserInterfaceLayoutOrientation = .horizontal, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemAspectRatio: CGSize = CGSize(1,1)) -> ColumnCollectionViewLayout {
+        let layout = ColumnCollectionViewLayout.init(columns: columns, orientation: orientation, spacing: spacing, insets: insets)
         layout.itemLayout = .grid(itemAspectRatio)
         return layout
     }
 }
 
 /// A layout that organizes items into columns (either as `waterfall` or `grid`).
-public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, InteractiveCollectionViewLayout {
+public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCollectionViewLayout {
+    
     /// Handler that provides the sizes for each item.
     public typealias ItemSizeProvider = (_ indexPath: IndexPath) -> CGSize
     
     /// The layout of the items.
-    public enum ItemLayout {
+    public enum ItemLayout: Hashable {
         /// Flexible item heights.
         case waterfall(_ itemSizeProvider: ItemSizeProvider)
         /// Fixed item sizes.
         case grid(_ aspectRatio: CGSize)
+        
+        public static func == (lhs: ItemLayout, rhs: ItemLayout) -> Bool {
+            lhs.hashValue == rhs.hashValue
+        }
+        
+        public func hash(into hasher: inout Hasher) {
+            switch self {
+            case .waterfall(_):
+                hasher.combine("Waterfall")
+            case .grid(let ratio):
+                hasher.combine(ratio)
+            }
+        }
     }
     
     /// The layout of the items.
@@ -84,7 +98,7 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
     }
     
     /// The order each item is displayed.
-    public enum ItemSortOrder: Int {
+    public enum ItemSortOrder: Int, Hashable {
         /// Each item is added to the shortest column.
         case shortestColumn
         /// The items are added to the columns from left to right.
@@ -93,20 +107,8 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
         case rightToLeft
     }
     
-    /// The sizing for each column.
-    public enum ColumnSizing: Hashable {
-        /// Fixed column size.
-        case fixed(CGFloat)
-        /// Fixed column size.
-        case relative(CGFloat)
-        /// Each column size.
-        case automatic
-    }
-    
     /// The amount of columns.
-    @objc dynamic open var columns: Int = 3 {
-        didSet { columns = columns.clamped(to: columnRange) }
-    }
+   public var columns: Int = 3
     
     /// Sets the amount of columns.
     @discardableResult
@@ -192,7 +194,11 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
     }
     
     /// User interaction options for changing the amount of columns by pinching the collection view and pressing the `plus` or `minus` key.
-    public var userInteraction: UserInteraction = .init()
+    public var userInteraction: UserInteraction = .init() {
+        didSet {
+            collectionView?.setupColumnInteractionGestureRecognizer(needsGestureRecognizer)
+        }
+    }
     
     var isPinchable: Bool {
         userInteraction.isPinchable
@@ -218,14 +224,6 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
     
     var animationDuration: TimeInterval {
         userInteraction.animationDuration
-    }
-    
-    var needsPinchGestureRecognizer: Bool {
-        #if os(macOS)
-        isPinchable || (keyDownColumnChangeAmount == -1 || keyDownColumnChangeAmount  > 0) || (keyDownColumnChangeAmountAlt == -1 || keyDownColumnChangeAmountAlt  > 0) || (keyDownColumnChangeAmountShift == -1 || keyDownColumnChangeAmountShift  > 0)
-        #else
-        isPinchable
-        #endif
     }
     
 #else
@@ -258,15 +256,19 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
         return self
     }
     
-    public struct HeaderFooterAttributes {
+    public struct HeaderFooterAttributes: Hashable {
         /// The height of the header/footer.
         public var height: CGFloat = 0.0
         
         /// The inset of the header/footer.
         public var inset: NSUIEdgeInsets = .zero
         
-        /// A Boolean value indicating whether the header/footer is floating.
-        public var floats: Bool = false
+        /**
+         A Boolean value that indicates whether headers pin to the top/footers pin to the bottom of the collection view bounds during scrolling.
+                  
+         When this property is `true`, section header views scroll with content until they reach the top of the screen, at which point they are pinned to the upper bounds of the collection view. Each new header view that scrolls to the top of the screen pushes the previously pinned header view offscreen.
+         */
+        public var pinToVisibleBounds: Bool = false
     }
     
     /// The header attributes.
@@ -290,7 +292,17 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
     }
     
     /// The sizing for each column.
-    public var columnSizing: ColumnSizing = .automatic {
+    enum ColumnSizing: Hashable {
+        /// Fixed column size.
+        case fixed(CGFloat)
+        /// Fixed column size.
+        case relative(CGFloat)
+        /// Each column size.
+        case automatic
+    }
+    
+    /// The sizing for each column.
+    var columnSizing: ColumnSizing = .automatic {
         didSet {
             switch columnSizing {
             case .relative(let value):
@@ -302,15 +314,17 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
     
     /// Sets the sizing for each column.
     @discardableResult
-    open func columnSizing(_ columnSizing: ColumnSizing) -> Self {
+    func columnSizing(_ columnSizing: ColumnSizing) -> Self {
         self.columnSizing = columnSizing
         return self
     }
     
-    /*
+    @objc var scrollDirection: NSUICollectionView.ScrollDirection {
+        orientation == .horizontal ? .vertical : .horizontal
+    }
+    
     /// The margins used to lay out content in a section.
     open var sectionInset: NSUIEdgeInsets = NSUIEdgeInsets(10)
-     */
     
     /// Sets the margins used to lay out content in a section.
     @discardableResult
@@ -337,12 +351,12 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
     private var columnSizes: [[CGFloat]] = []
     private var sectionItemAttributes: [[NSUICollectionViewLayoutAttributes]] = []
     private var allItemAttributes: [NSUICollectionViewLayoutAttributes] = []
-    private var headersAttributes: [Int: NSUICollectionViewLayoutAttributes] = [:]
-    private var footersAttributes: [Int: NSUICollectionViewLayoutAttributes] = [:]
+    private var headersAttributes: [Int: HeaderFooterLayoutAttributes] = [:]
+    private var footersAttributes: [Int: HeaderFooterLayoutAttributes] = [:]
     private var unionRects: [CGRect] = []
     private var mappedItemColumns: [IndexPath: Int] = [:]
     private var _sectionInsetUsesSafeArea: Bool = false
-    private var previousBounds: CGRect = .zero
+    public var previousBounds: CGRect = .zero
     private var didCalcuateItemAttributes: Bool = false
     /// How many items to be union into a single rectangle
     private let unionSize = 20
@@ -351,23 +365,21 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
         guard let collectionView = collectionView else { return .zero }
         var size = collectionView.bounds.size
         #if os(macOS)
+        var insets: NSEdgeInsets = .zero
         if #available(macOS 11.0, *), sectionInsetUsesSafeArea {
-            size.width -= collectionView.enclosingScrollView?.safeAreaInsets.width ?? 0
-            size.height -= collectionView.enclosingScrollView?.safeAreaInsets.height ?? 0
+            insets = collectionView.enclosingScrollView?.safeAreaInsets ?? .zero
         } else {
-            size.width -= collectionView.enclosingScrollView?.contentInsets.width ?? 0
-            size.height -= collectionView.enclosingScrollView?.contentInsets.height ?? 0
+            insets = collectionView.enclosingScrollView?.contentInsets ?? .zero
         }
         #else
-        size.width -= (sectionInsetUsesSafeArea ? collectionView.adjustedContentInset : collectionView.contentInset).width
-        size.height -= (sectionInsetUsesSafeArea ? collectionView.adjustedContentInset : collectionView.contentInset).height
+        let insets = sectionInsetUsesSafeArea ? collectionView.adjustedContentInset : collectionView.contentInset
         #endif
+        size.width -= insets.width
+        size.height -= insets.height + header.height + header.inset.height + footer.height + footer.inset.height
         if includingSectionInset {
             size.width -= sectionInset.width
             size.height -= sectionInset.height
         }
-        size.height -= (header.height + header.inset.height + footer.height + footer.inset.height)
-        
         return size
     }
 
@@ -383,18 +395,19 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
             return ((size - (spaceColumCount * columnSpacing)) / CGFloat(columns))
         }
     }
-
+    
     override open func prepare() {
-        Swift.print("prepare")
-        super.prepare()
-        if didCalcuateItemAttributes == false {
+        // Swift.print("prepare")
+        if !didCalcuateItemAttributes {
+            previousBounds = collectionView?.visibleRect ?? previousBounds
             #if os(macOS) || os(iOS)
-            collectionView?.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
+            collectionView?.setupColumnInteractionGestureRecognizer(needsGestureRecognizer)
             #endif
             prepareItemAttributes()
         } else {
             didCalcuateItemAttributes = false
         }
+        appliedConfiguration = configuration
     }
     
     public func prepareItemAttributes(keepItemOrder: Bool = false) {
@@ -422,12 +435,11 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
             top += header.inset.top
             
             if header.height > 0 {
-                attributes = NSUICollectionViewLayoutAttributes(forSupplementaryViewOfKind: NSUICollectionView.elementKindSectionHeader, with: IndexPath(item: 0, section: section))
-                attributes.frame = CGRect(x: header.inset.left, y: CGFloat(top), width: collectionView.frame.size.width - (header.inset.left + header.inset.right), height: CGFloat(header.height))
-                
+                let attributes = HeaderFooterLayoutAttributes(forSupplementaryViewOfKind: NSUICollectionView.elementKindSectionHeader, with: IndexPath(item: 0, section: section))
+                attributes.frame = CGRect(x: header.inset.left, y: top, width: collectionView.bounds.width - header.inset.width, height: header.height)
+                attributes.cachedOrigin = attributes.frame.origin
                 headersAttributes[section] = attributes
                 allItemAttributes.append(attributes)
-                
                 top = attributes.frame.maxY + header.inset.bottom
             }
             
@@ -439,12 +451,10 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
             let itemCount = collectionView.numberOfItems(inSection: section)
             var itemAttributes: [NSUICollectionViewLayoutAttributes] = []
 
-            // Item will be put into shortest column.
             for idx in 0 ..< itemCount {
                 let indexPath = IndexPath(item: idx, section: section)
                 let columnIndex = nextColumnIndexForItem(indexPath, keepItemOrder: keepItemOrder)
                 mappedItemColumns[indexPath] = columnIndex
-                
                 #if os(macOS)
                 attributes = NSUICollectionViewLayoutAttributes(forItemWith: indexPath)
                 #elseif canImport(UIKit)
@@ -492,18 +502,23 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
             
             top += footer.inset.top
             if footer.height > 0 {
-                attributes = NSUICollectionViewLayoutAttributes(forSupplementaryViewOfKind: NSUICollectionView.elementKindSectionFooter, with: IndexPath(item: 0, section: section))
-                attributes.frame = CGRect(x: footer.inset.left, y: CGFloat(top), width: collectionView.frame.size.width - (footer.inset.left + footer.inset.right), height: CGFloat(footer.height))
-                
+                let attributes = HeaderFooterLayoutAttributes(forSupplementaryViewOfKind: NSUICollectionView.elementKindSectionFooter, with: IndexPath(item: 0, section: section))
+                attributes.frame = CGRect(x: footer.inset.left, y: top, width: collectionView.bounds.width - footer.inset.width, height: footer.height)
+                attributes.cachedOrigin = attributes.frame.origin
                 footersAttributes[section] = attributes
                 allItemAttributes.append(attributes)
-                
                 top = attributes.frame.maxY + footer.inset.bottom
             }
-
+            
             columnSizes[section] = [CGFloat](repeating: top, count: columns)
         }
-
+        
+        updateHeaderFooterAttributes()
+        updateUnionRects()
+    }
+    
+    func updateUnionRects() {
+        unionRects = []
         var idx = 0
         while idx < allItemAttributes.count {
             let rect1 = allItemAttributes[idx].frame
@@ -514,18 +529,38 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
         }
     }
     
+    func updateHeaderFooterAttributes() {
+        guard let collectionView = collectionView else { return }
+        if header.pinToVisibleBounds {
+            for attribute in headersAttributes.sorted(by: \.key).compactMap({$0.value}) {
+                
+                let nextHeaderOrigin = headersAttributes[attribute.indexPath!.section + 1]?.frame.origin ?? CGPoint(.greatestFiniteMagnitude)
+                let nextHeaderOffset = nextHeaderOrigin.y - attribute.frame.size.height
+                let offsetAdjustment = collectionView.contentOffset.y
+                let nexHeaderOffset = nextHeaderOrigin.y - attribute.frame.size.height - footer.height
+                attribute.frame.origin.y = min(max(offsetAdjustment, attribute.cachedOrigin.y), nexHeaderOffset)
+                // Swift.print("header", attribute.indexPath!.section, attribute.frame.y, offsetAdjustment,attribute.frame.y ==  offsetAdjustment)
+                attribute.zIndex = attribute.frame.y ==  offsetAdjustment ? 1000 : 0
+            }
+        }
+        if footer.pinToVisibleBounds {
+            for attribute in footersAttributes.sorted(by: \.key).compactMap({$0.value}) {
+                
+                let previousFooterOrigin = footersAttributes[attribute.indexPath!.section - 1]?.frame.origin ?? CGPoint(-CGFloat.greatestFiniteMagnitude)
+                let offsetAdjustment = collectionView.contentOffset.y + collectionView.visibleRect.height - attribute.frame.height
+                let previousFooterOffset = previousFooterOrigin.y + attribute.frame.size.height + header.height
+                attribute.frame.origin.y = max(min(offsetAdjustment, attribute.cachedOrigin.y), previousFooterOffset)
+                attribute.zIndex = 1000
+            }
+        }
+    }
+    
     override open var collectionViewContentSize: CGSize {
         guard let collectionView = collectionView, collectionView.numberOfSections > 0, let size = columnSizes.last?.first else {
             return .zero
         }
         return orientation == .horizontal ? CGSize(collectionView.bounds.width, size) : CGSize(size, collectionView.bounds.height)
     }
-    
-    /*
-    @objc var scrollDirection: NSUICollectionView.ScrollDirection {
-        orientation == .horizontal ? .vertical : .horizontal
-    }
-     */
 
     override open func layoutAttributesForItem(at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes? {
         sectionItemAttributes[safe: indexPath.section]?[safe: indexPath.item]
@@ -533,41 +568,54 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
     
     override open func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes {
         if elementKind == NSUICollectionView.elementKindSectionHeader, let attribute = headersAttributes[indexPath.section] {
-            updateHeaderFooterAttributes(attribute, isHeader: true)
             return attribute
         } else if elementKind == NSUICollectionView.elementKindSectionFooter, let attribute = footersAttributes[indexPath.section] {
-            updateHeaderFooterAttributes(attribute, isHeader: false)
             return attribute
         }
         return NSUICollectionViewLayoutAttributes()
     }
     
+    public override func invalidateLayout(with context: NSUICollectionViewLayoutInvalidationContext) {
+        // Swift.print("invalidateLayoutWithContext")
+        let context = context as! InvalidationContext
+        if context.invalidateItemAttributes {
+            let contentOffset = collectionView?.contentOffset ?? .zero
+            let oldSize = collectionViewContentSize
+            prepareItemAttributes(keepItemOrder: true)
+            let newSize = collectionViewContentSize
+            if orientation == .horizontal {
+                context.contentOffsetAdjustment.y = (contentOffset.y * (newSize.height / oldSize.height)) - contentOffset.y
+            } else {
+                context.contentOffsetAdjustment.x = (contentOffset.x * (newSize.width / oldSize.width)) - contentOffset.x
+            }
+            didCalcuateItemAttributes = true
+        } else if context.invalidateHeaderFooterAttributes {
+            updateHeaderFooterAttributes()
+            updateUnionRects()
+            context.invalidateSupplementaryElements(ofKind: NSCollectionView.elementKindSectionHeader, at: Set(headersAttributes.compactMap({$0.value.indexPath})))
+            context.invalidateSupplementaryElements(ofKind: NSCollectionView.elementKindSectionFooter, at: Set(footersAttributes.compactMap({$0.value.indexPath})))
+        }
+        super.invalidateLayout(with: context)
+    }
+    
     open override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
-        guard orientation == .horizontal && previousBounds.width != newBounds.width || orientation == .vertical && previousBounds.height != newBounds.height || ((header.floats || footer.floats) && previousBounds.y != newBounds.y) else { return false }
-        previousBounds = newBounds
+        guard orientation == .horizontal && previousBounds.width != newBounds.width || orientation == .vertical && previousBounds.height != newBounds.height || ((header.pinToVisibleBounds || footer.pinToVisibleBounds) && previousBounds.y != newBounds.y) else { return false }
         return true
     }
         
     open override func invalidationContext(forBoundsChange newBounds: CGRect) -> NSUICollectionViewLayoutInvalidationContext {
-        let context = super.invalidationContext(forBoundsChange: newBounds)
-        let contentOffset = collectionView?.contentOffset ?? .zero
-        let oldSize = collectionViewContentSize
-        prepareItemAttributes(keepItemOrder: true)
-        let newSize = collectionViewContentSize
-        if orientation == .horizontal {
-            context.contentOffsetAdjustment.y = (contentOffset.y * (newSize.height / oldSize.height)) - contentOffset.y
-        } else {
-            context.contentOffsetAdjustment.x = (contentOffset.x * (newSize.width / oldSize.width)) - contentOffset.x
-        }
-        didCalcuateItemAttributes = true
+        // Swift.print("invalidationContext BoundsChange", newBounds, previousBounds)
+        let context = super.invalidationContext(forBoundsChange: newBounds) as! InvalidationContext
+        context.invalidateHeaderFooterAttributes = (header.pinToVisibleBounds || footer.pinToVisibleBounds) && previousBounds.y != newBounds.y
+        context.invalidateItemAttributes = orientation == .horizontal && previousBounds.width != newBounds.width || orientation == .vertical && previousBounds.height != newBounds.height
+        previousBounds = newBounds
         return context
     }
     
-    public override func invalidationContext(forPreferredLayoutAttributes preferredAttributes: NSUICollectionViewLayoutAttributes, withOriginalAttributes originalAttributes: NSUICollectionViewLayoutAttributes) -> NSUICollectionViewLayoutInvalidationContext {
-        let context = super.invalidationContext(forPreferredLayoutAttributes: preferredAttributes, withOriginalAttributes: originalAttributes)
-        return context
+    public override class var invalidationContextClass: AnyClass {
+        InvalidationContext.self
     }
-
+    
     override open func layoutAttributesForElements(in rect: CGRect) -> [NSUICollectionViewLayoutAttributes] {
         var begin = 0, end = unionRects.count
 
@@ -580,24 +628,8 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
         
         let attributes = allItemAttributes[begin ..< end]
             .filter { rect.intersects($0.frame) }
-        
-        if header.floats {
-            attributes.filter({$0.representedElementKind == NSUICollectionView.elementKindSectionHeader}).forEach({ updateHeaderFooterAttributes($0, isHeader: true) })
-        }
-        
-        if footer.floats {
-            attributes.filter({$0.representedElementKind == NSUICollectionView.elementKindSectionFooter}).forEach({ updateHeaderFooterAttributes($0, isHeader: false) })
-        }
 
         return attributes
-    }
-    
-    private func updateHeaderFooterAttributes(_ attributes: NSUICollectionViewLayoutAttributes, isHeader: Bool) {
-        guard let collectionView = collectionView, (isHeader && header.floats) || (!isHeader && footer.floats) else { return }
-        attributes.zIndex = 1
-        attributes.isHidden = false
-        let yCenterOffset = isHeader ? (collectionView.bounds.y + attributes.size.height/2.0) : (collectionView.bounds.y + collectionView.bounds.height - attributes.size.height/2.0)
-        attributes.frame.center = CGPoint(collectionView.bounds.midX, yCenterOffset)
     }
 
     private func shortestColumnIndex(inSection section: Int) -> Int {
@@ -624,43 +656,131 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
         return index
     }
     
-    #if os(macOS)
-    public func invalidateLayout(animated: Bool, keepScrollPosition: Bool) {
+    /// Invalidates the layout animated.
+    public func invalidateLayout(animated: Bool) {
         guard let collectionView = collectionView else { return }
-        // collectionView.setCollectionViewLayout(copied(), animated: animated)
-        let displayingIndexPaths: [IndexPath] = keepScrollPosition ? collectionView.displayingIndexPaths() : []
+        let displayingIndexPaths = collectionView.displayingIndexPaths()
         let animationDuration = animated ? animationDuration : 0.0
-        NSAnimationContext.runAnimationGroup({ context in
-            context.duration = animationDuration
-            collectionView.animator(animated).collectionViewLayout = copied(columns: columns)
-            guard !displayingIndexPaths.isEmpty else { return }
-            #if os(macOS)
-            collectionView.scrollToItems(at: Set(displayingIndexPaths), scrollPosition: .centeredVertically)
-            #else
-            collectionView.scrollToItems(at: Set(displayingIndexPaths), at: .centeredVertically)
-            #endif
-        })
+        
+        let copy = copied(columns: columns)
+        let current = configuration
+        configuration = appliedConfiguration
+        collectionView.setCollectionViewLayout(copy, animated: animated, completion: { collectionView.collectionViewLayout = self })
+        guard !displayingIndexPaths.isEmpty else { return }
+        collectionView.scrollToItems(at: Set(displayingIndexPaths), scrollPosition: .centeredVertically)
+        configuration = current
     }
-    #endif
+    
+    struct LayoutConfiguration: Hashable, Equatable {
+         var columns: Int = 3
+         var itemSpacing: CGFloat = 10.0
+         var columnSpacing: CGFloat = 10.0
+         var sectionInset: NSUIEdgeInsets = .init(10.0)
+         var itemLayout: ItemLayout = .grid(CGSize(1.0))
+         var itemOrder: ItemSortOrder = .leftToRight
+         var orientation: NSUIUserInterfaceLayoutOrientation = .horizontal
+         var header: HeaderFooterAttributes = .init()
+         var footer: HeaderFooterAttributes = .init()
+         var sectionInsetUsesSafeArea: Bool = false
+     }
+     
+     var appliedConfiguration: LayoutConfiguration = .init()
+    
+    var configuration: LayoutConfiguration {
+        get { .init(columns: columns, itemSpacing: itemSpacing, columnSpacing: columnSpacing, sectionInset: sectionInset, itemLayout: itemLayout, itemOrder: itemOrder, orientation: orientation, header: header, footer: footer, sectionInsetUsesSafeArea: _sectionInsetUsesSafeArea) }
+        set {
+            columns = newValue.columns
+            itemSpacing = newValue.itemSpacing
+            columnSpacing = newValue.columnSpacing
+            sectionInset = newValue.sectionInset
+            itemLayout = newValue.itemLayout
+            itemOrder = newValue.itemOrder
+            orientation = newValue.orientation
+            header = newValue.header
+            footer = newValue.footer
+            _sectionInsetUsesSafeArea = newValue.sectionInsetUsesSafeArea
+        }
+    }
+    
+    class HeaderFooterLayoutAttributes: NSUICollectionViewLayoutAttributes {
+        var cachedOrigin: CGPoint = .zero
+    }
+    
+    class InvalidationContext: NSUICollectionViewLayoutInvalidationContext {
+        var cachedOrigin: CGPoint = .zero
+        var invalidateHeaderFooterAttributes: Bool = false
+        var invalidateItemAttributes: Bool = false
+        /*
+        var shouldInvalidate: Bool = false
+        
+        override var invalidateEverything: Bool {
+            shouldInvalidate
+        }
+        override var invalidateDataSourceCounts: Bool {
+            return false
+        }
+         */
+    }
     
     func copied(columns: Int? = nil) -> NSUICollectionViewLayout {
-        let layout = CollectionViewColumnLayout()
+        let layout = ColumnCollectionViewLayout()
+        layout.configuration = configuration
         layout.columns = columns ?? self.columns
-        layout.columnSpacing = columnSpacing
-        layout.columnSizing = columnSizing
-        layout.itemSpacing = itemSpacing
-        layout.orientation = orientation
-        layout.itemLayout = itemLayout
-        layout.sectionInset = sectionInset
-        layout.header = header
-        layout.footer = footer
-        layout.itemOrder = itemOrder
-        layout._sectionInsetUsesSafeArea = _sectionInsetUsesSafeArea
         #if os(macOS) || os(iOS)
         layout.userInteraction = userInteraction
         #endif
         return layout
     }
+    
+    /*
+    public override func invalidationContext(forPreferredLayoutAttributes preferredAttributes: NSUICollectionViewLayoutAttributes, withOriginalAttributes originalAttributes: NSUICollectionViewLayoutAttributes) -> NSUICollectionViewLayoutInvalidationContext {
+        Swift.print("invalidationContext LayoutAttributes", dateString)
+        let context = super.invalidationContext(forPreferredLayoutAttributes: preferredAttributes, withOriginalAttributes: originalAttributes)
+        return context
+    }
+    
+    var _invalidationContext: InvalidationContext? {
+        value(forKey: "_invalidationContext") as? InvalidationContext
+    }
+    
+    public override func invalidateLayout() {
+        if let context = _invalidationContext {
+            
+            Swift.print("invalidateLayout 0", context.value(forKey: "_updateItems"), context.invalidateEverything, context.invalidateDataSourceCounts, context.invalidatedItemIndexPaths ?? [], dateString)
+            super.invalidateLayout()
+            Swift.print("invalidateLayout 1", dateString)
+        } else {
+            Swift.print("invalidateLayout 0", dateString)
+            super.invalidateLayout()
+            Swift.print("invalidateLayout 1", dateString)
+        }
+    }
+    
+    public override func prepare(forCollectionViewUpdates updateItems: [NSCollectionViewUpdateItem]) {
+        Swift.print("prepareForCollectionViewUpdates", updateItems.count)
+        super.prepare(forCollectionViewUpdates: updateItems)
+    }
+    
+    public override func finalLayoutAttributesForDisappearingItem(at itemIndexPath: IndexPath) -> NSCollectionViewLayoutAttributes? {
+        Swift.print("finalLayoutAttributes", itemIndexPath)
+        return super.finalLayoutAttributesForDisappearingItem(at: itemIndexPath)
+    }
+    
+    public override func initialLayoutAttributesForAppearingItem(at itemIndexPath: IndexPath) -> NSCollectionViewLayoutAttributes? {
+        Swift.print("initialLayoutAttributes", itemIndexPath)
+        return super.initialLayoutAttributesForAppearingItem(at: itemIndexPath)
+    }
+        
+    var dateString: String {
+        let date = Date()
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = "mm:ss.SSSSSS"
+        return formatter.string(from: Date())
+        
+        return "\(date.minute)\(date.second):\(date.nanosecond)"
+    }
+     */
     
     /**
      A interactive waterfall layout where the user can change the amount of columns by pinching the collection view.
@@ -672,8 +792,8 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
         - orientation: The orientation of the layout.
         - itemSizeProvider: The handler that provides the item sizes..
      */
-    public static func waterfall(columnsCount columns: Int, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), orientation: NSUIUserInterfaceLayoutOrientation = .horizontal, itemSizeProvider: @escaping ItemSizeProvider) -> CollectionViewColumnLayout {
-        let layout = CollectionViewColumnLayout()
+    public static func waterfall(columnsCount columns: Int, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), orientation: NSUIUserInterfaceLayoutOrientation = .horizontal, itemSizeProvider: @escaping ItemSizeProvider) -> ColumnCollectionViewLayout {
+        let layout = ColumnCollectionViewLayout()
         layout.columns = columns
         layout.orientation = orientation
         layout.itemSpacing = spacing
@@ -682,13 +802,6 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
         layout.sectionInset = insets
         return layout
     }
-    
-    /*
-    public override func invalidateLayout(with context: NSCollectionViewLayoutInvalidationContext) {
-        Swift.print("invalidateLayout(with", context.invalidateEverything, context.invalidateDataSourceCounts, context.invalidatedItemIndexPaths?.count ?? "nil")
-        return super.invalidateLayout(with: context)
-    }
-     */
     
     /**
      Creates a grid collection view layout.
@@ -700,8 +813,8 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
         - orientation: The orientation of the layout.
         - itemAspectRatio: The aspect ratio of the items.
      */
-    public static func grid(columnsCount: Int, orientation: NSUIUserInterfaceLayoutOrientation = .horizontal, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemAspectRatio: CGSize = CGSize(1,1)) -> CollectionViewColumnLayout {
-        let layout = CollectionViewColumnLayout()
+    public static func grid(columnsCount: Int, orientation: NSUIUserInterfaceLayoutOrientation = .horizontal, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemAspectRatio: CGSize = CGSize(1,1)) -> ColumnCollectionViewLayout {
+        let layout = ColumnCollectionViewLayout()
         layout.columns = columnsCount
         layout.orientation = orientation
         layout.itemSpacing = spacing
@@ -734,7 +847,7 @@ public class CollectionViewColumnLayout: NSUICollectionViewFlowLayout, Interacti
     }
 }
 
-protocol InteractiveCollectionViewLayout {
+protocol InteractiveCollectionViewLayout: NSUICollectionViewLayout {
     var columns: Int { get set }
     var columnRange: ClosedRange<Int> { get }
     var isPinchable: Bool { get }
@@ -743,31 +856,73 @@ protocol InteractiveCollectionViewLayout {
     var keyDownColumnChangeAmountAlt: Int { get }
     var keyDownColumnChangeAmountShift: Int { get }
     #endif
-    var animationDuration: TimeInterval { get }
-    func copied(columns: Int?) -> NSUICollectionViewLayout
+    func invalidateLayout(animated: Bool)
+}
+
+extension InteractiveCollectionViewLayout {
+    var needsGestureRecognizer: Bool {
+        #if os(macOS)
+        isPinchable || keyDownColumnChangeAmount != 0 || keyDownColumnChangeAmountAlt != 0 || keyDownColumnChangeAmountShift != 0
+        #else
+        isPinchable
+        #endif
+    }
 }
 
 #if os(macOS) || os(iOS)
 extension NSUICollectionView {
-    var pinchColumnsGestureRecognizer: PinchColumnsGestureRecognizer? {
-        get { getAssociatedValue("pinchColumnsGestureRecognizer") }
-        set { setAssociatedValue(newValue, key: "pinchColumnsGestureRecognizer") }
+    var columnInteractionGestureRecognizer: ColumnInteractionGestureRecognizer? {
+        get { getAssociatedValue("columnInteractionGestureRecognizer") }
+        set { setAssociatedValue(newValue, key: "columnInteractionGestureRecognizer") }
     }
     
-    func setupPinchGestureRecognizer(_ needsRecognizer: Bool) {
-        if needsRecognizer, pinchColumnsGestureRecognizer == nil {
-            pinchColumnsGestureRecognizer = .init(target: nil, action: nil)
-            addGestureRecognizer(pinchColumnsGestureRecognizer!)
-        } else if !needsRecognizer, let gestureRecognizer = pinchColumnsGestureRecognizer {
-            removeGestureRecognizer(gestureRecognizer)
-            pinchColumnsGestureRecognizer = nil
+    func setupColumnInteractionGestureRecognizer(_ needsRecognizer: Bool) {
+        if needsRecognizer {
+            if columnInteractionGestureRecognizer == nil {
+                columnInteractionGestureRecognizer = .init()
+                addGestureRecognizer(columnInteractionGestureRecognizer!)
+            }
+            #if os(macOS)
+            columnInteractionGestureRecognizer!.setupKeyDownMonitor()
+            #endif
+        } else if !needsRecognizer {
+            columnInteractionGestureRecognizer?.removeFromView()
+            columnInteractionGestureRecognizer = nil
         }
     }
     
-    class PinchColumnsGestureRecognizer: NSUIMagnificationGestureRecognizer {
+    class ColumnInteractionGestureRecognizer: NSUIMagnificationGestureRecognizer {
         
         var initalColumns: Int = 0
         var displayingIndexPaths: [IndexPath] = []
+        var keyDownMonitor: NSEvent.Monitor?
+        
+        #if os(macOS)
+        func setupKeyDownMonitor() {
+            if let interactiveLayout = interactiveLayout, interactiveLayout.keyDownColumnChangeAmount != 0 || interactiveLayout.keyDownColumnChangeAmountShift != 0 || interactiveLayout.keyDownColumnChangeAmountAlt != 0 {
+                guard keyDownMonitor == nil else { return }
+                keyDownMonitor = NSEvent.localMonitor(for: .keyDown) { event in
+                    guard event.keyCode == 44 || event.keyCode == 30, self.collectionView?.isFirstResponder == true else { return event }
+                    self.updateColumns(with: event)
+                    return nil
+                }
+            } else {
+                keyDownMonitor = nil
+            }
+        }
+        
+        func updateColumns(with event: NSEvent) {
+            guard event.keyCode == 44 || event.keyCode == 30, collectionView?.isFirstResponder == true, let interactiveLayout = interactiveLayout else { return }
+            let addition = event.modifierFlags.contains(.shift) ? interactiveLayout.keyDownColumnChangeAmountShift : event.modifierFlags.contains(.command) ? interactiveLayout.keyDownColumnChangeAmountAlt : interactiveLayout.keyDownColumnChangeAmount
+            displayingIndexPaths = collectionView?.displayingIndexPaths() ?? []
+            if addition == -1 {
+                columns = event.keyCode == 44 ? columnRange.upperBound : columnRange.lowerBound
+            } else {
+                columns += event.keyCode == 44 ? addition : -addition
+            }
+            scrollToDisplayingIndexPaths()
+        }
+        #endif
         
         var collectionView: NSUICollectionView? {
             view as? NSUICollectionView
@@ -777,45 +932,27 @@ extension NSUICollectionView {
             collectionView?.collectionViewLayout
         }
         
-        var configuration: InteractiveCollectionViewLayout? {
+        var interactiveLayout: InteractiveCollectionViewLayout? {
             collectionViewLayout as? InteractiveCollectionViewLayout
         }
-                
-        var columns: Int {
-            get { configuration?.columns ?? 2 }
-            set {
-                let newValue = newValue.clamped(to: columnRange)
-                guard newValue != columns, let configuration = configuration, let collectionView = collectionView else { return }
-                collectionView.setCollectionViewLayout(configuration.copied(columns: newValue), animationDuration: animateColumns ? configuration.animationDuration : 0.0)
-            }
-        }
-        
-        var animateColumns: Bool = true
         
         var columnRange: ClosedRange<Int> {
-            configuration?.columnRange ?? 1...12
+            interactiveLayout?.columnRange ?? 1...12
         }
         
         var isPinchable: Bool {
-            configuration?.isPinchable ?? false
+            interactiveLayout?.isPinchable ?? false
         }
                 
-        #if os(macOS)
-        override func keyDown(with event: NSEvent) {
-            super.keyDown(with: event)
-            guard event.keyCode == 44 || event.keyCode == 30, let configuration = configuration else { return }
-            let addition = event.modifierFlags.contains(.shift) ? configuration.keyDownColumnChangeAmountShift : event.modifierFlags.contains(.command) ? configuration.keyDownColumnChangeAmountAlt : configuration.keyDownColumnChangeAmount
-            displayingIndexPaths = collectionView?.displayingIndexPaths() ?? []
-            animateColumns = false
-            if addition == -1 {
-                columns = event.keyCode == 44 ? columnRange.upperBound : columnRange.lowerBound
-            } else {
-                columns += event.keyCode == 44 ? addition : -addition
+        var columns: Int {
+            get { interactiveLayout?.columns ?? 2 }
+            set {
+                let newValue = newValue.clamped(to: columnRange)
+                guard newValue != columns, let interactiveLayout = interactiveLayout, let collectionView = collectionView else { return }
+                interactiveLayout.columns = newValue
+                interactiveLayout.invalidateLayout(animated: true)
             }
-            animateColumns = true
-            scrollToDisplayingIndexPaths()
         }
-        #endif
                 
         override var state: NSUIGestureRecognizer.State {
             didSet {
@@ -823,6 +960,14 @@ extension NSUICollectionView {
                 case .began:
                     initalColumns = isPinchable ? columns : -1
                     displayingIndexPaths = isPinchable ? collectionView?.displayingIndexPaths() ?? [] : []
+                    if let collectionView = collectionView {
+                        let centerPoint = collectionView.visibleRect.center
+                       let mapped = displayingIndexPaths.compactMap({
+                        let frame = collectionView.frameForItem(at: $0 ) ?? .zero
+                          let distance = frame.center.distance(to: centerPoint)
+                           return (indexPath: $0, frame: frame, distance: distance) }).sorted(by: \.distance)
+                        Swift.print(CGRect(collectionView.contentOffset, collectionView.frame.size), collectionView.visibleRect)
+                    }
                 case .changed:
                     guard initalColumns != -1 else { return }
                     #if os(macOS)
@@ -845,31 +990,6 @@ extension NSUICollectionView {
             #endif
         }
     }
-}
-
-extension NSUICollectionView {
-    /// Returns the index paths of the currently displayed items. Unlike `indexPathsForVisibleItems()`  it only returns the items with visible frame.
-    public func displayingIndexPaths(in rect: CGRect) -> [IndexPath] {
-        #if os(macOS)
-        return (displayingItems(in: rect).compactMap { self.indexPath(for: $0) }).sorted()
-        #else
-        return (displayingCells(in: rect).compactMap { self.indexPath(for: $0) }).sorted()
-        #endif
-    }
-    
-    #if os(macOS)
-    /// Returns an array of all displayed items. Unlike `visibleItems()` it only returns the items with visible frame.
-    public func displayingItems(in rect: CGRect) -> [NSCollectionViewItem] {
-        let visibleItems = visibleItems()
-        return visibleItems.filter { $0.view.frame.intersects(rect) }
-    }
-    #else
-    /// Returns an array of all displayed items. Unlike `visibleItems()` it only returns the items with visible frame.
-    public func displayingCells(in rect: CGRect) -> [UICollectionViewCell] {
-        let visibleItems = visibleCells
-        return visibleItems.filter { $0.frame.intersects(rect) }
-    }
-    #endif
 }
 #endif
 #endif

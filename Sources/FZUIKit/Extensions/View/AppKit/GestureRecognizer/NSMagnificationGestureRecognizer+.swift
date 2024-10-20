@@ -12,7 +12,7 @@ import FZSwiftUtils
 extension NSMagnificationGestureRecognizer: VelocityGestureRecognizer {
     
     /// The velocity of the magnification in scale factor per second.
-    @objc dynamic public var velocity: CGFloat {
+    @objc dynamic public private(set) var velocity: CGFloat {
         get{
             swizzleGestureState()
             return getAssociatedValue("velocity") ?? 1.0

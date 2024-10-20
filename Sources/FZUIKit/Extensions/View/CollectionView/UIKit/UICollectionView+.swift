@@ -15,6 +15,12 @@
             (displayingCells().compactMap { self.indexPath(for: $0) }).sorted()
         }
         
+        /// An array of all displayed cells. Unlike `visibleCells()` it only returns the items with visible frame.
+        public func displayingCells() -> [UICollectionViewCell] {
+            let visibleRect = CGRect(origin: contentOffset, size: bounds.size)
+            return visibleCells.filter { $0.frame.intersects(visibleRect) }
+        }
+        
         /**
          Changes the collection view layout animated.
          
@@ -32,16 +38,9 @@
                 setCollectionViewLayout(layout, animated: false)
             }
         }
-
-        /// Returns an array of all displayed cells. Unlike `visibleCells()` it only returns the items with visible frame.
-        public func displayingCells() -> [UICollectionViewCell] {
-            let visibleCells = visibleCells
-            let visibleRect = frame.intersection(superview?.bounds ?? frame)
-            return visibleCells.filter { $0.frame.intersects(visibleRect) }
-        }
         
         var centerIndexPath: IndexPath? {
-            let centerPoint = frame.intersection(superview?.bounds ?? frame).center
+            let centerPoint = CGRect(origin: contentOffset, size: bounds.size).center
             if let cell = visibleCells.first(where: { $0.frame.contains(centerPoint) }) {
                 return indexPath(for: cell)
             }

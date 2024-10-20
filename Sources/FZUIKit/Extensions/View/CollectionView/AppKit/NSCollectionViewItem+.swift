@@ -10,22 +10,21 @@
     import AppKit
 
     extension NSCollectionViewItem {
+        /// The index path of the item.
+        @objc open var indexPath: IndexPath? {
+            collectionView?.indexPath(for: self)
+        }
+        
         /// The previous item in the collection view, or `nil` if there isn't a previous item or the item isn't in a collection view.
         @objc open var previousItem: NSCollectionViewItem? {
-            if let indexPath = collectionView?.indexPath(for: self), indexPath.item - 1 >= 0 {
-                let previousIndexPath = IndexPath(item: indexPath.item - 1, section: indexPath.section)
-                return collectionView?.item(at: previousIndexPath)
-            }
-            return nil
+            guard let indexPath = indexPath, indexPath.item - 1 >= 0 else { return nil }
+            return collectionView?.item(at: IndexPath(item: indexPath.item - 1, section: indexPath.section))
         }
 
         /// The next item in the collection view, or `nil` if there isn't a next item or the item isn't in a collection view.
         @objc open var nextItem: NSCollectionViewItem? {
-            if let indexPath = collectionView?.indexPath(for: self), indexPath.item + 1 < (self.collectionView?.numberOfItems(inSection: indexPath.section) ?? -10) {
-                let nextIndexPath = IndexPath(item: indexPath.item + 1, section: indexPath.section)
-                return collectionView?.item(at: nextIndexPath)
-            }
-            return nil
+            guard let collectionView = collectionView, let indexPath = indexPath, indexPath.item + 1 < collectionView.numberOfItems(inSection: indexPath.section) else { return nil }
+            return collectionView.item(at: IndexPath(item: indexPath.item + 1, section: indexPath.section))
         }
     }
 

@@ -15,6 +15,117 @@
     #endif
 
 extension NSUICollectionViewLayout {
+    /**
+     A collection view layout that displays the items as a list.
+     
+     - Parameters:
+        - rowHeight: The height of each row.
+        - seperatorLine: A Boolean value that indicates whether the layout displays seperator lines.
+     */
+    static func list(rowHeight: CGFloat, seperatorLine: Bool) -> NSUICollectionViewLayout {
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                              heightDimension: .fractionalHeight(1.0))
+
+        var itemSupplementaryItems = [NSCollectionLayoutBoundarySupplementaryItem]()
+        if seperatorLine {
+            itemSupplementaryItems.append(.bottomSeperatorLine)
+        }
+        let item = NSCollectionLayoutItem(layoutSize: itemSize, supplementaryItems: itemSupplementaryItems)
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                               heightDimension: .absolute(rowHeight))
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize,
+                                                       subitems: [item])
+        let section = NSCollectionLayoutSection(group: group)
+
+        let layout = NSUICollectionViewCompositionalLayout(section: section)
+        return layout
+    }
+    
+    /**
+     A collection view layout that displays the items with a fixed width or height.
+     
+     - Parameters:
+        - orientation: The orientation of the items.
+        - itemSize: The fixed width or height of the items.
+        - spacing: The spacing between the items. The default value is `0`.
+        - scrollingBehavior: The scrolling behavior of the items. The default value is `continuous`.
+        - insets: The insets of the layout. The default value is `zero`.
+     */
+    static func fixed(orientation: NSUIUserInterfaceLayoutOrientation, itemSize: CGFloat, spacing: CGFloat = 0.0, scrollingBehavior: NSUICollectionLayoutSectionOrthogonalScrollingBehavior = .continuous, insets: NSDirectionalEdgeInsets = .zero) -> NSUICollectionViewLayout {
+        let layoutItemSize: NSCollectionLayoutSize
+        if orientation == .horizontal {
+            layoutItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                              heightDimension: .absolute(itemSize))
+        } else {
+            layoutItemSize = NSCollectionLayoutSize(widthDimension: .absolute(itemSize),
+                                              heightDimension: .fractionalHeight(1.0))
+        }
+
+        let item = NSCollectionLayoutItem(layoutSize: layoutItemSize, supplementaryItems: [])
+        let groupSize: NSCollectionLayoutSize
+        if orientation == .horizontal {
+            groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                                   heightDimension: .fractionalHeight(1.0))
+        } else {
+            groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
+                                               heightDimension: .fractionalHeight(1.0))
+        }
+        let group: NSCollectionLayoutGroup
+        if orientation == .horizontal {
+            group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize,
+                                                           subitems: [item])
+        } else {
+            group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize,
+                                                           subitems: [item])
+        }
+        group.interItemSpacing = .fixed(spacing)
+        group.contentInsets = insets
+        
+        let section = NSCollectionLayoutSection(group: group)
+        section.orthogonalScrollingBehavior = scrollingBehavior
+        
+        let layout = NSUICollectionViewCompositionalLayout(section: section)
+        return layout
+    }
+
+    /**
+     A collection view layout that displays each item full size.
+     
+     - Parameters:
+        - direction: The item direction of the layout.
+        - paging: A Boolean value that indicates whether the items are paging.
+        - itemSpacing: The spacing between the items.
+        - insets: The insets of the layout.
+     */
+    static func fullSize(direction: NSUICollectionView.ScrollDirection, paging: Bool, itemSpacing: CGFloat = 0.0, insets: NSDirectionalEdgeInsets = .zero) -> NSUICollectionViewLayout {
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .fractionalHeight(1.0)
+        )
+
+        let layoutItem = NSCollectionLayoutItem(layoutSize: itemSize)
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .fractionalHeight(1.0)
+        )
+        let layoutGroup = NSCollectionLayoutGroup.vertical(
+            layoutSize: groupSize,
+            subitems: [layoutItem]
+        )
+        
+        if itemSpacing != 0.0 {
+            layoutGroup.interItemSpacing = .fixed(itemSpacing)
+        }
+
+        let layoutSection = NSCollectionLayoutSection(group: layoutGroup)
+        layoutSection.contentInsets = insets
+        layoutSection.orthogonalScrollingBehavior = paging ? .paging : .continuous
+        let config = NSUICollectionViewCompositionalLayoutConfiguration()
+        config.scrollDirection = direction
+        let layout = NSUICollectionViewCompositionalLayout(section: layoutSection, configuration: config)
+        return layout
+    }
+    
 #if os(macOS) || os(iOS)
 /**
  A interactive grid layout where the user can change the amount of columns by pinching the collection view.
@@ -51,8 +162,8 @@ public static func grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1)
     _grid(columns: columns, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer)
 }
 #endif
-internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, center: NSUIUserInterfaceLayoutOrientation? = nil) -> ColumnsCollectionViewLayout {
-    let layout = ColumnsCollectionViewLayout { (_: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
+internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, center: NSUIUserInterfaceLayoutOrientation? = nil) -> CollectionViewCompositionalColumnLayout {
+    let layout = CollectionViewCompositionalColumnLayout { (_: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
         // Item
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(itemAspectRatio.width / itemAspectRatio.height), heightDimension: .fractionalHeight(1))
 
@@ -105,7 +216,6 @@ internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1,
     layout.columns = columns
     return layout
 }
-    
     
     /// The item order of a compositional waterfall layout.
     public enum WaterfallItemOrder {
@@ -163,16 +273,6 @@ internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1,
         /// The range of columns that the user can change to.
         public var columnRange: ClosedRange<Int> = 1...12
         
-        /*
-         /// The minimum amount of columns the user can change to by pinching the collection view or pressing the `plus` / `minus` key.
-         public var minColumns: Int = 2 {
-             didSet { minColumns = minColumns.clamped(min: 1) }
-         }
-         
-         /// The maximum amount of columns the user can change to by pinching the collection view or pressing the `plus` / `minus` key.
-         public var maxColumns: Int = 12
-         */
-        
         /**
          The animation duration when the user changes the amount of columns.
                   
@@ -221,9 +321,9 @@ internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1,
     }
 #endif
     
-    static func _waterfallCompositional(columns: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemOrder: WaterfallItemOrder = .shortestColumn, itemSizeProvider: @escaping (IndexPath) -> CGSize) -> ColumnsCollectionViewLayout {
+    static func _waterfallCompositional(columns: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemOrder: WaterfallItemOrder = .shortestColumn, itemSizeProvider: @escaping (IndexPath) -> CGSize) -> CollectionViewCompositionalColumnLayout {
         var numberOfItems: (Int) -> Int = { _ in 0 }
-        let layout = ColumnsCollectionViewLayout { section, environment in
+        let layout = CollectionViewCompositionalColumnLayout { section, environment in
             let height = environment.container.effectiveContentSize.height.clamped(min: 100)
             let groupLayoutSize = NSCollectionLayoutSize(
                 widthDimension: .fractionalWidth(1),
@@ -325,8 +425,8 @@ internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1,
     }
 }
 
-class ColumnsCollectionViewLayout: NSUICollectionViewCompositionalLayout, InteractiveCollectionViewLayout {
-    
+class CollectionViewCompositionalColumnLayout: NSUICollectionViewCompositionalLayout, InteractiveCollectionViewLayout {
+
     var columns = 3
     var columnRange: ClosedRange<Int> = 2...12
     var isPinchable = false
@@ -346,22 +446,16 @@ class ColumnsCollectionViewLayout: NSUICollectionViewCompositionalLayout, Intera
         self.animationDuration = userInteraction.animationDuration
         self.invalidation = invalidation
     }
-    #endif
     
-    func copied(columns: Int?) -> NSUICollectionViewLayout {
-        invalidation?(columns ?? self.columns) ?? self
-    }
-    
-    var needsPinchGestureRecognizer: Bool {
-        isPinchable || (keyDownColumnChangeAmount == -1 || keyDownColumnChangeAmount > 0) || (keyDownColumnChangeAmountAlt == -1 || keyDownColumnChangeAmountAlt > 0) || (keyDownColumnChangeAmountShift == -1 || keyDownColumnChangeAmountShift > 0)
-    }
-    
-    #if os(macOS) || os(iOS)
     override func prepare() {
         super.prepare()
-        collectionView?.setupPinchGestureRecognizer(needsPinchGestureRecognizer)
+        collectionView?.setupColumnInteractionGestureRecognizer(needsGestureRecognizer)
     }
     #endif
+    
+    func invalidateLayout(animated: Bool) {
+        collectionView?.setCollectionViewLayout(invalidation?(columns ?? columns) ?? self, animated: animated)
+    }
 }
 
 #endif
