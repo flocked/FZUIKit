@@ -398,7 +398,6 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         } else {
             didCalcuateItemAttributes = false
         }
-        appliedConfiguration = configuration
     }
     
     func prepareItemAttributes(keepItemOrder: Bool = false) {
@@ -658,61 +657,61 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
     }
     
     /// Invalidates the layout animated.
-    public func invalidateLayout(animated: Bool) {
+    public func invalidateLayout(animated: Bool, keepScrollPosition: Bool) {
+        guard let collectionView = collectionView else { return }
+        let displayingIndexPaths = keepScrollPosition ? collectionView.displayingIndexPaths() : []
+        invalidateLayout(animated: animated)
+        guard !displayingIndexPaths.isEmpty else { return }
+        collectionView.scrollToItems(at: Set(displayingIndexPaths), scrollPosition: .centeredVertically)
+    }
+    
+    func invalidateLayout(animated: Bool) {
         guard let collectionView = collectionView else { return }
         let displayingIndexPaths = collectionView.displayingIndexPaths()
         
-        let copy = copied(columns: columns)
-        let current = configuration
-        configuration = appliedConfiguration
+        collectionView.collectionViewLayout = animatedInvalidationLayout()
         #if os(macOS)
-        collectionView.setCollectionViewLayout(copy, animated: animated, completion: { collectionView.collectionViewLayout = self })
+        collectionView.setCollectionViewLayout(self, animated: animated)
         #else
         collectionView.setCollectionViewLayout(copy, animated: animated, completion: { _ in collectionView.collectionViewLayout = self })
         #endif
-        guard !displayingIndexPaths.isEmpty else { return }
-     //   collectionView.scrollToItems(at: Set(displayingIndexPaths), scrollPosition: .centeredVertically)
-        configuration = current
     }
     
-    func copied(columns: Int? = nil) -> NSUICollectionViewLayout {
-        let layout = ColumnCollectionViewLayout()
-        layout.configuration = configuration
-        layout.columns = columns ?? self.columns
-        #if os(macOS) || os(iOS)
-        layout.userInteraction = userInteraction
-        #endif
+    func animatedInvalidationLayout() -> AnimatedInvalidationLayout {
+        let layout = AnimatedInvalidationLayout()
+        layout.columnSizes = columnSizes
+        layout.sectionItemAttributes = sectionItemAttributes
+        layout.headersAttributes = headersAttributes
+        layout.footersAttributes = footersAttributes
+        layout.orientation = orientation
         return layout
     }
     
-    struct LayoutConfiguration {
-         var columns: Int = 3
-         var itemSpacing: CGFloat = 10.0
-         var columnSpacing: CGFloat = 10.0
-         var sectionInset: NSUIEdgeInsets = .init(10.0)
-         var itemLayout: ItemLayout = .grid(CGSize(1.0))
-         var itemOrder: ItemSortOrder = .leftToRight
-         var orientation: NSUIUserInterfaceLayoutOrientation = .horizontal
-         var header: HeaderFooterAttributes = .init()
-         var footer: HeaderFooterAttributes = .init()
-         var sectionInsetUsesSafeArea: Bool = false
-     }
-     
-     var appliedConfiguration: LayoutConfiguration = .init()
-    
-    var configuration: LayoutConfiguration {
-        get { .init(columns: columns, itemSpacing: itemSpacing, columnSpacing: columnSpacing, sectionInset: sectionInset, itemLayout: itemLayout, itemOrder: itemOrder, orientation: orientation, header: header, footer: footer, sectionInsetUsesSafeArea: _sectionInsetUsesSafeArea) }
-        set {
-            columns = newValue.columns
-            itemSpacing = newValue.itemSpacing
-            columnSpacing = newValue.columnSpacing
-            sectionInset = newValue.sectionInset
-            itemLayout = newValue.itemLayout
-            itemOrder = newValue.itemOrder
-            orientation = newValue.orientation
-            header = newValue.header
-            footer = newValue.footer
-            _sectionInsetUsesSafeArea = newValue.sectionInsetUsesSafeArea
+    class AnimatedInvalidationLayout: NSUICollectionViewLayout {
+        var columnSizes: [[CGFloat]] = []
+        var orientation :NSUIUserInterfaceLayoutOrientation = .horizontal
+        var sectionItemAttributes: [[NSUICollectionViewLayoutAttributes]] = []
+        var headersAttributes: [ColumnCollectionViewLayout.HeaderFooterLayoutAttributes] = []
+        var footersAttributes: [ColumnCollectionViewLayout.HeaderFooterLayoutAttributes] = []
+        
+        override open var collectionViewContentSize: CGSize {
+            guard let collectionView = collectionView, collectionView.numberOfSections > 0, let size = columnSizes.last?.first else {
+                return .zero
+            }
+            return orientation == .horizontal ? CGSize(collectionView.bounds.width, size) : CGSize(size, collectionView.bounds.height)
+        }
+
+        override open func layoutAttributesForItem(at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes? {
+            sectionItemAttributes[safe: indexPath.section]?[safe: indexPath.item]
+        }
+        
+        override open func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes {
+            if elementKind == NSUICollectionView.elementKindSectionHeader, let attribute = headersAttributes[safe: indexPath.section] {
+                return attribute
+            } else if elementKind == NSUICollectionView.elementKindSectionFooter, let attribute = footersAttributes[safe: indexPath.section] {
+                return attribute
+            }
+            return NSUICollectionViewLayoutAttributes()
         }
     }
     
@@ -897,7 +896,8 @@ extension NSUICollectionView {
                 interactiveLayout.invalidateLayout(animated: true)
             }
         }
-                
+               
+        weak var _layout: InteractiveCollectionViewLayout?
         override var state: NSUIGestureRecognizer.State {
             didSet {
                 guard isPinchable else { return }
