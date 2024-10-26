@@ -80,7 +80,7 @@
                 cell?.font = adjustedFont
                 if isFittingCurrentText {
                     minPointSize = currentPointSize
-                    fittingPointSize = currentPointSize.rounded(.toPlacesTowardZero(1))
+                    fittingPointSize = currentPointSize.rounded(toPlaces: 1, rule: .towardZero)
                 } else {
                     pointSize = currentPointSize
                 }

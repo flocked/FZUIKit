@@ -68,7 +68,7 @@ public struct BarProgressLabelStyle: ProgressViewStyle {
 
     public func makeBody(configuration: Configuration) -> some View {
         let progress = configuration.fractionCompleted ?? 0.0
-        let progressValue = range.lowerBound + ((range.upperBound - range.lowerBound) * progress).rounded(.toPlaces(2))
+        let progressValue = range.lowerBound + ((range.upperBound - range.lowerBound) * progress).rounded(toPlaces: 2)
         let progressString = numberFormatter.string(from: progressValue) ?? String(format: "%.2f", progressValue)
         GeometryReader { geometry in
             RoundedRectangle(cornerRadius: cornerRadius)

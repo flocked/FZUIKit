@@ -46,7 +46,7 @@
             }
             let displayingIndexPath = displayingIndexPaths()
             guard !displayingIndexPath.isEmpty else { return nil }
-            let index = Int((Double(displayingIndexPath.count) / 2.0).rounded(.toPlaces(0)))
+            let index = Int((Double(displayingIndexPath.count) / 2.0).rounded(toPlaces: 0))
             return displayingIndexPath[safe: index]
         }
         
