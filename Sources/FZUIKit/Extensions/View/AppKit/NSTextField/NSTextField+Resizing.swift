@@ -150,13 +150,13 @@ extension NSTextField {
     var calculatedFittingSize: CGSize {
         guard cell != nil else { return frame.size }
         var cellSize = sizeThatFits(width: maxLayoutWidth)
-        cellSize.height.round(toNearest: 0.5, .awayFromZero)
+        cellSize.height.round(toMultiple: 0.5, rule: .awayFromZero)
         if preferredMinLayoutWidth == Self.placeholderWidth {
             let placeholderSize = placeholderStringSize
             cellSize.width = max(placeholderSize.width, cellSize.width)
-            cellSize.width.round(toNearest: 0.5, .awayFromZero)
+            cellSize.width.round(toMultiple: 0.5, rule: .awayFromZero)
         } else {
-            cellSize.width.round(toNearest: 0.5, .awayFromZero)
+            cellSize.width.round(toMultiple: 0.5, rule: .awayFromZero)
             cellSize.width = max(cellSize.width, maxLayoutWidth)
         }
         return cellSize
