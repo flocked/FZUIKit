@@ -663,20 +663,14 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         collectionView.collectionViewLayout = animatedInvalidationLayout()
         collectionView.setCollectionViewLayout(self, animated: animated)
         guard !displayingIndexPaths.isEmpty else { return }
+        /*
         #if os(macOS)
         collectionView.scrollToItems(at: Set(displayingIndexPaths), scrollPosition: .centeredVertically)
         #else
         collectionView.scrollToItems(at: Set(displayingIndexPaths), at: .centeredVertically)
         #endif
+         */
     }
-    
-    #if os(macOS)
-    public override func invalidateLayoutAnimated(duration: TimeInterval = 0.25) {
-        guard let collectionView = collectionView else { return }
-        collectionView.collectionViewLayout = animatedInvalidationLayout()
-        collectionView.setCollectionViewLayout(self, animationDuration: duration)
-    }
-    #endif
     
     func _invalidateLayout(animated: Bool) {
         self.invalidateLayout(animated: animated, keepScrollPosition: true)
