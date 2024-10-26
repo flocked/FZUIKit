@@ -95,7 +95,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
     }
     
     /// The amount of columns.
-   public var columns: Int = 3
+    @objc dynamic open var columns: Int = 3
     
     /// Sets the amount of columns.
     @discardableResult
