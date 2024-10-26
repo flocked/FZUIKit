@@ -741,7 +741,7 @@
                         }
                     }
                     documentViewObservation = observeChanges(for: \.documentView) { [weak self] old, new in
-                        guard let self = self else { return }
+                        guard self != nil else { return }
                         setup(for: new)
                     }
                     setup(for: documentView)

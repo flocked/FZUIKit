@@ -657,24 +657,29 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
     }
     
     /// Invalidates the layout animated.
-    public func invalidateLayout(animated: Bool, keepScrollPosition: Bool) {
+    public func invalidateLayout(animated: Bool, keepScrollPosition: Bool = true) {
         guard let collectionView = collectionView else { return }
         let displayingIndexPaths = keepScrollPosition ? collectionView.displayingIndexPaths() : []
-        invalidateLayout(animated: animated)
+        collectionView.collectionViewLayout = animatedInvalidationLayout()
+        collectionView.setCollectionViewLayout(self, animated: animated)
         guard !displayingIndexPaths.isEmpty else { return }
+        #if os(macOS)
         collectionView.scrollToItems(at: Set(displayingIndexPaths), scrollPosition: .centeredVertically)
+        #else
+        collectionView.scrollToItems(at: Set(displayingIndexPaths), at: .centeredVertically)
+        #endif
     }
     
-    func invalidateLayout(animated: Bool) {
+    #if os(macOS)
+    public override func invalidateLayoutAnimated(duration: TimeInterval = 0.25) {
         guard let collectionView = collectionView else { return }
-        let displayingIndexPaths = collectionView.displayingIndexPaths()
-        
         collectionView.collectionViewLayout = animatedInvalidationLayout()
-        #if os(macOS)
-        collectionView.setCollectionViewLayout(self, animated: animated)
-        #else
-        collectionView.setCollectionViewLayout(copy, animated: animated, completion: { _ in collectionView.collectionViewLayout = self })
-        #endif
+        collectionView.setCollectionViewLayout(self, animationDuration: duration)
+    }
+    #endif
+    
+    func _invalidateLayout(animated: Bool) {
+        self.invalidateLayout(animated: animated, keepScrollPosition: true)
     }
     
     func animatedInvalidationLayout() -> AnimatedInvalidationLayout {
@@ -798,7 +803,7 @@ protocol InteractiveCollectionViewLayout: NSUICollectionViewLayout {
     var keyDownColumnChangeAmountAlt: Int { get }
     var keyDownColumnChangeAmountShift: Int { get }
     #endif
-    func invalidateLayout(animated: Bool)
+    func _invalidateLayout(animated: Bool)
 }
 
 extension InteractiveCollectionViewLayout {
@@ -893,7 +898,7 @@ extension NSUICollectionView {
                 let newValue = newValue.clamped(to: columnRange)
                 guard newValue != columns, let interactiveLayout = interactiveLayout else { return }
                 interactiveLayout.columns = newValue
-                interactiveLayout.invalidateLayout(animated: true)
+                interactiveLayout._invalidateLayout(animated: true)
             }
         }
                
