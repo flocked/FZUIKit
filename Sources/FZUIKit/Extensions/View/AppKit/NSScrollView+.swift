@@ -728,6 +728,27 @@
             get { getAssociatedValue("scrollViewHandlers", initialValue: Handlers()) }
             set {
                 setAssociatedValue(newValue, key: "scrollViewHandlers")
+                if let handler = handlers.documentVisibleRect {
+                    func setup(for view: NSView?) {
+                        if let view = view {
+                            view.postsBoundsChangedNotifications = true
+                            scrollViewTokens[NSView.boundsDidChangeNotification] = NotificationCenter.default.observe(NSView.boundsDidChangeNotification, object: view) { [weak self] _ in
+                                guard let self = self else { return }
+                                handler(self.documentVisibleRect)
+                            }
+                        } else {
+                            scrollViewTokens[NSView.boundsDidChangeNotification] = nil
+                        }
+                    }
+                    documentViewObservation = observeChanges(for: \.documentView) { [weak self] old, new in
+                        guard let self = self else { return }
+                        setup(for: new)
+                    }
+                    setup(for: documentView)
+                } else {
+                    scrollViewTokens[NSView.boundsDidChangeNotification] = nil
+                    documentViewObservation = nil
+                }
                 func setup(_ keyPath: KeyPath<NSScrollView, (()->())?>, notification: Notification.Name) {
                     if let handler = self[keyPath: keyPath] {
                         scrollViewTokens[notification] = NotificationCenter.default.observe(notification, object: self) { _ in
@@ -757,11 +778,18 @@
             public var userDidScroll: (()->())?
             /// The handler that gets called at the end of a user-initiated scroll (gesture scroll or scroller tracking).
             public var userDidEndScroll: (()->())?
+            /// The handler that gets called when the visible rectangle of the document view changes.
+            public var documentVisibleRect: ((CGRect)->())?
         }
         
         var scrollViewTokens: [Notification.Name : NotificationToken] {
             get { getAssociatedValue("scrollViewTokens", initialValue: [:]) }
             set { setAssociatedValue(newValue, key: "scrollViewTokens") }
+        }
+        
+        var documentViewObservation: KeyValueObservation? {
+            get { getAssociatedValue("documentViewObservation") ?? nil }
+            set { setAssociatedValue(newValue, key: "documentViewObservation") }
         }
     }
 
