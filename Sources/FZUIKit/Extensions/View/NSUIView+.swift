@@ -170,31 +170,28 @@
             - indexes: The indexes of the subviews to move.
             - toIndex: The index where the subviews should be moved to.
          */
-        @objc open func moveSubviews(at indexes: IndexSet, to toIndex: Int, reorder: Bool = false) {            
+        @objc open func moveSubviews(at indexes: IndexSet, to toIndex: Int, reorder: Bool = false) {   
+            guard !subviews.isEmpty, toIndex >= 0, toIndex < subviews.count else { return }
             let subviewsCount = subviews.count
-            if subviews.isEmpty == false {
-                if toIndex >= 0, toIndex < subviewsCount {
-                    let indexes = IndexSet(Array(indexes).filter { $0 < subviewsCount })
-                    #if os(macOS)
-                        var subviews = subviews
-                        if reorder {
-                            for index in indexes.reversed() {
-                                subviews.move(from: IndexSet(integer: index), to: toIndex)
-                            }
-                        } else {
-                            subviews.move(from: indexes, to: toIndex)
-                        }
-                        self.subviews = subviews
-                    #elseif canImport(UIKit)
-                        var below = self.subviews[toIndex]
-                        let subviewsToMove = (reorder == true) ? self.subviews[indexes].reversed() : self.subviews[indexes]
-                        for subviewToMove in subviewsToMove {
-                            insertSubview(subviewToMove, belowSubview: below)
-                            below = (reorder == true) ? subviews[toIndex] : subviewToMove
-                        }
-                    #endif
+            let indexes = indexes.filter { $0 >= 0 && $0 < subviewsCount }
+            #if os(macOS)
+            var subviews = subviews
+            if reorder {
+                for index in indexes.reversed() {
+                    subviews.move(from: index, to: toIndex)
                 }
+            } else {
+                subviews.move(from: indexes, to: toIndex)
             }
+            self.subviews = subviews
+            #elseif canImport(UIKit)
+            var below = subviews[toIndex]
+            let subviewsToMove = reorder ? subviews[indexes].reversed() : subviews[indexes]
+            for subviewToMove in subviewsToMove {
+                insertSubview(subviewToMove, belowSubview: below)
+                below = reorder ? subviews[toIndex] : subviewToMove
+            }
+            #endif
         }
 
         /**
