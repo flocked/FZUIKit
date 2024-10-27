@@ -340,13 +340,12 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
     private var allItemAttributes: [NSUICollectionViewLayoutAttributes] = []
     private var headersAttributes: [HeaderFooterLayoutAttributes] = []
     private var footersAttributes: [HeaderFooterLayoutAttributes] = []
-    private var unionRects: [CGRect] = []
     private var mappedItemColumns: [IndexPath: Int] = [:]
     private var _sectionInsetUsesSafeArea: Bool = false
     private var previousBounds: CGRect = .zero
     private var didCalcuateItemAttributes: Bool = false
-    /// How many items to be union into a single rectangle
     private let unionSize = 20
+    private var unionRects: [CGRect] = []
     
     private func collectionViewContentSizing(includingSectionInset: Bool = true) -> CGSize {
         guard let collectionView = collectionView else { return .zero }
@@ -660,8 +659,11 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
     public func invalidateLayout(animated: Bool, keepScrollPosition: Bool = true) {
         guard let collectionView = collectionView else { return }
         let displayingIndexPaths = keepScrollPosition ? collectionView.displayingIndexPaths() : []
+        Swift.print("invalidateLayout_0", collectionView.indexPathsForVisibleItems().compactMap({$0.item}), collectionView.displayingIndexPaths().compactMap({$0.item}), collectionView.visibleRect)
         collectionView.collectionViewLayout = animatedInvalidationLayout()
+        Swift.print("invalidateLayout_1")
         collectionView.setCollectionViewLayout(self, animated: animated)
+        Swift.print("invalidateLayout_2")
         guard !displayingIndexPaths.isEmpty else { return }
         #if os(macOS)
         collectionView.scrollToItems(at: Set(displayingIndexPaths), scrollPosition: .centeredVertically)
@@ -699,7 +701,14 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         }
 
         override open func layoutAttributesForItem(at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes? {
-            sectionItemAttributes[safe: indexPath.section]?[safe: indexPath.item]
+            Swift.print("layoutAttributesItem", indexPath)
+            return sectionItemAttributes[safe: indexPath.section]?[safe: indexPath.item]
+        }
+        
+        override func layoutAttributesForElements(in rect: NSRect) -> [NSCollectionViewLayoutAttributes] {
+            let attributes = super.layoutAttributesForElements(in: rect)
+            Swift.print("layoutAttributesRect", rect, attributes.count)
+            return attributes
         }
         
         override open func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes {
