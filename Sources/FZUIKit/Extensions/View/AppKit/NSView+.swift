@@ -31,6 +31,14 @@
             }, completionHandler: completion)
         }
         
+        /// Runs the specified closure without any animations.
+        public static func performWithoutAnimation(_ actionsWithoutAnimation: () -> Void) {
+            CATransaction.performNonAnimated {
+                actionsWithoutAnimation()
+            }
+        }
+        
+        
         /// Sets type of focus ring drawn around the view.
         @discardableResult
         @objc open func focusRingType(_ type: NSFocusRingType) -> Self {

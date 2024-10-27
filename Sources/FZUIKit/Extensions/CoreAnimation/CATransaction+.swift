@@ -18,61 +18,45 @@
          Animate changes to one or more layers using the specified duration, timing function, and completion handler.
 
          - Parameters:
-            - duration: The duration of the animations, measured in seconds.  If you specify a value of `0`, the changes are made without animating them. The default value is `0.25`.
-            - timingFunction: An optional timing function for the animations. The default value is `nil`.
-            - disableActions: A Boolean value that indicates whether actions triggered as a result of property changes are suppressed. The default value is `false`.
+            - duration: The duration of the animations, measured in seconds.  If you specify a value of `0`, the changes are made without animating them.
+            - timingFunction: An optional timing function for the animations.
+            - disableActions: A Boolean value that indicates whether actions triggered as a result of property changes are suppressed.
             - animations: A block containing the changes to commit animated to the layers.
-            - completionHandler: An optional completion block that is called when the animations have completed. The default value is `nil`.
+            - completionHandler: An optional completion block that is called when the animations have completed.
 
          */
         static func perform(duration: CGFloat = 0.25, timingFunction: CAMediaTimingFunction? = nil, disableActions: Bool = false, animations: () -> Void, completionHandler: (() -> Void)? = nil) {
             CATransaction.begin()
-            CATransaction.setCompletionBlock(completionHandler)
-            CATransaction.setAnimationDuration(duration)
-            CATransaction.setAnimationTimingFunction(timingFunction)
-            CATransaction.setDisableActions(disableActions)
+            CATransaction.completionHandler = completionHandler
+            CATransaction.animationDuration = duration
+            CATransaction.timingFunction = timingFunction
+            CATransaction.disableActions = disableActions
             animations()
             CATransaction.commit()
         }
 
-        /// The timing function of the current transaction group.
+        /// The animation timing function of the current transaction group.
         static var timingFunction: CAMediaTimingFunction? {
-            get { value(forKey: kCATransactionAnimationTimingFunction) as? CAMediaTimingFunction }
-            set { setValue(newValue, forKey: kCATransactionAnimationTimingFunction) }
+            get { CATransaction.animationTimingFunction() }
+            set { CATransaction.setAnimationTimingFunction(newValue) }
         }
 
         /// A Boolean value that indicates whether changes made within the current transaction group are suppressed.
         static var disableActions: Bool {
-            get { (value(forKey: kCATransactionDisableActions) as? Bool) ?? false }
-            set { setValue(newValue, forKey: kCATransactionDisableActions) }
+            get { CATransaction.disableActions() }
+            set { CATransaction.setDisableActions(newValue) }
         }
 
         /// The animation duration of the current transaction group.
         static var animationDuration: TimeInterval {
-            get { (value(forKey: kCATransactionAnimationDuration) as? TimeInterval) ?? 0.0 }
-            set { setValue(newValue, forKey: kCATransactionAnimationDuration) }
+            get { CATransaction.animationDuration() }
+            set { CATransaction.setAnimationDuration(newValue) }
         }
 
         /// The completion block of the current transaction group that is called as soon as all animations have completed.
         static var completionHandler: (() -> Void)? {
-            get {
-                if let block = value(forKey: kCATransactionCompletionBlock) {
-                    let blockPtr = UnsafeRawPointer(Unmanaged<AnyObject>.passUnretained(block as AnyObject).toOpaque())
-                    return unsafeBitCast(blockPtr, to: CompletionBlock.self)
-                }
-                return nil
-            }
-            set {
-                if let newValue = newValue {
-                    let newValue = newValue as CompletionBlock
-                    let value = unsafeBitCast(newValue, to: AnyObject.self)
-                    setValue(value, forKey: kCATransactionCompletionBlock)
-                } else {
-                    setValue(nil, forKey: kCATransactionCompletionBlock)
-                }
-            }
+            get { CATransaction.completionBlock() }
+            set { CATransaction.setCompletionBlock(newValue) }
         }
-
-        internal typealias CompletionBlock = @convention(block) () -> Void
     }
 #endif
