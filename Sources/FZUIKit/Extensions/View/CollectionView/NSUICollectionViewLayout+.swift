@@ -23,19 +23,76 @@
             if duration <= 0.0 {
                 invalidateLayout()
             } else {
-                #if os(macOS)
-                NSAnimationContext.runAnimationGroup { context in
-                    context.duration = duration
-                    collectionView?.animator().performBatchUpdates(nil, completionHandler: nil)
+                NSUIView.animate(withDuration: duration) {
+                    #if os(macOS)
+                    self.collectionView?.animator().performBatchUpdates(nil)
+                    #else
+                    self.collectionView?.performBatchUpdates(nil)
+                    #endif
                 }
-                #elseif canImport(UIKit)
-                collectionView?.performBatchUpdates({
-                    CATransaction.perform(duration: CGFloat(duration)) {
-                        collectionView?.performBatchUpdates({})
-                    }
-                })
-                #endif
             }
         }
     }
+
+/*
+ class InvalidationLayout: NSUICollectionViewLayout {
+     var allLayoutAttributes: [NSUICollectionViewLayoutAttributes] = []
+     var itemAttributes: [NSUICollectionViewLayoutAttributes] = []
+     var supplementaryViewAttributes: [NSUICollectionViewLayoutAttributes] = []
+     var interItemGapAttributes: [NSUICollectionViewLayoutAttributes] = []
+     var decorationViewAttributes: [NSUICollectionViewLayoutAttributes] = []
+
+     
+     init(for layout: NSUICollectionViewLayout) {
+         super.init()
+         guard let collectionView = layout.collectionView else { return }
+         allLayoutAttributes = layout.layoutAttributesForElements(in: collectionView.bounds)
+         for layoutAttribute in allLayoutAttributes {
+             switch layoutAttribute.representedElementCategory {
+             case .item:
+                 itemAttributes.append(layoutAttribute)
+             case .supplementaryView:
+                 supplementaryViewAttributes.append(layoutAttribute)
+             case .decorationView:
+                 decorationViewAttributes.append(layoutAttribute)
+             case .interItemGap:
+                 interItemGapAttributes.append(layoutAttribute)
+             @unknown default: break
+             }
+         }
+     }
+     
+     required init?(coder: NSCoder) {
+         fatalError("init(coder:) has not been implemented")
+     }
+     
+     override func layoutAttributesForItem(at indexPath: IndexPath) -> NSCollectionViewLayoutAttributes? {
+         itemAttributes.first(where: {$0.indexPath == indexPath})
+     }
+     
+     override func layoutAttributesForSupplementaryView(ofKind elementKind: NSCollectionView.SupplementaryElementKind, at indexPath: IndexPath) -> NSCollectionViewLayoutAttributes? {
+         supplementaryViewAttributes.first(where: { $0.representedElementKind == elementKind && $0.indexPath == indexPath })
+
+     }
+     
+     override func layoutAttributesForDecorationView(ofKind elementKind: NSCollectionView.DecorationElementKind, at indexPath: IndexPath) -> NSCollectionViewLayoutAttributes? {
+         decorationViewAttributes.first(where: { $0.representedElementKind == elementKind && $0.indexPath == indexPath })
+     }
+     
+     override func layoutAttributesForInterItemGap(before indexPath: IndexPath) -> NSCollectionViewLayoutAttributes? {
+         interItemGapAttributes.first(where: { $0.indexPath == indexPath })
+     }
+ }
+
+ extension NSUICollectionViewLayout {
+     func animate(withDuration duration: CGFloat = 0.2, animations: @escaping () -> Void, completion: (() -> Void)? = nil) {
+         guard let collectionView = collectionView else { return }
+         collectionView.collectionViewLayout = InvalidationLayout(for: self)
+         animations()
+         NSUIView.animate(withDuration: duration, animations: {
+             collectionView.animator().collectionViewLayout = self
+         }, completion: completion)
+     }
+ }
+ */
 #endif

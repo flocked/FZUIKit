@@ -472,16 +472,25 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
             context.invalidateSupplementaryElements(ofKind: NSUICollectionView.elementKindSectionFooter, at: footersAttributes.compactMap({$0.indexPath}))
             #endif
         }
+        #if os(macOS)
         if !invalidatesAutomatic, NSAnimationContext.hasActiveGrouping, appliedLayoutConfiguration != currentLayoutConfiguration {
             invalidate(propertyUpdated: false)
         } else {
             super.invalidateLayout(with: context)
         }
+        #else
+        if !invalidatesAutomatic, UIView.inheritedAnimationDuration > 0, appliedLayoutConfiguration != currentLayoutConfiguration {
+            invalidate(propertyUpdated: false)
+        } else {
+            super.invalidateLayout(with: context)
+        }
+        #endif
     }
     
     func invalidate(propertyUpdated: Bool = true) {
         guard !isUpdating, let collectionView = collectionView else { return }
         guard !propertyUpdated || invalidatesAutomatic && propertyUpdated else { return }
+        #if os(macOS)
         if NSAnimationContext.hasActiveGrouping {
             isUpdating = true
             collectionView.collectionViewLayout = invalidationLayout()
@@ -490,6 +499,16 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         } else {
             invalidateLayout()
         }
+        #else
+        if UIView.inheritedAnimationDuration > 0 {
+            isUpdating = true
+            collectionView.collectionViewLayout = invalidationLayout()
+            collectionView.collectionViewLayout = self
+            isUpdating = false
+        } else {
+            invalidateLayout()
+        }
+        #endif
     }
             
     open override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
@@ -523,11 +542,10 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
     
     func invalidationLayout() -> InvalidationLayout {
         let layout = InvalidationLayout()
-        layout.columnSizes = columnSizes
+        layout._collectionViewContentSize = collectionViewContentSize
         layout.sectionItemAttributes = sectionItemAttributes
         layout.headersAttributes = headersAttributes
         layout.footersAttributes = footersAttributes
-        layout.orientation = orientation
         layout.unionRects = unionRects
         layout.allItemAttributes = allItemAttributes
         return layout
@@ -535,7 +553,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
     
     //MARK: - Transition
         
-    open override func prepareForTransition(to newLayout: NSCollectionViewLayout) {
+    open override func prepareForTransition(to newLayout: NSUICollectionViewLayout) {
         isTransitioning = true
         super.prepareForTransition(to: newLayout)
     }
@@ -764,39 +782,32 @@ extension ColumnCollectionViewLayout {
     }
     
     class InvalidationLayout: NSUICollectionViewLayout {
-        var columnSizes: [[CGFloat]] = []
-        var orientation :NSUIUserInterfaceLayoutOrientation = .horizontal
         var sectionItemAttributes: [[NSUICollectionViewLayoutAttributes]] = []
         var headersAttributes: [ColumnCollectionViewLayout.HeaderFooterLayoutAttributes] = []
         var footersAttributes: [ColumnCollectionViewLayout.HeaderFooterLayoutAttributes] = []
         var allItemAttributes: [NSUICollectionViewLayoutAttributes] = []
         let unionSize = 20
         var unionRects: [CGRect] = []
+        var _collectionViewContentSize: CGSize = .zero
         
         override open var collectionViewContentSize: CGSize {
-            guard let collectionView = collectionView, collectionView.numberOfSections > 0, let size = columnSizes.last?.first else {
-                return .zero
-            }
-            return orientation == .horizontal ? CGSize(collectionView.bounds.width, size) : CGSize(size, collectionView.bounds.height)
+            _collectionViewContentSize
         }
 
         override open func layoutAttributesForItem(at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes? {
-            return sectionItemAttributes[safe: indexPath.section]?[safe: indexPath.item]
+            sectionItemAttributes[safe: indexPath.section]?[safe: indexPath.item]
         }
         
-        override func layoutAttributesForElements(in rect: NSRect) -> [NSCollectionViewLayoutAttributes] {
+        override func layoutAttributesForElements(in rect: CGRect) -> [NSUICollectionViewLayoutAttributes] {
             var begin = 0, end = unionRects.count
-
             if let i = unionRects.firstIndex(where: { rect.intersects($0) }) {
                 begin = i * unionSize
             }
             if let i = unionRects.lastIndex(where: { rect.intersects($0) }) {
                 end = min((i + 1) * unionSize, allItemAttributes.count)
             }
-            
             let attributes = allItemAttributes[begin ..< end]
                 .filter { rect.intersects($0.frame) }
-
             return attributes
         }
         
@@ -855,14 +866,14 @@ extension ColumnCollectionViewLayout {
     
     /// Sets the order each item is displayed.
     @discardableResult
-    open func itemOrder(_ direction:  ItemSortOrder) -> Self {
+    public func itemOrder(_ direction:  ItemSortOrder) -> Self {
         itemOrder = direction
         return self
     }
     
     /// Sets the amount of columns.
     @discardableResult
-    open func columns(_ columns: Int) -> Self {
+    public func columns(_ columns: Int) -> Self {
         self.columns = columns
         return self
     }
@@ -876,28 +887,28 @@ extension ColumnCollectionViewLayout {
     
     /// Sets the spacing between the items.
     @discardableResult
-    open func itemSpacing(_ spacing:  CGFloat) -> Self {
+    public func itemSpacing(_ spacing:  CGFloat) -> Self {
         self.itemSpacing = spacing
         return self
     }
     
     /// Sets the spacing between the columns.
     @discardableResult
-    open func columnSpacing(_ spacing:  CGFloat) -> Self {
+    public func columnSpacing(_ spacing:  CGFloat) -> Self {
         columnSpacing = spacing
         return self
     }
     
     /// Sets the header attributes.
     @discardableResult
-    open func header(_ header: HeaderFooterAttributes) -> Self {
+    public func header(_ header: HeaderFooterAttributes) -> Self {
         self.header = header
         return self
     }
     
     /// Sets the footer attributes.
     @discardableResult
-    open func footer(_ footer: HeaderFooterAttributes) -> Self {
+    public func footer(_ footer: HeaderFooterAttributes) -> Self {
         self.footer = footer
         return self
     }
@@ -911,7 +922,7 @@ extension ColumnCollectionViewLayout {
     
     /// Sets the margins used to lay out content in a section.
     @discardableResult
-    open func sectionInset(_ inset: NSUIEdgeInsets) -> Self {
+    public func sectionInset(_ inset: NSUIEdgeInsets) -> Self {
         sectionInset = inset
         return self
     }
@@ -919,7 +930,7 @@ extension ColumnCollectionViewLayout {
     /// Sets the Boolean value that indicates whether to apply the ``sectionInset`` to the  safe area of the collection view.
     @available(macOS 11.0, iOS 13.0, tvOS 13.0, *)
     @discardableResult
-    open func sectionInsetUsesSafeArea(_ useSafeArea: Bool) -> Self {
+    public func sectionInsetUsesSafeArea(_ useSafeArea: Bool) -> Self {
         sectionInsetUsesSafeArea = useSafeArea
         return self
     }
