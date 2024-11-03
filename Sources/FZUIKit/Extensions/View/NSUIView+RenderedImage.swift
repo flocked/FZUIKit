@@ -16,6 +16,7 @@
         public extension NSView {
             /// A rendered image of the view.
             var renderedImage: NSImage {
+                let bounds = layer?.bounds ?? bounds
                 guard bounds.size != .zero else { return NSImage(size: .zero) }
                 let hidden = isHidden
                 isHidden = false
