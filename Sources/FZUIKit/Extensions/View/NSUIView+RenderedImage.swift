@@ -16,12 +16,16 @@
         public extension NSView {
             /// A rendered image of the view.
             var renderedImage: NSImage {
+                let isHidden = isHidden
+                self.isHidden = false
+                self.wantsLayer = true
+                let bounds = layer?.bounds ?? bounds
                 let rep = bitmapImageRepForCachingDisplay(in: bounds)!
                 cacheDisplay(in: bounds, to: rep)
 
                 let image = NSImage(size: bounds.size)
                 image.addRepresentation(rep)
-
+                self.isHidden = isHidden
                 return image
             }
 
