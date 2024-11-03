@@ -510,12 +510,6 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         }
         #endif
     }
-    
-    public override func targetContentOffset(forProposedContentOffset proposedContentOffset: NSPoint) -> NSPoint {
-        let target = super.targetContentOffset(forProposedContentOffset: proposedContentOffset)
-        Swift.print("targetContentOffset", target)
-        return target
-    }
             
     open override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         guard orientation == .horizontal && previousBounds.width != newBounds.width || orientation == .vertical && previousBounds.height != newBounds.height || ((header.pinToVisibleBounds || footer.pinToVisibleBounds) && previousBounds.y != newBounds.y) else { return false }
