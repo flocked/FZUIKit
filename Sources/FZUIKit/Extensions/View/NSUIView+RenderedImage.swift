@@ -16,10 +16,9 @@
         public extension NSView {
             /// A rendered image of the view.
             var renderedImage: NSImage {
+                guard bounds.size != .zero else { return .empty }
                 let isHidden = isHidden
                 self.isHidden = false
-                self.wantsLayer = true
-                let bounds = layer?.bounds ?? bounds
                 let rep = bitmapImageRepForCachingDisplay(in: bounds)!
                 cacheDisplay(in: bounds, to: rep)
 
@@ -44,6 +43,19 @@
                 return image
             }
         }
+
+fileprivate extension NSImage {
+    
+    static var empty: NSImage {
+        let imageSize = NSSize(width: 0, height: 0)
+        let image = NSImage(size: imageSize)
+        image.lockFocus()
+        NSColor.clear.set()
+        NSRect(origin: .zero, size: imageSize).fill()
+        image.unlockFocus()
+        return image
+    }
+}
 
     #elseif os(iOS) || os(tvOS)
         public extension UIView {            
