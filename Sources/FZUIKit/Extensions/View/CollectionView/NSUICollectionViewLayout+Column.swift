@@ -149,6 +149,13 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         }
     }
     
+    public var fullScreenSelectedItems: Bool = false {
+        didSet {
+            guard oldValue != fullScreenSelectedItems else { return }
+            invalidate()
+        }
+    }
+    
     /// A Boolean value that indicates whether to apply the ``sectionInset`` to the  safe area of the collection view.
     @available(macOS 11.0, iOS 13.0, tvOS 13.0, *)
     public var sectionInsetUsesSafeArea: Bool {
@@ -212,6 +219,8 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
 
         var top: CGFloat = 0.0
         var attributes = NSUICollectionViewLayoutAttributes()
+        
+        let selectionIndexPath = (fullScreenSelectedItems && collectionView.selectionIndexPaths.count == 1) ? collectionView.selectionIndexPaths.first : nil
 
         for section in 0 ..< numberOfSections {
             // MARK: 1. Get section-specific metrics (itemSpacing, sectionInset)
@@ -250,6 +259,8 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
                 attributes = NSUICollectionViewLayoutAttributes(forCellWith: indexPath)
                 #endif
                 
+                attributes.alpha = selectionIndexPath != nil ? 0.0 : 1.0
+                
                 if orientation == .horizontal {
                     attributes.frame.origin.x = sectionInset.left + (itemSizing + columnSpacing) * CGFloat(columnIndex)
                     attributes.frame.origin.y = columnSizes[section][columnIndex]
@@ -276,6 +287,15 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
                     } else {
                         attributes.frame.size.width = itemAspectRatio.aspectRatio * itemSizing
                     }
+                }
+                
+                if fullScreenSelectedItems, collectionView.selectionIndexPaths.first == indexPath {
+                    
+                }
+                
+                if selectionIndexPath == indexPath {
+                    attributes.frame.size = collectionView.bounds.size
+                    attributes.frame.origin = collectionView.visibleRect.origin
                 }
 
                 itemAttributes.append(attributes)

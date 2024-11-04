@@ -58,6 +58,9 @@ open class ImageView: NSControl {
         }
     }
     
+    open var cropImagesToNonTransparent: Bool = false
+    var croppedImageRect: CGRect? = nil
+    
     /// Sets the images displayed by the image view.
     @discardableResult
     open func images(_ images: [NSImage]) -> Self {
@@ -839,6 +842,13 @@ open class ImageView: NSControl {
     open override func layout() {
         super.layout()
         guard displayingImage != nil else { return }
+        var imageSize = displayingImage?.size ?? .zero
+        var difference: CGSize = .zero
+        let cropped = croppedImageRect ?? .zero
+        if cropImagesToNonTransparent, let rect = croppedImageRect {
+            difference.width = rect.size.width-imageSize.width
+            difference.height = rect.size.height-imageSize.height
+        }
         if imageScaling == .scaleToFill, let imageSize = displayingImage?.size {
             imageView.frame.size = imageSize.scaled(toFill: bounds.size)
             switch imageAlignment {
@@ -869,6 +879,24 @@ open class ImageView: NSControl {
             imageView.frame = bounds
             containerView.frame = imageView.imageBounds
             imageView.frame = containerView.bounds
+        }
+        if cropImagesToNonTransparent, let rect = croppedImageRect {
+            if imageScaling == .none {
+                switch imageAlignment {
+                case .alignTop, .alignTopLeft, .alignTopRight:
+                    imageView.frame.y += rect.y
+                case .alignBottom, .alignBottomLeft, .alignBottomRight:
+                    imageView.frame.y -= rect.y
+                default: break
+                }
+                switch imageAlignment {
+                case .alignLeft, .alignBottomLeft, .alignTopLeft:
+                    imageView.frame.x -= rect.x
+                case .alignRight, .alignBottomRight, .alignTopRight:
+                    imageView.frame.x += rect.x
+                default: break
+                }
+            }
         }
         if overlayContentView.frame != containerView.frame {
             willChangeValue(for: \.imageBounds)
@@ -932,9 +960,19 @@ open class ImageView: NSControl {
         } else {
             imageView.image = displayingImage
         }
-        if oldImageSize != imageView.image?.size {
+        croppedImageRect = nil
+        if cropImagesToNonTransparent {
+            DispatchQueue.global(qos: .userInitiated).async {
+                self.croppedImageRect = self.imageView.image?.nonAlphaRect()
+                DispatchQueue.main.async {
+                    self.layout()
+                }
+            }
+        }
+        if oldImageSize != imageView.image?.size || cropImagesToNonTransparent {
             layout()
         }
+
     }
     
     var imagesCount: Int {
