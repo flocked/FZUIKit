@@ -22,6 +22,21 @@
         }
         
         /**
+         Selects the specified items and optionally scrolls the items into position.
+         
+         - Parameters:
+            - indexPaths: The index paths of the items to select.
+            - extend: `true` if the selection should be extended, `false` if the current selection should be changed.
+            - animated: `true` if you want to animate the selection, and `false` if the change should be immediate.
+            - scrollPosition: The options for scrolling the newly selected items into view.
+         */
+        func selectItems(at indexPaths: Set<IndexPath>, byExtendingSelection extend: Bool,  animated: Bool, scrollPosition: ScrollPosition = []) {
+            let deselect = extend ? [] : (indexPathsForSelectedItems ?? []).filter({ !indexPaths.contains($0) })
+            selectItems(at: indexPaths, animated: animated, scrollPosition: scrollPosition)
+            deselectItems(at: deselect, animated: animated)
+        }
+        
+        /**
          Changes the collection view layout animated.
          
          - Parameters:
