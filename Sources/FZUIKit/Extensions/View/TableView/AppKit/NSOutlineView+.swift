@@ -39,6 +39,17 @@ extension NSOutlineView {
         let rowIndexes = items.compactMap({ row(forItem: $0) }).filter({$0 != -1})
         deselectRows(at: IndexSet(rowIndexes))
     }
+    
+    /**
+     Scrolls the outline view so the specified item is visible.
+     
+     - Parameter item: The item.
+     */
+    public func scrollRowToVisible(_ item: Any) {
+        let row = row(forItem: item)
+        guard row != -1 else { return }
+        scrollRowToVisible(row)
+    }
 }
 
 #endif
