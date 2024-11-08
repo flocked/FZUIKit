@@ -180,6 +180,9 @@ open class ScrollPlayerView: AVPlayerView {
             if event.type == .keyDown || event.type == .keyUp {
                 return keyControllable ? super.hitTest(point) : nil
             }
+            if event.type == .rightMouseDown || event.type == .rightMouseUp {
+                Swift.print("RIGHT")
+            }
         }
         return super.hitTest(point)
     }
