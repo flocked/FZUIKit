@@ -18,6 +18,15 @@
         }
         
         /**
+         Deselects the rows at the specified indexes.
+
+         - Parameter indexes: The indexes of the rows to deselect.
+         */
+        func deselectRows(at indexes: IndexSet) {
+            indexes.forEach({ deselectRow($0) })
+        }
+        
+        /**
          Selects the row after the currently selected.
          
          If no row is currently selected, the first row is selected.
