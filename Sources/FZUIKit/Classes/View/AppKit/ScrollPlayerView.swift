@@ -181,7 +181,7 @@ open class ScrollPlayerView: AVPlayerView {
                 return keyControllable ? super.hitTest(point) : nil
             }
             if event.type == .rightMouseDown || event.type == .rightMouseUp {
-                Swift.print("RIGHT")
+                return nil
             }
         }
         return super.hitTest(point)
