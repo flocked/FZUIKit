@@ -93,12 +93,17 @@ extension NSUIImage {
      - Parameter maximumAlphaChannel: he maximum alpha value to consider as transparent. Any alpha value strictly greater than this is considered opaque.
      */
     public func nonAlphaRect(maximumAlphaChannel: UInt8 = 0) -> CGRect {
-        if let alphaRect: (Int, CGRect) = getAssociatedValue("nonAlphaRect"), alphaRect.0 == maximumAlphaChannel {
-            return alphaRect.1
+        if let alphaRect = nonAlphaRect[maximumAlphaChannel] {
+            return alphaRect
         }
         let rect = cgImage?.nonAlphaRect(maximumAlphaChannel: maximumAlphaChannel) ?? CGRect(.zero, size)
-        setAssociatedValue((maximumAlphaChannel, rect), key: "nonAlphaRect")
+        nonAlphaRect[maximumAlphaChannel] = rect
         return rect
+    }
+    
+    var nonAlphaRect: [UInt8: CGRect] {
+        get { getAssociatedValue("nonAlphaRect", initialValue: [:]) }
+        set { setAssociatedValue(newValue, key: "nonAlphaRect") }
     }
     
     /**
