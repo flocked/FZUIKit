@@ -54,11 +54,27 @@ open class ImageView: NSControl {
     open var images: [NSImage] = [] {
         didSet {
             animatedImage = nil
+            croppedImages = []
             imagesUpdated()
         }
     }
     
-    open var cropImagesToNonTransparent: Bool = false
+    var croppedImages: [NSImage] = []
+    
+    /// A Boolean value that indicates whether the images should be cropped to  non their non alpha area.
+    open var cropImagesToNonTransparent: Bool = false {
+        didSet {
+            guard oldValue != cropImagesToNonTransparent else { return }
+            updateDisplayingImage()
+        }
+    }
+    
+    /// Sets the Boolean value that indicates whether the images should be cropped to  non their non alpha area.
+    @discardableResult
+    open func cropImagesToNonTransparent(_ crop: Bool) -> Self {
+        cropImagesToNonTransparent = crop
+        return self
+    }
     var croppedImageRect: CGRect? = nil
     
     /// Sets the images displayed by the image view.

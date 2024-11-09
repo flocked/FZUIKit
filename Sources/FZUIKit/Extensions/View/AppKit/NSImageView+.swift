@@ -160,7 +160,6 @@ extension NSImageView {
         imageViewObserver.add(\.image) { [weak self] old, new in
             guard let self = self, old?.size != new?.size else { return }
             self.overlayContentView.frame = self.imageBounds
-            self.updateTransition()
         }
         imageViewObserver.add(\.imageFrameStyle) { [weak self] old, new in
             guard let self = self, old != new else { return }
@@ -187,16 +186,17 @@ extension NSImageView {
         set {
             guard newValue != transitionAnimation else { return }
             setAssociatedValue(newValue, key: "TransitionAnimation")
-            if newValue.type != nil  {
-                guard transitionImageObservation == nil else { return }
-                transitionImageObservation = observeWillChange(\.image) { [weak self] _ in
+            if newValue.type == nil  {
+                transitionImageObservation = []
+            } else if transitionImageObservation.isEmpty {
+                transitionImageObservation = [observeWillChange(\.image) { [weak self] _ in
+                    guard let self = self else { return }
+                    self.updateTransition(willChange: true)
+                }, observeChanges(for: \.image) {  [weak self] _, _ in
                     guard let self = self else { return }
                     self.updateTransition()
-                }
-            } else {
-                transitionImageObservation = nil
+                }].nonNil
             }
-            updateTransition()
         }
     }
     
@@ -269,13 +269,13 @@ extension NSImageView {
         }
     }
     
-    var transitionImageObservation: KeyValueObservation? {
-        get { getAssociatedValue("transitionImageObservation") }
+    var transitionImageObservation: [KeyValueObservation] {
+        get { getAssociatedValue("transitionImageObservation") ?? [] }
         set { setAssociatedValue(newValue, key: "transitionImageObservation") }
     }
     
-    func updateTransition() {
-        if let type = transitionAnimation.type {
+    func updateTransition(willChange: Bool = false) {
+        if willChange, let type = transitionAnimation.type {
             transition(CATransition(type, subtype: transitionAnimation.subtype, duration: transitionDuration))
         } else {
             transition(nil)
