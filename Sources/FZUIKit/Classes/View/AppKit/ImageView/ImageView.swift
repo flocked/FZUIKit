@@ -13,8 +13,8 @@ import FZSwiftUtils
 @IBDesignable
 open class ImageView: NSControl {
     
-    let containerView = ContainerView()
-    let imageView = NSImageView()
+    public let containerView = ContainerView()
+    public let imageView = NSImageView()
     var timer: DisplayLinkTimer? = nil
     var currentRepeatCount = 0
     var ignoreTransition = false
@@ -55,11 +55,13 @@ open class ImageView: NSControl {
         didSet {
             animatedImage = nil
             croppedImages = []
+            nonAlphaRects.removeAll()
             imagesUpdated()
         }
     }
     
     var croppedImages: [NSImage] = []
+    var nonAlphaRects: SynchronizedArray<CGRect> = []
     
     /// A Boolean value that indicates whether the images should be cropped to  non their non alpha area.
     open var cropImagesToNonTransparent: Bool = false {
@@ -87,6 +89,8 @@ open class ImageView: NSControl {
     var animatedImage: AnimatedImage? = nil {
         didSet {
             if let animatedImage = animatedImage {
+                croppedImages = []
+                nonAlphaRects.removeAll()
                 animationDuration = animatedImage.duration
                 animationRepeatCount = animatedImage.loopCount
                 imagesUpdated()
@@ -858,13 +862,7 @@ open class ImageView: NSControl {
     open override func layout() {
         super.layout()
         guard displayingImage != nil else { return }
-        var imageSize = displayingImage?.size ?? .zero
-        var difference: CGSize = .zero
-        let cropped = croppedImageRect ?? .zero
-        if cropImagesToNonTransparent, let rect = croppedImageRect {
-            difference.width = rect.size.width-imageSize.width
-            difference.height = rect.size.height-imageSize.height
-        }
+        let containerViewFrame = containerView.frame
         if imageScaling == .scaleToFill, let imageSize = displayingImage?.size {
             imageView.frame.size = imageSize.scaled(toFill: bounds.size)
             switch imageAlignment {
@@ -895,28 +893,20 @@ open class ImageView: NSControl {
             imageView.frame = bounds
             containerView.frame = imageView.imageBounds
             imageView.frame = containerView.bounds
-        }
-        if cropImagesToNonTransparent, let rect = croppedImageRect {
-            if imageScaling == .none {
-                switch imageAlignment {
-                case .alignTop, .alignTopLeft, .alignTopRight:
-                    imageView.frame.y += rect.y
-                case .alignBottom, .alignBottomLeft, .alignBottomRight:
-                    imageView.frame.y -= rect.y
-                default: break
-                }
-                switch imageAlignment {
-                case .alignLeft, .alignBottomLeft, .alignTopLeft:
-                    imageView.frame.x -= rect.x
-                case .alignRight, .alignBottomRight, .alignTopRight:
-                    imageView.frame.x += rect.x
-                default: break
-                }
+            /*
+            if cropImagesToNonTransparent, imageScaling == .scaleToFit, let imageSize = displayingImage?.size, let alphaRect = displayingImage?.nonAlphaRect() {
+                let xFactor = (imageSize.width / alphaRect.width)
+                let yFactor = (imageSize.height / alphaRect.height)
+               imageView.frame.size = CGSize(bounds.width * xFactor, bounds.height * yFactor )
+               imageView.center = center
+             //   containerView.frame = imageView.imageBounds
+               // imageView.frame = containerView.bounds
             }
+             */
         }
-        if overlayContentView.frame != containerView.frame {
+        if containerViewFrame != containerView.frame {
             willChangeValue(for: \.imageBounds)
-            overlayContentView.frame = containerView.frame
+            overlayContentView.frame = containerView.bounds
             didChangeValue(for: \.imageBounds)
         }
     }
@@ -975,15 +965,6 @@ open class ImageView: NSControl {
             imageView.image = animatedImage[currentImageIndex]
         } else {
             imageView.image = displayingImage
-        }
-        croppedImageRect = nil
-        if cropImagesToNonTransparent {
-            DispatchQueue.global(qos: .userInitiated).async {
-                self.croppedImageRect = self.imageView.image?.nonAlphaRect()
-                DispatchQueue.main.async {
-                    self.layout()
-                }
-            }
         }
         if oldImageSize != imageView.image?.size || cropImagesToNonTransparent {
             layout()
@@ -1136,11 +1117,11 @@ open class ImageView: NSControl {
         var frames: SynchronizedArray<Frame> = []
     }
     
-    class ContainerView: NSView {
+    public class ContainerView: NSView {
         let containerView = NSView()
         var didSetup = false
 
-        override var subviews: [NSView] {
+        public override var subviews: [NSView] {
             get { didSetup ? containerView.subviews : super.subviews }
             set {
                 if didSetup {
@@ -1151,7 +1132,7 @@ open class ImageView: NSControl {
             }
         }
         
-        override func addSubview(_ view: NSView) {
+        public override func addSubview(_ view: NSView) {
             if didSetup {
                 containerView.addSubview(view)
             } else {
@@ -1159,27 +1140,27 @@ open class ImageView: NSControl {
             }
         }
         
-        override var cornerRadius: CGFloat {
-            didSet { 
+        public override var cornerRadius: CGFloat {
+            didSet {
                 containerView.cornerRadius = cornerRadius
                 clipsToBounds = false
             }
         }
         
-        override var cornerCurve: CALayerCornerCurve {
+        public override var cornerCurve: CALayerCornerCurve {
             didSet { containerView.cornerCurve = cornerCurve }
         }
         
-        override var roundedCorners: CACornerMask {
+        public override var roundedCorners: CACornerMask {
             didSet { containerView.roundedCorners = roundedCorners }
         }
         
-        override var innerShadow: ShadowConfiguration {
+        public override var innerShadow: ShadowConfiguration {
             get { containerView.innerShadow }
             set { containerView.innerShadow = newValue }
         }
         
-        override var outerShadow: ShadowConfiguration {
+        public override var outerShadow: ShadowConfiguration {
             didSet { backgroundColor = outerShadow.resolvedColor() }
         }
         
