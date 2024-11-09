@@ -18,6 +18,24 @@
         }
         
         /**
+         An index set containing the indexes for a right event.
+         
+         - Parameter event: The right click event.
+         
+         The returned indexset contains:
+         - if right-click on a **selected row**, all selected rows,
+         - else if right-click on a **non-selected row**, that row,
+         - else an empty index set.
+         */
+        func rightClickRowIndexes(for event: NSEvent) -> IndexSet {
+            let row = row(at: event.location(in: self))
+            if row != -1 {
+                return selectedRowIndexes.contains(row) ? selectedRowIndexes : [row]
+            }
+            return []
+        }
+        
+        /**
          Deselects the rows at the specified indexes.
 
          - Parameter indexes: The indexes of the rows to deselect.

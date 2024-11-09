@@ -185,6 +185,23 @@
         }
         
         /**
+         The index paths for a right event.
+         
+         - Parameter event: The right click event.
+         
+         The returned set contains:
+         - if right-click on a **selected item**, all selected index paths,
+         - else if right-click on a **non-selected item**, that index path,
+         - else an empty set.
+         */
+        func rightClickIndexPaths(for event: NSEvent) -> Set<IndexPath> {
+            if let indexPath = indexPathForItem(at: event.location(in: self)) {
+                return selectionIndexPaths.contains(indexPath) ? selectionIndexPaths : [indexPath]
+            }
+            return []
+        }
+        
+        /**
          Scrolls the collection view contents until the specified items are visible.
          
          - Parameters:

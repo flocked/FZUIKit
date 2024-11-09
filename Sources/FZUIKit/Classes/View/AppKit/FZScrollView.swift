@@ -11,44 +11,48 @@ import FZSwiftUtils
 
 open class FZScrollView: NSScrollView {
     /**
-     The amount by which to zoom the image when the user presses either the plus or minus key.
+     The amount by which to zoom the image when the user presses either the `plus` or `minus` key.
      
-     Specify a value of `0.0` to disable zooming via keyboard.
+     Specify a value of `nil` to disable zooming via keyboard.
      */
-    open var keyDownZoomFactor: CGFloat = 0.3
+    open var keyDownZoomFactor: CGFloat? = 0.3
     
     /**
-     The amount by which to momentarily zoom the image when the user holds the space key.
+     The amount by which to momentarily zoom the image when the user holds the `space` key.
      
-     Specify a value of `0.0` to disable zooming via space key.
+     Specify a value of `nil` to disable zooming via space key.
      */
-    open var spaceKeyZoomFactor: CGFloat = 0.3
+    open var spaceKeyZoomFactor: CGFloat? = 0.3
     
     /**
      The amount by which to zoom the image when the user double clicks the view.
      
-     Specify a value of `0.0` to disable zooming via mouse clicks.
+     Specify a value of `nil` to disable zooming via mouse clicks.
      */
-    open var mouseClickZoomFactor: CGFloat = 0.5
-    
+    open var mouseClickZoomFactor: CGFloat? = 0.5
+        
     override open func keyDown(with event: NSEvent) {
+        guard ((event.keyCode == 30 || event.keyCode == 44) && keyDownZoomFactor != nil) || (event.keyCode == 49 && spaceKeyZoomFactor != nil) else {
+            super.keyDown(with: event)
+            return
+        }
         switch event.keyCode {
         case 30:
-            guard keyDownZoomFactor != 0.0 else { return }
+            guard let keyDownZoomFactor = keyDownZoomFactor else { return }
             if event.modifierFlags.contains(.command) {
                 setMagnification(maxMagnification)
             } else {
                 zoomIn(factor: keyDownZoomFactor)
             }
         case 44:
-            guard keyDownZoomFactor != 0.0 else { return }
+            guard let keyDownZoomFactor = keyDownZoomFactor else { return }
             if event.modifierFlags.contains(.command) {
                 setMagnification(1.0)
             } else {
                 zoomOut(factor: keyDownZoomFactor)
             }
         case 49:
-            guard spaceKeyZoomFactor != 0.0 else { return }
+            guard let spaceKeyZoomFactor = spaceKeyZoomFactor else { return }
             zoomIn(factor: spaceKeyZoomFactor, animationDuration: 0.2)
         default:
             super.keyDown(with: event)
@@ -56,19 +60,22 @@ open class FZScrollView: NSScrollView {
     }
     
     open override func keyUp(with event: NSEvent) {
-        if event.keyCode == 49, spaceKeyZoomFactor != 0.0 {
+        if event.keyCode == 49, let spaceKeyZoomFactor = spaceKeyZoomFactor {
             zoomOut(factor: spaceKeyZoomFactor, animationDuration: 0.2)
+        } else {
+            super.keyUp(with: event)
         }
     }
     
     override open func mouseDown(with event: NSEvent) {
-        guard mouseClickZoomFactor != 0.0 else { return }
-        if event.clickCount == 2 {
+        if let mouseClickZoomFactor = mouseClickZoomFactor, event.clickCount == 2 {
             if magnification != 1.0 {
                 setMagnification(1.0)
             } else {
                 zoomIn(factor: mouseClickZoomFactor, centeredAt: event.location(in: self))
             }
+        } else {
+            mouseDown(with: event)
         }
     }
 
