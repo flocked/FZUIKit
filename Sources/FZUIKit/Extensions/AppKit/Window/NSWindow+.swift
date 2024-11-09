@@ -159,6 +159,11 @@ extension NSWindow {
             setAssociatedValue(newValue, key: "windowHandlers")
             setupLiveResizeObservation()
             
+            if needsSpaceUpdate {
+                _isOnActiveSpace = isOnActiveSpace
+                NSWindow.updateSpaceObservation(shouldObserve: newValue.isOnActiveSpace != nil)
+            }
+            
             func observe<Value: Equatable>(_ keyPath: KeyPath<NSWindow, Value>, handler: KeyPath<NSWindow, ((Value)->())?>) {
                 if self[keyPath: handler] == nil {
                     windowObserver.remove(keyPath)
@@ -188,12 +193,6 @@ extension NSWindow {
             observe(\.tabGroup?.isTabBarVisible, handler: \.handlers.tab.isTabBarVisible)
             observe(\.tabGroup?.isOverviewVisible, handler: \.handlers.tab.isOverviewVisible)
             observe(\.tabGroup?.windows, handler: \.handlers.tab.windows)
-            
-            _isOnActiveSpace = isOnActiveSpace
-            
-            if needsSpaceUpdate {
-                NSWindow.updateSpaceObservation(shouldObserve: newValue.isOnActiveSpace != nil)
-            }
             
             if newValue.styleMask == nil && newValue.isFullScreen == nil {
                 windowObserver.remove(\.styleMask)
