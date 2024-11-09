@@ -44,6 +44,9 @@ import SwiftUI
     public typealias NSUIVisualEffectView = NSVisualEffectView
     public typealias NSUISymbolWeight = NSFont.Weight
     public typealias NSUICollectionViewFlowLayout = NSCollectionViewFlowLayout
+    public typealias NSUICollectionViewDiffableDataSource = NSCollectionViewDiffableDataSource
+    @available(macOS 11.0, *)
+    public typealias NSUITableViewDiffableDataSource = NSTableViewDiffableDataSource
 #elseif canImport(UIKit)
     import UIKit
     public typealias NSUIBezierPath = UIBezierPath
@@ -86,4 +89,6 @@ import SwiftUI
     public typealias NSUIControl = UIControl
     public typealias NSUIVisualEffectView = UIVisualEffectView
     public typealias NSUICollectionViewFlowLayout = UICollectionViewFlowLayout
+    public typealias NSUICollectionViewDiffableDataSource = UICollectionViewDiffableDataSource
+    public typealias NSUITableViewDiffableDataSource = UITableViewDiffableDataSource
 #endif
