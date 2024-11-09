@@ -192,7 +192,7 @@ extension NSWindow {
             _isOnActiveSpace = isOnActiveSpace
             
             if needsSpaceUpdate {
-                NSWindow.updateSpaceObservation(shouldObserve: newValue != nil)
+                NSWindow.updateSpaceObservation(shouldObserve: newValue.isOnActiveSpace != nil)
             }
             
             if newValue.styleMask == nil && newValue.isFullScreen == nil {
