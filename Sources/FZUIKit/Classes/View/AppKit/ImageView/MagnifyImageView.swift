@@ -618,14 +618,14 @@ open class MagnifyImageView: NSControl {
      
      Specify a value of `0.0` to disable zooming via keyboard.
      */
-    open var keyDownZoomFactor: CGFloat {
+    open var keyDownZoomFactor: CGFloat? {
         get { scrollView.keyDownZoomFactor }
         set { scrollView.keyDownZoomFactor = newValue }
     }
     
     /// Sets the amount by which to zoom the image when the user presses either the plus or minus key.
     @discardableResult
-    open func keyDownZoomFactor(_ zoomFactor: CGFloat) -> Self {
+    open func keyDownZoomFactor(_ zoomFactor: CGFloat?) -> Self {
         keyDownZoomFactor = zoomFactor
         return self
     }
@@ -635,14 +635,14 @@ open class MagnifyImageView: NSControl {
      
      Specify a value of `0.0` to disable zooming via space key.
      */
-    open var spaceKeyZoomFactor: CGFloat {
+    open var spaceKeyZoomFactor: CGFloat? {
         get { scrollView.spaceKeyZoomFactor }
         set { scrollView.spaceKeyZoomFactor = newValue }
     }
     
     /// Sets the amount by which to momentarily zoom the image when the user holds the space key.
     @discardableResult
-    open func spaceKeyZoomFactor(_ zoomFactor: CGFloat) -> Self {
+    open func spaceKeyZoomFactor(_ zoomFactor: CGFloat?) -> Self {
         spaceKeyZoomFactor = zoomFactor
         return self
     }
@@ -652,14 +652,14 @@ open class MagnifyImageView: NSControl {
      
      Specify a value of `0.0` to disable zooming via mouse clicks.
      */
-    open var mouseClickZoomFactor: CGFloat {
+    open var mouseClickZoomFactor: CGFloat? {
         get { scrollView.mouseClickZoomFactor }
         set { scrollView.mouseClickZoomFactor = newValue }
     }
     
     /// Sets the amount by which to zoom the image when the user double clicks the view.
     @discardableResult
-    open func mouseClickZoomFactor(_ zoomFactor: CGFloat) -> Self {
+    open func mouseClickZoomFactor(_ zoomFactor: CGFloat?) -> Self {
         mouseClickZoomFactor = zoomFactor
         return self
     }
