@@ -143,46 +143,44 @@ extension NSImageView {
      The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `clipsToBounds` property.
      */
     public var overlayContentView: NSView {
-        if let view: NSView = getAssociatedValue("overlayContentView") {
-            return view
+        if let overlayView: NSView = getAssociatedValue("overlayContentView") {
+            return overlayView
         }
         
-        let overlayView = NSView()
-        overlayView.clipsToBounds = true
-        overlayView.frame = imageBounds
+        let overlayView = NSView().clipsToBounds(true).frame(imageBounds)
         addSubview(overlayView)
         setAssociatedValue(overlayView, key: "overlayContentView")
 
-        imageViewObserver.add(\.frame) { [weak self] old, new in
-            guard let self = self, old != new else { return }
+        overlayImageViewObservation.add(\.frame) { [weak self] _, _ in
+            guard let self = self else { return }
             self.overlayContentView.frame = self.imageBounds
         }
-        imageViewObserver.add(\.image) { [weak self] old, new in
+        overlayImageViewObservation.add(\.image) { [weak self] old, new in
             guard let self = self, old?.size != new?.size else { return }
             self.overlayContentView.frame = self.imageBounds
         }
-        imageViewObserver.add(\.imageFrameStyle) { [weak self] old, new in
-            guard let self = self, old != new else { return }
+        overlayImageViewObservation.add(\.imageFrameStyle) { [weak self] _, _ in
+            guard let self = self else { return }
             self.overlayContentView.frame = self.imageBounds
         }
-        imageViewObserver.add(\.imageScaling) { [weak self] old, new in
-            guard let self = self, old != new else { return }
+        overlayImageViewObservation.add(\.imageScaling) { [weak self] _, _ in
+            guard let self = self else { return }
             self.overlayContentView.frame = self.imageBounds
         }
-        imageViewObserver.add(\.imageAlignment) { [weak self] old, new in
-            guard let self = self, old != new else { return }
+        overlayImageViewObservation.add(\.imageAlignment) { [weak self] _, _ in
+            guard let self = self else { return }
             self.overlayContentView.frame = self.imageBounds
         }
         return overlayView
     }
     
-    var imageViewObserver: KeyValueObserver<NSImageView> {
-        get { getAssociatedValue("imageViewObserver", initialValue: KeyValueObserver(self)) }
+    var overlayImageViewObservation: KeyValueObserver<NSImageView> {
+        get { getAssociatedValue("overlayImageViewObservation", initialValue: KeyValueObserver(self)) }
     }
 
-    /// The transition animation when changing the displayed image.
+    /// The transition animation when changing the image.
     public var transitionAnimation: TransitionAnimation {
-        get { getAssociatedValue("TransitionAnimation", initialValue: .none) }
+        get { getAssociatedValue("TransitionAnimation") ?? .none }
         set {
             guard newValue != transitionAnimation else { return }
             setAssociatedValue(newValue, key: "TransitionAnimation")
@@ -191,19 +189,19 @@ extension NSImageView {
             } else if transitionImageObservation.isEmpty {
                 transitionImageObservation = [observeWillChange(\.image) { [weak self] _ in
                     guard let self = self else { return }
-                    self.updateTransition(willChange: true)
+                    self.updateTransition()
                 }, observeChanges(for: \.image) {  [weak self] _, _ in
                     guard let self = self else { return }
-                    self.updateTransition()
+                    self.transition(nil)
                 }].nonNil
             }
         }
     }
     
     
-    /// The duration of the transition animation.
+    /// The duration of the transition animation when changing the image.
     public var transitionDuration: TimeInterval {
-        get { getAssociatedValue("transitionDuration", initialValue: 0.2) }
+        get { getAssociatedValue("transitionDuration") ?? 0.2 }
         set {
             guard newValue != transitionDuration else { return }
             setAssociatedValue(newValue, key: "transitionDuration")
@@ -211,7 +209,7 @@ extension NSImageView {
         }
     }
     
-    /// Constants that specify the transition animation when changing the displayed image.
+    /// The transition animation when changing the image.
     public enum TransitionAnimation: Hashable, CustomStringConvertible {
         /// No transition animation.
         case none
@@ -274,12 +272,9 @@ extension NSImageView {
         set { setAssociatedValue(newValue, key: "transitionImageObservation") }
     }
     
-    func updateTransition(willChange: Bool = false) {
-        if willChange, let type = transitionAnimation.type {
-            transition(CATransition(type, subtype: transitionAnimation.subtype, duration: transitionDuration))
-        } else {
-            transition(nil)
-        }
+    func updateTransition() {
+        guard let type = transitionAnimation.type else { return }
+        transition(CATransition(type, subtype: transitionAnimation.subtype, duration: transitionDuration))
     }
 }
 #endif
