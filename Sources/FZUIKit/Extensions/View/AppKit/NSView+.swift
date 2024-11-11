@@ -72,7 +72,7 @@
         @objc open var firstBaselineOffset: CGPoint {
             get {
                 guard firstBaselineOffsetFromTop != 0 else { return frame.origin }
-                return CGPoint(frame.x, frame.y + frame.height - firstBaselineOffsetFromTop - 0.5)
+                return CGPoint(frame.x, frame.maxY - firstBaselineOffsetFromTop - 0.5)
             }
             set { frame.origin = CGPoint(newValue.x, newValue.y - firstBaselineOffsetFromBottom) }
         }
@@ -88,7 +88,7 @@
          */
         @objc open var lastBaselineOffset: CGPoint {
             get { CGPoint(frame.x, frame.y + lastBaselineOffsetFromBottom - 0.5) }
-            set { frame.origin = CGPoint(newValue.x, newValue.y + lastBaselineOffsetFromBottom - 0.5) }
+            set { frame.origin = CGPoint(newValue.x, newValue.y - lastBaselineOffsetFromBottom - 0.5) }
         }
 
         /**
