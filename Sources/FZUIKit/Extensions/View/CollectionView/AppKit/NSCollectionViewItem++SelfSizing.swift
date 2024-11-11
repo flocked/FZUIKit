@@ -15,6 +15,7 @@ extension NSCollectionViewItem {
         view = NSView()
     }
     
+    /*
     @objc open func preferredLayoutAttributesFitting(_ layoutAttributes: NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes {
         guard let attributes = layoutAttributes as? SelfSizinCollectionViewLayoutAttributes else { return layoutAttributes }
         Swift.print("item preferredLayoutAttributesFitting")
@@ -28,6 +29,7 @@ extension NSCollectionViewItem {
         
         return attributes
     }
+     */
 }
 
 /// An object that contains layout-related attributes including self sizing for an element in a collection view.
