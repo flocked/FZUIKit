@@ -17,7 +17,7 @@ extension NSCollectionViewItem {
     
     public func preferredLayoutAttributesFitting(_ layoutAttributes: NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes {
         guard let attributes = layoutAttributes as? SelfSizinCollectionViewLayoutAttributes else { return layoutAttributes }
-        Swift.print("HERE")
+        Swift.print("item preferredLayoutAttributesFitting")
         if attributes.shouldVerticallySelfSize && attributes.shouldHorizontallySelfSize {
             layoutAttributes.size = view.systemLayoutSizeFitting(layoutAttributes.size, withHorizontalFittingPriority: .fittingSizeCompression, verticalFittingPriority: .fittingSizeCompression)
         } else if attributes.shouldVerticallySelfSize {
