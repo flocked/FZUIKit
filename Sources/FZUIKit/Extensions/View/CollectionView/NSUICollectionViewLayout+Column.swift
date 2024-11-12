@@ -50,14 +50,6 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
             invalidate()
         }
     }
-    
-    /// The orientation of the columns.
-    public var orientation: NSUIUserInterfaceLayoutOrientation = .horizontal {
-        didSet {
-            guard oldValue != orientation else { return }
-            invalidate()
-        }
-    }
         
     #if os(macOS) || os(iOS)
     /// User interaction options for changing the amount of columns by pinching the collection view and pressing the `plus` or `minus` key.
@@ -155,8 +147,11 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         set { _sectionInsetUsesSafeArea = newValue }
     }
     
-    @objc var scrollDirection: NSUICollectionView.ScrollDirection {
-        orientation == .horizontal ? .vertical : .horizontal
+    @objc public var scrollDirection: NSUICollectionView.ScrollDirection = .vertical {
+        didSet {
+            guard oldValue != scrollDirection else { return }
+            invalidate()
+        }
     }
     
     private var columnSizes: [[CGFloat]] = []
@@ -172,12 +167,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
     private var unionRects: [CGRect] = []
     private var isTransitioning = false
     private var isUpdating = false
-    private var invalidatesAutomatic = true
     private var waterfallID = 0
-    private var appliedLayoutConfiguration = LayoutConfiguration()
-    private var currentLayoutConfiguration: LayoutConfiguration {
-        LayoutConfiguration(itemLayout: itemLayout, waterfallID: waterfallID, itemOrder: itemOrder, columns: columns, orientation: orientation, columnSpacing: columnSpacing, itemSpacing: itemSpacing, header: header, footer: footer, columnSizing: columnSizing, sectionInset: sectionInset, sectionInsetUsesSafeArea: _sectionInsetUsesSafeArea)
-    }
     
     //MARK: - Updating Layout Attributes
     
@@ -193,7 +183,6 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
             collectionView?.setupColumnInteractionGestureRecognizer(needsGestureRecognizer)
             #endif
             prepareLayoutAttributes()
-            appliedLayoutConfiguration = currentLayoutConfiguration
         } else {
             didCalcuateItemAttributes = false
         }
@@ -252,7 +241,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
                 #endif
                 attributes.zIndex = itemCount - indexPath.item
                 
-                if orientation == .horizontal {
+                if scrollDirection == .vertical {
                     attributes.frame.origin.x = sectionInset.left + (itemSizing + columnSpacing) * CGFloat(columnIndex)
                     attributes.frame.origin.y = columnSizes[section][columnIndex]
                 } else {
@@ -260,12 +249,12 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
                     attributes.frame.origin.x = columnSizes[section][columnIndex]
                 }
 
-                attributes.frame.size = CGSize(orientation == .horizontal ? itemSizing : .zero, orientation == .horizontal ? .zero : itemSizing)
+                attributes.frame.size = CGSize(scrollDirection == .vertical ? itemSizing : .zero, scrollDirection == .vertical ? .zero : itemSizing)
                 
                 switch itemLayout {
                 case .waterfall(let itemSizeProvider):
                     let itemSize = itemSizeProvider(indexPath)
-                    if orientation == .horizontal {
+                    if scrollDirection == .vertical {
                         if itemSize.height > 0.0 {
                             attributes.frame.size.height = itemSize.width > 0.0 ?  (itemSize.height * itemSizing / itemSize.width) : itemSize.height
                         }
@@ -273,7 +262,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
                         attributes.frame.size.width = itemSize.height > 0.0 ? (itemSize.width * itemSizing / itemSize.height) : itemSize.width
                     }
                 case .grid(let itemAspectRatio):
-                    if orientation == .horizontal {
+                    if scrollDirection == .vertical {
                         attributes.frame.size.height = itemAspectRatio.aspectRatio * itemSizing
                     } else {
                         attributes.frame.size.width = itemAspectRatio.aspectRatio * itemSizing
@@ -282,7 +271,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
 
                 itemAttributes.append(attributes)
                 allLayoutAttributes.append(attributes)
-                columnSizes[section][columnIndex] = (orientation == .horizontal ? attributes.frame.maxY : attributes.frame.maxX) + itemSpacing
+                columnSizes[section][columnIndex] = (scrollDirection == .vertical ? attributes.frame.maxY : attributes.frame.maxX) + itemSpacing
             }
             sectionItemAttributes.append(itemAttributes)
 
@@ -305,7 +294,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
             columnSizes[section] = [CGFloat](repeating: top, count: columns)
         }
         
-        updateHeaderFooterAttributes()
+        updatePinnedHeaderFooterAttributes()
         updateUnionRects()
     }
     
@@ -321,7 +310,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         }
     }
     
-    func updateHeaderFooterAttributes() {
+    func updatePinnedHeaderFooterAttributes() {
         guard let collectionView = collectionView else { return }
         if header.pinToVisibleBounds {
             for attribute in headerAttributes {
@@ -376,12 +365,12 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
 
     private var itemSizing: CGFloat {
         let spaceColumCount = CGFloat(columns - 1)
-        let size = orientation == .horizontal ? collectionViewContentSizing().width : collectionViewContentSizing().height
+        let size = scrollDirection == .vertical ? collectionViewContentSizing().width : collectionViewContentSizing().height
         switch columnSizing {
         case .fixed(let value):
             return value
         case .relative(let value):
-            return (orientation == .horizontal ? collectionViewContentSizing().width : collectionViewContentSizing().height) * value
+            return (scrollDirection == .vertical ? collectionViewContentSizing().width : collectionViewContentSizing().height) * value
         case .automatic:
             return ((size - (spaceColumCount * columnSpacing)) / CGFloat(columns))
         }
@@ -415,7 +404,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         guard let collectionView = collectionView, collectionView.numberOfSections > 0, let size = columnSizes.last?.first else {
             return .zero
         }
-        return orientation == .horizontal ? CGSize(collectionView.bounds.width, size) : CGSize(size, collectionView.bounds.height)
+        return scrollDirection == .vertical ? CGSize(collectionView.bounds.width, size) : CGSize(size, collectionView.bounds.height)
     }
     
     //MARK: - Layout Attributes
@@ -457,9 +446,9 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
             let contentOffset = collectionView?.contentOffset ?? .zero
             let oldSize = collectionViewContentSize
             prepareLayoutAttributes(keepItemOrder: true)
-            if (orientation == .horizontal ? oldSize.height : oldSize.width) > 0.0 {
+            if (scrollDirection == .vertical ? oldSize.height : oldSize.width) > 0.0 {
                 let newSize = collectionViewContentSize
-                if orientation == .horizontal {
+                if scrollDirection == .vertical {
                     context.contentOffsetAdjustment.y = (contentOffset.y * (newSize.height / oldSize.height)) - contentOffset.y
                 } else {
                     context.contentOffsetAdjustment.x = (contentOffset.x * (newSize.width / oldSize.width)) - contentOffset.x
@@ -467,7 +456,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
             }
             didCalcuateItemAttributes = true
         } else if context.invalidateHeaderFooterAttributes {
-            updateHeaderFooterAttributes()
+            updatePinnedHeaderFooterAttributes()
             updateUnionRects()
             #if os(macOS)
             context.invalidateSupplementaryElements(ofKind: NSUICollectionView.elementKindSectionHeader, at: Set(headerAttributes.compactMap({$0.indexPath})))
@@ -476,25 +465,13 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
             context.invalidateSupplementaryElements(ofKind: NSUICollectionView.elementKindSectionHeader, at: headerAttributes.compactMap({$0.indexPath}))
             context.invalidateSupplementaryElements(ofKind: NSUICollectionView.elementKindSectionFooter, at: footersAttributes.compactMap({$0.indexPath}))
             #endif
+            didCalcuateItemAttributes = true
         }
-        #if os(macOS)
-        if !invalidatesAutomatic, NSAnimationContext.hasActiveGrouping, appliedLayoutConfiguration != currentLayoutConfiguration {
-            invalidate(propertyUpdated: false)
-        } else {
-            super.invalidateLayout(with: context)
-        }
-        #else
-        if !invalidatesAutomatic, UIView.inheritedAnimationDuration > 0, appliedLayoutConfiguration != currentLayoutConfiguration {
-            invalidate(propertyUpdated: false)
-        } else {
-            super.invalidateLayout(with: context)
-        }
-        #endif
+        super.invalidateLayout(with: context)
     }
     
-    func invalidate(propertyUpdated: Bool = true) {
+    func invalidate() {
         guard !isUpdating, let collectionView = collectionView else { return }
-        guard !propertyUpdated || invalidatesAutomatic && propertyUpdated else { return }
         #if os(macOS)
         if NSAnimationContext.hasActiveGrouping {
             isUpdating = true
@@ -517,14 +494,14 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
     }
             
     open override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
-        guard orientation == .horizontal && previousBounds.width != newBounds.width || orientation == .vertical && previousBounds.height != newBounds.height || ((header.pinToVisibleBounds || footer.pinToVisibleBounds) && previousBounds.y != newBounds.y) else { return false }
+        guard scrollDirection == .vertical && previousBounds.width != newBounds.width || scrollDirection == .horizontal && previousBounds.height != newBounds.height || ((header.pinToVisibleBounds || footer.pinToVisibleBounds) && previousBounds.y != newBounds.y) else { return false }
         return true
     }
         
     open override func invalidationContext(forBoundsChange newBounds: CGRect) -> NSUICollectionViewLayoutInvalidationContext {
         let context = super.invalidationContext(forBoundsChange: newBounds) as! InvalidationContext
         context.invalidateHeaderFooterAttributes = (header.pinToVisibleBounds || footer.pinToVisibleBounds) && previousBounds.y != newBounds.y
-        context.invalidateItemAttributes = orientation == .horizontal && previousBounds.width != newBounds.width || orientation == .vertical && previousBounds.height != newBounds.height
+        context.invalidateItemAttributes = scrollDirection == .vertical && previousBounds.width != newBounds.width || scrollDirection == .horizontal && previousBounds.height != newBounds.height
         context.shouldInvalidateEverything = context.invalidateItemAttributes
         previousBounds = newBounds
         return context
@@ -575,13 +552,13 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         - columnsCount: The amount of columns.
         - spacing: The spacing between the columns and items.
         - insets: The layout insets.
-        - orientation: The orientation of the layout.
+        - scrollDirection: The scroll direction of the layout.
         - itemSizeProvider: The handler that provides the item sizes..
      */
-    public static func waterfall(columnsCount columns: Int, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), orientation: NSUIUserInterfaceLayoutOrientation = .horizontal, itemSizeProvider: @escaping ItemSizeProvider) -> ColumnCollectionViewLayout {
+    public static func waterfall(columnsCount columns: Int, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), scrollDirection: NSUICollectionView.ScrollDirection = .vertical, itemSizeProvider: @escaping ItemSizeProvider) -> ColumnCollectionViewLayout {
         let layout = ColumnCollectionViewLayout()
         layout.columns = columns
-        layout.orientation = orientation
+        layout.scrollDirection = scrollDirection
         layout.itemSpacing = spacing
         layout.columnSpacing = spacing
         layout.itemLayout = .waterfall(itemSizeProvider)
@@ -596,13 +573,13 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         - columnsCount: The amount of columns for the grid.
         - spacing: The spacing between the columns and items.
         - insets: The insets of the layout.
-        - orientation: The orientation of the layout.
+        - scrollDirection: The scroll direction of the layout.
         - itemAspectRatio: The aspect ratio of the items.
      */
-    public static func grid(columnsCount: Int, orientation: NSUIUserInterfaceLayoutOrientation = .horizontal, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemAspectRatio: CGSize = CGSize(1,1)) -> ColumnCollectionViewLayout {
+    public static func grid(columnsCount: Int, scrollDirection: NSUICollectionView.ScrollDirection = .vertical, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemAspectRatio: CGSize = CGSize(1,1)) -> ColumnCollectionViewLayout {
         let layout = ColumnCollectionViewLayout()
         layout.columns = columnsCount
-        layout.orientation = orientation
+        layout.scrollDirection = scrollDirection
         layout.itemSpacing = spacing
         layout.columnSpacing = spacing
         layout.itemLayout = .grid(itemAspectRatio)
@@ -615,14 +592,14 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
      
      - Parameters:
         - columns: The amount of columns for the grid.
-        - orientation: The orientation of the layout.
+        - scrollDirection: The scroll direction of the layout.
         - spacing: The spacing between the columns and items.
         - insets: The insets of the layout.
      */
-    public init(columns: Int = 3, orientation: NSUIUserInterfaceLayoutOrientation = .horizontal, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0)) {
+    public init(columns: Int = 3, scrollDirection: NSUICollectionView.ScrollDirection = .vertical, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0)) {
         super.init()
         self.columns = columns
-        self.orientation = orientation
+        self.scrollDirection = scrollDirection
         self.itemSpacing = spacing
         self.columnSpacing = spacing
         self.sectionInset = insets
@@ -634,21 +611,6 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
 }
 
 extension ColumnCollectionViewLayout {
-    struct LayoutConfiguration: Hashable {
-        var itemLayout: ItemLayout = .grid(CGSize(1.0))
-        var waterfallID: Int = 0
-        var itemOrder: ItemSortOrder = .shortestColumn
-        var columns: Int = 3
-        var orientation: NSUIUserInterfaceLayoutOrientation = .horizontal
-        var columnSpacing: CGFloat = 10
-        var itemSpacing: CGFloat = 10.0
-        var header: HeaderFooterAttributes = .init()
-        var footer: HeaderFooterAttributes = .init()
-        var columnSizing: ColumnSizing = .automatic
-        var sectionInset: NSUIEdgeInsets = NSUIEdgeInsets(10)
-        var sectionInsetUsesSafeArea: Bool = false
-    }
-    
     /// The layout of the items.
     public enum ItemLayout: Hashable {
         /// Flexible item heights.
@@ -835,11 +797,11 @@ public extension NSUICollectionViewLayout {
         - columns: The amount of columns.
         - spacing: The spacing between the columns and items.
         - insets: The layout insets.
-        - orientation: The orientation of the layout.
+        - scrollDirection: The scroll direction of the layout.
         - itemSizeProvider: The handler that provides the item sizes..
      */
-    static func waterfall(columns: Int, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), orientation: NSUIUserInterfaceLayoutOrientation = .horizontal, itemSizeProvider: @escaping (_ indexPath: IndexPath) -> CGSize) -> ColumnCollectionViewLayout {
-        let layout = ColumnCollectionViewLayout.init(columns: columns, orientation: orientation, spacing: spacing, insets: insets)
+    static func waterfall(columns: Int, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), scrollDirection: NSUICollectionView.ScrollDirection = .vertical, itemSizeProvider: @escaping (_ indexPath: IndexPath) -> CGSize) -> ColumnCollectionViewLayout {
+        let layout = ColumnCollectionViewLayout.init(columns: columns, scrollDirection: scrollDirection, spacing: spacing, insets: insets)
         layout.itemLayout = .waterfall(itemSizeProvider)
         return layout
     }
@@ -851,93 +813,13 @@ public extension NSUICollectionViewLayout {
         - columns: The amount of columns for the grid.
         - spacing: The spacing between the columns and items.
         - insets: The insets of the layout.
-        - orientation: The orientation of the layout.
+        - scrollDirection: The scroll direction of the layout.
         - itemAspectRatio: The aspect ratio of the items.
      */
-    static func grid(columns: Int, orientation: NSUIUserInterfaceLayoutOrientation = .horizontal, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemAspectRatio: CGSize = CGSize(1,1)) -> ColumnCollectionViewLayout {
-        let layout = ColumnCollectionViewLayout.init(columns: columns, orientation: orientation, spacing: spacing, insets: insets)
+    static func grid(columns: Int, scrollDirection: NSUICollectionView.ScrollDirection = .vertical, spacing: CGFloat = 10, insets: NSUIEdgeInsets = .init(10.0), itemAspectRatio: CGSize = CGSize(1,1)) -> ColumnCollectionViewLayout {
+        let layout = ColumnCollectionViewLayout.init(columns: columns, scrollDirection: scrollDirection, spacing: spacing, insets: insets)
         layout.itemLayout = .grid(itemAspectRatio)
         return layout
-    }
-}
-
-extension ColumnCollectionViewLayout {
-    /// Sets handler that provides the sizes for each item.
-    @discardableResult
-    public func itemLayout(_ itemLayout: ItemLayout) -> Self {
-        self.itemLayout = itemLayout
-        return self
-    }
-    
-    /// Sets the order each item is displayed.
-    @discardableResult
-    public func itemOrder(_ direction:  ItemSortOrder) -> Self {
-        itemOrder = direction
-        return self
-    }
-    
-    /// Sets the amount of columns.
-    @discardableResult
-    public func columns(_ columns: Int) -> Self {
-        self.columns = columns
-        return self
-    }
-    
-    /// Sets the orientation of the columns.
-    @discardableResult
-    public func orientation(_ orientation: NSUIUserInterfaceLayoutOrientation = .horizontal) -> Self {
-        self.orientation = orientation
-        return self
-    }
-    
-    /// Sets the spacing between the items.
-    @discardableResult
-    public func itemSpacing(_ spacing:  CGFloat) -> Self {
-        self.itemSpacing = spacing
-        return self
-    }
-    
-    /// Sets the spacing between the columns.
-    @discardableResult
-    public func columnSpacing(_ spacing:  CGFloat) -> Self {
-        columnSpacing = spacing
-        return self
-    }
-    
-    /// Sets the header attributes.
-    @discardableResult
-    public func header(_ header: HeaderFooterAttributes) -> Self {
-        self.header = header
-        return self
-    }
-    
-    /// Sets the footer attributes.
-    @discardableResult
-    public func footer(_ footer: HeaderFooterAttributes) -> Self {
-        self.footer = footer
-        return self
-    }
-    
-    /// Sets the sizing for each column.
-    @discardableResult
-    func columnSizing(_ columnSizing: ColumnSizing) -> Self {
-        self.columnSizing = columnSizing
-        return self
-    }
-    
-    /// Sets the margins used to lay out content in a section.
-    @discardableResult
-    public func sectionInset(_ inset: NSUIEdgeInsets) -> Self {
-        sectionInset = inset
-        return self
-    }
-    
-    /// Sets the Boolean value that indicates whether to apply the ``sectionInset`` to the  safe area of the collection view.
-    @available(macOS 11.0, iOS 13.0, tvOS 13.0, *)
-    @discardableResult
-    public func sectionInsetUsesSafeArea(_ useSafeArea: Bool) -> Self {
-        sectionInsetUsesSafeArea = useSafeArea
-        return self
     }
 }
 

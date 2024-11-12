@@ -62,9 +62,7 @@ extension NSView {
         
         sizeConstraints.activate()
         layoutSubtreeIfNeeded()
-        
         let fittingSize = fittingSize
-        
         sizeConstraints.activate(false)
         
         return fittingSize

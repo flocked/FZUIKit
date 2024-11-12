@@ -14,26 +14,10 @@ extension NSCollectionViewItem {
     override open func loadView() {
         view = NSView()
     }
-    
-    /*
-    @objc open func preferredLayoutAttributesFitting(_ layoutAttributes: NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes {
-        guard let attributes = layoutAttributes as? SelfSizinCollectionViewLayoutAttributes else { return layoutAttributes }
-        Swift.print("item preferredLayoutAttributesFitting")
-        if attributes.shouldVerticallySelfSize && attributes.shouldHorizontallySelfSize {
-            layoutAttributes.size = view.systemLayoutSizeFitting(layoutAttributes.size, withHorizontalFittingPriority: .fittingSizeCompression, verticalFittingPriority: .fittingSizeCompression)
-        } else if attributes.shouldVerticallySelfSize {
-            layoutAttributes.size = view.systemLayoutSizeFitting(layoutAttributes.size, withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeCompression)
-        } else if attributes.shouldHorizontallySelfSize {
-            layoutAttributes.size = view.systemLayoutSizeFitting(layoutAttributes.size, withHorizontalFittingPriority: .fittingSizeCompression, verticalFittingPriority: .required)
-        }
-        
-        return attributes
-    }
-     */
 }
 
 /// An object that contains layout-related attributes including self sizing for an element in a collection view.
-public class SelfSizinCollectionViewLayoutAttributes: NSCollectionViewLayoutAttributes {
+public class SelfSizingCollectionViewLayoutAttributes: NSCollectionViewLayoutAttributes {
     /// A Boolean value that indicates whether the iitem should be self sized vertically.
     public var shouldVerticallySelfSize: Bool = false
     
@@ -41,19 +25,58 @@ public class SelfSizinCollectionViewLayoutAttributes: NSCollectionViewLayoutAttr
     public var shouldHorizontallySelfSize: Bool = false
     
     override public func copy(with zone: NSZone? = nil) -> Any {
-      let copy = super.copy(with: zone) as! SelfSizinCollectionViewLayoutAttributes
-      copy.shouldVerticallySelfSize = shouldVerticallySelfSize
-    copy.shouldHorizontallySelfSize = shouldHorizontallySelfSize
-
-      return copy
+        let copy = super.copy(with: zone) as! SelfSizingCollectionViewLayoutAttributes
+        copy.shouldVerticallySelfSize = shouldVerticallySelfSize
+        copy.shouldHorizontallySelfSize = shouldHorizontallySelfSize
+        return copy
     }
 
     override public func isEqual(_ object: Any?) -> Bool {
-      return super.isEqual(object) &&
-        shouldVerticallySelfSize == (object as? SelfSizinCollectionViewLayoutAttributes)?.shouldVerticallySelfSize &&
-        shouldHorizontallySelfSize == (object as? SelfSizinCollectionViewLayoutAttributes)?.shouldHorizontallySelfSize
+        guard let _object = object as? SelfSizingCollectionViewLayoutAttributes else { return super.isEqual(object) }
+        return super.isEqual(object) && shouldVerticallySelfSize == _object.shouldVerticallySelfSize && shouldHorizontallySelfSize == _object.shouldHorizontallySelfSize
     }
 }
+
+extension NSCollectionViewFlowLayout {
+    class var automaticSize: CGSize {
+        NSCollectionViewItem.swizzlePreferredLayoutAttributesFitting()
+        return CGSize(NSView.noIntrinsicMetric)
+    }
+}
+
+extension NSCollectionViewItem {
+    static func swizzlePreferredLayoutAttributesFitting() {
+        guard !isMethodReplaced(#selector(Self.preferredLayoutAttributesFitting(_:))) else { return }
+        do {
+           try replaceMethod(
+            #selector(Self.preferredLayoutAttributesFitting(_:)),
+           methodSignature: (@convention(c)  (AnyObject, Selector, NSCollectionViewLayoutAttributes) -> (NSCollectionViewLayoutAttributes)).self,
+           hookSignature: (@convention(block)  (AnyObject, NSCollectionViewLayoutAttributes) -> (NSCollectionViewLayoutAttributes)).self) { store in {
+               object, attributes in
+               let preferred = store.original(object, #selector(Self.preferredLayoutAttributesFitting(_:)), attributes)
+               guard let item = object as? Self else { return preferred }
+               if preferred.frame.size == NSCollectionViewFlowLayout.automaticSize {
+                   
+               }
+               guard attributes.size != preferred.size, let attributes = attributes as? SelfSizingCollectionViewLayoutAttributes else { return preferred }
+               
+               if attributes.shouldVerticallySelfSize && attributes.shouldHorizontallySelfSize {
+                   preferred.size = item.view.systemLayoutSizeFitting(attributes.size, withHorizontalFittingPriority: .fittingSizeCompression, verticalFittingPriority: .fittingSizeCompression)
+               } else if attributes.shouldVerticallySelfSize {
+                   preferred.size = item.view.systemLayoutSizeFitting(attributes.size, withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeCompression)
+               } else if attributes.shouldHorizontallySelfSize {
+                   preferred.size = item.view.systemLayoutSizeFitting(attributes.size, withHorizontalFittingPriority: .fittingSizeCompression, verticalFittingPriority: .required)
+               }
+               return preferred
+               }
+           }
+        } catch {
+           // handle error
+           debugPrint(error)
+        }
+    }
+}
+
 
 #endif
 
