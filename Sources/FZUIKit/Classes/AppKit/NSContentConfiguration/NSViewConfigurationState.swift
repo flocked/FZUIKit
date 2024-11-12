@@ -145,5 +145,9 @@ public class __NSViewConfigurationState: NSObject, NSCopying {
     public func copy(with zone: NSZone? = nil) -> Any {
         __NSViewConfigurationState(state: state)
     }
+    
+    public override func isEqual(_ object: Any?) -> Bool {
+        state == (object as? __NSViewConfigurationState)?.state
+    }
 }
 #endif

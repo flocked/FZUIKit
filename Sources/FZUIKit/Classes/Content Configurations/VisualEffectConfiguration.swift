@@ -144,6 +144,10 @@ public class __VisualEffectConfiguration: NSObject, NSCopying {
     public func copy(with zone: NSZone? = nil) -> Any {
         __VisualEffectConfiguration(configuration: configuration)
     }
+    
+    public override func isEqual(_ object: Any?) -> Bool {
+        configuration == (object as? __VisualEffectConfiguration)?.configuration
+    }
 }
 
 extension VisualEffectConfiguration: ReferenceConvertible {
@@ -220,6 +224,10 @@ public class __VisualEffectConfiguration: NSObject, NSCopying {
     
     public func copy(with zone: NSZone? = nil) -> Any {
         __VisualEffectConfiguration(effect: effect)
+    }
+    
+    public override func isEqual(_ object: Any?) -> Bool {
+        effect == (object as? __VisualEffectConfiguration)?.effect
     }
 }
 

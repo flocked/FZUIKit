@@ -210,6 +210,10 @@ public class __BorderConfiguration: NSObject, NSCopying {
     public func copy(with zone: NSZone? = nil) -> Any {
         __BorderConfiguration(configuration: configuration)
     }
+    
+    public override func isEqual(_ object: Any?) -> Bool {
+        configuration == (object as? __BorderConfiguration)?.configuration
+    }
 }
 
 extension BorderConfiguration: ReferenceConvertible {

@@ -253,6 +253,10 @@ public class __ShadowConfiguration: NSObject, NSCopying {
     public func copy(with zone: NSZone? = nil) -> Any {
         __ShadowConfiguration(configuration: configuration)
     }
+    
+    public override func isEqual(_ object: Any?) -> Bool {
+        configuration == (object as? __ShadowConfiguration)?.configuration
+    }
 }
 
 extension ShadowConfiguration: ReferenceConvertible {

@@ -258,6 +258,10 @@ public class __Gradient: NSObject, NSCopying {
     public func copy(with zone: NSZone? = nil) -> Any {
         __Gradient(gradient: gradient)
     }
+    
+    public override func isEqual(_ object: Any?) -> Bool {
+        gradient == (object as? __Gradient)?.gradient
+    }
 }
 
 extension Gradient: ReferenceConvertible {

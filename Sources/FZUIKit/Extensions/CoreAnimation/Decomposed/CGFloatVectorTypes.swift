@@ -290,6 +290,10 @@ public class __CGVector3: NSObject, NSCopying {
     public func copy(with zone: NSZone? = nil) -> Any {
         __CGVector3(storage)
     }
+    
+    public override func isEqual(_ object: Any?) -> Bool {
+        storage == (object as? __CGVector3)?.storage
+    }
 }
 
 /// The Objective-C class for ``CGVector4``.
@@ -303,6 +307,10 @@ public class __CGVector4: NSObject, NSCopying {
     public func copy(with zone: NSZone? = nil) -> Any {
         __CGVector4(storage)
     }
+    
+    public override func isEqual(_ object: Any?) -> Bool {
+        storage == (object as? __CGVector4)?.storage
+    }
 }
 
 /// The Objective-C class for ``CGQuaternion``.
@@ -315,6 +323,10 @@ public class __CGQuaternion: NSObject, NSCopying {
     
     public func copy(with zone: NSZone? = nil) -> Any {
         __CGQuaternion(storage)
+    }
+    
+    public override func isEqual(_ object: Any?) -> Bool {
+        storage == (object as? __CGQuaternion)?.storage
     }
 }
 
