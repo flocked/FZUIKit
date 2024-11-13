@@ -30,6 +30,7 @@
          - Parameter backgroundStyle: The background style to apply.
          */
         @objc open func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
+            Swift.print("setBackgroundStyle gggg", backgroundStyle.rawValue)
             (self as? NSControl)?.backgroundStyle = backgroundStyle
             (self as? NSTableCellView)?.backgroundStyle = backgroundStyle
 

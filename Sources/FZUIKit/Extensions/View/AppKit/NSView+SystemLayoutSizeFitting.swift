@@ -20,7 +20,7 @@ extension NSView {
      - Returns: The optimal size for the view.
      */
     public func systemLayoutSizeFitting(_ targetSize: CGSize) -> CGSize {
-        _systemLayoutSizeFitting(targetSize)
+        systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: .fittingSizeCompression, verticalFittingPriority: .fittingSizeCompression)
     }
     
     /**
@@ -36,28 +36,17 @@ extension NSView {
 
      */
     public func systemLayoutSizeFitting(_ targetSize: CGSize, withHorizontalFittingPriority horizontalFittingPriority: NSLayoutConstraint.Priority, verticalFittingPriority: NSLayoutConstraint.Priority) -> CGSize {
-      _systemLayoutSizeFitting(targetSize, withHorizontalFittingPriority: horizontalFittingPriority, verticalFittingPriority: verticalFittingPriority)
-    }
-    
-    private func _systemLayoutSizeFitting(_ targetSize: CGSize, withHorizontalFittingPriority horizontalFittingPriority: NSLayoutConstraint.Priority? = nil, verticalFittingPriority: NSLayoutConstraint.Priority? = nil) -> CGSize {
         var sizeConstraints: [NSLayoutConstraint] = []
 
+        let size = translatesAutoresizingMaskIntoConstraints ? bounds.size : nil
         translatesAutoresizingMaskIntoConstraints = false
         
         if targetSize.width > 0 {
-            let widthConstraint = widthAnchor.constraint(equalToConstant: targetSize.width)
-            if let horizontalFittingPriority = horizontalFittingPriority {
-                widthConstraint.priority = horizontalFittingPriority
-            }
-            sizeConstraints.append(widthConstraint)
+            sizeConstraints.append(widthAnchor.constraint(equalToConstant: targetSize.width).priority(horizontalFittingPriority))
         }
         
         if targetSize.height > 0 {
-            let heightConstraint = heightAnchor.constraint(equalToConstant: targetSize.height)
-            if let verticalFittingPriority = verticalFittingPriority {
-                heightConstraint.priority = verticalFittingPriority
-            }
-            sizeConstraints.append(heightConstraint)
+            sizeConstraints.append(heightAnchor.constraint(equalToConstant: targetSize.height).priority(verticalFittingPriority))
         }
         
         sizeConstraints.activate()
@@ -65,14 +54,19 @@ extension NSView {
         let fittingSize = fittingSize
         sizeConstraints.activate(false)
         
+        if let size = size {
+            frame.size = size
+            translatesAutoresizingMaskIntoConstraints = true
+        }
+        
         return fittingSize
     }
     
     /// The option to use the smallest possible size.
-    public static let layoutFittingCompressedSize = CGSize(width: NSView.noIntrinsicMetric, height: NSView.noIntrinsicMetric)
+    public static let layoutFittingCompressedSize = CGSize(width: 0, height: 0)
     
     /// The option to use the largest possible size.
-    public static let layoutFittingExpandedSize = CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
+    public static let layoutFittingExpandedSize = CGSize(width: 10000, height: 10000)
 }
 
 

@@ -320,7 +320,7 @@ open class StackView: NSUIView {
                 arrangedViewOptions[arrangedSubview.id]!.calculatedSize = orientation == .horizontal ? CGSize(value, isSpacer ? 0 : arrangedSubview.frame.height) : CGSize(isSpacer ? 0 : arrangedSubview.frame.width, value)
             case .automatic:
                 #if os(macOS)
-                var fittingSize = (arrangedSubview as? NSControl)?.sizeThatFits(availableSpace) ?? arrangedSubview.fittingSize
+                var fittingSize = systemLayoutSizeFitting(availableSpace)
                 #else
                 var fittingSize = arrangedSubview.sizeThatFits(availableSpace)
                 #endif

@@ -595,4 +595,37 @@
         #endif
         
     }
+
+extension NSUIView {
+    static var debugAutoLayoutProblems: Bool {
+        get { isMethodReplaced(NSSelectorFromString("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:")) }
+        set {
+            guard newValue != debugAutoLayoutProblems else { return }
+            if newValue {
+                do {
+                    try replaceMethod(
+                        NSSelectorFromString("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:"),
+                        methodSignature: (@convention(c)  (AnyObject, Selector, NSObject, NSLayoutConstraint, [NSLayoutConstraint]) -> ()).self,
+                        hookSignature: (@convention(block)  (AnyObject, NSObject, NSLayoutConstraint, [NSLayoutConstraint]) -> ()).self) { store in {
+                            object, engine, constraint, constraints in
+                            // handle replaced `mouseDown`
+                            Swift.print()
+                            Swift.print("Autolayout Error:")
+                            Swift.print("- willBreak:", constraint)
+                            Swift.print("- dueToMutuallyExclusive:", constraints)
+                            Swift.print(engine)
+                            Swift.print()
+                            store.original(object, NSSelectorFromString("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:"), engine, constraint, constraints)
+                        }
+                        }
+                } catch {
+                    debugPrint(error)
+                }
+            } else {
+                resetMethod(NSSelectorFromString("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:"))
+            }
+        }
+    }
+}
+
 #endif
