@@ -146,6 +146,28 @@ extension NSView {
         observe(\.bounds, handler: \.viewHandlers.bounds)
         observe(\.frame, handler: \.viewHandlers.frame)
         observe(\.superview, handler: \.viewHandlers.superview)
+        if viewHandlers.backgroundStyle == nil {
+            resetMethod(NSSelectorFromString("_setBackgroundStyleForSubtree:"))
+        } else if !isMethodReplaced(NSSelectorFromString("_setBackgroundStyleForSubtree:")) {
+            __backgroundStyle = (self as? NSTableCellView)?.backgroundStyle ?? (self as? NSControl)?.backgroundStyle ?? __backgroundStyle
+            do {
+                try replaceMethod(
+                    NSSelectorFromString("_setBackgroundStyleForSubtree:"),
+                    methodSignature: (@convention(c)  (AnyObject, Selector, NSView.BackgroundStyle) -> ()).self,
+                    hookSignature: (@convention(block)  (AnyObject, NSView.BackgroundStyle) -> ()).self) { store in {
+                        object, backgroundStyle in
+                        store.original(object, NSSelectorFromString("_setBackgroundStyleForSubtree:"), backgroundStyle)
+                        if let object = object as? Self, object.__backgroundStyle != backgroundStyle {
+                            object.__backgroundStyle = backgroundStyle
+                            object.viewHandlers.backgroundStyle?(backgroundStyle)
+                        }
+                    }
+                    }
+            } catch {
+                // handle error
+                debugPrint(error)
+            }
+        }
         
         if windowHandlers.frame == nil {
             viewObserver.remove(\.window?.frame)
@@ -289,6 +311,11 @@ extension NSView {
         }
     }
     
+    var __backgroundStyle: NSView.BackgroundStyle {
+        get { getAssociatedValue("__backgroundStyle") ?? .normal }
+        set { setAssociatedValue(newValue, key: "__backgroundStyle") }
+    }
+    
     var _inLiveResize: Bool? {
         get { getAssociatedValue("_inLiveResize") }
         set { setAssociatedValue(newValue, key: "_inLiveResize") }
@@ -369,6 +396,8 @@ extension NSView {
         public var effectiveAppearance: ((NSAppearance)->())?
         /// The handler that gets called when the view is the first responder.
         public var isFirstResponder: ((Bool)->())?
+        /// The handler that gets called when the background style changed.
+        public var backgroundStyle: ((BackgroundStyle)->())?
         
         var needsObserverView: Bool {
             isLiveResizing != nil

@@ -22,7 +22,6 @@
     }
 
     extension NSView {
-        /*
         /**
          Updates the background style of the view and all nested subviews to the specified style.
 
@@ -31,7 +30,6 @@
          - Parameter backgroundStyle: The background style to apply.
          */
         @objc open func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
-            Swift.print("setBackgroundStyle gggg", backgroundStyle.rawValue)
             (self as? NSControl)?.backgroundStyle = backgroundStyle
             (self as? NSTableCellView)?.backgroundStyle = backgroundStyle
 
@@ -43,7 +41,6 @@
                 subview.setBackgroundStyle(backgroundStyle)
             }
         }
-        */
     }
 
 @available(macOS 12.0, *)
