@@ -495,7 +495,7 @@ extension NSWindow {
     /// Resizes the window to match it's screen aspect ratio and dimensions.
     @objc open func resizeToScreenAspectRatio() {
         guard let aspectRatio = self.screen?.visibleFrame.size.aspectRatio else { return }
-        let frame = frame.scaled(byFactor: aspectRatio).size(frame.size.clamped(minSize: minSize, maxSize: maxSize))
+        let frame = frame.scaled(byFactor: aspectRatio).size(frame.size.clamped(to: minSize...maxSize))
         setFrame(frame, display: false)
     }
     

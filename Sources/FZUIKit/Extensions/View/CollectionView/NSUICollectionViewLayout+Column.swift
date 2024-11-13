@@ -158,7 +158,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
     private var sectionItemAttributes: [[NSUICollectionViewLayoutAttributes]] = []
     private var allLayoutAttributes: [NSUICollectionViewLayoutAttributes] = []
     private var headerAttributes: [HeaderFooterLayoutAttributes] = []
-    private var footersAttributes: [HeaderFooterLayoutAttributes] = []
+    private var footerAttributes: [HeaderFooterLayoutAttributes] = []
     private var mappedItemColumns: [IndexPath: Int] = [:]
     private var _sectionInsetUsesSafeArea: Bool = false
     private var previousBounds: CGRect = .zero
@@ -193,7 +193,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         let numberOfSections = collectionView.numberOfSections
 
         headerAttributes = []
-        footersAttributes = []
+        footerAttributes = []
         unionRects = []
         allLayoutAttributes = []
         sectionItemAttributes = []
@@ -286,7 +286,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
                 attributes.frame = CGRect(x: footer.inset.left, y: top, width: collectionView.bounds.width - footer.inset.width, height: footer.height)
                 attributes.cachedOrigin = attributes.frame.origin
                 attributes.zIndex = itemCount + 1
-                footersAttributes.append(attributes)
+                footerAttributes.append(attributes)
                 allLayoutAttributes.append(attributes)
                 top = attributes.frame.maxY + footer.inset.bottom
             }
@@ -326,12 +326,12 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
             }
         }
         if footer.pinToVisibleBounds {
-            for attribute in footersAttributes {
+            for attribute in footerAttributes {
                 #if os(macOS)
-                let previousFooterOrigin = footersAttributes[safe: attribute.indexPath!.section - 1]?.frame.origin ?? CGPoint(-CGFloat.greatestFiniteMagnitude)
+                let previousFooterOrigin = footerAttributes[safe: attribute.indexPath!.section - 1]?.frame.origin ?? CGPoint(-CGFloat.greatestFiniteMagnitude)
                 let offsetAdjustment = collectionView.contentOffset.y + collectionView.visibleRect.height - attribute.frame.height
                 #else
-                let previousFooterOrigin = footersAttributes[safe: attribute.indexPath.section - 1]?.frame.origin ?? CGPoint(-CGFloat.greatestFiniteMagnitude)
+                let previousFooterOrigin = footerAttributes[safe: attribute.indexPath.section - 1]?.frame.origin ?? CGPoint(-CGFloat.greatestFiniteMagnitude)
                 let offsetAdjustment = collectionView.contentOffset.y + collectionView.bounds.height - attribute.frame.height
                 #endif
                 let previousFooterOffset = previousFooterOrigin.y + attribute.frame.size.height + header.height
@@ -432,7 +432,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
     override open func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes {
         if elementKind == NSUICollectionView.elementKindSectionHeader, let attribute = headerAttributes[safe: indexPath.section] {
             return attribute
-        } else if elementKind == NSUICollectionView.elementKindSectionFooter, let attribute = footersAttributes[safe: indexPath.section] {
+        } else if elementKind == NSUICollectionView.elementKindSectionFooter, let attribute = footerAttributes[safe: indexPath.section] {
             return attribute
         }
         return NSUICollectionViewLayoutAttributes()
@@ -460,10 +460,10 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
             updateUnionRects()
             #if os(macOS)
             context.invalidateSupplementaryElements(ofKind: NSUICollectionView.elementKindSectionHeader, at: Set(headerAttributes.compactMap({$0.indexPath})))
-            context.invalidateSupplementaryElements(ofKind: NSUICollectionView.elementKindSectionFooter, at: Set(footersAttributes.compactMap({$0.indexPath})))
+            context.invalidateSupplementaryElements(ofKind: NSUICollectionView.elementKindSectionFooter, at: Set(footerAttributes.compactMap({$0.indexPath})))
             #else
             context.invalidateSupplementaryElements(ofKind: NSUICollectionView.elementKindSectionHeader, at: headerAttributes.compactMap({$0.indexPath}))
-            context.invalidateSupplementaryElements(ofKind: NSUICollectionView.elementKindSectionFooter, at: footersAttributes.compactMap({$0.indexPath}))
+            context.invalidateSupplementaryElements(ofKind: NSUICollectionView.elementKindSectionFooter, at: footerAttributes.compactMap({$0.indexPath}))
             #endif
             didCalcuateItemAttributes = true
         }
@@ -527,7 +527,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         layout._collectionViewContentSize = collectionViewContentSize
         layout.sectionItemAttributes = sectionItemAttributes
         layout.headerAttributes = headerAttributes
-        layout.footersAttributes = footersAttributes
+        layout.footerAttributes = footerAttributes
         layout.unionRects = unionRects
         layout.allLayoutAttributes = allLayoutAttributes
         return layout
@@ -751,7 +751,7 @@ extension ColumnCollectionViewLayout {
     class InvalidationLayout: NSUICollectionViewLayout {
         var sectionItemAttributes: [[NSUICollectionViewLayoutAttributes]] = []
         var headerAttributes: [HeaderFooterLayoutAttributes] = []
-        var footersAttributes: [HeaderFooterLayoutAttributes] = []
+        var footerAttributes: [HeaderFooterLayoutAttributes] = []
         var allLayoutAttributes: [NSUICollectionViewLayoutAttributes] = []
         let unionSize = 20
         var unionRects: [CGRect] = []
@@ -781,7 +781,7 @@ extension ColumnCollectionViewLayout {
         override open func layoutAttributesForSupplementaryView(ofKind elementKind: String, at indexPath: IndexPath) -> NSUICollectionViewLayoutAttributes {
             if elementKind == NSUICollectionView.elementKindSectionHeader, let attribute = headerAttributes[safe: indexPath.section] {
                 return attribute
-            } else if elementKind == NSUICollectionView.elementKindSectionFooter, let attribute = footersAttributes[safe: indexPath.section] {
+            } else if elementKind == NSUICollectionView.elementKindSectionFooter, let attribute = footerAttributes[safe: indexPath.section] {
                 return attribute
             }
             return NSUICollectionViewLayoutAttributes()

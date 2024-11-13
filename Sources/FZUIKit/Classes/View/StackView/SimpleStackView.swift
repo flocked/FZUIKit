@@ -203,7 +203,7 @@ import FZSwiftUtils
         }
         
         open func sizeThatFits(_ size: CGSize) -> CGSize {
-            fittingSize.clamped(minSize: size.clamped(minSize: .zero))
+            fittingSize.clamped(min: size.clamped(min: .zero))
         }
         #endif
 
