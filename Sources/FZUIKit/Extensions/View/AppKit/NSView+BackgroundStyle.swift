@@ -22,6 +22,7 @@
     }
 
     extension NSView {
+        /*
         /**
          Updates the background style of the view and all nested subviews to the specified style.
 
@@ -42,6 +43,7 @@
                 subview.setBackgroundStyle(backgroundStyle)
             }
         }
+        */
     }
 
 @available(macOS 12.0, *)
