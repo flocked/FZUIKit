@@ -21,7 +21,8 @@
         }
     }
 
-    extension NSView {
+
+    extension NSTableCellView {
         /**
          Updates the background style of the view and all nested subviews to the specified style.
 
@@ -39,7 +40,7 @@
             }
             
             for subview in subviews {
-                subview.setBackgroundStyle(backgroundStyle)
+              //  subview.setBackgroundStyle(backgroundStyle)
             }
         }
     }
