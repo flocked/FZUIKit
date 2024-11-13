@@ -9,13 +9,6 @@
 
 import AppKit
 
-extension NSCollectionViewItem {
-    /// Instantiates a view for the item.
-    override open func loadView() {
-        view = NSView()
-    }
-}
-
 /// An object that contains layout-related attributes including self sizing for an element in a collection view.
 public class SelfSizingCollectionViewLayoutAttributes: NSCollectionViewLayoutAttributes {
     /// A Boolean value that indicates whether the iitem should be self sized vertically.
