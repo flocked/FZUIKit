@@ -75,7 +75,7 @@ open class FZScrollView: NSScrollView {
                 zoomIn(factor: mouseClickZoomFactor, centeredAt: event.location(in: self))
             }
         } else {
-            mouseDown(with: event)
+            super.mouseDown(with: event)
         }
     }
 
