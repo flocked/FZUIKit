@@ -342,7 +342,7 @@ internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1,
                 }
                 return items
             }
-            group.contentInsets = insets.directional
+         //   group.contentInsets = insets.directional
             
             let section = NSCollectionLayoutSection(group: group)
             // section.contentInsetsReference = configuration.contentInsetsReference

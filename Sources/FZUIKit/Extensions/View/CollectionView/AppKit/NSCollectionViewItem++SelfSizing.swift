@@ -9,6 +9,36 @@
 
 import AppKit
 
+/// A collection view item that can auto size it's view in collection view layouts that support self sizing.
+public class SelfSizingCollectionViewItem: NSCollectionViewItem {
+    public override func preferredLayoutAttributesFitting(_ layoutAttributes: NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes {
+        guard let attributes = layoutAttributes as? SelfSizingCollectionViewLayoutAttributes else { return layoutAttributes }
+        if attributes.shouldVerticallySelfSize && attributes.shouldHorizontallySelfSize {
+            attributes.frame.size = view.systemLayoutSizeFitting(NSView.layoutFittingCompressedSize)
+        } else if attributes.shouldVerticallySelfSize {
+            attributes.frame.size = view.systemLayoutSizeFitting(CGSize(attributes.frame.width, 0), withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeCompression)
+        } else if attributes.shouldHorizontallySelfSize {
+            attributes.frame.size = view.systemLayoutSizeFitting(CGSize(0, attributes.frame.height), withHorizontalFittingPriority: .fittingSizeCompression, verticalFittingPriority: .required)
+        }
+        return attributes
+    }
+}
+
+/// A view that can be used as supplementary view of a collection view and that that can auto size in collection view layouts that support self sizing.
+public class CollectionViewSupplementaryView: NSView, NSCollectionViewElement {
+    public func preferredLayoutAttributesFitting(_ layoutAttributes: NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes {
+        guard let attributes = layoutAttributes as? SelfSizingCollectionViewLayoutAttributes else { return layoutAttributes }
+        if attributes.shouldVerticallySelfSize && attributes.shouldHorizontallySelfSize {
+            attributes.frame.size = systemLayoutSizeFitting(NSView.layoutFittingCompressedSize)
+        } else if attributes.shouldVerticallySelfSize {
+            attributes.frame.size = systemLayoutSizeFitting(CGSize(attributes.frame.width, 0), withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeCompression)
+        } else if attributes.shouldHorizontallySelfSize {
+            attributes.frame.size = systemLayoutSizeFitting(CGSize(0, attributes.frame.height), withHorizontalFittingPriority: .fittingSizeCompression, verticalFittingPriority: .required)
+        }
+        return attributes
+    }
+}
+
 /// An object that contains layout-related attributes including self sizing for an element in a collection view.
 public class SelfSizingCollectionViewLayoutAttributes: NSCollectionViewLayoutAttributes {
     /// A Boolean value that indicates whether the iitem should be self sized vertically.
