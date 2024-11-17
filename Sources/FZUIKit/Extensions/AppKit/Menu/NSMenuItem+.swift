@@ -184,6 +184,13 @@
             return self
         }
         
+        /// The state of the menu item.
+        @discardableResult
+        func state(_ state: Bool) -> Self {
+            self.state = state ? .on : .off
+            return self
+        }
+        
         /// The menu item’s image.
         @discardableResult
         func image(_ image: NSImage?) -> Self {

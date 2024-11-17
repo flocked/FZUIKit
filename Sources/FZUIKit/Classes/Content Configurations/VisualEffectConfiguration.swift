@@ -14,7 +14,7 @@
 
          `NSVisualEffectView` can be configurated via it's ``AppKit/NSVisualEffectView/configuration`` property.
 
-         `NSView` can be configurated via it's ``AppKit/NSView/visualEffect`` property.  It adds a visual effect view as background to the view.
+         `NSView` can be configurated via it's ``visualEffect`` property.  It adds a visual effect view as background to the view.
 
          `NSWindow` can be configurated via it's ``AppKit/NSWindow/visualEffect`` property.  It adds a visual effect view as background to it's `contentView`.
          */
@@ -63,20 +63,14 @@
             /**
              An image whose alpha channel masks the visual effect view's material.
 
-             The default value of this property is `nil, which is the equivalent of allowing all of the visual effect view's content to show through. Assigning an image to this property masks the portions of the visual effect view using the image's alpha channel.
+             The default value of this property is `nil`, which is the equivalent of allowing all of the visual effect view's content to show through. Assigning an image to this property masks the portions of the visual effect view using the image's alpha channel.
 
              If the visual effect view is the content view of a window, the mask is applied in an appropriate way to the window's shadow.
              */
             public var maskImage: NSImage?
 
             /// Initalizes a visual effect configuration.
-            public init(material: Material,
-                        blendingMode: BlendingMode,
-                        appearance: NSAppearance? = nil,
-                        state: State = .followsWindowActiveState,
-                        isEmphasized: Bool = false,
-                        maskImage: NSImage? = nil)
-            {
+            public init(material: Material, blendingMode: BlendingMode, appearance: NSAppearance? = nil, state: State = .followsWindowActiveState, isEmphasized: Bool = false, maskImage: NSImage? = nil) {
                 self.material = material
                 self.blendingMode = blendingMode
                 self.appearance = appearance
@@ -106,23 +100,14 @@
         public extension NSVisualEffectView {
             /// The current configuration of the visual effect view.
             var configuration: VisualEffectConfiguration {
-                get {
-                    var configuration: VisualEffectConfiguration = .light()
-                    configuration.material = self.material
-                    configuration.blendingMode = self.blendingMode
-                    configuration.state = self.state
-                    configuration.isEmphasized = self.isEmphasized
-                    configuration.maskImage = self.maskImage
-                    configuration.appearance = self.appearance
-                    return configuration
-                }
+                get { VisualEffectConfiguration(material: material, blendingMode: blendingMode, appearance: appearance, state: state, isEmphasized: isEmphasized, maskImage: maskImage) }
                 set {
-                    self.material = newValue.material
-                    self.blendingMode = newValue.blendingMode
-                    self.state = newValue.state
-                    self.isEmphasized = newValue.isEmphasized
-                    self.maskImage = newValue.maskImage
-                    self.appearance = newValue.appearance
+                    material = newValue.material
+                    blendingMode = newValue.blendingMode
+                    state = newValue.state
+                    isEmphasized = newValue.isEmphasized
+                    maskImage = newValue.maskImage
+                    appearance = newValue.appearance
                 }
             }
 

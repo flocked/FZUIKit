@@ -15,5 +15,12 @@ public extension NSSwitch {
         self.state = state
         return self
     }
+    
+    /// Sets the switch’s state.
+    @discardableResult
+    func state(_ state: Bool) -> Self {
+        self.state = state ? .on : .off
+        return self
+    }
 }
 #endif

@@ -115,6 +115,19 @@
         public static func roundedRectangle(cornerRadius: CGFloat, inverted: Bool = false, margins: NSDirectionalEdgeInsets = .zero) -> Self {
             Self(shape: SwiftUI.RoundedRectangle(cornerRadius: cornerRadius), inverted: inverted, margins: margins, name: "RoundedRectangleCornerRadius\(inverted ? "Inverted" : "")")
         }
+        
+        /**
+         A rounded rectangle shape that rounds the specified corners with the specified corner radius.
+
+         - Parameters:
+            - cornerRadius: The corner radius of the rectangle.
+            - corners: The rounded corners.
+            - inverted: A Boolean value that indicates whether the shape is inverted. The default value is `false`.
+            - margins: The margins of the shape. The default value is `zero`.
+         */
+        public static func roundedRectangle(cornerRadius: CGFloat, corners: NSUIRectCorner, inverted: Bool = false, margins: NSDirectionalEdgeInsets = .zero) -> Self {
+            Self(shape: RoundedCornerRectangle(cornerRadius: cornerRadius, corners: corners), inverted: inverted, margins: margins, name: "RoundedCornerShape\(corners)\(inverted ? "Inverted" : "")")
+        }
 
         /**
          A rounded rectangle shape with the specified corner size.
@@ -314,5 +327,4 @@ extension View {
             addSublayer(imageLayer)
         }
     }
-
 #endif

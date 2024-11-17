@@ -59,6 +59,13 @@
                 button.state = state
                 return self
             }
+            
+            /// Sets the button’s state.
+            @discardableResult
+            public func state(_ state: Bool) -> Self {
+                button.state = state ? .on : .off
+                return self
+            }
 
             /// Sets the Boolean Value indiciating whether the button has a border.
             @discardableResult

@@ -76,6 +76,13 @@
                 button.state = state
                 return self
             }
+            
+            /// Sets the state of the button.
+            @discardableResult
+            public func state(_ state: Bool) -> Self {
+                button.state = state ? .on : .off
+                return self
+            }
 
             /// The state of the button.
             public var state: NSControl.StateValue {
