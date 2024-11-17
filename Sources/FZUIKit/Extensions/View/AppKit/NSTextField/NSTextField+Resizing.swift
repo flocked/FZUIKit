@@ -150,6 +150,8 @@ extension NSTextField {
     var calculatedFittingSize: CGSize {
         guard cell != nil else { return frame.size }
         var cellSize = sizeThatFits(width: maxLayoutWidth)
+      //  return cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: 100000, height: 1000)) ?? .zero
+        
         cellSize.height.round(toMultiple: 0.5, rule: .awayFromZero)
         if preferredMinLayoutWidth == Self.placeholderWidth {
             let placeholderSize = placeholderStringSize
@@ -157,7 +159,7 @@ extension NSTextField {
             cellSize.width.round(toMultiple: 0.5, rule: .awayFromZero)
         } else {
             cellSize.width.round(toMultiple: 0.5, rule: .awayFromZero)
-            cellSize.width = max(cellSize.width, maxLayoutWidth)
+         //   cellSize.width = max(cellSize.width, maxLayoutWidth)
         }
         return cellSize
     }
@@ -176,7 +178,7 @@ extension NSTextField {
         if preferredMaxLayoutWidth == NSTextField.superviewWidth, let superview = superview {
             return superview.frame.width - (frame.origin.x * 2)
         }
-        return preferredMaxLayoutWidth
+        return preferredMaxLayoutWidth == 0 ? CGFloat.greatestFiniteMagnitude : preferredMaxLayoutWidth
     }
     
     func fittingSize(for string: String, maxWidth: CGFloat? = nil, maxHeight: CGFloat? = nil) -> CGSize {

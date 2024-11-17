@@ -12,17 +12,17 @@ import FZSwiftUtils
 extension NSWindow {
     /// Observes the main state of the window.
     @objc open func observeIsMain(handler: @escaping (_ isMain: Bool)->()) -> NotificationToken {
-        [NotificationCenter.default.observe(NSWindow.didBecomeMainNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignMainNotification, object: self) { _ in handler(false) }].notificationToken!
+        [NotificationCenter.default.observe(NSWindow.didBecomeMainNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignMainNotification, object: self) { _ in handler(false) }].combinedNotificationToken!
     }
     
     /// Observes the key state of the window.
     @objc open func observeIsKey(handler: @escaping (_ isKey: Bool)->()) -> NotificationToken {
-        [NotificationCenter.default.observe(NSWindow.didBecomeKeyNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignKeyNotification, object: self) { _ in handler(false) }].notificationToken!
+        [NotificationCenter.default.observe(NSWindow.didBecomeKeyNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignKeyNotification, object: self) { _ in handler(false) }].combinedNotificationToken!
     }
     
     /// Observes the resizing of the window by the user.
     @objc open func observeLiveResize(handler: @escaping (_ isKey: Bool)->()) -> NotificationToken {
-        [NotificationCenter.default.observe(NSWindow.willStartLiveResizeNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didEndLiveResizeNotification, object: self) { _ in handler(false) }].notificationToken!
+        [NotificationCenter.default.observe(NSWindow.willStartLiveResizeNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didEndLiveResizeNotification, object: self) { _ in handler(false) }].combinedNotificationToken!
     }
     
     /**
