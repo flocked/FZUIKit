@@ -73,7 +73,7 @@ extension NSTextField {
      To use the placeholder width as minimum value, specify the constant ``placeholderWidth``.
      */
     @objc open var preferredMinLayoutWidth: CGFloat {
-        get { getAssociatedValue("preferredMinLayoutWidth", initialValue: 0) }
+        get { getAssociatedValue("preferredMinLayoutWidth", initialValue: .zero) }
         set {
             setAssociatedValue(newValue, key: "preferredMinLayoutWidth")
             swizzleIntrinsicContentSize()
@@ -150,10 +150,10 @@ extension NSTextField {
     var calculatedFittingSize: CGSize {
         guard cell != nil else { return frame.size }
         var cellSize = sizeThatFits(width: maxLayoutWidth)
-        Swift.print("calculatedFittingSize", preferredMinLayoutWidth > 0 , maxLayoutWidth , cellSize.width, max(preferredMinLayoutWidth.clamped(max: maxLayoutWidth), cellSize.width))
+        Swift.print("calculatedFittingSize", preferredMinLayoutWidth, preferredMinLayoutWidth > 0.0 , preferredMinLayoutWidth != .zero, maxLayoutWidth , cellSize.width, max(preferredMinLayoutWidth.clamped(max: maxLayoutWidth), cellSize.width))
         if preferredMinLayoutWidth == Self.placeholderWidth {
             cellSize.width = max(placeholderStringSize.width.clamped(max: maxLayoutWidth), cellSize.width)
-        } else if preferredMinLayoutWidth > 0 {
+        } else if preferredMinLayoutWidth != .zero {
             cellSize.width = max(preferredMinLayoutWidth.clamped(max: maxLayoutWidth), cellSize.width)
         }
         cellSize.width.round(toMultiple: 0.5, rule: .awayFromZero)
