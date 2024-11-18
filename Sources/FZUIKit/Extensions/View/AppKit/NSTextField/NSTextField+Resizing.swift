@@ -162,6 +162,7 @@ extension NSTextField {
     var placeholderStringSize: CGSize {
         guard let cell = cell else { return .zero }
         if let placeholder = placeholderAttributedString {
+            return fittingSize(for: placeholder)
             let stringValue = attributedStringValue
             cell.attributedStringValue = placeholder
             let rect = cell.drawingRect(forBounds: bounds).width(maxLayoutWidth)
@@ -169,6 +170,7 @@ extension NSTextField {
             cell.attributedStringValue = stringValue
             return size
         } else if let placeholder = placeholderString {
+            return fittingSize(for: placeholder)
             let stringValue = stringValue
             cell.stringValue = placeholder
             let rect = cell.drawingRect(forBounds: bounds).width(maxLayoutWidth)
@@ -186,7 +188,6 @@ extension NSTextField {
         return preferredMaxLayoutWidth == 0 ? CGFloat.greatestFiniteMagnitude : preferredMaxLayoutWidth
     }
     
-    /*
     func fittingSize(for string: String, maxWidth: CGFloat? = nil, maxHeight: CGFloat? = nil) -> CGSize {
         guard let cell = cell else { return .zero }
         var size: CGSize = .zero
@@ -221,7 +222,6 @@ extension NSTextField {
         return cell.cellSize(forBounds: rect)
         
     }
-    */
 }
 
 #endif
