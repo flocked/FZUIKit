@@ -537,7 +537,9 @@
                     textField.isEditable = true
                     textField.makeFirstResponder()
                     guard let editor = textField.currentEditor() as? NSTextView else { return }
-                    let charIndex = editor.characterIndexForInsertion(at: event.location(in: editor))
+                    let localPoint = textField.convert(event.location(in: textField), to: editor)
+                    let charIndex = editor.characterIndexForInsertion(at: localPoint)
+                    Swift.print("charIndex", charIndex)
                     let range = NSRange(location: charIndex, length: 0)
                     editor.selectedRange = range
                 }
