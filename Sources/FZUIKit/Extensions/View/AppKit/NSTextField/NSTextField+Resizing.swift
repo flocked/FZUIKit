@@ -153,6 +153,8 @@ extension NSTextField {
         if preferredMinLayoutWidth == Self.placeholderWidth {
             let placeholderWidth = placeholderStringSize.width.clamped(max: maxLayoutWidth)
             cellSize.width = max(placeholderWidth, cellSize.width)
+        } else if preferredMinLayoutWidth > 0 {
+            cellSize.width = max(preferredMinLayoutWidth.clamped(max: maxLayoutWidth), cellSize.width)
         }
         cellSize.width.round(toMultiple: 0.5, rule: .awayFromZero)
         cellSize.height.round(toMultiple: 0.5, rule: .awayFromZero)
