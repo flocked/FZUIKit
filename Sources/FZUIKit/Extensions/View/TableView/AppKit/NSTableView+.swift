@@ -345,4 +345,63 @@
             }
         }
     }
+
+extension NSTableView {
+    /// A Boolean value indicating whether the selection of rows is toggled when the uses clicks a row.
+    public var toggleSelection: Bool {
+        get { toggleGestureRecognizer != nil }
+        set {
+            guard newValue != toggleSelection else { return }
+            if newValue {
+                toggleGestureRecognizer = ToggleGestureRecognizer()
+                addGestureRecognizer(toggleGestureRecognizer!)
+            } else {
+                toggleGestureRecognizer?.removeFromView()
+                toggleGestureRecognizer = nil
+            }
+        }
+    }
+    
+    var toggleGestureRecognizer: ToggleGestureRecognizer? {
+        get { getAssociatedValue("toggleGestureRecognizer") }
+        set { setAssociatedValue(newValue, key: "toggleGestureRecognizer") }
+    }
+    
+    class ToggleGestureRecognizer: NSGestureRecognizer {
+        init() {
+            super.init(target: nil, action: nil)
+            delaysPrimaryMouseButtonEvents = true
+        }
+        
+        var tableView: NSTableView? {
+            view as? NSTableView
+        }
+        
+        override func mouseDown(with event: NSEvent) {
+            state = .began
+            var shouldFail = true
+            if let tableView = tableView, tableView.isEnabled, tableView.allowsEmptySelection {
+                let row = tableView.row(at: location(in: tableView))
+                if row != -1 {
+                    shouldFail = false
+                    if tableView.selectedRowIndexes.contains(row) {
+                        tableView.deselectRow(row)
+                    } else {
+                        tableView.selectRowIndexes([row], byExtendingSelection: true)
+                    }
+                    state = .ended
+                }
+            }
+            if shouldFail {
+                state = .failed
+                super.mouseDown(with: event)
+            }
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+    }
+}
+
 #endif
