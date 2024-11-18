@@ -174,13 +174,13 @@ extension NSTextField {
     var calculatedFittingSize: CGSize {
         guard cell != nil else { return frame.size }
         var cellSize: CGSize = .zero
-        withoutPlaceholder(preferredMinLayoutWidth == NSTextField.automaticWidth) {
+        withoutPlaceholder(preferredMinLayoutWidth != NSTextField.automaticWidth) {
             cellSize = self.sizeThatFits(width: self.maxLayoutWidth)
         }
         Swift.print("calculatedFittingSize", preferredMinLayoutWidth, preferredMinLayoutWidth > 0.0 , preferredMinLayoutWidth != .zero, maxLayoutWidth , cellSize.width, max(preferredMinLayoutWidth.clamped(max: maxLayoutWidth), cellSize.width))
         
         if preferredMinLayoutWidth == Self.placeholderWidth {
-            cellSize.width = max(placeholderStringSize.width.clamped(max: maxLayoutWidth), cellSize.width)
+            cellSize.width = max((placeholderStringSize.width + 1.0).clamped(max: maxLayoutWidth), cellSize.width)
         } else if preferredMinLayoutWidth > 0.0 {
             cellSize.width = max(preferredMinLayoutWidth.clamped(max: maxLayoutWidth), cellSize.width)
         }
@@ -190,25 +190,12 @@ extension NSTextField {
     }
         
     var placeholderStringSize: CGSize {
-        guard let cell = cell else { return .zero }
-        if let placeholder = placeholderAttributedString {
-            return fittingSize(for: placeholder)
-            let stringValue = attributedStringValue
-            cell.attributedStringValue = placeholder
-            let rect = cell.drawingRect(forBounds: bounds).width(maxLayoutWidth)
-            let size = cell.cellSize(forBounds: rect)
-            cell.attributedStringValue = stringValue
-            return size
-        } else if let placeholder = placeholderString {
-            return fittingSize(for: placeholder)
-            let stringValue = stringValue
-            cell.stringValue = placeholder
-            let rect = cell.drawingRect(forBounds: bounds).width(maxLayoutWidth)
-            let size = cell.cellSize(forBounds: rect)
-            cell.stringValue = stringValue
-            return size
-        }
-        return .zero
+        guard placeholderString != nil || placeholderAttributedString != nil, let cell = cell else { return .zero }
+        let attributedStringValue = attributedStringValue
+        cell.stringValue = ""
+        let size = self.sizeThatFits(width: self.maxLayoutWidth)
+        cell.attributedStringValue = attributedStringValue
+        return size
     }
     
     var maxLayoutWidth: CGFloat {
