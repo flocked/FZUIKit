@@ -523,14 +523,14 @@
                 if let newValue = newValue {
                     selectionColorObservation = observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
                         guard let self = self else { return }
-                        if !self.selectionColorIsFirstResponder, self.isFirstResponder {
+                        if !self.selectionColorIsFirstResponder, new == self.currentEditor() {
                             self.selectionColorIsFirstResponder = true
                             self.updateSelectionColor()
                         } else {
                             self.selectionColorIsFirstResponder = false
                         }
                     }
-                    selectionColorIsFirstResponder = isFirstResponder
+                    selectionColorIsFirstResponder = window?.firstResponder == currentEditor()
                     updateSelectionColor()
                 }
             }
