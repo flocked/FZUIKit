@@ -230,12 +230,10 @@
 
         /// A Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
         public var endsEditingOnOutsideClick: Bool {
-            get { getAssociatedValue("endsEditingOnOutsideClick", initialValue: false) }
-            set { 
+            get { firstResponderResignClickCount > 0 }
+            set {
                 guard newValue != endsEditingOnOutsideClick else { return }
-                setAssociatedValue(newValue, key: "endsEditingOnOutsideClick")
-                setupTextFieldObserver()
-                keyboardFocusChanged()
+                firstResponderResignClickCount = newValue ? 1 : 0
             }
         }
         
