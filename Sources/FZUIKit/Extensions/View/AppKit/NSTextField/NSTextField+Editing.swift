@@ -505,6 +505,41 @@
             set { setAssociatedValue(newValue, key: "editingRange") }
         }
         
+        var selectionColorObservation: KeyValueObservation? {
+            get { getAssociatedValue("selectionColorObservation") }
+            set { setAssociatedValue(newValue, key: "selectionColorObservation") }
+        }
+        
+        var selectionColorIsFirstResponder: Bool {
+            get { getAssociatedValue("selectionColorIsFirstResponder") ?? false }
+            set { setAssociatedValue(newValue, key: "selectionColorIsFirstResponder") }
+        }
+        
+        public var selectionColor: NSColor? {
+            get { getAssociatedValue("selectionColor") }
+            set { 
+                setAssociatedValue(newValue, key: "selectionColor")
+                if let newValue = newValue {
+                    selectionColorObservation = observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
+                        guard let self = self else { return }
+                        if !self.selectionColorIsFirstResponder, self.isFirstResponder {
+                            self.selectionColorIsFirstResponder = true
+                            self.updateSelectionColor()
+                        } else {
+                            self.selectionColorIsFirstResponder = false
+                        }
+                    }
+                    selectionColorIsFirstResponder = isFirstResponder
+                    updateSelectionColor()
+                }
+            }
+        }
+        
+        func updateSelectionColor() {
+            guard isFirstResponder, let editor = self.currentEditor() as? NSTextView, let color = selectionColor else { return }
+            editor.selectedTextAttributes = [.backgroundColor: color]
+        }
+        
         class DoubleClickEditGestureRecognizer: NSGestureRecognizer {
             var isSelectableEditableState: (isSelectable: Bool, isEditable: Bool)?
             var isFirstResponder = false
@@ -536,14 +571,14 @@
                     textField.isSelectable = true
                     textField.isEditable = true
                     textField.makeFirstResponder()
+                    /*
                     guard let editor = textField.currentEditor() as? NSTextView else { return }
                     let localPoint = textField.convert(event.location(in: textField), to: editor)
                     let charIndex = editor.characterIndexForInsertion(at: localPoint)
                     let range = NSRange(location: charIndex, length: 0)
                     let current = editor.selectedRange
                     editor.selectedRange = range
-                    editor.setSelectedRange(range)
-                    Swift.print("charIndex", charIndex, editor.selectedRange.location, editor.selectedRange.length, current.location, current.length)
+                     */
                 }
                 super.mouseDown(with: event)
             }
