@@ -140,7 +140,7 @@
         func setupFontAdjustment() {
             if needsFontAdjustments {
                 guard isMethodReplaced(#selector(setter: font)) == false else { return }                
-                textFieldObserver?.removeAll()
+                textFieldObserver = nil
                 _font = font
                 do {
                     try replaceMethod(#selector(setter: font),
@@ -167,7 +167,7 @@
                 setupTextFieldObserver()
                 observeEditing()
             } else if isMethodReplaced(#selector(setter: font)) {
-                textFieldObserver?.removeAll()
+                textFieldObserver = nil
                 resetMethod(#selector(setter: font))
                 resetMethod(#selector(getter: font))
                 setupTextFieldObserver()

@@ -144,7 +144,7 @@
                 guard !(self is NSSearchField) else { return }
                 guard editingActionOnEnterKeyDown != newValue else { return }
                 setAssociatedValue(newValue, key: "actionOnEnterKeyDown")
-                observeTextCommands()
+                swizzleDoCommandBy()
             }
         }
         
@@ -166,7 +166,7 @@
                 guard !(self is NSSearchField) else { return }
                 guard editingActionOnEscapeKeyDown != newValue else { return }
                 setAssociatedValue(newValue, key: "actionOnEscapeKeyDown")
-                observeTextCommands()
+                swizzleDoCommandBy()
                 observeEditing()
             }
         }
@@ -338,12 +338,10 @@
             }
         }
         
-        func observeTextCommands() {
+        func swizzleDoCommandBy() {
             if editingActionOnEscapeKeyDown != .none || editingActionOnEnterKeyDown != .none {
                 if isMethodReplaced(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) == false {
-                    textFieldObserver?.removeAll()
                     textFieldObserver = nil
-               //     textFieldObserver?.isActive = false
                     do {
                         try replaceMethod(
                             #selector(NSTextViewDelegate.textView(_:doCommandBy:)),
@@ -386,29 +384,26 @@
                             return store.original(object, #selector(NSTextViewDelegate.textView(_:doCommandBy:)), textView, selector)
                         }
                         }
-                     //   textFieldObserver?.isActive = true
                        setupTextFieldObserver()
                     } catch {
                         Swift.debugPrint(error)
                     }
                 }
             } else if isMethodReplaced(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) {
-                textFieldObserver?.removeAll()
+                textFieldObserver = nil
                 resetMethod(#selector(NSTextViewDelegate.textView(_:doCommandBy:)))
                 setupTextFieldObserver()
             }
         }
         
         func setupTextFieldObserver() {
-            if needsFontAdjustments || automaticallyResizesToFit || endsEditingOnOutsideClick || isEditableByDoubleClick {
-                if textFieldObserver == nil {
-                    textFieldObserver = KeyValueObserver(self)
-                }
-            } else {
-                textFieldObserver?.removeAll()
+            if !(needsFontAdjustments || automaticallyResizesToFit || endsEditingOnOutsideClick || isEditableByDoubleClick) {
+                textFieldObserver = nil
+            } else if textFieldObserver == nil {
+                textFieldObserver = KeyValueObserver(self)
             }
-            guard let textFieldObserver = textFieldObserver else { return }
             
+            guard let textFieldObserver = textFieldObserver else { return }
             if needsFontAdjustments || automaticallyResizesToFit {
                 guard textFieldObserver.isObserving(\.stringValue) == false else { return }
                 textFieldObserver.add(\.stringValue, handler: { [weak self] old, new in
