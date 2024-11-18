@@ -382,7 +382,7 @@
         func observeTextCommands() {
             if editingActionOnEscapeKeyDown != .none || editingActionOnEnterKeyDown != .none {
                 if isMethodReplaced(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) == false {
-                    textFieldObserver = nil
+                    textFieldObserver?.removeAll()
                     do {
                         try replaceMethod(
                             #selector(NSTextViewDelegate.textView(_:doCommandBy:)),
