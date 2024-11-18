@@ -190,12 +190,19 @@ extension NSTextField {
     }
         
     var placeholderStringSize: CGSize {
-        guard placeholderString != nil || placeholderAttributedString != nil, let cell = cell else { return .zero }
+        if let placeholder = placeholderString {
+            return fittingSize(for: placeholder, maxWidth: maxLayoutWidth)
+        } else if let placeholder = placeholderAttributedString {
+            return fittingSize(for: placeholder, maxWidth: maxLayoutWidth)
+        }
+        return .zero
+        /*
         let attributedStringValue = attributedStringValue
         cell.stringValue = ""
         let size = self.sizeThatFits(width: self.maxLayoutWidth)
         cell.attributedStringValue = attributedStringValue
         return size
+         */
     }
     
     var maxLayoutWidth: CGFloat {
