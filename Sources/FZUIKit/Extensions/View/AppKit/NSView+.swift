@@ -354,11 +354,15 @@
          Setting the corner radius to value other than `0.0`, sets the ``cornerShape`` to `normal`.
          */
         @objc open var cornerRadius: CGFloat {
-            get { layer?.cornerRadius ?? 0.0 }
+            get { 
+                return layer?.cornerRadius ?? 0.0
+            }
             set {
+                Swift.print("setCornerRadius")
                 let clipsToBounds = clipsToBounds
                 NSView.swizzleAnimationForKey()
                 relativeCornerRadius = nil
+                Swift.print("optional", optionalLayer != nil)
                 optionalLayer?.cornerRadius = newValue
                 if newValue != 0.0 {
                     // cornerShape = .normal

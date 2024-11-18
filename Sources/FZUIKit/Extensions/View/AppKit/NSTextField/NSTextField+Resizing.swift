@@ -129,7 +129,10 @@ extension NSTextField {
     func swizzleIntrinsicContentSize() {
         if automaticallyResizesToFit || preferredMinLayoutWidth != 0.0 {
             guard !isMethodReplaced(#selector(getter: NSTextField.intrinsicContentSize)) else { return }
+         //   setupTextFieldObserver()
             textFieldObserver?.removeAll()
+            textFieldObserver = nil
+          //  textFieldObserver?.isActive = false
             do {
                 try replaceMethod(
                     #selector(getter: NSTextField.intrinsicContentSize),
@@ -144,6 +147,7 @@ extension NSTextField {
                         return store.original(object, #selector(getter: NSTextField.intrinsicContentSize))
                     }
                     }
+            //    textFieldObserver?.isActive = true
                 setupTextFieldObserver()
             } catch {
                 Swift.debugPrint(error)
@@ -176,9 +180,7 @@ extension NSTextField {
         var cellSize: CGSize = .zero
         withoutPlaceholder(preferredMinLayoutWidth != NSTextField.automaticWidth) {
             cellSize = self.sizeThatFits(width: self.maxLayoutWidth)
-        }
-        Swift.print("calculatedFittingSize", preferredMinLayoutWidth, preferredMinLayoutWidth > 0.0 , preferredMinLayoutWidth != .zero, maxLayoutWidth , cellSize.width, max(preferredMinLayoutWidth.clamped(max: maxLayoutWidth), cellSize.width))
-        
+        }        
         if preferredMinLayoutWidth == Self.placeholderWidth {
             cellSize.width = max((placeholderStringSize.width + 1.0).clamped(max: maxLayoutWidth), cellSize.width)
         } else if preferredMinLayoutWidth > 0.0 {
@@ -186,6 +188,7 @@ extension NSTextField {
         }
         cellSize.width.round(toMultiple: 0.5, rule: .awayFromZero)
         cellSize.height.round(toMultiple: 0.5, rule: .awayFromZero)
+        Swift.print("calculatedFittingSize", cellSize)
         return cellSize
     }
         

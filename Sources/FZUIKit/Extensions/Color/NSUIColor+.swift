@@ -77,8 +77,8 @@ public extension NSUIColor {
      Creates a gradient color object that uses the specified colors and frame as gradient.
      
      - Parameters:
-     - gradientColors: The colors of the gradient.
-     - frame: The frame of the gradient.
+        - gradientColors: The colors of the gradient.
+        - frame: The frame of the gradient.
      
      - Returns: A gradient color.
      */
@@ -88,6 +88,26 @@ public extension NSUIColor {
         backgroundGradientLayer.colors = gradientColors.map(\.cgColor)
         let backgroundColorImage = backgroundGradientLayer.renderedImage
         self.init(patternImage: backgroundColorImage)
+    }
+    #endif
+    
+    #if os(macOS)
+    /// All syten colors.
+    static var systemColors: [NSUIColor] {
+        var colors: [NSUIColor] = [.white, .black, .systemRed, .systemGreen, .systemBlue, .systemOrange, .systemYellow, .systemBrown, .systemPink, .systemPurple, .systemGray, .systemTeal, .systemIndigo]
+        if #available(macOS 12.0, iOS 15.0, tvOS 15.0, *) {
+            colors.append(.systemCyan)
+        }
+        return colors
+    }
+    #elseif os(iOS) || os(tvOS)
+    /// All syten colors.
+    static var systemColors: [NSUIColor] {
+        var colors: [NSUIColor] = [.white, .black, .systemRed, .systemGreen, .systemBlue, .systemOrange, .systemYellow, .systemBrown, .systemPink, .systemPurple, .systemGray, .systemTeal, .systemIndigo]
+        if #available(iOS 15.0, tvOS 15.0, *) {
+            colors += [.systemMint, .tintColor, .systemCyan]
+        }
+        return colors
     }
     #endif
 }
