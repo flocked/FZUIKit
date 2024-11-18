@@ -250,14 +250,12 @@
             set {
                 guard newValue != isEditableByDoubleClick else { return }
                 if newValue {
-                    doubleClickEditGestureRecognizer = DoubleClickEditGestureRecognizer(reattachesAutomatically: true)
+                    doubleClickEditGestureRecognizer = DoubleClickEditGestureRecognizer(self)
                     doubleClickEditGestureRecognizer?.addToView(self)
                 } else  {
                     doubleClickEditGestureRecognizer?.removeFromView()
                     doubleClickEditGestureRecognizer = nil
                 }
-                setupTextFieldObserver()
-                keyboardFocusChanged()
             }
         }
         
@@ -266,43 +264,6 @@
         public func isEditableByDoubleClick(_ isEditableByDoubleClick: Bool) -> Self {
             self.isEditableByDoubleClick = isEditableByDoubleClick
             return self
-        }
-        
-        func keyboardFocusChanged() {
-            let hasKeyboardFocus = hasKeyboardFocus
-            if !hasKeyboardFocus, let isSelectableEditableState = isSelectableEditableState {
-                self.isSelectable = isSelectableEditableState.isSelectable
-                self.isEditable = isSelectableEditableState.isEditable
-                self.isSelectableEditableState = nil
-            }
-            if hasKeyboardFocus, endsEditingOnOutsideClick {
-                guard mouseDownMonitor == nil else { return }
-                mouseDownMonitor = NSEvent.localMonitor(for: .leftMouseDown) { [weak self] event in
-                    guard let self = self, self.endsEditingOnOutsideClick, self.hasKeyboardFocus else { return event }
-                    if self.bounds.contains(event.location(in: self)) == false {
-                        self.updateString()
-                        self.resignFirstResponding()
-                    }
-                    return event
-                }
-            } else {
-                mouseDownMonitor = nil
-            }
-        }
-        
-        var isSelectableEditableState: (isSelectable: Bool, isEditable: Bool)? {
-            get { getAssociatedValue("isSelectableEditableState") }
-            set { setAssociatedValue(newValue, key: "isSelectableEditableState") }
-        }
-        
-        var hasKeyboardFocusState: Bool {
-            get { getAssociatedValue("hasKeyboardFocusState", initialValue: false) }
-            set { setAssociatedValue(newValue, key: "hasKeyboardFocusState") }
-        }
-        
-        var mouseDownMonitor: NSEvent.Monitor? {
-            get { getAssociatedValue("mouseDownMonitor") }
-            set { setAssociatedValue(newValue, key: "mouseDownMonitor") }
         }
         
         func updateString() {
@@ -445,20 +406,6 @@
             }
             guard let textFieldObserver = textFieldObserver else { return }
             
-            if endsEditingOnOutsideClick || isEditableByDoubleClick {
-                guard textFieldObserver.isObserving(\.window?.firstResponder) == false else { return }
-                textFieldObserver.add( \.window?.firstResponder) { [weak self] old, new in
-                    guard let self = self else { return }
-                    if self.hasKeyboardFocus != self.hasKeyboardFocusState {
-                        self.keyboardFocusChanged()
-                        self.hasKeyboardFocusState = self.hasKeyboardFocus
-                    }
-                }
-                hasKeyboardFocusState = hasKeyboardFocus
-            } else {
-                textFieldObserver.remove(\.window?.firstResponder)
-            }
-            
             if needsFontAdjustments || automaticallyResizesToFit {
                 guard textFieldObserver.isObserving(\.stringValue) == false else { return }
                 textFieldObserver.add(\.stringValue, handler: { [weak self] old, new in
@@ -559,9 +506,33 @@
         }
         
         class DoubleClickEditGestureRecognizer: NSGestureRecognizer {
+            var isSelectableEditableState: (isSelectable: Bool, isEditable: Bool)?
+            var isFirstResponder = false
+            var observation: KeyValueObservation?
+            var textField: NSTextField? {
+                view as? NSTextField
+            }
+            
+            init(_ view: NSTextField) {
+                super.init(target: nil, action: nil)
+                reattachesAutomatically = true
+                observation = view.observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
+                    guard let self = self, let view = self.textField else { return }
+                    if let isSelectableEditableState = self.isSelectableEditableState, !view.isFirstResponder {
+                        view.isSelectable = isSelectableEditableState.isSelectable
+                        view.isEditable = isSelectableEditableState.isEditable
+                        self.isSelectableEditableState = nil
+                    }
+                }
+            }
+            
+            required init?(coder: NSCoder) {
+                fatalError("init(coder:) has not been implemented")
+            }
+            
             override func mouseDown(with event: NSEvent) {
-                if let textField = view as? NSTextField, textField.isEditableByDoubleClick, !textField.isEditable, event.clickCount == 2 {
-                    textField.isSelectableEditableState = (textField.isSelectable, textField.isEditable)
+                if let textField = textField, !textField.isEditable, event.clickCount == 2, !isFirstResponder {
+                    isSelectableEditableState = (textField.isSelectable, textField.isEditable)
                     textField.isSelectable = true
                     textField.isEditable = true
                     textField.makeFirstResponder()
