@@ -183,7 +183,7 @@ extension NSTextField {
         }
         cellSize.width.round(toMultiple: 0.5, rule: .awayFromZero)
         cellSize.height.round(toMultiple: 0.5, rule: .awayFromZero)
-        Swift.print("calculatedFittingSize", cellSize)
+        // Swift.print("calculatedFittingSize", cellSize)
         return cellSize
     }
         
