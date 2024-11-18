@@ -431,7 +431,7 @@
                     }
                 }
             } else if isMethodReplaced(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) {
-                textFieldObserver = nil
+                textFieldObserver?.removeAll()
                 resetMethod(#selector(NSTextViewDelegate.textView(_:doCommandBy:)))
                 setupTextFieldObserver()
             }
@@ -443,7 +443,7 @@
                     textFieldObserver = KeyValueObserver(self)
                 }
             } else {
-                textFieldObserver = nil
+                textFieldObserver?.removeAll()
             }
             guard let textFieldObserver = textFieldObserver else { return }
             

@@ -116,7 +116,7 @@ extension NSTextField {
     func swizzleIntrinsicContentSize() {
         if automaticallyResizesToFit || preferredMinLayoutWidth != 0.0 {
             guard !isMethodReplaced(#selector(getter: NSTextField.intrinsicContentSize)) else { return }
-            textFieldObserver = nil
+            textFieldObserver?.removeAll()
             do {
                 try replaceMethod(
                     #selector(getter: NSTextField.intrinsicContentSize),
@@ -141,7 +141,7 @@ extension NSTextField {
                 Swift.debugPrint(error)
             }
         } else if isMethodReplaced(#selector(getter: NSTextField.intrinsicContentSize)) {
-            textFieldObserver = nil
+            textFieldObserver?.removeAll()
             resetMethod(#selector(getter: NSTextField.intrinsicContentSize))
             setupTextFieldObserver()
         }
