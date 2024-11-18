@@ -505,41 +505,58 @@
             set { setAssociatedValue(newValue, key: "editingRange") }
         }
         
-        var selectionColorObservation: KeyValueObservation? {
-            get { getAssociatedValue("selectionColorObservation") }
-            set { setAssociatedValue(newValue, key: "selectionColorObservation") }
-        }
-        
-        var selectionColorIsFirstResponder: Bool {
-            get { getAssociatedValue("selectionColorIsFirstResponder") ?? false }
-            set { setAssociatedValue(newValue, key: "selectionColorIsFirstResponder") }
-        }
-        
-        /// The color of the selection.
+        /// The color for selected text.
         public var selectionColor: NSColor? {
             get { getAssociatedValue("selectionColor") }
             set { 
+                guard newValue != selectionColor else { return }
                 setAssociatedValue(newValue, key: "selectionColor")
-                if let newValue = newValue {
-                    selectionColorObservation = observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
-                        guard let self = self else { return }
-                        if !self.selectionColorIsFirstResponder, new == self.currentEditor() {
-                            self.selectionColorIsFirstResponder = true
-                            self.updateSelectionColor()
-                        } else {
-                            self.selectionColorIsFirstResponder = false
-                        }
+                updateSelectionObservation()
+            }
+        }
+        
+        /// The text color for selected text.
+        public var selectionTextColor: NSColor? {
+            get { getAssociatedValue("selectionTextColor") }
+            set {
+                guard newValue != selectionTextColor else { return }
+                setAssociatedValue(newValue, key: "selectionTextColor")
+                updateSelectionObservation()
+            }
+        }
+        
+        func updateSelectionObservation() {
+            if selectionColor == nil && selectionTextColor == nil {
+                selectionObservation = nil
+            } else if selectionObservation == nil {
+                selectionIsFirstResponder = window?.firstResponder == currentEditor()
+                updateSelectionColors()
+                selectionObservation = observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
+                    guard let self = self else { return }
+                    if !self.selectionIsFirstResponder, new == self.currentEditor() {
+                        self.selectionIsFirstResponder = true
+                        self.updateSelectionColors()
+                    } else {
+                        self.selectionIsFirstResponder = false
                     }
-                    selectionColorIsFirstResponder = window?.firstResponder == currentEditor()
-                    updateSelectionColor()
                 }
             }
         }
         
-        func updateSelectionColor() {
-            Swift.print("updateSelectionColor", isFirstResponder, currentEditor() ?? "nil", currentEditor() as? NSTextView != nil)
-            guard isFirstResponder, let editor = currentEditor() as? NSTextView, let color = selectionColor else { return }
-            editor.selectedTextAttributes = [.backgroundColor: color]
+        func updateSelectionColors() {
+            guard isFirstResponder, let editor = currentEditor() as? NSTextView else { return }
+            editor.selectedTextAttributes[.backgroundColor] = selectionColor
+            editor.selectedTextAttributes[.foregroundColor] = selectionTextColor
+        }
+        
+        var selectionObservation: KeyValueObservation? {
+            get { getAssociatedValue("selectionColorObservation") }
+            set { setAssociatedValue(newValue, key: "selectionColorObservation") }
+        }
+        
+        var selectionIsFirstResponder: Bool {
+            get { getAssociatedValue("selectionColorIsFirstResponder") ?? false }
+            set { setAssociatedValue(newValue, key: "selectionColorIsFirstResponder") }
         }
         
         class DoubleClickEditGestureRecognizer: NSGestureRecognizer {
