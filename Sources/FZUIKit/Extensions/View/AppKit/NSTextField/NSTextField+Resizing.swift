@@ -147,10 +147,27 @@ extension NSTextField {
             setupTextFieldObserver()
         }
     }
+    
+    func withoutPlaceholder(handler: @escaping ()->()) {
+        if let placeholder = placeholderAttributedString, let cell = cell as? NSTextFieldCell  {
+            cell.placeholderAttributedString = nil
+            handler()
+            cell.placeholderAttributedString = placeholder
+        } else if let placeholder = placeholderString, let cell = cell as? NSTextFieldCell  {
+            cell.placeholderString = nil
+            handler()
+            cell.placeholderString = placeholder
+        } else {
+            handler()
+        }
+    }
 
     var calculatedFittingSize: CGSize {
         guard cell != nil else { return frame.size }
-        var cellSize = sizeThatFits(width: maxLayoutWidth)
+        var cellSize: CGSize = .zero
+        withoutPlaceholder {
+            cellSize = self.sizeThatFits(width: self.maxLayoutWidth)
+        }
         Swift.print("calculatedFittingSize", preferredMinLayoutWidth, preferredMinLayoutWidth > 0.0 , preferredMinLayoutWidth != .zero, maxLayoutWidth , cellSize.width, max(preferredMinLayoutWidth.clamped(max: maxLayoutWidth), cellSize.width))
         if preferredMinLayoutWidth == Self.placeholderWidth {
             cellSize.width = max(placeholderStringSize.width.clamped(max: maxLayoutWidth), cellSize.width)
