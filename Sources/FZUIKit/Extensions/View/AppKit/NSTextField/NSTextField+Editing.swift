@@ -515,6 +515,7 @@
             set { setAssociatedValue(newValue, key: "selectionColorIsFirstResponder") }
         }
         
+        /// The color of the selection.
         public var selectionColor: NSColor? {
             get { getAssociatedValue("selectionColor") }
             set { 
@@ -536,6 +537,7 @@
         }
         
         func updateSelectionColor() {
+            Swift.print("updateSelectionColor", isFirstResponder, self.currentEditor() as? NSTextView != nil)
             guard isFirstResponder, let editor = self.currentEditor() as? NSTextView, let color = selectionColor else { return }
             editor.selectedTextAttributes = [.backgroundColor: color]
         }
