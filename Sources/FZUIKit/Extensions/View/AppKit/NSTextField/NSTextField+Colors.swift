@@ -44,6 +44,33 @@ extension NSTextField {
         return self
     }
     
+    /// The text color of the placeholder text.
+    public var placeholderTextColor: NSColor? {
+        get { getAssociatedValue("placeholderTextColor") }
+        set {
+            guard newValue != placeholderTextColor else { return }
+            setAssociatedValue(newValue, key: "placeholderTextColor")
+            if let color = newValue {
+                placeholderObservation = observeChanges(for: \.placeholderString) { [weak self] old, new in
+                    guard let self = self, let placeholder = new, let color = self.placeholderTextColor else { return }
+                    self.placeholderAttributedString = .init(string: placeholder, attributes: [.foregroundColor: color])
+                }
+                if let placeholder = placeholderString {
+                    placeholderAttributedString = .init(string: placeholder, attributes: [.foregroundColor: color])
+                }
+            } else {
+                placeholderObservation = nil
+            }
+        }
+    }
+    
+    /// Sets the text color of the placeholder text.
+    @discardableResult
+    public func placeholderTextColor(_ color: NSColor?) -> Self {
+        placeholderTextColor = color
+        return self
+    }
+    
     func updateSelectionObservation() {
         if selectionColor == nil && selectionTextColor == nil {
             selectionObservation = nil
@@ -76,6 +103,11 @@ extension NSTextField {
     var selectionIsFirstResponder: Bool {
         get { getAssociatedValue("selectionColorIsFirstResponder") ?? false }
         set { setAssociatedValue(newValue, key: "selectionColorIsFirstResponder") }
+    }
+    
+    var placeholderObservation: KeyValueObservation? {
+        get { getAssociatedValue("placeholderObservation") }
+        set { setAssociatedValue(newValue, key: "placeholderObservation") }
     }
 }
 #endif
