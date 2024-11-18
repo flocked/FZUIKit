@@ -150,9 +150,9 @@ extension NSTextField {
     var calculatedFittingSize: CGSize {
         guard cell != nil else { return frame.size }
         var cellSize = sizeThatFits(width: maxLayoutWidth)
+        Swift.print("calculatedFittingSize", preferredMinLayoutWidth > 0 , maxLayoutWidth , cellSize.width, max(preferredMinLayoutWidth.clamped(max: maxLayoutWidth), cellSize.width))
         if preferredMinLayoutWidth == Self.placeholderWidth {
-            let placeholderWidth = placeholderStringSize.width.clamped(max: maxLayoutWidth)
-            cellSize.width = max(placeholderWidth, cellSize.width)
+            cellSize.width = max(placeholderStringSize.width.clamped(max: maxLayoutWidth), cellSize.width)
         } else if preferredMinLayoutWidth > 0 {
             cellSize.width = max(preferredMinLayoutWidth.clamped(max: maxLayoutWidth), cellSize.width)
         }
