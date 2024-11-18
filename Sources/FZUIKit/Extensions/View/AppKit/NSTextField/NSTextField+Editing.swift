@@ -537,8 +537,8 @@
         }
         
         func updateSelectionColor() {
-            Swift.print("updateSelectionColor", isFirstResponder, self.currentEditor() as? NSTextView != nil)
-            guard isFirstResponder, let editor = self.currentEditor() as? NSTextView, let color = selectionColor else { return }
+            Swift.print("updateSelectionColor", isFirstResponder, currentEditor() ?? "nil", currentEditor() as? NSTextView != nil)
+            guard isFirstResponder, let editor = currentEditor() as? NSTextView, let color = selectionColor else { return }
             editor.selectedTextAttributes = [.backgroundColor: color]
         }
         
