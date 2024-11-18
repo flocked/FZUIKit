@@ -70,7 +70,7 @@ extension NSTextField {
     /**
      The preferred minimum width of the text field.
      
-     Apply ``placeholderWidth`` to this property, to use the placeholder width as minimum value.
+     To use the placeholder width as minimum value, specify the constant ``placeholderWidth``.
      */
     @objc open var preferredMinLayoutWidth: CGFloat {
         get { getAssociatedValue("preferredMinLayoutWidth", initialValue: 0) }
@@ -84,7 +84,7 @@ extension NSTextField {
     /**
      Sets the preferred minimum width of the text field.
      
-     Use ``placeholderWidth`` to use the placeholder width as minimum value.
+     To use the placeholder width as minimum value, specify the constant ``placeholderWidth``.
      */
     @discardableResult
     @objc open func preferredMinLayoutWidth(_ minWidth: CGFloat) -> Self {
@@ -150,26 +150,31 @@ extension NSTextField {
     var calculatedFittingSize: CGSize {
         guard cell != nil else { return frame.size }
         var cellSize = sizeThatFits(width: maxLayoutWidth)
-      //  return cell?.cellSize(forBounds: NSRect(x: 0, y: 0, width: 100000, height: 1000)) ?? .zero
-        
-        cellSize.height.round(toMultiple: 0.5, rule: .awayFromZero)
         if preferredMinLayoutWidth == Self.placeholderWidth {
-            let placeholderSize = placeholderStringSize
-            cellSize.width = max(placeholderSize.width, cellSize.width)
-            cellSize.width.round(toMultiple: 0.5, rule: .awayFromZero)
-        } else {
-            cellSize.width.round(toMultiple: 0.5, rule: .awayFromZero)
-         //   cellSize.width = max(cellSize.width, maxLayoutWidth)
+            let placeholderWidth = placeholderStringSize.width.clamped(max: maxLayoutWidth)
+            cellSize.width = max(placeholderWidth, cellSize.width)
         }
+        cellSize.width.round(toMultiple: 0.5, rule: .awayFromZero)
+        cellSize.height.round(toMultiple: 0.5, rule: .awayFromZero)
         return cellSize
     }
         
     var placeholderStringSize: CGSize {
-        guard cell != nil else { return .zero }
+        guard let cell = cell else { return .zero }
         if let placeholder = placeholderAttributedString {
-            return fittingSize(for: placeholder, maxWidth: maxLayoutWidth)
+            let stringValue = attributedStringValue
+            cell.attributedStringValue = placeholder
+            let rect = cell.drawingRect(forBounds: bounds).width(maxLayoutWidth)
+            let size = cell.cellSize(forBounds: rect)
+            cell.attributedStringValue = stringValue
+            return size
         } else if let placeholder = placeholderString {
-            return fittingSize(for: placeholder, maxWidth: maxLayoutWidth)
+            let stringValue = stringValue
+            cell.stringValue = placeholder
+            let rect = cell.drawingRect(forBounds: bounds).width(maxLayoutWidth)
+            let size = cell.cellSize(forBounds: rect)
+            cell.stringValue = stringValue
+            return size
         }
         return .zero
     }
@@ -181,6 +186,7 @@ extension NSTextField {
         return preferredMaxLayoutWidth == 0 ? CGFloat.greatestFiniteMagnitude : preferredMaxLayoutWidth
     }
     
+    /*
     func fittingSize(for string: String, maxWidth: CGFloat? = nil, maxHeight: CGFloat? = nil) -> CGSize {
         guard let cell = cell else { return .zero }
         var size: CGSize = .zero
@@ -190,6 +196,7 @@ extension NSTextField {
         cell.stringValue = stringValue
         return size
     }
+    
     
     func fittingSize(for attributedString: NSAttributedString, maxWidth: CGFloat? = nil, maxHeight: CGFloat? = nil) -> CGSize {
         guard let cell = cell else { return .zero }
@@ -214,6 +221,7 @@ extension NSTextField {
         return cell.cellSize(forBounds: rect)
         
     }
+    */
 }
 
 #endif
