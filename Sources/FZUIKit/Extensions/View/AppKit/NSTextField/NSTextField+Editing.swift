@@ -536,6 +536,10 @@
                     textField.isSelectable = true
                     textField.isEditable = true
                     textField.makeFirstResponder()
+                    guard let editor = textField.currentEditor() as? NSTextView else { return }
+                    let charIndex = editor.characterIndexForInsertion(at: event.location(in: editor))
+                    let range = NSRange(location: charIndex, length: 0)
+                    editor.selectedRange = range
                 }
                 super.mouseDown(with: event)
             }
