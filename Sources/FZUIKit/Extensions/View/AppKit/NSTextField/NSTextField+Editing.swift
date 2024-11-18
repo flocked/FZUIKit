@@ -425,7 +425,7 @@
                             return store.original(object, #selector(NSTextViewDelegate.textView(_:doCommandBy:)), textView, selector)
                         }
                         }
-                       // setupTextFieldObserver()
+                        setupTextFieldObserver()
                     } catch {
                         Swift.debugPrint(error)
                     }
