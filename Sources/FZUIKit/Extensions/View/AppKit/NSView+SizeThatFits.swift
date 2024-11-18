@@ -50,6 +50,7 @@ public extension NSTextField {
         guard let cell = cell else { return bounds.size }
         var rect = cell.drawingRect(forBounds: bounds)
         rect.size.width = width
+        rect.size.height = .greatestFiniteMagnitude
         return cell.cellSize(forBounds: rect)
     }
     
