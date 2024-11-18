@@ -539,9 +539,11 @@
                     guard let editor = textField.currentEditor() as? NSTextView else { return }
                     let localPoint = textField.convert(event.location(in: textField), to: editor)
                     let charIndex = editor.characterIndexForInsertion(at: localPoint)
-                    Swift.print("charIndex", charIndex)
                     let range = NSRange(location: charIndex, length: 0)
+                    let current = editor.selectedRange
                     editor.selectedRange = range
+                    editor.setSelectedRange(range)
+                    Swift.print("charIndex", charIndex, editor.selectedRange.location, editor.selectedRange.length, current.location, current.length)
                 }
                 super.mouseDown(with: event)
             }
