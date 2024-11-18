@@ -389,6 +389,7 @@
                             methodSignature: (@convention(c) (AnyObject, Selector, NSTextView, Selector) -> (Bool)).self,
                             hookSignature: (@convention(block) (AnyObject, NSTextView, Selector) -> (Bool)).self
                         ) { store in { object, textView, selector in
+                            /*
                             if let textField = object as? NSTextField {
                                 switch selector {
                                 case #selector(NSControl.cancelOperation(_:)):
@@ -422,6 +423,7 @@
                                 default: break
                                 }
                             }
+                             */
                             return store.original(object, #selector(NSTextViewDelegate.textView(_:doCommandBy:)), textView, selector)
                         }
                         }
