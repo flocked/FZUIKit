@@ -75,8 +75,9 @@ extension NSTextField {
     @objc open var preferredMinLayoutWidth: CGFloat {
         get { getAssociatedValue("preferredMinLayoutWidth", initialValue: .zero) }
         set {
-            setAssociatedValue(newValue, key: "preferredMinLayoutWidth")
             swizzleIntrinsicContentSize()
+            setAssociatedValue(newValue, key: "preferredMinLayoutWidth")
+            Swift.print("setPreferredMinLayoutWidth",preferredMinLayoutWidth)
             resizeToFit()
         }
     }
