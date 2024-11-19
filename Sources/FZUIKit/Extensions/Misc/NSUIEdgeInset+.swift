@@ -247,14 +247,14 @@ extension EdgeInsets: Hashable {
     }
 
     /// Creates an edge insets structure with the specified width (leading + trailing) and height (top + bottom) values.
-    init(width: CGFloat, height: CGFloat = 0) {
+    public init(width: CGFloat, height: CGFloat = 0) {
         self.init()
         self.width = width
         self.height = height
     }
     
     /// Creates an edge insets structure with the specified height (top + bottom) value.
-    init(height: CGFloat) {
+    public init(height: CGFloat) {
         self.init()
         self.height = height
     }
