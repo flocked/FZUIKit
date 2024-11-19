@@ -18,7 +18,7 @@ public extension SwiftUI.Path {
     /// Creates a path from the specified bezier path.
     init(_ bezierpath: NSUIBezierPath) {
         #if os(macOS)
-        self.init(bezierpath.cgpath)
+        self.init(bezierpath.cgPath)
         #else
         self.init(bezierpath.cgPath)
         #endif

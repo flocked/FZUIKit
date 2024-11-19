@@ -49,7 +49,7 @@ public class ShapedLayer: CAShapeLayer {
         get { nil }
         set { 
             #if os(macOS)
-            path = newValue?.cgpath
+            path = newValue?.cgPath
             #else
             path = newValue?.cgPath
             #endif

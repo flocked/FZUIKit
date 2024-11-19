@@ -83,8 +83,10 @@
                             #endif
                             self.frame.origin = dragPoint
                             if var margins = isMovableByViewBackground.margins {
-                                margins.leadingTrailing += border.width
-                                margins.bottomTop += border.width
+                                margins.leading += border.width
+                                margins.trailing += border.width
+                                margins.bottom += border.width
+                                margins.top += border.width
                                 if self.frame.origin.x < 0 + margins.leading {
                                     self.frame.origin.x = 0 + margins.leading
                                 }

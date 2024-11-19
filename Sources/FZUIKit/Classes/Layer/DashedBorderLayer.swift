@@ -84,7 +84,7 @@
             borderedLayer.frame =   bounds.inset(by: configuration.insets)
 
             #if os(macOS)
-            borderedLayer.path = NSUIBezierPath(roundedRect:  borderedLayer.frame, cornerRadius: cornerRadius).cgpath
+            borderedLayer.path = NSUIBezierPath(roundedRect:  borderedLayer.frame, cornerRadius: cornerRadius).cgPath
             #else
             borderedLayer.path = NSUIBezierPath(roundedRect: shapeRect, cornerRadius: cornerRadius).cgPath
             #endif

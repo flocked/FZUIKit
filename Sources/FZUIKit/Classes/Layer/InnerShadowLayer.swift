@@ -119,7 +119,7 @@ open class InnerShadowLayer: CALayer {
         #endif
         path.append(innerPart)
         #if os(macOS)
-        shadowPath = path.cgpath
+        shadowPath = path.cgPath
         #else
         shadowPath = path.cgPath
         #endif

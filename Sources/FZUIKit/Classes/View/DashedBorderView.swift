@@ -27,8 +27,10 @@ class DashedBorderView: NSUIView {
     
     func update() {
         var configuration = configuration
-        configuration.insets.bottomTop += configuration.width / 2.0
-        configuration.insets.leadingTrailing += configuration.width / 2.0
+        configuration.insets.top += configuration.width / 2.0
+        configuration.insets.bottom += configuration.width / 2.0
+        configuration.insets.leading += configuration.width / 2.0
+        configuration.insets.trailing += configuration.width / 2.0
         let view = superview ?? self
         hostingController.rootView = ContentView(border: configuration, cornerRadius: view.cornerRadius, cornerCurve: view.cornerCurve, roundedCorners: view.roundedCorners)
     }
