@@ -1120,6 +1120,7 @@ open class ImageView: NSControl {
     public class ContainerView: NSView {
         let containerView = NSView()
         var didSetup = false
+        var shadowObservation: KeyValueObservation?
 
         public override var subviews: [NSView] {
             get { didSetup ? containerView.subviews : super.subviews }
@@ -1155,14 +1156,12 @@ open class ImageView: NSControl {
             didSet { containerView.roundedCorners = roundedCorners }
         }
         
+        /*
         public override var innerShadow: ShadowConfiguration {
             get { containerView.innerShadow }
             set { containerView.innerShadow = newValue }
         }
-        
-        public override var outerShadow: ShadowConfiguration {
-            didSet { backgroundColor = outerShadow.resolvedColor() }
-        }
+         */
         
         init() {
             super.init(frame: .zero)
@@ -1180,9 +1179,14 @@ open class ImageView: NSControl {
         }
         
         func sharedInit() {
+            wantsLayer = true
             clipsToBounds = false
             containerView.clipsToBounds = true
             addSubview(withConstraint: containerView)
+            shadowObservation = observeChanges(for: \.layer?.shadowColor) { [weak self] _, new in
+                guard let self = self else { return }
+                self.layer?.backgroundColor = new
+            }
             didSetup = true
         }
     }
