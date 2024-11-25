@@ -133,9 +133,9 @@
         }
 
         /// The scale of the transform.
-        var scale: Scale {
+        var scale: CGVector3 {
             get {
-                Scale(_decomposed().scale)
+                CGVector3(_decomposed().scale)
             }
             set {
                 var decomposed = _decomposed()
@@ -145,7 +145,7 @@
         }
 
         /// Returns a copy by scaling the current transform by the given scale.
-        func scaled(by scale: Scale) -> Self {
+        func scaled(by scale: CGVector3) -> Self {
             var transform = self
             transform.scale(by: scale)
             return transform
@@ -153,7 +153,7 @@
 
         /// Returns a copy by scaling the current transform by the given scale.
         func scaled(by scale: CGPoint) -> Self {
-            scaled(by: Scale(scale.x, scale.y, 0.0))
+            scaled(by: CGVector3(scale.x, scale.y, 0.0))
         }
 
         /**
@@ -162,18 +162,18 @@
          - Note: Omitted components have no effect on the scale.
          */
         func scaledBy(x: CGFloat = 1.0, y: CGFloat = 1.0, z: CGFloat = 1.0) -> Self {
-            let scale = Scale(x, y, z)
+            let scale = CGVector3(x, y, z)
             return scaled(by: scale)
         }
 
         /// Scales the current transform by the given scale.
-        mutating func scale(by scale: Scale) {
+        mutating func scale(by scale: CGVector3) {
             self = CATransform3D(matrix.scaled(by: scale.storage))
         }
 
         /// Scales the current transform by the given scale.
         mutating func scale(by scale: CGPoint) {
-            let scale = Scale(scale.x, scale.y, 0.0)
+            let scale = CGVector3(scale.x, scale.y, 0.0)
             self.scale(by: scale)
         }
 
@@ -241,6 +241,26 @@
         /// Rotates the current rotation by applying a rotation transform (expressed as euler angles, expressed in radians) to the current transform.
         mutating func rotate(by eulerAngles: CGVector3) {
             self = CATransform3D(matrix.rotated(by: eulerAngles.storage))
+        }
+        
+        var eulerAnglesDegrees: CGVector3 {
+            get {
+                let eulerAngles = eulerAngles
+                return .init(eulerAngles.x.radiansToDegrees, eulerAngles.y.radiansToDegrees, eulerAngles.z.radiansToDegrees)
+            }
+            set { eulerAngles = .init(newValue.x.degreesToRadians, newValue.y.degreesToRadians, newValue.z.degreesToRadians) }
+        }
+        
+        /// Returns a copy by applying a rotation transform (expressed as euler angles, expressed in radians) to the current transform.
+        func rotated(byDegrees eulerAngles: CGVector3) -> Self {
+            var transform = self
+            transform.rotate(byDegrees: eulerAngles)
+            return transform
+        }
+
+        /// Rotates the current rotation by applying a rotation transform (expressed as euler angles, expressed in radians) to the current transform.
+        mutating func rotate(byDegrees eulerAngles: CGVector3) {
+            self = CATransform3D(matrix.rotated(byDegrees: eulerAngles.storage))
         }
 
         /// The skew of the transform.

@@ -242,11 +242,11 @@
 
          The default value is `0.0`, which results in a view with no rotation.
          */
-        @objc open var rotation: CGVector3 {
-            get { transform3D.eulerAnglesDegrees }
+        @objc open var rotation: Rotation {
+            get { transform3D.eulerAnglesDegrees.rotation }
             set {
                 NSView.swizzleAnimationForKey()
-                transform3D.eulerAnglesDegrees = newValue
+                transform3D.eulerAnglesDegrees = newValue.vector
             }
         }
 
@@ -257,26 +257,11 @@
 
          The default value is `0.0`, which results in a view with no rotation.
          */
-        @objc open var rotationInRadians: CGVector3 {
-            get { transform3D.eulerAngles }
+        @objc open var rotationInRadians: Rotation {
+            get { transform3D.eulerAngles.rotation }
             set {
                 NSView.swizzleAnimationForKey()
-                transform3D.eulerAngles = newValue
-            }
-        }
-
-        /**
-         The scale transform of the view.
-
-         Using this property turns the view into a layer-backed view. The value can be animated via `animator().scale`.
-
-         The default value is `CGPoint(x: 1.0, y: 1.0)`, which results in a view displayed at it's original scale.
-         */
-        @objc open var scale: CGPoint {
-            get { layer?.scale ?? CGPoint(x: 1, y: 1) }
-            set {
-                NSView.swizzleAnimationForKey()
-                transform3D.scale = Scale(newValue.x, newValue.y, transform3D.scale.z)
+                transform3D.eulerAngles = newValue.vector
             }
         }
         
@@ -285,13 +270,13 @@
 
          Using this property turns the view into a layer-backed view. The value can be animated via `animator().scale`.
 
-         The default value is `Scale(1.0, 1.0, 1.0 )`, which results in a view displayed at it's original scale.
+         The default value is `none`, which results in a view displayed at it's original scale.
          */
-        @objc open var scaleXYZ: Scale {
-            get { layer?.scaleXYZ ?? .init(1, 1, 1) }
+        @objc open var scale: Scale {
+            get { layer?.scale ?? .none }
             set {
                 NSView.swizzleAnimationForKey()
-                transform3D.scale = newValue
+                transform3D.scale = newValue.vector
             }
         }
 

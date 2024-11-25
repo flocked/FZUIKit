@@ -123,6 +123,15 @@
                 rotate(by: newValue)
             }
         }
+        
+        /// The rotation of the transformation matrix (expressed as euler angles, expressed in degrees).
+        var eulerAnglesDegrees: simd_double3 {
+            get {
+                let eulerAngles = eulerAngles
+                return .init(eulerAngles.x.radiansToDegrees, eulerAngles.y.radiansToDegrees, eulerAngles.z.radiansToDegrees)
+            }
+            set { eulerAngles = .init(newValue.x.degreesToRadians, newValue.y.degreesToRadians, newValue.z.degreesToRadians) }
+        }
 
         /// Returns a copy by applying a rotation transform (expressed as euler angles, expressed in radians) to the current transformation matrix.
         func rotated(by eulerAngles: simd_double3) -> Self {
@@ -134,6 +143,19 @@
         /// Rotates the current rotation by applying a rotation transform (expressed as euler angles, expressed in radians) to the current transformation matrix.
         mutating func rotate(by eulerAngles: simd_double3) {
             let quaternion = simd_quatd(eulerAngles)
+            rotate(by: quaternion)
+        }
+        
+        /// Returns a copy by applying a rotation transform (expressed as euler angles, expressed in degrees) to the current transformation matrix.
+        func rotated(byDegrees eulerAngles: simd_double3) -> Self {
+            var matrix = self
+            matrix.rotate(byDegrees: eulerAngles)
+            return matrix
+        }
+        
+        /// Rotates the current rotation by applying a rotation transform (expressed as euler angles, expressed in degrees) to the current transformation matrix.
+        mutating func rotate(byDegrees eulerAngles: simd_double3) {
+            let quaternion = simd_quatd(simd_double3(eulerAngles.x.radiansToDegrees, eulerAngles.y.radiansToDegrees, eulerAngles.z.radiansToDegrees))
             rotate(by: quaternion)
         }
 

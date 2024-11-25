@@ -19,9 +19,9 @@
 
          Changes to this property can be animated. The default value is is `zero`, which results in a view with no rotation.
          */
-        public var rotation: CGVector3 {
-            get { self.transform3D.eulerAnglesDegrees }
-            set { self.transform3D.eulerAnglesDegrees = newValue }
+        public var rotation: Rotation {
+            get { self.transform3D.eulerAnglesDegrees.rotation }
+            set { self.transform3D.eulerAnglesDegrees = newValue.vector }
         }
 
         /**
@@ -29,17 +29,17 @@
 
          Changes to this property can be animated. The default value is is `zero`, which results in a view with no rotation.
          */
-        public var rotationInRadians: CGVector3 {
-            get { self.transform3D.eulerAngles }
-            set { self.transform3D.eulerAngles = newValue }
+        public var rotationInRadians: Rotation {
+            get { self.transform3D.eulerAngles.rotation }
+            set { self.transform3D.eulerAngles = newValue.vector }
         }
 
         /**
          The scale transform of the view.
 
-         Changes to this property can be animated. The default value is is `CGPoint(x: 1.0, y: 1.0)`, which results in a view displayed at it's original scale.
+         Changes to this property can be animated. The default value is is `none`, which results in a view displayed at it's original scale.
          */
-        public var scale: CGPoint {
+        public var scale: Scale {
             get { self.layer.scale }
             set { self.layer.scale = newValue }
         }

@@ -27,72 +27,49 @@
 
         /// The translation of the layer's transform (X, Y, and Z).
         var translationXYZ: Translation {
-            get {
-                transform.translation
-            }
+            get { transform.translation }
             set {
-                DisableActions {
+                CATransaction.disabledActions {
                     transform.translation = newValue
                 }
             }
         }
 
-        /// The scale of the layer's transform (X and Y) as a CGPoint.
-        var scale: CGPoint {
-            get {
-                let scale = transform.scale
-                return CGPoint(x: scale.x, y: scale.y)
-            }
+        /// The scale of the layer's transform.
+        var scale: Scale {
+            get { transform.scale.scale }
             set {
-                DisableActions {
-                    transform.scale = Scale(newValue.x, newValue.y, transform.scale.z)
+                CATransaction.disabledActions {
+                    transform.scale = newValue.vector
                 }
             }
         }
 
-        /// The scale of the layer's transform (X, Y, and Z).
-        var scaleXYZ: Scale {
-            get {
-                transform.scale
-            }
+        /// The rotation of the layer's transform, in degrees.
+        var rotation: Rotation {
+            get { transform.eulerAnglesDegrees.rotation }
             set {
-                DisableActions {
-                    transform.scale = newValue
+                CATransaction.disabledActions {
+                    transform.eulerAnglesDegrees = newValue.vector
                 }
             }
         }
 
-        /// The rotation of the layer's transform (expressed as a quaternion).
-        var rotation: CGQuaternion {
-            get {
-                transform.rotation
-            }
+        /// The rotation of the layer's transform, in radians.
+        var rotationInRadians: Rotation {
+            get { transform.eulerAngles.rotation }
             set {
-                DisableActions {
-                    transform.rotation = newValue
-                }
-            }
-        }
-
-        /// The rotation of the layer's transform (expressed as euler angles, in radians).
-        var eulerAngles: CGVector3 {
-            get {
-                transform.eulerAngles
-            }
-            set {
-                DisableActions {
-                    transform.eulerAngles = newValue
+                CATransaction.disabledActions {
+                    transform.eulerAngles = newValue.vector
                 }
             }
         }
 
         /// The shearing of the layer's transform.
         var skew: Skew {
-            get {
-                transform.skew
-            }
+            get { transform.skew }
             set {
-                DisableActions {
+                CATransaction.disabledActions {
                     transform.skew = newValue
                 }
             }
@@ -100,11 +77,9 @@
 
         /// The perspective of the layer's transform (e.g. .m34).
         var perspective: Perspective {
-            get {
-                transform.perspective
-            }
+            get { transform.perspective }
             set {
-                DisableActions {
+                CATransaction.disabledActions {
                     transform.perspective = newValue
                 }
             }

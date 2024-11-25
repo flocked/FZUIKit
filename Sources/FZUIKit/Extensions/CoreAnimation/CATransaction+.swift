@@ -13,6 +13,14 @@
         static func performNonAnimated(changes: () -> Void) {
             perform(duration: 0.0, disableActions: true, animations: changes)
         }
+        
+        /// Runs the changes of the specified block with disabled actions.
+        static func disabledActions(changes: () -> Void) {
+            CATransaction.begin()
+            CATransaction.disableActions = true
+            changes()
+            CATransaction.commit()
+        }
 
         /**
          Animate changes to one or more layers using the specified duration, timing function, and completion handler.

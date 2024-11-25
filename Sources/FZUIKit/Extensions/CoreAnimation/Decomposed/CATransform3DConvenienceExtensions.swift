@@ -13,7 +13,6 @@
     // MARK: - Convenience Extensions
 
     public typealias Translation = CGVector3
-    public typealias Scale = CGVector3
     public typealias Perspective = CGVector4
     public typealias Skew = CGVector3
 

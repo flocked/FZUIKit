@@ -15,14 +15,4 @@
             CATransform3DEqualToTransform(lhs, rhs)
         }
     }
-
-    public extension CATransform3D {
-        var eulerAnglesDegrees: CGVector3 {
-            get {
-                let eulerAngles = eulerAngles
-                return .init(eulerAngles.x.radiansToDegrees, eulerAngles.y.radiansToDegrees, eulerAngles.z.radiansToDegrees)
-            }
-            set { eulerAngles = .init(newValue.x.degreesToRadians, newValue.y.degreesToRadians, newValue.z.degreesToRadians) }
-        }
-    }
 #endif

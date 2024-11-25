@@ -482,21 +482,21 @@
         
         /// Sets the scale transform of the view.
         @discardableResult
-        @objc open func scale(_ scale: CGPoint) -> Self {
+        @objc open func scale(_ scale: Scale) -> Self {
             self.scale = scale
             return self
         }
         
         /// Sets the rotation of the view as euler angles in degrees.
         @discardableResult
-        @objc open func rotation(_ rotation: CGVector3) -> Self {
+        @objc open func rotation(_ rotation: Rotation) -> Self {
             self.rotation = rotation
             return self
         }
         
         /// Sets the rotation of the view as euler angles in radians.
         @discardableResult
-        @objc open func rotationInRadians(_ rotation: CGVector3) -> Self {
+        @objc open func rotationInRadians(_ rotation: Rotation) -> Self {
             self.rotationInRadians = rotation
             return self
         }
