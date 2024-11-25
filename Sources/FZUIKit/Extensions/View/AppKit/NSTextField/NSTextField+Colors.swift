@@ -11,7 +11,7 @@ import FZSwiftUtils
 
 extension NSTextField {
     /// The color for selected text.
-    public var selectionColor: NSColor? {
+    @objc public var selectionColor: NSColor? {
         get { getAssociatedValue("selectionColor") }
         set {
             guard newValue != selectionColor else { return }
@@ -28,7 +28,7 @@ extension NSTextField {
     }
     
     /// The text color for selected text.
-    public var selectionTextColor: NSColor? {
+    @objc public var selectionTextColor: NSColor? {
         get { getAssociatedValue("selectionTextColor") }
         set {
             guard newValue != selectionTextColor else { return }
@@ -45,21 +45,25 @@ extension NSTextField {
     }
     
     /// The text color of the placeholder text.
-    public var placeholderTextColor: NSColor? {
+    @objc public var placeholderTextColor: NSColor? {
         get { getAssociatedValue("placeholderTextColor") }
         set {
             guard newValue != placeholderTextColor else { return }
             setAssociatedValue(newValue, key: "placeholderTextColor")
             if let color = newValue {
-                placeholderObservation = observeChanges(for: \.placeholderString) { [weak self] old, new in
-                    guard let self = self, let placeholder = new, let color = self.placeholderTextColor else { return }
-                    self.placeholderAttributedString = .init(string: placeholder, attributes: [.foregroundColor: color])
-                }
-                if let placeholder = placeholderString {
-                    placeholderAttributedString = .init(string: placeholder, attributes: [.foregroundColor: color])
+                setPlaceholderColor(color)
+                if placeholderObservations.isEmpty {
+                    placeholderObservations = [observeChanges(for: \.placeholderString) { [weak self] old, new in
+                        guard let self = self, new != nil, let color = self.placeholderTextColor else { return }
+                        self.setPlaceholderColor(color)
+                    }, observeChanges(for: \.placeholderAttributedString) { [weak self] old, new in
+                        guard let self = self, !self.isUpdatingPlaceholderColor, new != nil, let color = self.placeholderTextColor else { return }
+                        self.setPlaceholderColor(color)
+                    }].nonNil
                 }
             } else {
-                placeholderObservation = nil
+                setPlaceholderColor(.secondaryLabelColor)
+                placeholderObservations = []
             }
         }
     }
@@ -69,6 +73,17 @@ extension NSTextField {
     public func placeholderTextColor(_ color: NSColor?) -> Self {
         placeholderTextColor = color
         return self
+    }
+    
+    func setPlaceholderColor(_ color: NSColor) {
+        isUpdatingPlaceholderColor = true
+        if let placeholder = placeholderString {
+            placeholderAttributedString = .init(string: placeholder, attributes: [.foregroundColor: color])
+        } else if let placeholder = placeholderAttributedString {
+            placeholder
+            placeholderAttributedString = placeholder.color(color)
+        }
+        isUpdatingPlaceholderColor = false
     }
     
     func updateSelectionObservation() {
@@ -105,9 +120,14 @@ extension NSTextField {
         set { setAssociatedValue(newValue, key: "selectionColorIsFirstResponder") }
     }
     
-    var placeholderObservation: KeyValueObservation? {
-        get { getAssociatedValue("placeholderObservation") }
-        set { setAssociatedValue(newValue, key: "placeholderObservation") }
+    var isUpdatingPlaceholderColor: Bool {
+        get { getAssociatedValue("isUpdatingPlaceholderColor") ?? false }
+        set { setAssociatedValue(newValue, key: "isUpdatingPlaceholderColor") }
+    }
+    
+    var placeholderObservations: [KeyValueObservation] {
+        get { getAssociatedValue("placeholderObservations") ?? [] }
+        set { setAssociatedValue(newValue, key: "placeholderObservations") }
     }
 }
 #endif

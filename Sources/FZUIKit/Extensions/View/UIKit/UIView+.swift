@@ -43,6 +43,16 @@
             get { self.layer.scale }
             set { self.layer.scale = newValue }
         }
+        
+        /**
+         The translation of the view's transform.
+
+         Changes to this property can be animated. The default value is `zero`, which results in a view with no transformed translation.
+         */
+        public var translation: Translation {
+            get { transform3D.translation }
+            set { transform3D.translation = newValue }
+        }
 
         /**
          The perspective of the view's transform

@@ -272,7 +272,7 @@
         }
 
         /**
-         The perspective of the view's transform
+         The perspective of the view's transform.
 
          Using this property turns the view into a layer-backed view. The value can be animated via `animator().perspective`.
 
@@ -281,6 +281,19 @@
         public var perspective: Perspective {
             get { transform3D.perspective }
             set { transform3D.perspective = newValue }
+        }
+        
+        
+        /**
+         The translation of the view's transform.
+
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().translation`.
+
+         The default value is `zero`, which results in a view with no transformed translation.
+         */
+        public var translation: Translation {
+            get { transform3D.translation }
+            set { transform3D.translation = newValue }
         }
 
         /**
@@ -306,11 +319,11 @@
 
          The default value is `zero`.
          */
-        @objc public var anchorPoint: CGPoint {
-            get { layer?.anchorPoint ?? .zero }
+        @objc public var anchorPoint: FractionalPoint {
+            get { layer?.anchorPoint.fractional ?? .zero }
             set {
                 NSView.swizzleAnimationForKey()
-                setAnchorPoint(newValue)
+                setAnchorPoint(newValue.point)
             }
         }
 
@@ -504,17 +517,12 @@
          
          The default value is `nil`, which results in a view with no shadow path.
          */
-        @objc open var shadowPath: NSBezierPath? {
-            get { shadowPathAnimatable?.bezierPath }
+        @objc public var shadowPath: NSBezierPath? {
+            get { layer?.shadowPath?.bezierPath }
             set {
                 NSView.swizzleAnimationForKey()
-                shadowPathAnimatable = newValue?.cgPath
+                optionalLayer?.shadowPath = newValue?.cgPath
             }
-        }
-
-        @objc var shadowPathAnimatable: CGPath? {
-            get { layer?.shadowPath }
-            set { optionalLayer?.shadowPath = newValue }
         }
 
         /**
@@ -546,7 +554,6 @@
                 innerShadowOffset = newValue.offset
                 innerShadowRadius = newValue.radius
                 innerShadowOpacity = newValue.opacity
-                innerShadowLayer.color = newValue.color
                 innerShadowLayer.colorTransformer = newValue.colorTransformer
             }
         }
@@ -835,6 +842,6 @@
     }
 
     /// The `NSView` properties keys that can be animated.
-    private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "_borderWidth", "_borderColor", "mask", "inverseMask", "backgroundColorAnimatable", "center", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPathAnimatable", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "contentOffsetFractional", "documentSize", "zPosition"]
+    private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "_borderWidth", "_borderColor", "borderWidth", "borderColor", "mask", "inverseMask", "backgroundColorAnimatable", "center", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPath", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "contentOffsetFractional", "documentSize", "zPosition", "textColor", "selectionColor", "selectionTextColor", "placeholderTextColor"]
 
 #endif
