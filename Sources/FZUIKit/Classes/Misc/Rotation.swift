@@ -73,6 +73,15 @@ public struct Rotation: Hashable, Codable, ExpressibleByFloatLiteral, CustomStri
         "Rotation(x: \(x), y: \(y), z: \(z))"
     }
     
+    public var fractional: FractionalPoint {
+        get { .init(x/90.0, y/90.0) }
+        set {
+            // newValue.x.interpolated(from: -90...90, to: -90...90)
+            x = newValue.x.interpolated(from: 0...1, to: -90...90)
+            y = newValue.y.interpolated(from: 0...1, to: -90...90)
+        }
+    }
+    
     var vector: CGVector3 {
         .init(x, y, z)
     }
