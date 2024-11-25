@@ -78,7 +78,6 @@ public struct Point3D: Hashable, Codable, CustomStringConvertible {
     public init(_ point: CGPoint) {
         self.x = point.x
         self.y = point.y
-        point.scaledIntegralhs
     }
     
     public var description: String {
