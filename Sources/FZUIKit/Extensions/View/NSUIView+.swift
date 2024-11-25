@@ -469,16 +469,21 @@
             return self
         }
         
+        #if os(macOS)
+        /// Sets the anchor point of the view’s bounds rectangle.
+        @discardableResult
+        @objc open func anchorPoint(_ anchorPoint: FractionalPoint) -> Self {
+            self.anchorPoint = anchorPoint
+            return self
+        }
+        #else
         /// Sets the anchor point of the view’s bounds rectangle.
         @discardableResult
         @objc open func anchorPoint(_ anchorPoint: CGPoint) -> Self {
-            #if os(macOS)
             self.anchorPoint = anchorPoint
-            #else
-            self.layer.anchorPoint = anchorPoint
-            #endif
             return self
         }
+        #endif
         
         /// Sets the scale transform of the view.
         @discardableResult
