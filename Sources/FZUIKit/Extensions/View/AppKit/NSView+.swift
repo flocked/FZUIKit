@@ -276,7 +276,9 @@
             get { layer?.scale ?? .none }
             set {
                 NSView.swizzleAnimationForKey()
-                transform3D.scale = newValue.vector
+                var transform = transform3D
+                transform.scale = newValue.vector
+                transform3D = transform
             }
         }
 
