@@ -15,18 +15,23 @@
     extension NSView {
         /// A tracking area that tracks a view
         open class TrackingArea {
+            weak var view: NSView?
+            var trackingArea: NSTrackingArea?
+            
             /// One or more constants that specify the type of tracking area, the situations when the area is active, and special behaviors of the tracking area.
             open var options: NSTrackingArea.Options {
-                didSet {
-                    update()
-                }
+                didSet { update() }
             }
 
-            /// A rectangle that defines a region of the tracked view for tracking events related to mouse tracking and cursor updating. The specified rectangle should not exceed the view’s bounds rectangle.
+            /**
+             A rectangle that defines a region of the tracked view for tracking events related to mouse tracking and cursor updating.
+             
+             The specified rectangle should not exceed the view’s bounds rectangle.
+             
+             The default value is `nil` which uses the view's bounds.
+             */
             open var trackingRect: CGRect? {
-                didSet {
-                    update()
-                }
+                didSet { update() }
             }
 
             /**
@@ -35,9 +40,22 @@
              - Parameters:
               - view: The view to add tracking to.
               - rect: The area inside the view to track. The default value is `nil` which uses the view's bounds.
-              - options: The options for tracking. The default value is `[]` which doesn't track anything.
              */
-            public init(for view: NSView, rect: CGRect? = nil, options: NSTrackingArea.Options = []) {
+            public init(for view: NSView, rect: CGRect? = nil) {
+                self.view = view
+                trackingRect = rect
+                self.options = []
+            }
+            
+            /**
+             Creates a tracking area.
+
+             - Parameters:
+              - view: The view to add tracking to.
+              - rect: The area inside the view to track. The default value is `nil` which uses the view's bounds.
+              - options: The options for tracking.
+             */
+            public init(for view: NSView, rect: CGRect? = nil, options: NSTrackingArea.Options) {
                 self.view = view
                 trackingRect = rect
                 self.options = options
@@ -46,14 +64,14 @@
             /**
              Updates the tracking area.
 
-             - Note: This should be called in your `updateTrackingAreas()` method.
+             - Note: This should be called in the view's `updateTrackingAreas()` method.
              */
             open func update() {
                 if let trackingArea = trackingArea {
                     view?.removeTrackingArea(trackingArea)
                 }
 
-                if let view = view {
+                if let view = view, !options.isEmpty {
                     let newTrackingArea = NSTrackingArea(
                         rect: trackingRect ?? view.bounds,
                         options: options,
@@ -67,13 +85,9 @@
             }
             
             deinit {
-                if let trackingArea = trackingArea {
-                    view?.removeTrackingArea(trackingArea)
-                }
+                guard let trackingArea = trackingArea else { return }
+                view?.removeTrackingArea(trackingArea)
             }
-
-            weak var view: NSView?
-            var trackingArea: NSTrackingArea?
         }
     }
 
