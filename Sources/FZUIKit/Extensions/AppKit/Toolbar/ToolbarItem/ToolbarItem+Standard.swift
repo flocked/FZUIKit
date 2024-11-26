@@ -29,7 +29,7 @@
         }
 
         /**
-         A toolbar item that displays a sidebar.
+         A toolbar item that toggles a sidebar.
 
          The item can be used with ``Toolbar``.
          */
@@ -37,14 +37,34 @@
             Item(.toggleSidebar)
         }
 
-        @available(macOS 11.0, *)
         /**
          A toolbar item that displays a tracking separator aligned with the sidebar divider in a split view.
 
          The item can be used with ``Toolbar``.
          */
+        @available(macOS 11.0, *)
         static func sidebarTrackingSeparator() -> Item {
             Item(.sidebarTrackingSeparator)
+        }
+        
+        /**
+         A toolbar item that toggles a inspector pane.
+
+         The item can be used with ``Toolbar``.
+         */
+        @available(macOS 14.0, *)
+        static func toggleInspector() -> Item {
+            Item(.toggleInspector)
+        }
+        
+        /**
+         A toolbar item that displays a tracking separator aligned with the inspector divider in a split view.
+
+         The item can be used with ``Toolbar``.
+         */
+        @available(macOS 14.0, *)
+        static func inspectorTrackingSeparator() -> Item {
+            Item(.inspectorTrackingSeparator)
         }
 
         /**

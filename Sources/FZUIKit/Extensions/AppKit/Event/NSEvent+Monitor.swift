@@ -11,7 +11,7 @@
     public extension NSEvent {
         /**
          Returns a global event monitor for the specified mask which receives copies of events the system posts to other applications.
-
+         
          Events are delivered asynchronously to your app and you can only observe the event; you cannot modify or otherwise prevent the event from being delivered to its original target application.
 
          Key-related events may only be monitored if accessibility is enabled or if your application is trusted for accessibility access (see `AXIsProcessTrusted()`).
@@ -21,10 +21,8 @@
          - Note: Compared to `addGlobalMonitorForEvents(matching:handler:)`,  it automatically removes the monitor on deinit.
 
          - Parameters:
-            - mask: An event mask specifying which events you wish to monitor.
+            - mask: An event mask specifying the events to monitor.
             - handler: The event handler. It is passed the event to monitor. You are unable to change the event, merely observe it.
-
-         - Returns: The event monitor object.
          */
         static func globalMonitor(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent) -> Void)) -> Monitor {
             Monitor.global(for: mask, handler: handler)
@@ -38,10 +36,8 @@
          - Note: Compared to `addLocalMonitorForEvents(matching:handler:)`,  it automatically removes the monitor on deinit.
 
          - Parameters:
-            - mask: An event mask specifying which events you wish to monitor.
+            - mask: An event mask specifying the events to monitor.
             - handler: The event handler. It is passed the event to monitor. You can return the event unmodified, create and return a new `NSEvent` object, or return `nil` to stop the dispatching of the event.
-
-         - Returns: The event monitor object.
          */
         static func localMonitor(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent) -> (NSEvent?))) -> Monitor {
             Monitor.local(for: mask, handler: handler)
@@ -82,10 +78,8 @@
              - Note: Compared to `addGlobalMonitorForEvents(matching:handler:)`,  it automatically removes the monitor on deinit.
 
              - Parameters:
-                - mask: An event mask specifying which events you wish to monitor.
+                - mask: An event mask specifying the events to monitor.
                 - handler: The event handler. It is passed the event to monitor. You are unable to change the event, merely observe it.
-
-             - Returns: The event monitor object.
              */
             public static func global(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent) -> Void)) -> NSEvent.Monitor {
                 NSEvent.Monitor(mask: mask, type: .global, handler: handler)
@@ -98,9 +92,9 @@
              
              - Note: Compared to `addLocalMonitorForEvents(matching:handler:)`,  it automatically removes the monitor on deinit.
 
-             - Parameters:he event unmodified, create and return a new `NSEvent` object, or return `nil` to stop the dispatching of the event.
-
-             - Returns: The event monitor object.
+             - Parameters:
+                - mask: An event mask specifying the events to monitor.
+                - handler: The event handler. It is passed the event to monitor. You can return the event unmodified, create and return a new `NSEvent` object, or return `nil` to stop the dispatching of the event.
              */
             public static func local(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent) -> (NSEvent?))) -> NSEvent.Monitor {
                 NSEvent.Monitor(mask: mask, type: .local, handler: handler)
@@ -142,10 +136,9 @@
 
             /// Stops monitoring events.
             public func stop() {
-                if let monitor = monitor {
-                    NSEvent.removeMonitor(monitor)
-                    self.monitor = nil
-                }
+                guard let monitor = monitor else { return }
+                NSEvent.removeMonitor(monitor)
+                self.monitor = nil
             }
         }
     }
