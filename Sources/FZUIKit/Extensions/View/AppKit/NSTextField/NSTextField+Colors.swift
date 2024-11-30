@@ -80,7 +80,6 @@ extension NSTextField {
         if let placeholder = placeholderString {
             placeholderAttributedString = .init(string: placeholder, attributes: [.foregroundColor: color])
         } else if let placeholder = placeholderAttributedString {
-            placeholder
             placeholderAttributedString = placeholder.color(color)
         }
         isUpdatingPlaceholderColor = false
