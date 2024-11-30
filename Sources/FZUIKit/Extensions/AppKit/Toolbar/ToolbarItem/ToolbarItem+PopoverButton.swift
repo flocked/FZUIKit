@@ -107,6 +107,36 @@
                 button.keyEquivalentModifierMask = modifiers
                 return self
             }
+            
+            /// A Boolean value that indicates whether the popover is detachable by the user.
+            public var isDetachable: Bool = false {
+                didSet {
+                    guard oldValue != isDetachable else { return }
+                    popover?.isDetachable = isDetachable
+                }
+            }
+            
+            /// Sets the Boolean value that indicates whether the popover is detachable by the user.
+            @discardableResult
+            public func isDetachable(_ isDetachable: Bool) -> Self {
+                self.isDetachable = isDetachable
+                return self
+            }
+            
+            /// A Boolean value that indicates whether the popover hides it's arrow.
+            public var hidesArrow: Bool = false {
+                didSet {
+                    guard oldValue != hidesArrow else { return }
+                    popover?.isArrowVisible = !hidesArrow
+                }
+            }
+            
+            /// Sets the Boolean value that indicates whether the popover hides it's arrow.
+            @discardableResult
+            public func hidesArrow(_ hidesArrow: Bool) -> Self {
+                self.hidesArrow = hidesArrow
+                return self
+            }
 
             /// Sets the handler that gets called when the user clicks the popover button.
             @discardableResult
