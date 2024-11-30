@@ -537,6 +537,7 @@ import SwiftUI
             }
 
             func popoverWillShow(_ notification: Notification) {
+                Swift.print("popoverWillShow")
                 delegate?.popoverWillShow?(notification)
                 popover?.handlers.willShow?()
             }
@@ -561,10 +562,12 @@ import SwiftUI
             }
 
             func popoverShouldDetach(_ popover: NSPopover) -> Bool {
-                popover.handlers.shouldDetach?() ?? delegate?.popoverShouldDetach?(popover) ?? popover.isDetachable
+                Swift.print("popoverShouldDetach", popover.handlers.shouldDetach?() ?? delegate?.popoverShouldDetach?(popover) ?? popover.isDetachable)
+                return popover.handlers.shouldDetach?() ?? delegate?.popoverShouldDetach?(popover) ?? popover.isDetachable
             }
 
             func popoverDidDetach(_ popover: NSPopover) {
+                Swift.print("popoverDidDetach")
                 delegate?.popoverDidDetach?(popover)
                 popover.handlers.didDetach?()
                 if popover == self.popover {
