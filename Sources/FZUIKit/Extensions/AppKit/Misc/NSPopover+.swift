@@ -562,7 +562,7 @@ import SwiftUI
             }
 
             func popoverShouldDetach(_ popover: NSPopover) -> Bool {
-                Swift.print("popoverShouldDetach", popover.handlers.shouldDetach?() ?? delegate?.popoverShouldDetach?(popover) ?? popover.isDetachable)
+                Swift.print("popoverShouldDetach", popover.handlers.shouldDetach?() ?? "nil", delegate?.popoverShouldDetach?(popover) ?? "nil",popover.isDetachable)
                 return popover.handlers.shouldDetach?() ?? delegate?.popoverShouldDetach?(popover) ?? popover.isDetachable
             }
 
