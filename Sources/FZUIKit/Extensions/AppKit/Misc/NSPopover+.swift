@@ -316,6 +316,9 @@ import SwiftUI
             let spacing: CGFloat = 0.0
             let tracking: ViewTracking = .disabled
             dismiss()
+            setValue(hideArrow, forKeyPath: "shouldHideAnchor")
+
+            /*
             if hideArrow == false {
                 show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge)
             } else {
@@ -337,6 +340,7 @@ import SwiftUI
                 show(relativeTo: positioningRect, of: noArrowView, preferredEdge: preferredEdge)
                 noArrowView.frame = NSRect(x: 0, y: -200, width: 10, height: 10)
             }
+             */
             willCloseObservation = NotificationCenter.default.observe(NSPopover.willCloseNotification, object: self, using: { [weak self] notification in
                 guard let self = self, !self.isClosing else { return }
                 self.dismiss()
