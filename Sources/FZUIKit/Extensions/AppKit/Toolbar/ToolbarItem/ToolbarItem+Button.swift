@@ -88,8 +88,8 @@
                 return self
             }
 
-            @available(macOS 11.0, *)
             /// Sets the symbol image of the button.
+            @available(macOS 11.0, *)
             @discardableResult
             public func image(symbolName: String) -> Self {
                 button.image = NSImage(systemSymbolName: symbolName) ?? button.image
@@ -103,8 +103,8 @@
                 return self
             }
 
-            @available(macOS 11.0, *)
             /// Sets the alternate symbol image of the button.
+            @available(macOS 11.0, *)
             @discardableResult
             public func alternateImage(symbolName: String) -> Self {
                 button.alternateImage = NSImage(systemSymbolName: symbolName) ?? button.image
@@ -157,13 +157,6 @@
                 return self
             }
 
-            static func button(for type: NSButton.BezelStyle) -> NSButton {
-                let button = NSButton(frame: .zero)
-                button.translatesAutoresizingMaskIntoConstraints = false
-                button.bezelStyle = type
-                return button
-            }
-
             /**
              Creates a button toolbar item.
 
@@ -172,8 +165,8 @@
                 - title: The title of the button.
                 - type: The button type.
              */
-            public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, type: NSButton.BezelStyle = .texturedRounded) {
-                let button = Self.button(for: type)
+            public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, type: NSButton.BezelStyle = .toolbar) {
+                let button = NSButton(frame: .zero).bezelStyle(type).translatesAutoresizingMaskIntoConstraints(false)
                 button.title = title
                 self.init(identifier, button: button)
             }
@@ -186,11 +179,8 @@
                 - image: The image of the button.
                 - type: The button type.
              */
-            public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, image: NSImage, type: NSButton.BezelStyle = .texturedRounded) {
-                let button = Self.button(for: type)
-                button.title = ""
-                button.image = image
-                self.init(identifier, button: button)
+            public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, image: NSImage, type: NSButton.BezelStyle = .toolbar) {
+                self.init(identifier, title: "", image: image, type: type)
             }
 
             /**
@@ -202,12 +192,9 @@
                 - type: The button type.
              */
             @available(macOS 11.0, *)
-            public convenience init?(_ identifier: NSToolbarItem.Identifier? = nil, symbolName: String, type: NSButton.BezelStyle = .texturedRounded) {
+            public convenience init?(_ identifier: NSToolbarItem.Identifier? = nil, symbolName: String, type: NSButton.BezelStyle = .toolbar) {
                 guard let image = NSImage(systemSymbolName: symbolName) else { return nil }
-                let button = Self.button(for: type)
-                button.title = ""
-                button.image = image
-                self.init(identifier, button: button)
+                self.init(identifier, image: image)
             }
 
             /**
@@ -219,8 +206,8 @@
                 - image: The image of the button.
                 - type: The button type.
              */
-            public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, image: NSImage, type: NSButton.BezelStyle = .texturedRounded) {
-                let button = Self.button(for: type)
+            public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, image: NSImage, type: NSButton.BezelStyle = .toolbar) {
+                let button = NSButton(frame: .zero).bezelStyle(type).translatesAutoresizingMaskIntoConstraints(false)
                 button.title = title
                 button.image = image
                 self.init(identifier, button: button)
@@ -236,9 +223,9 @@
             public init(_ identifier: NSToolbarItem.Identifier? = nil, button: NSButton) {
                 self.button = button
                 super.init(identifier)
-                self.button.invalidateIntrinsicContentSize()
-                self.button.translatesAutoresizingMaskIntoConstraints = false
-                item.view = self.button
+                button.invalidateIntrinsicContentSize()
+                button.translatesAutoresizingMaskIntoConstraints = false
+                item.view = button
             }
         }
     }

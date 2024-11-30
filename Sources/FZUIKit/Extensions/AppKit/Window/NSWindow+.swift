@@ -26,6 +26,25 @@ extension NSWindow {
     }
     
     /**
+     Resizes and positions the window’s origin with an offset from the specified frame.
+     
+     - Parameter frame: The frame.
+     */
+    @objc open func cascade(from frame: CGRect) {
+        let spacing = 10.0
+        setFrame(frame, display: false)
+        guard let screen = screen, frame.width <= screen.visibleFrame.width, frame.height <= screen.visibleFrame.height else { return }
+        var offsetFrame = frame.offsetBy(dx: 25, dy: -25)
+        if offsetFrame.maxX + spacing > screen.visibleFrame.maxX {
+            offsetFrame.origin.x = screen.visibleFrame.x + spacing
+        }
+        if offsetFrame.y - spacing < screen.visibleFrame.y {
+            offsetFrame.origin.y = screen.visibleFrame.maxY-frame.height -  spacing
+        }
+        setFrame(offsetFrame, display: false)
+    }
+    
+    /**
      A Boolean value that indicates whether the window is the first responder.
      
      The system dispatches some types of events, such as mouse and keyboard events, to the first responder initially.

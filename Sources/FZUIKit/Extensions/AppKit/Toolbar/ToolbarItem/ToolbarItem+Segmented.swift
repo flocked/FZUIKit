@@ -72,7 +72,7 @@
 
             /// Sets the action block that is called when the selection of the segmented control changes.
             @discardableResult
-            public func onSelection(_ handler: ((ToolbarItem.Segmented)->())?) -> Self {
+            public func onSelection(_ handler: ((_ item: ToolbarItem.Segmented)->())?) -> Self {
                 segmentedControl.actionBlock = { [weak self] _ in
                     guard let self = self else { return }
                     handler?(self)
