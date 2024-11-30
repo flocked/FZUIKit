@@ -487,38 +487,9 @@ import SwiftUI
         }
 
         private func swizzlePopover() {
-            Swift.print("swizzlePopover", handlers.needsSwizzle, hidesDetachedCloseButton, isDetachable, popoverDelegate == nil)
             if handlers.needsSwizzle || hidesDetachedCloseButton || isDetachable {
                 guard popoverDelegate == nil else { return }
-                do {
-                    /*
-                    try replaceMethod(
-                        #selector(getter: delegate),
-                        methodSignature: (@convention(c) (AnyObject, Selector) -> (NSPopoverDelegate?)).self,
-                        hookSignature: (@convention(block) (AnyObject) -> (NSPopoverDelegate?)).self
-                    ) { _ in { object in
-                        (object as? NSPopover)?.popoverDelegate?.delegate
-                    }
-                    }
-                    
-                    try replaceMethod(
-                        #selector(setter: delegate),
-                        methodSignature: (@convention(c) (AnyObject, Selector, NSPopoverDelegate?) -> Void).self,
-                        hookSignature: (@convention(block) (AnyObject, NSPopoverDelegate?) -> Void).self
-                    ) { _ in { object, delegate in
-                        (object as? NSPopover)?.popoverDelegate?.delegate = delegate
-                    }
-                    }
-                    */
-                    popoverDelegate = Delegate(popover: self)
-                } catch {
-                    Swift.debugPrint()
-                }
-            } else if popoverDelegate != nil {
-                resetMethod(#selector(getter: delegate))
-                resetMethod(#selector(setter: delegate))
-                delegate = popoverDelegate?.delegate
-                popoverDelegate = nil
+                popoverDelegate = Delegate(popover: self)
             }
         }
 
@@ -532,7 +503,6 @@ import SwiftUI
                 self.popover = popover
                 super.init()
                 popover.delegate = self
-                Swift.print("Delegat init", popover.delegate ?? "nil")
                 delegateObservation = popover.observeChanges(for: \.delegate) { [weak self] old, new in
                     guard let self = self, (new as? NSObject) != self else { return }
                     self.delegate = new
@@ -541,7 +511,6 @@ import SwiftUI
             }
 
             func popoverWillShow(_ notification: Notification) {
-                Swift.print("popoverWillShow")
                 delegate?.popoverWillShow?(notification)
                 popover?.handlers.willShow?()
             }
@@ -566,12 +535,10 @@ import SwiftUI
             }
 
             func popoverShouldDetach(_ popover: NSPopover) -> Bool {
-                Swift.print("popoverShouldDetach", popover.handlers.shouldDetach?() ?? "nil", delegate?.popoverShouldDetach?(popover) ?? "nil",popover.isDetachable)
                 return popover.handlers.shouldDetach?() ?? delegate?.popoverShouldDetach?(popover) ?? popover.isDetachable
             }
 
             func popoverDidDetach(_ popover: NSPopover) {
-                Swift.print("popoverDidDetach")
                 delegate?.popoverDidDetach?(popover)
                 popover.handlers.didDetach?()
                 if popover == self.popover {
