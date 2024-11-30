@@ -20,6 +20,39 @@
             override var item: NSToolbarItem {
                 menuItem
             }
+            
+            /// The title of the item.
+            public var title: String {
+                get { menuItem.title }
+                set { menuItem.title = newValue }
+            }
+            
+            /// Sets the title of the item.
+            @discardableResult
+            public func title(_ title: String) -> Self {
+                menuItem.title = title
+                return self
+            }
+            
+            /// The image of the item.
+            public var image: NSImage? {
+                get { menuItem.image }
+                set { menuItem.image = newValue }
+            }
+            
+            /// Sets the image of the item.
+            @discardableResult
+            public func image(_ image: NSImage?) -> Self {
+                menuItem.image = image
+                return self
+            }
+            
+            /// Sets the image of the item.
+            @available(macOS 11.0, *)
+            public func image(symbolName: String) -> Self {
+                menuItem.image = NSImage(systemSymbolName: symbolName)
+                return self
+            }
 
             /// Sets the Boolean value that determines whether the toolbar item displays an indicator of additional functionality.
             @discardableResult
@@ -58,11 +91,15 @@
 
              - Parameters:
                 - identifier: An optional identifier of the item.
+                - title: The title of the item.
+                - image: The image of the item.
                 - menu: The menu.
              */
-            public init(_ identifier: NSToolbarItem.Identifier? = nil, menu: NSMenu) {
+            public init(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, image: NSImage? = nil, menu: NSMenu) {
                 super.init(identifier)
                 menuItem.menu = menu
+                self.title = title ?? ""
+                self.image = image
             }
 
             /**
@@ -70,10 +107,12 @@
 
              - Parameters:
                 - identifier: An optional identifier of the item.
+                - title: The title of the item.
+                - image: The image of the item.
                 - items: The menu items of the menu.
              */
-            public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, @MenuBuilder _ items: () -> [NSMenuItem]) {
-                self.init(identifier, menu: NSMenu(items: items()))
+            public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, image: NSImage? = nil, @MenuBuilder _ items: () -> [NSMenuItem]) {
+                self.init(identifier, title: title, image: image, menu: NSMenu(items: items()))
             }
         }
     }
