@@ -316,7 +316,7 @@ import SwiftUI
             let spacing: CGFloat = 0.0
             let tracking: ViewTracking = .disabled
             dismiss()
-            setValue(hideArrow, forKeyPath: "shouldHideAnchor")
+           // setValue(hideArrow, forKeyPath: "shouldHideAnchor")
 
             /*
             if hideArrow == false {
@@ -366,6 +366,12 @@ import SwiftUI
                     self.updatePopover()
                     }!)
             }
+        }
+        
+        private static let shouldHideAnchorKey = Data(base64Encoded: "c2hvdWxkSGlkZUFuY2hvcg==")!.utf8String!
+        public var shouldHideAnchor: Bool {
+            get { value(forKey: Self.shouldHideAnchorKey) as? Bool ?? false }
+            set { setValue(newValue, forKey: Self.shouldHideAnchorKey) }
         }
                 
         private func edge(for view: NSView, preferredEdge: NSRectEdge, spacing: CGFloat = 0.0, centered: Bool = false) -> NSRectEdge {
@@ -555,6 +561,13 @@ import SwiftUI
 extension NSPopover.ViewTracking: ExpressibleByBooleanLiteral {
     init(booleanLiteral value: Bool) {
         self = value ? .enabled : .disabled
+    }
+}
+
+
+fileprivate extension Data {
+    var utf8String: String? {
+        return String(data: self, encoding: .utf8)
     }
 }
 #endif
