@@ -28,11 +28,23 @@
          - else an empty index set.
          */
         func rightClickRowIndexes(for event: NSEvent) -> IndexSet {
-            let row = row(at: event.location(in: self))
-            if row != -1 {
-                return selectedRowIndexes.contains(row) ? selectedRowIndexes : [row]
-            }
-            return []
+            rightClickRowIndexes(for: event.location(in: self))
+        }
+        
+        /**
+         An index set containing the indexes for a point.
+         
+         - Parameter location: The point in the table view’s bound.
+
+         The returned indexset contains:
+         - if right-click on a **selected row**, all selected rows,
+         - else if right-click on a **non-selected row**, that row,
+         - else an empty index set.
+         */
+        func rightClickRowIndexes(for point: CGPoint) -> IndexSet {
+            let row = row(at: point)
+            let selectedRowIndexes = selectedRowIndexes
+            return row != -1 ? selectedRowIndexes.contains(row) ? selectedRowIndexes : [row] : []
         }
         
         /**
