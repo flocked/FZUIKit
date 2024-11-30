@@ -8,13 +8,13 @@
 #if os(macOS)
 import AppKit
 
-public extension ToolbarItem {
+extension ToolbarItem {
     /**
      A custom toolbar item.
 
      The item can be used with ``Toolbar``.
      */
-    class Custom: ToolbarItem {
+    open class Custom: ToolbarItem {
         /// The `NSToolbarItem` that represents the item.
         @objc open var toolbarItem: NSToolbarItem
         
