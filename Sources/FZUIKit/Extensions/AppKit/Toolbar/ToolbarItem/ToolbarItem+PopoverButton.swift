@@ -160,8 +160,9 @@
                 guard popover == nil || popover?.isShown == false, let viewController = popoverViewController else { return }
                 let popover = NSPopover(viewController: viewController)
                 popover.behavior = .transient
+                popover.isDetachable = isDetachable
                 popover.delegate = delegate
-                popover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY)
+                popover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY, hideArrow: hidesArrow)
                 self.popover = popover
             }
 
