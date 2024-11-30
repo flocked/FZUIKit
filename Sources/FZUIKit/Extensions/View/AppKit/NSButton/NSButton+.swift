@@ -18,8 +18,8 @@ public extension NSButton {
         - title: The title of the button.
         - image: The image of the button.
      */
-    static func push(_ title: String? = nil, image: NSImage? = nil) -> NSButton {
-        NSButton(title, image: image, style: .push)
+    static func push(_ title: String? = nil, image: NSImage? = nil) -> Self {
+        .button(title, image: image, style: .push)
     }
     
     /**
@@ -30,8 +30,8 @@ public extension NSButton {
         - symbolName: The name of the symbol image.
      */
     @available(macOS 11.0, *)
-    static func push(_ title: String? = nil, symbolName: String) -> NSButton {
-        NSButton(title, symbolName: symbolName, style: .push)
+    static func push(_ title: String? = nil, symbolName: String) -> Self {
+        .button(title, symbolName: symbolName, style: .push)
     }
     
     /**
@@ -41,8 +41,8 @@ public extension NSButton {
         - title: The title of the button.
         - image: The image of the button.
      */
-    static func flexiblePush(_ title: String? = nil, image: NSImage? = nil) -> NSButton {
-        NSButton(title, image: image, style: .push)
+    static func flexiblePush(_ title: String? = nil, image: NSImage? = nil) -> Self {
+        .button(title, image: image, style: .push)
     }
     
     /**
@@ -53,8 +53,8 @@ public extension NSButton {
         - symbolName: The name of the symbol image.
      */
     @available(macOS 11.0, *)
-    static func flexiblePush(_ title: String? = nil, symbolName: String) -> NSButton {
-        NSButton(title, symbolName: symbolName, style: .push)
+    static func flexiblePush(_ title: String? = nil, symbolName: String) -> Self {
+        .button(title, symbolName: symbolName, style: .push)
     }
     
     /**
@@ -64,8 +64,8 @@ public extension NSButton {
         - title: The title of the button.
         - image: The image of the button.
      */
-    static func toolbar(_ title: String? = nil, image: NSImage? = nil) -> NSButton {
-        NSButton(title, image: image, style: .toolbar)
+    static func toolbar(_ title: String? = nil, image: NSImage? = nil) -> Self {
+        .button(title, image: image, style: .toolbar)
     }
     
     /**
@@ -76,8 +76,8 @@ public extension NSButton {
         - symbolName: The name of the symbol image.
      */
     @available(macOS 11.0, *)
-    static func toolbar(_ title: String? = nil, symbolName: String) -> NSButton {
-        NSButton(title, symbolName: symbolName, style: .toolbar)
+    static func toolbar(_ title: String? = nil, symbolName: String) -> Self {
+        .button(title, symbolName: symbolName, style: .toolbar)
     }
     
     /**
@@ -87,8 +87,8 @@ public extension NSButton {
         - title: The title of the button.
         - symbolName: The name of the symbol image.
      */
-    static func accessoryBar(_ title: String? = nil, image: NSImage? = nil) -> NSButton {
-        NSButton(title, image: image, style: .accessoryBar)
+    static func accessoryBar(_ title: String? = nil, image: NSImage? = nil) -> Self {
+        .button(title, image: image, style: .accessoryBar)
     }
     
     /**
@@ -99,8 +99,8 @@ public extension NSButton {
         - image: The image of the button.
      */
     @available(macOS 11.0, *)
-    static func accessoryBar(_ title: String? = nil, symbolName: String) -> NSButton {
-        NSButton(title, symbolName: symbolName, style: .accessoryBar)
+    static func accessoryBar(_ title: String? = nil, symbolName: String) -> Self {
+        .button(title, symbolName: symbolName, style: .accessoryBar)
     }
     
     /**
@@ -110,8 +110,8 @@ public extension NSButton {
         - title: The title of the button.
         - image: The image of the button.
      */
-    static func accessoryBarAction(_ title: String? = nil, image: NSImage? = nil) -> NSButton {
-        NSButton(title, image: image, style: .accessoryBarAction)
+    static func accessoryBarAction(_ title: String? = nil, image: NSImage? = nil) -> Self {
+        .button(title, image: image, style: .accessoryBarAction)
     }
     
     /**
@@ -122,8 +122,8 @@ public extension NSButton {
         - symbolName: The name of the symbol image.
      */
     @available(macOS 11.0, *)
-    static func accessoryBarAction(_ title: String? = nil, symbolName: String) -> NSButton {
-        NSButton(title, symbolName: symbolName, style: .accessoryBarAction)
+    static func accessoryBarAction(_ title: String? = nil, symbolName: String) -> Self {
+        .button(title, symbolName: symbolName, style: .accessoryBarAction)
     }
     
     /**
@@ -131,8 +131,8 @@ public extension NSButton {
      
      - Parameter character: The character of the button.
      */
-    static func circular(_ character: Character) -> NSButton {
-        NSButton(String(character), style: .circular)
+    static func circular(_ character: Character) -> Self {
+        .button(String(character), style: .circular)
     }
     
     /**
@@ -140,8 +140,8 @@ public extension NSButton {
      
      - Parameter image: The image of the button.
      */
-    static func circular(_ image: NSUIImage) -> NSButton {
-        NSButton(image: image, style: .circular)
+    static func circular(_ image: NSUIImage) -> Self {
+        .button(image: image, style: .circular)
     }
     
     /**
@@ -150,8 +150,8 @@ public extension NSButton {
      - Parameter symbolName: The name of the symbol image.
      */
     @available(macOS 11.0, *)
-    static func circular(symbolName: String) -> NSButton {
-        NSButton(symbolName: symbolName, style: .circular)
+    static func circular(symbolName: String) -> Self {
+        .button(symbolName: symbolName, style: .circular)
     }
     
     /**
@@ -161,8 +161,8 @@ public extension NSButton {
      - title: The title of the button.
      - image: The image of the button.
      */
-    static func badge(_ title: String? = nil, image: NSImage? = nil) -> NSButton {
-        NSButton(title, image: image, style: .badge)
+    static func badge(_ title: String? = nil, image: NSImage? = nil) -> Self {
+        .button(title, image: image, style: .badge)
     }
     
     /**
@@ -173,8 +173,8 @@ public extension NSButton {
      - symbolName: The name of the symbol image.
      */
     @available(macOS 11.0, *)
-    static func badge(_ title: String? = nil, symbolName: String) -> NSButton {
-        NSButton(title, symbolName: symbolName, style: .badge)
+    static func badge(_ title: String? = nil, symbolName: String) -> Self {
+        .button(title, symbolName: symbolName, style: .badge)
     }
     
     /**
@@ -184,8 +184,8 @@ public extension NSButton {
         - title: The title of the button.
         - symbolName: The name of the symbol image.
      */
-    static func smallSquare(_ title: String? = nil, image: NSUIImage? = nil) -> NSButton {
-        NSButton(title, image: image, style: .smallSquare)
+    static func smallSquare(_ title: String? = nil, image: NSUIImage? = nil) -> Self {
+        .button(title, image: image, style: .smallSquare)
     }
     
     /**
@@ -196,8 +196,8 @@ public extension NSButton {
         - image: The image of the button.
      */
     @available(macOS 11.0, *)
-    static func smallSquare(_ title: String? = nil, symbolName: String) -> NSButton {
-        NSButton(title, symbolName: symbolName, style: .smallSquare)
+    static func smallSquare(_ title: String? = nil, symbolName: String) -> Self {
+        .button(title, symbolName: symbolName, style: .smallSquare)
     }
     
     /**
@@ -208,8 +208,8 @@ public extension NSButton {
         - image: The image of the button.
      */
     @available(macOS 14.0, *)
-    static func automatic(_ title: String? = nil, image: NSImage? = nil) -> NSButton {
-        NSButton(title, image: image, style: .automatic)
+    static func automatic(_ title: String? = nil, image: NSImage? = nil) -> Self {
+        .button(title, image: image, style: .automatic)
     }
     
     /**
@@ -220,23 +220,23 @@ public extension NSButton {
         - symbolName: The name of the symbol image.
      */
     @available(macOS 14.0, *)
-    static func automatic(_ title: String? = nil, symbolName: String) -> NSButton {
-        NSButton(title, symbolName: symbolName, style: .automatic)
+    static func automatic(_ title: String? = nil, symbolName: String) -> Self {
+        .button(title, symbolName: symbolName, style: .automatic)
     }
         
     /// Creates a button with a disclosure triangle.
-    static var disclosure:  NSButton {
-        NSButton("", style: .disclosure).buttonType(.onOff)
+    static var disclosure:  Self {
+        .button("", style: .disclosure).buttonType(.onOff)
     }
     
     /// Creates a button with a bezeled disclosure triangle.
-    static var pushDisclosure: NSButton {
-        NSButton("", style: .pushDisclosure).buttonType(.onOff)
+    static var pushDisclosure: Self {
+        .button("", style: .pushDisclosure).buttonType(.onOff)
     }
     
     /// Creates a button with a question mark, providing the standard help button look.
-    static var help: NSButton {
-        NSButton("", style: .helpButton).buttonType(.onOff)
+    static var help: Self {
+        .button("", style: .helpButton).buttonType(.onOff)
     }
     
     /**
@@ -244,8 +244,8 @@ public extension NSButton {
      
      - Parameter image: The image of the button.
      */
-    static func image(_ image: NSUIImage) -> NSButton {
-        NSButton(image: image)
+    static func image(_ image: NSUIImage) -> Self {
+        .button(image: image)
     }
     
     /**
@@ -254,8 +254,8 @@ public extension NSButton {
      - Parameter symbolName: The name of the symbol image.
      */
     @available(macOS 11.0, *)
-    static func image(symbolName: String) -> NSButton {
-        NSButton(symbolName: symbolName)
+    static func image(symbolName: String) -> Self {
+        .button(symbolName: symbolName)
     }
     
     /**
@@ -263,8 +263,8 @@ public extension NSButton {
      
      - Parameter title: The title of the button.
      */
-    static func borderless(_ title: String) -> NSButton {
-        let button = NSButton.push(title).isBordered(false)
+    static func borderless(_ title: String) -> Self {
+        let button = Self.push(title).isBordered(false)
         button.sizeToFit()
         return button
     }
@@ -276,8 +276,8 @@ public extension NSButton {
         - title: The title of the button.
         - image: The image of the button.
      */
-    static func borderless(_ title: String? = nil, image: NSImage) -> NSButton {
-        let button = NSButton.push(title, image: image).isBordered(false)
+    static func borderless(_ title: String? = nil, image: NSImage) -> Self {
+        let button = Self.push(title, image: image).isBordered(false)
         button.sizeToFit()
         return button
     }
@@ -290,8 +290,8 @@ public extension NSButton {
         - symbolName: The name of the symbol image.
      */
     @available(macOS 11.0, *)
-    static func borderless(_ title: String? = nil, symbolName: String) -> NSButton {
-        let button = NSButton.push(title, symbolName: symbolName).isBordered(false)
+    static func borderless(_ title: String? = nil, symbolName: String) -> Self {
+        let button = Self.push(title, symbolName: symbolName).isBordered(false)
         button.sizeToFit()
         return button
     }
@@ -304,8 +304,8 @@ public extension NSButton {
         - image: The image of the button.
         - isChecked: A Boolean value that indicates whether the checkbox is checked.
      */
-    static func checkbox(_ title: String? = nil, image: NSImage? = nil, isChecked: Bool = false) -> NSButton {
-        let button = NSButton(checkboxWithTitle: title ?? "", target: nil, action: nil)
+    static func checkbox(_ title: String? = nil, image: NSImage? = nil, isChecked: Bool = false) -> Self {
+        let button = Self(checkboxWithTitle: title ?? "", target: nil, action: nil)
         button.image = image
         button.state = isChecked ? .on : .off
         button.sizeToFit()
@@ -321,7 +321,7 @@ public extension NSButton {
         - isChecked: A Boolean value that indicates whether the checkbox is checked.
      */
     @available(macOS 11.0, *)
-    static func checkbox(_ title: String? = nil, symbolName: String, isChecked: Bool = false) -> NSButton {
+    static func checkbox(_ title: String? = nil, symbolName: String, isChecked: Bool = false) -> Self {
         checkbox(title, image: NSImage(systemSymbolName: symbolName), isChecked: isChecked)
     }
     
@@ -333,8 +333,8 @@ public extension NSButton {
         - image: The image of the button.
         - isSelected: A Boolean value that indicates whether the radio is is selected.
      */
-    static func radio(_ title: String? = nil, image: NSImage? = nil, isSelected: Bool = false) -> NSButton {
-        let button = NSButton(radioButtonWithTitle: title ?? "", target: nil, action: nil)
+    static func radio(_ title: String? = nil, image: NSImage? = nil, isSelected: Bool = false) -> Self {
+        let button = Self(radioButtonWithTitle: title ?? "", target: nil, action: nil)
         button.image = image
         button.state = isSelected ? .on : .off
         button.sizeToFit()
@@ -350,7 +350,7 @@ public extension NSButton {
         - isSelected: A Boolean value that indicates whether the radio is is selected.
      */
     @available(macOS 11.0, *)
-    static func radio(_ title: String? = nil, symbolName: String, isSelected: Bool = false) -> NSButton {
+    static func radio(_ title: String? = nil, symbolName: String, isSelected: Bool = false) -> Self {
         radio(title, image: NSImage(systemSymbolName: symbolName), isSelected: isSelected)
     }
     
@@ -723,6 +723,39 @@ public extension NSButton {
             isBordered = false
         }
         sizeToFit(imageToTitleSpacing: 4.0)
+    }
+    
+    static func button(_ title: String? = nil, image: NSImage? = nil, style: BezelStyle? = nil) -> Self {
+        let button = Self.init(title: title ?? "", target: nil, action: nil)
+        button.image = image
+        if image != nil {
+            button.imagePosition = .imageLeading
+        }
+        if let style = style {
+            button.bezelStyle = style
+        } else if title == nil {
+            button.bezelStyle = .smallSquare
+            button.isBordered = false
+        }
+        button.sizeToFit(imageToTitleSpacing: 4.0)
+        return button
+    }
+    
+    @available(macOS 11.0, *)
+    static func button(_ title: String? = nil, symbolName: String, style: BezelStyle? = nil) -> Self {
+        let button = Self.init(title: title ?? "", target: nil, action: nil)
+        button.image = NSImage(systemSymbolName: symbolName)
+        if button.image != nil {
+            button.imagePosition = .imageLeading
+        }
+        if let style = style {
+            button.bezelStyle = style
+        } else if title == nil {
+            button.bezelStyle = .smallSquare
+            button.isBordered = false
+        }
+        button.sizeToFit(imageToTitleSpacing: 4.0)
+        return button
     }
     
     @available(macOS 11.0, *)
