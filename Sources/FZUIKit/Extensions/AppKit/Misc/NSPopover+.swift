@@ -489,7 +489,6 @@ import SwiftUI
         private func swizzlePopover() {
             if handlers.needsSwizzle || hidesDetachedCloseButton || isDetachable {
                 guard popoverDelegate == nil else { return }
-                popoverDelegate = Delegate(popover: self)
                 do {
                     try replaceMethod(
                         #selector(getter: delegate),
@@ -508,6 +507,7 @@ import SwiftUI
                         (object as? NSPopover)?.popoverDelegate?.delegate = delegate
                     }
                     }
+                    popoverDelegate = Delegate(popover: self)
                 } catch {
                     Swift.debugPrint()
                 }
