@@ -7,7 +7,6 @@
 
 #if os(macOS)
     import AppKit
-    import SwiftUI
 
     public extension ToolbarItem {
         /**
@@ -16,7 +15,8 @@
          The item can be used with ``Toolbar``.
          */
         class Menu: ToolbarItem {
-            lazy var menuItem: NSMenuToolbarItem = .init(identifier)
+            
+            lazy var menuItem = NSMenuToolbarItem(identifier)
             override var item: NSToolbarItem {
                 menuItem
             }
@@ -83,6 +83,16 @@
             /// Sets the menu presented from the toolbar item.
             public func menu(@MenuBuilder _ items: () -> [NSMenuItem]) -> Self {
                 menuItem.menu = NSMenu(items: items())
+                return self
+            }
+            
+            /// Sets the action block of the item.
+            @discardableResult
+            public func onAction(_ action: ((ToolbarItem.Menu)->())?) -> Self {
+                menuItem.actionBlock =  { [weak self] _ in
+                    guard let self = self else { return }
+                    action?(self)
+                }
                 return self
             }
 
