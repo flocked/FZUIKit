@@ -34,7 +34,7 @@ extension NSWindow {
         let spacing = 10.0
         setFrame(frame, display: false)
         guard let screen = screen, frame.width <= screen.visibleFrame.width, frame.height <= screen.visibleFrame.height else { return }
-        var offsetFrame = frame.offsetBy(dx: 25, dy: -25)
+        var offsetFrame = frame.offsetBy(dx: 30, dy: -30)
         if offsetFrame.maxX + spacing > screen.visibleFrame.maxX {
             offsetFrame.origin.x = screen.visibleFrame.x + spacing
         }
