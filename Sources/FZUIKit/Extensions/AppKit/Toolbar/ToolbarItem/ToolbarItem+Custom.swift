@@ -27,7 +27,7 @@ extension ToolbarItem {
          
          - Parameter item: The tool bar item.
          */
-        init(item: NSToolbarItem) {
+        public init(item: NSToolbarItem) {
             self.toolbarItem = item
             super.init(item.itemIdentifier)
         }
