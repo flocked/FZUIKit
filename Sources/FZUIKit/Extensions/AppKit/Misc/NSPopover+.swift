@@ -69,6 +69,7 @@ import SwiftUI
         public convenience init(viewController: NSViewController) {
             self.init()
             self.contentViewController = viewController
+            contentSize = viewController.view.bounds.size
         }
         
         /// Sets the behavior of the popover.
@@ -133,7 +134,7 @@ import SwiftUI
                 if let view = newValue {
                     let viewController = NSViewController()
                     viewController.view = view
-                    contentViewController = viewController
+                    contentViewController = NSViewController()
                     contentSize = view.bounds.size
                 } else {
                     contentViewController = nil

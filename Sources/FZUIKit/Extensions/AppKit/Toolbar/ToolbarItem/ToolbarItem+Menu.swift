@@ -86,12 +86,27 @@
                 return self
             }
             
-            /// Sets the action block of the item.
+            /// The object that defines the action method the item calls when clicked.
+            public var target: AnyObject? {
+                get { item.target }
+                set { item.target = newValue }
+            }
+            
+            /// The action method to call when someone clicks on the item.
+            public var action: Selector? {
+                get { item.action }
+                set { item.action = newValue }
+            }
+            
+            /// Sets the handler that gets called when the user clicks the item.
             @discardableResult
-            public func onAction(_ action: ((ToolbarItem.Menu)->())?) -> Self {
-                menuItem.actionBlock =  { [weak self] _ in
-                    guard let self = self else { return }
-                    action?(self)
+            public func onAction(_ action: ((_ item: ToolbarItem.Menu)->())?) -> Self {
+                if let action = action {
+                    item.actionBlock = { _ in
+                        action(self)
+                    }
+                } else {
+                    item.actionBlock = nil
                 }
                 return self
             }

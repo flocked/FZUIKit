@@ -147,12 +147,16 @@
                 return self
             }
 
-            /// Sets the action block of the button.
+            /// Sets the handler that gets called when the user clicks the button.
             @discardableResult
-            public func onAction(_ action: ((ToolbarItem.Button)->())?) -> Self {
-                button.actionBlock = { [weak self] _ in
-                    guard let self = self else { return }
-                    action?(self)
+            public func onAction(_ action: ((_ item: ToolbarItem.Button)->())?) -> Self {
+                if let action = action {
+                    button.actionBlock = { [weak self] _ in
+                        guard let self = self else { return }
+                        action(self)
+                    }
+                } else {
+                    button.actionBlock = nil
                 }
                 return self
             }

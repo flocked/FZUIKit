@@ -18,12 +18,16 @@
             /// The popup button.
             public let button: NSPopUpButton
 
-            /// The action block of the button when the selection changes.
+            /// Sets the handler that gets called when the user clicks the pop up button.
             @discardableResult
-            public func onSelect(_ action: ((ToolbarItem.PopUpButton)->())?) -> Self {
-                button.actionBlock = { [weak self] _ in
-                    guard let self = self else { return }
-                    action?(self)
+            public func onAction(_ action: ((_ item: ToolbarItem.PopUpButton)->())?) -> Self {
+                if let action = action {
+                    button.actionBlock = { [weak self] _ in
+                        guard let self = self else { return }
+                        action(self)
+                    }
+                } else {
+                    button.actionBlock = nil
                 }
                 return self
             }

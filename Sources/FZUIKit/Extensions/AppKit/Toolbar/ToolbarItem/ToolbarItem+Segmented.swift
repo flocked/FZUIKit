@@ -69,14 +69,25 @@
                 segmentedControl.selectedSegmentBezelColor = color
                 return self
             }
-
-            /// Sets the action block that is called when the selection of the segmented control changes.
-            @discardableResult
-            public func onSelection(_ handler: ((_ item: ToolbarItem.Segmented)->())?) -> Self {
-                segmentedControl.actionBlock = { [weak self] _ in
-                    guard let self = self else { return }
-                    handler?(self)
+            
+            /// The handler that gets called when the user clicks the segmented control.
+            public var actionBlock: ((_ item: ToolbarItem.Segmented)->())? {
+                didSet {
+                    if let actionBlock = actionBlock {
+                        segmentedControl.actionBlock = { [weak self] _ in
+                            guard let self = self else { return }
+                            actionBlock(self)
+                        }
+                    } else {
+                        segmentedControl.actionBlock = nil
+                    }
                 }
+            }
+
+            /// Sets the handler that gets called when the user clicks the segmented control.
+            @discardableResult
+            public func onAction(_ handler: ((_ item: ToolbarItem.Segmented)->())?) -> Self {
+                actionBlock = handler
                 return self
             }
 

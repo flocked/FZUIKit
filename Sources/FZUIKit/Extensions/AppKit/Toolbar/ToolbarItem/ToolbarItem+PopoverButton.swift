@@ -14,24 +14,47 @@
 
          The item can be used with ``Toolbar``.
          */
-        class PopoverButton: ToolbarItem, NSPopoverDelegate {
+        class PopoverButton: ToolbarItem {
             /// The button of the toolbar item that opens the popover.
             public let button: NSButton
             
-            weak var popover: NSPopover?
+            private weak var popover: NSPopover?
+            private var delegate: Delegate!
+            private var _viewController: NSViewController?
 
-            /// The view controller of the popover.
+            /// The view controller that manages the content of the popover.
             public weak var popoverViewController: NSViewController? {
                 didSet {
                     guard oldValue != popoverViewController else { return }
-                    closePopover()
+                    _viewController = nil
+                    popover?.close()
+                    popover = nil
                 }
             }
             
-            /// Sets the view controller of the popover.
+            /// Sets the view controller that manages the content of the popover.
             @discardableResult
             public func popoverViewController(_ viewController: NSViewController) -> Self {
                 popoverViewController = viewController
+                return self
+            }
+            
+            /// The view of the pop over.
+            public var popoverView: NSView? {
+                get { popoverViewController?.view }
+                set {
+                    guard newValue != popoverViewController?.view, let view = newValue else { return }
+                    let viewController =  NSViewController()
+                    viewController.view = view
+                    popoverViewController = viewController
+                    _viewController = viewController
+                }
+            }
+            
+            /// Sets the view of the popover.
+            @discardableResult
+            public func popoverView(_ view: NSView) -> Self {
+                popoverView = view
                 return self
             }
             
@@ -42,13 +65,6 @@
                 return self
             }
 
-            /// Sets the alternate title of the button.
-            @discardableResult
-            public func alternateTitle(_ title: String) -> Self {
-                button.alternateTitle = title
-                return self
-            }
-
             /// Sets the attributed title of the button.
             @discardableResult
             public func attributedTitle(_ title: NSAttributedString) -> Self {
@@ -56,72 +72,10 @@
                 return self
             }
 
-            /// Sets the attributed alternate title of the button.
-            @discardableResult
-            public func attributedAlternateTitle(_ title: NSAttributedString) -> Self {
-                button.attributedAlternateTitle = title
-                return self
-            }
-
-            /// Sets the button type.
-            @discardableResult
-            public func type(_ type: NSButton.ButtonType) -> Self {
-                button.setButtonType(type)
-                return self
-            }
-
-            /// Sets the state of the button.
-            @discardableResult
-            public func state(_ state: NSControl.StateValue) -> Self {
-                button.state = state
-                return self
-            }
-            
-            /// Sets the state of the button.
-            @discardableResult
-            public func state(_ state: Bool) -> Self {
-                button.state = state ? .on : .off
-                return self
-            }
-
-            /// The state of the button.
-            public var state: NSControl.StateValue {
-                get { button.state }
-                set { button.state = newValue }
-            }
-
-            /// Sets the Boolean value that determines whether the button has a border.
-            @discardableResult
-            public func bordered(_ isBordered: Bool) -> Self {
-                button.isBordered = isBordered
-                return self
-            }
-
-            /// Sets the Boolean value that determines whether the button is transparent..
-            @discardableResult
-            public func transparent(_ isTransparent: Bool) -> Self {
-                button.isTransparent = isTransparent
-                return self
-            }
-
             /// The image of the button, or `nil` if none.
             @discardableResult
             public func image(_ image: NSImage?) -> Self {
                 button.image = image
-                return self
-            }
-
-            /// Sets the alternate image of the button, or `nil` if none.
-            @discardableResult
-            public func alternateImage(_ image: NSImage?) -> Self {
-                button.alternateImage = image
-                return self
-            }
-
-            /// Sets the image position of the button.
-            @discardableResult
-            public func imagePosition(_ position: NSControl.ImagePosition) -> Self {
-                button.imagePosition = position
                 return self
             }
 
@@ -134,7 +88,7 @@
 
             /// Sets the bezel style of the button.
             @discardableResult
-            public func bezelStyle(_ style: NSButton.BezelStyle) -> Self {
+            public func bezelStype(_ style: NSButton.BezelStyle) -> Self {
                 button.bezelStyle = style
                 return self
             }
@@ -154,30 +108,31 @@
                 return self
             }
 
-            /// Sets the action block of the button.
+            /// Sets the handler that gets called when the user clicks the popover button.
             @discardableResult
-            public func onAction(_ action: ((ToolbarItem.PopoverButton)->())?) -> Self {
-                button.actionBlock = { [weak self] _ in
-                    guard let self = self else { return }
-                    self.showPopover()
-                    action?(self)
+            public func onAction(_ action: ((_ item: ToolbarItem.PopoverButton)->())?) -> Self {
+                if let action = action {
+                    button.actionBlock = { [weak self] _ in
+                        guard let self = self else { return }
+                        self.showPopover()
+                        action(self)
+                    }
+                } else {
+                    button.actionBlock = { [weak self] _ in
+                        guard let self = self else { return }
+                        self.showPopover()
+                    }
                 }
                 return self
             }
 
             func showPopover() {
-                guard popover == nil || popover?.isShown == false else { return }
-                let popover = NSPopover()
-                popover.contentViewController = popoverViewController
+                guard popover == nil || popover?.isShown == false, let viewController = popoverViewController else { return }
+                let popover = NSPopover(viewController: viewController)
                 popover.behavior = .transient
-                popover.delegate = self
+                popover.delegate = delegate
                 popover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY)
                 self.popover = popover
-            }
-
-            func closePopover() {
-                popover?.close()
-                popover = nil
             }
 
             /**
@@ -187,18 +142,15 @@
                 - identifier: An optional identifier of the item.
                 - title: The title of the button.
                 - image: The image of the button.
-                - popoverContentController: The view controller of the popover button.
+                - popoverViewController: The view controller that manages the content of the popover.
              */
             public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, 
-                                    title: String?,
+                                    title: String? = nil,
                                     image: NSImage? = nil,
-                                    popoverContentController: NSViewController) {
-                let button = Self.button.title(title ?? "").image(image)
-                self.init(identifier, button: button, popoverContentController: popoverContentController)
-            }
-            
-            static var button: NSButton {
-                NSButton(frame: .zero).bezelStyle(.texturedRounded).buttonType(.momentaryChange)
+                                    popoverViewController: NSViewController) {
+                let button = NSButton.toolbar().title(title ?? "").image(image)
+                button.sizeToFit()
+                self.init(identifier, button: button, popoverViewController: popoverViewController)
             }
             
             /**
@@ -206,51 +158,69 @@
 
              - Parameters:
                 - identifier: An optional identifier of the item.
+                - title: The title of the button.
                 - image: The image of the button.
-                - popoverContentController: The view controller of the popover button.
+                - popoverView: The view of the popover.
              */
-            public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, 
-                                    image: NSImage,
-                                    popoverContentController: NSViewController) {
-                let button = Self.button.image(image)
-                self.init(identifier, button: button, popoverContentController: popoverContentController)
+            public convenience init(_ identifier: NSToolbarItem.Identifier? = nil,
+                                    title: String? = nil,
+                                    image: NSImage? = nil,
+                                    popoverView: NSView) {
+                let button = NSButton.toolbar().title(title ?? "").image(image)
+                button.sizeToFit()
+                self.init(identifier, button: button, popoverView: popoverView)
             }
             
-            /**
-             Creates a popover button toolbar item.
-
-             - Parameters:
-                - identifier: An optional identifier of the item.
-                - symbolImage: The name of the symbol image of the button.
-                - popoverContentController: The view controller of the popover button.
-             */
-            @available(macOS 11.0, *)
-            public convenience init(_ identifier: NSToolbarItem.Identifier? = nil,
-                                    symbolImage: String,
-                                    popoverContentController: NSViewController) {
-                let button = Self.button.image(NSImage(systemSymbolName: symbolImage))
-                self.init(identifier, button: button, popoverContentController: popoverContentController)
-            }
-
             /**
              Creates a popover button toolbar item.
 
              - Parameters:
                 - identifier: An optional identifier of the item.
                 - button: The popover button.
-                - popoverContentController: The view controller of the popover button.
+                - popoverViewController: The view controller that manages the content of the popover.
              */
-            public init(_ identifier: NSToolbarItem.Identifier? = nil, 
-                        button: NSButton,
-                        popoverContentController: NSViewController) {
+            public init(_ identifier: NSToolbarItem.Identifier? = nil, button: NSButton, popoverViewController: NSViewController) {
                 button.translatesAutoresizingMaskIntoConstraints = false
                 self.button = button
-                popoverViewController = popoverContentController
+                self.popoverViewController = popoverViewController
                 super.init(identifier)
-                item.view = self.button
-                self.button.actionBlock = { [weak self] _ in
+                delegate = Delegate(self)
+                item.view = button
+                button.actionBlock = { [weak self] _ in
                     guard let self = self else { return }
                     self.showPopover()
+                }
+            }
+            
+            /**
+             Creates a popover button toolbar item.
+
+             - Parameters:
+                - identifier: An optional identifier of the item.
+                - button: The popover button.
+                - popoverView: The view of the popover.
+             */
+            public init(_ identifier: NSToolbarItem.Identifier? = nil, button: NSButton, popoverView: NSView) {
+                button.translatesAutoresizingMaskIntoConstraints = false
+                self.button = button
+                super.init(identifier)
+                self.popoverView = popoverView
+                delegate = Delegate(self)
+                item.view = button
+                button.actionBlock = { [weak self] _ in
+                    guard let self = self else { return }
+                    self.showPopover()
+                }
+            }
+            
+            class Delegate: NSObject, NSPopoverDelegate {
+                func popoverDidClose(_ notification: Notification) {
+                    item?.popover = nil
+                }
+                
+                weak var item: ToolbarItem.PopoverButton?
+                init(_ item: ToolbarItem.PopoverButton? = nil) {
+                    self.item = item
                 }
             }
         }

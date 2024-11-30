@@ -70,8 +70,8 @@
                 return self
             }
             
-            /// The action block of the item.
-            public var actionBlock: ((Item)->())? {
+            /// The handler that gets called when the user clicks the item.
+            public var actionBlock: ((_ item: Item)->())? {
                 didSet {
                     if let actionBlock = actionBlock {
                         item.actionBlock = { _ in
@@ -83,9 +83,9 @@
                 }
             }
 
-            /// Sets the action block of the item.
+            /// Sets the handler that gets called when the user clicks the item.
             @discardableResult
-            @objc open func onAction(_ action: ((Item)->())?) -> Self {
+            @objc open func onAction(_ action: ((_ item: Item)->())?) -> Self {
                 actionBlock = action
                 return self
             }
