@@ -24,7 +24,7 @@
             - mask: An event mask specifying the events to monitor.
             - handler: The event handler. It is passed the event to monitor. You are unable to change the event, merely observe it.
          */
-        static func globalMonitor(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent) -> Void)) -> Monitor {
+        static func globalMonitor(for mask: NSEvent.EventTypeMask, handler: @escaping ((_ event: NSEvent) -> Void)) -> Monitor {
             Monitor.global(for: mask, handler: handler)
         }
 
@@ -39,7 +39,7 @@
             - mask: An event mask specifying the events to monitor.
             - handler: The event handler. It is passed the event to monitor. You can return the event unmodified, create and return a new `NSEvent` object, or return `nil` to stop the dispatching of the event.
          */
-        static func localMonitor(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent) -> (NSEvent?))) -> Monitor {
+        static func localMonitor(for mask: NSEvent.EventTypeMask, handler: @escaping ((_ event: NSEvent) -> (NSEvent?))) -> Monitor {
             Monitor.local(for: mask, handler: handler)
         }
 
@@ -81,7 +81,7 @@
                 - mask: An event mask specifying the events to monitor.
                 - handler: The event handler. It is passed the event to monitor. You are unable to change the event, merely observe it.
              */
-            public static func global(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent) -> Void)) -> NSEvent.Monitor {
+            public static func global(for mask: NSEvent.EventTypeMask, handler: @escaping ((_ event: NSEvent) -> Void)) -> NSEvent.Monitor {
                 NSEvent.Monitor(mask: mask, type: .global, handler: handler)
             }
 
@@ -96,7 +96,7 @@
                 - mask: An event mask specifying the events to monitor.
                 - handler: The event handler. It is passed the event to monitor. You can return the event unmodified, create and return a new `NSEvent` object, or return `nil` to stop the dispatching of the event.
              */
-            public static func local(for mask: NSEvent.EventTypeMask, handler: @escaping ((NSEvent) -> (NSEvent?))) -> NSEvent.Monitor {
+            public static func local(for mask: NSEvent.EventTypeMask, handler: @escaping ((_ event: NSEvent) -> (NSEvent?))) -> NSEvent.Monitor {
                 NSEvent.Monitor(mask: mask, type: .local, handler: handler)
             }
 

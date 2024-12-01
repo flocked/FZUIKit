@@ -570,4 +570,29 @@ fileprivate extension Data {
         return String(data: self, encoding: .utf8)
     }
 }
+
+/*
+extension NSPopover {
+    public var isResizable: Bool {
+        get { getAssociatedValue("isResizable") ?? false }
+        set { 
+            guard newValue != isResizable else { return }
+            setAssociatedValue(newValue, key: "isResizable")
+            if newValue {
+                
+            }
+        }
+    }
+    
+    public var resizeMinSize: CGSize {
+        get { getAssociatedValue("resizeMinSize") ?? .zero }
+        set { setAssociatedValue(newValue, key: "resizeMinSize") }
+    }
+    
+    public var resizeMaxSize: CGSize? {
+        get { getAssociatedValue("resizeMaxSize") }
+        set { setAssociatedValue(newValue, key: "resizeMaxSize") }
+    }
+}
+*/
 #endif
