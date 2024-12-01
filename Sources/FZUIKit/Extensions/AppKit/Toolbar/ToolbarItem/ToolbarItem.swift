@@ -27,10 +27,11 @@
         
         var _label: String = "" {
             didSet {
-                if (self as? ToolbarItem.Segmented)?.isDisplayingSubItems == true {
-                    return
-                }
+                guard oldValue != _label else { return }
                 item.label = _label
+                if _label == "", let item = self as? ToolbarItem.Segmented, !item.groupItem.subitems.isEmpty {
+                    item.updateSegments()
+                }
             }
         }
         

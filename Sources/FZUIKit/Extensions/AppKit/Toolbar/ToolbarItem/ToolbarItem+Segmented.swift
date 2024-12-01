@@ -17,7 +17,6 @@
          */
         class Segmented: ToolbarItem {
             
-            var isDisplayingSubItems = false
             lazy var groupItem = NSToolbarItemGroup(identifier)
             override var item: NSToolbarItem {
                 groupItem
@@ -123,14 +122,12 @@
                     $0.element.segmentedControl = segmentedControl
                     $0.element.index = $0.index
                 })
+                groupItem.subitems = []
                 if displaysIndividualSegmentLabels, !segments.contains(where: { $0.image == nil }) {
                     segmentedControl.segments = segments.compactMap({ $0.withoutTitle })
                     groupItem.subitems = segments.compactMap({ $0.toolbarItem(for: self) })
-                    isDisplayingSubItems = true
                 } else {
                     segmentedControl.segments = segments
-                    groupItem.subitems = []
-                    isDisplayingSubItems = false
                     if _label != "" {
                         groupItem.label = _label
                     }
@@ -203,12 +200,6 @@
             }
         }
     }
-
-class ValidationToolbarItemGroup: NSToolbarItemGroup {
-    override func validate() {
-        
-    }
-}
 
 fileprivate extension NSSegment {
     func toolbarItem(for groupItem: ToolbarItem.Segmented) -> NSToolbarItem {
