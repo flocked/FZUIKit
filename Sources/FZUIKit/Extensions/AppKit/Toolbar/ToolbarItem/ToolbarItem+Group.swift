@@ -15,6 +15,7 @@
          The item can be used with ``Toolbar``.
          */
         class Group: ToolbarItem {
+            
             /// The selection mode of a grouped toolbar item.
             public typealias SelectionMode = NSToolbarItemGroup.SelectionMode
             /// Display style of a grouped toolbar item.
@@ -23,6 +24,28 @@
             lazy var groupItem = NSToolbarItemGroup(identifier)
             override var item: NSToolbarItem {
                 groupItem
+            }
+            
+            /// The subitems of the group item.
+            public var subitems: [ToolbarItem] = [] {
+                didSet {
+                    guard oldValue != subitems else { return }
+                    updateSubitems()
+                }
+            }
+
+            /// Sets the subitems of the grouped toolbar item.
+            @discardableResult
+            public func subitems(_ items: [ToolbarItem]) -> Self {
+                subitems = items
+                return self
+            }
+            
+            /// Sets the subitems of the group item.
+            @discardableResult
+            public func subitems(@Toolbar.Builder builder: () -> [ToolbarItem]) -> Self {
+                subitems = builder()
+                return self
             }
 
             /// Sets the selection mode of the grouped toolbar item.
@@ -51,19 +74,6 @@
                 set { groupItem.controlRepresentation = newValue }
             }
 
-            /// Sets the subitems of the grouped toolbar item.
-            @discardableResult
-            public func subitems(_ items: [NSToolbarItem]) -> Self {
-                groupItem.subitems = items
-                return self
-            }
-
-            /// The subitems of the grouped toolbar item.
-            public var subitems: [NSToolbarItem] {
-                get { groupItem.subitems }
-                set { groupItem.subitems = newValue }
-            }
-
             /// Sets the index value for the most recently selected subitem of the grouped toolbar item.
             @discardableResult
             public func selectedIndex(_ selectedIndex: Int) -> Self {
@@ -89,12 +99,9 @@
                 get { groupItem.selectedIndexes }
                 set { groupItem.selectedIndexes = newValue }
             }
-
-            /// Sets the subitems of the item.
-            @discardableResult
-            public func subitems(@NSToolbar.Builder builder: () -> [NSToolbarItem]) -> Self {
-                groupItem.subitems = builder()
-                return self
+            
+            private func updateSubitems() {
+                groupItem.subitems = subitems.compactMap({ $0.item })
             }
 
             /**
@@ -108,10 +115,10 @@
             public init(
                 _ identifier: NSToolbarItem.Identifier? = nil,
                 selectionMode: SelectionMode = .momentary,
-                items: [NSToolbarItem]
-            ) {
+                items: [ToolbarItem]) {
                 super.init(identifier)
-                groupItem.subitems = items
+                subitems = items
+                updateSubitems()
                 groupItem.selectionMode = selectionMode
             }
 
@@ -127,66 +134,9 @@
                 _ identifier: NSToolbarItem.Identifier? = nil,
                 selectionMode: SelectionMode = .momentary,
                 view: NSView? = nil,
-                _ items: NSToolbarItem...
-            ) {
-                self.init(identifier, selectionMode: selectionMode, items: items)
-                self.item.view = view
-            }
-
-            /**
-             Creates a group toolbar item.
-
-             - Parameters:
-                - identifier: An optional identifier of the item.
-                - selectionMode: The selection mode of the item. The default value is `momentary`.
-                - items: The subitems.
-             */
-            public convenience init(
-                _ identifier: NSToolbarItem.Identifier? = nil,
-                selectionMode: SelectionMode = .momentary,
-                view: NSView? = nil,
-                @NSToolbar.Builder items: () -> [NSToolbarItem]
-            ) {
+                @Toolbar.Builder items: () -> [ToolbarItem]) {
                 self.init(identifier, selectionMode: selectionMode, items: items())
                 self.item.view = view
-            }
-        }
-    }
-
-    public extension NSToolbar {
-        /// A function builder type that produces an array of toolbar items.
-        @resultBuilder
-        enum Builder {
-            public static func buildBlock(_ block: [NSToolbarItem]...) -> [NSToolbarItem] {
-                block.flatMap { $0 }
-            }
-
-            public static func buildOptional(_ item: [NSToolbarItem]?) -> [NSToolbarItem] {
-                item ?? []
-            }
-
-            public static func buildEither(first: [NSToolbarItem]?) -> [NSToolbarItem] {
-                first ?? []
-            }
-
-            public static func buildEither(second: [NSToolbarItem]?) -> [NSToolbarItem] {
-                second ?? []
-            }
-
-            public static func buildArray(_ components: [[NSToolbarItem]]) -> [NSToolbarItem] {
-                components.flatMap { $0 }
-            }
-
-            public static func buildExpression(_ expr: [NSToolbarItem]?) -> [NSToolbarItem] {
-                expr ?? []
-            }
-
-            public static func buildExpression(_ expr: NSToolbarItem?) -> [NSToolbarItem] {
-                expr.map { [$0] } ?? []
-            }
-
-            public static func buildExpression(_ expr: ToolbarItem?) -> [NSToolbarItem] {
-                expr.map { [$0.item] } ?? []
             }
         }
     }
