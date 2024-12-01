@@ -476,9 +476,11 @@
             self.anchorPoint = anchorPoint
             return self
         }
-        #else
+        #elseif os(iOS) || os(tvOS)
+        
         /// Sets the anchor point of the view’s bounds rectangle.
         @discardableResult
+        @available(iOS 16.0, tvOS 16.0, *)
         @objc open func anchorPoint(_ anchorPoint: CGPoint) -> Self {
             self.anchorPoint = anchorPoint
             return self
