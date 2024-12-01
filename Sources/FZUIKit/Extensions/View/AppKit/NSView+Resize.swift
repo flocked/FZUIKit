@@ -37,6 +37,14 @@ extension NSView {
         var resizeEdgeCorner: RectEdgeCorner? {
             didSet {
                 guard oldValue != resizeEdgeCorner else { return }
+                switch resizeEdgeCorner {
+                case .bottom, .top: NSCursor.resizeUpDown.set()
+                case .left, .right: NSCursor.resizeLeftRight.set()
+                case .topLeft, .bottomRight: NSCursor.resizeDiagonal?.set()
+                case .topRight, .bottomLeft: NSCursor.resizeDiagonalAlt?.set()
+                case nil: NSCursor.arrow.set()
+                default: break
+                }
                 Swift.print("resizeEdgeCorner", resizeEdgeCorner?.description ?? "nil")
             }
         }
