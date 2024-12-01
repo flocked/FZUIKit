@@ -92,11 +92,9 @@
             }
             
             /**
-             Sets the Boolean value that indicates whether the toolbar item shows individual labels for each segment.
+             Sets the Boolean value that indicates whether the toolbar item is displayed as a group of individual toolbar items and labels for each segment.
              
-             - Note: This property only works if you provide `image` and `title` for each segment.
-             
-             If you set this property to `true`, the item `label` is ignored.
+             - Note: This property only works if you provide `image` for each segment.
              */
             @discardableResult
             public func displaysIndividualSegmentLabels(_ displays: Bool) -> Self {
@@ -105,8 +103,8 @@
             }
             
             /**
-             A Boolean value that indicates whether the individual segment titles are displayed as
-             
+             The Boolean value that indicates whether the toolbar item is displayed as a group of individual toolbar items and labels for each segment.
+
              - Note: This property only works if you provide both `title` and `image` for each segment.
              */
             public var displaysIndividualSegmentLabels: Bool = false {
@@ -122,20 +120,17 @@
                     $0.element.segmentedControl = segmentedControl
                     $0.element.index = $0.index
                 })
-                groupItem.subitems = []
-                groupItem.view = nil
-                segmentedControl.segments = []
                 if displaysIndividualSegmentLabels, !segments.contains(where: { $0.image == nil }) {
                     segmentedControl.segments = segments.compactMap({ $0.withoutTitle })
                     groupItem.subitems = segments.compactMap({ $0.toolbarItem(for: self) })
                 } else {
+                    groupItem.subitems = []
                     segmentedControl.segments = segments
                     if _label != "" {
                         groupItem.label = _label
                     }
                 }
                 segmentedControl.sizeToFit()
-                groupItem.view = segmentedControl
             }
             
             func isEnabledUpdated(for segment: NSSegment) {

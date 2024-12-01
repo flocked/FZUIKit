@@ -84,38 +84,47 @@
                 return self
             }
 
-            /*
+            
             /// Sets the action to perform when the user pressed the enter key.
             @discardableResult
             public func editingActionOnEnterKeyDown(_ enterAction: NSTextField.EnterKeyAction) -> Self {
-                searchItem.searchField.editingActionOnEnterKeyDown = enterAction
+                editingActionOnEnterKeyDown = enterAction
                 return self
             }
 
             /// Sets the action to perform when the user pressed the escape key.
             @discardableResult
             public func editingActionOnEscapeKeyDown(_ escapeAction: NSTextField.EscapeKeyAction) -> Self {
-                searchItem.searchField.editingActionOnEscapeKeyDown = escapeAction
+                editingActionOnEscapeKeyDown = escapeAction
                 return self
             }
-            */
+            
+            /// The action to perform when the user presses the enter key while editing.
+            var editingActionOnEnterKeyDown: NSTextField.EnterKeyAction = .endEditing
+
+            /// The action to perform when the user presses the escape key while editing.
+            var editingActionOnEscapeKeyDown: NSTextField.EscapeKeyAction = .endEditingAndReset
 
             public init(_ identifier: NSToolbarItem.Identifier? = nil, maxWidth: CGFloat) {
                 super.init(identifier)
+                /*
                 searchField.actionBlock = { [weak self] _ in
                     guard let self = self else { return }
                     self.item.actionBlock?(self.item)
                 }
+                 */
                 searchField.delegate = self
                 searchField.translatesAutoresizingMaskIntoConstraints = false
                 searchField.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth).isActive = true
             }
 
             func setupSearchField() {
+                /*
                 searchField.actionBlock = { [weak self] _ in
                     guard let self = self else { return }
                     self.item.actionBlock?(self.item)
                 }
+                 */
                 searchField.delegate = self
             }
 
@@ -145,16 +154,46 @@
             }
 
             public func searchFieldDidStartSearching(_: NSSearchField) {
-                //    searchState = .isStarted
                 searchHandler?(stringValue, .didStart)
             }
 
             public func searchFieldDidEndSearching(_: NSSearchField) {
                 searchHandler?(stringValue, .didEnd)
             }
+            
+            var startingStringValue: String?
+            public func controlTextDidBeginEditing(_ obj: Notification) {
+                startingStringValue = searchField.stringValue
+            }
 
             public func controlTextDidChange(_: Notification) {
                 searchHandler?(stringValue, .didUpdate)
+            }
+            
+            public func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector
+            ) -> Bool {
+                switch commandSelector {
+                case #selector(NSControl.cancelOperation(_:)):
+                    if editingActionOnEscapeKeyDown == .endEditingAndReset {
+                        searchField.stringValue = startingStringValue ?? searchField.stringValue
+                        startingStringValue = nil
+                        searchField.resignFirstResponding()
+                        return true
+                    } else if editingActionOnEscapeKeyDown == .endEditingAndReset {
+                        searchField.resignFirstResponding()
+                        startingStringValue = nil
+                        return true
+                    }
+                case #selector(NSResponder.insertNewline(_:)):
+                    if editingActionOnEnterKeyDown == .endEditing {
+                        searchField.resignFirstResponding()
+                        startingStringValue = nil
+                        return true
+                    }
+                default: break
+                }
+
+                return false
             }
         }
     }
