@@ -118,7 +118,11 @@
             }
             
             func updateSegments() {
-                segments.indexed().forEach({ $0.element.index = $0.index })
+                segments.indexed().forEach({ 
+                    $0.element.segmentedToolbarItem = self
+                    $0.element.segmentedControl = segmentedControl
+                    $0.element.index = $0.index
+                })
                 if displaysIndividualSegmentLabels, !segments.contains(where: { $0.image == nil }) {
                     segmentedControl.segments = segments.compactMap({ $0.withoutTitle })
                     groupItem.subitems = segments.compactMap({ $0.toolbarItem(for: self) })
@@ -132,6 +136,10 @@
                     }
                 }
                 segmentedControl.sizeToFit()
+            }
+            
+            func isEnabledUpdated(for segment: NSSegment) {
+                groupItem.subitems[safe: segment.index ?? -1]?.isEnabled = segment.isEnabled
             }
             
             func segmentItemPressed(_ segment: NSSegment) {
@@ -196,10 +204,18 @@
         }
     }
 
+class ValidationToolbarItemGroup: NSToolbarItemGroup {
+    override func validate() {
+        
+    }
+}
+
 fileprivate extension NSSegment {
     func toolbarItem(for groupItem: ToolbarItem.Segmented) -> NSToolbarItem {
         let item = NSToolbarItem(itemIdentifier: .init(title ?? .random()))
         item.label = title ?? ""
+        item.autovalidates = false
+        item.isEnabled = isEnabled
         item.toolTip = toolTip
         item.actionBlock = { [weak self] _ in
             guard let self = self else { return }
@@ -210,7 +226,6 @@ fileprivate extension NSSegment {
         } else if let title = title {
             item.menuFormRepresentation = NSMenuItem(title)
         }
-        Swift.print("item", item.label)
         return item
     }
 
