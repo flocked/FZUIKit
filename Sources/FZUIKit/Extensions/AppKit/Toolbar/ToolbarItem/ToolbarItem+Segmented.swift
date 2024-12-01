@@ -123,7 +123,6 @@
                     segmentedControl.segments = segments.compactMap({ $0.withoutTitle })
                     groupItem.subitems = segments.compactMap({ $0.toolbarItem(for: self) })
                     isDisplayingSubItems = true
-                    groupItem.label = ""
                 } else {
                     segmentedControl.segments = segments
                     groupItem.subitems = []
@@ -184,8 +183,7 @@
                 - segmentedControl: The segmented control of the item.
              */
             public init(_ identifier: NSToolbarItem.Identifier? = nil,
-                        segmentedControl: NSSegmentedControl)
-            {
+                        segmentedControl: NSSegmentedControl) {
                 self.segmentedControl = segmentedControl
                 super.init(identifier)
                 segmentedControl.translatesAutoresizingMaskIntoConstraints = false
@@ -195,4 +193,41 @@
             }
         }
     }
+
+fileprivate extension NSSegment {
+    func toolbarItem(for groupItem: ToolbarItem.Segmented) -> NSToolbarItem {
+        let item = NSToolbarItem(itemIdentifier: .init(title ?? .random()))
+        item.label = title ?? ""
+        item.actionBlock = { [weak self] _ in
+            guard let self = self else { return }
+            groupItem.segmentItemPressed(self)
+        }
+        if let image = image {
+            item.menuFormRepresentation = NSMenuItem(title, image: image)
+        } else if let title = title {
+            item.menuFormRepresentation = NSMenuItem(title)
+        }
+        Swift.print("item", item.label)
+        return item
+    }
+
+    var withoutTitle: NSSegment {
+        let segment = NSSegment("")
+        segment.title = nil
+        segment.titleAlignment = titleAlignment
+        segment.image = image
+        segment.imageScaling = imageScaling
+        segment.menu = menu
+        segment.showsMenuIndicator = showsMenuIndicator
+        segment.isSelected = isSelected
+        segment.isEnabled = isEnabled
+        segment.width = width
+        segment.toolTip = toolTip
+        segment.tag = tag
+        segment.font = font
+        segment.index = index
+        segment.segmentedControl = segmentedControl
+        return segment
+    }
+}
 #endif

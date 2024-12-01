@@ -54,41 +54,7 @@ public extension ToolbarItem {
 }
 */
 
-extension NSSegment {
-    func toolbarItem(for groupItem: ToolbarItem.Segmented) -> NSToolbarItem {
-        let item = NSToolbarItem(itemIdentifier: .init(title ?? .random()))
-        item.label = title ?? ""
-        item.actionBlock = { [weak self] _ in
-            guard let self = self else { return }
-            groupItem.segmentItemPressed(self)
-        }
-        if let image = image {
-            item.menuFormRepresentation = NSMenuItem(title, image: image)
-        } else if let title = title {
-            item.menuFormRepresentation = NSMenuItem(title)
-        }
-        return item
-    }
 
-    var withoutTitle: NSSegment {
-        let segment = NSSegment("")
-        segment.title = nil
-        segment.titleAlignment = titleAlignment
-        segment.image = image
-        segment.imageScaling = imageScaling
-        segment.menu = menu
-        segment.showsMenuIndicator = showsMenuIndicator
-        segment.isSelected = isSelected
-        segment.isEnabled = isEnabled
-        segment.width = width
-        segment.toolTip = toolTip
-        segment.tag = tag
-        segment.font = font
-        segment.index = index
-        segment.segmentedControl = segmentedControl
-        return segment
-    }
-}
 #endif
 
 /*
