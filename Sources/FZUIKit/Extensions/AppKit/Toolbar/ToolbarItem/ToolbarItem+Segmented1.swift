@@ -41,6 +41,7 @@ public extension ToolbarItem {
             segmentedControl.translatesAutoresizingMaskIntoConstraints = false
             segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
             segmentedControl.segmentDistribution = .fillEqually
+            groupItem.view = segmentedControl
             self.segments = segments()
         }
     }
