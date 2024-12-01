@@ -10,22 +10,10 @@
     import AppKit
 
     public extension NSToolbarItemGroup {
-        /// The indexes of the selected items in the group. Setting the indexes will deselect all items which indexes aren't included in the new value.
+        /// The indexes of the selected items in the group.
         var selectedIndexes: [Int] {
-            get {
-                var selectedIndexes: [Int] = []
-                for index in 0 ..< subitems.count {
-                    if isSelected(at: index) {
-                        selectedIndexes.append(index)
-                    }
-                }
-                return selectedIndexes
-            }
-            set {
-                for index in 0 ..< subitems.count {
-                    setSelected(newValue.contains(index), at: index)
-                }
-            }
+            get { (0..<subitems.count).filter({isSelected(at: $0)})}
+            set { (0..<subitems.count).forEach({ setSelected(newValue.contains($0), at: $0) }) }
         }
     }
 

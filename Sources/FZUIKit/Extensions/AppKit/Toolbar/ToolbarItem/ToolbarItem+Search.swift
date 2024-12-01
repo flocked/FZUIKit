@@ -137,13 +137,34 @@
             public func endSearchInteraction() {
                 searchItem.endSearchInteraction()
             }
+            
+            /// Sets the preferred width of the search field item, or `nil` to automatically adjust the width.
+            public func preferredWidth(_ preferredWidth: CGFloat?) -> Self {
+                self.preferredWidth = preferredWidth
+                return self
+            }
+            
+            var preferredWidth: CGFloat? {
+                get { searchFieldConstraints.first?.constant }
+                set {
+                    searchFieldConstraints.activate(false)
+                    searchFieldConstraints = []
+                    if let newValue = newValue {
+                        searchFieldConstraints = [searchField.widthAnchor.constraint(lessThanOrEqualToConstant: newValue),
+                                                  searchField.widthAnchor.constraint(greaterThanOrEqualToConstant: 40)].activate()
+                    }
+                }
+            }
+            
+            var searchFieldConstraints: [NSLayoutConstraint] = []
       
             public init(_ identifier: NSToolbarItem.Identifier? = nil, maxWidth: CGFloat) {
                 super.init(identifier)
-                searchField = EditingActionSearchField()
+                searchItem.searchField = EditingActionSearchField()
                 searchField.delegate = self
                 searchField.translatesAutoresizingMaskIntoConstraints = false
-                searchField.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth).isActive = true
+                [searchField.widthAnchor.constraint(lessThanOrEqualToConstant: maxWidth),
+                 searchField.widthAnchor.constraint(greaterThanOrEqualToConstant: 40)].activate()
             }
 
             /**
@@ -168,7 +189,7 @@
              */
             override public init(_ identifier: NSToolbarItem.Identifier? = nil) {
                 super.init(identifier)
-                searchField = EditingActionSearchField()
+                searchItem.searchField = EditingActionSearchField()
                 searchField.delegate = self
             }
 
