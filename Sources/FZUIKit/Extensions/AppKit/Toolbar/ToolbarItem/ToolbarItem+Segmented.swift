@@ -123,6 +123,7 @@
                     $0.element.index = $0.index
                 })
                 groupItem.subitems = []
+                segmentedControl.segments = []
                 if displaysIndividualSegmentLabels, !segments.contains(where: { $0.image == nil }) {
                     segmentedControl.segments = segments.compactMap({ $0.withoutTitle })
                     groupItem.subitems = segments.compactMap({ $0.toolbarItem(for: self) })
