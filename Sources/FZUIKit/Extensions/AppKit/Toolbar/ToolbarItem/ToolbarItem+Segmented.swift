@@ -95,7 +95,7 @@
             /**
              Sets the Boolean value that indicates whether the toolbar item shows individual labels for each segment.
              
-             - Note: This property only works if you provide both `title` and `image` for each segment.
+             - Note: This property only works if you provide `image` and `title` for each segment.
              
              If you set this property to `true`, the item `label` is ignored.
              */
@@ -110,7 +110,7 @@
              
              - Note: This property only works if you provide both `title` and `image` for each segment.
              */
-            public var displaysIndividualSegmentLabels: Bool = false {
+            public var displaysIndividualSegmentLabels: Bool = true {
                 didSet {
                     guard oldValue != displaysIndividualSegmentLabels else { return }
                     updateSegments()
@@ -119,7 +119,7 @@
             
             func updateSegments() {
                 segments.indexed().forEach({ $0.element.index = $0.index })
-                if displaysIndividualSegmentLabels, !segments.contains(where: { $0.title == nil || $0.image == nil }) {
+                if displaysIndividualSegmentLabels, !segments.contains(where: { $0.image == nil }) {
                     segmentedControl.segments = segments.compactMap({ $0.withoutTitle })
                     groupItem.subitems = segments.compactMap({ $0.toolbarItem(for: self) })
                     isDisplayingSubItems = true
