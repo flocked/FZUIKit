@@ -125,7 +125,6 @@
                 groupItem.subitems = []
                 groupItem.view = nil
                 segmentedControl.segments = []
-                groupItem.view = segmentedControl
                 if displaysIndividualSegmentLabels, !segments.contains(where: { $0.image == nil }) {
                     segmentedControl.segments = segments.compactMap({ $0.withoutTitle })
                     groupItem.subitems = segments.compactMap({ $0.toolbarItem(for: self) })
@@ -136,6 +135,7 @@
                     }
                 }
                 segmentedControl.sizeToFit()
+                groupItem.view = segmentedControl
             }
             
             func isEnabledUpdated(for segment: NSSegment) {
