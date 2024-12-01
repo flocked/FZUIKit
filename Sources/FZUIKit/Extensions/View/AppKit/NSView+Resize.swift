@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 01.12.24.
 //
 
+/*
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
@@ -283,3 +284,4 @@ extension RectEdgeCorner {
 */
 
 #endif
+*/
