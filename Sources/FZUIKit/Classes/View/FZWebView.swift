@@ -5,6 +5,23 @@
 //  Created by Florian Zand on 23.02.23.
 //
 
+#if os(macOS) || os(iOS)
+import FZSwiftUtils
+import WebKit
+
+/**
+ An extended `WKWebView`.
+ 
+ A WKWebView with properties for current url request & current cookies and handlers for didFinishLoading & cookies.
+
+ */
+@available(macOS 11.3, iOS 14.5, *)
+open class FZWebView: WKWebView {
+    
+}
+
+#endif
+
 /*
 #if os(macOS) || os(iOS)
     import FZSwiftUtils
