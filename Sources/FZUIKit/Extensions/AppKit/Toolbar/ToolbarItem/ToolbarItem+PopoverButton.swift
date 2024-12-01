@@ -162,7 +162,6 @@
                 popover.behavior = .transient
                 popover.isDetachable = isDetachable
                 popover.delegate = delegate
-                popover.shouldHideAnchor = true
                 popover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY, hideArrow: false)
                 self.popover = popover
             }

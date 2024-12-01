@@ -316,10 +316,7 @@ import SwiftUI
             let spacing: CGFloat = 0.0
             let tracking: ViewTracking = .disabled
             dismiss()
-           // setValue(hideArrow, forKeyPath: "shouldHideAnchor")
-
-            /*
-            if hideArrow == false {
+            if !hideArrow {
                 show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge)
             } else {
                 let noArrowView = NSView(frame: positioningView.frame)
@@ -340,7 +337,6 @@ import SwiftUI
                 show(relativeTo: positioningRect, of: noArrowView, preferredEdge: preferredEdge)
                 noArrowView.frame = NSRect(x: 0, y: -200, width: 10, height: 10)
             }
-             */
             willCloseObservation = NotificationCenter.default.observe(NSPopover.willCloseNotification, object: self, using: { [weak self] notification in
                 guard let self = self, !self.isClosing else { return }
                 self.dismiss()
@@ -366,12 +362,6 @@ import SwiftUI
                     self.updatePopover()
                     }!)
             }
-        }
-        
-        private static let shouldHideAnchorKey = Data(base64Encoded: "c2hvdWxkSGlkZUFuY2hvcg==")!.utf8String!
-        public var shouldHideAnchor: Bool {
-            get { value(forKey: Self.shouldHideAnchorKey) as? Bool ?? false }
-            set { setValue(newValue, forKey: Self.shouldHideAnchorKey) }
         }
                 
         private func edge(for view: NSView, preferredEdge: NSRectEdge, spacing: CGFloat = 0.0, centered: Bool = false) -> NSRectEdge {
@@ -563,36 +553,4 @@ extension NSPopover.ViewTracking: ExpressibleByBooleanLiteral {
         self = value ? .enabled : .disabled
     }
 }
-
-
-fileprivate extension Data {
-    var utf8String: String? {
-        return String(data: self, encoding: .utf8)
-    }
-}
-
-/*
-extension NSPopover {
-    public var isResizable: Bool {
-        get { getAssociatedValue("isResizable") ?? false }
-        set { 
-            guard newValue != isResizable else { return }
-            setAssociatedValue(newValue, key: "isResizable")
-            if newValue {
-                
-            }
-        }
-    }
-    
-    public var resizeMinSize: CGSize {
-        get { getAssociatedValue("resizeMinSize") ?? .zero }
-        set { setAssociatedValue(newValue, key: "resizeMinSize") }
-    }
-    
-    public var resizeMaxSize: CGSize? {
-        get { getAssociatedValue("resizeMaxSize") }
-        set { setAssociatedValue(newValue, key: "resizeMaxSize") }
-    }
-}
-*/
 #endif
