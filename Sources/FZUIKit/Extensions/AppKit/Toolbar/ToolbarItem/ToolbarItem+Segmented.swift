@@ -130,7 +130,7 @@
                     isDisplayingSubItems = false
                     groupItem.label = _label
                 }
-                
+                segmentedControl.sizeToFit()
             }
             
             func segmentItemPressed(_ segment: NSSegment) {
@@ -171,7 +171,9 @@
                                     selectionMode: SelectionMode = .selectOne,
                                     style: NSSegmentedControl.Style = .automatic,
                                     @NSSegmentedControl.Builder segments: () -> [NSSegment]) {
-                self.init(identifier, segmentedControl: NSSegmentedControl(switching: selectionMode.switchTracking, style: style, segments: segments))
+                self.init(identifier, segmentedControl: NSSegmentedControl().style(style).trackingMode(selectionMode.switchTracking))
+                self.segments = segments()
+                updateSegments()
             }
 
             /**
