@@ -48,7 +48,7 @@ public extension ToolbarItem {
 
 extension NSSegment {
     func toolbarItem(for groupItem: ToolbarItem.Segmented1) -> NSToolbarItem {
-        let item = NSToolbarItem()
+        let item = NSToolbarItem(itemIdentifier: .init(title ?? .random()))
         item.label = title ?? ""
         item.tag = index ?? 0
         item.actionBlock = { [weak self] _ in
