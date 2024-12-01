@@ -16,14 +16,22 @@
          The item can be used with ``Toolbar``.
          */
         class Segmented: ToolbarItem {
+            
+            var isDisplayingSubItems = false
+            lazy var groupItem = NSToolbarItemGroup(identifier)
+            override var item: NSToolbarItem {
+                groupItem
+            }
 
             /// The segmented control of the toolbar item.
             public let segmentedControl: NSSegmentedControl
 
             /// The segments of the segmented control.
-            public var segments: [NSSegment] {
-                get { segmentedControl.segments }
-                set { segmentedControl.segments = newValue }
+            public var segments: [NSSegment] = [] {
+                didSet { 
+                    guard oldValue != segments else { return }
+                    updateSegments()
+                }
             }
             
             /**
@@ -32,28 +40,42 @@
              To get the last selected segment, check the selected segment where ``NSSegment/isLastSelected`` is `true.`
              */
             public var selectedSegments: [NSSegment] {
-                segmentedControl.selectedSegments
+                return segmentedControl.indexesOfSelectedSegments.compactMap({ segments[safe: $0] })
             }
             
             /// Sets the segments of the segmented control.
             @discardableResult
             public func segments(_ segments: [NSSegment]) -> Self {
-                segmentedControl.segments = segments
+                self.segments = segments
                 return self
             }
             
             /// Sets the segments of the segmented control.
             @discardableResult
             public func segments(@NSSegmentedControl.Builder segments: () -> [NSSegment]) -> Self {
-                segmentedControl.segments = segments()
+                self.segments = segments()
                 return self
             }
 
-            /// Sets the type of tracking behavior the segmented control exhibits.
+            /// Sets rhe selection mode for the segmented control.
             @discardableResult
-            public func switchingMode(_ mode: NSSegmentedControl.SwitchTracking) -> Self {
-                segmentedControl.trackingMode = mode
+            public func selectionMode(_ mode: SelectionMode) -> Self {
+                segmentedControl.trackingMode = mode.switchTracking
                 return self
+            }
+            
+            /// The selection mode for the segmented control.
+            public enum SelectionMode: UInt, Hashable, Codable {
+                /// Only one segment can be selected at a time.
+                case selectOne
+                /// One or more segments can be selected at a time.
+                case selectAny
+                /// A segment is selected only when the user is pressing the mouse down. When the mouse is no longer down within the segment, the segment is automatically deselected.
+                case momentary
+                
+                var switchTracking: NSSegmentedControl.SwitchTracking {
+                    NSSegmentedControl.SwitchTracking(rawValue: rawValue)!
+                }
             }
 
             /// Sets the visual style used to display the segmented control.
@@ -70,8 +92,53 @@
                 return self
             }
             
+            /**
+             Sets the Boolean value that indicates whether the toolbar item shows individual labels for each segment.
+             
+             - Note: This property only works if you provide both `title` and `image` for each segment.
+             
+             If you set this property to `true`, the item `label` is ignored.
+             */
+            @discardableResult
+            public func displaysIndividualSegmentLabels(_ displays: Bool) -> Self {
+                self.displaysIndividualSegmentLabels = displays
+                return self
+            }
+            
+            /**
+             A Boolean value that indicates whether the individual segment titles are displayed as
+             
+             - Note: This property only works if you provide both `title` and `image` for each segment.
+             */
+            public var displaysIndividualSegmentLabels: Bool = false {
+                didSet {
+                    guard oldValue != displaysIndividualSegmentLabels else { return }
+                    updateSegments()
+                }
+            }
+            
+            func updateSegments() {
+                segments.indexed().forEach({ $0.element.index = $0.index })
+                if displaysIndividualSegmentLabels, !segments.contains(where: { $0.title == nil || $0.image == nil }) {
+                    segmentedControl.segments = segments.compactMap({ $0.withoutTitle })
+                    groupItem.subitems = segments.compactMap({ $0.toolbarItem(for: self) })
+                    isDisplayingSubItems = true
+                    groupItem.label = ""
+                } else {
+                    segmentedControl.segments = segments
+                    groupItem.subitems = []
+                    isDisplayingSubItems = false
+                    groupItem.label = _label
+                }
+                
+            }
+            
+            func segmentItemPressed(_ segment: NSSegment) {
+                actionBlock?(self)
+            }
+            
             /// The handler that gets called when the user clicks the segmented control.
-            public var actionBlock: ((_ item: ToolbarItem.Segmented)->())? {
+            var actionBlock: ((_ item: ToolbarItem.Segmented)->())? {
                 didSet {
                     if let actionBlock = actionBlock {
                         segmentedControl.actionBlock = { [weak self] _ in
@@ -90,7 +157,7 @@
                 actionBlock = handler
                 return self
             }
-
+            
             /**
              Creates a segmented control toolbar item.
 
@@ -98,16 +165,13 @@
                 - identifier: An optional identifier of the item.
                 - style: The segmented control style. The default value is `automatic`.
                 - switching: The segmented control switching mode. The default value is `selectOne`.
-                - segmentWidths: The segmented control width. The default value is `nil`, which idicates no specific width.
                 - segments: The segments of the segmented control.
              */
             public convenience init(_ identifier: NSToolbarItem.Identifier? = nil,
+                                    selectionMode: SelectionMode = .selectOne,
                                     style: NSSegmentedControl.Style = .automatic,
-                                    switching: NSSegmentedControl.SwitchTracking = .selectOne,
-                                    segmentWidths: CGFloat? = nil,
-                                    @NSSegmentedControl.Builder segments: () -> [NSSegment])
-            {
-                self.init(identifier, segmentedControl: NSSegmentedControl(switching: switching, style: style, segments: segments))
+                                    @NSSegmentedControl.Builder segments: () -> [NSSegment]) {
+                self.init(identifier, segmentedControl: NSSegmentedControl(switching: selectionMode.switchTracking, style: style, segments: segments))
             }
 
             /**

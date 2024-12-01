@@ -10,7 +10,7 @@
     import AppKit
 
     /// A segment of a `NSSegmentedControl`.
-    public class NSSegment: ExpressibleByStringLiteral {
+    public class NSSegment: NSObject, ExpressibleByStringLiteral {
         weak var segmentedControl: NSSegmentedControl?
 
         /// The title of the segment.

@@ -9,6 +9,7 @@
     import AppKit
     import FZSwiftUtils
 
+/*
 public extension ToolbarItem {
     
     /**
@@ -51,12 +52,12 @@ public extension ToolbarItem {
         }
     }
 }
+*/
 
 extension NSSegment {
-    func toolbarItem(for groupItem: ToolbarItem.Segmented1) -> NSToolbarItem {
+    func toolbarItem(for groupItem: ToolbarItem.Segmented) -> NSToolbarItem {
         let item = NSToolbarItem(itemIdentifier: .init(title ?? .random()))
         item.label = title ?? ""
-        item.tag = index ?? 0
         item.actionBlock = { [weak self] _ in
             guard let self = self else { return }
             groupItem.segmentItemPressed(self)
