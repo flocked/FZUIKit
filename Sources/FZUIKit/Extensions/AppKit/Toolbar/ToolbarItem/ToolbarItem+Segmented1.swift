@@ -26,9 +26,13 @@ public extension ToolbarItem {
         
         var segments: [NSSegment] = [] {
             didSet {
-                segmentedControl.segments = segments.compactMap({ $0.withoutTitle })
-                groupItem.subitems = segments.compactMap({ $0.toolbarItem(for: self) })
+                updateSegments()
             }
+        }
+        
+        func updateSegments() {
+            segmentedControl.segments = segments.compactMap({ $0.withoutTitle })
+            groupItem.subitems = segments.compactMap({ $0.toolbarItem(for: self) })
         }
         
         func segmentItemPressed(_ segment: NSSegment) {
@@ -43,6 +47,7 @@ public extension ToolbarItem {
             segmentedControl.segmentDistribution = .fillEqually
             groupItem.view = segmentedControl
             self.segments = segments()
+            updateSegments()
         }
     }
 }
