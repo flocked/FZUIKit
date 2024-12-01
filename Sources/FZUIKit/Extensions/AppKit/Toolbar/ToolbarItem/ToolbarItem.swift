@@ -164,6 +164,12 @@
             item.isEnabled = isEnabled
             return self
         }
+        
+        @discardableResult
+        @objc open func autovalidates(_ autovalidates: Bool) -> Self {
+            item.autovalidates = autovalidates
+            return self
+        }
 
         /// Sets the Boolean value that indicates whether the item can be selected.
         @discardableResult
