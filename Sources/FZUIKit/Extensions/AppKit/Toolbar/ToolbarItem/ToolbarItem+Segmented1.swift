@@ -5,6 +5,85 @@
 //  Created by Florian Zand on 09.04.23.
 //
 
+#if os(macOS)
+    import AppKit
+    import FZSwiftUtils
+
+public extension ToolbarItem {
+    
+    /**
+     A toolbar item that contains a segmented control.
+     
+     The item can be used with ``Toolbar``.
+     */
+    class Segmented1: ToolbarItem {
+        let segmentedControl = NSSegmentedControl()
+        
+        lazy var groupItem = NSToolbarItemGroup(identifier)
+        override var item: NSToolbarItem {
+            groupItem
+        }
+        
+        var segments: [NSSegment] = [] {
+            didSet {
+                segmentedControl.segments = segments.compactMap({ $0.withoutTitle })
+                groupItem.subitems = segments.compactMap({ $0.toolbarItem(for: self) })
+            }
+        }
+        
+        func segmentItemPressed(_ segment: NSSegment) {
+            
+        }
+        
+        public init(_ identifier: NSToolbarItem.Identifier? = nil,
+                                @NSSegmentedControl.Builder segments: () -> [NSSegment]) {
+            super.init(identifier ?? .random)
+            segmentedControl.translatesAutoresizingMaskIntoConstraints = false
+            segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+            segmentedControl.segmentDistribution = .fillEqually
+            self.segments = segments()
+        }
+    }
+}
+
+extension NSSegment {
+    func toolbarItem(for groupItem: ToolbarItem.Segmented1) -> NSToolbarItem {
+        let item = NSToolbarItem()
+        item.label = title ?? ""
+        item.tag = index ?? 0
+        item.actionBlock = { [weak self] _ in
+            guard let self = self else { return }
+            groupItem.segmentItemPressed(self)
+        }
+        if let image = image {
+            item.menuFormRepresentation = NSMenuItem(title, image: image)
+        } else if let title = title {
+            item.menuFormRepresentation = NSMenuItem(title)
+        }
+        return item
+    }
+
+    var withoutTitle: NSSegment {
+        let segment = NSSegment("")
+        segment.title = nil
+        segment.titleAlignment = titleAlignment
+        segment.image = image
+        segment.imageScaling = imageScaling
+        segment.menu = menu
+        segment.showsMenuIndicator = showsMenuIndicator
+        segment.isSelected = isSelected
+        segment.isEnabled = isEnabled
+        segment.width = width
+        segment.toolTip = toolTip
+        segment.tag = tag
+        segment.font = font
+        segment.index = index
+        segment.segmentedControl = segmentedControl
+        return segment
+    }
+}
+#endif
+
 /*
 #if os(macOS)
     import AppKit
