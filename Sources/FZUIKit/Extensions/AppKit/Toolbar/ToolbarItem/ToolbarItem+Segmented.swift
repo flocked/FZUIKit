@@ -117,7 +117,8 @@
             }
             
             func updateSegments() {
-                segments.indexed().forEach({ 
+                groupItem = NSToolbarItemGroup(identifier)
+                segments.indexed().forEach({
                     $0.element.segmentedToolbarItem = self
                     $0.element.segmentedControl = segmentedControl
                     $0.element.index = $0.index
