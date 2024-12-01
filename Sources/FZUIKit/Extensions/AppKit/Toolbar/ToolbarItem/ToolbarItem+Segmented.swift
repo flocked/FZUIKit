@@ -117,14 +117,15 @@
             }
             
             func updateSegments() {
-                groupItem = NSToolbarItemGroup(identifier)
                 segments.indexed().forEach({
                     $0.element.segmentedToolbarItem = self
                     $0.element.segmentedControl = segmentedControl
                     $0.element.index = $0.index
                 })
                 groupItem.subitems = []
+                groupItem.view = nil
                 segmentedControl.segments = []
+                groupItem.view = segmentedControl
                 if displaysIndividualSegmentLabels, !segments.contains(where: { $0.image == nil }) {
                     segmentedControl.segments = segments.compactMap({ $0.withoutTitle })
                     groupItem.subitems = segments.compactMap({ $0.toolbarItem(for: self) })
@@ -198,7 +199,7 @@
                 segmentedControl.translatesAutoresizingMaskIntoConstraints = false
                 segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
                 segmentedControl.segmentDistribution = .fillEqually
-                item.view = self.segmentedControl
+                item.view = segmentedControl
             }
         }
     }
