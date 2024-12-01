@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 23.02.23.
 //
 
+/*
 #if os(macOS) || os(iOS)
 import FZSwiftUtils
 import WebKit
@@ -17,10 +18,72 @@ import WebKit
  */
 @available(macOS 11.3, iOS 14.5, *)
 open class FZWebView: WKWebView {
+    lazy var delegate = Delegate(self)
     
+    @objc dynamic public var cookies: [HTTPCookie] = []
+    
+    @objc dynamic public var response: HTTPURLResponse? = nil
+    
+    public init() {
+        super.init(frame: .zero, configuration: .init())
+        sharedInit()
+    }
+    
+    public override init(frame: CGRect, configuration: WKWebViewConfiguration) {
+        super.init(frame: frame, configuration: configuration)
+        sharedInit()
+    }
+    
+    public required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        sharedInit()
+    }
+    
+    func sharedInit() {
+        navigationDelegate = delegate
+    }
+    
+    open override func load(_ request: URLRequest) -> WKNavigation? {
+        response = nil
+        return super.load(request)
+    }
+    
+    class Delegate: NSObject, WKNavigationDelegate, WKHTTPCookieStoreObserver {
+        weak var fzWebView: FZWebView?
+        
+        init(_ fzWebView: FZWebView) {
+            self.fzWebView = fzWebView
+            super.init()
+            fzWebView.configuration.websiteDataStore.httpCookieStore.add(self)
+        }
+        
+        func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+            fzWebView?.response = navigationResponse.response as? HTTPURLResponse
+            decisionHandler(.allow)
+        }
+        
+        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+            decisionHandler(.allow)
+        }
+                
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            webView.configuration.websiteDataStore.httpCookieStore.getAllCookies({
+                cookies in
+            })
+
+        }
+        
+        func cookiesDidChange(in cookieStore: WKHTTPCookieStore) {
+            cookieStore.getAllCookies { [weak self] cookies in
+                guard let self = self else { return }
+                self.fzWebView?.cookies = cookies
+            }
+        }
+    }
 }
 
 #endif
+*/
 
 /*
 #if os(macOS) || os(iOS)
