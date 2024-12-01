@@ -155,6 +155,7 @@
 
             public func searchFieldDidStartSearching(_: NSSearchField) {
                 searchHandler?(stringValue, .didStart)
+                startingStringValue = searchField.stringValue
             }
 
             public func searchFieldDidEndSearching(_: NSSearchField) {
@@ -172,6 +173,7 @@
             
             public func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector
             ) -> Bool {
+                Swift.print("control", commandSelector, startingStringValue ?? "nil")
                 switch commandSelector {
                 case #selector(NSControl.cancelOperation(_:)):
                     if editingActionOnEscapeKeyDown == .endEditingAndReset {
