@@ -110,7 +110,7 @@
              
              - Note: This property only works if you provide both `title` and `image` for each segment.
              */
-            public var displaysIndividualSegmentLabels: Bool = true {
+            public var displaysIndividualSegmentLabels: Bool = false {
                 didSet {
                     guard oldValue != displaysIndividualSegmentLabels else { return }
                     updateSegments()
@@ -127,7 +127,9 @@
                     segmentedControl.segments = segments
                     groupItem.subitems = []
                     isDisplayingSubItems = false
-                    groupItem.label = _label
+                    if _label != "" {
+                        groupItem.label = _label
+                    }
                 }
                 segmentedControl.sizeToFit()
             }
@@ -198,6 +200,7 @@ fileprivate extension NSSegment {
     func toolbarItem(for groupItem: ToolbarItem.Segmented) -> NSToolbarItem {
         let item = NSToolbarItem(itemIdentifier: .init(title ?? .random()))
         item.label = title ?? ""
+        item.toolTip = toolTip
         item.actionBlock = { [weak self] _ in
             guard let self = self else { return }
             groupItem.segmentItemPressed(self)
