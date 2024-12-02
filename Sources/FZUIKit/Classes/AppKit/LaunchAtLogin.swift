@@ -10,7 +10,10 @@
 #if os(macOS) || targetEnvironment(macCatalyst)
 import SwiftUI
 import ServiceManagement
+#if os(macOS)
 import AppKit
+#endif
+
 
 @available(macOS 13.0, *)
 public enum LaunchAtLogin {
@@ -38,8 +41,8 @@ public enum LaunchAtLogin {
 
 	/**
      A Boolean value that indicates whether the app was launchedx at login.
-
-	- Important: This property must only be checked in `NSApplicationDelegate#applicationDidFinishLaunching`.
+     
+     - Important: This property must only be checked in `NSApplicationDelegate#applicationDidFinishLaunching`.
 	*/
 	public static var wasLaunchedAtLogin: Bool {
 		let event = NSAppleEventManager.shared().currentAppleEvent
@@ -47,7 +50,7 @@ public enum LaunchAtLogin {
 			&& event?.paramDescriptor(forKeyword: keyAEPropData)?.enumCodeValue == keyAELaunchedAsLogInItem
 	}
     
-    /// Returns the localized string of "Launch at Login" for the specified language, or English if no translation for the language could be found..
+    /// Returns the localized string of "Launch at Login" for the specified language, or English if no translation for the language could be found.
     public static func localizedString(for locale: Locale = .current) -> String {
         localizedString(for: locale.language) ?? launchAtLoginTranslations["en"]!
     }
@@ -61,6 +64,7 @@ public enum LaunchAtLogin {
         return nil
     }
     
+    #if os(macOS)
     /**
      Returns a checbox button for the specified language that toggles “launch at login” for your app.
      
@@ -68,15 +72,13 @@ public enum LaunchAtLogin {
         - locale: The longuage of the checkbox text. The defaults shows the text in the current language of the app.
         - action: An optional action handler to be called when the user changes "launch at login."
      */
-    public static func checkboxButton(for locale: Locale = .current, action: (()->())? = nil) -> NSButton {
-        let button = NSButton(checkboxWithTitle: localizedString(for: locale), target: nil, action: nil).state(isEnabled ? .on : .off)
-        button.actionBlock = { button in
-            self.isEnabled = button.state == .off ? false : true
-            button.state = self.isEnabled ? .on : .off
-            action?()
+    public static func checkboxButton(for locale: Locale = .current, action: ((_ isEnabled: Bool)->())? = nil) -> NSButton {
+        NSButton.checkbox(localizedString(for: locale), isChecked: isEnabled).action { button in
+            isEnabled = button.isToggled
+            action?(isEnabled)
         }
-        return button
     }
+    #endif
     
     fileprivate static let observable = Observable()
     
@@ -193,57 +195,4 @@ extension LaunchAtLogin.Toggle<Text> {
         self.init(LaunchAtLogin.localizedString(for: locale))
     }
 }
-
-/*
-extension LaunchAtLogin {
-    
-    /// A checbox button that toggles “launch at login” for your app.
-    public class Checkbox: NSButton {
-        /**
-         Creates a checbox button for the specified language that toggles “launch at login” for your app.
-         
-         - Parameters:
-            - locale: The longuage of the checkbox text. The defaults shows the text in the current language of the app.
-            - action: An optional action handler to be called when the user changes "launch at login."
-         */
-        public init(locale: Locale = .current, action: ActionBlock? = nil) {
-            super.init(frame: .zero)
-            buttonType = .switch
-            self.locale = locale
-            state = LaunchAtLogin.isEnabled ? .on : .off
-            updateLocale()
-            actionBlock = action
-        }
-        
-        /// The language of the checkbox.
-        public var locale: Locale = .current {
-            didSet { updateLocale() }
-        }
-        
-        func updateLocale() {
-            title = LaunchAtLogin.localizedString(for: locale)
-            sizeToFit()
-        }
-        
-        public override func mouseUp(with event: NSEvent) {
-            super.mouseUp(with: event)
-            sendState()
-        }
-        
-        public override func keyUp(with event: NSEvent) {
-            super.keyUp(with: event)
-            sendState()
-        }
-        
-        func sendState() {
-            LaunchAtLogin.isEnabled = state == .on
-            state = LaunchAtLogin.isEnabled ? .on : .off
-        }
-        
-        required init?(coder: NSCoder) {
-            super.init(coder: coder)
-        }
-    }
-}
-*/
 #endif

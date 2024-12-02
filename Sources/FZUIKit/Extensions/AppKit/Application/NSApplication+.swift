@@ -11,6 +11,11 @@
     import Foundation
 
     public extension NSApplication {
+        /// &he app’s activation policy that control whether and how an app may be activated.
+        var activationPolicy: NSApplication.ActivationPolicy {
+            get { activationPolicy() }
+            set { setActivationPolicy(newValue) }
+        }
         
         /// Returns a description of the `NSResponder` responder chain starting from the first responder.
         var responderChainDebugDescription: String {
@@ -20,9 +25,7 @@
         
         /// All visible windows on the active space.
         var visibleWindows: [NSWindow] {
-            windows.filter {
-                $0.isVisible && $0.isOnActiveSpace && !$0.isFloatingPanel
-            }
+            windows.filter { $0.isVisible && $0.isOnActiveSpace && !$0.isFloatingPanel }
         }
 
         /// A Boolean value that indicates whether the application is a trusted accessibility client.

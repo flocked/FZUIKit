@@ -392,6 +392,12 @@ public extension NSButton {
         return self
     }
     
+    /// A Boolean value that indicates whether the button's state is `on`.
+    var isToggled: Bool {
+        get { state == .on }
+        set { state = newValue ? .on : .off }
+    }
+    
     /**
      Returns the content tint color used for a state.
      
