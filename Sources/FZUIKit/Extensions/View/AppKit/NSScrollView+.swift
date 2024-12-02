@@ -793,4 +793,146 @@
         }
     }
 
+extension NSScrollView {
+    /**
+     The amount by which to zoom the image when the user double clicks the view.
+     
+     Specify a value of `nil` to disable zooming via mouse clicks.
+     */
+    var mouseClickZoomFactorAlt: CGFloat? {
+        get { getAssociatedValue("mouseClickZoomFactorAlt") }
+        set {
+            guard newValue != mouseClickZoomFactorAlt else { return }
+            setAssociatedValue(newValue, key: "mouseClickZoomFactorAlt")
+            setupScrollViewGestureRecognizer()
+        }
+    }
+    
+    /**
+     The amount by which to zoom the image when the user presses either the `plus` or `minus` key.
+     
+     Specify a value of `nil` to disable zooming via keyboard.
+     */
+    var keyDownZoomFactorAlt: CGFloat? {
+        get { getAssociatedValue("keyDownZoomFactorAlt") }
+        set {
+            guard newValue != mouseClickZoomFactorAlt else { return }
+            setAssociatedValue(newValue, key: "keyDownZoomFactorAlt")
+            setupScrollViewGestureRecognizer()
+        }
+    }
+    
+    /**
+     The amount by which to momentarily zoom the image when the user holds the `space` key.
+     
+     Specify a value of `nil` to disable zooming via space key.
+     */
+    var spaceKeyZoomFactorAlt: CGFloat? {
+        get { getAssociatedValue("spaceKeyZoomFactor") }
+        set {
+            guard newValue != mouseClickZoomFactorAlt else { return }
+            setAssociatedValue(newValue, key: "spaceKeyZoomFactor")
+            setupScrollViewGestureRecognizer()
+        }
+    }
+    
+    func setupScrollViewGestureRecognizer() {
+        if spaceKeyZoomFactorAlt == nil, keyDownZoomFactorAlt == nil, mouseClickZoomFactorAlt == nil {
+            scrollViewGestureRecognizer?.removeFromView()
+            scrollViewGestureRecognizer = nil
+        } else if scrollViewGestureRecognizer == nil {
+            scrollViewGestureRecognizer = ScrollViewGestureRecognizer(self)
+        }
+    }
+    
+    var scrollViewGestureRecognizer: ScrollViewGestureRecognizer? {
+        get { getAssociatedValue("scrollViewGestureRecognizer") }
+        set { setAssociatedValue(newValue, key: "scrollViewGestureRecognizer") }
+    }
+    
+    class ScrollViewGestureRecognizer: NSGestureRecognizer {
+        init(_ scrollView: NSScrollView) {
+            super.init(target: nil, action: nil)
+            scrollView.addGestureRecognizer(self)
+            delaysPrimaryMouseButtonEvents = true
+            delaysKeyEvents = true
+        }
+        
+        override func mouseDown(with event: NSEvent) {
+            defer { if state != .ended { state = .cancelled } }
+            state = .began
+            guard let scrollView = scrollView else { return }
+            if let mouseClickZoomFactor = scrollView.mouseClickZoomFactorAlt, event.clickCount == 2 {
+                if scrollView.magnification != 1.0 {
+                    scrollView.setMagnification(1.0, centeredAt: nil, animationDuration: nil)
+                } else {
+                    scrollView.zoomIn(factor: mouseClickZoomFactor, centeredAt: event.location(in: scrollView))
+                }
+                state = .ended
+            }
+        }
+        
+        override func mouseUp(with event: NSEvent) {
+            state = .began
+            state = .cancelled
+        }
+        
+        override func mouseDragged(with event: NSEvent) {
+            state = .began
+            state = .cancelled
+        }
+        
+        override func keyDown(with event: NSEvent) {
+            defer { if state != .ended { state = .cancelled } }
+            state = .began
+            guard let scrollView = scrollView else { return }
+            switch event.keyCode {
+            case 30:
+                guard let keyDownZoomFactor = scrollView.keyDownZoomFactorAlt else { return }
+                if event.modifierFlags.contains(.command) {
+                    scrollView.setMagnification(scrollView.maxMagnification, centeredAt: nil, animationDuration: nil)
+                } else {
+                    scrollView.zoomIn(factor: keyDownZoomFactor)
+                }
+                state = .ended
+            case 44:
+                guard let keyDownZoomFactor = scrollView.keyDownZoomFactorAlt else { return }
+                if event.modifierFlags.contains(.command) {
+                    scrollView.setMagnification(1.0, centeredAt: nil, animationDuration: nil)
+                } else {
+                    scrollView.zoomOut(factor: keyDownZoomFactor)
+                }
+                state = .ended
+            case 49:
+                guard let spaceKeyZoomFactor = scrollView.spaceKeyZoomFactorAlt else { return }
+                scrollView.zoomIn(factor: spaceKeyZoomFactor, animationDuration: 0.2)
+                state = .ended
+            default:
+                super.keyDown(with: event)
+            }
+        }
+        
+        override func keyUp(with event: NSEvent) {
+            defer { if state != .ended { state = .cancelled } }
+            state = .began
+            guard let scrollView = scrollView, event.keyCode == 49, let spaceKeyZoomFactor = scrollView.spaceKeyZoomFactorAlt else { return }
+            scrollView.zoomOut(factor: spaceKeyZoomFactor, animationDuration: 0.2)
+            state = .ended
+        }
+        
+        override func flagsChanged(with event: NSEvent) {
+            state = .began
+            state = .cancelled
+        }
+        
+        var scrollView: NSScrollView? {
+            view as? NSScrollView
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+    }
+}
+
 #endif
