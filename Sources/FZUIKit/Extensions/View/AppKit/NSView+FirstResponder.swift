@@ -22,6 +22,16 @@ public extension NSViewProtocol where Self: NSView {
         return window?.firstResponder == self
      }
     
+    /// A Boolean value that indicates whether the view or any of it's subviews is the first responder.
+    var isDescendantFirstResponder: Bool {
+        if let view = window?.firstResponder as? NSView {
+            return view.isDescendant(of: self)
+        } else if let view = (window?.firstResponder as? NSText)?.delegate as? NSView {
+            return view.isDescendant(of: self)
+        }
+        return false
+    }
+    
     /**
      Attempts to make the view the first responder in its window.
      
