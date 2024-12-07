@@ -229,4 +229,6 @@ extension CGEvent {
         CGEvent(source: nil)?.location
     }
 }
+
+extension NSEvent.ModifierFlags: Hashable, Codable { }
 #endif
