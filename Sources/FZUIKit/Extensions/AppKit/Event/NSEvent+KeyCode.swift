@@ -32,6 +32,12 @@
         var readableModifierFlagsCompact: String {
             modifierFlags.readableStringCompact
         }
+        
+        /// The key associated with the event.
+        var key: Key? {
+            guard type == .keyDown || type == .keyUp else { return nil }
+            return Key(rawValue: keyCode)
+        }
 
         var readableKeyCode: String {
             let rawKeyCharacter: String
@@ -241,136 +247,252 @@
             0x7E: ("UP", nil),
             0x7F: ("POWER", nil), // This should be KeyCode::PC_POWER.
         ]
-
-        enum KeyCode: UInt16, CaseIterable {
-            case Zero = 29
-            case One = 18
-            case Two = 19
-            case Three = 20
-            case Four = 21
-            case Five = 23
-            case Six = 22
-            case Seven = 26
-            case Eight = 28
-            case Nine = 25
+        
+        /// They key of an event.
+        enum Key: UInt16, CaseIterable {
+            /// 0
+            case zero = 29
+            /// 1
+            case one = 18
+            /// 2
+            case two = 19
+            /// 3
+            case three = 20
+            /// 4
+            case four = 21
+            /// 5
+            case five = 23
+            /// 6
+            case six = 22
+            /// 7
+            case seven = 26
+            /// 8
+            case eight = 28
+            /// 9
+            case nine = 25
+            /// A
             case a = 0
+            /// B
             case b = 11
+            /// C
             case c = 8
+            /// D
             case d = 2
+            /// E
             case e = 14
+            /// F
             case f = 3
+            /// G
             case g = 5
+            /// H
             case h = 4
+            /// I
             case i = 34
+            /// J
             case j = 38
+            /// K
             case k = 40
+            /// L
             case l = 37
+            /// M
             case m = 46
+            /// N
             case n = 45
+            /// O
             case o = 31
+            /// P
             case p = 35
+            /// Q
             case q = 12
+            /// R
             case r = 15
+            /// S
             case s = 1
+            /// T
             case t = 17
+            /// U
             case u = 32
+            /// V
             case v = 9
+            /// W
             case w = 13
+            /// X
             case x = 7
+            /// Y
             case y = 16
+            /// Z
             case z = 6
-            case SectionSign = 10
-            case Grave = 50
-            case Minus = 27
-            case Equal = 24
-            case LeftSquareBracket = 33
-            case RightSquareBracket = 30
-            case Semicolon = 41
-            case Quote = 39
-            case Comma = 43
-            case Period = 47
-            case Slash = 44
-            case Backslash = 42
-            case Keypad0 = 82
-            case Keypad1 = 83
-            case Keypad2 = 84
-            case Keypad3 = 85
-            case Keypad4 = 86
-            case Keypad5 = 87
-            case Keypad6 = 88
-            case Keypad7 = 89
-            case Keypad8 = 91
-            case Keypad9 = 92
-            case KeyPadDecimal = 65
-            case KeypadMultiply = 67
-            case KeypadPlus = 69
-            case KeypadDivide = 75
-            case KeypadMinus = 78
-            case KeypadEquals = 81
-            case KeypadClear = 71
-            case KeypadEnter = 76
-            case Space = 49
-            case Enter = 36
-            case Tab = 48
-            case Delete = 51
-            case ForwardDelete = 117
-            case Linefeed = 52
-            case Escape = 53
-            case Command = 55
-            case Shift = 56
-            case CapsLock = 57
-            case Option = 58
-            case Control = 59
-            case RightShift = 60
-            case RightOption = 61
-            case RightControl = 62
-            case Function = 63
-            case F1 = 122
-            case F2 = 120
-            case F3 = 99
-            case F4 = 118
-            case F5 = 96
-            case F6 = 97
-            case F7 = 98
-            case F8 = 100
-            case F9 = 101
-            case F10 = 109
-            case F11 = 103
-            case F12 = 111
-            case F13 = 105
-            case F14 = 107
-            case F15 = 113
-            case F16 = 106
-            case F17 = 64
-            case F18 = 79
-            case F19 = 80
-            case F20 = 90
-            case VolumeUp = 72
-            case VolumeDown = 73
-            case Mute = 74
-            case InsertHelp = 114
-            case Home = 115
-            case End = 119
-            case PageUp = 116
-            case PageDown = 121
-            case ArrowLeft = 123
-            case ArrowRight = 124
-            case ArrowDown = 125
-            case ArrowUp = 126
-            case Power = 127
-
+            /// Section Sign
+            case sectionSign = 10
+            /// Grave
+            case grave = 50
+            /// Minus
+            case minus = 27
+            /// Equal
+            case equal = 24
+            /// Left Square Bracket
+            case leftSquareBracket = 33
+            /// Right Square Bracket
+            case rightSquareBracket = 30
+            /// Semicolon
+            case semicolon = 41
+            /// Quote
+            case quote = 39
+            /// Comma
+            case comma = 43
+            /// Period
+            case period = 47
+            /// Slash
+            case slash = 44
+            /// Backslash
+            case backslash = 42
+            /// Keypad 0
+            case keypad0 = 82
+            /// Keypad 1
+            case keypad1 = 83
+            /// Keypad 2
+            case keypad2 = 84
+            /// Keypad 3
+            case keypad3 = 85
+            /// Keypad 4
+            case keypad4 = 86
+            /// Keypad 5
+            case keypad5 = 87
+            /// Keypad 6
+            case keypad6 = 88
+            /// Keypad 7
+            case keypad7 = 89
+            /// Keypad 8
+            case keypad8 = 91
+            /// Keypad 9
+            case keypad9 = 92
+            /// Keypad Decimal
+            case keyPadDecimal = 65
+            /// Keypad Multiply
+            case keypadMultiply = 67
+            /// Keypad Plus
+            case keypadPlus = 69
+            /// Keypad Divide
+            case keypadDivide = 75
+            /// Keypad Minus
+            case keypadMinus = 78
+            /// Keypad Equals
+            case keypadEquals = 81
+            /// Keypad Clear
+            case keypadClear = 71
+            /// Keypad Enter
+            case keypadEnter = 76
+            /// Space
+            case space = 49
+            /// Enter
+            case enter = 36
+            /// Tab
+            case tab = 48
+            /// Delete
+            case delete = 51
+            /// Forward Delete
+            case forwardDelete = 117
+            /// Linefeed
+            case linefeed = 52
+            /// Escape
+            case escape = 53
+            /// Command
+            case command = 55
+            /// Shift
+            case shift = 56
+            /// CapsLock
+            case capsLock = 57
+            /// Option
+            case option = 58
+            /// Control
+            case control = 59
+            /// Right Shift
+            case rightShift = 60
+            /// Right Option
+            case rightOption = 61
+            /// Right Control
+            case rightControl = 62
+            /// Function
+            case function = 63
+            /// F1
+            case f1 = 122
+            /// F2
+            case f2 = 120
+            /// F3
+            case f3 = 99
+            /// F4
+            case f4 = 118
+            /// F5
+            case f5 = 96
+            /// F6
+            case f6 = 97
+            /// F7
+            case f7 = 98
+            /// F8
+            case f8 = 100
+            /// F9
+            case f9 = 101
+            /// F10
+            case f10 = 109
+            /// F11
+            case f11 = 103
+            /// F12
+            case f12 = 111
+            /// F13
+            case f13 = 105
+            /// F14
+            case f14 = 107
+            /// F15
+            case f15 = 113
+            /// F16
+            case f16 = 106
+            /// F17
+            case f17 = 64
+            /// F18
+            case f18 = 79
+            /// F19
+            case f19 = 80
+            /// F20
+            case f20 = 90
+            /// Volume Up
+            case volumeUp = 72
+            /// Volume Down
+            case volumeDown = 73
+            /// Mute
+            case mute = 74
+            /// Insert Help
+            case insertHelp = 114
+            /// Home
+            case home = 115
+            /// End
+            case end = 119
+            /// Page Up
+            case pageUp = 116
+            /// Page Down
+            case pageDown = 121
+            /// Arrow Left
+            case arrowLeft = 123
+            /// Arrow Right
+            case arrowRight = 124
+            /// Arrow Down
+            case arrowDown = 125
+            /// Arrow Up
+            case arrowUp = 126
+            /// Power
+            case power = 127
+            
             public var string: (main: String, secondary: String?) {
                 switch self {
-                case .Zero: return ("0", "}")
-                case .One: return ("1", "!")
-                case .Two: return ("2", "⌫")
-                case .Three: return ("3", "♯")
-                case .Four: return ("4", "$")
-                case .Five: return ("5", "%")
-                case .Six: return ("6", "^")
-                case .Seven: return ("7", "&")
-                case .Eight: return ("8", "*")
-                case .Nine: return ("9", "{")
+                case .zero: return ("0", "}")
+                case .one: return ("1", "!")
+                case .two: return ("2", "⌫")
+                case .three: return ("3", "♯")
+                case .four: return ("4", "$")
+                case .five: return ("5", "%")
+                case .six: return ("6", "^")
+                case .seven: return ("7", "&")
+                case .eight: return ("8", "*")
+                case .nine: return ("9", "{")
                 case .a: return ("a", "A")
                 case .b: return ("b", "B")
                 case .c: return ("c", "C")
@@ -397,85 +519,85 @@
                 case .x: return ("x", "X")
                 case .y: return ("y", "Y")
                 case .z: return ("z", "Z")
-                case .SectionSign: return ("§", nil)
-                case .Grave: return ("`", "∼")
-                case .Minus: return ("-", "_")
-                case .Equal: return ("=", "+")
-                case .LeftSquareBracket: return ("[", "{")
-                case .RightSquareBracket: return ("]", "}")
-                case .Semicolon: return (";", ":")
-                case .Quote: return ("'", "\"")
-                case .Comma: return (",", "<")
-                case .Period: return (".", ">")
-                case .Slash: return ("/", "?")
-                case .Backslash: return ("\\", "|")
-                case .Keypad0: return ("Keypad0", nil)
-                case .Keypad1: return ("Keypad1", nil)
-                case .Keypad2: return ("Keypad2", nil)
-                case .Keypad3: return ("Keypad3", nil)
-                case .Keypad4: return ("Keypad4", nil)
-                case .Keypad5: return ("Keypad5", nil)
-                case .Keypad6: return ("Keypad6", nil)
-                case .Keypad7: return ("Keypad7", nil)
-                case .Keypad8: return ("Keypad8", nil)
-                case .Keypad9: return ("Keypad9", nil)
-                case .KeyPadDecimal: return ("KeyPadDecimal", nil)
-                case .KeypadMultiply: return ("KeypadMultiply", nil)
-                case .KeypadPlus: return ("KeypadPlus", nil)
-                case .KeypadDivide: return ("KeypadDivide", nil)
-                case .KeypadMinus: return ("KeypadMinus", nil)
-                case .KeypadEquals: return ("KeypadEquals", nil)
-                case .KeypadClear: return ("KeypadClear", nil)
-                case .KeypadEnter: return ("KeypadEnter", nil)
-                case .Space: return ("Space", nil)
-                case .Enter: return ("Enter", nil)
-                case .Tab: return ("Tab", nil)
-                case .Delete: return ("Delete", nil)
-                case .ForwardDelete: return ("ForwardDelete", nil)
-                case .Linefeed: return ("Linefeed", nil)
-                case .Escape: return ("Escape", nil)
-                case .Command: return ("Command", nil)
-                case .Shift: return ("Shift", nil)
-                case .CapsLock: return ("CapsLock", nil)
-                case .Option: return ("Option", nil)
-                case .Control: return ("Control", nil)
-                case .RightShift: return ("RightShift", nil)
-                case .RightOption: return ("RightOption", nil)
-                case .RightControl: return ("RightControl", nil)
-                case .Function: return ("Function", nil)
-                case .F1: return ("F1", nil)
-                case .F2: return ("F2", nil)
-                case .F3: return ("F3", nil)
-                case .F4: return ("F4", nil)
-                case .F5: return ("F5", nil)
-                case .F6: return ("F6", nil)
-                case .F7: return ("F7", nil)
-                case .F8: return ("F8", nil)
-                case .F9: return ("F9", nil)
-                case .F10: return ("F10", nil)
-                case .F11: return ("F11", nil)
-                case .F12: return ("F12", nil)
-                case .F13: return ("F13", nil)
-                case .F14: return ("F14", nil)
-                case .F15: return ("F15", nil)
-                case .F16: return ("F16", nil)
-                case .F17: return ("F17", nil)
-                case .F18: return ("F18", nil)
-                case .F19: return ("F19", nil)
-                case .F20: return ("F20", nil)
-                case .VolumeUp: return ("VolumeUp", nil)
-                case .VolumeDown: return ("VolumeDown", nil)
-                case .Mute: return ("Mute", nil)
-                case .InsertHelp: return ("Insert/Help", nil)
-                case .Home: return ("Home", nil)
-                case .End: return ("End", nil)
-                case .PageUp: return ("PageUp", nil)
-                case .PageDown: return ("PageDown", nil)
-                case .ArrowLeft: return ("ArrowLeft", nil)
-                case .ArrowRight: return ("ArrowRight", nil)
-                case .ArrowDown: return ("ArrowDown", nil)
-                case .ArrowUp: return ("ArrowUp", nil)
-                case .Power: return ("Power", nil)
+                case .sectionSign: return ("§", nil)
+                case .grave: return ("`", "∼")
+                case .minus: return ("-", "_")
+                case .equal: return ("=", "+")
+                case .leftSquareBracket: return ("[", "{")
+                case .rightSquareBracket: return ("]", "}")
+                case .semicolon: return (";", ":")
+                case .quote: return ("'", "\"")
+                case .comma: return (",", "<")
+                case .period: return (".", ">")
+                case .slash: return ("/", "?")
+                case .backslash: return ("\\", "|")
+                case .keypad0: return ("Keypad0", nil)
+                case .keypad1: return ("Keypad1", nil)
+                case .keypad2: return ("Keypad2", nil)
+                case .keypad3: return ("Keypad3", nil)
+                case .keypad4: return ("Keypad4", nil)
+                case .keypad5: return ("Keypad5", nil)
+                case .keypad6: return ("Keypad6", nil)
+                case .keypad7: return ("Keypad7", nil)
+                case .keypad8: return ("Keypad8", nil)
+                case .keypad9: return ("Keypad9", nil)
+                case .keyPadDecimal: return ("KeyPadDecimal", nil)
+                case .keypadMultiply: return ("KeypadMultiply", nil)
+                case .keypadPlus: return ("KeypadPlus", nil)
+                case .keypadDivide: return ("KeypadDivide", nil)
+                case .keypadMinus: return ("KeypadMinus", nil)
+                case .keypadEquals: return ("KeypadEquals", nil)
+                case .keypadClear: return ("KeypadClear", nil)
+                case .keypadEnter: return ("KeypadEnter", nil)
+                case .space: return ("Space", nil)
+                case .enter: return ("Enter", nil)
+                case .tab: return ("Tab", nil)
+                case .delete: return ("Delete", nil)
+                case .forwardDelete: return ("ForwardDelete", nil)
+                case .linefeed: return ("Linefeed", nil)
+                case .escape: return ("Escape", nil)
+                case .command: return ("Command", nil)
+                case .shift: return ("Shift", nil)
+                case .capsLock: return ("CapsLock", nil)
+                case .option: return ("Option", nil)
+                case .control: return ("Control", nil)
+                case .rightShift: return ("RightShift", nil)
+                case .rightOption: return ("RightOption", nil)
+                case .rightControl: return ("RightControl", nil)
+                case .function: return ("Function", nil)
+                case .f1: return ("F1", nil)
+                case .f2: return ("F2", nil)
+                case .f3: return ("F3", nil)
+                case .f4: return ("F4", nil)
+                case .f5: return ("F5", nil)
+                case .f6: return ("F6", nil)
+                case .f7: return ("F7", nil)
+                case .f8: return ("F8", nil)
+                case .f9: return ("F9", nil)
+                case .f10: return ("F10", nil)
+                case .f11: return ("F11", nil)
+                case .f12: return ("F12", nil)
+                case .f13: return ("F13", nil)
+                case .f14: return ("F14", nil)
+                case .f15: return ("F15", nil)
+                case .f16: return ("F16", nil)
+                case .f17: return ("F17", nil)
+                case .f18: return ("F18", nil)
+                case .f19: return ("F19", nil)
+                case .f20: return ("F20", nil)
+                case .volumeUp: return ("VolumeUp", nil)
+                case .volumeDown: return ("VolumeDown", nil)
+                case .mute: return ("Mute", nil)
+                case .insertHelp: return ("Insert/Help", nil)
+                case .home: return ("Home", nil)
+                case .end: return ("End", nil)
+                case .pageUp: return ("PageUp", nil)
+                case .pageDown: return ("PageDown", nil)
+                case .arrowLeft: return ("ArrowLeft", nil)
+                case .arrowRight: return ("ArrowRight", nil)
+                case .arrowDown: return ("ArrowDown", nil)
+                case .arrowUp: return ("ArrowUp", nil)
+                case .power: return ("Power", nil)
                 }
             }
         }
