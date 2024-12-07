@@ -249,7 +249,7 @@
         ]
         
         /// They key of an event.
-        enum Key: UInt16, CaseIterable {
+        enum Key: UInt16, CaseIterable, Hashable, Codable {
             /// 0
             case zero = 29
             /// 1
