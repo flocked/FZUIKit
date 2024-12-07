@@ -1,5 +1,5 @@
 //
-//  NSCollectionViewLayoutAttributes+Transform.swift
+//  NSCollectionViewLayoutAttributes+.swift
 //
 //
 //  Created by Florian Zand on 07.12.24.
