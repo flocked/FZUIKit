@@ -57,13 +57,19 @@ extension NSCollectionLayoutVisibleItem {
     /// The transform applied to the item, relative to the center of its bounds.
     public var transform: CGAffineTransform {
         get { layoutAttributes?.transform ?? .identity }
-        set { layoutAttributes?.transform = newValue }
+        set { 
+            layoutAttributes?.transform = newValue
+            (self as? NSObject)?.setValue(newValue, forKey: "transform")
+        }
     }
     
     /// The 3D transform applied to the item.
     public var transform3D: CATransform3D {
         get { layoutAttributes?.transform3D ?? .identity }
-        set { layoutAttributes?.transform3D = newValue }
+        set { 
+            layoutAttributes?.transform3D = newValue
+            (self as? NSObject)?.setValue(newValue, forKey: "transform3D")
+        }
     }
     
     var layoutAttributes: NSCollectionViewLayoutAttributes? {
