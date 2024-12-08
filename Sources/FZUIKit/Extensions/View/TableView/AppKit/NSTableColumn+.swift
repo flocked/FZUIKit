@@ -102,6 +102,43 @@
             tableView?.visibleColumns.contains(self) ?? false
         }
         
+        /// The index of the column in it's table view.
+        var index: Int? {
+            tableView?.tableColumns.firstIndex(of: self)
+        }
+        
+        /// Toggles the sorting order of the sort descriptor.
+        func toggleSortDescriptorOrder() {
+            sortDescriptorPrototype = sortDescriptorPrototype?.reversed
+        }
+        
+        enum SortOrder {
+            case ascending
+            case descending
+        }
+        
+        var isSortingAscending: SortOrder? {
+            get {
+                guard let tableView = tableView, let sortDescriptor = sortDescriptorPrototype else { return nil }
+                guard tableView.sortDescriptors.first == sortDescriptor else { return nil }
+                return sortDescriptor.ascending ? .ascending : .descending
+            }
+            set {
+                guard let tableView = tableView, let sortDescriptor = sortDescriptorPrototype else { return }
+                if let newValue = newValue {
+                    sortDescriptor.ascending
+                    if let index = tableView.sortDescriptors.firstIndex(of: sortDescriptor) {
+                        tableView.sortDescriptors = tableView.sortDescriptors.remove(at: index) + tableView.sortDescriptors
+                    } else {
+                        tableView.sortDescriptors = sortDescriptor + tableView.sortDescriptors
+                    }
+                } else {
+                    tableView.sortDescriptors.remove(sortDescriptor)
+                }
+            }
+        }
+        
+        
         /// A Boolean that indicates whether the table column is sorting the table view.
         var isSorting: Bool {
             get {

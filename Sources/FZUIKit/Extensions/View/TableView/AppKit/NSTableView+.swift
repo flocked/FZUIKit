@@ -17,6 +17,16 @@
             return tableView
         }
         
+        /// Toggles the sorting order of the sort descriptor.
+        func toggleSortDescriptorOrder() {
+            var sortDescriptors = sortDescriptors
+            if let reversed = sortDescriptors.first?.reversed {
+                sortDescriptors.removeFirst()
+                sortDescriptors = [reversed] + sortDescriptors
+                self.sortDescriptors = sortDescriptors
+            }
+        }
+        
         /**
          An index set containing the indexes for a right event.
          
