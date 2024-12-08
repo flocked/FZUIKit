@@ -260,28 +260,32 @@
             subviews(depth: depth).filter { predicate($0) == true }
         }
         
+        /// Positions the view above the specified view.
+        @objc open func position(above view: NSUIView) {
+            guard let superview = view.superview else { return }
+            #if os(macOS)
+            superview.addSubview(self, positioned: .above, relativeTo: view)
+            #else
+            superview.insertSubview(self, aboveSubview: view)
+            #endif
+        }
+        
+        /// Positions the view behind the specified view.
+        @objc open func postion(behind view: NSUIView) {
+            guard let superview = view.superview else { return }
+            #if os(macOS)
+            superview.addSubview(self, positioned: .below, relativeTo: view)
+            #else
+            superview.insertSubview(self, belowSubview: view)
+            #endif
+        }
+        
         /// Animates a transition to changes made to the view after calling this.
         @objc open func transition(_ transition: CATransition?) {
             if let transition = transition {
                 optionalLayer?.add(transition, forKey: CATransitionType.fade.rawValue)
             } else {
                 optionalLayer?.removeAnimation(forKey: CATransitionType.fade.rawValue)
-            }
-        }
-        
-        /// The transition for changes made to the view.
-        @objc var transitionAlt: CATransition? {
-            get { optionalLayer?.animation(forKey: CATransitionType.fade.rawValue) as? CATransition }
-            set {
-                if let transition = newValue {
-                    transition.onStop = { [weak self] in
-                        guard let self = self else { return }
-                        self.optionalLayer?.add(transition, forKey: CATransitionType.fade.rawValue)
-                    }
-                    optionalLayer?.add(transition, forKey: CATransitionType.fade.rawValue)
-                } else {
-                    optionalLayer?.removeAnimation(forKey: CATransitionType.fade.rawValue)
-                }
             }
         }
 
