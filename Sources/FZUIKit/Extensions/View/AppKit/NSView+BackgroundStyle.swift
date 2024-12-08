@@ -88,7 +88,9 @@ class BackgroundStyleObserverView: NSControl {
         override var backgroundStyle: NSView.BackgroundStyle {
             get { super.backgroundStyle }
             set {
+                let backgroundStyleChanged = backgroundStyle != newValue
                 super.backgroundStyle = newValue
+                guard backgroundStyleChanged else { return }
                 (controlView as? BackgroundStyleObserverView)?.handler?(newValue)
             }
         }
