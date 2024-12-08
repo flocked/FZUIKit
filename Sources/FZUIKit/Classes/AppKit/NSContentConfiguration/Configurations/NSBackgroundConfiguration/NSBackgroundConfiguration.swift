@@ -88,7 +88,7 @@
         var shadowTransformer: ShadowTransformer?
         var _colorTransformer: ColorTransformer?
         var isSelected: Bool? = nil
-        var isActive: Bool? = nil
+        var activeState: Int? = nil
 
         var resolvedShadow: ShadowConfiguration {
             shadowTransformer?(shadow) ?? shadow
@@ -104,11 +104,11 @@
         }
 
         public func updated(for state: NSConfigurationState) -> NSBackgroundConfiguration {
-            guard let isSelected = state["isSelected"] as? Bool, let isActive = state["isActive"] as? Bool, self.isSelected != isSelected, self.isActive != isActive else { return self }
-            
+            guard let isSelected = state["isSelected"] as? Bool, let activeState = state["activeState"] as? Int, self.isSelected != isSelected, self.activeState != activeState else { return self }
+            let isActive = activeState != 0
             var configuration = self
             configuration.isSelected = isSelected
-            configuration.isActive = isActive
+            configuration.activeState = activeState
             configuration._colorTransformer = .init("resolved") { color in
                 isSelected ? .controlAccentColor.withAlphaComponent(isActive ? 0.5 : 0.2) : color.withAlphaComponent(color.alphaComponent / (isActive ? 1.0 : 2.0))
             }
