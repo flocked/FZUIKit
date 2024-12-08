@@ -127,6 +127,11 @@ extension NSView {
         set { setAssociatedValue(newValue, key: "mainWindowObservation") }
     }
     
+    var backgroundStyleObserverView: BackgroundStyleObserverView? {
+        get { getAssociatedValue("backgroundStyleObserverView") }
+        set { setAssociatedValue(newValue, key: "backgroundStyleObserverView") }
+    }
+    
     func setupObservation() {
         func observe<Value: Equatable>(_ keyPath: KeyPath<NSView, Value>, handler: KeyPath<NSView, ((Value)->())?>) {
             if self[keyPath: handler] == nil {
@@ -147,26 +152,17 @@ extension NSView {
         observe(\.frame, handler: \.viewHandlers.frame)
         observe(\.superview, handler: \.viewHandlers.superview)
         if viewHandlers.backgroundStyle == nil {
-            resetMethod(NSSelectorFromString("_setBackgroundStyleForSubtree:"))
-        } else if !isMethodReplaced(NSSelectorFromString("_setBackgroundStyleForSubtree:")) {
-            __backgroundStyle = (self as? NSTableCellView)?.backgroundStyle ?? (self as? NSControl)?.backgroundStyle ?? __backgroundStyle
-            do {
-                try replaceMethod(
-                    NSSelectorFromString("_setBackgroundStyleForSubtree:"),
-                    methodSignature: (@convention(c)  (AnyObject, Selector, NSView.BackgroundStyle) -> ()).self,
-                    hookSignature: (@convention(block)  (AnyObject, NSView.BackgroundStyle) -> ()).self) { store in {
-                        object, backgroundStyle in
-                        store.original(object, NSSelectorFromString("_setBackgroundStyleForSubtree:"), backgroundStyle)
-                        if let object = object as? Self, object.__backgroundStyle != backgroundStyle {
-                            object.__backgroundStyle = backgroundStyle
-                            object.viewHandlers.backgroundStyle?(backgroundStyle)
-                        }
-                    }
-                    }
-            } catch {
-                // handle error
-                debugPrint(error)
+            backgroundStyleObserverView?.removeFromSuperview()
+            backgroundStyleObserverView = nil
+        } else if backgroundStyleObserverView == nil {
+            backgroundStyleObserverView = .init(frame: .zero)
+            backgroundStyleObserverView?.handler = { [weak self] backgroundStyle in
+                guard let self = self else { return }
+                self.viewHandlers.backgroundStyle?(backgroundStyle)
             }
+            addSubview(backgroundStyleObserverView!)
+            backgroundStyleObserverView?.sendToBack()
+            backgroundStyleObserverView?.zPosition = -4000
         }
         
         if windowHandlers.frame == nil {
