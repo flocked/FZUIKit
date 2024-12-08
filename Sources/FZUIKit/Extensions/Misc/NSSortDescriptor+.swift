@@ -15,7 +15,7 @@ import UIKit
 extension NSSortDescriptor {
     /// Returns the sort descriptor with reversed sorting order.
     public var reversed: Self {
-        return value(forKey: "reversedSortDescriptor") as? Self ?? self
+        return reversedSortDescriptor as? Self ?? self
     }
 }
 #endif
