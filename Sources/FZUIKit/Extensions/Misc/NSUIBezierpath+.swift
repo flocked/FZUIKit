@@ -166,6 +166,19 @@ import FZSwiftUtils
         }
         
         /**
+         Creates a Bézier path for the specified symbol image and symbol configuration.
+         
+         - Parameters:
+            - symbolName: The name of the system symbol image.
+            - symbolConfiguration: The symbol configuration.
+         */
+        @available(macOS 11.0, *)
+        convenience init?(symbolName: String, symbolConfiguration: NSImage.SymbolConfiguration) {
+            guard let path = NSImage(systemSymbolName: symbolName)?.withSymbolConfiguration(symbolConfiguration)?.value(forKey: "outlinePath") as? NSBezierPath else { return nil }
+            self.init(cgPath: path.cgPath)
+        }
+        
+        /**
          The Core Graphics representation of the path.
 
          This property contains a snapshot of the path at any given point in time. Getting this property returns an immutable path object that you can pass to Core Graphics functions. The path object itself is owned by the `NSBezierPath` object and is valid only until you make further modifications to the path.
