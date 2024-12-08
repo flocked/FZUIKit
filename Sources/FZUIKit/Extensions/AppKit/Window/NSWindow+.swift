@@ -523,10 +523,12 @@ extension NSWindow {
      
      The value takes into account the tab bar, as well as transparent title bars and full size content.
      */
-    @objc open var titleBarHeight: CGFloat {
-        let frameHeight = contentView?.frame.height ?? frame.height
-        let contentLayoutRectHeight = contentLayoutRect.height
-        return frameHeight - contentLayoutRectHeight
+    @objc open var titlebarHeight: CGFloat {
+        if styleMask.contains(.fullSizeContentView), let windowFrameHeight = contentView?.frame.height {
+            let contentLayoutRectHeight = contentLayoutRect.height
+            return windowFrameHeight - contentLayoutRectHeight
+        }
+        return frame.height - contentRect(forFrameRect: frame).height
     }
     
     /// A Boolean value that indicates whether window currently displays a tab bar.
