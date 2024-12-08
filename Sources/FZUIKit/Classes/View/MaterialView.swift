@@ -57,7 +57,7 @@ class MaterialView: NSUIView {
     /// The material of the background.
     public var _material: Material = .thinMaterial {
         didSet {
-            guard oldValue != _material else { return }
+            // guard oldValue != _material else { return }
             hostingController.rootView = MaterialView(material: _material)
         }
     }
@@ -68,9 +68,10 @@ class MaterialView: NSUIView {
      - Parameter material: The material of the background.
      */
     public init(material: Material = .thinMaterial) {
-        self._material = material
         super.init(frame: .zero)
         sharedInit()
+        _material = material
+        hostingController.rootView = MaterialView(material: material)
     }
     
     public override init(frame frameRect: NSRect) {
