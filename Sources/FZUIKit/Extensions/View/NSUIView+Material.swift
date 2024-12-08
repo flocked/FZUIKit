@@ -1,12 +1,11 @@
 //
-//  MaterialView.swift
+//  NSUIView+Material.swift
 //
 //
 //  Created by Florian Zand on 08.12.24.
 //
 
 
-/*
 #if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
@@ -18,16 +17,16 @@ import SwiftUI
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, *)
 extension NSUIView {
-    /// Sets the material of the background.
+    /// Sets the material of the view background.
     @discardableResult
     public func material(_ material: Material?) -> Self {
         self.material = material
         return self
     }
     
-    /// The material of the background.
+    /// The material of the view background.
     public var material: Material? {
-        get { materialView?.material }
+        get { materialView?._material }
         set {
             guard newValue != material else { return }
             if let newValue = newValue {
@@ -36,7 +35,7 @@ extension NSUIView {
                     addSubview(withConstraint: materialView!)
                     materialView?.sendToBack()
                 }
-                materialView?.material = newValue
+                materialView?._material = newValue
             } else {
                 materialView?.removeFromSuperview()
                 materialView = nil
@@ -58,7 +57,7 @@ class MaterialView: NSUIView {
     /// The material of the background.
     public var _material: Material = .thinMaterial {
         didSet {
-            // guard oldValue != _material else { return }
+            guard oldValue != _material else { return }
             hostingController.rootView = MaterialView(material: _material)
         }
     }
@@ -70,9 +69,8 @@ class MaterialView: NSUIView {
      */
     public init(material: Material = .thinMaterial) {
         super.init(frame: .zero)
-        sharedInit()
         _material = material
-        hostingController.rootView = MaterialView(material: material)
+        sharedInit()
     }
     
     public override init(frame frameRect: NSRect) {
@@ -102,4 +100,3 @@ class MaterialView: NSUIView {
     }
 }
 #endif
-*/

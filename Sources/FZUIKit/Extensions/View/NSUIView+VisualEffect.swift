@@ -73,7 +73,6 @@ extension NSUIView {
     }
 }
 
-import FZSwiftUtils
 class BackgroundVisualEffectView: NSUIVisualEffectView {
     var observer: KeyValueObserver<NSUIVisualEffectView>!
 
