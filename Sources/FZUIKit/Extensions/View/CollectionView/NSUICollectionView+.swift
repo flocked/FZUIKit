@@ -190,4 +190,11 @@ import FZSwiftUtils
             }
         }
     }
+
+public extension NSUICollectionView.ScrollDirection {
+    /// Toggles the scroll direction.
+    mutating func toggle() {
+        self = (self == .vertical) ? .horizontal : .vertical
+    }
+}
 #endif
