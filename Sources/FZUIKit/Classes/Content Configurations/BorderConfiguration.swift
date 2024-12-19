@@ -220,7 +220,7 @@ extension NSAttributedString {
     
     /// The stroke configuration of the attributed string.
     var stroke: BorderConfiguration? {
-        guard let color: NSUIColor = self[.strokeColor], let width: CGFloat = self[.strokeWidth] else { return nil }
+        guard let color = strokeColor, let width = strokeWidth else { return nil }
         return BorderConfiguration(color: color, width: width)
     }
 }
