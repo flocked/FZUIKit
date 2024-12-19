@@ -411,11 +411,35 @@
                 }
             }
         }
+        
+        var borderColorTransform: ColorTransformer? {
+            get { getAssociatedValue("borderColorTransform") }
+            set { setAssociatedValue(newValue, key: "borderColorTransform") }
+        }
+        
+        var borderInsets: NSDirectionalEdgeInsets {
+            get { getAssociatedValue("borderInsets") ?? .zero }
+            set { setAssociatedValue(newValue, key: "borderInsets") }
+        }
+        
+        var borderDash: BorderConfiguration.Dash {
+            get { getAssociatedValue("borderDash") ?? .init() }
+            set { setAssociatedValue(newValue, key: "borderDash") }
+        }
+
 
         var _border: BorderConfiguration {
             get { getAssociatedValue("_border", initialValue: .init(color: realSelf._borderColor, width: realSelf._borderWidth)) }
             set { setAssociatedValue(newValue, key: "_border") }
         }
+        
+        /*
+         /// The insets of the border.
+         public var insets: NSDirectionalEdgeInsets = .init(0)
+         
+         /// The properties of the border dash.
+         public var dash: Dash = Dash()
+         */
 
         @objc var _borderWidth: CGFloat {
             get { (self as? NSBox)?.borderWidth ?? layer?.borderWidth ?? 0.0 }
