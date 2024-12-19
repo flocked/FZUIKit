@@ -41,12 +41,12 @@
         
         /// The scaling of the media.
         public enum MediaScaling: Int {
-            /// The media is resized to fit the entire bounds rectangle.
-            case resize
-            /// The media is resized to completely fill the bounds rectangle, while still preserving the aspect of the image.
-            case scaleToFill
             /// The media is resized to fit the bounds rectangle, preserving the aspect of the image.
             case scaleToFit
+            /// The media is resized to completely fill the bounds rectangle, while still preserving the aspect of the image.
+            case scaleToFill
+            /// The media is resized to fit the entire bounds rectangle.
+            case resize
             /// The media isn't resized.
             case none
             
