@@ -4,11 +4,10 @@
 //
 //  Created by Florian Zand on 07.12.24.
 //
-/*
+
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
-
 
 extension NSCollectionViewLayoutAttributes {
     /**
@@ -27,8 +26,8 @@ extension NSCollectionViewLayoutAttributes {
      Assigning a value to this property replaces the value in the ``transform3D`` property with a 3D version of the affine transform you specify.
      */
     public var transform: CGAffineTransform {
-        get { transformable.getAssociatedValue("transform") ?? .identity }
-        set { transformable.setAssociatedValue(newValue, key: "transform") }
+        get { transformable.value(forKey: Keys.transform.unmangled) as? CGAffineTransform ?? .identity }
+        set { transformable.setValue(newValue, forKey: Keys.transform.unmangled) }
     }
     
     /**
@@ -37,8 +36,8 @@ extension NSCollectionViewLayoutAttributes {
      Assigning a value to this property replaces the value in the ``transform`` property with an affine version of the 3D transform you specify.
      */
     public var transform3D: CATransform3D {
-        get { transformable.getAssociatedValue("transform3D") ?? .identity }
-        set { transformable.setAssociatedValue(newValue, key: "transform3D") }
+        get { transformable.value(forKey: Keys.transform3D.unmangled) as? CATransform3D ?? .identity }
+        set { transformable.setValue(newValue, forKey: Keys.transform3D.unmangled) }
     }
     
     var transformable: Self {
@@ -101,28 +100,14 @@ extension NSCollectionViewItem {
                             }
                         }
                         }
-                    try NSCollectionViewItem.replaceMethod(
-                        #selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)),
-                        methodSignature: (@convention(c)  (AnyObject, Selector, NSCollectionViewLayoutAttributes) -> (NSCollectionViewLayoutAttributes)).self,
-                        hookSignature: (@convention(block)  (AnyObject, NSCollectionViewLayoutAttributes) -> (NSCollectionViewLayoutAttributes)).self) { store in {
-                            object, attributes in
-                            if let view = (object as? NSCollectionViewItem)?.view {
-                                attributes.transform = view.transform
-                                attributes.transform3D = view.transform3D
-                            }
-                            return store.original(object, #selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)), attributes)
-                        }
-                        }
                 } catch {
                     Swift.print(error)
                 }
             } else {
                 NSCollectionViewItem.resetMethod(#selector(NSCollectionViewItem.apply))
-                NSCollectionViewItem.resetMethod(#selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)))
 
             }
         }
     }
 }
 #endif
-*/
