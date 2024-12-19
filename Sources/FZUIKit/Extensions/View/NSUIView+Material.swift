@@ -73,7 +73,7 @@ class MaterialView: NSUIView {
         sharedInit()
     }
     
-    public override init(frame frameRect: NSRect) {
+    public override init(frame frameRect: CGRect) {
         super.init(frame: frameRect)
         sharedInit()
     }

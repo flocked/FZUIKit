@@ -13,7 +13,7 @@ extension UIAlertAction {
     /// A block to execute when the user selects the action. This block has no return value and takes the selected action object as its only parameter.
     public var handler: ((UIAlertAction) -> Void)? {
         get {
-            guard let block = value(forKey: "handler") else { return nil }
+            guard let block = value(forKey: Keys.handler.unmangled) else { return nil }
             let blockPtr = UnsafeRawPointer(Unmanaged<AnyObject>.passUnretained(block as AnyObject).toOpaque())
             return unsafeBitCast(blockPtr, to: AlertHandler.self)
         }
@@ -22,7 +22,7 @@ extension UIAlertAction {
                 let swiftClosure: AlertHandler = { action in
                     newValue(action)
                 }
-                setValue(unsafeBitCast(swiftClosure, to: AnyObject.self), forKey: "handler")
+                setValue(unsafeBitCast(swiftClosure, to: AnyObject.self), forKey: Keys.handler.unmangled)
             } else {
                 setValue(nil, forKey: "handler")
             }
@@ -32,18 +32,18 @@ extension UIAlertAction {
     typealias AlertHandler = @convention(block) (UIAlertAction) -> Void
     
     var isSuppressable: Bool {
-        get { !isMethodReplaced(NSSelectorFromString("setHandler:")) }
+        get { !isMethodReplaced(NSSelectorFromString(Keys.setHandler.unmangled)) }
         set {
             guard newValue != isSuppressable else { return }
             if newValue {
                 do {
                     try replaceMethod(
-                     NSSelectorFromString("setHandler:"),
+                     NSSelectorFromString(Keys.setHandler.unmangled),
                     methodSignature: (@convention(c)  (AnyObject, Selector, Any?) -> ()).self,
                     hookSignature: (@convention(block)  (AnyObject, Any?) -> ()).self) { store in {
                         object, action in
                         Swift.print("set", action ?? "nil")
-                        store.original(object, NSSelectorFromString("setHandler:"), action)
+                        store.original(object, NSSelectorFromString(Keys.setHandler.unmangled), action)
                         }
                     }
                 } catch {
@@ -56,8 +56,8 @@ extension UIAlertAction {
     func swizzle() {
         do {
             try Swizzle(UIAlertAction.self) {
-                NSSelectorFromString("setHandler:") <-> #selector(setter: swizzled_handler)
-                NSSelectorFromString("handler") <-> #selector(getter: swizzled_handler)
+                NSSelectorFromString(Keys.setHandler.unmangled) <-> #selector(setter: swizzled_handler)
+                NSSelectorFromString(Keys.handler.unmangled) <-> #selector(getter: swizzled_handler)
             }
         } catch {
             Swift.debugPrint(error)
@@ -81,8 +81,8 @@ extension UIAlertAction {
     static func swizzle() {
         do {
             try Swizzle(UIAlertAction.self) {
-                NSSelectorFromString("setHandler:") <-> #selector(setter: swizzled_handler)
-                NSSelectorFromString("handler") <-> #selector(getter: swizzled_handler)
+                NSSelectorFromString(Keys.setHandler.unmangled) <-> #selector(setter: swizzled_handler)
+                NSSelectorFromString(Keys.handler.unmangled) <-> #selector(getter: swizzled_handler)
 
             }
         } catch {
@@ -93,13 +93,16 @@ extension UIAlertAction {
     @objc var swizzled_handler: ((UIAlertAction) -> Void)? {
         get {
             let handler = self.swizzled_handler
-            Swift.print("swizzled_handler get", handler ?? "nil")
             return handler
         }
         set {
-            Swift.print("swizzled_handler set", newValue ?? "nil")
             self.swizzled_handler = newValue
         }
+    }
+    
+    private struct Keys {
+        static let handler = "handler".mangled
+        static let setHandler = "setHandler:".mangled
     }
 }
 

@@ -25,13 +25,18 @@
             return CTFontGetAscent(ctFont) + CTFontGetDescent(ctFont) + CTFontGetLeading(ctFont)
         }
         
+        private struct Keys {
+            static let lineHeight = "lineHeight".mangled
+            static let baselineOffsetForUILayout = "_baselineOffsetForUILayout".mangled
+        }
+        
         /// The height, in points, of text lines.
         var lineHeightAlt: CGFloat {
-            value(forKey: "lineHeight") as? CGFloat ?? lineHeight
+            value(forKey: Keys.lineHeight.unmangled) as? CGFloat ?? lineHeight
         }
         
         internal var baselineOffset: CGFloat {
-            value(forKey: "_baselineOffsetForUILayout") as? CGFloat ?? 0.0
+            value(forKey: Keys.baselineOffsetForUILayout.unmangled) as? CGFloat ?? 0.0
         }
 
         internal var descenderReal: CGFloat {

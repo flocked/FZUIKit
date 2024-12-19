@@ -15,8 +15,8 @@ public extension NSButton {
      Creates a push button.
      
      - Parameters:
-        - title: The title of the button.
-        - image: The image of the button.
+     - title: The title of the button.
+     - image: The image of the button.
      */
     static func push(_ title: String? = nil, image: NSImage? = nil) -> Self {
         .button(title, image: image, style: .push)
@@ -26,8 +26,8 @@ public extension NSButton {
      Creates a push button.
      
      - Parameters:
-        - title: The title of the button.
-        - symbolName: The name of the symbol image.
+     - title: The title of the button.
+     - symbolName: The name of the symbol image.
      */
     @available(macOS 11.0, *)
     static func push(_ title: String? = nil, symbolName: String) -> Self {
@@ -38,8 +38,8 @@ public extension NSButton {
      Creates a push button.
      
      - Parameters:
-        - title: The title of the button.
-        - image: The image of the button.
+     - title: The title of the button.
+     - image: The image of the button.
      */
     static func flexiblePush(_ title: String? = nil, image: NSImage? = nil) -> Self {
         .button(title, image: image, style: .push)
@@ -49,8 +49,8 @@ public extension NSButton {
      Creates a push button.
      
      - Parameters:
-        - title: The title of the button.
-        - symbolName: The name of the symbol image.
+     - title: The title of the button.
+     - symbolName: The name of the symbol image.
      */
     @available(macOS 11.0, *)
     static func flexiblePush(_ title: String? = nil, symbolName: String) -> Self {
@@ -61,8 +61,8 @@ public extension NSButton {
      Creates a button that’s appropriate for a toolbar item.
      
      - Parameters:
-        - title: The title of the button.
-        - image: The image of the button.
+     - title: The title of the button.
+     - image: The image of the button.
      */
     static func toolbar(_ title: String? = nil, image: NSImage? = nil) -> Self {
         .button(title, image: image, style: .toolbar)
@@ -72,8 +72,8 @@ public extension NSButton {
      Creates a button that’s appropriate for a toolbar item.
      
      - Parameters:
-        - title: The title of the button.
-        - symbolName: The name of the symbol image.
+     - title: The title of the button.
+     - symbolName: The name of the symbol image.
      */
     @available(macOS 11.0, *)
     static func toolbar(_ title: String? = nil, symbolName: String) -> Self {
@@ -84,8 +84,8 @@ public extension NSButton {
      Creates a button that’s typically used in the context of an accessory toolbar for buttons that narrow the focus of a search or other operation.
      
      - Parameters:
-        - title: The title of the button.
-        - symbolName: The name of the symbol image.
+     - title: The title of the button.
+     - symbolName: The name of the symbol image.
      */
     static func accessoryBar(_ title: String? = nil, image: NSImage? = nil) -> Self {
         .button(title, image: image, style: .accessoryBar)
@@ -95,8 +95,8 @@ public extension NSButton {
      Creates a button that’s typically used in the context of an accessory toolbar for buttons that narrow the focus of a search or other operation.
      
      - Parameters:
-        - title: The title of the button.
-        - image: The image of the button.
+     - title: The title of the button.
+     - image: The image of the button.
      */
     @available(macOS 11.0, *)
     static func accessoryBar(_ title: String? = nil, symbolName: String) -> Self {
@@ -107,8 +107,8 @@ public extension NSButton {
      Creates a button that you use for extra actions in an accessory toolbar.
      
      - Parameters:
-        - title: The title of the button.
-        - image: The image of the button.
+     - title: The title of the button.
+     - image: The image of the button.
      */
     static func accessoryBarAction(_ title: String? = nil, image: NSImage? = nil) -> Self {
         .button(title, image: image, style: .accessoryBarAction)
@@ -118,8 +118,8 @@ public extension NSButton {
      Creates a button that you use for extra actions in an accessory toolbar.
      
      - Parameters:
-        - title: The title of the button.
-        - symbolName: The name of the symbol image.
+     - title: The title of the button.
+     - symbolName: The name of the symbol image.
      */
     @available(macOS 11.0, *)
     static func accessoryBarAction(_ title: String? = nil, symbolName: String) -> Self {
@@ -181,8 +181,8 @@ public extension NSButton {
      Creates a square bezeled button that displays the specified image.
      
      - Parameters:
-        - title: The title of the button.
-        - symbolName: The name of the symbol image.
+     - title: The title of the button.
+     - symbolName: The name of the symbol image.
      */
     static func smallSquare(_ title: String? = nil, image: NSUIImage? = nil) -> Self {
         .button(title, image: image, style: .smallSquare)
@@ -192,8 +192,8 @@ public extension NSButton {
      Creates a square bezeled button that displays the specified symbol image.
      
      - Parameters:
-        - title: The title of the button.
-        - image: The image of the button.
+     - title: The title of the button.
+     - image: The image of the button.
      */
     @available(macOS 11.0, *)
     static func smallSquare(_ title: String? = nil, symbolName: String) -> Self {
@@ -204,8 +204,8 @@ public extension NSButton {
      Creates a button with a  button style based on the button’s contents and position within the window.
      
      - Parameters:
-        - title: The title of the button.
-        - image: The image of the button.
+     - title: The title of the button.
+     - image: The image of the button.
      */
     @available(macOS 14.0, *)
     static func automatic(_ title: String? = nil, image: NSImage? = nil) -> Self {
@@ -216,14 +216,14 @@ public extension NSButton {
      Creates a button with a  button style based on the button’s contents and position within the window.
      
      - Parameters:
-        - title: The title of the button.
-        - symbolName: The name of the symbol image.
+     - title: The title of the button.
+     - symbolName: The name of the symbol image.
      */
     @available(macOS 14.0, *)
     static func automatic(_ title: String? = nil, symbolName: String) -> Self {
         .button(title, symbolName: symbolName, style: .automatic)
     }
-        
+    
     /// Creates a button with a disclosure triangle.
     static var disclosure:  Self {
         .button("", style: .disclosure).buttonType(.onOff)
@@ -273,8 +273,8 @@ public extension NSButton {
      Creates a push button.
      
      - Parameters:
-        - title: The title of the button.
-        - image: The image of the button.
+     - title: The title of the button.
+     - image: The image of the button.
      */
     static func borderless(_ title: String? = nil, image: NSImage) -> Self {
         let button = Self.push(title, image: image).isBordered(false)
@@ -286,8 +286,8 @@ public extension NSButton {
      Creates a borderless button.
      
      - Parameters:
-        - title: The title of the button.
-        - symbolName: The name of the symbol image.
+     - title: The title of the button.
+     - symbolName: The name of the symbol image.
      */
     @available(macOS 11.0, *)
     static func borderless(_ title: String? = nil, symbolName: String) -> Self {
@@ -300,9 +300,9 @@ public extension NSButton {
      Creates a check box button.
      
      - Parameters:
-        - title: The title of the button.
-        - image: The image of the button.
-        - isChecked: A Boolean value that indicates whether the checkbox is checked.
+     - title: The title of the button.
+     - image: The image of the button.
+     - isChecked: A Boolean value that indicates whether the checkbox is checked.
      */
     static func checkbox(_ title: String? = nil, image: NSImage? = nil, isChecked: Bool = false) -> Self {
         let button = Self(checkboxWithTitle: title ?? "", target: nil, action: nil)
@@ -316,9 +316,9 @@ public extension NSButton {
      Creates a check box button.
      
      - Parameters:
-        - title: The title of the button.
-        - symbolName: The name of the symbol image.
-        - isChecked: A Boolean value that indicates whether the checkbox is checked.
+     - title: The title of the button.
+     - symbolName: The name of the symbol image.
+     - isChecked: A Boolean value that indicates whether the checkbox is checked.
      */
     @available(macOS 11.0, *)
     static func checkbox(_ title: String? = nil, symbolName: String, isChecked: Bool = false) -> Self {
@@ -329,9 +329,9 @@ public extension NSButton {
      Creates a radio button.
      
      - Parameters:
-        - title: The title of the button.
-        - image: The image of the button.
-        - isSelected: A Boolean value that indicates whether the radio is is selected.
+     - title: The title of the button.
+     - image: The image of the button.
+     - isSelected: A Boolean value that indicates whether the radio is is selected.
      */
     static func radio(_ title: String? = nil, image: NSImage? = nil, isSelected: Bool = false) -> Self {
         let button = Self(radioButtonWithTitle: title ?? "", target: nil, action: nil)
@@ -345,9 +345,9 @@ public extension NSButton {
      Creates a radio button.
      
      - Parameters:
-        - title: The title of the button.
-        - symbolName: The name of the symbol image.
-        - isSelected: A Boolean value that indicates whether the radio is is selected.
+     - title: The title of the button.
+     - symbolName: The name of the symbol image.
+     - isSelected: A Boolean value that indicates whether the radio is is selected.
      */
     @available(macOS 11.0, *)
     static func radio(_ title: String? = nil, symbolName: String, isSelected: Bool = false) -> Self {
@@ -357,7 +357,7 @@ public extension NSButton {
     /// The button type which affects its user interface and behavior when clicked.
     var buttonType: ButtonType {
         get {
-            if let rawValue: UInt = cell?.value(forKey: "_buttonType") as? UInt, let buttonType = ButtonType(rawValue: rawValue) {
+            if let rawValue: UInt = cell?.value(forKey: Keys.buttonType.unmangled) as? UInt, let buttonType = ButtonType(rawValue: rawValue) {
                 return buttonType
             }
             return .momentaryPushIn
@@ -778,6 +778,10 @@ public extension NSButton {
             isBordered = false
         }
         sizeToFit(imageToTitleSpacing: 4.0)
+    }
+    
+    private struct Keys {
+        static let buttonType = "_buttonType".mangled
     }
     
     /*

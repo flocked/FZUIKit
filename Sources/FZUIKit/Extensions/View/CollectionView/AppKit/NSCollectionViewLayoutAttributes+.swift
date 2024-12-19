@@ -4,10 +4,11 @@
 //
 //  Created by Florian Zand on 07.12.24.
 //
-
+/*
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
+
 
 extension NSCollectionViewLayoutAttributes {
     /**
@@ -26,14 +27,8 @@ extension NSCollectionViewLayoutAttributes {
      Assigning a value to this property replaces the value in the ``transform3D`` property with a 3D version of the affine transform you specify.
      */
     public var transform: CGAffineTransform {
-        get {
-            NSCollectionViewItem.isTransformableByLayoutAttributes = true
-            return getAssociatedValue("transform") ?? .identity
-        }
-        set {
-            NSCollectionViewItem.isTransformableByLayoutAttributes = true
-            setAssociatedValue(newValue, key: "transform")
-        }
+        get { transformable.getAssociatedValue("transform") ?? .identity }
+        set { transformable.setAssociatedValue(newValue, key: "transform") }
     }
     
     /**
@@ -42,15 +37,20 @@ extension NSCollectionViewLayoutAttributes {
      Assigning a value to this property replaces the value in the ``transform`` property with an affine version of the 3D transform you specify.
      */
     public var transform3D: CATransform3D {
-        get {
-            NSCollectionViewItem.isTransformableByLayoutAttributes = true
-            return getAssociatedValue("transform3D") ?? .identity
-        }
-        set {
-            NSCollectionViewItem.isTransformableByLayoutAttributes = true
-            setAssociatedValue(newValue, key: "transform3D")
-        }
+        get { transformable.getAssociatedValue("transform3D") ?? .identity }
+        set { transformable.setAssociatedValue(newValue, key: "transform3D") }
     }
+    
+    var transformable: Self {
+        NSCollectionViewItem.isTransformableByLayoutAttributes = true
+        return self
+    }
+}
+
+fileprivate struct Keys {
+    static let transform = "transform".mangled
+    static let transform3D = "transform3D".mangled
+    static let layoutAttributes = "layoutAttributes".mangled
 }
 
 extension NSCollectionLayoutVisibleItem {
@@ -59,7 +59,7 @@ extension NSCollectionLayoutVisibleItem {
         get { layoutAttributes?.transform ?? .identity }
         set { 
             layoutAttributes?.transform = newValue
-            (self as? NSObject)?.setValue(newValue, forKey: "transform")
+            (self as? NSObject)?.setValue(newValue, forKey: Keys.transform.unmangled)
         }
     }
     
@@ -68,13 +68,13 @@ extension NSCollectionLayoutVisibleItem {
         get { layoutAttributes?.transform3D ?? .identity }
         set { 
             layoutAttributes?.transform3D = newValue
-            (self as? NSObject)?.setValue(newValue, forKey: "transform3D")
+            (self as? NSObject)?.setValue(newValue, forKey: Keys.transform3D.unmangled)
         }
     }
     
     var layoutAttributes: NSCollectionViewLayoutAttributes? {
-        guard let self = self as? NSObject, self.responds(to: NSSelectorFromString("layoutAttributes")) else { return nil }
-        return self.value(forKey: "_layoutAttributes") as? NSCollectionViewLayoutAttributes
+        guard let self = self as? NSObject, self.responds(to: NSSelectorFromString(Keys.layoutAttributes.unmangled)) else { return nil }
+        return self.value(forKey: Keys.layoutAttributes.unmangled) as? NSCollectionViewLayoutAttributes
     }
 }
 
@@ -125,3 +125,4 @@ extension NSCollectionViewItem {
     }
 }
 #endif
+*/

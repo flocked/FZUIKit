@@ -199,6 +199,51 @@ extension NSUIView {
     }
 }
 
+extension NSAttributedString {
+    /**
+     Applies the specified border configuration to the attributed string.
+
+     - Parameter border: The border configuration to apply.
+
+     - Returns: A new sttributed string with the specified border configuration applied.
+     */
+    func stroke(_ stroke: BorderConfiguration?) -> NSAttributedString {
+        if let stroke = stroke {
+            if let color = stroke.resolvedColor() {
+                return applyingAttributes([.strokeColor: color, .strokeWidth: stroke.width])
+            }
+            return removingAttributes([.strokeColor]).applyingAttributes([.strokeWidth: stroke.width])
+        } else {
+            return removingAttributes([.strokeColor, .strokeWidth])
+        }
+    }
+    
+    /// The stroke configuration of the attributed string.
+    var stroke: BorderConfiguration? {
+        guard let color: NSUIColor = self[.strokeColor], let width: CGFloat = self[.strokeWidth] else { return nil }
+        return BorderConfiguration(color: color, width: width)
+    }
+}
+
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+public extension AttributedString {
+    /// The stroke configuration of the attributed string.
+    var stroke: BorderConfiguration? {
+        get { nsAttributedString.stroke }
+        set {
+            self.strokeColor = newValue?.resolvedColor()
+            self.strokeWidth = newValue?.width
+        }
+    }
+    
+    /// Sets the stroke configuration of the attributed string.
+    func stroke(_ stroke: BorderConfiguration?) -> AttributedString {
+        var string = self
+        string.stroke = stroke
+        return string
+    }
+}
+
 /// The Objective-C class for ``BorderConfiguration``.
 public class __BorderConfiguration: NSObject, NSCopying {
     let configuration: BorderConfiguration

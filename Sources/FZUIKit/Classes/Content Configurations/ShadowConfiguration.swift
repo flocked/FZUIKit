@@ -117,6 +117,10 @@ public struct ShadowConfiguration: Hashable {
     @available(iOS 15.0, tvOS 15.0, *)
     public static func tintColor(opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: -1.0, y: 1.5)) -> Self { Self(color: .tintColor, opacity: opacity, radius: radius, offset: offset) }
     #endif
+    
+    var nsShadow: NSShadow {
+        NSShadow(configuration: self)
+    }
 }
 
 extension ShadowConfiguration: Codable {
@@ -165,6 +169,61 @@ public extension View {
             self
         }
     }
+}
+public extension NSAttributedString {
+    /**
+     Applies the specified shadow to the attributed string.
+
+     - Parameter shadow: The shadow to apply.
+
+     - Returns: A new sttributed string with the specified shadow applied.
+     */
+    func shadow(_ shadow: ShadowConfiguration?) -> NSAttributedString {
+        if let shadow = shadow {
+            return applyingAttributes([.shadow:  NSShadow(configuration: shadow)])
+        } else {
+            return removingAttributes([.shadow])
+        }
+    }
+}
+
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+extension AttributedString {
+    #if os(macOS)
+    /// The shadow configuration of the attributed string.
+    @available(macOS 14.0, *)
+    var shadowConfiguration: ShadowConfiguration? {
+        get {
+            guard let shadow: NSShadow = nsAttributedString[.shadow] else { return nil }
+            #if os(macOS)
+            return ShadowConfiguration(color: shadow.shadowColor, radius: shadow.shadowBlurRadius, offset: shadow.shadowOffset.point)
+            #else
+            if let color = shadow.shadowColor as? NSUIColor {
+                return ShadowConfiguration(color: color, radius: shadow.shadowBlurRadius, offset: shadow.shadowOffset.point)
+            }
+            return nil
+            #endif
+        }
+        set {
+            self.shadow = newValue?.nsShadow
+        }
+    }
+    #else
+    /// The shadow configuration of the attributed string.
+    var shadowConfiguration: ShadowConfiguration? {
+        get {
+            guard let shadow = nsAttributedString.shadow else { return nil }
+            #if os(macOS)
+            return ShadowConfiguration(color: shadow.shadowColor, radius: shadow.shadowBlurRadius, offset: shadow.shadowOffset.point)
+            #else
+            if let color = shadow.shadowColor as? NSUIColor {
+                return ShadowConfiguration(color: color, radius: shadow.shadowBlurRadius, offset: shadow.shadowOffset.point)
+            }
+            return nil
+            #endif
+        }
+    }
+    #endif
 }
 
 @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
@@ -302,22 +361,3 @@ extension ShadowConfiguration: ReferenceConvertible {
     }
 }
 #endif
-
-/*
- public extension NSMutableAttributedString {
- /// Configurates the shadow of the attributed string.
- func configurate(using configuration: ShadowConfiguration) {
- var attributes = self.attributes(at: 0, effectiveRange: nil)
- attributes[.shadow] = configuration.isInvisible ? nil : NSShadow(configuration: configuration)
- self.setAttributes(attributes, range: NSRange(0..<length))
- }
- }
- 
- @available(macOS 12, iOS 15, tvOS 15, watchOS 8, *)
- public extension AttributedString {
- /// Configurates the shadow of the attributed string.
- mutating func configurate(using configuration: ShadowConfiguration) {
- self.shadow = configuration.isInvisible ? nil : NSShadow(configuration: configuration)
- }
- }
- */

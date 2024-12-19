@@ -11,6 +11,7 @@ import AppKit
 import UIKit
 #endif
 import SwiftUI
+import FZSwiftUtils
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension NSUIImage.SymbolConfiguration {
@@ -165,47 +166,58 @@ extension NSUIImage.SymbolConfiguration {
 
 @available(macOS 12.0, iOS 13.0, *)
 extension NSUIImage.SymbolConfiguration {
+    private struct Keys {
+        static let weight = "weight".mangled
+        static let pointSize = "pointSize".mangled
+        static let prefersMulticolor = "prefersMulticolor".mangled
+        static let scale = "scale".mangled
+        static let colors = "_colors".mangled
+        static let paletteType = "paletteType".mangled
+        static let renderingStyle = "renderingStyle".mangled
+        static let textStyle = "textStyle".mangled
+    }
+    
     var weight: NSUISymbolWeight? {
         get {
             #if os(macOS)
-            guard let rawValue: CGFloat = value(forKey: "weight"), rawValue != CGFloat.greatestFiniteMagnitude else { return nil }
+            guard let rawValue: CGFloat = value(forKey: Keys.weight.unmangled), rawValue != CGFloat.greatestFiniteMagnitude else { return nil }
             return NSUISymbolWeight(rawValue: rawValue)
             #else
-            guard let rawValue: Int = value(forKey: "weight") else { return nil }
+            guard let rawValue: Int = value(forKey: Keys.weight.unmangled) else { return nil }
             return NSUISymbolWeight(rawValue: rawValue)
             #endif
         }
-        set { setValue(safely: newValue?.rawValue ?? 0, forKey: "weight") }
+        set { setValue(safely: newValue?.rawValue ?? 0, forKey: Keys.weight.unmangled) }
     }
 
     var pointSize: CGFloat {
-        get { value(forKey: "pointSize") ?? 0.0 }
-        set { setValue(safely: newValue, forKey: "pointSize") }
+        get { value(forKey: Keys.pointSize.unmangled) ?? 0.0 }
+        set { setValue(safely: newValue, forKey: Keys.pointSize.unmangled) }
     }
 
     var prefersMulticolor: Bool {
-        get { value(forKey: "prefersMulticolor") ?? false }
-        set { setValue(safely: newValue, forKey: "prefersMulticolor") }
+        get { value(forKey: Keys.prefersMulticolor.unmangled) ?? false }
+        set { setValue(safely: newValue, forKey: Keys.prefersMulticolor.unmangled) }
     }
 
     var scale: NSUIImage.SymbolScale {
         get {
-            guard let rawValue: Int = value(forKey: "scale"), rawValue != -1 else {
+            guard let rawValue: Int = value(forKey: Keys.scale.unmangled), rawValue != -1 else {
                 return .default }
             return NSUIImage.SymbolScale(rawValue: rawValue) ?? .default
         }
         set {
             #if os(macOS)
-                setValue(newValue.rawValue, forKey: "scale")
+                setValue(newValue.rawValue, forKey: Keys.scale.unmangled)
             #elseif canImport(UIKit)
-                setValue(newValue.rawValue, forKey: "scale")
+                setValue(newValue.rawValue, forKey: Keys.scale.unmangled)
             #endif
         }
     }
     
     var colors: [NSUIColor]? {
-        get { value(forKey: "_colors") }
-        set { setValue(newValue, forKey: "_colors") }
+        get { value(forKey: Keys.colors.unmangled) }
+        set { setValue(newValue, forKey: Keys.colors.unmangled) }
     }
 
     var primary: NSUIColor? {
@@ -222,8 +234,8 @@ extension NSUIImage.SymbolConfiguration {
     
 #if os(iOS)
 var textStyle: NSUIFont.TextStyle? {
-    get { value(forKey: "textStyle") }
-    set { setValue(safely: newValue, forKey: "textStyle") }
+    get { value(forKey: Keys.textStyle.unmangled) }
+    set { setValue(safely: newValue, forKey: Keys.textStyle.unmangled) }
 }
 
 var font: NSUIFont? {
@@ -313,8 +325,8 @@ extension NSImage.SymbolConfiguration {
             return NSImage.SymbolConfiguration.preferringHierarchical()
         } else {
             let configuration = NSImage.SymbolConfiguration()
-            configuration.setValue(safely: 1, forKey: "paletteType")
-            configuration.setValue(safely: 2, forKey: "renderingStyle")
+            configuration.setValue(safely: 1, forKey: Keys.paletteType.unmangled)
+            configuration.setValue(safely: 2, forKey: Keys.renderingStyle.unmangled)
             return configuration
         }
     }
@@ -358,7 +370,7 @@ extension NSImage.SymbolConfiguration {
                     conf = .preferringHierarchical()
                 } else {
                     conf = NSImage.SymbolConfiguration()
-                    conf.setValue(1, forKey: "paletteType")
+                    conf.setValue(1, forKey: Keys.paletteType.unmangled)
                 }
             }
         case .multicolor(let color):
@@ -386,7 +398,7 @@ extension NSImage.SymbolConfiguration {
     
     var colorConfiguration: ColorConfigurationAlt? {
         #if os(macOS)
-        if colors?.isEmpty == false, let type = value(forKey: "paletteType") as? Int {
+        if colors?.isEmpty == false, let type = value(forKey: Keys.paletteType.unmangled) as? Int {
             if type == 1 {
                 return .hierarchical
             } else if type == 2 {
