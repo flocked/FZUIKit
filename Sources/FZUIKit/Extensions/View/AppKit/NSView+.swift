@@ -431,6 +431,8 @@
         @objc var _borderColor: NSColor? {
             get { (self as? NSBox)?.borderColor ?? dynamicColors.border ?? layer?.borderColor?.nsUIColor }
             set {
+                optionalLayer?.borderColor = newValue?.cgColor
+                /*
                 if let box = self as? NSBox {
                     box.borderColor = newValue ?? box.borderColor
                 } else {
@@ -440,11 +442,12 @@
                     if animatableColor == nil, isProxy() {
                         animatableColor = .clear
                     }
-                    if layer?.borderColor?.isVisible == false || layer?.borderColor == nil {
-                        layer?.borderColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
+                    if optionalLayer?.borderColor?.isVisible == false || optionalLayer?.borderColor == nil {
+                        optionalLayer?.borderColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
                     }
                     optionalLayer?.borderColor = animatableColor?.cgColor
                 }
+                 */
             }
         }
 
@@ -488,8 +491,8 @@
                 if animatableColor == nil, isProxy() {
                     animatableColor = .clear
                 }
-                if layer?.shadowColor?.isVisible == false || layer?.shadowColor == nil {
-                    layer?.shadowColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
+                if optionalLayer?.shadowColor?.isVisible == false || optionalLayer?.shadowColor == nil {
+                    optionalLayer?.shadowColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
                 }
                 optionalLayer?.shadowColor = animatableColor?.cgColor
             }
