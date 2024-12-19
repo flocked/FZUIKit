@@ -100,11 +100,24 @@ extension NSCollectionViewItem {
                             }
                         }
                         }
+                    try NSCollectionViewItem.replaceMethod(
+                        #selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)),
+                        methodSignature: (@convention(c)  (AnyObject, Selector, NSCollectionViewLayoutAttributes) -> (NSCollectionViewLayoutAttributes)).self,
+                        hookSignature: (@convention(block)  (AnyObject, NSCollectionViewLayoutAttributes) -> (NSCollectionViewLayoutAttributes)).self) { store in {
+                            object, attributes in
+                            if let view = (object as? NSCollectionViewItem)?.view {
+                                attributes.transform = view.transform
+                                attributes.transform3D = view.transform3D
+                            }
+                            return store.original(object, #selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)), attributes)
+                        }
+                        }
                 } catch {
                     Swift.print(error)
                 }
             } else {
                 NSCollectionViewItem.resetMethod(#selector(NSCollectionViewItem.apply))
+                NSCollectionViewItem.resetMethod(#selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)))
 
             }
         }
