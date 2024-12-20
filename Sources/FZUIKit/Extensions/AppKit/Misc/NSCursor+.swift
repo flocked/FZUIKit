@@ -337,11 +337,13 @@ extension NSCursor {
             }
 
             func stop() {
+                Swift.print("stop")
                 timer = nil
                 index = 0
             }
             
             func advanceImage() {
+                Swift.print("advanceImage", index)
                 guard let timer = timer, (frames.contains(where: {$0.image == NSCursor.current.image}) == false || frames.isEmpty) else {
                     stop()
                     frames = []
