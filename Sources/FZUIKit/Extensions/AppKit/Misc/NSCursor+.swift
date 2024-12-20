@@ -14,24 +14,22 @@ import Combine
 fileprivate extension NSCursor {
     convenience init(named name: String) {
         let imageURL = Bundle.module.url(forResource: name, withExtension: "pdf")!
-        var image = NSImage(contentsOf: imageURL)!
-        
         let plistURL = Bundle.module.url(forResource: name, withExtension: "plist")!
+
+        var image = NSImage(contentsOf: imageURL)!.retinaReadyCursorImage()
+        let info = try! CursorInfo(url: plistURL)
         
-        let data = try! Data(contentsOf: plistURL)
-        let info = try! PropertyListDecoder().decode(CursorInfo.self, from: data)
-        image = image.retinaReadyCursorImage()
-        if let shadow = info.shadow {
-            let shadowImage = image.withShadow(shadow)
-          //  image = shadowImage ?? image
-            if shadowImage == nil {
-                Swift.print("ShadowImageFailed")
-            }
+        if let shadow = info.shadow, let shadowImage = image.withShadow(shadow) {
+            image = shadowImage
         }
         self.init(image: image, hotSpot: info.hotSpot)
     }
     
     struct CursorInfo: Codable {
+        init(url: URL) throws {
+            self = try PropertyListDecoder().decode(CursorInfo.self, from: try Data(contentsOf: url))
+        }
+        
         var hotSpot: CGPoint {
             CGPoint(hotSpotX, hotSpotY)
         }
@@ -76,7 +74,7 @@ fileprivate extension NSImage {
         for scale in 1..<4 {
             let transform = NSAffineTransform()
             transform.scale(by: CGFloat(scale))
-            if let rasterCGImage = self.cgImage(forProposedRect: nil, context: nil, hints: [NSImageRep.HintKey.ctm: transform]) {
+            if let rasterCGImage = cgImage(forProposedRect: nil, context: nil, hints: [NSImageRep.HintKey.ctm: transform]) {
                 let rep = NSBitmapImageRep(cgImage: rasterCGImage)
                 rep.size = size
                 resultImage.addRepresentation(rep)
@@ -336,40 +334,4 @@ extension NSCursor {
             }
         }
     }
-
-extension NSImage {
-    /// Returns a new image with the specified shadow configuraton.
-    /// This will increase the size of the image to fit the shadow and the original image.
-    func withShadow(_ shadow: ShadowConfiguration) -> NSImage? {
-        guard let color = shadow.resolvedColor()?.cgColor, color.alpha >= 0.0 else { return self }
-        
-        let shadowRect = CGRect(
-            x: shadow.offset.x - shadow.radius,
-            y: shadow.offset.y - shadow.radius,
-            width: size.width + shadow.radius * 2,
-            height: size.height + shadow.radius * 2
-        )
-
-        let newSize = CGSize(width: max(shadowRect.maxX, size.width) - min(shadowRect.minX, 0), height: max(shadowRect.maxY, size.height) - min(shadowRect.minY, 0)
-        )
-
-        let newImage = NSImage(size: newSize)
-        newImage.lockFocus()
-
-        let context = NSGraphicsContext.current?.cgContext
-        context?.setShadow(offset: shadow.offset.size, blur: shadow.radius, color: color)
-
-        let drawingRect = CGRect(
-            x: max(0, -shadowRect.origin.x),
-            y: max(0, -shadowRect.origin.y),
-            width: size.width,
-            height: size.height
-        )
-        draw(in: drawingRect, from: .zero, operation: .sourceOver, fraction: 1.0)
-
-        newImage.unlockFocus()
-        return newImage
-    }
-}
-
 #endif
