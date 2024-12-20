@@ -68,7 +68,7 @@ public extension NSUIImage {
      */
     func splitToTiles(size: CGSize, horizontalOrder: HorizontalTileOrder = .leftToRight, verticalOrder: VerticalTileOrder = .bottomToTop) -> [NSImage] {
         guard let cgImage = cgImage else { return [] }
-        return CGRect(.zero, size).splitted(size: size, horizontalOrder: .init(rawValue: horizontalOrder.rawValue)!, verticalOrder: .init(rawValue: verticalOrder.rawValue)!).compactMap({ cgImage.cropping(to: $0)?.nsImage })
+        return CGRect(.zero, self.size).splitted(size: size, horizontalOrder: .init(rawValue: horizontalOrder.rawValue)!, verticalOrder: .init(rawValue: verticalOrder.rawValue)!).compactMap({ cgImage.cropping(to: $0)?.nsImage })
     }
 
     /// Returns the image cropped to the specified rect.
@@ -132,6 +132,6 @@ extension CGImage {
      - Returns: An array with the tile images.
      */
     func splitToTiles(size: CGSize, horizontalOrder: HorizontalTileOrder = .leftToRight, verticalOrder: VerticalTileOrder = .bottomToTop) -> [CGImage] {
-        CGRect(.zero, size).splitted(size: size, horizontalOrder: .init(rawValue: horizontalOrder.rawValue)!, verticalOrder: .init(rawValue: verticalOrder.rawValue)!).compactMap({ cropping(to: $0) })
+        CGRect(.zero, self.size).splitted(size: size, horizontalOrder: .init(rawValue: horizontalOrder.rawValue)!, verticalOrder: .init(rawValue: verticalOrder.rawValue)!).compactMap({ cropping(to: $0) })
     }
 }
