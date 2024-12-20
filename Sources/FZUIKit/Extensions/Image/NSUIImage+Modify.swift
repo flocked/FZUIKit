@@ -11,61 +11,6 @@
     import UIKit
 #endif
 
-public extension NSUIImage {
-    /// The order of image tiles.
-    enum TileSplitOrder: Int {
-        /// Horizontal tiles first.
-        case horizontalFirst
-        /// Vertical tiles first.
-        case verticalFirst
-    }
-
-    /**
-     Splits the images to tiles with the specified vertical and horizontal count.
-
-     - Parameters:
-        - horizontalCount: The amount of horizontal tiles.
-        - verticalCount: The amount of vertical tiles.
-        - order: The order of the tiles.
-     - Returns: An array with the tile images.
-     */
-    func splitToTiles(horizontalCount: Int, verticalCount: Int, order: TileSplitOrder = .horizontalFirst) -> [NSUIImage] {
-        guard horizontalCount > 0, verticalCount > 0 else { return [] }
-        let tileSize = CGSize(size.width / CGFloat(horizontalCount), size.height / CGFloat(verticalCount))
-        return splitToTiles(size: tileSize, order: order)
-    }
-
-    /**
-     Splits the images to tiles with the specified size.
-
-     - Parameters:
-        - size: The size of an tile.
-        - order: The order of the tiles.
-     - Returns: An array with the tile images.
-     */
-    func splitToTiles(size: CGSize, order: TileSplitOrder = .horizontalFirst) -> [NSUIImage] {
-        let vCount = Int(self.size.height / size.height)
-        let hCount = Int(self.size.width / size.width)
-        var tiles = [NSUIImage]()
-        guard let cgImage = cgImage else { return [] }
-        for a in 0 ..< (order == .horizontalFirst ? hCount : vCount) {
-            for b in 0 ..< (order == .horizontalFirst ? vCount : hCount) {
-                let origin = CGPoint(x: CGFloat(order == .horizontalFirst ? b : a) * size.width, y: CGFloat(order == .horizontalFirst ? a : b) * size.height)
-                let rect = CGRect(origin, size)
-                if let tile = cgImage.cropping(to: rect)?.nsUIImage {
-                    tiles.append(tile)
-                }
-            }
-        }
-        return tiles
-    }
-
-    /// Returns the image cropped to the specified rect.
-    func cropped(to rect: CGRect) -> NSUIImage {
-        cgImage?.cropping(to: rect)?.nsUIImage ?? self
-    }
-}
-
 #if os(macOS)
     public extension NSUIImage {
         /// Returns the image resized to the specified size.
