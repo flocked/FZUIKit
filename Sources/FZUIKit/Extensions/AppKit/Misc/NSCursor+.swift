@@ -43,7 +43,7 @@ fileprivate extension NSCursor {
         }
         
         var shadow: ShadowConfiguration? {
-            guard rendersShadow else { return nil }
+            guard rendersShadow != false else { return nil }
             let color = NSColor(red: shadowColor[safe: 0] ?? 0.0, green: shadowColor[safe: 1] ?? 0.0, blue: shadowColor[safe: 2] ?? 0.0, alpha: shadowColor[safe: 3] ?? 0.0)
             return ShadowConfiguration(color: color, opacity: 1.0, radius: shadowBlur, offset: CGPoint(shadowOffsetX, shadowOffsetY))
         }
@@ -52,7 +52,7 @@ fileprivate extension NSCursor {
         private let hotSpotY: CGFloat
         private let hotSpotXScaled: CGFloat
         private let hotSpotYScaled: CGFloat
-        private let rendersShadow: Bool
+        private let rendersShadow: Bool?
         private let shadowColor: [CGFloat]
         private let shadowOffsetX: CGFloat
         private let shadowOffsetY: CGFloat
