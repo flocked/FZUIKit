@@ -31,7 +31,8 @@ extension NSImage {
         guard let color = shadow.resolvedColor()?.cgColor, color.alpha >= 0.0 else { return self }
         
         let newImage = NSImage(size: size)
-        let representations = representations.compactMap({ $0 as? NSBitmapImageRep })
+        var representations = representations.compactMap({ $0 as? NSBitmapImageRep })
+        representations = []
         if !representations.isEmpty {
             for representation in representations {
                 let width = CGFloat(representation.pixelsWide)
@@ -74,7 +75,7 @@ extension NSImage {
                 width: size.width + shadow.radius * 2,
                 height: size.height + shadow.radius * 2
             )
-                        
+                       
             let newSize = CGSize(width: max(shadowRect.maxX, size.width) - min(shadowRect.minX, 0), height: max(shadowRect.maxY, size.height) - min(shadowRect.minY, 0)
             )
             
