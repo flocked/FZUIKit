@@ -290,8 +290,9 @@ extension NSCursor {
         }
         
         convenience init(animated frames: [ImageFrame], hotSpot: CGPoint = .zero) {
-            self.init(image: frames.first?.image ?? NSCursor.current.image, hotSpot: frames.count >= 1 ? NSCursor.current.hotSpot : hotSpot)
+            self.init(image: frames.first?.image ?? NSCursor.current.image, hotSpot: !frames.isEmpty ? hotSpot : NSCursor.current.hotSpot)
             guard frames.count > 1 else { return }
+            Swift.print("animated", frames.count)
             do {
                 try replaceMethod(
                     #selector(NSCursor.set),
@@ -302,6 +303,7 @@ extension NSCursor {
                     NSCursorAnimator.shared.frames = frames
                     NSCursorAnimator.shared.hotSpot = hotSpot
                     NSCursorAnimator.shared.start()
+                    Swift.print("cursorSET")
                 }
                 }
             } catch {
@@ -315,20 +317,19 @@ extension NSCursor {
             var lastFrameTime = CFAbsoluteTimeGetCurrent()
             var frames: [ImageFrame] = [] {
                 willSet {  stop() } }
-            var index: Int = 0
+            var index: Int = 0 {
+                didSet { if index >= frames.count { index = 0 } } }
             var hotSpot: CGPoint = .zero
             var timer: DisplayLinkTimer?
             
             func start() {
+                Swift.print("animatorStart", frames.count, timer == nil)
                 guard !frames.isEmpty else {
                     stop()
                     return
                 }
                 index = 0
                 guard timer == nil else { return }
-                if index > frames.count - 1 {
-                    index = 0
-                }
                 timer = .init(timeInterval: .seconds(self.frames[safe: self.index]?.duration ?? 0.12), repeating: true) { [weak self] _ in
                     guard let self = self else { return }
                     self.advanceImage()
@@ -347,11 +348,8 @@ extension NSCursor {
                     return
                 }
                 index = index + 1
-                if index >= frames.count {
-                    index = 0
-                }
                 NSCursor(image: frames[index].image, hotSpot: hotSpot).set()
-                timer.timeInterval = .seconds(self.frames[safe: self.index]?.duration ?? 0.12)
+                timer.timeInterval = .seconds(frames[safe: index]?.duration ?? 0.12)
             }
         }
     }
