@@ -23,7 +23,7 @@ fileprivate extension NSCursor {
         image = image.retinaReadyCursorImage()
         if let shadow = info.shadow {
             let shadowImage = image.withShadow(shadow)
-            image = shadowImage ?? image
+          //  image = shadowImage ?? image
             if shadowImage == nil {
                 Swift.print("ShadowImageFailed")
             }
