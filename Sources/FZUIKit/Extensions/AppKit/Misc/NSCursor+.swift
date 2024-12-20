@@ -137,11 +137,6 @@ extension NSCursor {
         NSCursor(named: "zoomout")
     }
     
-    /// Returns the remove system cursor.
-    public static var poof: NSCursor {
-        NSCursor(named: "poof")
-    }
-    
     static func cursor(named name: String) -> NSCursor? {
         guard let object = NSCursor.perform(NSSelectorFromString(name)) else { return nil }
         return object.takeUnretainedValue() as? NSCursor
