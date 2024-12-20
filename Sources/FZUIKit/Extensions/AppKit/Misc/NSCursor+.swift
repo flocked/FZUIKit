@@ -18,10 +18,24 @@ fileprivate extension NSCursor {
 
         let info = try! CursorInfo(url: Bundle.module.url(forResource: name, withExtension: "plist")!)
         var image = NSImage(contentsOf: Bundle.module.url(forResource: name, withExtension: "pdf")!)!
-        if let frames = info.frames, frames > 0 {
-            var frameImages = image.splitToTiles(horizontalCount: 1, verticalCount: frames)
-            frameImages = frameImages.compactMap({$0.retinaScaled})
-            frameImages = frameImages.compactMap({ $0.withShadow(info.shadow ?? .none()) ?? $0 })
+        if let frames = info.frames, frames > 0, let tiff = image.tiffRepresentation, let pdfImage = NSImage(data: tiff) {
+            let representations = pdfImage.representations.compactMap({($0 as? NSBitmapImageRep)?.cgImage})
+            let frameImgs = pdfImage.representations.compactMap({ ($0 as? NSBitmapImageRep)?.cgImage?.splitToTiles(horizontalCount: 1, verticalCount: frames) })
+            let groupedArray = (0..<frameImgs[0].count).map { index in
+                frameImgs.map { $0[index] }
+            }
+            var frameImages: [NSImage] = []
+            for group in groupedArray {
+                let newImage = NSImage(size: group.first!.size)
+                for image in group {
+                    let image = image.withShadow(info.shadow ?? .none()) ?? image
+                    let rep = NSBitmapImageRep(cgImage: image)
+                    rep.size = newImage.size
+                    newImage.addRepresentation(rep)
+                }
+                frameImages.append(newImage)
+            }
+            Swift.print("frameImgs", frameImgs.count, groupedArray.count, frameImages.first ?? "nil")
             self.init(animated: frameImages, frameDuration: info.delay ?? 0.12, hotSpot: info.hotSpot)
         } else {
             image = image.retinaScaled.withShadow(info.shadow ?? .none()) ?? image
