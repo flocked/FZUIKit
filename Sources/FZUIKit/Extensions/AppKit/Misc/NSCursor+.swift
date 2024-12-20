@@ -137,11 +137,6 @@ extension NSCursor {
         NSCursor(named: "zoomout")
     }
     
-    /// Returns the copy system cursor.
-    public static var copy: NSCursor {
-        NSCursor(named: "copy")
-    }
-    
     /// Returns the remove system cursor.
     public static var poof: NSCursor {
         NSCursor(named: "poof")
