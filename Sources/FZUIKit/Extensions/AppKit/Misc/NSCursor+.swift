@@ -14,21 +14,59 @@ import Combine
 fileprivate extension NSCursor {
     convenience init(named name: String) {
         let imageURL = Bundle.module.url(forResource: name, withExtension: "pdf")!
-        let image = NSImage(contentsOf: imageURL)!
+        var image = NSImage(contentsOf: imageURL)!
         
         let plistURL = Bundle.module.url(forResource: name, withExtension: "plist")!
         
-        do {
-            let data = try Data(contentsOf: plistURL)
-            let infos = try PropertyListDecoder().decode(CursorInfo.self, from: data)
-            Swift.print("CHECK", infos.rendersShadow, infos.hotpoint)
-        } catch {
-            Swift.print(error)
+        let data = try! Data(contentsOf: plistURL)
+        let info = try! PropertyListDecoder().decode(CursorInfo.self, from: data)
+        image = image.retinaReadyCursorImage()
+        if let shadow = info.shadow {
+            let shadowImage = image.withShadow(shadow)
+            image = shadowImage ?? image
+            if shadowImage == nil {
+                Swift.print("ShadowImageFailed")
+            }
+        }
+        self.init(image: image, hotSpot: info.hotSpot)
+    }
+    
+    struct CursorInfo: Codable {
+        var hotSpot: CGPoint {
+            CGPoint(hotSpotX, hotSpotY)
         }
         
-        let info = NSDictionary(contentsOf: plistURL) as! [String: Any]
-        let hotSpot = NSPoint(x: (info["hotx"] as? CGFloat) ?? 0.0, y: (info["hoty"] as? CGFloat) ?? 0.0)
-        self.init(image: image.retinaReadyCursorImage(), hotSpot: hotSpot)
+        var hotSpotScaled: CGPoint {
+            CGPoint(hotSpotXScaled, hotSpotYScaled)
+        }
+        
+        var shadow: ShadowConfiguration? {
+            guard rendersShadow else { return nil }
+            let color = NSColor(red: shadowColor[safe: 0] ?? 0.0, green: shadowColor[safe: 1] ?? 0.0, blue: shadowColor[safe: 2] ?? 0.0, alpha: shadowColor[safe: 3] ?? 0.0)
+            return ShadowConfiguration(color: color, opacity: 1.0, radius: shadowBlur, offset: CGPoint(shadowOffsetX, shadowOffsetY))
+        }
+        
+        private let hotSpotX: CGFloat
+        private let hotSpotY: CGFloat
+        private let hotSpotXScaled: CGFloat
+        private let hotSpotYScaled: CGFloat
+        private let rendersShadow: Bool
+        private let shadowColor: [CGFloat]
+        private let shadowOffsetX: CGFloat
+        private let shadowOffsetY: CGFloat
+        private let shadowBlur: CGFloat
+        
+        enum CodingKeys : String, CodingKey {
+            case shadowColor = "shadowcolor"
+            case rendersShadow = "rendershadow"
+            case shadowOffsetX = "shadowoffsetx"
+            case shadowOffsetY = "shadowoffsety"
+            case hotSpotXScaled = "hotx-scaled"
+            case hotSpotYScaled = "hoty-scaled"
+            case shadowBlur = "blur"
+            case hotSpotX = "hotx"
+            case hotSpotY = "hoty"
+        }
     }
 }
 
@@ -298,45 +336,6 @@ extension NSCursor {
             }
         }
     }
-
-struct CursorInfo: Codable {
-    var hotpoint: CGPoint {
-        CGPoint(hotpointX, hotpointY)
-    }
-    
-    var hotpointScaled: CGPoint {
-        CGPoint(hotpointXScaled, hotpointYScaled)
-    }
-    
-    var shadow: ShadowConfiguration? {
-        guard rendersShadow else { return nil }
-        let color = NSColor(red: shadowColor[safe: 0] ?? 0.0, green: shadowColor[safe: 1] ?? 0.0, blue: shadowColor[safe: 2] ?? 0.0, alpha: shadowColor[safe: 3] ?? 0.0)
-        return ShadowConfiguration(color: color, opacity: 1.0, radius: shadowBlur, offset: CGPoint(shadowOffsetX, shadowOffsetY))
-    }
-    
-    
-    let hotpointX: CGFloat
-    let hotpointY: CGFloat
-    let hotpointXScaled: CGFloat
-    let hotpointYScaled: CGFloat
-    let rendersShadow: Bool
-    let shadowColor: [CGFloat]
-    let shadowOffsetX: CGFloat
-    let shadowOffsetY: CGFloat
-    let shadowBlur: CGFloat
-    
-    enum CodingKeys : String, CodingKey {
-        case shadowColor = "shadowcolor"
-        case rendersShadow = "rendershadow"
-        case shadowOffsetX = "shadowoffsetx"
-        case shadowOffsetY = "shadowoffsety"
-        case hotpointXScaled = "hotx-scaled"
-        case hotpointYScaled = "hoty-scaled"
-        case shadowBlur = "blur"
-        case hotpointX = "hotx"
-        case hotpointY = "hoty"
-    }
-}
 
 extension NSImage {
     /// Returns a new image with the specified shadow configuraton.
