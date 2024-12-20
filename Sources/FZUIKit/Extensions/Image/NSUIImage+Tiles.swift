@@ -132,6 +132,7 @@ extension CGImage {
      - Returns: An array with the tile images.
      */
     func splitToTiles(size: CGSize, horizontalOrder: HorizontalTileOrder = .leftToRight, verticalOrder: VerticalTileOrder = .bottomToTop) -> [CGImage] {
-        CGRect(.zero, self.size).splitted(size: size, horizontalOrder: .init(rawValue: horizontalOrder.rawValue)!, verticalOrder: .init(rawValue: verticalOrder.rawValue)!).compactMap({ cropping(to: $0) })
+        Swift.print("splitToTiles", self.size, size, CGRect(.zero, self.size).splitted(size: size, horizontalOrder: .init(rawValue: horizontalOrder.rawValue)!, verticalOrder: .init(rawValue: verticalOrder.rawValue)!).compactMap({ cropping(to: $0) }).count)
+        return CGRect(.zero, self.size).splitted(size: size, horizontalOrder: .init(rawValue: horizontalOrder.rawValue)!, verticalOrder: .init(rawValue: verticalOrder.rawValue)!).compactMap({ cropping(to: $0) })
     }
 }
