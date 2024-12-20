@@ -345,6 +345,9 @@ extension NSCursor {
             func advanceImage() {
                 Swift.print("advanceImage", index)
                 guard let timer = timer, (frames.contains(where: {$0.image == NSCursor.current.image}) == false || frames.isEmpty) else {
+                    if frames.contains(where: {$0.image == NSCursor.current.image}) == false {
+                        Swift.print("framesMisses", NSCursor.current.image, frames[safe: index]?.image ?? "nil", frames.isEmpty)
+                    }
                     stop()
                     frames = []
                     return
