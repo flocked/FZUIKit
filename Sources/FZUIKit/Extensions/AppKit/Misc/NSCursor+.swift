@@ -17,6 +17,15 @@ fileprivate extension NSCursor {
         let image = NSImage(contentsOf: imageURL)!
         
         let plistURL = Bundle.module.url(forResource: name, withExtension: "plist")!
+        
+        do {
+            let data = try Data(contentsOf: plistURL)
+            let infos = try PropertyListDecoder().decode(CursorInfo.self, from: data)
+            Swift.print("CHECK", infos.rendersShadow, infos.hotpoint)
+        } catch {
+            Swift.print(error)
+        }
+        
         let info = NSDictionary(contentsOf: plistURL) as! [String: Any]
         let hotSpot = NSPoint(x: (info["hotx"] as? CGFloat) ?? 0.0, y: (info["hoty"] as? CGFloat) ?? 0.0)
         self.init(image: image.retinaReadyCursorImage(), hotSpot: hotSpot)
@@ -59,6 +68,30 @@ extension NSCursor {
         resizeDiagonal
     }
     
+    /// Returns the resize top-left corner system cursor.
+    public static var resizeTopLeftCorner: NSCursor? {
+        guard let image = NSImage(named: "NSTruthTopLeftResizeCursor") else { return nil }
+        return NSCursor(image: image, hotSpot: CGPoint(4.0, 4.0))
+    }
+    
+    /// Returns the resize top-right corner system cursor.
+    public static var resizeTopRightCorner: NSCursor? {
+        guard let image = NSImage(named: "NSTruthTopRightResizeCursor") else { return nil }
+        return NSCursor(image: image, hotSpot: CGPoint(12.0, 4.0))
+    }
+    
+    /// Returns the resize bottom-left corner system cursor.
+    public static var resizeBottomLeftCorner: NSCursor? {
+        guard let image = NSImage(named: "NSTruthBottomLeftResizeCursor") else { return nil }
+        return NSCursor(image: image, hotSpot: CGPoint(4.0, 12.0))
+    }
+    
+    /// Returns the resize bottom-right corner system cursor.
+    public static var resizeBottomRightCorner: NSCursor? {
+        guard let image = NSImage(named: "NSTruthBottomRightResizeCursor") else { return nil }
+        return NSCursor(image: image, hotSpot: CGPoint(12.0, 12.0))
+    }
+    
     /**
      Returns the resize-diagonal-alernative system cursor (from north-east to south-west).
      
@@ -82,41 +115,42 @@ extension NSCursor {
     }
     
     /// Returns the resize-up-and-down system cursor without center line.
+    public static var resizeUpAlt: NSCursor {
+        NSCursor(named: "resizenorth")
+    }
+    
+    /// Returns the resize-up-and-down system cursor without center line.
+    public static var resizeDownAlt: NSCursor {
+        NSCursor(named: "resizesouth")
+    }
+    
+    /// Returns the resize-up-and-down system cursor without center line.
     public static var resizeUpDownAlt: NSCursor {
-        let url = Bundle.module.url(forResource: "resizenorthsouth", withExtension: "pdf")!
-        let image = NSImage(contentsOf: url)!
-        return NSCursor(image: image, hotSpot: CGPoint(image.size.width/2.0, image.size.height/2.0))
+        NSCursor(named: "resizenorthsouth")
+    }
+    
+    /// Returns the resize-left-and-right system cursor without center line.
+    public static var resizeLeftAlt: NSCursor {
+        NSCursor(named: "resizewest")
+    }
+    
+    /// Returns the resize-right system cursor without center line.
+    public static var resizeRightAlt: NSCursor {
+        NSCursor(named: "resizeeast")
     }
     
     /// Returns the resize-left-and-right system cursor without center line.
     public static var resizeLeftRightAlt: NSCursor {
-        let url = Bundle.module.url(forResource: "resizeeastwest", withExtension: "pdf")!
-        let image = NSImage(contentsOf: url)!
-        return NSCursor(image: image, hotSpot: CGPoint(image.size.width/2.0, image.size.height/2.0))
+        NSCursor(named: "resizeeastwest")
     }
     
-    /// Returns the resize top-left corner system cursor.
-    public static var resizeTopLeftCorner: NSCursor? {
-        guard let image = NSImage(named: "NSTruthTopLeftResizeCursor") else { return nil }
-        return NSCursor(image: image, hotSpot: CGPoint(4.0, 4.0))
-    }
-    
-    /// Returns the resize top-right corner system cursor.
-    public static var resizeTopRightCorner: NSCursor? {
-        guard let image = NSImage(named: "NSTruthTopRightResizeCursor") else { return nil }
-        return NSCursor(image: image, hotSpot: CGPoint(12.0, 4.0))
-    }
-    
-    /// Returns the resize bottom-left corner system cursor.
-    public static var resizeBottomLeftCorner: NSCursor? {
-        guard let image = NSImage(named: "NSTruthBottomLeftResizeCursor") else { return nil }
-        return NSCursor(image: image, hotSpot: CGPoint(4.0, 12.0))
-    }
-    
-    /// Returns the resize bottom-right corner system cursor.
-    public static var resizeBottomRightCorner: NSCursor? {
-        guard let image = NSImage(named: "NSTruthBottomRightResizeCursor") else { return nil }
-        return NSCursor(image: image, hotSpot: CGPoint(12.0, 12.0))
+    /**
+     Returns the move system cursor.
+     
+     This cursor is used to indicate that an object can be moved.
+     */
+    public static var move: NSCursor {
+        NSCursor(named: "move")
     }
     
     static func cursor(named name: String) -> NSCursor? {
@@ -264,4 +298,79 @@ extension NSCursor {
             }
         }
     }
+
+struct CursorInfo: Codable {
+    var hotpoint: CGPoint {
+        CGPoint(hotpointX, hotpointY)
+    }
+    
+    var hotpointScaled: CGPoint {
+        CGPoint(hotpointXScaled, hotpointYScaled)
+    }
+    
+    var shadow: ShadowConfiguration? {
+        guard rendersShadow else { return nil }
+        let color = NSColor(red: shadowColor[safe: 0] ?? 0.0, green: shadowColor[safe: 1] ?? 0.0, blue: shadowColor[safe: 2] ?? 0.0, alpha: shadowColor[safe: 3] ?? 0.0)
+        return ShadowConfiguration(color: color, opacity: 1.0, radius: shadowBlur, offset: CGPoint(shadowOffsetX, shadowOffsetY))
+    }
+    
+    
+    let hotpointX: CGFloat
+    let hotpointY: CGFloat
+    let hotpointXScaled: CGFloat
+    let hotpointYScaled: CGFloat
+    let rendersShadow: Bool
+    let shadowColor: [CGFloat]
+    let shadowOffsetX: CGFloat
+    let shadowOffsetY: CGFloat
+    let shadowBlur: CGFloat
+    
+    enum CodingKeys : String, CodingKey {
+        case shadowColor = "shadowcolor"
+        case rendersShadow = "rendershadow"
+        case shadowOffsetX = "shadowoffsetx"
+        case shadowOffsetY = "shadowoffsety"
+        case hotpointXScaled = "hotx-scaled"
+        case hotpointYScaled = "hoty-scaled"
+        case shadowBlur = "blur"
+        case hotpointX = "hotx"
+        case hotpointY = "hoty"
+    }
+}
+
+extension NSImage {
+    /// Returns a new image with the specified shadow configuraton.
+    /// This will increase the size of the image to fit the shadow and the original image.
+    func withShadow(_ shadow: ShadowConfiguration) -> NSImage? {
+        guard let color = shadow.resolvedColor()?.cgColor, color.alpha >= 0.0 else { return self }
+        
+        let shadowRect = CGRect(
+            x: shadow.offset.x - shadow.radius,
+            y: shadow.offset.y - shadow.radius,
+            width: size.width + shadow.radius * 2,
+            height: size.height + shadow.radius * 2
+        )
+
+        let newSize = CGSize(width: max(shadowRect.maxX, size.width) - min(shadowRect.minX, 0), height: max(shadowRect.maxY, size.height) - min(shadowRect.minY, 0)
+        )
+
+        let newImage = NSImage(size: newSize)
+        newImage.lockFocus()
+
+        let context = NSGraphicsContext.current?.cgContext
+        context?.setShadow(offset: shadow.offset.size, blur: shadow.radius, color: color)
+
+        let drawingRect = CGRect(
+            x: max(0, -shadowRect.origin.x),
+            y: max(0, -shadowRect.origin.y),
+            width: size.width,
+            height: size.height
+        )
+        draw(in: drawingRect, from: .zero, operation: .sourceOver, fraction: 1.0)
+
+        newImage.unlockFocus()
+        return newImage
+    }
+}
+
 #endif
