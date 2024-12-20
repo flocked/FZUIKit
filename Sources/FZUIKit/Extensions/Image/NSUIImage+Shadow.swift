@@ -61,7 +61,6 @@ extension NSImage {
                     y: shadow.radius + max(0, shadow.offset.y),
                     width: newSize.width,
                     height: newSize.height)
-                
                 representation.draw(in: drawRect)
                 
                 NSGraphicsContext.current?.restoreGraphicsState()
@@ -75,7 +74,7 @@ extension NSImage {
                 width: size.width + shadow.radius * 2,
                 height: size.height + shadow.radius * 2
             )
-                       
+            
             let newSize = CGSize(width: max(shadowRect.maxX, size.width) - min(shadowRect.minX, 0), height: max(shadowRect.maxY, size.height) - min(shadowRect.minY, 0)
             )
             
@@ -87,8 +86,8 @@ extension NSImage {
             let drawingRect = CGRect(
                 x: max(0, -shadowRect.origin.x),
                 y: max(0, -shadowRect.origin.y),
-                width: newSize.width,
-                height: newSize.height
+                width: size.width,
+                height: size.height
             )
             draw(in: drawingRect, from: .zero, operation: .sourceOver, fraction: 1.0)
             
