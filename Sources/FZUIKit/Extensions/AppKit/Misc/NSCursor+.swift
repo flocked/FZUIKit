@@ -318,9 +318,17 @@ extension NSCursor {
             var frames: [ImageFrame] = [] {
                 willSet {  stop() } }
             var index: Int = 0 {
-                didSet { if index >= frames.count { index = 0 } } }
+                didSet {
+                    if index >= frames.count { index = 0 }
+                    guard let frame = frames[safe: index] else { return }
+                    timer?.timeInterval = .seconds(frame.duration ?? 0.12)
+                    cursor = NSCursor(image: frame.image, hotSpot: hotSpot)
+                    cursor?.set()
+                }
+            }
             var hotSpot: CGPoint = .zero
             var timer: DisplayLinkTimer?
+            var cursor: NSCursor?
             
             func start() {
                 Swift.print("animatorStart", frames.count, timer == nil)
@@ -330,31 +338,25 @@ extension NSCursor {
                 }
                 index = 0
                 guard timer == nil else { return }
-                timer = .init(timeInterval: .seconds(self.frames[safe: self.index]?.duration ?? 0.12), repeating: true) { [weak self] _ in
+                timer = .init(timeInterval: .seconds(frames[index].duration ?? 0.12), repeating: true) { [weak self] _ in
                     guard let self = self else { return }
                     self.advanceImage()
                 }
             }
 
             func stop() {
-                Swift.print("stop")
                 timer = nil
+                cursor = nil
                 index = 0
             }
             
             func advanceImage() {
-                Swift.print("advanceImage", index)
-                guard let timer = timer, (frames.contains(where: {$0.image == NSCursor.current.image}) == false || frames.isEmpty) else {
-                    if frames.contains(where: {$0.image == NSCursor.current.image}) == false {
-                        Swift.print("framesMisses", NSCursor.current.image, frames[safe: index]?.image ?? "nil", frames.isEmpty)
-                    }
-                    stop()
+                Swift.print("advanceImage", index, NSCursor.current == cursor)
+                if NSCursor.current == cursor {
+                    index = index + 1
+                } else {
                     frames = []
-                    return
                 }
-                index = index + 1
-                NSCursor(image: frames[index].image, hotSpot: hotSpot).set()
-                timer.timeInterval = .seconds(frames[safe: index]?.duration ?? 0.12)
             }
         }
     }
