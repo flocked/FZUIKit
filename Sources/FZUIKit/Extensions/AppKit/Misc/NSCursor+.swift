@@ -16,13 +16,17 @@ fileprivate extension NSCursor {
         let imageURL = Bundle.module.url(forResource: name, withExtension: "pdf")!
         let plistURL = Bundle.module.url(forResource: name, withExtension: "plist")!
 
-        var image = NSImage(contentsOf: imageURL)!.retinaReadyCursorImage()
-        let info = try! CursorInfo(url: plistURL)
-        
-        if let shadow = info.shadow, let shadowImage = image.withShadow(shadow) {
-            image = shadowImage
+        let info = try! CursorInfo(url: Bundle.module.url(forResource: name, withExtension: "plist")!)
+        var image = NSImage(contentsOf: Bundle.module.url(forResource: name, withExtension: "pdf")!)!
+        if let frames = info.frames, frames > 0 {
+            var frameImages = image.splitToTiles(horizontalCount: 1, verticalCount: frames)
+            frameImages = frameImages.compactMap({$0.retinaScaled})
+            frameImages = frameImages.compactMap({ $0.withShadow(info.shadow ?? .none()) ?? $0 })
+            self.init(animated: frameImages, frameDuration: info.delay ?? 0.12, hotSpot: info.hotSpot)
+        } else {
+            image = image.retinaScaled.withShadow(info.shadow ?? .none()) ?? image
+            self.init(image: image, hotSpot: info.hotSpot)
         }
-        self.init(image: image, hotSpot: info.hotSpot)
     }
     
     struct CursorInfo: Codable {
@@ -53,6 +57,8 @@ fileprivate extension NSCursor {
         private let shadowOffsetX: CGFloat
         private let shadowOffsetY: CGFloat
         private let shadowBlur: CGFloat
+        let delay: CGFloat?
+        let frames: Int?
         
         enum CodingKeys : String, CodingKey {
             case shadowColor = "shadowcolor"
@@ -64,23 +70,9 @@ fileprivate extension NSCursor {
             case shadowBlur = "blur"
             case hotSpotX = "hotx"
             case hotSpotY = "hoty"
+            case delay = "delay"
+            case frames = "frames"
         }
-    }
-}
-
-fileprivate extension NSImage {
-    func retinaReadyCursorImage() -> NSImage {
-        let resultImage = NSImage(size: size)
-        for scale in 1..<4 {
-            let transform = NSAffineTransform()
-            transform.scale(by: CGFloat(scale))
-            if let rasterCGImage = cgImage(forProposedRect: nil, context: nil, hints: [NSImageRep.HintKey.ctm: transform]) {
-                let rep = NSBitmapImageRep(cgImage: rasterCGImage)
-                rep.size = size
-                resultImage.addRepresentation(rep)
-            }
-        }
-        return resultImage
     }
 }
 
@@ -187,6 +179,21 @@ extension NSCursor {
      */
     public static var move: NSCursor {
         NSCursor(named: "move")
+    }
+    
+    /// Returns a cursor with an animated hand that counts up.
+    public static var countingUpHand: NSCursor {
+        NSCursor(named: "countinguphand")
+    }
+    
+    /// Returns a cursor with an animated hand that counts down.
+    public static var countingDownHand: NSCursor {
+        NSCursor(named: "countingdownhand")
+    }
+    
+    /// Returns a cursor with an animated hand that counts up and down.
+    public static var countingUpAnDownHand: NSCursor {
+        NSCursor(named: "countingupandownhand")
     }
     
     static func cursor(named name: String) -> NSCursor? {
@@ -334,4 +341,20 @@ extension NSCursor {
             }
         }
     }
+
+fileprivate extension NSImage {
+    var retinaScaled: NSImage {
+        let resultImage = NSImage(size: size)
+        for scale in 1..<4 {
+            let transform = NSAffineTransform()
+            transform.scale(by: CGFloat(scale))
+            if let rasterCGImage = cgImage(forProposedRect: nil, context: nil, hints: [NSImageRep.HintKey.ctm: transform]) {
+                let rep = NSBitmapImageRep(cgImage: rasterCGImage)
+                rep.size = size
+                resultImage.addRepresentation(rep)
+            }
+        }
+        return resultImage
+    }
+}
 #endif
