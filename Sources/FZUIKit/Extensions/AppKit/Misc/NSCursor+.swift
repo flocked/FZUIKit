@@ -23,6 +23,29 @@ import Combine
             }
             return nil
         }
+        
+        /*
+        /// Returns the resize-bottom--right system cursor.
+        public static var resizeNorthWestSouthEast: NSCursor {
+            let url = Bundle.module.url(forResource: "resizenorthwestsoutheast", withExtension: "pdf")!
+            let image = NSImage(contentsOf: url)!
+            return NSCursor(image: image, hotSpot: NSCursor.arrow.hotSpot)
+        }
+        */
+        
+        /// Returns the resize-bottom--right system cursor.
+        public static var resizeBottomRight: NSCursor {
+            let url = Bundle.module.url(forResource: "resizenorthwestsoutheast", withExtension: "pdf")!
+            let image = NSImage(contentsOf: url)!
+            return NSCursor(image: image, hotSpot: NSCursor.arrow.hotSpot)
+        }
+        
+        /// Returns the resize-top--left system cursor.
+        public static var resizeTopLeft: NSCursor {
+            let url = Bundle.module.url(forResource: "resizenorthwestsoutheast", withExtension: "pdf")!
+            let image = NSImage(contentsOf: url)!
+            return NSCursor(image: image, hotSpot: NSCursor.arrow.hotSpot)
+        }
 
         /**
          Returns the resize-diagonal-alernative system cursor (from north-east to south-west).
@@ -34,6 +57,34 @@ import Combine
                 return NSCursor(image: image, hotSpot: NSCursor.arrow.hotSpot)
             }
             return nil
+        }
+        
+        /// Returns the resize-top--right system cursor.
+        public static var resizeTopRight: NSCursor {
+            let url = Bundle.module.url(forResource: "resizenortheastsouthwest", withExtension: "pdf")!
+            let image = NSImage(contentsOf: url)!
+            return NSCursor(image: image, hotSpot: NSCursor.arrow.hotSpot)
+        }
+        
+        /// Returns the resize-bottom--left system cursor.
+        public static var resizeBottomLeft: NSCursor {
+            let url = Bundle.module.url(forResource: "resizenortheastsouthwest", withExtension: "pdf")!
+            let image = NSImage(contentsOf: url)!
+            return NSCursor(image: image, hotSpot: NSCursor.arrow.hotSpot)
+        }
+        
+        /// Returns the resize-north-and-south system cursor.
+        public static var resizeNorthSouth: NSCursor {
+            let url = Bundle.module.url(forResource: "resizenorthsouth", withExtension: "pdf")!
+            let image = NSImage(contentsOf: url)!
+            return NSCursor(image: image, hotSpot: NSCursor.arrow.hotSpot)
+        }
+        
+        /// Returns the resize-east-and-west system cursor.
+        public static var resizeEastWest: NSCursor {
+            let url = Bundle.module.url(forResource: "resizeeastwest", withExtension: "pdf")!
+            let image = NSImage(contentsOf: url)!
+            return NSCursor(image: image, hotSpot: NSCursor.arrow.hotSpot)
         }
         
         /**
