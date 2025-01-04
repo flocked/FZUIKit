@@ -800,7 +800,6 @@
                 }
                 return animation
             } else if NSViewAnimationKeys.contains(key) {
-                let animation = swizzledDefaultAnimation(forKey: "frameOrigin")
                 return swizzledDefaultAnimation(forKey: "frameOrigin")
             }
             return nil
