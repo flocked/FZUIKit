@@ -79,7 +79,7 @@ view.mask = roundedView
 - `menuProvider`:  Provides a right click menu.
 
 ```swift
-tableView.menuProvider = { textField in
+tableView.menuProvider = { mouseLocation in
     let menu = NSMenu()
     menu.addItem(NSMenuItem(title: "\(selectedRowIndexes.count) rows selected"))
     return mneu

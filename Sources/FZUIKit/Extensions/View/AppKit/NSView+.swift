@@ -11,34 +11,6 @@
 
 
     extension NSView {
-        /**
-         Animate changes to one or more views using the specified duration, delay, options, and completion handler.
-         
-         - Parameters:
-            - duration: The total duration of the animations, measured in seconds. If you specify a negative value or 0, the changes are made without animating them.
-            - timingFunction: The timing function of the animations.
-            - allowsImplicitAnimation: The Boolean value that indicates if animations are enabled or not for animations that occur as a result of another property change.
-            - animations: The handler containing the changes to commit to the views. This is where you programmatically change any animatable properties of the views in your view hierarchy.
-            - completion: The handler to be executed when the animation sequence ends.
-
-         */
-        public static func animate(withDuration duration: CGFloat = 0.2, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, animations: @escaping () -> Void, completion: (() -> Void)? = nil) {
-            NSAnimationContext.runAnimationGroup({ context in
-                context.duration = duration.clamped(min: 0.0)
-                context.timingFunction = timingFunction
-                context.allowsImplicitAnimation = allowsImplicitAnimation
-                animations()
-            }, completionHandler: completion)
-        }
-        
-        /// Runs the specified closure without any animations.
-        public static func performWithoutAnimation(_ actionsWithoutAnimation: () -> Void) {
-            CATransaction.performNonAnimated {
-                actionsWithoutAnimation()
-            }
-        }
-        
-        
         /// Sets type of focus ring drawn around the view.
         @discardableResult
         @objc open func focusRingType(_ type: NSFocusRingType) -> Self {
@@ -337,9 +309,7 @@
          Setting the corner radius to value other than `0.0`, sets the ``cornerShape`` to `normal`.
          */
         @objc public var cornerRadius: CGFloat {
-            get {
-                return layer?.cornerRadius ?? 0.0
-            }
+            get { layer?.cornerRadius ?? 0.0 }
             set {
                 let clipsToBounds = clipsToBounds
                 NSView.swizzleAnimationForKey()
@@ -815,28 +785,76 @@
             didSwizzleAnimationForKey = true
             do {
                 _ = try Swizzle(NSView.self) {
-                    #selector(NSView.animation(forKey:)) <-> #selector(swizzled_Animation(forKey:))
+                  //  #selector(NSView.animation(forKey:)) <-> #selector(swizzled_Animation(forKey:))
+                    #selector(NSView.defaultAnimation(forKey:)) <~> #selector(NSView.swizzledDefaultAnimation(forKey:))
                 }
             } catch {
-                Swift.debugPrint(error)
+                Swift.debugPrint(error, (error as? LocalizedError)?.failureReason ?? "nil")
             }
         }
         
-        @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {
-            if let animation = swizzled_Animation(forKey: key) {
+        @objc class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+            if let animation = swizzledDefaultAnimation(forKey: key) {
+                if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.springAnimation {
+                    return springAnimation
+                }
                 return animation
             } else if NSViewAnimationKeys.contains(key) {
-                let animation = CABasicAnimation()
-                animation.timingFunction = .default
-                return animation
+                let animation = swizzledDefaultAnimation(forKey: "frameOrigin")
+                if let animation = animation as? CABasicAnimation {
+                    animation.keyPath = key
+                }
+                return swizzledDefaultAnimation(forKey: "frameOrigin")
             }
             return nil
         }
 
         static var didSwizzleAnimationForKey: Bool {
-            get { getAssociatedValue("NdidSwizzleAnimationForKey", initialValue: false) }
-            set { setAssociatedValue(newValue, key: "NdidSwizzleAnimationForKey") }
+            get { getAssociatedValue("didSwizzleAnimationForKey", initialValue: false) }
+            set { setAssociatedValue(newValue, key: "didSwizzleAnimationForKey") }
         }
+        
+        /*
+        static var animatingViews: [Weak<NSView>] {
+            get { getAssociatedValue("animatingViews", initialValue: []) }
+            set { setAssociatedValue(newValue, key: "animatingViews") }
+        }
+        
+        var currentAnimations: [NSAnimatablePropertyKey : Weak<CAAnimation>] {
+            get { getAssociatedValue("currentAnimations", initialValue: [:]) }
+            set { setAssociatedValue(newValue, key: "currentAnimations") }
+        }
+        
+        public func stopAllAnimations(for context: NSAnimationContext) {
+            let contextID = ObjectIdentifier(context)
+            let animations = currentAnimations.filter({$0.value.object?.contextID == contextID})
+            for animation in animations {
+                animation.value.object
+            }
+        }
+        
+        @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {
+            if let animation = swizzled_Animation(forKey: key) as? CAAnimation {
+                Swift.print("swizzled_Animation", animation)
+                if !Self.animatingViews.contains(where: {$0.object == self }) {
+                    Self.animatingViews.append(.init(self))
+                }
+                if NSAnimationContext.hasActiveGrouping {
+                    animation.contextID = ObjectIdentifier(NSAnimationContext.current)
+                }
+                animation.onStop = { [weak self] in
+                    guard let self = self else { return }
+                    self.currentAnimations[key] = nil
+                    if self.currentAnimations.isEmpty {
+                        Self.animatingViews.removeFirst(where: {$0.object == self})
+                    }
+                }
+                currentAnimations[key] = .init(animation)
+                return animation
+            }
+            return nil
+        }
+         */
     }
 
     public extension NSView.AutoresizingMask {

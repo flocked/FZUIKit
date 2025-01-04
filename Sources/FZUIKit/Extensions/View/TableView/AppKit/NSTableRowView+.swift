@@ -44,5 +44,10 @@
             guard let tableView = tableView, let row = row, row > 0 else { return nil }
             return tableView.rowView(atRow: row - 1, makeIfNecessary: false) as? Self
         }
+        
+        /// A Boolean value that indicates whether the row is displaying row actions.
+        var isDisplayingRowAction: Bool {
+            get { subviews.contains(where: { $0.className == "NSTableViewActionButtonsGroupView" }) }
+        }
     }
 #endif

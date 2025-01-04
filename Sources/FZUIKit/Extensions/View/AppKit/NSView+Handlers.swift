@@ -37,6 +37,31 @@ extension NSView {
         set {
             setAssociatedValue(newValue, key: "menuProvider")
             setupEventMonitors()
+            // swizzleEventMenu()
+        }
+    }
+    
+    func swizzleEventMenu() {
+        let isReplaced = isMethodReplaced(#selector(NSView.menu(for:)))
+        if menuProvider != nil {
+            guard !isReplaced else { return }
+            do {
+               try replaceMethod(
+                #selector(NSView.menu(for:)),
+               methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> (NSMenu?)).self,
+               hookSignature: (@convention(block)  (AnyObject, NSEvent) -> (NSMenu?)).self) { store in {
+                   object, event in
+                   if let view = object as? NSView, let menuProvider = view.menuProvider {
+                       return menuProvider(event.location(in: view))
+                   }
+                   return store.original(object, #selector(NSView.menu(for:)), event)
+                   }
+               }
+            } catch {
+               debugPrint(error)
+            }
+        } else if isReplaced {
+            resetMethod(#selector(NSView.menu(for:)))
         }
     }
     

@@ -234,28 +234,36 @@
             }
         }
         
-        /// A Boolean value indicating whether the selection of items is toggled when the uses clicks an item.
-        var togglesSelection: Bool {
-            get { getAssociatedValue("togglesSelection") ?? false }
+        /**
+         A Boolean value indicating whether the selection of items is toggled when the user clicks an item.
+         
+         The default value is `false`.
+         */
+        var shouldToggleSelectionOnClick: Bool {
+            get { getAssociatedValue("shouldToggleSelectionOnClick") ?? false }
             set {
-                guard newValue != togglesSelection else { return }
-                setAssociatedValue(newValue, key: "togglesSelection")
-                updateToggleGestureRecognizer()
+                guard newValue != shouldToggleSelectionOnClick else { return }
+                setAssociatedValue(newValue, key: "shouldToggleSelectionOnClick")
+                setupToggleGestureRecognizer()
             }
         }
         
-        /// A Boolean value indicating whether all items should be deselected when the user clicks on the backgrouhd of the collection view.
-        var shouldDeselectAllItemsOnEmptyClick: Bool {
+        /**
+         A Boolean value indicating whether all items should be deselected when the user clicks on the backgrouhd of the collection view.
+         
+         The default value is `true`.
+         */
+        var shouldDeselecttemsOnEmptyClick: Bool {
             get { getAssociatedValue("shouldDeselectItemsOnEmptyClick") ?? true }
             set {
-                guard newValue != shouldDeselectAllItemsOnEmptyClick else { return }
+                guard newValue != shouldDeselecttemsOnEmptyClick else { return }
                 setAssociatedValue(newValue, key: "shouldDeselectItemsOnEmptyClick")
-                updateToggleGestureRecognizer()
+                setupToggleGestureRecognizer()
             }
         }
         
-        func updateToggleGestureRecognizer() {
-            if !togglesSelection && shouldDeselectAllItemsOnEmptyClick {
+        internal func setupToggleGestureRecognizer() {
+            if !shouldToggleSelectionOnClick && shouldDeselecttemsOnEmptyClick {
                 selectionGestureRecognizer?.removeFromView()
                 selectionGestureRecognizer = nil
             } else if selectionGestureRecognizer == nil {
@@ -273,6 +281,7 @@
             init() {
                 super.init(target: nil, action: nil)
                 delaysPrimaryMouseButtonEvents = true
+                reattachesAutomatically = true
             }
             
             required init?(coder: NSCoder) {
@@ -282,9 +291,9 @@
             override func mouseDown(with event: NSEvent) {
                 state = .began
                 var shouldFail = true
-                if let collectionView = view as? NSUICollectionView, collectionView.isSelectable, collectionView.allowsEmptySelection, collectionView.togglesSelection || !collectionView.shouldDeselectAllItemsOnEmptyClick {
+                if let collectionView = view as? NSUICollectionView, collectionView.isSelectable, collectionView.allowsEmptySelection, collectionView.shouldToggleSelectionOnClick || !collectionView.shouldDeselecttemsOnEmptyClick {
                     let indexPath = collectionView.indexPathForItem(at: event.location(in: collectionView))
-                    if collectionView.togglesSelection, let indexPath = indexPath {
+                    if collectionView.shouldToggleSelectionOnClick, let indexPath = indexPath {
                         if collectionView.selectionIndexPaths.contains(indexPath) {
                             collectionView.deselectItems(at: [indexPath])
                             collectionView.delegate?.collectionView?(collectionView, didDeselectItemsAt: [indexPath])
@@ -293,13 +302,23 @@
                             collectionView.delegate?.collectionView?(collectionView, didSelectItemsAt: [indexPath])
                         }
                         shouldFail = false
-                    } else if !collectionView.shouldDeselectAllItemsOnEmptyClick, indexPath == nil {
+                    } else if !collectionView.shouldDeselecttemsOnEmptyClick, indexPath == nil {
                         shouldFail = false
                     }
                 }
                 if shouldFail {
                     state = .failed
                 }
+            }
+            
+            override func mouseUp(with event: NSEvent) {
+                state = .began
+                state = .failed
+            }
+                        
+            override func mouseDragged(with event: NSEvent) {
+                state = .began
+                state = .failed
             }
         }
     }

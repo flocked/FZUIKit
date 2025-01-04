@@ -856,6 +856,7 @@ extension NSScrollView {
             scrollView.addGestureRecognizer(self)
             delaysPrimaryMouseButtonEvents = true
             delaysKeyEvents = true
+            reattachesAutomatically = true
         }
         
         override func mouseDown(with event: NSEvent) {

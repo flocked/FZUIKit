@@ -46,10 +46,10 @@ extension NSClipView {
     }
     
     /// A Boolean value indicating whether users can scroll the view by dragging the mouse.
-    @objc open var isScrollableByDagging: Bool {
+    @objc open var isScrollableByDragging: Bool {
         get { dragScrollGestureRecognizer != nil }
         set {
-            guard newValue != isScrollableByDagging else { return }
+            guard newValue != isScrollableByDragging else { return }
             if newValue {
                 dragScrollGestureRecognizer = DragScrollGestureRecognizer()
                 addGestureRecognizer(dragScrollGestureRecognizer!)
@@ -61,8 +61,8 @@ extension NSClipView {
     }
     
     /// Sets the Boolean value indicating whether users can scroll the view by dragging the mouse.
-    @objc open func isScrollableByDagging(_ isScrollable: Bool) -> Self {
-        isScrollableByDagging = isScrollable
+    @objc open func isScrollableByDragging(_ isScrollable: Bool) -> Self {
+        isScrollableByDragging = isScrollable
         return self
     }
     
@@ -78,8 +78,17 @@ extension NSClipView {
         var clickPoint: CGPoint = .zero
         var originalOrigin: CGPoint = .zero
         
+        init() {
+            super.init(target: nil, action: nil)
+            reattachesAutomatically = true
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
         override func mouseDown(with event: NSEvent) {
-            guard let clipView = clipView, clipView.isScrollableByDagging else {
+            guard let clipView = clipView, clipView.isScrollableByDragging else {
                 super.mouseDown(with: event)
                 return
             }
@@ -88,7 +97,7 @@ extension NSClipView {
         }
         
         override func mouseDragged(with event: NSEvent) {
-            guard let clipView = clipView, clipView.isScrollableByDagging else {
+            guard let clipView = clipView, clipView.isScrollableByDragging else {
                 super.mouseDragged(with: event)
                 return
             }
@@ -103,14 +112,14 @@ extension NSClipView {
 
 extension NSScrollView {
     /// A Boolean value indicating whether users can scroll the view by dragging the mouse.
-    @objc open var isScrollableByDagging: Bool {
-        get { contentView.isScrollableByDagging }
-        set { contentView.isScrollableByDagging = newValue }
+    @objc open var isScrollableByDragging: Bool {
+        get { contentView.isScrollableByDragging }
+        set { contentView.isScrollableByDragging = newValue }
     }
     
     /// Sets the Boolean value indicating whether users can scroll the view by dragging the mouse.
-    @objc open func isScrollableByDagging(_ isScrollable: Bool) -> Self {
-        isScrollableByDagging = isScrollable
+    @objc open func isScrollableByDragging(_ isScrollable: Bool) -> Self {
+        isScrollableByDragging = isScrollable
         return self
     }
 }

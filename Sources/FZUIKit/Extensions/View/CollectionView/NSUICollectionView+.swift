@@ -14,8 +14,48 @@ import FZSwiftUtils
 
 #if os(macOS) || os(iOS) || os(tvOS)
     public extension NSUICollectionView {
-        internal var indexPaths: [IndexPath] {
+        /// All item index paths.
+        var indexPaths: [IndexPath] {
             (0..<numberOfSections).flatMap({indexPaths(for: $0)})
+        }
+        
+        /// All item index paths for the specified section.
+        func indexPaths(for section: Int) -> [IndexPath] {
+            var indexPaths = [IndexPath]()
+            if numberOfSections > section {
+                let numberOfItems = numberOfItems(inSection: section)
+                for item in 0 ..< numberOfItems {
+                    indexPaths.append(IndexPath(item: item, section: section))
+                }
+            }
+            return indexPaths
+        }
+        
+        /// Returns the next item index path after the given one, or `nil` if there isn't one.
+        func nextIndexPath(for indexPath: IndexPath) -> IndexPath? {
+            let itemsCount = numberOfItems(inSection: indexPath.section)
+            if indexPath.item + 1 < itemsCount {
+                return indexPath.item(indexPath.item + 1)
+            } else if numberOfSections >= indexPath.section + 1, numberOfItems(inSection: indexPath.section + 1) > 0 {
+                return IndexPath(item: 0, section: indexPath.section + 1)
+            }
+            return nil
+        }
+        
+        /// Returns the previous item index path before the given one, or `nil` if there isn't one.
+        func previousIndexPath(for indexPath: IndexPath) -> IndexPath? {
+            if indexPath.item > 0 {
+                return indexPath.item(indexPath.item - 1)
+            } else if indexPath.section > 0, numberOfItems(inSection: indexPath.section - 1) > 0 {
+                let previousSectionItemCount = numberOfItems(inSection: indexPath.section - 1)
+                return IndexPath(item: previousSectionItemCount - 1, section: indexPath.section - 1)
+            }
+            return nil
+        }
+        
+        /// A Boolean value that indicates whether an item exists at the specified index path.
+        func isValidIndexPath(_ indexPath: IndexPath) -> Bool {
+            indexPath.section < numberOfSections && indexPath.item < numberOfItems(inSection: indexPath.section)
         }
         
         /// Returns the index paths of the currently displayed items. Unlike `indexPathsForVisibleItems()`  it only returns the items with visible frame.
@@ -34,22 +74,6 @@ import FZSwiftUtils
             visibleCells.filter { $0.frame.intersects(rect) }
         }
         #endif
-        
-        /**
-         The item index paths for the specified section.
-         - Parameter section: The section of the items.
-         - Returns: The item index paths.
-         */
-        func indexPaths(for section: Int) -> [IndexPath] {
-            var indexPaths = [IndexPath]()
-            if numberOfSections > section {
-                let numberOfItems = numberOfItems(inSection: section)
-                for item in 0 ..< numberOfItems {
-                    indexPaths.append(IndexPath(item: item, section: section))
-                }
-            }
-            return indexPaths
-        }
         
         #if os(iOS) || os(tvOS)
         /**

@@ -503,7 +503,7 @@ extension NSWindow {
      
      The value can be animated via `animator()`.
      */
-    @objc open var frameAnimatable: CGRect {
+    @objc public var frameAnimatable: CGRect {
         get { frame }
         set {
             NSWindow.swizzleAnimationForKey()
@@ -669,13 +669,14 @@ extension NSWindow {
         return self
     }
     
-    @objc func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        if let animation = swizzledAnimation(forKey: key) {
+    @objc class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        if let animation = swizzledDefaultAnimation(forKey: key) {
+            if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.springAnimation {
+                return springAnimation
+            }
             return animation
         } else if NSWindowAnimationKeys.contains(key) {
-            let animation = CABasicAnimation()
-            animation.timingFunction = .default
-            return animation
+            return swizzledDefaultAnimation(forKey: "alphaValue")
         }
         return nil
     }
@@ -694,7 +695,7 @@ extension NSWindow {
             didSwizzleAnimationForKey = true
             do {
                 try Swizzle(NSWindow.self) {
-                    #selector(animation(forKey:)) <-> #selector(swizzledAnimation(forKey:))
+                    #selector(NSWindow.defaultAnimation(forKey:)) <~> #selector(NSWindow.swizzledDefaultAnimation(forKey:))
                 }
             } catch {
                 Swift.debugPrint(error)

@@ -369,11 +369,16 @@
     }
 
 extension NSTableView {
-    /// A Boolean value indicating whether the selection of rows is toggled when the uses clicks a row.
-    public var toggleSelection: Bool {
+    
+    /**
+     A Boolean value indicating whether the selection of rows is toggled when the uses clicks a row.
+     
+     The default value is `false`.
+     */
+    public var shouldToggleSelectionOnClick: Bool {
         get { toggleGestureRecognizer != nil }
         set {
-            guard newValue != toggleSelection else { return }
+            guard newValue != shouldToggleSelectionOnClick else { return }
             if newValue {
                 toggleGestureRecognizer = ToggleGestureRecognizer()
                 addGestureRecognizer(toggleGestureRecognizer!)
@@ -393,16 +398,13 @@ extension NSTableView {
         init() {
             super.init(target: nil, action: nil)
             delaysPrimaryMouseButtonEvents = true
-        }
-        
-        var tableView: NSTableView? {
-            view as? NSTableView
+            reattachesAutomatically = true
         }
         
         override func mouseDown(with event: NSEvent) {
             state = .began
             var shouldFail = true
-            if let tableView = tableView, tableView.isEnabled, tableView.allowsEmptySelection {
+            if let tableView = view as? NSTableView, tableView.isEnabled, tableView.allowsEmptySelection {
                 let row = tableView.row(at: location(in: tableView))
                 if row != -1 {
                     shouldFail = false
@@ -418,6 +420,16 @@ extension NSTableView {
                 state = .failed
                 super.mouseDown(with: event)
             }
+        }
+        
+        override func mouseUp(with event: NSEvent) {
+            state = .began
+            state = .failed
+        }
+                    
+        override func mouseDragged(with event: NSEvent) {
+            state = .began
+            state = .failed
         }
         
         required init?(coder: NSCoder) {

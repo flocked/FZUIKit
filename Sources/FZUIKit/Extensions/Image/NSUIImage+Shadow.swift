@@ -40,7 +40,7 @@ public extension NSImage {
         return newImage
     }
 }
-#elseif canImport(UIKit)
+#elseif os(macOS) || os(iOS) || os(tvOS)
 import UIKit
 
 public extension UIImage {
@@ -70,8 +70,6 @@ public extension UIImage {
         return image
     }
 }
-#endif
-
 
 public extension CGImage {
     /// Returns a new image with the specified shadow configuraton.
@@ -85,3 +83,4 @@ public extension CGImage {
         return context.makeImage()
     }
 }
+#endif

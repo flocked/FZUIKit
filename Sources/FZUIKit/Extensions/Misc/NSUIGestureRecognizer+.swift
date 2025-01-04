@@ -67,7 +67,7 @@ extension NSUIGestureRecognizer {
     
     /// Sets the Boolean value that indicates whether the gesture recognizer is automatically added again to it's view when it's removed.
     @discardableResult
-    @objc open func reattachesAutomatically(_ reattaches: Bool) -> Self {
+    @objc open func x(_ reattaches: Bool) -> Self {
         self.reattachesAutomatically = reattaches
         return self
     }
