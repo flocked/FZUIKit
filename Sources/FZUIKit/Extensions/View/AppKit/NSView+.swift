@@ -801,9 +801,6 @@
                 return animation
             } else if NSViewAnimationKeys.contains(key) {
                 let animation = swizzledDefaultAnimation(forKey: "frameOrigin")
-                if let animation = animation as? CABasicAnimation {
-                    animation.keyPath = key
-                }
                 return swizzledDefaultAnimation(forKey: "frameOrigin")
             }
             return nil

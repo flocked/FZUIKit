@@ -126,7 +126,6 @@
             set {
                 guard let tableView = tableView, let sortDescriptor = sortDescriptorPrototype else { return }
                 if let newValue = newValue {
-                    sortDescriptor.ascending
                     if let index = tableView.sortDescriptors.firstIndex(of: sortDescriptor) {
                         tableView.sortDescriptors = tableView.sortDescriptors.remove(at: index) + tableView.sortDescriptors
                     } else {
