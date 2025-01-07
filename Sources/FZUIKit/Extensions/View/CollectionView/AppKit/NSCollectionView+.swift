@@ -291,7 +291,7 @@
             override func mouseDown(with event: NSEvent) {
                 state = .began
                 var shouldFail = true
-                if let collectionView = view as? NSUICollectionView, collectionView.isSelectable, collectionView.allowsEmptySelection, collectionView.shouldToggleSelectionOnClick || !collectionView.shouldDeselecttemsOnEmptyClick {
+                if let collectionView = view as? NSUICollectionView, collectionView.isSelectable, collectionView.allowsEmptySelection, collectionView.shouldToggleSelectionOnClick || !collectionView.shouldDeselectItemsOnEmptyClick {
                     let indexPath = collectionView.indexPathForItem(at: event.location(in: collectionView))
                     if collectionView.shouldToggleSelectionOnClick, let indexPath = indexPath {
                         if collectionView.selectionIndexPaths.contains(indexPath) {
@@ -302,7 +302,7 @@
                             collectionView.delegate?.collectionView?(collectionView, didSelectItemsAt: [indexPath])
                         }
                         shouldFail = false
-                    } else if !collectionView.shouldDeselecttemsOnEmptyClick, indexPath == nil {
+                    } else if !collectionView.shouldDeselectItemsOnEmptyClick, indexPath == nil {
                         shouldFail = false
                     }
                 }
