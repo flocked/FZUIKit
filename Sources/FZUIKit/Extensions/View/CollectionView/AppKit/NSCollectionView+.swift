@@ -253,17 +253,17 @@
          
          The default value is `true`.
          */
-        var shouldDeselecttemsOnEmptyClick: Bool {
+        var shouldDeselectItemsOnEmptyClick: Bool {
             get { getAssociatedValue("shouldDeselectItemsOnEmptyClick") ?? true }
             set {
-                guard newValue != shouldDeselecttemsOnEmptyClick else { return }
+                guard newValue != shouldDeselectItemsOnEmptyClick else { return }
                 setAssociatedValue(newValue, key: "shouldDeselectItemsOnEmptyClick")
                 setupToggleGestureRecognizer()
             }
         }
         
         internal func setupToggleGestureRecognizer() {
-            if !shouldToggleSelectionOnClick && shouldDeselecttemsOnEmptyClick {
+            if !shouldToggleSelectionOnClick && shouldDeselectItemsOnEmptyClick {
                 selectionGestureRecognizer?.removeFromView()
                 selectionGestureRecognizer = nil
             } else if selectionGestureRecognizer == nil {
