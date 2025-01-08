@@ -142,7 +142,7 @@ open class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDele
     }
     
     /// File promise provider errors.
-    public enum Errors: Error {
+    internal enum Errors: Error {
         /// The file already exists at the specified url.
         case fileExistsAlready(URL)
     }
