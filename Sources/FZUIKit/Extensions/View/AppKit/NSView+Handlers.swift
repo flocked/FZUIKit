@@ -181,10 +181,6 @@ extension NSView {
             backgroundStyleObserverView = nil
         } else if backgroundStyleObserverView == nil {
             backgroundStyleObserverView = .init(frame: .zero)
-            backgroundStyleObserverView?.handler = { [weak self] backgroundStyle in
-                guard let self = self else { return }
-                self.viewHandlers.backgroundStyle?(backgroundStyle)
-            }
             addSubview(backgroundStyleObserverView!)
             backgroundStyleObserverView?.sendToBack()
             backgroundStyleObserverView?.zPosition = -4000
