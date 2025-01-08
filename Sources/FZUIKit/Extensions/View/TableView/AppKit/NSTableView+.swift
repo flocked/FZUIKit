@@ -375,10 +375,10 @@ extension NSTableView {
      
      The default value is `false`.
      */
-    public var shouldToggleSelectionOnClick: Bool {
+    public var togglesSelection: Bool {
         get { toggleGestureRecognizer != nil }
         set {
-            guard newValue != shouldToggleSelectionOnClick else { return }
+            guard newValue != togglesSelection else { return }
             if newValue {
                 toggleGestureRecognizer = ToggleGestureRecognizer()
                 addGestureRecognizer(toggleGestureRecognizer!)
@@ -403,22 +403,36 @@ extension NSTableView {
         
         override func mouseDown(with event: NSEvent) {
             state = .began
-            var shouldFail = true
-            if let tableView = view as? NSTableView, tableView.isEnabled, tableView.allowsEmptySelection {
+            if let tableView = view as? NSTableView, tableView.isEnabled, tableView.allowsEmptySelection, tableView.allowsMultipleSelection {
                 let row = tableView.row(at: location(in: tableView))
                 if row != -1 {
-                    shouldFail = false
+                    var indexes = tableView.selectedRowIndexes
                     if tableView.selectedRowIndexes.contains(row) {
-                        tableView.deselectRow(row)
+                        indexes.remove(row)
+                        if indexes == tableView.delegate?.tableView?(tableView, selectionIndexesForProposedSelection: indexes) ?? indexes {
+                            tableView.deselectRow(row)
+                            tableView.delegate?.tableViewSelectionDidChange?(Notification(name: NSTableView.selectionDidChangeNotification, object: tableView))
+                        }
                     } else {
-                        tableView.selectRowIndexes([row], byExtendingSelection: true)
+                        indexes.insert(row)
+                        var shouldSelect = true
+                        if let delegate = tableView.delegate {
+                            if let proposedSelection = delegate.tableView(_:selectionIndexesForProposedSelection:) {
+                                shouldSelect = proposedSelection(tableView, indexes) == indexes
+                            } else if let should = tableView.delegate?.tableView(_:shouldSelectRow:) {
+                                shouldSelect = should(tableView, row)
+                            }
+                        }
+                        if shouldSelect {
+                            tableView.selectRowIndexes([row], byExtendingSelection: true)
+                            tableView.delegate?.tableViewSelectionDidChange?(Notification(name: NSTableView.selectionDidChangeNotification, object: tableView))
+                        }
                     }
                     state = .ended
                 }
             }
-            if shouldFail {
+            if state != .ended {
                 state = .failed
-                super.mouseDown(with: event)
             }
         }
         

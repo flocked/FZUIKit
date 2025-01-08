@@ -294,10 +294,9 @@
             }
             
             override func mouseDown(with event: NSEvent) {
-                  state = .began
-                if let collectionView = view as? NSUICollectionView, collectionView.isSelectable, collectionView.togglesSelection, let indexPath = collectionView.indexPathForItem(at: event.location(in: collectionView)) {
-                    let selectionIndexPaths = collectionView.selectionIndexPaths
-                    if selectionIndexPaths.contains(indexPath) {
+                state = .began
+                if let collectionView = view as? NSUICollectionView, collectionView.isSelectable, let indexPath = collectionView.indexPathForItem(at: event.location(in: collectionView)) {
+                    if collectionView.selectionIndexPaths.contains(indexPath) {
                         collectionView.deselectItemsUsingDelegate(Set([indexPath]))
                     } else {
                         collectionView.selectItemsUsingDelegate(Set([indexPath]))
@@ -333,28 +332,17 @@
             }
             
             override func mouseDown(with event: NSEvent) {
-                guard let collectionView = view as? NSUICollectionView, collectionView.isSelectable, collectionView.allowsMultipleSelection, collectionView.allowsEmptySelection, collectionView.selectsWhileDragging else { return }
+                guard let collectionView = view as? NSUICollectionView, collectionView.isSelectable, collectionView.allowsMultipleSelection, collectionView.allowsEmptySelection else { return }
                 mouseDownLocation = event.location(in: collectionView)
                 selectionIndexPaths = collectionView.selectionIndexPaths
             }
                 
             override func mouseDragged(with event: NSEvent) {
-                guard let collectionView = view as? NSUICollectionView, collectionView.isSelectable, collectionView.allowsMultipleSelection, collectionView.allowsEmptySelection, collectionView.selectsWhileDragging else { return }
+                guard let collectionView = view as? NSUICollectionView, collectionView.isSelectable, collectionView.allowsMultipleSelection, collectionView.allowsEmptySelection else { return }
                 let rect = CGRect(point1: mouseDownLocation, point2: event.location(in: collectionView))
                 var indexPaths = Set(collectionView.displayingIndexPaths(in: rect))
                 if event.modifierFlags.contains(.shift) {
                     indexPaths = selectionIndexPaths.filter({ !indexPaths.contains($0) }) + indexPaths.filter({!selectionIndexPaths.contains($0)})
-                    /*
-                    var selection: Set<IndexPath> = selectionIndexPaths
-                    for indexPath in indexPaths {
-                        if selection.contains(indexPath) {
-                            selection.remove(indexPath)
-                        } else {
-                            selection.insert(indexPath)
-                        }
-                    }
-                    indexPaths = selection
-                     */
                 }
                 let diff = collectionView.selectionIndexPaths.difference(to: indexPaths)
                 if !diff.removed.isEmpty {
