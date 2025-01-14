@@ -55,20 +55,7 @@ public extension CGImage {
     static func create(size: CGSize, backgroundColor: CGColor? = nil, _ drawBlock: ((CGContext, CGSize) -> Void)? = nil) throws -> CGImage {
         // Make the context. For the moment, always work in RGBA (CGColorSpace.sRGB)
         let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
-        guard
-            let space = CGColorSpace(name: CGColorSpace.sRGB),
-            let ctx = CGContext(
-                data: nil,
-                width: Int(size.width),
-                height: Int(size.height),
-                bitsPerComponent: 8,
-                bytesPerRow: 0,
-                space: space,
-                bitmapInfo: bitmapInfo.rawValue
-            )
-        else {
-            throw ImageError.invalidContext
-        }
+        guard let space = CGColorSpace(name: CGColorSpace.sRGB), let ctx = CGContext(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: 8, bytesPerRow: 0, space: space, bitmapInfo: bitmapInfo.rawValue) else { throw ImageError.invalidContext }
 
         // Drawing defaults
         ctx.setShouldAntialias(true)
@@ -343,5 +330,93 @@ extension CGImage.PixelFormat {
         }
 
         return CGBitmapInfo(rawValue: byteOrder.rawValue | alphaInfo.rawValue)
+    }
+}
+
+
+extension CGImage {
+    /// The mode of grayscaling an image.
+    public enum GrayscalingMode {
+        /// Grayscales by using the device's native grayscale color space.
+        case deviceGray
+        /// Grayscales by using a weighted luminance formula for perceptual accuracy.
+        case weightedLuminance
+        /// Grayscales by by averaging the red, green, and blue color components.
+        case desaturation
+        /// Grayscales by by using the maximum intensity of the red, green, or blue channels.
+        case maxIntensity
+        /// Grayscales by by using the minimum intensity of the red, green, or blue channels.
+        case minIntensity
+        /// Grayscales by using the `CIPhotoEffectMono` Core Image filter for a monochrome effect.
+        case ciPhotoEffectMono
+        /// Grayscales by using the `CIColorControls` Core Image filter by reducing saturation to zero.
+        case ciColorControls
+    }
+
+    /// Returns a grayscale version of the image.
+    public func grayscaled(mode: GrayscalingMode = .deviceGray) -> CGImage? {
+        switch mode {
+        case .deviceGray:
+            return convertToDeviceGray()
+        case .weightedLuminance:
+            return processPixels { (r, g, b) -> UInt8 in
+                let redWeight = 0.299 * Float(r)
+                let greenWeight = 0.587 * Float(g)
+                let blueWeight = 0.114 * Float(b)
+                return UInt8(redWeight + greenWeight + blueWeight)
+            }
+        case .desaturation:
+            return processPixels { (r, g, b) -> UInt8 in
+                return UInt8((Float(r) + Float(g) + Float(b)) / 3.0)
+            }
+        case .maxIntensity:
+            return processPixels { (r, g, b) -> UInt8 in
+                return max(r, g, b)
+            }
+        case .minIntensity:
+            return processPixels { (r, g, b) -> UInt8 in
+                return min(r, g, b)
+            }
+        case .ciPhotoEffectMono:
+            return applyCoreImageFilter(filterName: "CIPhotoEffectMono")
+        case .ciColorControls:
+            return applyCoreImageFilter(filterName: "CIColorControls")
+        }
+    }
+    
+    private func convertToDeviceGray() -> CGImage? {
+        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.none.rawValue) else {  return nil }
+        context.draw(self, in: CGRect(x: 0, y: 0, width: width, height: height))
+        return context.makeImage()
+    }
+
+    private func processPixels(_ transform: @escaping (UInt8, UInt8, UInt8) -> UInt8) -> CGImage? {
+        guard let dataProvider = self.dataProvider, let data = dataProvider.data as Data? else { return nil }
+        var pixelData = [UInt8](data)
+        let bytesPerPixel = 4
+        for i in stride(from: 0, to: pixelData.count, by: bytesPerPixel) {
+            let r = pixelData[i]
+            let g = pixelData[i + 1]
+            let b = pixelData[i + 2]
+            let gray = transform(r, g, b)
+            pixelData[i] = gray
+            pixelData[i + 1] = gray
+            pixelData[i + 2] = gray
+        }
+        guard let context = CGContext(data: &pixelData, width: width, height: height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: bitmapInfo.rawValue) else { return nil }
+        return context.makeImage()
+    }
+    
+    private func applyCoreImageFilter(filterName: String) -> CGImage? {
+        let ciImage = CIImage(cgImage: self)
+        guard let filter = CIFilter(name: filterName) else { return nil }
+        filter.setValue(ciImage, forKey: kCIInputImageKey)
+        if filterName == "CIColorControls" {
+            filter.setValue(0.0, forKey: kCIInputSaturationKey)
+        }
+        let context = CIContext()
+        return filter.outputImage.flatMap {
+            context.createCGImage($0, from: $0.extent)
+        }
     }
 }

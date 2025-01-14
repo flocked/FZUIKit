@@ -82,11 +82,11 @@ public extension NSUIView {
         - siblingSubview: The sibling view that will be behind the inserted view.
         - perserveFrame: A Boolean value that indicates whether the view's frame in it's superview's coordinate system is peserved.
      */
-    func insertSubview(_ view: NSUIView, aboveSubview: NSUIView, perserveFrame: Bool) {
+    func insertSubview(_ view: NSUIView, aboveSubview siblingSubview: NSUIView, perserveFrame: Bool) {
         if perserveFrame, view.superview !== self, let frame = view.superview?.convert(view.frame, to: self) {
             view.frame = frame
         }
-        insertSubview(view, aboveSubview: belowSubview)
+        insertSubview(view, aboveSubview: siblingSubview)
     }
     #endif
     

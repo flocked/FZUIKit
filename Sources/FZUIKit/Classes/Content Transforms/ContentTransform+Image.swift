@@ -73,26 +73,14 @@ public struct ImageTransformer: ContentTransform {
     }
 
     public static func resized(to size: CGSize) -> Self {
-        #if os(macOS)
-            return Self("resizedTo: \(size)") { $0.resized(to: size) }
-        #elseif canImport(UIKit)
-            return Self("resizedTo: \(size)") { $0.resized(to: size) ?? $0 }
-        #endif
+        Self("resizedTo: \(size)") { $0.resized(to: size) }
     }
 
     public static func resized(toFit size: CGSize) -> Self {
-        #if os(macOS)
-            return Self("resizedToFit: \(size)") { $0.resized(toFit: size) }
-        #elseif canImport(UIKit)
-            return Self("resizedToFit: \(size)") { $0.resized(toFit: size) ?? $0 }
-        #endif
+        Self("resizedToFit: \(size)") { $0.resized(toFit: size) }
     }
 
     public static func resized(toFill size: CGSize) -> Self {
-        #if os(macOS)
-            return Self("resizedToFill: \(size)") { $0.resized(toFill: size) }
-        #elseif canImport(UIKit)
-            return Self("resizedToFill: \(size)") { $0.resized(toFill: size) ?? $0 }
-        #endif
+        Self("resizedToFill: \(size)") { $0.resized(toFill: size) }
     }
 }

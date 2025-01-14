@@ -11,6 +11,38 @@
     import UIKit
 #endif
 
+public extension NSUIImage {
+    /// Returns the image resized to fit the specified size.
+    func resized(toFit size: CGSize) -> NSUIImage {
+        resized(to: self.size.scaled(toFit: size))
+    }
+
+    /// Returns the image resized to fill the specified size.
+    func resized(toFill size: CGSize) -> NSUIImage {
+        resized(to: self.size.scaled(toFill: size))
+    }
+
+    /// Returns the image resized to the specified width while maintaining the aspect ratio.
+    func resized(toWidth width: CGFloat) -> NSUIImage {
+        resized(to: size.scaled(toWidth: width))
+    }
+
+    /// Returns the image resized to the specified height while maintaining the aspect ratio.
+    func resized(toHeight height: CGFloat) -> NSUIImage {
+        resized(to: size.scaled(toHeight: height))
+    }
+    
+    /// Returns the image grayscaled.
+    func grayscaled(mode: CGImage.GrayscalingMode = .deviceGray) -> NSUIImage? {
+        guard let cgImage = cgImage?.grayscaled(mode: mode) else { return nil }
+        let image = NSUIImage(cgImage: cgImage)
+        #if os(macOS)
+        image.isTemplate = true
+        #endif
+        return image
+    }
+}
+
 #if os(macOS)
     public extension NSUIImage {
         /// Returns the image resized to the specified size.
@@ -22,30 +54,6 @@
             draw(in: NSRect(x: 0, y: 0, width: size.width, height: size.height), from: .zero, operation: .copy, fraction: 1.0)
             scaledImage.unlockFocus()
             return scaledImage
-        }
-
-        /// Returns the image resized to fit the specified size.
-        func resized(toFit size: CGSize) -> NSImage {
-            let size = self.size.scaled(toFit: size)
-            return resized(to: size)
-        }
-
-        /// Returns the image resized to fill the specified size.
-        func resized(toFill size: CGSize) -> NSImage {
-            let size = self.size.scaled(toFill: size)
-            return resized(to: size)
-        }
-
-        /// Returns the image resized to the specified width while maintaining the aspect ratio.
-        func resized(toWidth width: CGFloat) -> NSImage {
-            let size = size.scaled(toWidth: width)
-            return resized(to: size)
-        }
-
-        /// Returns the image resized to the specified height while maintaining the aspect ratio.
-        func resized(toHeight height: CGFloat) -> NSImage {
-            let size = size.scaled(toHeight: height)
-            return resized(to: size)
         }
 
         /// Returns the image as circle.
@@ -129,23 +137,14 @@
 
     public extension NSUIImage {
         /// Returns the image resized to the specified size.
-        func resized(to size: CGSize) -> NSUIImage? {
-            UIGraphicsBeginImageContextWithOptions(size, false, scale)
-            defer { UIGraphicsEndImageContext() }
-            draw(in: CGRect(x: 0.0, y: 0.0, width: size.width, height: size.height))
-            return UIGraphicsGetImageFromCurrentImageContext()
-        }
-
-        /// Returns the image resized to fit the specified size.
-        func resized(toFit size: CGSize) -> NSUIImage? {
-            let size = self.size.scaled(toFit: size)
-            return resized(to: size)
-        }
-
-        /// Returns the image resized to fill the specified size.
-        func resized(toFill size: CGSize) -> NSUIImage? {
-            let size = self.size.scaled(toFill: size)
-            return resized(to: size)
+        func resized(to size: CGSize) -> UIImage {
+            let format = UIGraphicsImageRendererFormat.default()
+            format.opaque = false // Set to `true` if the image does not have transparency.
+            let renderer = UIGraphicsImageRenderer(size: size, format: format)
+            
+            return renderer.image { _ in
+                self.draw(in: CGRect(origin: .zero, size: size))
+            }
         }
 
         /// Returns the image rotated to the specified degree.
