@@ -138,13 +138,20 @@ public extension NSUIImage {
     public extension NSUIImage {
         /// Returns the image resized to the specified size.
         func resized(to size: CGSize) -> UIImage {
+            #if os(iOS) || os(tvOS)
             let format = UIGraphicsImageRendererFormat.default()
-            format.opaque = false // Set to `true` if the image does not have transparency.
+            format.opaque = false
             let renderer = UIGraphicsImageRenderer(size: size, format: format)
-            
             return renderer.image { _ in
                 self.draw(in: CGRect(origin: .zero, size: size))
             }
+            #else
+            UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
+            draw(in: CGRect(origin: .zero, size: size))
+            let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+            return resizedImage ?? self
+            #endif
         }
 
         /// Returns the image rotated to the specified degree.

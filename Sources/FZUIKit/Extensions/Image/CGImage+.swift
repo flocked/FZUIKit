@@ -347,10 +347,12 @@ extension CGImage {
         case maxIntensity
         /// Grayscales by by using the minimum intensity of the red, green, or blue channels.
         case minIntensity
+#if os(macOS) || os(iOS) || os(tvOS)
         /// Grayscales by using the `CIPhotoEffectMono` Core Image filter for a monochrome effect.
         case ciPhotoEffectMono
         /// Grayscales by using the `CIColorControls` Core Image filter by reducing saturation to zero.
         case ciColorControls
+        #endif
     }
 
     /// Returns a grayscale version of the image.
@@ -377,10 +379,12 @@ extension CGImage {
             return processPixels { (r, g, b) -> UInt8 in
                 return min(r, g, b)
             }
+        #if os(macOS) || os(iOS) || os(tvOS)
         case .ciPhotoEffectMono:
             return applyCoreImageFilter(filterName: "CIPhotoEffectMono")
         case .ciColorControls:
             return applyCoreImageFilter(filterName: "CIColorControls")
+        #endif
         }
     }
     
@@ -407,6 +411,7 @@ extension CGImage {
         return context.makeImage()
     }
     
+    #if os(macOS) || os(iOS) || os(tvOS)
     private func applyCoreImageFilter(filterName: String) -> CGImage? {
         let ciImage = CIImage(cgImage: self)
         guard let filter = CIFilter(name: filterName) else { return nil }
@@ -419,4 +424,5 @@ extension CGImage {
             context.createCGImage($0, from: $0.extent)
         }
     }
+    #endif
 }
