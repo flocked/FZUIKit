@@ -313,6 +313,7 @@ public extension AXUIElement {
                     if case let .failure(error) = completion {
                         AXLogger.print(error, "publisher(for: \(notification))")
                     }
+                    let view = NSView()
                 })
                 .eraseToAnyPublisher()
         } catch {
@@ -322,8 +323,12 @@ public extension AXUIElement {
     }
     
     /// Returns a observer for the specified notification that calls the specified handler-
-    func observe(_ notification: AXNotification, handler: @escaping (_ element: AXUIElement)->()) throws -> AXNotificationToken {
-        try AXNotificationObserver.shared(for: pid()).observation(notification, element: self, handler: handler)
+    func observe(_ notification: AXNotification, handler: @escaping (_ element: AXUIElement)->()) -> AXNotificationToken? {
+        do {
+            return try AXNotificationObserver.shared(for: pid()).observation(notification, element: self, handler: handler)
+        } catch {
+            return nil
+        }
     }
     
     // MARK: Metadata
@@ -338,7 +343,7 @@ public extension AXUIElement {
         }
         return pid
     }
-
+    
     /// The role of the object.
     var role: AXRole? {
         try? get(.role)
@@ -347,81 +352,6 @@ public extension AXUIElement {
     /// The subrole of the object.
     var subrole: AXSubrole? {
         try? get(.subrole)
-    }
-
-    /// The identifier of the object.
-    var identifier: String? {
-        try? get(.identifier)
-    }
-    
-    /// The value of the object.
-    var value: Any? {
-        try? get(.value)
-    }
-
-    /// The string value of the object.
-    var stringValue: String? {
-        try? get(.value)
-    }
-    
-    /// The integer value of the object.
-    var integerValue: Int? {
-        try? get(.value)
-    }
-    
-    /// The boolean value of the object.
-    var boolValue: Bool? {
-        try? get(.value)
-    }
-
-    /// The position of the object.
-    var position: CGPoint? {
-        try? get(.position)
-    }
-
-    /// The size of the object.
-    var size: CGSize? {
-        try? get(.size)
-    }
-
-    /// The frame of the object.
-    var frame: CGRect? {
-        try? get(.frame)
-    }
-
-    /// The URL of the open document represented by this object.
-    var document: String? {
-        guard let document = try? get(.document) as String? else {
-            return parent?.document
-        }
-        return document
-    }
-    
-    /// The title of the object.
-    var title: String? {
-        try? get(.title)
-    }
-    
-    /// The description of the object.
-    var descriptionValue: String? {
-        try? get(.description)
-    }
-    
-    /// The currently focused `AXUIElement` of the object.
-    var focusedUIElement: AXUIElement? {
-        try? get(.focusedUIElement)
-    }
-    
-    /// The window identifier.
-    var windowId: CGWindowID? {
-        do {
-            var windowId = CGWindowID(0)
-            try _AXUIElementGetWindow(self, &windowId).throwIfError("windowId()")
-            return windowId
-        } catch {
-            AXLogger.print(error, "windowId")
-            return nil
-        }
     }
     
     /// The parent of the object.
@@ -536,14 +466,19 @@ public extension AXUIElement {
         }
         try set(.selectedTextRange, to: selection)
     }
+    
+    /// The values of the object's attributes.
+    var values: AXUIElementValues {
+        .init(self)
+    }
 }
 
 extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
     public var description: String {
         let id = hashValue
-        let role = role?.rawValue ?? "AXUnknown"
-        let pid = (try? pid()) ?? 0
-        if let description: String = self[.description], description != "" {
+        let role = values.role?.rawValue ?? "AXUnknown"
+        let pid = values.pID ?? 0
+        if let description = values.description, description != "" {
             return "\(role) #\(id) \(description) (pid: \(pid))"
         }
         return "\(role) #\(id) (pid: \(pid))"
@@ -551,13 +486,13 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
     
     public var debugDescription: String {
         let id = hashValue
-        let role = role?.rawValue ?? "AXUnknown"
-        let pid = (try? pid()) ?? 0
+        let role = values.role?.rawValue ?? "AXUnknown"
+        let pid = values.pID ?? 0
         var string = "\(role) #\(id) "
-        if let subrole = subrole?.rawValue {
+        if let subrole = values.subrole?.rawValue {
             string = "\(role)/\(subrole) #\(id) "
         }
-        if let description = descriptionValue, description != "" {
+        if let description = values.description, description != "" {
             string += "\(description) (pid: \(pid))"
         } else {
             string += "(pid: \(pid))"
@@ -639,11 +574,11 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
     func string(level: Int, maxDepth: Int?, options: DescriptionOptions, attributes: [AXAttribute]) -> String {
         let intendString = String(repeating: "  ", count: level) + "- "
         let id = hashValue
-        let role = role?.rawValue ?? "AXUnknown"
-        let subrole = subrole?.rawValue
-        let pid = try? pid()
-        let title = title
-        let description = descriptionValue
+        let role = values.role?.rawValue ?? "AXUnknown"
+        let subrole = values.subrole?.rawValue
+        let pid = values.pID
+        let title = values.title
+        let description = values.description
         var strings: [String] = []
         if options.contains([.role, .subrole]), let subrole = subrole {
             strings.append("\(role)/\(subrole)")

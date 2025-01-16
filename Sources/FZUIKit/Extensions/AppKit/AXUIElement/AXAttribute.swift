@@ -61,9 +61,9 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
 
     // MARK: - Visual state attributes
     /// Indicates whether the accessibility element is enabled and can be interacted with.
-    public static let enabled = AXAttribute(rawValue: kAXEnabledAttribute)
+    public static let isEnabled = AXAttribute(rawValue: kAXEnabledAttribute)
     /// Indicates whether the accessibility element currently has keyboard focus.
-    public static let focused = AXAttribute(rawValue: kAXFocusedAttribute)
+    public static let isFocused = AXAttribute(rawValue: kAXFocusedAttribute)
     /// Represents the position of the accessibility element on the screen.
     public static let position = AXAttribute(rawValue: kAXPositionAttribute)
     /// Represents the size (width and height) of the accessibility element.
@@ -109,9 +109,9 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
 
     // MARK: - Window, sheet, or drawer-specific attributes
     /// Indicates the main element in a window or interface.
-    public static let main = AXAttribute(rawValue: kAXMainAttribute)
+    public static let isMain = AXAttribute(rawValue: kAXMainAttribute)
     /// Indicates whether the window or element is minimized.
-    public static let minimized = AXAttribute(rawValue: kAXMinimizedAttribute)
+    public static let isMinimized = AXAttribute(rawValue: kAXMinimizedAttribute)
     /// Represents the button that closes the window or element.
     public static let closeButton = AXAttribute(rawValue: kAXCloseButtonAttribute)
     /// Represents the button that toggles the zoom state of the window or element.
@@ -127,7 +127,7 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     /// Represents the area of the window or element that allows resizing.
     public static let growArea = AXAttribute(rawValue: kAXGrowAreaAttribute)
     /// Indicates whether the element or window is modal (prevents interaction with other windows).
-    public static let modal = AXAttribute(rawValue: kAXModalAttribute)
+    public static let isModal = AXAttribute(rawValue: kAXModalAttribute)
     /// Represents the default button in a dialog or window.
     public static let defaultButton = AXAttribute(rawValue: kAXDefaultButtonAttribute)
     /// Represents the button that cancels an action or closes a dialog.
@@ -153,9 +153,9 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     /// Represents all windows associated with the application.
     public static let windows = AXAttribute(rawValue: kAXWindowsAttribute)
     /// Indicates whether the element or window is currently the frontmost or active.
-    public static let frontmost = AXAttribute(rawValue: kAXFrontmostAttribute)
+    public static let isFrontmost = AXAttribute(rawValue: kAXFrontmostAttribute)
     /// Indicates whether the element or window is hidden.
-    public static let hidden = AXAttribute(rawValue: kAXHiddenAttribute)
+    public static let isHidden = AXAttribute(rawValue: kAXHiddenAttribute)
     /// Represents the primary window of the application.
     public static let mainWindow = AXAttribute(rawValue: kAXMainWindowAttribute)
     /// Represents the window that currently has focus.
@@ -200,13 +200,17 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     public static let columnHeaderUIElements = AXAttribute(rawValue: kAXColumnHeaderUIElementsAttribute)
     /// Represents the index or position of a specific element within a collection.
     public static let index = AXAttribute(rawValue: kAXIndexAttribute)
+    
+    // MARK: - Outline attributes
     /// Represents whether a particular row or group is in a disclosed or expanded state.
-    public static let disclosing = AXAttribute(rawValue: kAXDisclosingAttribute)
+    public static let isDisclosed = AXAttribute(rawValue: kAXDisclosingAttribute)
     /// Represents the rows that are currently disclosed or expanded in a hierarchical list.
     public static let disclosedRows = AXAttribute(rawValue: kAXDisclosedRowsAttribute)
     /// Represents the row or group that discloses or expands another row in a hierarchical list.
     public static let disclosedByRow = AXAttribute(rawValue: kAXDisclosedByRowAttribute)
-
+    /// Represents the level of disclosure within a hierarchical element.
+    public static let disclosureLevel = AXAttribute(rawValue: kAXDisclosureLevelAttribute)
+    
     // MARK: - Matte-specific attributes
     /// Represents the area in a matte (overlay) where content is visible, such as in a modal or dialog.
     public static let matteHole = AXAttribute(rawValue: kAXMatteHoleAttribute)
@@ -235,7 +239,7 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     /// Represents the header element of a UI component, like a table or list.
     public static let header = AXAttribute(rawValue: kAXHeaderAttribute)
     /// Indicates whether a UI element's content has been edited or modified.
-    public static let edited = AXAttribute(rawValue: kAXEditedAttribute)
+    public static let isEdited = AXAttribute(rawValue: kAXEditedAttribute)
     /// Represents the set of tabs in a UI element, such as a tab view or window.
     public static let tabs = AXAttribute(rawValue: kAXTabsAttribute)
     /// Represents a button that shows additional content when clicked.
@@ -243,9 +247,9 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     /// Represents the name of a file associated with a UI element, such as in a file picker.
     public static let filename = AXAttribute(rawValue: kAXFilenameAttribute)
     /// Indicates whether a collapsible UI element is expanded or not.
-    public static let expanded = AXAttribute(rawValue: kAXExpandedAttribute)
+    public static let isExpanded = AXAttribute(rawValue: kAXExpandedAttribute)
     /// Represents whether a UI element or item is selected.
-    public static let selected = AXAttribute(rawValue: kAXSelectedAttribute)
+    public static let isSelected = AXAttribute(rawValue: kAXSelectedAttribute)
     /// Represents the splitter bars used to resize UI elements, such as in a split view.
     public static let splitters = AXAttribute(rawValue: kAXSplittersAttribute)
     /// Represents the contents of a UI element, such as text in a text field or items in a list.
@@ -277,9 +281,9 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     /// Represents the currently focused application in the system.
     public static let focusedApplication = AXAttribute(rawValue: kAXFocusedApplicationAttribute)
     /// Indicates whether a UI element is busy performing a task.
-    public static let elementBusy = AXAttribute(rawValue: kAXElementBusyAttribute)
+    public static let isBusy = AXAttribute(rawValue: kAXElementBusyAttribute)
     /// Indicates whether an alternate user interface is currently visible.
-    public static let alternateUIVisible = AXAttribute(rawValue: kAXAlternateUIVisibleAttribute)
+    public static let isAlternateUIVisible = AXAttribute(rawValue: kAXAlternateUIVisibleAttribute)
 
     // MARK: - Undocumented attributes
     /// Indicates whether the user interface is enhanced for additional metadata for VoiceOver.
@@ -324,6 +328,19 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     public static let screenPointForLayoutPoint = AXAttribute(rawValue: kAXScreenPointForLayoutPointParameterizedAttribute)
     /// Represents the screen size corresponding to a specific layout size.
     public static let screenSizeForLayoutSize = AXAttribute(rawValue: kAXScreenSizeForLayoutSizeParameterizedAttribute)
+    
+    // MARK: - Level indicator attributes
+    /// Represents the warning value of a level indicator.
+    public static let warningValue = AXAttribute(rawValue: kAXWarningValueAttribute)
+    /// Represents the critical value of a level indicator.
+    public static let criticalValue = AXAttribute(rawValue: kAXCriticalValueAttribute)
+    
+    // MARK: - Search field attributes
+    /// Represents the search button of a search field.
+    public static let searchButton = AXAttribute(rawValue: kAXSearchButtonAttribute)
+    /// Represents the clear button of a search field.
+    public static let clearButton = AXAttribute(rawValue: kAXClearButtonAttribute)
+
 }
 
 extension AXAttribute: CustomStringConvertible {

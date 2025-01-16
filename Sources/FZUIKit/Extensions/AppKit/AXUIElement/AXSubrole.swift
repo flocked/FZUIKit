@@ -12,7 +12,7 @@ import Foundation
 /// The subrole of an accessibility object.
 public struct AXSubrole: Hashable, RawRepresentable, ExpressibleByStringLiteral {
     public let rawValue: String
-
+    
     public init(rawValue: String) {
         self.rawValue = rawValue
     }
