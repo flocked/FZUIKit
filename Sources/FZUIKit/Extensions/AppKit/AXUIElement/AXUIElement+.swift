@@ -536,6 +536,34 @@ public extension AXUIElement {
         }
         try set(.selectedTextRange, to: selection)
     }
+}
+
+extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
+    public var description: String {
+        let id = hashValue
+        let role = role?.rawValue ?? "AXUnknown"
+        let pid = (try? pid()) ?? 0
+        if let description: String = self[.description], description != "" {
+            return "\(role) #\(id) \(description) (pid: \(pid))"
+        }
+        return "\(role) #\(id) (pid: \(pid))"
+    }
+    
+    public var debugDescription: String {
+        let id = hashValue
+        let role = role?.rawValue ?? "AXUnknown"
+        let pid = (try? pid()) ?? 0
+        var string = "\(role) #\(id) "
+        if let subrole = subrole?.rawValue {
+            string = "\(role)/\(subrole) #\(id) "
+        }
+        if let description = descriptionValue, description != "" {
+            string += "\(description) (pid: \(pid))"
+        } else {
+            string += "(pid: \(pid))"
+        }
+        return string
+    }
     
     /**
      Returns a string with a visual description of the object.
@@ -545,12 +573,12 @@ public extension AXUIElement {
         - attributes: The attributes to include.
         - maxDepth: The maximum depth of children to include.
      */
-    func visualDescription(options: DescriptionOptions = .detailedLong, attributes: [AXAttribute] = [], maxDepth: Int? = nil) -> String {
+    public func visualDescription(options: DescriptionOptions = .detailedLong, attributes: [AXAttribute] = [], maxDepth: Int? = nil) -> String {
         strings(maxDepth: maxDepth, options: options, attributes: attributes).joined(separator: "\n")
     }
     
     /// Options for a description of an accessibility object.
-     struct DescriptionOptions: OptionSet, Sendable {
+    public struct DescriptionOptions: OptionSet, Sendable {
         /// Role of the object.
         public static var role = Self(rawValue: 1 << 0)
         /// Subrole of the object.
@@ -599,7 +627,7 @@ public extension AXUIElement {
         public let rawValue: Int
     }
     
-    internal func strings(level: Int = 0, maxDepth: Int?, options: DescriptionOptions, attributes: [AXAttribute]) -> [String] {
+    func strings(level: Int = 0, maxDepth: Int?, options: DescriptionOptions, attributes: [AXAttribute]) -> [String] {
         var strings: [String] = []
         strings += (String(repeating: "  ", count: level) + string(level: level+1, maxDepth: maxDepth, options: options, attributes: attributes))
         if level+1 <= maxDepth ?? .max {
@@ -608,7 +636,7 @@ public extension AXUIElement {
         return strings
     }
     
-    internal func string(level: Int, maxDepth: Int?, options: DescriptionOptions, attributes: [AXAttribute]) -> String {
+    func string(level: Int, maxDepth: Int?, options: DescriptionOptions, attributes: [AXAttribute]) -> String {
         let intendString = String(repeating: "  ", count: level) + "- "
         let id = hashValue
         let role = role?.rawValue ?? "AXUnknown"
@@ -682,33 +710,6 @@ public extension AXUIElement {
             }
         }
         return strings.joined(separator: "\n")
-    }
-}
-
-extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
-    public var description: String {
-        let id = hashValue
-        let role = role?.rawValue ?? "AXUnknown"
-        let pid = (try? pid()) ?? 0
-        if let description: String = self[.description], description != "" {
-            return "\(role) #\(id) (pid: \(pid), desc: \(description))"
-        }
-        return "\(role) #\(id) (pid: \(pid))"
-    }
-    
-    public var debugDescription: String {
-        let id = hashValue
-        let role = role?.rawValue ?? "AXUnknown"
-        let pid = (try? pid()) ?? 0
-        var string = "\(role) #\(id) "
-        if let subrole = subrole?.rawValue {
-            string = "\(role)/\(subrole) #\(id) "
-        }
-        if let description: String = self[.description], description != "" {
-            string += "(pid: \(pid), desc: \(description))"
-        }
-        string += "(pid: \(pid))"
-        return string
     }
 }
 
