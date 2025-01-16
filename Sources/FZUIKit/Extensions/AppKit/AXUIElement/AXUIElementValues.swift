@@ -563,7 +563,7 @@ public class AXUIElementValues {
     public var isEdited: Bool? {
         element[.isEdited]
     }
-
+    
     /// Represents the set of tabs in a UI element, such as a tab view or window.
     public var tabs: [AXUIElement] {
         (element[.tabs] as [AXUIElement]?) ?? []
@@ -677,8 +677,8 @@ public class AXUIElementValues {
     // MARK: - Undocumented attributes
 
     /// Indicates whether the user interface is enhanced for additional metadata for VoiceOver.
-    public var enhancedUserInterface: Bool? {
-        element[.enhancedUserInterface]
+    public var isEnhancedUserInterface: Bool? {
+        element[.isEnhancedUserInterface]
     }
 
     /// Indicates whether the user interface is enabled for accessibility with Electron apps.

@@ -84,7 +84,13 @@ public extension AXUIElement {
             guard attributes.count == values.count else {
                 throw AXError.unexpectedValueCount(values)
             }
-            return Dictionary(zip(attributes, values), uniquingKeysWith: { _, b in b })
+            var dict = Dictionary(zip(attributes, values), uniquingKeysWith: { _, b in b })
+            for attribute in AXAttribute.boolAttributes {
+                if let value = dict[attribute] as? Int {
+                    dict[attribute] = value == 1
+                }
+            }
+            return dict
         } catch {
             AXLogger.print(error, "attributeValues()")
             return [:]

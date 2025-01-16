@@ -287,7 +287,7 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
 
     // MARK: - Undocumented attributes
     /// Indicates whether the user interface is enhanced for additional metadata for VoiceOver.
-    public static let enhancedUserInterface = AXAttribute(rawValue: "AXEnhancedUserInterface")
+    public static let isEnhancedUserInterface = AXAttribute(rawValue: "AXEnhancedUserInterface")
     /**
     /// Indicates whether the user interface is enabled for accessibility with Electron apps.
      
@@ -340,7 +340,8 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     public static let searchButton = AXAttribute(rawValue: kAXSearchButtonAttribute)
     /// Represents the clear button of a search field.
     public static let clearButton = AXAttribute(rawValue: kAXClearButtonAttribute)
-
+    
+    static let boolAttributes: [AXAttribute] = [.isBusy, .isEdited, .isMain, .isModal, .isHidden, .isEnabled, .isExpanded, .isFocused, .isSelected, .isDisclosed, .isFrontmost, .isMinimized, .isApplicationRunning, .isAlternateUIVisible, .isEnhancedUserInterface]
 }
 
 extension AXAttribute: CustomStringConvertible {
