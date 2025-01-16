@@ -126,13 +126,12 @@ public class AXUIElementValues {
     }
     
     // MARK: - Visual state attributes
-    
-    /// Indicates whether the accessibility element is enabled and can be interacted with.
+    /// A Boolean value indicating whether the UI element is enabled and can be interacted with.
     public var isEnabled: Bool? {
         element[.isEnabled]
     }
-
-    /// Indicates whether the accessibility element currently has keyboard focus.
+    
+    /// A Boolean value indicating whether the UI element currently has keyboard focus.
     public var isFocused: Bool? {
         element[.isFocused]
     }
@@ -259,13 +258,12 @@ public class AXUIElementValues {
     }
     
     // MARK: - Window, sheet, or drawer-specific attributes
-
-    /// Indicates whether the window represented by this accessibility object is the main application window
+    /// A Boolean value indicating whether the window represented by this accessibility object is the main application window.
     public var isMainWindow: Bool? {
         element[.isMainWindow]
     }
-
-    /// Indicates whether the window or element is minimized.
+    
+    /// A Boolean value indicating whether the window or element is minimized.
     public var isMinimized: Bool? {
         element[.isMinimized]
     }
@@ -304,8 +302,8 @@ public class AXUIElementValues {
     public var growArea: AXUIElement? {
         element[.growArea]
     }
-
-    /// Indicates whether the element or window is modal (prevents interaction with other windows).
+    
+    /// A Boolean value indicating whether the element or window is modal (prevents interaction with other windows).
     public var isModal: Bool? {
         element[.isModal]
     }
@@ -339,8 +337,8 @@ public class AXUIElementValues {
     }
 
     /// Represents the modifier keys (e.g., Shift, Control) required for the menu item command.
-    public var menuItemCmdModifiers: Int? {
-        (element[.menuItemCmdModifiers] as NSNumber?)?.intValue
+    public var menuItemCmdModifiers: AXMenuItemModifiers? {
+        element[.menuItemCmdModifiers]
     }
 
     /// Represents the character used to mark the menu item (e.g., an arrow or checkmark).
@@ -364,13 +362,13 @@ public class AXUIElementValues {
     public var windows: [AXUIElement] {
         (element[.windows] as [AXUIElement]?) ?? []
     }
-
-    /// Indicates whether the application represented by this accessibility object is active.
+    
+    /// A Boolean value indicating whether the application represented by this accessibility object is active.
     public var isFrontmost: Bool? {
         element[.isFrontmost]
     }
-
-    /// Indicates whether the element or window is hidden.
+    
+    /// A Boolean value indicating whether the element or window is hidden.
     public var isHidden: Bool? {
         element[.isHidden]
     }
@@ -480,8 +478,7 @@ public class AXUIElementValues {
     }
     
     // MARK: - Outline attributes
-
-    /// Represents whether a particular row or group is in a disclosed or expanded state.
+    /// A Boolean value indicating whether a particular row or group is in a disclosed or expanded state.
     public var isDisclosed: Bool? {
         element[.isDisclosed]
     }
@@ -560,8 +557,7 @@ public class AXUIElementValues {
     public var header: AXUIElement? {
         element[.header]
     }
-
-    /// Indicates whether a UI element's content has been edited or modified.
+    /// A Boolean value indicating whether a UI element's content has been edited or modified.
     public var isEdited: Bool? {
         element[.isEdited]
     }
@@ -580,13 +576,11 @@ public class AXUIElementValues {
     public var filename: String? {
         element[.filename]
     }
-
-    /// Indicates whether a collapsible UI element is expanded or not.
+    /// A Boolean value indicating whether a collapsible UI element is expanded or not.
     public var isExpanded: Bool? {
         element[.isExpanded]
     }
-
-    /// Represents whether a UI element or item is selected.
+    /// A Boolean value indicating whether a UI element or item is selected.
     public var isSelected: Bool? {
         element[.isSelected]
     }
@@ -655,8 +649,7 @@ public class AXUIElementValues {
     public var shownMenuUIElement: AXUIElement? {
         element[.shownMenuUIElement]
     }
-
-    /// Indicates whether an application is currently running.
+    /// A Boolean value indicating whether an application is currently running.
     public var isApplicationRunning: Bool? {
         element[.isApplicationRunning]
     }
@@ -665,25 +658,23 @@ public class AXUIElementValues {
     public var focusedApplication: AXUIElement? {
         element[.focusedApplication]
     }
-
-    /// Indicates whether a UI element is busy performing a task.
+    /// A Boolean value indicating whether a UI element is busy performing a task.
     public var isBusy: Bool? {
         element[.isBusy]
     }
-
-    /// Indicates whether an alternate user interface is currently visible.
+    
+    /// A Boolean value indicating whether an alternate user interface is currently visible.
     public var isAlternateUIVisible: Bool? {
         element[.isAlternateUIVisible]
     }
     
     // MARK: - Undocumented attributes
-
-    /// Indicates whether the user interface is enhanced for additional metadata for VoiceOver.
+    /// A Boolean value indicating whether the user interface is enhanced for additional metadata for VoiceOver.
     public var isEnhancedUserInterface: Bool? {
         element[.isEnhancedUserInterface]
     }
-
-    /// Indicates whether the user interface is enabled for accessibility with Electron apps.
+    
+    /// A Boolean value indicating whether the user interface is enabled for accessibility with Electron apps.
     public var manualAccessibility: Bool? {
         element[.manualAccessibility]
     }

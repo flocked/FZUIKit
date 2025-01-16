@@ -397,6 +397,11 @@ public extension AXUIElement {
         }
         return strings.reversed().joined(separator: " -> ")
     }
+    
+    /// The level of the element.
+    public var level: Int {
+        allParents.count
+    }
 
     /**
      Returns the children of the object.

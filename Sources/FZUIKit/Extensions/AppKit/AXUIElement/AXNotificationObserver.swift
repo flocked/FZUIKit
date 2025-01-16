@@ -55,7 +55,6 @@ final class AXNotificationObserver {
 
     /// Registers a new `receiver`, creating a shared `NotificationSubscription` if needed.
     func register(_ receiver: any AXNotificationReceiver) throws {
-        
         let subscription = subscriptions[receiver.key] ?? NotificationSubscription(key: receiver.key)
         subscriptions[receiver.key] = subscription
         if subscription.isEmpty {
@@ -78,7 +77,6 @@ final class AXNotificationObserver {
 
         subscription.remove(receiver)
         receiver._isActive = false
-
         if subscription.isEmpty {
             try observer().remove(
                 notification: receiver.key.notification,
@@ -145,6 +143,7 @@ private class NotificationSubscription {
     }
 
     func add(_ receiver: any AXNotificationReceiver) {
+        guard !receivers.contains(where: { $0 === receiver }) else { return }
         precondition(receiver.key == key)
         receivers.append(receiver)
     }
@@ -203,7 +202,7 @@ struct AXNotificationPublisher: Publisher {
         Combine.Subscription where S.Input == AXUIElement, S.Failure == Error {
         private let observer: AXNotificationObserver
         let key: AXNotificationKey
-        private var subscriber: S?
+        var subscriber: S?
         var _isActive = false
 
         init(observer: AXNotificationObserver, key: AXNotificationKey, subscriber: S) {

@@ -9,7 +9,7 @@
 import Foundation
 
 /// Logs errors for `AXUIElement`.
-public struct AXLogger {
+struct AXLogger {
     /// A Boolean value indicating whether logging of errors using `AXUIElement` is enabled.
     public static var isEnabled: Bool = false
     
