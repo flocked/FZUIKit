@@ -9,7 +9,7 @@
 import ApplicationServices
 import Foundation
 
-/// The attribute of an accessibility object.
+/// Values that describe the attributes of an accessibility object.
 public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLiteral {
     public let rawValue: String
 
@@ -109,7 +109,7 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
 
     // MARK: - Window, sheet, or drawer-specific attributes
     /// Indicates the main element in a window or interface.
-    public static let isMain = AXAttribute(rawValue: kAXMainAttribute)
+    public static let isMainWindow = AXAttribute(rawValue: kAXMainAttribute)
     /// Indicates whether the window or element is minimized.
     public static let isMinimized = AXAttribute(rawValue: kAXMinimizedAttribute)
     /// Represents the button that closes the window or element.
@@ -132,7 +132,10 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     public static let defaultButton = AXAttribute(rawValue: kAXDefaultButtonAttribute)
     /// Represents the button that cancels an action or closes a dialog.
     public static let cancelButton = AXAttribute(rawValue: kAXCancelButtonAttribute)
+    /// Indicates whether the window is full screen.
+    public static let isFullScreen = AXAttribute(rawValue: "AXFullScreen")
 
+    
     // MARK: - Menu or menu item-specific attributes
     /// Represents the character associated with the command for a menu item.
     public static let menuItemCmdChar = AXAttribute(rawValue: kAXMenuItemCmdCharAttribute)
@@ -295,40 +298,6 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
      */
     public static let manualAccessibility = AXAttribute(rawValue: "AXManualAccessibility")
 
-    // MARK: - Text suite parameterized attributes
-    /// Represents the line corresponding to a specific index in the text.
-    public static let lineForIndex = AXAttribute(rawValue: kAXLineForIndexParameterizedAttribute)
-    /// Represents the range of characters that form a specific line in the text.
-    public static let rangeForLine = AXAttribute(rawValue: kAXRangeForLineParameterizedAttribute)
-    /// Represents the string corresponding to a specific character range.
-    public static let stringForRange = AXAttribute(rawValue: kAXStringForRangeParameterizedAttribute)
-    /// Represents the character range corresponding to a specific position in the text.
-    public static let rangeForPosition = AXAttribute(rawValue: kAXRangeForPositionParameterizedAttribute)
-    /// Represents the character range corresponding to a specific index in the text.
-    public static let rangeForIndex = AXAttribute(rawValue: kAXRangeForIndexParameterizedAttribute)
-    /// Represents the bounds (position and size) of a specific character range.
-    public static let boundsForRange = AXAttribute(rawValue: kAXBoundsForRangeParameterizedAttribute)
-    /// Represents the RTF content corresponding to a character range.
-    public static let rtfForRange = AXAttribute(rawValue: kAXRTFForRangeParameterizedAttribute)
-    /// Represents the attributed string corresponding to a specific character range.
-    public static let attributedStringForRange = AXAttribute(rawValue: kAXAttributedStringForRangeParameterizedAttribute)
-    /// Represents the style range for a specific index in the text.
-    public static let styleRangeForIndex = AXAttribute(rawValue: kAXStyleRangeForIndexParameterizedAttribute)
-
-    // MARK: - Cell-based table parameterized attributes
-    /// Represents a specific cell based on its column and row indices.
-    public static let cellForColumnAndRow = AXAttribute(rawValue: kAXCellForColumnAndRowParameterizedAttribute)
-
-    // MARK: - Layout area parameterized attributes
-    /// Represents the layout point corresponding to a specific screen point.
-    public static let layoutPointForScreenPoint = AXAttribute(rawValue: kAXLayoutPointForScreenPointParameterizedAttribute)
-    /// Represents the layout size corresponding to a specific screen size.
-    public static let layoutSizeForScreenSize = AXAttribute(rawValue: kAXLayoutSizeForScreenSizeParameterizedAttribute)
-    /// Represents the screen point corresponding to a specific layout point.
-    public static let screenPointForLayoutPoint = AXAttribute(rawValue: kAXScreenPointForLayoutPointParameterizedAttribute)
-    /// Represents the screen size corresponding to a specific layout size.
-    public static let screenSizeForLayoutSize = AXAttribute(rawValue: kAXScreenSizeForLayoutSizeParameterizedAttribute)
-    
     // MARK: - Level indicator attributes
     /// Represents the warning value of a level indicator.
     public static let warningValue = AXAttribute(rawValue: kAXWarningValueAttribute)
@@ -341,7 +310,7 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     /// Represents the clear button of a search field.
     public static let clearButton = AXAttribute(rawValue: kAXClearButtonAttribute)
     
-    static let boolAttributes: [AXAttribute] = [.isBusy, .isEdited, .isMain, .isModal, .isHidden, .isEnabled, .isExpanded, .isFocused, .isSelected, .isDisclosed, .isFrontmost, .isMinimized, .isApplicationRunning, .isAlternateUIVisible, .isEnhancedUserInterface]
+    static let boolAttributes: [AXAttribute] = [.isBusy, .isEdited, .isMainWindow, .isModal, .isHidden, .isEnabled, .isExpanded, .isFocused, .isSelected, .isDisclosed, .isFrontmost, .isMinimized, .isApplicationRunning, .isAlternateUIVisible, .isEnhancedUserInterface, .isFullScreen]
 }
 
 extension AXAttribute: CustomStringConvertible {

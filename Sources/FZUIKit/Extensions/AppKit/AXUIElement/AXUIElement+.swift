@@ -75,6 +75,11 @@ public extension AXUIElement {
             return []
         }
     }
+    
+    /// Returns an array of all settable attributes supported by the object.
+    var settableAttributes: [AXAttribute] {
+        attributes.filter({ isSettable($0) })
+    }
 
     /// Returns a dictionary of all the object's attributes and their values.
     func attributeValues() -> [AXAttribute: Any] {
@@ -98,14 +103,19 @@ public extension AXUIElement {
     }
 
     /// Returns an array of all parameterized attributes supported by the object.
-    var parameterizedAttributes: [AXAttribute] {
+    var parameterizedAttributes: [AXParameterizedAttribute] {
         do {
             var names: CFArray?
             try AXUIElementCopyParameterizedAttributeNames(self, &names).throwIfError("parameterizedAttributes")
-            return (names! as [AnyObject]).map { AXAttribute(rawValue: $0 as! String) }
+            return (names! as [AnyObject]).map { AXParameterizedAttribute(rawValue: $0 as! String) }
         } catch {
             return []
         }
+    }
+    
+    /// The values of the object's attributes.
+    var values: AXUIElementValues {
+        .init(self)
     }
 
     /// Returns the count of the array of tne specified attribute.
@@ -134,9 +144,6 @@ public extension AXUIElement {
     /// Returns the value for the specified attribute.
     func get<Value>(_ attribute: AXAttribute) throws -> Value? {
         precondition(Thread.isMainThread)
-        if attribute == .frame, let position: CGPoint = try get(.position), let size: CGSize = try get(.size) {
-            return CGRect(origin: position, size: size) as? Value
-        }
         var value: AnyObject?
         let code = AXUIElementCopyAttributeValue(self, attribute.rawValue as CFString, &value)
         if let error = AXError(code: code) {
@@ -158,7 +165,7 @@ public extension AXUIElement {
     }
 
     /// Returns the value for the specified parameterized attribute and parameter.
-    func get<Value, Parameter>(_ attribute: AXAttribute, with parameter: Parameter) throws -> Value? {
+    func get<Value, Parameter>(_ attribute: AXParameterizedAttribute, with parameter: Parameter) throws -> Value? {
         precondition(Thread.isMainThread)
 
         guard let param = pack(parameter) else {
@@ -249,16 +256,21 @@ public extension AXUIElement {
             return value
         }
     }
+    
+    func printAttributes(level: Int = 0) {
+        var intend = String(repeating: "  ", count: level)
+        Swift.print(intend + "\(role?.rawValue ?? "AXUnknown")")
+        intend = String(repeating: "  ", count: level+1)
+        for attribute in attributes {
+            Swift.print(intend + "- " + attribute.rawValue)
+        }
+        children().forEach({ $0.printAttributes(level: level+1) })
+    }
 
     /// A Boolean value indicating whether the specificed attribute is settable.
     func isSettable(_ attribute: AXAttribute) -> Bool {
         precondition(Thread.isMainThread)
         do {
-            if attribute == .frame {
-                let positionIsSettable = try isSettable(.position)
-                let sizeIsSettable = try isSettable(.size)
-                return positionIsSettable && sizeIsSettable
-            }
             var settable: DarwinBoolean = false
             try AXUIElementIsAttributeSettable(self, attribute.rawValue as CFString, &settable).throwIfError("isSettable(\(attribute))")
             return settable.boolValue
@@ -270,18 +282,13 @@ public extension AXUIElement {
     /// Sets the specified attribute to the specified value.
     func set<Value>(_ attribute: AXAttribute, to value: Value) throws {
         precondition(Thread.isMainThread)
-        if attribute == .frame, let value = value as? CGRect {
-            try set(.position, to: value.origin)
-            try set(.size, to: value.size)
-        } else {
-            guard let value = pack(value) else {
-                let error = AXError.packFailure(value)
-                AXLogger.print(error, "set(\(attribute)): pack failure", ["value": String(reflecting: value)])
-                throw error
-            }
-            
-            try AXUIElementSetAttributeValue(self, attribute.rawValue as CFString, value).throwIfError("set(\(attribute))", ["value": String(reflecting: value)])
+        guard let value = pack(value) else {
+            let error = AXError.packFailure(value)
+            AXLogger.print(error, "set(\(attribute)): pack failure", ["value": String(reflecting: value)])
+            throw error
         }
+        
+        try AXUIElementSetAttributeValue(self, attribute.rawValue as CFString, value).throwIfError("set(\(attribute))", ["value": String(reflecting: value)])
     }
 
     /// Sets the specified attribute to the specified value.
@@ -363,6 +370,32 @@ public extension AXUIElement {
     /// The parent of the object.
     var parent: AXUIElement? {
         try? get(.parent)
+    }
+    
+    /// Returns all parents.
+    public var allParents: [AXUIElement] {
+        var parents: [AXUIElement] = []
+        var current = parent
+        while let parent = current {
+            parents.append(parent)
+            current = parent.parent
+        }
+        return parents
+    }
+    
+    /// The path of the object.
+    public var path: String {
+        var strings: [String] = []
+        for parent in ([self] + allParents) {
+            if let role = parent.role {
+                if let title = parent.values.title {
+                    strings.append("\(role)[\(title)]")
+                } else {
+                    strings.append("\(role)")
+                }
+            }
+        }
+        return strings.reversed().joined(separator: " -> ")
     }
 
     /**
@@ -467,15 +500,15 @@ public extension AXUIElement {
         }
         try set(.selectedTextRange, to: selection.cfRange)
     }
-    
-    /// The values of the object's attributes.
-    var values: AXUIElementValues {
-        .init(self)
-    }
 }
 
 extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
+    static var useShort = false
+    
     public var description: String {
+        if Self.useShort {
+            return shortDescription
+        }
         let id = hashValue
         let role = values.role?.rawValue ?? "AXUnknown"
         let pid = values.pID ?? 0
@@ -510,7 +543,7 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
         - maxDepth: The maximum depth of children to include.
         - maxChildren: The maximum amount of children to include for each element.
      */
-    public func visualDescription(options: DescriptionOptions = .detailedLong, attributes: [AXAttribute] = [], maxDepth: Int? = nil, maxChildren: Int? = nil) -> String {
+    public func visualDescription(options: DescriptionOptions = .detailed, attributes: [AXAttribute] = [], maxDepth: Int? = nil, maxChildren: Int? = nil) -> String {
         strings(maxDepth: maxDepth, maxChildren: maxChildren, options: options, attributes: attributes).joined(separator: "\n")
     }
     
@@ -542,9 +575,12 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
          /// Very detailed description of the object.
          public static let detailedLong: Self = [.role, .subrole, .pid, .identifier, .description, .actions, .title, .value]
          /// Detailed description of the object.
-         public static let detailed: Self = [.role, .subrole, .description, .actions, .title, .value]
+         public static let detailed: Self = [.role, .subrole, .description, .title, .value]
          /// Short description of the object.
          public static let short: Self = [.role, .subrole, .description]
+        
+        /// Info description of the object.
+        public static let info: Self = [.role, .description, .title, .attributes, .value]
          
          var attributes: Set<AXAttribute> {
              var attributes: Set<AXAttribute> = [.children, .parent]
@@ -576,6 +612,7 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
     }
     
     func string(level: Int, maxDepth: Int?, options: DescriptionOptions, attributes: [AXAttribute]) -> String {
+        Self.useShort = true
         let intendString = String(repeating: "  ", count: level) + "- "
         let id = hashValue
         let role = values.role?.rawValue ?? "AXUnknown"
@@ -611,24 +648,40 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
             strings[0] = strings[0] + " \"\(title)\""
         }
         
-        if options.contains(.value), let value: Any = try? get(.value) {
-            strings.append(intendString + "value: \(value)")
+        if options.contains([.identifier, .pid]), let pid = pid {
+            strings[0] = strings[0] + " (id: \(id), pid: \(pid))"
+            //strings += (intendString + "id: \(id), pid: \(pid)")
+        } else if options.contains(.identifier) {
+            strings[0] = strings[0] + " (id: \(id))"
+           // strings += (intendString + "id: \(id)")
+        } else if options.contains(.pid), let pid = pid {
+            strings[0] = strings[0] + " (pid: \(pid))"
+         //   strings += (intendString + "pid: \(pid)")
         }
         
-        if options.contains([.identifier, .pid]), let pid = pid {
-            strings += (intendString + "id: \(id), pID: \(pid)")
-        } else if options.contains(.identifier) {
-            strings += (intendString + "id: \(id)")
-        } else if options.contains(.pid), let pid = pid {
-            strings += (intendString + "pID: \(pid)")
+        if options.contains(.value), let value = values.value {
+            strings.append(intendString + "value: \(value)\(isSettable(.value) ? " [RW]" : "")")
         }
         
         let skipping = options.attributes
         var attributeValues = (options.contains(.attributes) ? attributeValues() : attributes.reduce(into: [AXAttribute: Any]()) {  dict, attribute in dict[attribute] = try? get(attribute) }).filter({ !skipping.contains($0.key) && ($0.value is Optional<AXValue>) })
         if !attributeValues.isEmpty {
-            strings += (intendString + "attributes:")
-            let intendString = "\(String(repeating: "  ", count: level+1))- "
-            strings += attributeValues.sorted(by: \.key.rawValue).compactMap({ intendString + "\($0.key): \($0.value)" })
+            if attributeValues[.frame] != nil {
+                attributeValues[.position] = nil
+                attributeValues[.size] = nil
+            }
+          //  strings += (intendString + "attributes:")
+        //    let intendString = "\(String(repeating: "  ", count: level+1))- "
+            for attribute in attributeValues.sorted(by: \.key.rawValue) {
+                var key = attribute.key.rawValue
+              //  key = key.replacingOccurrences(of: "AX", with: "")
+                var valueString = "\(attribute.value)"
+                if let value = attribute.value as? [AXUIElement] {
+                    valueString = "\(value.compactMap({ $0.shortDescription }))"
+                }
+                strings += (intendString + "\(key): \(valueString)\(isSettable(attribute.key) ? " [RW]" : "")")
+            }
+           // strings += attributeValues.sorted(by: \.key.rawValue).compactMap({ intendString + "\($0.key): \($0.value)\(isSettable($0.key) ? " [RW]" : "")" })
         }
         
         if options.contains(.parameterizedAttributes) {
@@ -648,7 +701,18 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
                 strings += actions.compactMap({ intendString + $0.description })
             }
         }
+        Self.useShort = false
         return strings.joined(separator: "\n")
+    }
+    
+    var shortDescription: String {
+        let role = role?.rawValue ?? "AXUnknown"
+        if let description = values.description, description != "" {
+            return role + " \"\(description)\""
+        } else if let title = values.title, title != "" {
+            return role + " \"\(title)\""
+        }
+        return role
     }
 }
 

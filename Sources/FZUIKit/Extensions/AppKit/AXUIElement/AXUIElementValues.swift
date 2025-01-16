@@ -149,8 +149,7 @@ public class AXUIElementValues {
 
     /// Represents the frame of the accessibility element.
     public var frame: CGRect? {
-        guard let position = self.position, let size = self.size else { return nil }
-        return CGRect(origin: position, size: size)
+        element[.frame]
     }
     
     // MARK: - Value attributes
@@ -261,9 +260,9 @@ public class AXUIElementValues {
     
     // MARK: - Window, sheet, or drawer-specific attributes
 
-    /// Indicates the main element in a window or interface.
-    public var isMain: Bool? {
-        element[.isMain]
+    /// Indicates whether the window represented by this accessibility object is the main application window
+    public var isMainWindow: Bool? {
+        element[.isMainWindow]
     }
 
     /// Indicates whether the window or element is minimized.
@@ -366,7 +365,7 @@ public class AXUIElementValues {
         (element[.windows] as [AXUIElement]?) ?? []
     }
 
-    /// Indicates whether the element or window is currently the frontmost or active.
+    /// Indicates whether the application represented by this accessibility object is active.
     public var isFrontmost: Bool? {
         element[.isFrontmost]
     }

@@ -68,10 +68,6 @@ final class AXNotificationObserver {
         subscription.add(receiver)
         receiver._isActive = true
     }
-    
-    fileprivate func isRegistered(_ receiver: AXNotificationReceiver) -> Bool {
-        subscriptions[receiver.key]?.receivers.contains(where: { $0 === receiver }) == true
-    }
 
     /// Removes a `receiver` previously registered.
     func deregister(_ receiver: AXNotificationReceiver) throws {
@@ -107,6 +103,18 @@ final class AXNotificationObserver {
         }
 
         try AXObserverCreate(pid, callback, &_observer).throwIfError()
+        
+        /*
+         let callback: AXObserverCallbackWithInfo = { _, element, _, userInfo, refcon in
+             precondition(refcon != nil)
+             Unmanaged<NotificationSubscription>
+                 .fromOpaque(refcon!).takeUnretainedValue()
+                 .receive(target: element)
+         }
+
+        // try AXObserverCreate(pid, callback, &_observer).throwIfError()
+         try AXObserverCreateWithInfoCallback(pid, callback, &_observer).throwIfError()
+         */
 
         CFRunLoopAddSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(_observer!), .defaultMode)
         return _observer!
@@ -192,8 +200,7 @@ struct AXNotificationPublisher: Publisher {
 
     private class Subscription<S: Subscriber>:
         AXNotificationReceiver,
-        Combine.Subscription where S.Input == AXUIElement, S.Failure == Error
-    {
+        Combine.Subscription where S.Input == AXUIElement, S.Failure == Error {
         private let observer: AXNotificationObserver
         let key: AXNotificationKey
         private var subscriber: S?
@@ -214,27 +221,6 @@ struct AXNotificationPublisher: Publisher {
 
         func receive(target: AXUIElement) {
             _ = subscriber?.receive(target)
-        }
-    }
-}
-
-private extension AXObserver {
-    func add(notification: AXNotification, element: AXUIElement, context: AnyObject) throws {
-        precondition(Thread.isMainThread)
-        let notification = notification.rawValue as CFString
-        let context = Unmanaged.passUnretained(context).toOpaque()
-        let result = AXObserverAddNotification(self, element, notification, context)
-        if let error = AXError(code: result), case .notificationAlreadyRegistered = error {
-            throw error
-        }
-    }
-
-    func remove(notification: AXNotification, element: AXUIElement) throws {
-        precondition(Thread.isMainThread)
-        let notification = notification.rawValue as CFString
-        let result = AXObserverRemoveNotification(self, element, notification)
-        if let error = AXError(code: result), case .notificationNotRegistered = error {
-            throw error
         }
     }
 }

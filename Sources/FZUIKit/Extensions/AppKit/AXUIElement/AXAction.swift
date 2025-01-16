@@ -33,43 +33,47 @@ public struct AXAction: Hashable, RawRepresentable, ExpressibleByStringLiteral {
     
     // MARK: - Standard actions
 
-    /// Simulates clicking the UIElement, such as a button.
+    /// An action that simulates clicking an object, such as a button.
     public static let press = AXAction(kAXPressAction)
     
-    /// Increments the value of the UIElement.
+    /// An action that increments the value of the object.
     public static let increment = AXAction(kAXIncrementAction)
     
-    /// Decrements the value of the UIElement.
+    /// An action that decrements the value of the object.
     public static let decrement = AXAction(kAXDecrementAction)
     
-    /// Simulates pressing `Return` in the UIElement, such as a text field.
+    /// An action that simulates pressing Return in the object, such as a text field.
     public static let confirm = AXAction(kAXConfirmAction)
     
-    /// Simulates a `Cancel` action, such as hitting the Cancel button.
+    /// An action that cancels the operation.
     public static let cancel = AXAction(kAXCancelAction)
     
-    /// Shows an alternate or hidden UI. This is often used to trigger the same change that would occur on a mouse hover.
+    /// An action that deletes the value of the object.
+    public static let delete = AXAction("AXDelete")
+    
+    /// An action that shows an alternate UI, for example, during a mouse-hover event.
     public static let showAlternateUI = AXAction(kAXShowAlternateUIAction)
     
-    /// Shows the default UI. This is often used to trigger the same change that would occur when a mouse hover ends.
+    /// An action that shows the original or default UI; for example, during a mouse-hover event.
     public static let showDefaultUI = AXAction(kAXShowDefaultUIAction)
     
     // MARK: - New actions
     /**
-     Causes a window to become as frontmost as is allowed by the containing application’s circumstances.
+     An action that simulates bringing a window forward by clicking on its title bar.
      
      Note that an application’s floating windows (such as inspector windows) might remain above a window that performs the raise action.
      */
     public static let raise = AXAction(kAXRaiseAction)
     /**
-     Simulates the opening of a contextual menu in the element represented by this accessibility object.
+     An action that simulates showing a menu by clicking on it.
      
      This action can also be used to simulate the display of a menu that is preassociated with an element, such as the menu that displays when a user clicks Safari’s back button slowly.
      */
     public static let showMenu = AXAction(kAXShowMenuAction)
     
     // MARK: - Obsolete actions
-    /// Selects the UIElement, such as a menu item.
+    
+    /// An action that selects the object, such as a menu item.
     public static let pick = AXAction(kAXPickAction)
 }
 

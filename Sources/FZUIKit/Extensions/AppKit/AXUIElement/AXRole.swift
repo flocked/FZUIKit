@@ -8,6 +8,7 @@
 #if canImport(ApplicationServices)
 import ApplicationServices
 import Foundation
+import AppKit
 
 /// The role of an accessibility object.
 public struct AXRole: Hashable, RawRepresentable, ExpressibleByStringLiteral {
@@ -35,8 +36,6 @@ public struct AXRole: Hashable, RawRepresentable, ExpressibleByStringLiteral {
     public static let growArea = AXRole(rawValue: kAXGrowAreaRole)
     /// An image element, representing a static graphical element.
     public static let image = AXRole(rawValue: kAXImageRole)
-    /// An unknown element, for roles that cannot be identified.
-    public static let unknown = AXRole(rawValue: kAXUnknownRole)
     /// A button element, representing a clickable control.
     public static let button = AXRole(rawValue: kAXButtonRole)
     /// A radio button element, used to select one option from a group.
@@ -137,6 +136,15 @@ public struct AXRole: Hashable, RawRepresentable, ExpressibleByStringLiteral {
     public static let handle = AXRole(rawValue: kAXHandleRole)
     /// A popover element, used to display additional information or controls in a floating view.
     public static let popover = AXRole(rawValue: kAXPopoverRole)
+    /// An unknown element, for roles that cannot be identified.
+    public static let unknown = AXRole(rawValue: kAXUnknownRole)
+    
+    public func description(with subrole: AXSubrole?) -> String? {
+        if let subrole = subrole {
+            return NSAccessibility.Role(rawValue: rawValue).description(with: .init(rawValue: subrole.rawValue))
+        }
+        return NSAccessibility.Role(rawValue: rawValue).description(with: nil)
+    }
 }
 
 extension AXRole: CustomStringConvertible {
