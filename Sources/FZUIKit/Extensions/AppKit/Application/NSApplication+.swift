@@ -28,10 +28,14 @@
             windows.filter { $0.isVisible && $0.isOnActiveSpace && !$0.isFloatingPanel }
         }
 
-        /// A Boolean value that indicates whether the application is a trusted accessibility client.
-        func checkAccessibilityAccess() -> Bool {
+        /**
+         A Boolean value that indicates whether the application is a trusted accessibility client.
+         
+         - Parameter prompt: Indicates whether the user will be informed if the current process is untrusted. This could be used, for example, on application startup to always warn a user if accessibility is not enabled for the current process. Prompting occurs asynchronously and does not affect the return value.
+         */
+        func checkAccessibilityAccess(prompt: Bool = true) -> Bool {
             let checkOptPrompt = kAXTrustedCheckOptionPrompt.takeUnretainedValue() as NSString
-            let options = [checkOptPrompt: true]
+            let options = [checkOptPrompt: prompt]
             let accessEnabled = AXIsProcessTrustedWithOptions(options as CFDictionary?)
             return accessEnabled
         }

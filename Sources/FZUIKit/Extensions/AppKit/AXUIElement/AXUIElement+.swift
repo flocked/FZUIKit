@@ -538,19 +538,19 @@ public extension AXUIElement {
     }
     
     /**
-     Prints a description of the object.
+     Returns a string with a visual description of the object.
      
      - Parameters:
-        - options: Options for printing.
+        - options: Options for the description.
         - attributes: The attributes to include.
-        - maxDepth: The maximum depth of children to print.
+        - maxDepth: The maximum depth of children to include.
      */
-    func print(options: PrintOptions = .detailedLong, attributes: [AXAttribute] = [], maxDepth: Int? = nil) {
-        print(level: 0, maxDepth: maxDepth, options: options, attributes: attributes.uniqued())
+    func visualDescription(options: DescriptionOptions = .detailedLong, attributes: [AXAttribute] = [], maxDepth: Int? = nil) -> String {
+        strings(maxDepth: maxDepth, options: options, attributes: attributes).joined(separator: "\n")
     }
     
-    /// Options for printing a description of an accessibility object.
-     struct PrintOptions: OptionSet, Sendable {
+    /// Options for a description of an accessibility object.
+     struct DescriptionOptions: OptionSet, Sendable {
         /// Role of the object.
         public static var role = Self(rawValue: 1 << 0)
         /// Subrole of the object.
@@ -582,7 +582,7 @@ public extension AXUIElement {
          public static let short: Self = [.role, .subrole, .description]
          
          var attributes: Set<AXAttribute> {
-             var attributes: Set<AXAttribute> = []
+             var attributes: Set<AXAttribute> = [.children, .parent]
              if contains(.title) { attributes += .title }
              if contains(.description) { attributes += .description }
              if contains(.value) { attributes += .value }
@@ -599,34 +599,35 @@ public extension AXUIElement {
         public let rawValue: Int
     }
     
-    internal func print(level: Int, maxDepth: Int?, options: PrintOptions, attributes: [AXAttribute] = []) {
-        guard level <= maxDepth ?? .max else { return }
-        Swift.print(String(repeating: "  ", count: level) + string(for: options, level: level+1, attributes: attributes))
-        children().forEach({ $0.print(level: level+1, maxDepth: maxDepth, options: options, attributes: attributes) })
+    internal func strings(level: Int = 0, maxDepth: Int?, options: DescriptionOptions, attributes: [AXAttribute]) -> [String] {
+        var strings: [String] = []
+        strings += (String(repeating: "  ", count: level) + string(level: level+1, maxDepth: maxDepth, options: options, attributes: attributes))
+        if level+1 <= maxDepth ?? .max {
+            children().forEach({ strings += $0.strings(level: level+1, maxDepth: maxDepth, options: options, attributes: attributes) })
+        }
+        return strings
     }
     
-    internal func string(for option: PrintOptions = .all, level: Int = 0, attributes: [AXAttribute] = []) -> String {
-        let intend = String(repeating: "  ", count: level)
-        let intendString = "\(intend)- "
+    internal func string(level: Int, maxDepth: Int?, options: DescriptionOptions, attributes: [AXAttribute]) -> String {
+        let intendString = String(repeating: "  ", count: level) + "- "
         let id = hashValue
         let role = role?.rawValue ?? "AXUnknown"
         let subrole = subrole?.rawValue
-        let pid = (try? pid()) ?? 0
+        let pid = try? pid()
         let title = title
         let description = descriptionValue
-        var string = ""
         var strings: [String] = []
-        if option.contains([.role, .subrole]), let subrole = subrole {
+        if options.contains([.role, .subrole]), let subrole = subrole {
             strings.append("\(role)/\(subrole)")
-        } else if option.contains(.subrole), let subrole = subrole {
+        } else if options.contains(.subrole), let subrole = subrole {
             strings.append("\(subrole)")
-        } else if option.contains(.role) {
+        } else if options.contains(.role) {
             strings.append("\(role)")
         } else {
             strings.append("AXUIElement")
         }
 
-        if option.contains([.title, .description]) {
+        if options.contains([.title, .description]) {
             if let title = title, title != "", let description = description, description != "" {
                 strings[0] = strings[0] + " \"\(description)\""
                 if title != description {
@@ -637,51 +638,42 @@ public extension AXUIElement {
             } else if let description = description, description != "" {
                 strings[0] = strings[0] + " \"\(description)\""
             }
-        } else if option.contains(.description), let description = description, description != "" {
+        } else if options.contains(.description), let description = description, description != "" {
             strings[0] = strings[0] + " \"\(description)\""
-        } else if option.contains(.title), let title = title, title != "" {
+        } else if options.contains(.title), let title = title, title != "" {
             strings[0] = strings[0] + " \"\(title)\""
         }
         
-        if option.contains(.value), let value: Any = try? get(.value) {
+        if options.contains(.value), let value: Any = try? get(.value) {
             strings.append(intendString + "value: \(value)")
         }
         
-        if option.contains([.identifier, .pid]) {
-            strings += (intendString + "id: \(id), pid: \(pid)")
-        } else if option.contains(.identifier) {
+        if options.contains([.identifier, .pid]), let pid = pid {
+            strings += (intendString + "id: \(id), pID: \(pid)")
+        } else if options.contains(.identifier) {
             strings += (intendString + "id: \(id)")
-        } else if option.contains(.pid) {
-            strings += (intendString + "pid: \(pid)")
+        } else if options.contains(.pid), let pid = pid {
+            strings += (intendString + "pID: \(pid)")
         }
         
-        if option.contains(.attributes) {
-            let attributeValues = attributeValues()
-            var attributes = option.attributes
-            attributes.insert(.children)
-            attributes.insert(.parent)
-            let filtered = attributeValues.filter({ !attributes.contains($0.key) }).sorted(by: \.key.rawValue)
+        let skipping = options.attributes
+        var attributeValues = (options.contains(.attributes) ? attributeValues() : attributes.reduce(into: [AXAttribute: Any]()) {  dict, attribute in dict[attribute] = try? get(attribute) }).filter({ !skipping.contains($0.key) && ($0.value is Optional<AXValue>) })
+        if !attributeValues.isEmpty {
             strings += (intendString + "attributes:")
             let intendString = "\(String(repeating: "  ", count: level+1))- "
-            for attribute in filtered {
-                strings += (intendString + "\(attribute.key): \(attribute.value)")
-            }
-        } else {
-            let attributes = attributes.compactMap({ if let value: Any = try? get($0) { return (attribute: $0, value: value) } else { return nil } })
+            strings += attributeValues.sorted(by: \.key.rawValue).compactMap({ intendString + "\($0.key): \($0.value)" })
+        }
+        
+        if options.contains(.parameterizedAttributes) {
+            let attributes = parameterizedAttributes()
             if !attributes.isEmpty {
-                strings += (intendString + "attributes:")
+                strings += (intendString + "parameterizedAttributes:")
                 let intendString = "\(String(repeating: "  ", count: level+1))- "
-                for attribute in attributes {
-                    strings += (intendString + "\(attribute.attribute): \(attribute.value)")
-                }
+                strings += attributes.compactMap({ intendString + $0.rawValue })
             }
         }
-        if option.contains(.parameterizedAttributes), let attributes = try? parameterizedAttributes(), !attributes.isEmpty {
-            strings += (intendString + "parameterizedAttributes:")
-            let intendString = "\(String(repeating: "  ", count: level+1))- "
-            strings += attributes.compactMap({ intendString + $0.rawValue })
-        }
-        if option.contains(.actions) {
+        
+        if options.contains(.actions) {
             let actions = actions()
             if !actions.isEmpty {
                 strings += (intendString + "actions:")
@@ -689,8 +681,7 @@ public extension AXUIElement {
                 strings += actions.compactMap({ intendString + $0.description })
             }
         }
-        string = strings.joined(separator: "\n")
-        return string
+        return strings.joined(separator: "\n")
     }
 }
 
