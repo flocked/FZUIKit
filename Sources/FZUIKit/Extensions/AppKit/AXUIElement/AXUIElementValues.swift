@@ -8,6 +8,7 @@
 #if canImport(ApplicationServices) && os(macOS)
 import Foundation
 import ApplicationServices
+import FZSwiftUtils
 
 public class AXUIElementValues {
     let element: AXUIElement
@@ -218,22 +219,24 @@ public class AXUIElementValues {
     
     /// Represents the currently selected text in the accessibility element.
     public var selectedText: String? {
-        element[.selectedText]
+        get { element[.selectedText] }
+        set { element[.selectedText] = newValue }
     }
 
     /// Represents the range of the currently selected text.
     public var selectedTextRange: NSRange? {
-        element[.selectedTextRange]
+        get { (element[.selectedTextRange] as CFRange?)?.nsRange }
+        set { element[.selectedTextRange] = newValue?.cfRange }
     }
 
     /// Represents multiple ranges of selected text within the element.
     public var selectedTextRanges: [NSRange] {
-        (element[.selectedTextRanges] as [NSRange]?) ?? []
+        ((element[.selectedTextRanges] as [CFRange]?) ?? []).compactMap({ $0.nsRange })
     }
 
     /// Represents the range of characters that are currently visible in the element.
     public var visibleCharacterRange: NSRange? {
-        element[.visibleCharacterRange]
+        (element[.visibleCharacterRange] as CFRange?)?.nsRange
     }
 
     /// Represents the total number of characters in the element's text content.
@@ -248,7 +251,7 @@ public class AXUIElementValues {
 
     /// Represents the character range shared across multiple UI elements.
     public var sharedCharacterRange: NSRange? {
-        element[.sharedCharacterRange]
+        (element[.sharedCharacterRange] as CFRange?)?.nsRange
     }
 
     /// Represents the line number of the insertion point (caret) in a multi-line text element.
@@ -635,7 +638,7 @@ public class AXUIElementValues {
     }
 
     /// Represents the URL associated with a UI element, such as a link in a browser.
-    public var url: String? {
+    public var url: URL? {
         element[.url]
     }
 
@@ -689,48 +692,48 @@ public class AXUIElementValues {
     // MARK: - Text suite parameterized attributes
 
     /// Represents the line corresponding to a specific index in the text.
-    public func lineForIndex(index: Int) -> Int? {
+    public func lineForIndex(_ index: Int) -> Int? {
         try? element.get(.lineForIndex, with: index)
     }
 
     /// Represents the range of characters that form a specific line in the text.
-    public func rangeForLine(line: Int) -> NSRange? {
-        try? element.get(.rangeForLine, with: line)
+    public func rangeForLine(_ line: Int) -> NSRange? {
+        (try? element.get(.rangeForLine, with: line) as CFRange?)?.nsRange
     }
 
     /// Represents the string corresponding to a specific character range.
-    public func stringForRange(range: NSRange) -> String? {
-        try? element.get(.stringForRange, with: range)
+    public func stringForRange(_ range: NSRange) -> String? {
+        try? element.get(.stringForRange, with: range.cfRange)
     }
     
     /// Represents the character range corresponding to a specific position in the text.
-    public func rangeForPosition(position: CGPoint) -> NSRange? {
+    public func rangeForPosition(_ position: CGPoint) -> NSRange? {
         try? element.get(.rangeForPosition, with: position)
     }
 
     /// Represents the character range corresponding to a specific index in the text.
-    public func rangeForIndex(index: Int) -> NSRange? {
-        try? element.get(.rangeForIndex, with: index)
+    public func rangeForIndex(_ index: Int) -> NSRange? {
+        (try? element.get(.rangeForIndex, with: index) as CFRange?)?.nsRange
     }
 
     /// Represents the bounds (position and size) of a specific character range.
-    public func boundsForRange(range: NSRange) -> CGRect? {
-        try? element.get(.boundsForRange, with: range)
+    public func boundsForRange(_ range: NSRange) -> CGRect? {
+        try? element.get(.boundsForRange, with: range.cfRange)
     }
 
     /// Represents the RTF content corresponding to a character range.
-    public func rtfForRange(range: NSRange) -> Data? {
-        try? element.get(.rtfForRange, with: range)
+    public func rtfForRange(_ range: NSRange) -> Data? {
+        try? element.get(.rtfForRange, with: range.cfRange)
     }
 
     /// Represents the attributed string corresponding to a specific character range.
-    public func attributedStringForRange(range: NSRange) -> NSAttributedString? {
-        try? element.get(.attributedStringForRange, with: range)
+    public func attributedStringForRange(_ range: NSRange) -> NSAttributedString? {
+        try? element.get(.attributedStringForRange, with: range.cfRange)
     }
 
     /// Represents the style range for a specific index in the text.
-    public func styleRangeForIndex(index: Int) -> NSRange? {
-        try? element.get(.styleRangeForIndex, with: index)
+    public func styleRangeForIndex(_ index: Int) -> NSRange? {
+        (try? element.get(.styleRangeForIndex, with: index) as CFRange?)?.nsRange
     }
     
     // MARK: - Cell-based table parameterized attributes
@@ -743,22 +746,22 @@ public class AXUIElementValues {
     // MARK: - Layout area parameterized attributes
 
     /// Represents the layout point corresponding to a specific screen point.
-    public func layoutPointForScreenPoint(screenPoint: CGPoint) -> CGPoint? {
+    public func layoutPointForScreenPoint(_ screenPoint: CGPoint) -> CGPoint? {
         try? element.get(.layoutPointForScreenPoint, with: screenPoint)
     }
 
     /// Represents the layout size corresponding to a specific screen size.
-    public func layoutSizeForScreenSize(screenSize: CGSize) -> CGSize? {
+    public func layoutSizeForScreenSize(_ screenSize: CGSize) -> CGSize? {
         try? element.get(.layoutSizeForScreenSize, with: screenSize)
     }
 
     /// Represents the screen point corresponding to a specific layout point.
-    public func screenPointForLayoutPoint(layoutPoint: CGPoint) -> CGPoint? {
+    public func screenPointForLayoutPoint(_ layoutPoint: CGPoint) -> CGPoint? {
         try? element.get(.screenPointForLayoutPoint, with: layoutPoint)
     }
 
     /// Represents the screen size corresponding to a specific layout size.
-    public func screenSizeForLayoutSize(layoutSize: CGSize) -> CGSize? {
+    public func screenSizeForLayoutSize(_ layoutSize: CGSize) -> CGSize? {
         try? element.get(.screenSizeForLayoutSize, with: layoutSize)
     }
     

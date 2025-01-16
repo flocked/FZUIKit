@@ -65,11 +65,11 @@ public extension AXUIElement {
         return true
     }
 
-    /// Returns an array of all the attributes supported by the object.
-    func attributes() -> [AXAttribute] {
+    /// Returns an array of all attributes supported by the object.
+    var attributes: [AXAttribute] {
         do {
             var names: CFArray?
-            try AXUIElementCopyAttributeNames(self, &names).throwIfError("attributes()")
+            try AXUIElementCopyAttributeNames(self, &names).throwIfError("attributes")
             return (names! as [AnyObject]).map { AXAttribute(rawValue: $0 as! String) }
         } catch {
             return []
@@ -79,7 +79,7 @@ public extension AXUIElement {
     /// Returns a dictionary of all the object's attributes and their values.
     func attributeValues() -> [AXAttribute: Any] {
         do {
-            let attributes = attributes()
+            let attributes = attributes
             let values = try get(attributes)
             guard attributes.count == values.count else {
                 throw AXError.unexpectedValueCount(values)
@@ -97,11 +97,11 @@ public extension AXUIElement {
         }
     }
 
-    /// Returns an array of all the parameterized attributes supported by the object.
-    func parameterizedAttributes() -> [AXAttribute] {
+    /// Returns an array of all parameterized attributes supported by the object.
+    var parameterizedAttributes: [AXAttribute] {
         do {
             var names: CFArray?
-            try AXUIElementCopyParameterizedAttributeNames(self, &names).throwIfError("parameterizedAttributes()")
+            try AXUIElementCopyParameterizedAttributeNames(self, &names).throwIfError("parameterizedAttributes")
             return (names! as [AnyObject]).map { AXAttribute(rawValue: $0 as! String) }
         } catch {
             return []
@@ -452,25 +452,20 @@ public extension AXUIElement {
      
      Note that this won't be correct for selections larger than a single character. In practice we don't need it.
      */
-    func replaceText(in range: CFRange, with replacement: String) throws {
-        guard
-            var selection: CFRange = try get(.selectedTextRange),
-            let selectionStartLine: Int = try get(.lineForIndex, with: selection.location)
-        else {
-            return
-        }
+    func replaceText(in range: NSRange, with replacement: String) throws {
+        guard var selection = values.selectedTextRange,
+            let selectionStartLine = values.lineForIndex(selection.location)
+        else { return }
 
-        try set(.selectedTextRange, to: range)
+        try set(.selectedTextRange, to: range.cfRange)
         try set(.selectedText, to: replacement)
 
         // Adjust and restore the original selection.
-        if
-            let lineRange: CFRange = try get(.rangeForLine, with: selectionStartLine),
-            selection.location >= lineRange.location + lineRange.length
-        {
+        if let lineRange = values.rangeForLine(selectionStartLine),
+            selection.location >= lineRange.location + lineRange.length {
             selection.location = lineRange.location + lineRange.length - 1
         }
-        try set(.selectedTextRange, to: selection)
+        try set(.selectedTextRange, to: selection.cfRange)
     }
     
     /// The values of the object's attributes.
@@ -513,9 +508,10 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
         - options: Options for the description.
         - attributes: The attributes to include.
         - maxDepth: The maximum depth of children to include.
+        - maxChildren: The maximum amount of children to include for each element.
      */
-    public func visualDescription(options: DescriptionOptions = .detailedLong, attributes: [AXAttribute] = [], maxDepth: Int? = nil) -> String {
-        strings(maxDepth: maxDepth, options: options, attributes: attributes).joined(separator: "\n")
+    public func visualDescription(options: DescriptionOptions = .detailedLong, attributes: [AXAttribute] = [], maxDepth: Int? = nil, maxChildren: Int? = nil) -> String {
+        strings(maxDepth: maxDepth, maxChildren: maxChildren, options: options, attributes: attributes).joined(separator: "\n")
     }
     
     /// Options for a description of an accessibility object.
@@ -568,11 +564,13 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
         public let rawValue: Int
     }
     
-    func strings(level: Int = 0, maxDepth: Int?, options: DescriptionOptions, attributes: [AXAttribute]) -> [String] {
+    func strings(level: Int = 0, maxDepth: Int?, maxChildren: Int?, options: DescriptionOptions, attributes: [AXAttribute]) -> [String] {
         var strings: [String] = []
         strings += (String(repeating: "  ", count: level) + string(level: level+1, maxDepth: maxDepth, options: options, attributes: attributes))
         if level+1 <= maxDepth ?? .max {
-            children().forEach({ strings += $0.strings(level: level+1, maxDepth: maxDepth, options: options, attributes: attributes) })
+            var childs = children()
+            childs = childs[safe: 0..<(maxChildren ?? childs.count)]
+            childs.forEach({ strings += $0.strings(level: level+1, maxDepth: maxDepth, maxChildren: maxChildren, options: options, attributes: attributes) })
         }
         return strings
     }
@@ -634,7 +632,7 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
         }
         
         if options.contains(.parameterizedAttributes) {
-            let attributes = parameterizedAttributes()
+            let attributes = parameterizedAttributes
             if !attributes.isEmpty {
                 strings += (intendString + "parameterizedAttributes:")
                 let intendString = "\(String(repeating: "  ", count: level+1))- "
