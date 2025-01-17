@@ -779,7 +779,6 @@ public class AXUIElementValues {
         element[.clearButton]
     }
 
-
     init(_ element: AXUIElement) {
         self.element = element
     }

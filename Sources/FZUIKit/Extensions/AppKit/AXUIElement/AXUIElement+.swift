@@ -21,12 +21,6 @@ public extension AXUIElement {
         return application(runningApplication)
     }
     
-    /// Creates and returns the accessibility object for the app that owns the currently displayed menu bar.
-    static var menuBarOwningApplication: AXUIElement? {
-        guard let runningApplication = NSWorkspace.shared.menuBarOwningApplication else { return nil }
-        return application(runningApplication)
-    }
-    
     /// Creates and returns the accessibility object for the specified running application.
     static func application(_ application: NSRunningApplication) -> AXUIElement {
         self.application(pid: application.processIdentifier)
@@ -51,7 +45,7 @@ public extension AXUIElement {
     }
     
     /// Creates and returns the accessibility object at the specified position in top-left relative screen coordinates.
-    static func positioned(at position: CGPoint) -> AXUIElement? {
+    static func getElementAtPosition(_ position: CGPoint) -> AXUIElement? {
         systemWide.getElementAtPosition(position)
     }
 
@@ -373,7 +367,7 @@ public extension AXUIElement {
     }
     
     /// Returns all parents.
-    public var allParents: [AXUIElement] {
+    var allParents: [AXUIElement] {
         var parents: [AXUIElement] = []
         var current = parent
         while let parent = current {
@@ -457,7 +451,7 @@ public extension AXUIElement {
     }
     
     /// Returns an array of all the actions the element can perform.
-    func actions() -> [AXAction] {
+    var actions: [AXAction] {
         do {
             var names: CFArray?
             try AXUIElementCopyActionNames(self, &names).throwIfError()
@@ -466,7 +460,7 @@ public extension AXUIElement {
             }
             return names.compactMap({ AXAction($0, try? actionDescription($0)) })
         } catch {
-            AXLogger.print(error, "actions()")
+            AXLogger.print(error, "actions")
             return []
         }
     }
@@ -699,7 +693,7 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
         }
         
         if options.contains(.actions) {
-            let actions = actions()
+            let actions = actions
             if !actions.isEmpty {
                 strings += (intendString + "actions:")
                 let intendString = "\(String(repeating: "  ", count: level+1))- "
