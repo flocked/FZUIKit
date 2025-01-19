@@ -7,6 +7,110 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
+
+public extension NSWorkspace {
+    /// Handlers for the workspace.
+    struct Handlers {
+        /// Handler that gets called whenever the application hides/unhides.
+        public var isHidden: ((Bool)->())?
+        /// Handler that gets called whenever the active space changed.
+        public var activeSpaceChanged: (()->())?
+        /// Handler that gets called whenever the device wakes from sleep.
+        public var didWake: (()->())?
+        /// Handler that gets called whenever the device is about to sleep
+        public var willSleep: (()->())?
+        /// Handler that gets called whenever a new device mounts.
+        public var willPowerOff: (()->())?
+        /// Handler that gets called whenever the Finder is about to unmount a device.
+        public var didMount: (()->())?
+        /// Handler that gets called whenever the Finder is about to unmount a device.
+        public var willUnmount: ((URL)->())?
+        /// Handler that gets called whenever the Finder unmounts a device.
+        public var didUnmount: ((URL)->())?
+        /// Handler that gets called whenever the device’s screen goes to sleep.
+        public var screensDidSleep: (()->())?
+        /// Handler that gets called whenever the device’s screens wake.
+        public var screensDidWake: (()->())?
+    }
+    
+    /// The handlers for the workspace.
+    var handlers: Handlers {
+        get { getAssociatedValue("handlers", initialValue: Handlers()) }
+        set {
+            setAssociatedValue(newValue, key: "handlers")
+            func setup(_ name: Notification.Name, keyPath: KeyPath<NSWorkspace.Handlers, (()->())?>) {
+                if let handler = handlers[keyPath: keyPath] {
+                    notificationTokens[name] = NotificationCenter.default.observe(name) { _ in
+                        handler()
+                    }
+                } else {
+                    notificationTokens[name] = nil
+                }
+            }
+            setup(NSWorkspace.activeSpaceDidChangeNotification, keyPath: \.activeSpaceChanged)
+            setup(NSWorkspace.screensDidWakeNotification, keyPath: \.screensDidWake)
+            setup(NSWorkspace.screensDidSleepNotification, keyPath: \.screensDidSleep)
+            setup(NSWorkspace.didMountNotification, keyPath: \.didMount)
+            setup(NSWorkspace.willPowerOffNotification, keyPath: \.willPowerOff)
+            setup(NSWorkspace.willSleepNotification, keyPath: \.willSleep)
+            setup(NSWorkspace.didWakeNotification, keyPath: \.didWake)
+            if let isHidden = newValue.isHidden {
+                notificationTokens[NSWorkspace.didHideApplicationNotification] = NotificationCenter.default.observe(NSWorkspace.didHideApplicationNotification) { _ in
+                    isHidden(true)
+                }
+                notificationTokens[NSWorkspace.didUnhideApplicationNotification] = NotificationCenter.default.observe(NSWorkspace.didUnhideApplicationNotification) { _ in
+                    isHidden(false)
+                }
+            } else {
+                notificationTokens[NSWorkspace.didHideApplicationNotification] = nil
+                notificationTokens[NSWorkspace.didUnhideApplicationNotification] = nil
+            }
+            if let willUnmount = handlers.willUnmount {
+                notificationTokens[NSWorkspace.willUnmountNotification] = NotificationCenter.default.observe(NSWorkspace.willUnmountNotification) { notification in
+                    guard let path = notification.userInfo?["NSDevicePath"] as? String else { return }
+                    willUnmount(URL(fileURLWithPath: path))
+                }
+            } else {
+                notificationTokens[NSWorkspace.willUnmountNotification] = nil
+            }
+            if let didUnmount = handlers.didUnmount {
+                notificationTokens[NSWorkspace.didUnmountNotification] = NotificationCenter.default.observe(NSWorkspace.didUnmountNotification) { notification in
+                    guard let path = notification.userInfo?["NSDevicePath"] as? String else { return }
+                    didUnmount(URL(fileURLWithPath: path))
+                }
+            } else {
+                notificationTokens[NSWorkspace.didUnmountNotification] = nil
+            }
+        }
+    }
+    
+    internal var notificationTokens: [Notification.Name: NotificationToken] {
+        get { getAssociatedValue("notificationTokens", initialValue: [:]) }
+        set { setAssociatedValue(newValue, key: "notificationTokens") }
+    }
+    
+    /**
+     Sets the desktop image for the given screen to the image at the specified URL.
+     
+     Instead of presenting a user interface for picking the options, choose appropriate defaults and allow the user to adjust them in the System Preference Pane.
+     
+     You must call this method from your app’s main thread.
+     
+     - Parameters:
+        - url: A file URL to the image. The URL must not be nil.
+        - screen: The screen on which to set the desktop image.
+        - imageScaling: The scaling of the image.
+        - allowClipping: A Boolean value which affects the interpretation of proportional scaling types. When the value is `false`, the workspace object makes the image fully visible, but it may include empty space on the sides or top and bottom. When the value is `true`, the image fills the entire screen, but may be clipped.
+        - fillColor: The color for filling the empty space around the image.
+     - Returns: `true` if the method set the desktop image; otherwise false. If the method returns false, the error parameter provides additional information.
+     */
+    func setDesktopImageURL(_ url: URL, for screen: NSScreen, imageScaling: NSImageScaling = .scaleProportionallyUpOrDown, allowClipping: Bool = false, fillColor: NSColor? = nil) throws {
+        var options: [NSWorkspace.DesktopImageOptionKey: Any] = [.imageScaling: NSNumber(imageScaling.rawValue), .allowClipping: NSNumber(allowClipping)]
+        options[.fillColor] = fillColor
+        try setDesktopImageURL(url, for: screen, options: options)
+    }
+}
 
 public extension NSWorkspace.OpenConfiguration {
     /// Sets the Boolean value indicating whether the system activates the app and brings it to the foreground.
