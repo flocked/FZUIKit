@@ -211,6 +211,7 @@ extension NSWindow {
                 }
             }
             
+            /*
             if let isMiniaturized = handlers.isMiniaturized {
                 tokens[NSWindow.didMiniaturizeNotification] = NotificationCenter.default.observe(NSWindow.didMiniaturizeNotification, object: self) { _ in
                     isMiniaturized(true)
@@ -222,6 +223,7 @@ extension NSWindow {
                 tokens[NSWindow.didMiniaturizeNotification] = nil
                 tokens[NSWindow.didDeminiaturizeNotification] = nil
             }
+             */
                         
             observe(\.firstResponder, handler: \.handlers.firstResponder)
             observe(\.effectiveAppearance, handler: \.handlers.effectiveAppearance)
@@ -232,6 +234,8 @@ extension NSWindow {
             observe(\.tabGroup?.isTabBarVisible, handler: \.handlers.tab.isTabBarVisible)
             observe(\.tabGroup?.isOverviewVisible, handler: \.handlers.tab.isOverviewVisible)
             observe(\.tabGroup?.windows, handler: \.handlers.tab.windows)
+            observe(\.isMiniaturized, handler: \.handlers.isMiniaturized)
+
             
             if newValue.styleMask == nil && newValue.isFullScreen == nil {
                 windowObserver.remove(\.styleMask)
