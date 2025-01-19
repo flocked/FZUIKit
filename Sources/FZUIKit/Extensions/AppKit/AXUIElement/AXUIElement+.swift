@@ -378,7 +378,7 @@ public extension AXUIElement {
     }
     
     /// The path of the object.
-    public var path: String {
+    var path: String {
         var strings: [String] = []
         for parent in ([self] + allParents) {
             if let role = parent.role {
@@ -393,10 +393,11 @@ public extension AXUIElement {
     }
     
     /// The level of the element.
-    public var level: Int {
+    var level: Int {
         allParents.count
     }
 
+    /*
     /**
      Returns the children of the object.
 
@@ -449,6 +450,7 @@ public extension AXUIElement {
         }
         return results
     }
+    */
     
     /// Returns an array of all the actions the element can perform.
     var actions: [AXAction] {
@@ -603,7 +605,7 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
         var strings: [String] = []
         strings += (String(repeating: "  ", count: level) + string(level: level+1, maxDepth: maxDepth, options: options, attributes: attributes))
         if level+1 <= maxDepth ?? .max {
-            var childs = children()
+            var childs = children().collect()
             childs = childs[safe: 0..<(maxChildren ?? childs.count)]
             childs.forEach({ strings += $0.strings(level: level+1, maxDepth: maxDepth, maxChildren: maxChildren, options: options, attributes: attributes) })
         }
@@ -729,21 +731,18 @@ public extension AXUIElement {
     }
 }
 
-/*
-extension AXUIElement {
-    func childrenAlt() -> ChildrenSequence {
+
+public extension AXUIElement {
+    /// Returns the children of the object.
+    func children() -> ChildrenSequence {
         .init(self)
-    }
-    
-    func childrenAlt(predicate: @escaping ((AXUIElement)->(Bool))) -> ChildrenSequence {
-        .init(self, filter: predicate)
     }
 
     /// A sequence of children.
     struct ChildrenSequence: Sequence {
         let element: AXUIElement
-        var role: AXRole?
-        var subrole: AXSubrole?
+        var roles: [AXRole] = []
+        var subroles: [AXSubrole] = []
         var maxDepth: Int = 0
         var filter: ((AXUIElement)->(Bool))?
         
@@ -756,25 +755,35 @@ extension AXUIElement {
             Iterator(self)
         }
         
-        /// The role of the children.
-        public func role(_ role: AXRole) -> Self {
+        /// The roles of the children.
+        public func roles(_ roles: [AXRole]) -> Self {
             var sequence = self
-            sequence.role = role
+            sequence.roles = roles
             return sequence
         }
         
-        /// The subrole of the children.
-        public func subrole(_ subrole: AXSubrole) -> Self {
+        /// The roles of the children.
+        public func roles(_ roles: AXRole...) -> Self {
+            self.roles(roles)
+        }
+        
+        /// The subroles of the children.
+        public func subroles(_ subroles: [AXSubrole]) -> Self {
             var sequence = self
-            sequence.subrole = subrole
+            sequence.subroles = subroles
             return sequence
+        }
+        
+        /// The subroles of the children.
+        public func subroles(_ subroles: AXSubrole...) -> Self {
+            self.subroles(subroles)
         }
         
         /// Includes the children of each child.
         public var recursive: Self {
             recursive(maxDepth: .max)
         }
-                
+        
         /**
          Includes the children of each child upto the specified maximum depth.
          
@@ -792,7 +801,7 @@ extension AXUIElement {
             var index = -1
             
             init(_ sequence: ChildrenSequence) {
-                children = sequence.element._children(maxDepth: sequence.maxDepth, role: sequence.role, subrole: sequence.subrole, filter: sequence.filter)
+                children = sequence.element._children(maxDepth: sequence.maxDepth, roles: sequence.roles, subroles: sequence.subroles, filter: sequence.filter)
             }
 
             public mutating func next() -> AXUIElement? {
@@ -805,24 +814,17 @@ extension AXUIElement {
             public var level: Int {
                 children[safe: index]?.level ?? 0
             }
-
-            /*
-            /// Skip recursion into the most recently obtained subdirectory.
-            public func skipDescendants() {
-                directoryEnumerator?.skipDescendants()
-            }
-             */
         }
     }
     
-    func _children(level: Int = 0, maxDepth: Int, role: AXRole? = nil, subrole: AXSubrole?, filter: ((AXUIElement)->(Bool))?) -> [(element: AXUIElement, level: Int)] {
+    func _children(level: Int = 0, maxDepth: Int, roles: [AXRole], subroles: [AXSubrole], filter: ((AXUIElement)->(Bool))?) -> [(element: AXUIElement, level: Int)] {
         let next = level+1 <= maxDepth
         var children: [AXUIElement] = (try? get(.children)) ?? []
-        if let role = role {
-            children = children.filter({(try? $0.role()) == role })
+        if !roles.isEmpty {
+            children = children.filter({ if let role = $0.role { return roles.contains(role) } else { return false } })
         }
-        if let subrole = subrole {
-            children = children.filter({(try? $0.subrole()) == subrole })
+        if !subroles.isEmpty {
+            children = children.filter({ if let subrole = $0.subrole { return subroles.contains(subrole) } else { return false } })
         }
         if let filter = filter {
             children = children.filter(filter)
@@ -831,13 +833,13 @@ extension AXUIElement {
         for child in children {
             results.append((child, level))
             if next {
-                results.append(contentsOf: child._children(level: level+1, maxDepth: maxDepth, role: role, subrole: subrole, filter: filter))
+                results.append(contentsOf: child._children(level: level+1, maxDepth: maxDepth, roles: roles, subroles: subroles, filter: filter))
             }
         }
         return results
     }
 }
-*/
+
 
 @_silgen_name("_AXUIElementGetWindow") @discardableResult
 func _AXUIElementGetWindow(_ axUiElement: AXUIElement, _ wid: inout CGWindowID) -> ApplicationServices.AXError
