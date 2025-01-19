@@ -41,7 +41,7 @@ public extension NSWorkspace {
             setAssociatedValue(newValue, key: "handlers")
             func setup(_ name: Notification.Name, keyPath: KeyPath<NSWorkspace.Handlers, (()->())?>) {
                 if let handler = handlers[keyPath: keyPath] {
-                    notificationTokens[name] = NotificationCenter.default.observe(name) { _ in
+                    notificationTokens[name] = NSWorkspace.shared.notificationCenter.observe(name) { _ in
                         handler()
                     }
                 } else {
@@ -56,10 +56,10 @@ public extension NSWorkspace {
             setup(NSWorkspace.willSleepNotification, keyPath: \.willSleep)
             setup(NSWorkspace.didWakeNotification, keyPath: \.didWake)
             if let isHidden = newValue.isHidden {
-                notificationTokens[NSWorkspace.didHideApplicationNotification] = NotificationCenter.default.observe(NSWorkspace.didHideApplicationNotification) { _ in
+                notificationTokens[NSWorkspace.didHideApplicationNotification] = NSWorkspace.shared.notificationCenter.observe(NSWorkspace.didHideApplicationNotification) { _ in
                     isHidden(true)
                 }
-                notificationTokens[NSWorkspace.didUnhideApplicationNotification] = NotificationCenter.default.observe(NSWorkspace.didUnhideApplicationNotification) { _ in
+                notificationTokens[NSWorkspace.didUnhideApplicationNotification] = NSWorkspace.shared.notificationCenter.observe(NSWorkspace.didUnhideApplicationNotification) { _ in
                     isHidden(false)
                 }
             } else {
@@ -67,7 +67,7 @@ public extension NSWorkspace {
                 notificationTokens[NSWorkspace.didUnhideApplicationNotification] = nil
             }
             if let willUnmount = handlers.willUnmount {
-                notificationTokens[NSWorkspace.willUnmountNotification] = NotificationCenter.default.observe(NSWorkspace.willUnmountNotification) { notification in
+                notificationTokens[NSWorkspace.willUnmountNotification] = NSWorkspace.shared.notificationCenter.observe(NSWorkspace.willUnmountNotification) { notification in
                     guard let path = notification.userInfo?["NSDevicePath"] as? String else { return }
                     willUnmount(URL(fileURLWithPath: path))
                 }
@@ -75,7 +75,7 @@ public extension NSWorkspace {
                 notificationTokens[NSWorkspace.willUnmountNotification] = nil
             }
             if let didUnmount = handlers.didUnmount {
-                notificationTokens[NSWorkspace.didUnmountNotification] = NotificationCenter.default.observe(NSWorkspace.didUnmountNotification) { notification in
+                notificationTokens[NSWorkspace.didUnmountNotification] = NSWorkspace.shared.notificationCenter.observe(NSWorkspace.didUnmountNotification) { notification in
                     guard let path = notification.userInfo?["NSDevicePath"] as? String else { return }
                     didUnmount(URL(fileURLWithPath: path))
                 }

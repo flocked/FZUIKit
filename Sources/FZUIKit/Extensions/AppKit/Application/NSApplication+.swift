@@ -9,9 +9,10 @@
 
     import AppKit
     import Foundation
+import FZSwiftUtils
 
     public extension NSApplication {
-        /// &he app’s activation policy that control whether and how an app may be activated.
+        /// The app’s activation policy that control whether and how an app may be activated.
         var activationPolicy: NSApplication.ActivationPolicy {
             get { activationPolicy() }
             set { setActivationPolicy(newValue) }
@@ -53,12 +54,7 @@
         }
         
         /**
-         The amount of seconds the user have to press CMD+Q to close the app via the keyboard.
-         
-         
-         Setting this value
-         If set, the
-         
+         The amount of seconds the user have to press `CMD+Q` to close the app via the keyboard.
          */
         var keyboardTerminationDelay: TimeInterval? {
             get { getAssociatedValue("keyboardTerminationDelay") }
@@ -85,6 +81,59 @@
                     slowTerminationKeyDownMonitor = nil
                 }
             }
+        }
+        
+        /// Handlers for the application.
+        struct Handlers {
+            /// Handler that gets called whenever the application becomes active/inactive.
+            public var isActive: ((Bool)->())?
+            /// Handler that gets called whenever the application hides/unhides.
+            public var isHidden: ((Bool)->())?
+            /// Handler that gets called whenever the configuration of the displays attached to the computer is changed.
+            public var didChangeScreenParameters: (()->())?
+        }
+        
+        /// The handlers for the application.
+        var handlers: Handlers {
+            get { getAssociatedValue("handlers", initialValue: Handlers()) }
+            set {
+                setAssociatedValue(newValue, key: "handlers")
+   
+                if let isHidden = newValue.isHidden {
+                    notificationTokens[NSApplication.didHideNotification] = NotificationCenter.default.observe(NSApplication.didHideNotification) { _ in
+                        isHidden(true)
+                    }
+                    notificationTokens[NSApplication.didUnhideNotification] = NotificationCenter.default.observe(NSApplication.didUnhideNotification) { _ in
+                        isHidden(false)
+                    }
+                } else {
+                    notificationTokens[NSApplication.didHideNotification] = nil
+                    notificationTokens[NSApplication.didUnhideNotification] = nil
+                }
+                if let isActive = newValue.isActive {
+                    notificationTokens[NSApplication.didBecomeActiveNotification] = NotificationCenter.default.observe(NSApplication.didBecomeActiveNotification) { _ in
+                        isActive(true)
+                    }
+                    notificationTokens[NSApplication.didResignActiveNotification] = NotificationCenter.default.observe(NSApplication.didResignActiveNotification) { _ in
+                        isActive(false)
+                    }
+                } else {
+                    notificationTokens[NSApplication.didBecomeActiveNotification] = nil
+                    notificationTokens[NSApplication.didResignActiveNotification] = nil
+                }
+                if let didChangeScreenParameters = handlers.didChangeScreenParameters {
+                    notificationTokens[NSApplication.didChangeScreenParametersNotification] = NotificationCenter.default.observe(NSApplication.didChangeScreenParametersNotification) { _ in
+                        didChangeScreenParameters()
+                    }
+                } else {
+                    notificationTokens[NSApplication.didChangeScreenParametersNotification] = nil
+                }
+            }
+        }
+        
+        internal var notificationTokens: [Notification.Name: NotificationToken] {
+            get { getAssociatedValue("notificationTokens", initialValue: [:]) }
+            set { setAssociatedValue(newValue, key: "notificationTokens") }
         }
                 
         internal var slowTerminationKeyDownMonitor: NSEvent.Monitor? {
