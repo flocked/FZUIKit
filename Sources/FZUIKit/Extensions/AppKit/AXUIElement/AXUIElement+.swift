@@ -258,7 +258,7 @@ public extension AXUIElement {
         for attribute in attributes {
             Swift.print(intend + "- " + attribute.rawValue)
         }
-        children().forEach({ $0.printAttributes(level: level+1) })
+        children.forEach({ $0.printAttributes(level: level+1) })
     }
 
     /// A Boolean value indicating whether the specificed attribute is settable.
@@ -450,7 +450,7 @@ public extension AXUIElement {
         }
         return results
     }
-    */
+     */
     
     /// Returns an array of all the actions the element can perform.
     var actions: [AXAction] {
@@ -605,7 +605,7 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
         var strings: [String] = []
         strings += (String(repeating: "  ", count: level) + string(level: level+1, maxDepth: maxDepth, options: options, attributes: attributes))
         if level+1 <= maxDepth ?? .max {
-            var childs = children().collect()
+            var childs = children.collect()
             childs = childs[safe: 0..<(maxChildren ?? childs.count)]
             childs.forEach({ strings += $0.strings(level: level+1, maxDepth: maxDepth, maxChildren: maxChildren, options: options, attributes: attributes) })
         }
@@ -733,8 +733,8 @@ public extension AXUIElement {
 
 
 public extension AXUIElement {
-    /// Returns the children of the object.
-    func children() -> ChildrenSequence {
+    /// A sequence of the children of the object.
+    var children: ChildrenSequence {
         .init(self)
     }
 
@@ -795,7 +795,12 @@ public extension AXUIElement {
             return sequence
         }
         
-        /// Iterator of a url sequence.
+        /// The number of children in the sequence.
+        public var count: Int {
+            reduce(0) { count, _ in count + 1 }
+        }
+        
+        /// Iterator of a children sequence.
         public struct Iterator: IteratorProtocol {
             let children: [(element: AXUIElement, level: Int)]
             var index = -1
@@ -820,21 +825,22 @@ public extension AXUIElement {
     func _children(level: Int = 0, maxDepth: Int, roles: [AXRole], subroles: [AXSubrole], filter: ((AXUIElement)->(Bool))?) -> [(element: AXUIElement, level: Int)] {
         let next = level+1 <= maxDepth
         var children: [AXUIElement] = (try? get(.children)) ?? []
-        if !roles.isEmpty {
-            children = children.filter({ if let role = $0.role { return roles.contains(role) } else { return false } })
-        }
-        if !subroles.isEmpty {
-            children = children.filter({ if let subrole = $0.subrole { return subroles.contains(subrole) } else { return false } })
-        }
-        if let filter = filter {
-            children = children.filter(filter)
-        }
         var results: [(element: AXUIElement, level: Int)] = []
         for child in children {
             results.append((child, level))
             if next {
                 results.append(contentsOf: child._children(level: level+1, maxDepth: maxDepth, roles: roles, subroles: subroles, filter: filter))
             }
+        }
+        if !roles.isEmpty {
+            results = results.filter({ if let role = $0.element.role { return roles.contains(role) } else { return false } } )
+            children = children.filter({ if let role = $0.role { return roles.contains(role) } else { return false } })
+        }
+        if !subroles.isEmpty {
+            results = results.filter({ if let subrole = $0.element.subrole { return subroles.contains(subrole) } else { return false } } )
+        }
+        if let filter = filter {
+            results = results.filter({ filter($0.element)  })
         }
         return results
     }
