@@ -151,6 +151,12 @@ extension NSWindow {
         public var styleMask: ((StyleMask)->())?
         /// The handler that gets called when the window’s active space state changes.
         public var isOnActiveSpace: ((Bool)->())?
+        /// The handler that gets called when the screen changes.
+        public var screen: ((NSScreen?)->())?
+        /// The handler that gets called when the is visibility state changes.
+        public var isVisible: ((Bool)->())?
+        /// The handler that gets called when the is visibility state changes.
+        public var isMiniaturized: ((Bool)->())?
         
         /// The tab handlers for the window.
         public var tab: TabHandlers = TabHandlers()
@@ -188,9 +194,9 @@ extension NSWindow {
                     windowObserver.remove(keyPath)
                 } else if !windowObserver.isObserving(keyPath) {
                     windowObserver.add(keyPath) { [weak self] old, new in
-                       guard let self = self else { return }
-                       self[keyPath: handler]?(new)
-                   }
+                        guard let self = self else { return }
+                        self[keyPath: handler]?(new)
+                    }
                 }
             }
             
@@ -199,15 +205,29 @@ extension NSWindow {
                     windowObserver.remove(keyPath)
                 } else if !windowObserver.isObserving(keyPath) {
                     windowObserver.add(keyPath) { [weak self] old, new in
-                       guard let self = self, let new = new else { return }
-                       self[keyPath: handler]?(new)
-                   }
+                        guard let self = self, let new = new else { return }
+                        self[keyPath: handler]?(new)
+                    }
                 }
+            }
+            
+            if let isMiniaturized = handlers.isMiniaturized {
+                tokens[NSWindow.didMiniaturizeNotification] = NotificationCenter.default.observe(NSWindow.didMiniaturizeNotification, object: self) { _ in
+                    isMiniaturized(true)
+                }
+                tokens[NSWindow.didDeminiaturizeNotification] = NotificationCenter.default.observe(NSWindow.didDeminiaturizeNotification, object: self) { _ in
+                    isMiniaturized(false)
+                }
+            } else {
+                tokens[NSWindow.didMiniaturizeNotification] = nil
+                tokens[NSWindow.didDeminiaturizeNotification] = nil
             }
                         
             observe(\.firstResponder, handler: \.handlers.firstResponder)
             observe(\.effectiveAppearance, handler: \.handlers.effectiveAppearance)
             observe(\.frame, handler: \.handlers.frame)
+            observe(\.screen, handler: \.handlers.screen)
+            observe(\.isVisible, handler: \.handlers.isVisible)
             
             observe(\.tabGroup?.isTabBarVisible, handler: \.handlers.tab.isTabBarVisible)
             observe(\.tabGroup?.isOverviewVisible, handler: \.handlers.tab.isOverviewVisible)
@@ -272,12 +292,16 @@ extension NSWindow {
                 NSApp.windows.forEach({ $0.sendOnActiveSpace() })
             }
         }
-        Swift.print("CHECK", activeSpaceObservation != nil)
     }
     
    static var activeSpaceObservation: NotificationToken? {
         get { getAssociatedValue("activeSpaceObservation") }
         set { setAssociatedValue(newValue, key: "activeSpaceObservation") }
+    }
+    
+    var tokens: [Notification.Name: NotificationToken] {
+        get { getAssociatedValue("tokens", initialValue: [:]) }
+        set { setAssociatedValue(newValue, key: "tokens") }
     }
     
     /// Sets the minimum size to which the window’s frame (including its title bar) can be sized.
