@@ -65,17 +65,26 @@ extension NSTextField {
     
     func convertToExtendedTextFieldCell() {
         guard extendedTextFieldCell == nil, let textFieldCell = cell as? NSTextFieldCell else { return }
-        guard let layer = layer else {
-            do {
-                cell = try textFieldCell.archiveBasedCopy(as: ExtendedTextFieldCell.self)
-            } catch {
-                debugPrint(error)
-            }
-            return
+        wantsLayer = true
+        let layer = layer
+        do {
+            cell = try textFieldCell.archiveBasedCopy(as: ExtendedTextFieldCell.self)
+            layer?.delegate = self as? any CALayerDelegate
+            Swift.print("layerCheck", self.layer === layer, self.layer, layer)
+            self.layer = layer
+        } catch {
+            debugPrint(error)
         }
+    }
+    
+    /*
+    func convertToExtendedTextFieldCell() {
+        guard extendedTextFieldCell == nil, let textFieldCell = cell as? NSTextFieldCell else { return }
+        wantsLayer = true
+        let layer = layer
         do {
             let convertedCell = try textFieldCell.archiveBasedCopy(as: ExtendedTextFieldCell.self)
-            let backgroundColor = layer.backgroundColor
+            let backgroundColor = layer?.backgroundColor
             let border = border
             let innerShadow = innerShadow
             let outerShadow = outerShadow
@@ -89,9 +98,11 @@ extension NSTextField {
             let transform3D = transform3D
             let shadowPath = shadowPath
             let clipsToBounds = clipsToBounds
+          //  layer.delegate = nil
+         //   self.layer = nil
             cell = convertedCell
-            self.wantsLayer = true
-            layer.delegate = self as? any CALayerDelegate
+            layer?.delegate = self as? any CALayerDelegate
+            Swift.print("layerCheck", self.layer === layer, self.layer, layer)
             self.layer = layer
             self.layer?.backgroundColor = backgroundColor
             self.border = border
@@ -115,6 +126,7 @@ extension NSTextField {
             debugPrint(error)
         }
     }
+    */
 }
 
 /// A text field cell with vertical alignment and focus type property.
