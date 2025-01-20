@@ -780,6 +780,12 @@
             subviews.insert(view, at: index)
         }
         
+        /// The current location of the mouse inside the view, regardless of the current event being handled or of any events pending.
+        @objc open var mouseLocationOutsideOfEventStream: CGPoint {
+            guard let mouseLocation = window?.mouseLocationOutsideOfEventStream else { return CGPoint(-1) }
+            return convert(mouseLocation, from: nil)
+        }
+        
         static func swizzleAnimationForKey() {
             guard didSwizzleAnimationForKey == false else { return }
             didSwizzleAnimationForKey = true
