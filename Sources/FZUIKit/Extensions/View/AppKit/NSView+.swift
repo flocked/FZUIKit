@@ -786,6 +786,62 @@
             return convert(mouseLocation, from: nil)
         }
         
+        /// Converts a point from the screen coordinate system to the view’s coordinate system.
+        public func convertFromScreen(_ screenLocation: CGPoint) -> CGPoint {
+            guard let window = window else { return screenLocation }
+            return convertFromWindow(window.convertPoint(fromScreen: screenLocation))
+        }
+        
+        /// Converts a point to the screen coordinate system from the view’s coordinate system.
+        public func convertToScreen(_ location: CGPoint) -> CGPoint {
+            guard let window = window else { return location }
+            return window.convertPoint(toScreen: convertToWindow(location))
+        }
+        
+        /// Converts a rectangle from the screen coordinate system to the view’s coordinate system.
+        public func convertFromScreen(_ screenFrame: CGRect) -> CGRect {
+            guard let window = window else { return screenFrame }
+            return convertFromWindow(window.convertFromScreen(screenFrame))
+        }
+        
+        /// Converts a rectangle to the screen coordinate system from the view’s coordinate system.
+        public func convertToScreen(_ frame: CGRect) -> CGRect {
+            guard let window = window else { return frame }
+            return window.convertToScreen(convertToWindow(frame))
+        }
+        
+        /// The view’s frame rectangle, which defines its position and size in its screen’s coordinate system.
+        public var screenFrame: CGRect {
+            get { convertToScreen(frame) }
+            set { frame = convertFromScreen(newValue) }
+        }
+        
+        /// The view’s frame rectangle, which defines its position and size in its window’s coordinate system.
+        public var windowFrame: CGRect {
+            get { convertToWindow(frame) }
+            set { frame = convertFromWindow(newValue) }
+        }
+        
+        /// Converts a point from the window coordinate system to the view’s coordinate system.
+        public func convertFromWindow(_ windowLocation: CGPoint) -> CGPoint {
+            convert(windowLocation, from: nil)
+        }
+        
+        /// Converts a point to the window coordinate system from the view’s coordinate system.
+        public func convertToWindow(_ location: CGPoint) -> CGPoint {
+            convert(location, to: nil)
+        }
+        
+        /// Converts a rectangle from the window coordinate system to the view’s coordinate system.
+        public func convertFromWindow(_ windowFrame: CGRect) -> CGRect {
+            convert(windowFrame, from: nil)
+        }
+        
+        /// Converts a rectangle to the window coordinate system from the view’s coordinate system.
+        public func convertToWindow(_ frame: CGRect) -> CGRect {
+            convert(frame, to: nil)
+        }
+        
         static func swizzleAnimationForKey() {
             guard didSwizzleAnimationForKey == false else { return }
             didSwizzleAnimationForKey = true
@@ -889,6 +945,6 @@
     }
 
     /// The `NSView` properties keys that can be animated.
-    private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "_borderWidth", "_borderColor", "borderWidth", "borderColor", "mask", "inverseMask", "backgroundColorAnimatable", "center", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPath", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "contentOffsetFractional", "documentSize", "zPosition", "textColor", "selectionColor", "selectionTextColor", "placeholderTextColor"]
+    private let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "_borderWidth", "_borderColor", "borderWidth", "borderColor", "mask", "inverseMask", "backgroundColorAnimatable", "center", "windowFrame", "screenFrame", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPath", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "contentOffsetFractional", "documentSize", "zPosition", "textColor", "selectionColor", "selectionTextColor", "placeholderTextColor"]
 
 #endif
