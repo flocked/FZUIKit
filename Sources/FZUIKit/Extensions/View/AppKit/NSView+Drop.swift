@@ -148,7 +148,11 @@ fileprivate class DropView: NSView {
     func canDrop(_ draggingInfo: NSDraggingInfo) -> Bool {
         acceptedDropContent = []
         let location = draggingInfo.location(in: self)
-        guard !dropContent.isEmpty, handlers.isActive else { return false }
+        var canDrop = false
+        if let view = superview {
+            canDrop = view.hitTest(location) === view
+        }
+        guard canDrop, !dropContent.isEmpty, handlers.isActive else { return false }
         if !handlers.allowedExtensions.isEmpty {
             let allowedExtensions = handlers.allowedExtensions.compactMap({$0.lowercased()}).uniqued()
             let conformingURLs = dropContent.fileURLs.filter({ allowedExtensions.contains($0.pathExtension.lowercased()) })
@@ -177,6 +181,12 @@ fileprivate class DropView: NSView {
             return true
         }
         return false
+    }
+    
+    override func removeFromSuperview() {
+        if let superview = superview, !superview.dropHandlers.isActive {
+            super.removeFromSuperview()
+        }
     }
     
     init(for view: NSView) {

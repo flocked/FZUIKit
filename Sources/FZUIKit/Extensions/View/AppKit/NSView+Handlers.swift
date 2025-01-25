@@ -29,15 +29,43 @@ extension NSView {
     
     /**
      Handler that provides the menu for a right-click.
-
-     The provided menu is displayed when the user right-clicks the view. If you don't want to display a menu, return `nil`.
+     
+     The handler provides the location of the right click inside the view. Return the menu to the handler, or `nil`, if you don't want to display a menu.
      */
     public var menuProvider: ((_ location: CGPoint)->(NSMenu?))? {
-        get { getAssociatedValue("menuProvider") }
+        get { menuProviderMenu?.handler }
         set {
-            setAssociatedValue(newValue, key: "menuProvider")
-            setupEventMonitors()
-            // swizzleEventMenu()
+            if let newValue = newValue {
+                menu = menuProviderMenu ?? ViewMenuProviderMenu(for: self)
+                menuProviderMenu?.handler = newValue
+            } else if menu is ViewMenuProviderMenu {
+                menu = nil
+            }
+        }
+    }
+    
+    fileprivate var menuProviderMenu: ViewMenuProviderMenu? {
+        menu as? ViewMenuProviderMenu
+    }
+    
+    fileprivate class ViewMenuProviderMenu: NSMenu, NSMenuDelegate {
+        weak var view: NSView?
+        var handler: ((_ location: CGPoint)->(NSMenu?)) = { _ in return nil }
+        
+        init(for view: NSView) {
+            self.view = view
+            super.init(title: "")
+            delegate = self
+        }
+        
+        func menuNeedsUpdate(_ menu: NSMenu) {
+            menu.items = []
+            guard let view = view, let location = NSApp.currentEvent?.location(in: view) else { return }
+            menu.items = (handler(location)?.items ?? []).compactMap({ $0.copy() as? NSMenuItem })
+        }
+        
+        required init(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
         }
     }
     
@@ -71,7 +99,6 @@ extension NSView {
         set {
             setAssociatedValue(newValue, key: "windowHandlers")
             setupObservation()
-            setupObserverView()
             setupWindowObservation()
         }
     }
@@ -81,6 +108,7 @@ extension NSView {
         get { getAssociatedValue("mouseHandlers", initialValue: MouseHandlers()) }
         set {
             setAssociatedValue(newValue, key: "mouseHandlers")
+            guard !(self is ObserverView) else { return }
             setupEventMonitors()
             setupObserverView()
         }
@@ -100,6 +128,7 @@ extension NSView {
         get { getAssociatedValue("viewHandlers", initialValue: ViewHandlers()) }
         set {
             setAssociatedValue(newValue, key: "viewHandlers")
+            guard !(self is ObserverView) else { return }
             setupObservation()
             setupObserverView()
         }
@@ -111,7 +140,7 @@ extension NSView {
     }
     
     func setupEventMonitors() {
-        if mouseHandlers.needsGestureObserving || keyHandlers.needsObserving || menuProvider != nil {
+        if mouseHandlers.needsGestureObserving || keyHandlers.needsObserving {
             if let observerGestureRecognizer = observerGestureRecognizer, gestureRecognizers.contains(observerGestureRecognizer) == false {
                 addGestureRecognizer(observerGestureRecognizer)
             } else if observerGestureRecognizer == nil {
@@ -340,11 +369,10 @@ extension NSView {
     func setupObserverView() {
         if mouseHandlers.needsObserving || viewHandlers.needsObserverView {
             if observerView == nil {
-                observerView = ObserverView(frame: .zero)
-                addSubview(withConstraint: observerView!)
+                observerView = ObserverView(for: self)
             }
-            observerView?._mouseHandlers = mouseHandlers
-        } else if observerView != nil {
+            observerView?.setupMouseHandlers(mouseHandlers)
+        } else {
             observerView?.removeFromSuperview()
             observerView = nil
         }
@@ -514,8 +542,9 @@ extension NSView {
     
     class ObserverView: NSView {
         lazy var trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
-        var _mouseHandlers = MouseHandlers() {
-            didSet { trackingArea.options = _mouseHandlers.trackingAreaOptions }
+        func setupMouseHandlers(_ handlers: MouseHandlers) {
+            mouseHandlers = handlers
+            trackingArea.options = handlers.trackingAreaOptions
         }
         
         override func viewWillStartLiveResize() {
@@ -542,18 +571,34 @@ extension NSView {
         }
         
         override public func mouseEntered(with event: NSEvent) {
-            _mouseHandlers.entered?(event)
+            mouseHandlers.entered?(event)
             super.mouseEntered(with: event)
         }
         
         override public func mouseExited(with event: NSEvent) {
-            _mouseHandlers.exited?(event)
+            mouseHandlers.exited?(event)
             super.mouseExited(with: event)
         }
         
         override public func mouseMoved(with event: NSEvent) {
-            _mouseHandlers.moved?(event)
+            mouseHandlers.moved?(event)
             super.mouseMoved(with: event)
+        }
+        
+        init(for view: NSView) {
+            super.init(frame: .zero)
+            zPosition = -2001
+            view.addSubview(withConstraint: self)
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        override func removeFromSuperview() {
+            if let superview = superview, !superview.mouseHandlers.needsObserving && !superview.viewHandlers.needsObserverView {
+                super.removeFromSuperview()
+            }
         }
         
         /*

@@ -62,7 +62,6 @@ class ObserverGestureRecognizer: NSGestureRecognizer {
 
     override func rightMouseDown(with event: NSEvent) {
         state = .began
-        setupMenuProvider(for: event)
         state = .failed
         view?.mouseHandlers.rightDown?(event)
     }
@@ -98,17 +97,6 @@ class ObserverGestureRecognizer: NSGestureRecognizer {
     
     override func rotate(with event: NSEvent) {
         view?.mouseHandlers.rotate?(event)
-    }
-    
-    func setupMenuProvider(for event: NSEvent) {
-        guard let view = view, let menuProvider = view.menuProvider else { return }
-        let location = event.location(in: view)
-        if let menu = menuProvider(location) {
-            menu.setupDelegateProxy(itemProviderView: view)
-            view.menu = menu
-        } else {
-            view.menu = nil
-        }
     }
 }
 
