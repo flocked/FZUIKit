@@ -20,9 +20,10 @@ extension NSView {
                 dropView?.removeFromSuperview()
                 dropView = nil
             } else {
-                let view = dropView ?? DropView(for: self)
-                dropView = view
-                view.handlers = newValue
+                if dropView == nil {
+                    dropView = DropView(for: self)
+                }
+                dropView?.handlers = newValue
             }
         }
     }
@@ -182,8 +183,8 @@ fileprivate class DropView: NSView {
         super.init(frame: .zero)
         registerForDraggedTypes([.fileURL, .png, .string, .tiff, .color, .sound, .URL, .textFinderOptions, .rtf])
         zPosition = -20000
-        view.addSubview(self)
-        self.sendToBack()
+        view.addSubview(withConstraint: self)
+        sendToBack()
     }
     
     required init?(coder: NSCoder) {
