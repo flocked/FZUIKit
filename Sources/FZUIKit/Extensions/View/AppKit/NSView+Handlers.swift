@@ -51,6 +51,8 @@ extension NSView {
     fileprivate class ViewMenuProviderMenu: NSMenu, NSMenuDelegate {
         weak var view: NSView?
         var handler: ((_ location: CGPoint)->(NSMenu?)) = { _ in return nil }
+        var providedItems: [(original: NSMenuItem, new: NSMenuItem)] = []
+        var providedMenu: NSMenu?
         
         init(for view: NSView) {
             self.view = view
@@ -60,8 +62,33 @@ extension NSView {
         
         func menuNeedsUpdate(_ menu: NSMenu) {
             menu.items = []
-            guard let view = view, let location = NSApp.currentEvent?.location(in: view) else { return }
-            menu.items = (handler(location)?.items ?? []).compactMap({ $0.copy() as? NSMenuItem })
+            guard let view = view, let location = NSApp.currentEvent?.location(in: view) else { 
+                providedMenu = nil
+                return
+            }
+            providedMenu = handler(location)
+            providedItems = (providedMenu?.items ?? []).compactMap({ if let new = $0.copy() as? NSMenuItem { return ($0, new)
+                } else { return nil } })
+            menu.items = providedItems.compactMap({ $0.new })
+        }
+        
+        func menuDidClose(_ menu: NSMenu) {
+            guard let providedMenu = providedMenu else { return }
+            providedMenu.delegate?.menuDidClose?(providedMenu)
+        }
+        
+        func menuWillOpen(_ menu: NSMenu) {
+            guard let providedMenu = providedMenu else { return }
+            providedMenu.delegate?.menuWillOpen?(providedMenu)
+        }
+        
+        func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {
+            guard let providedMenu = providedMenu, let willHighlight: ((NSMenu, NSMenuItem?) -> Void) = providedMenu.delegate?.menu else { return }
+            if item == nil {
+                willHighlight(providedMenu, nil)
+            } else if let item = item, let providedItem = providedItems.first(where: {$0.new === item})?.original {
+                willHighlight(providedMenu, providedItem)
+            }
         }
         
         required init(coder: NSCoder) {
