@@ -14,11 +14,16 @@ import Foundation
 public extension NSEvent {
     /**
      The location of the event inside the specified view.
+     
      - Parameter view: The view for the location.
-     - Returns: The location of the event.
      */
     func location(in view: NSView) -> CGPoint {
         view.convert(locationInWindow, from: nil)
+    }
+    
+    /// The screen location of the event.
+    var screenLocation: CGPoint? {
+        window?.convertToScreen(CGRect(locationInWindow, .zero)).origin
     }
     
     /// The last event that the app retrieved from the event queue.

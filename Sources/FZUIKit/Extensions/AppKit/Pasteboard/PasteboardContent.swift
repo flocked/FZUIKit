@@ -33,6 +33,10 @@ extension String: PasteboardContent {
     public var pasteboardWriting: NSPasteboardWriting {
         self as NSPasteboardWriting
     }
+    
+    public var description: String {
+        self
+    }
 }
 
 @available(macOS 12, *)
@@ -104,12 +108,12 @@ public extension Collection where Element == (any PasteboardContent) {
     
     /// The urls of the pasteboard content.
     var urls: [URL] {
-        compactMap({$0 as? URL})
+        compactMap({$0 as? URL}).filter({ !$0.isFileURL })
     }
     
     /// The file urls of the pasteboard content.
     var fileURLs: [URL] {
-        urls.filter({$0.isFileURL})
+        compactMap({$0 as? URL}).filter({ $0.isFileURL })
     }
     
     /// The sounds of the pasteboard content.

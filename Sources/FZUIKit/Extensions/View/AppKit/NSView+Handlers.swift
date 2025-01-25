@@ -104,25 +104,6 @@ extension NSView {
             setupObserverView()
         }
     }
-    
-    /// The handlers for dragging content outside the view.
-    public var dragHandlers: DragHandlers {
-        get { getAssociatedValue("dragHandlers", initialValue: DragHandlers()) }
-        set {
-            setAssociatedValue(newValue, key: "dragHandlers")
-            setupObserverView()
-            setupEventMonitors()
-        }
-    }
-    
-    /// The handlers for dropping content into the view.
-    public var dropHandlers: DropHandlers {
-        get { getAssociatedValue("dropHandlers", initialValue: DropHandlers()) }
-        set {
-            setAssociatedValue(newValue, key: "dropHandlers")
-            setupObserverView()
-        }
-    }
         
     var observerGestureRecognizer: ObserverGestureRecognizer? {
         get { getAssociatedValue("observerGestureRecognizer") }
@@ -130,7 +111,7 @@ extension NSView {
     }
     
     func setupEventMonitors() {
-        if mouseHandlers.needsGestureObserving || keyHandlers.needsObserving || menuProvider != nil || dragHandlers.canDrag != nil {
+        if mouseHandlers.needsGestureObserving || keyHandlers.needsObserving || menuProvider != nil {
             if let observerGestureRecognizer = observerGestureRecognizer, gestureRecognizers.contains(observerGestureRecognizer) == false {
                 addGestureRecognizer(observerGestureRecognizer)
             } else if observerGestureRecognizer == nil {
@@ -357,13 +338,12 @@ extension NSView {
     }
         
     func setupObserverView() {
-        if mouseHandlers.needsObserving || dropHandlers.isActive || dragHandlers.canDrag != nil || viewHandlers.needsObserverView {
+        if mouseHandlers.needsObserving || viewHandlers.needsObserverView {
             if observerView == nil {
                 observerView = ObserverView(frame: .zero)
                 addSubview(withConstraint: observerView!)
             }
             observerView?._mouseHandlers = mouseHandlers
-            observerView?._dropHandlers = dropHandlers
         } else if observerView != nil {
             observerView?.removeFromSuperview()
             observerView = nil
@@ -532,121 +512,10 @@ extension NSView {
         }
     }
     
-    /**
-     The handlers dropping content (file urls, images, colors or strings) from the pasteboard to your view.
-     
-     Provide ``canDrop`` and/or ``allowedContentTypes`` to specify the items that can be dropped to the view.
-     
-     The system calls the ``canDrop`` handler to validate if your view accepts dropping the content on the pasteboard. If it returns `true`, the system calls the ``didDrop`` handler when the user drops the content to your view.
-     
-     In the following example the view accepts dropping of images and file urls:
-     
-     ```swift
-     view.dropHandlers.canDrop = { items, location in
-        if !items.images.isEmpty || !items.fileURLs.isEmpty {
-            return true
-        } else {
-            return false
-        }
-     }
-     
-     view.dropHandlers.didDrop = { items, location in
-        // dropped images
-        let images = items.images
-        
-        // dropped file urls
-        let fileURLs = items.fileURLs
-     }
-     ```
-     */
-    public struct DropHandlers {
-        /// The allowed file content types that can be dropped to the view.
-        @available(macOS 11.0, *)
-        public var allowedContentTypes: [UTType] {
-            get { _allowedContentTypes as? [UTType] ?? [] }
-            set { _allowedContentTypes = newValue }
-        }
-        var _allowedContentTypes: Any?
-    
-        /// A Boolean value that determines whether the user can drop multiple files with the specified content types  to the view.
-        @available(macOS 11.0, *)
-        public var allowsMultipleFiles: Bool {
-            get { _allowsMultipleFiles }
-            set { _allowsMultipleFiles = newValue }
-        }
-        var _allowsMultipleFiles: Bool = true
-        
-        /// The handler that gets called when a pasteboard dragging enters the view’s bounds rectangle.
-        public var draggingEntered: ((_ items: [PasteboardContent], _ location: CGPoint) -> Void)?
-        
-        /**
-         The handler that determines whether the user can drop the content from the pasteboard to your view.
-         
-         Implement the handler and return `true`, if the pasteboard contains content that your view accepts dropping.
-         
-         The handler gets called repeatedly on every mouse drag on the view’s bounds rectangle.
-         */
-        public var canDrop: ((_ content: [PasteboardContent], _ location: CGPoint) -> (Bool))?
-
-        /// The handler that gets called when the user did drop the content from the pasteboard to your view.
-        public var didDrop: ((_ content: [PasteboardContent], _ location: CGPoint) -> Void)?
-        
-        /// The handler that gets called when a pasteboard dragging exits the view’s bounds rectangle.
-        public var draggingExited: (()->())?
-
-        var isActive: Bool {
-            if #available(macOS 11.0, *) {
-                (canDrop != nil || !allowedContentTypes.isEmpty) && didDrop != nil
-            } else {
-                canDrop != nil && didDrop != nil
-            }
-        }
-    }
-    
-    /// The handlers for dragging content outside the view.
-    public struct DragHandlers {
-        /**
-         The handler that determines whether the user can drag content outside the view.
-         
-         You can return `String`, `URL`, `NSImage`, `NSColor` and `NSSound` values.
-                  
-         - Parameter location. The mouse location inside the view.
-         - Returns: The content that can be dragged outside the view, or `nil` if the view doesn't provide any draggable content.
-         */
-        public var canDrag: ((_ location: CGPoint) -> ([PasteboardContent]?))?
-        /// An optional image used for dragging. If `nil`, a rendered image of the view is used.
-        public var dragImage: ((_ location: CGPoint) -> ((image: NSImage, imageFrame: CGRect)?))?
-        /// The handler that gets called when the user did drag the content to a supported destination.
-        public var didDrag: ((_ screenLocation: CGPoint, _ items: [PasteboardContent]) -> ())?
-        
-        /// The operation for dragging files.
-        public var fileDragOperation: FileDragOperation = .copy
-        /// The visual format of multiple dragging items.
-        public var draggingFormation: NSDraggingFormation = .default
-        /// A Boolean value that determines whether the dragging image animates back to its starting point on a cancelled or failed drag.
-        public var animatesToStartingPositionsOnCancelOrFail: Bool = true
-        
-        /// The operation for dragging files.
-        public enum FileDragOperation: Int {
-            /// Files are copied to the destination.
-            case copy
-            /// Files are moved to the destination.
-            case move
-            var operation: NSDragOperation {
-                self == .copy ? .copy : .move
-            }
-        }
-    }
-    
-    class ObserverView: NSView, NSDraggingSource {
-        var fileDragOperation: NSDragOperation = .copy
+    class ObserverView: NSView {
         lazy var trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
         var _mouseHandlers = MouseHandlers() {
             didSet { trackingArea.options = _mouseHandlers.trackingAreaOptions }
-        }
-                        
-        var _dropHandlers = DropHandlers() {
-            didSet { self.setupDragAndDrop() }
         }
         
         override func viewWillStartLiveResize() {
@@ -658,30 +527,6 @@ extension NSView {
             super.viewDidEndLiveResize()
             superview?.viewHandlers.isLiveResizing?(true)
         }
-
-        func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
-            switch context {
-            case .outsideApplication:
-                return fileDragOperation
-            default:
-                return .generic
-            }
-        }
-        
-        func draggingSession(_ session: NSDraggingSession, willBeginAt screenPoint: NSPoint) {
-            if let dragHandlers = superview?.dragHandlers {
-                session.draggingFormation = dragHandlers.draggingFormation
-                session.animatesToStartingPositionsOnCancelOrFail = dragHandlers.animatesToStartingPositionsOnCancelOrFail
-            }
-            // Swift.print("draggingSession willBeginAt", screenPoint)
-        }
-        
-        func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
-            guard superview?.dragHandlers.canDrag != nil else { return }
-            let contents = session.draggingPasteboard.content()
-            guard !contents.isEmpty else { return }
-            superview?.dragHandlers.didDrag?(screenPoint, contents)
-        }
         
         override public func hitTest(_: NSPoint) -> NSView? {
             nil
@@ -689,14 +534,6 @@ extension NSView {
         
         override public var acceptsFirstResponder: Bool {
             false
-        }
-        
-        func setupDragAndDrop() {
-            if _dropHandlers.isActive {
-                registerForDraggedTypes([.fileURL, .png, .string, .tiff, .color, .sound, .URL, .textFinderOptions, .rtf])
-            } else {
-                unregisterDraggedTypes()
-            }
         }
         
         override public func updateTrackingAreas() {
@@ -717,54 +554,6 @@ extension NSView {
         override public func mouseMoved(with event: NSEvent) {
             _mouseHandlers.moved?(event)
             super.mouseMoved(with: event)
-        }
-                 
-        func canDrop(_ pasteboard: NSPasteboard, location: CGPoint) -> Bool {
-            let items = pasteboard.content()
-            guard !items.isEmpty, _dropHandlers.isActive else { return false }
-            if #available(macOS 11.0, *) {
-                let contentTypes = _dropHandlers.allowedContentTypes
-                if !contentTypes.isEmpty {
-                    let conformingURLs = items.fileURLs.compactMap({$0.contentType}).filter({ $0.conforms(toAny: contentTypes) })
-                    if !conformingURLs.isEmpty {
-                        let allowsMultiple = _dropHandlers.allowsMultipleFiles
-                        if allowsMultiple || (!allowsMultiple && conformingURLs.count == 1) {
-                            return true
-                        }
-                    }
-                }
-            }
-            return _dropHandlers.canDrop?(items, location) == true
-        }
-        
-        override public func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
-            guard  _dropHandlers.draggingEntered != nil || _dropHandlers.isActive else { return [] }
-            let items = sender.draggingPasteboard.content()
-            _dropHandlers.draggingEntered?(items, sender.draggingLocation)
-            return canDrop(sender.draggingPasteboard, location: sender.draggingLocation) ? .copy : []
-        }
-        
-        override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
-            guard _dropHandlers.isActive else { return [] }
-            return canDrop(sender.draggingPasteboard, location: sender.draggingLocation) ? .copy : []
-        }
-        
-        override public func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
-            guard _dropHandlers.isActive else { return false }
-            return canDrop(sender.draggingPasteboard, location: sender.draggingLocation)
-        }
-        
-        override public func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
-            guard _dropHandlers.isActive, let didDrop = _dropHandlers.didDrop else { return false }
-            let items = sender.draggingPasteboard.content()
-            guard !items.isEmpty else { return false }
-            didDrop(items, sender.draggingLocation)
-            return true
-        }
-                
-        override func draggingExited(_ sender: NSDraggingInfo?) {
-            _dropHandlers.draggingExited?()
-            super.draggingExited(sender)
         }
         
         /*

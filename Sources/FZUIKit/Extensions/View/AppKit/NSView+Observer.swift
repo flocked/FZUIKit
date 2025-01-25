@@ -56,7 +56,6 @@ class ObserverGestureRecognizer: NSGestureRecognizer {
     
     override func mouseDragged(with event: NSEvent) {
         state = .began
-        setupDraggingSession(for: event)
         state = .failed
         view?.mouseHandlers.leftDragged?(event)
     }
@@ -110,32 +109,6 @@ class ObserverGestureRecognizer: NSGestureRecognizer {
         } else {
             view.menu = nil
         }
-    }
-
-    func setupDraggingSession(for event: NSEvent) {
-        guard let mouseLocation = mouseLocation, let view = view, let canDrag = view.dragHandlers.canDrag else { return }
-        let location = event.location(in: view)
-        guard mouseLocation.distance(to: location) >= Self.minimumDragDistance else { return }
-        self.mouseLocation = nil
-        guard let items = canDrag(location), !items.isEmpty, let observerView = view.observerView else { return }
-        observerView.fileDragOperation = .copy
-        if view.dragHandlers.fileDragOperation == .move, items.count == items.fileURLs.count {
-            observerView.fileDragOperation = .move
-        }
-        let draggingItems = items.compactMap({NSDraggingItem($0)})
-        let component: NSDraggingImageComponent
-        if let dragImage =  view.dragHandlers.dragImage?(location) {
-            component = .init(image: dragImage.image, frame: dragImage.imageFrame)
-        } else {
-            component = .init(view: view)
-        }
-        draggingItems.first?.imageComponentsProvider = { [component] }
-        draggingItems.forEach({
-            $0.draggingFrame = CGRect(.zero, view.bounds.size)
-            // $0.imageComponentsProvider = { [component] }
-        })
-       // NSPasteboard.general.writeObjects(items.compactMap({$0.pasteboardWriting}))
-        view.beginDraggingSession(with: draggingItems, event: event, source: observerView)
     }
 }
 
