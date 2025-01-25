@@ -67,6 +67,9 @@ extension NSView {
                 return
             }
             providedMenu = handler(location)
+            if let providedMenu = providedMenu {
+                providedMenu.delegate?.menuNeedsUpdate?(providedMenu)
+            }
             providedItems = (providedMenu?.items ?? []).compactMap({ if let new = $0.copy() as? NSMenuItem { return ($0, new)
                 } else { return nil } })
             menu.items = providedItems.compactMap({ $0.new })
