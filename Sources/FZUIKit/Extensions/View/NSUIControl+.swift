@@ -11,6 +11,7 @@ import AppKit
 #else
 import UIKit
 #endif
+
 extension NSUIControl {
     /// Sets the Boolean value that indicates whether the receiver reacts to mouse events.
     @discardableResult

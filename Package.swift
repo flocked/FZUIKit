@@ -18,12 +18,14 @@ let package = Package(
     targets: [
         .target(
             name: "FZUIKit",
-            dependencies: ["FZSwiftUtils", "_DelegateProxy"],
+            dependencies: ["FZSwiftUtils", "_DelegateProxy", "_ObjectProxy"],
             resources: [
                 .process("Resources"),
             ]            
         ),
         .target(name: "_DelegateProxy",
                 path: "Sources/FZUIKit+ObjC/DelegateProxy"),
+        .target(name: "_ObjectProxy",
+                path: "Sources/FZUIKit+ObjC/ObjectProxy"),
     ]
 )
