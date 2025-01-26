@@ -674,7 +674,7 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
           //  strings += (intendString + "attributes:")
         //    let intendString = "\(String(repeating: "  ", count: level+1))- "
             for attribute in attributeValues.sorted(by: \.key.rawValue) {
-                var key = attribute.key.rawValue
+                let key = attribute.key.rawValue
               //  key = key.replacingOccurrences(of: "AX", with: "")
                 var valueString = "\(attribute.value)"
                 if let value = attribute.value as? [AXUIElement] {
