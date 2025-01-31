@@ -102,41 +102,8 @@ import AppKit
 
  public extension NSPasteboard {
      /// The current `PasteboardReading` objects of the pasteboard.
-     func content() -> [PasteboardReading] {
-         var items: [PasteboardReading] = []
-         
-         if let fileURLs = fileURLs {
-             items.append(contentsOf: fileURLs)
-         }
-         
-         if let colors = colors {
-             items.append(contentsOf: colors)
-         }
-         
-         if let strings = strings {
-             items.append(contentsOf: strings)
-         }
-         
-         if let sounds = sounds {
-             items.append(contentsOf: sounds)
-         }
-         
-         if let images = images {
-             items.append(contentsOf: images)
-         }
-         
-         if let filePromiseReceivers = filePromiseReceivers {
-             items.append(contentsOf: filePromiseReceivers)
-         }
-         
-         if let attributedStrings = attributedStrings {
-             items.append(contentsOf: attributedStrings)
-         }
-         
-         let pasteboardItems = (pasteboardItems ?? []).filter({ !$0.types.contains(any: [.color, .string, .rtf, .sound, .fileURL, .URL, .tiff, .png]) || $0.content != nil })
-         items.append(contentsOf: pasteboardItems)
-         
-         return items
+     var content: [PasteboardReading] {
+         return readAll() + (pasteboardItems ?? [])
      }
  }
 

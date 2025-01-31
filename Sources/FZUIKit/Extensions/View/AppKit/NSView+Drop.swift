@@ -91,6 +91,17 @@ extension NSView {
         
         /// The handler that gets called when a pasteboard dragging exits the view’s bounds rectangle.
         public var dropExited: (()->())?
+        
+        public var springLoading = SpringLoading()
+        
+        public struct SpringLoading {
+            /// The handler that determines the spring loading options for the content.
+            public var options: ((_ content: [PasteboardReading]) -> (NSSpringLoadingOptions))?
+            /// The handler that gets called when the spring loading activation state changed.
+            public var activated: ((_ activated: Bool) -> ())?
+            /// The handler that gets called when the spring loading highlight state changed.
+            public var highlightChanged: ((_ highlight: NSSpringLoadingHighlight) -> ())?
+        }
 
         var isActive: Bool {
             if #available(macOS 11.0, *) {
@@ -107,14 +118,14 @@ extension NSView {
     }
 }
 
-fileprivate class DropView: NSView {
+fileprivate class DropView: NSView, NSSpringLoadingDestination {
     var dropContent: [PasteboardReading] = []
     var acceptedDropContent: [PasteboardReading] = []
     var handlers = DropHandlers()
     
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
         guard  handlers.isActive else { return [] }
-        dropContent = sender.draggingPasteboard.content()
+        dropContent = sender.draggingPasteboard.content
         handlers.dropEntered?(dropContent, sender.location(in: self))
         return canDrop(sender) ? .copy : []
     }
@@ -141,6 +152,22 @@ fileprivate class DropView: NSView {
         return !acceptedDropContent.isEmpty
     }
     
+    func springLoadingEntered(_ draggingInfo: any NSDraggingInfo) -> NSSpringLoadingOptions {
+        acceptedDropContent.isEmpty ? .disabled : handlers.springLoading.options?(acceptedDropContent) ?? .disabled
+    }
+    
+    func springLoadingUpdated(_ draggingInfo: any NSDraggingInfo) -> NSSpringLoadingOptions {
+        acceptedDropContent.isEmpty ? .disabled : handlers.springLoading.options?(acceptedDropContent) ?? .disabled
+    }
+    
+    func springLoadingActivated(_ activated: Bool, draggingInfo: any NSDraggingInfo) {
+        handlers.springLoading.activated?(activated)
+    }
+    
+    func springLoadingHighlightChanged(_ draggingInfo: any NSDraggingInfo) {
+        handlers.springLoading.highlightChanged?(draggingInfo.springLoadingHighlight)
+    }
+    
     override func hitTest(_: NSPoint) -> NSView? {
         nil
     }
@@ -153,34 +180,24 @@ fileprivate class DropView: NSView {
             canDrop = view.hitTest(location) === view
         }
         guard canDrop, !dropContent.isEmpty, handlers.isActive else { return false }
-        if !handlers.allowedExtensions.isEmpty {
-            let allowedExtensions = handlers.allowedExtensions.compactMap({$0.lowercased()}).uniqued()
-            let conformingURLs = dropContent.fileURLs.filter({ allowedExtensions.contains($0.pathExtension.lowercased()) })
-            if !conformingURLs.isEmpty {
-                let allowsMultiple = handlers.allowsMultipleFiles
-                if allowsMultiple || (!allowsMultiple && conformingURLs.count == 1) {
-                    acceptedDropContent = conformingURLs
-                    return true
-                }
-            }
-        }
-        if #available(macOS 11.0, *) {
-            if !handlers.allowedContentTypes.isEmpty {
-                let conformingURLs = dropContent.fileURLs.filter({ $0.contentType?.conforms(toAny: handlers.allowedContentTypes) == true })
-                if !conformingURLs.isEmpty {
-                    let allowsMultiple = handlers.allowsMultipleFiles
-                    if allowsMultiple || (!allowsMultiple && conformingURLs.count == 1) {
-                        acceptedDropContent = conformingURLs
-                        return true
-                    }
-                }
-            }
-        }
         if handlers.canDrop?(dropContent, location) == true {
             acceptedDropContent = dropContent
-            return true
+        } else {
+            if !handlers.allowedExtensions.isEmpty {
+                let allowedExtensions = handlers.allowedExtensions.compactMap({$0.lowercased()}).uniqued()
+                acceptedDropContent += dropContent.fileURLs.filter({ allowedExtensions.contains($0.pathExtension.lowercased()) })
+            }
+            if #available(macOS 11.0, *) {
+                if !handlers.allowedContentTypes.isEmpty {
+                    acceptedDropContent += dropContent.fileURLs.filter({ $0.contentType?.conforms(toAny: handlers.allowedContentTypes) == true })
+                }
+            }
         }
-        return false
+        if acceptedDropContent.isEmpty || (!handlers.allowsMultipleFiles && acceptedDropContent.count > 1) {
+            acceptedDropContent = []
+            return false
+        }
+        return true
     }
     
     override func removeFromSuperview() {
