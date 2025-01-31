@@ -38,11 +38,11 @@ extension NSView {
          - Parameter location. The mouse location inside the view.
          - Returns: The content that can be dragged outside the view, or `nil` if the view doesn't provide any draggable content.
          */
-        public var canDrag: ((_ location: CGPoint) -> ([PasteboardContent]?))?
+        public var canDrag: ((_ location: CGPoint) -> ([PasteboardWriting]?))?
         /// An optional image used for dragging. If `nil`, a rendered image of the view is used.
-        public var dragImage: ((_ location: CGPoint, _ content: PasteboardContent) -> ((image: NSImage, imageFrame: CGRect?)))?
+        public var dragImage: ((_ location: CGPoint, _ content: PasteboardWriting) -> ((image: NSImage, imageFrame: CGRect?)))?
         /// The handler that gets called when the user did drag the content to a supported destination.
-        public var didDrag: ((_ screenLocation: CGPoint, _ items: [PasteboardContent]) -> ())?
+        public var didDrag: ((_ screenLocation: CGPoint, _ items: [PasteboardWriting]) -> ())?
         
         /// The operation for dragging files.
         public var fileDragOperation: FileDragOperation = .copy
@@ -78,9 +78,9 @@ fileprivate class DraggingGestureRecognizer: NSGestureRecognizer, NSDraggingSour
     
     struct DragItem {
         let item: NSDraggingItem
-        let content: PasteboardContent
+        let content: PasteboardWriting
         var imageData: (image: NSImage, imageFrame: CGRect?)?
-        init(_ content: PasteboardContent) {
+        init(_ content: PasteboardWriting) {
             self.item = .init(content)
             self.content = content
         }

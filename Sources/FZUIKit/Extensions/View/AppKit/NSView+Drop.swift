@@ -81,13 +81,13 @@ extension NSView {
          
          The handler gets called repeatedly on every mouse drag on the view’s bounds rectangle.
          */
-        public var canDrop: ((_ content: [PasteboardContent], _ location: CGPoint) -> (Bool))?
+        public var canDrop: ((_ content: [PasteboardReading], _ location: CGPoint) -> (Bool))?
 
         /// The handler that gets called when the user did drop the content from the pasteboard to your view.
-        public var didDrop: ((_ content: [PasteboardContent], _ location: CGPoint) -> Void)?
+        public var didDrop: ((_ content: [PasteboardReading], _ location: CGPoint) -> Void)?
         
         /// The handler that gets called when a pasteboard dragging enters the view’s bounds rectangle.
-        public var dropEntered: ((_ content: [PasteboardContent], _ location: CGPoint) -> Void)?
+        public var dropEntered: ((_ content: [PasteboardReading], _ location: CGPoint) -> Void)?
         
         /// The handler that gets called when a pasteboard dragging exits the view’s bounds rectangle.
         public var dropExited: (()->())?
@@ -108,8 +108,8 @@ extension NSView {
 }
 
 fileprivate class DropView: NSView {
-    var dropContent: [PasteboardContent] = []
-    var acceptedDropContent: [PasteboardContent] = []
+    var dropContent: [PasteboardReading] = []
+    var acceptedDropContent: [PasteboardReading] = []
     var handlers = DropHandlers()
     
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {

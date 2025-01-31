@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 25.01.25.
 //
 
+/*
 #if os(macOS)
 import AppKit
 
@@ -46,3 +47,4 @@ class DraggingItem {
     }
 }
 #endif
+*/
