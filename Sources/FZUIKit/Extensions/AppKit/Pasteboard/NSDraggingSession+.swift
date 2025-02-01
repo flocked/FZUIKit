@@ -176,6 +176,7 @@ extension NSDraggingSource where Self: NSObject {
     }
     
     func swizzleDraggingSourcedidUpdate() {
+        Swift.print("swizzleDraggingSourcedidUpdate", didSwizzleDraggingSourceDidUpdate)
         guard !didSwizzleDraggingSourceDidUpdate else { return }
         didSwizzleDraggingSourceDidUpdate = true
         if responds(to: #selector(NSDraggingSource.draggingSession(_:movedTo:))) {
@@ -195,11 +196,12 @@ extension NSDraggingSource where Self: NSObject {
         } else {
             let selector = #selector(NSDraggingSource.draggingSession(_:movedTo:))
             let block: @convention(block) (AnyObject, NSDraggingSession, NSPoint) -> Void = { [weak self] _self, session, screenLocation in
+                Swift.print("movedTo", self != nil)
                 guard let self = self else { return }
                 self.draggingSourceHandlers.didUpdate?(session, screenLocation)
             }
             let methodIMP = imp_implementationWithBlock(block)
-            class_addMethod(object_getClass(self), selector, methodIMP, "v@:@{CGPoint=dd}")
+            Swift.print("swizzle", class_addMethod(object_getClass(self), selector, methodIMP, "v@:@{CGPoint=dd}"))
         }
     }
     
