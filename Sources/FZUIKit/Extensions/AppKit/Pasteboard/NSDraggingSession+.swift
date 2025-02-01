@@ -201,7 +201,7 @@ extension NSDraggingSource where Self: NSObject {
                 self.draggingSourceHandlers.didUpdate?(session, screenLocation)
             }
             let methodIMP = imp_implementationWithBlock(block)
-            Swift.print("swizzle", class_addMethod(object_getClass(self), selector, methodIMP, "v@:@{CGPoint=dd}"))
+            Swift.print("swizzle", class_addMethod(object_getClass(self), selector, methodIMP, "v@:@{CGPoint=dd}Q"))
         }
     }
     
