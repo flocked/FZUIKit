@@ -112,7 +112,7 @@ public struct NSDraggingSourceHandlers {
 
 extension NSDraggingSource where Self: NSObject {
     /// The handlers of the dragging source.
-    public var handlers: NSDraggingSourceHandlers {
+    public var draggingSourceHandlers: NSDraggingSourceHandlers {
         get { getAssociatedValue("draggingSourceHandlers") ?? .init() }
         set {
             setAssociatedValue(newValue, key: "draggingSourceHandlers")
@@ -157,7 +157,7 @@ extension NSDraggingSource where Self: NSObject {
                methodSignature: (@convention(c)  (AnyObject, Selector, NSDraggingSession, NSPoint) -> ()).self,
                hookSignature: (@convention(block)  (AnyObject, NSDraggingSession, NSPoint) -> ()).self) { store in {
                    object, session, screenLocation in
-                   (object as? NSDraggingSource & NSObject)?.handlers.willBegin?(session, screenLocation)
+                   (object as? NSDraggingSource & NSObject)?.draggingSourceHandlers.willBegin?(session, screenLocation)
                    store.original(object,  #selector(NSDraggingSource.draggingSession(_:willBeginAt:)), session, screenLocation)
                    }
                }
@@ -168,7 +168,7 @@ extension NSDraggingSource where Self: NSObject {
             let selector = #selector(NSDraggingSource.draggingSession(_:willBeginAt:))
             let block: @convention(block) (AnyObject, NSDraggingSession, NSPoint) -> Void = { [weak self] _self, session, screenLocation in
                 guard let self = self else { return }
-                self.handlers.willBegin?(session, screenLocation)
+                self.draggingSourceHandlers.willBegin?(session, screenLocation)
             }
             let methodIMP = imp_implementationWithBlock(block)
             class_addMethod(object_getClass(self), selector, methodIMP, "v@:@{CGPoint=dd}")
@@ -185,7 +185,7 @@ extension NSDraggingSource where Self: NSObject {
                methodSignature: (@convention(c)  (AnyObject, Selector, NSDraggingSession, NSPoint) -> ()).self,
                hookSignature: (@convention(block)  (AnyObject, NSDraggingSession, NSPoint) -> ()).self) { store in {
                    object, session, screenLocation in
-                   (object as? NSDraggingSource & NSObject)?.handlers.didUpdate?(session, screenLocation)
+                   (object as? NSDraggingSource & NSObject)?.draggingSourceHandlers.didUpdate?(session, screenLocation)
                    store.original(object, #selector(NSDraggingSource.draggingSession(_:movedTo:)), session, screenLocation)
                    }
                }
@@ -196,7 +196,7 @@ extension NSDraggingSource where Self: NSObject {
             let selector = #selector(NSDraggingSource.draggingSession(_:movedTo:))
             let block: @convention(block) (AnyObject, NSDraggingSession, NSPoint) -> Void = { [weak self] _self, session, screenLocation in
                 guard let self = self else { return }
-                self.handlers.didUpdate?(session, screenLocation)
+                self.draggingSourceHandlers.didUpdate?(session, screenLocation)
             }
             let methodIMP = imp_implementationWithBlock(block)
             class_addMethod(object_getClass(self), selector, methodIMP, "v@:@{CGPoint=dd}")
@@ -213,7 +213,7 @@ extension NSDraggingSource where Self: NSObject {
                methodSignature: (@convention(c)  (AnyObject, Selector, NSDraggingSession, NSPoint, NSDragOperation) -> ()).self,
                hookSignature: (@convention(block)  (AnyObject, NSDraggingSession, NSPoint, NSDragOperation) -> ()).self) { store in {
                    object, session, screenLocation, operation in
-                   (object as? NSDraggingSource & NSObject)?.handlers.didEnd?(session, screenLocation, operation)
+                   (object as? NSDraggingSource & NSObject)?.draggingSourceHandlers.didEnd?(session, screenLocation, operation)
                    store.original(object, #selector(NSDraggingSource.draggingSession(_:endedAt:operation:)), session, screenLocation, operation)
                    }
                }
@@ -224,7 +224,7 @@ extension NSDraggingSource where Self: NSObject {
             let selector = #selector(NSDraggingSource.draggingSession(_:endedAt:operation:))
             let block: @convention(block) (AnyObject, NSDraggingSession, NSPoint, NSDragOperation) -> Void = { [weak self] _self, session, screenLocation, operation in
                 guard let self = self else { return }
-                self.handlers.didEnd?(session, screenLocation, operation)
+                self.draggingSourceHandlers.didEnd?(session, screenLocation, operation)
             }
             let methodIMP = imp_implementationWithBlock(block)
             class_addMethod(object_getClass(self), selector, methodIMP, "v@:@{CGPoint=dd}Q")
