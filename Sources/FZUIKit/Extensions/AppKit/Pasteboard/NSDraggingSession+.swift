@@ -99,4 +99,137 @@ extension NSDraggingSession {
         }
     }
 }
+
+/// Handlers of a dragging source.
+public struct NSDraggingSourceHandlers {
+    /// The handler that gets called when the dragging source will begin a drag.
+    public var willBegin: ((_ session: NSDraggingSession, _ screenLocation: CGPoint)->())?
+    /// The handler that gets called when the drag of the dragging source did move to a new location.
+    public var didUpdate: ((_ session: NSDraggingSession, _ screenLocation: CGPoint)->())?
+    /// The handler that gets called when the drag of the dragging source did end.
+    public var didEnd: ((_ session: NSDraggingSession, _ screenLocation: CGPoint, _  operation: NSDragOperation)->())?
+}
+
+extension NSDraggingSource where Self: NSObject {
+    /// The handlers of the dragging source.
+    public var handlers: NSDraggingSourceHandlers {
+        get { getAssociatedValue("draggingSourceHandlers") ?? .init() }
+        set {
+            setAssociatedValue(newValue, key: "draggingSourceHandlers")
+            if newValue.willBegin != nil {
+                swizzleDraggingSourceWillBegin()
+            }
+            if newValue.didUpdate != nil {
+                swizzleDraggingSourcedidUpdate()
+            }
+            if newValue.didEnd != nil {
+                swizzleDraggingSourcedidEnd()
+            }
+        }
+    }
+    
+    var didSwizzleDraggingSourceWillBegin: Bool {
+        get { getAssociatedValue("didSwizzleDraggingSourceWillBegin") ?? false }
+        set { setAssociatedValue(newValue, key: "didSwizzleDraggingSourceWillBegin") }
+    }
+    
+    var didSwizzleDraggingSourceDidUpdate: Bool {
+        get { getAssociatedValue("didSwizzleDraggingSourceDidUpdate") ?? false }
+        set { setAssociatedValue(newValue, key: "didSwizzleDraggingSourceDidUpdate") }
+    }
+    
+    var didSwizzleDraggingSourceDidEnd: Bool {
+        get { getAssociatedValue("didSwizzleDraggingSourceDidEnd") ?? false }
+        set { setAssociatedValue(newValue, key: "didSwizzleDraggingSourceDidEnd") }
+    }
+    
+    func swizzleDraggingSource() {
+        
+    }
+    
+    func swizzleDraggingSourceWillBegin() {
+        guard !didSwizzleDraggingSourceWillBegin else { return }
+        didSwizzleDraggingSourceWillBegin = true
+        if responds(to: #selector(NSDraggingSource.draggingSession(_:willBeginAt:))) {
+            do {
+               try replaceMethod(
+                #selector(NSDraggingSource.draggingSession(_:willBeginAt:)),
+               methodSignature: (@convention(c)  (AnyObject, Selector, NSDraggingSession, NSPoint) -> ()).self,
+               hookSignature: (@convention(block)  (AnyObject, NSDraggingSession, NSPoint) -> ()).self) { store in {
+                   object, session, screenLocation in
+                   (object as? NSDraggingSource & NSObject)?.handlers.willBegin?(session, screenLocation)
+                   store.original(object,  #selector(NSDraggingSource.draggingSession(_:willBeginAt:)), session, screenLocation)
+                   }
+               }
+            } catch {
+               debugPrint(error)
+            }
+        } else {
+            let selector = #selector(NSDraggingSource.draggingSession(_:willBeginAt:))
+            let block: @convention(block) (AnyObject, NSDraggingSession, NSPoint) -> Void = { [weak self] _self, session, screenLocation in
+                guard let self = self else { return }
+                self.handlers.willBegin?(session, screenLocation)
+            }
+            let methodIMP = imp_implementationWithBlock(block)
+            class_addMethod(object_getClass(self), selector, methodIMP, "v@:@{CGPoint=dd}")
+        }
+    }
+    
+    func swizzleDraggingSourcedidUpdate() {
+        guard !didSwizzleDraggingSourceDidUpdate else { return }
+        didSwizzleDraggingSourceDidUpdate = true
+        if responds(to: #selector(NSDraggingSource.draggingSession(_:movedTo:))) {
+            do {
+               try replaceMethod(
+                #selector(NSDraggingSource.draggingSession(_:movedTo:)),
+               methodSignature: (@convention(c)  (AnyObject, Selector, NSDraggingSession, NSPoint) -> ()).self,
+               hookSignature: (@convention(block)  (AnyObject, NSDraggingSession, NSPoint) -> ()).self) { store in {
+                   object, session, screenLocation in
+                   (object as? NSDraggingSource & NSObject)?.handlers.didUpdate?(session, screenLocation)
+                   store.original(object, #selector(NSDraggingSource.draggingSession(_:movedTo:)), session, screenLocation)
+                   }
+               }
+            } catch {
+               debugPrint(error)
+            }
+        } else {
+            let selector = #selector(NSDraggingSource.draggingSession(_:movedTo:))
+            let block: @convention(block) (AnyObject, NSDraggingSession, NSPoint) -> Void = { [weak self] _self, session, screenLocation in
+                guard let self = self else { return }
+                self.handlers.didUpdate?(session, screenLocation)
+            }
+            let methodIMP = imp_implementationWithBlock(block)
+            class_addMethod(object_getClass(self), selector, methodIMP, "v@:@{CGPoint=dd}")
+        }
+    }
+    
+    func swizzleDraggingSourcedidEnd() {
+        guard !didSwizzleDraggingSourceDidEnd else { return }
+        didSwizzleDraggingSourceDidEnd = true
+        if responds(to: #selector(NSDraggingSource.draggingSession(_:endedAt:operation:))) {
+            do {
+               try replaceMethod(
+                #selector(NSDraggingSource.draggingSession(_:endedAt:operation:)),
+               methodSignature: (@convention(c)  (AnyObject, Selector, NSDraggingSession, NSPoint, NSDragOperation) -> ()).self,
+               hookSignature: (@convention(block)  (AnyObject, NSDraggingSession, NSPoint, NSDragOperation) -> ()).self) { store in {
+                   object, session, screenLocation, operation in
+                   (object as? NSDraggingSource & NSObject)?.handlers.didEnd?(session, screenLocation, operation)
+                   store.original(object, #selector(NSDraggingSource.draggingSession(_:endedAt:operation:)), session, screenLocation, operation)
+                   }
+               }
+            } catch {
+               debugPrint(error)
+            }
+        } else {
+            let selector = #selector(NSDraggingSource.draggingSession(_:endedAt:operation:))
+            let block: @convention(block) (AnyObject, NSDraggingSession, NSPoint, NSDragOperation) -> Void = { [weak self] _self, session, screenLocation, operation in
+                guard let self = self else { return }
+                self.handlers.didEnd?(session, screenLocation, operation)
+            }
+            let methodIMP = imp_implementationWithBlock(block)
+            class_addMethod(object_getClass(self), selector, methodIMP, "v@:@{CGPoint=dd}Q")
+        }
+    }
+}
+
 #endif
