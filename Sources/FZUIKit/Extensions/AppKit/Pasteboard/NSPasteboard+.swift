@@ -113,4 +113,9 @@
             readObjects(forClasses: [NSString.self, NSAttributedString.self, NSURL.self, NSColor.self, NSImage.self, NSSound.self, NSFilePromiseReceiver.self], options: nil) as? [PasteboardReading] ?? []
         }
     }
+
+extension NSPasteboard.PasteboardType {
+    ///Promised files.
+    public static let fileURLPromise = NSPasteboard.PasteboardType(kPasteboardTypeFileURLPromise)
+}
 #endif
