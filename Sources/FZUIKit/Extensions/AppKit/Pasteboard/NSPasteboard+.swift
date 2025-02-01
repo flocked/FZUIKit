@@ -90,16 +90,6 @@
             get { read(for: NSFilePromiseReceiver.self) }
         }
         
-        /**
-         The pasteboard items of the pasteboard or `nil` if no items are available.
-         
-         Setting this property replaces all current items in the pasteboard with the new items.
-         */
-        public var pasteboardItems: [NSPasteboardItem]? {
-            get { read(for: NSPasteboardItem.self) }
-            set { write(newValue ?? []) }
-        }
-        
         /// The contents of the specified content type  or `nil` if no content is available.
         public func content<Content>(_ : Content.Type) -> [Content]? {
             pasteboardItems?.compactMap({$0.content(Content.self)})
