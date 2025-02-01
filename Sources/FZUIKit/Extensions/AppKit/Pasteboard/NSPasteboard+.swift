@@ -116,6 +116,6 @@
 
 extension NSPasteboard.PasteboardType {
     ///Promised files.
-    public static let fileURLPromise = NSPasteboard.PasteboardType(kPasteboardTypeFileURLPromise)
+    public static let fileReceiver = NSPasteboard.PasteboardType(kPasteboardTypeFileURLPromise)
 }
 #endif
