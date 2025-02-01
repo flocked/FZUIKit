@@ -105,38 +105,35 @@
             }
         }
 
-        /**
-         Returns the row indexes currently visible.
-
-         - Returns: The array of row indexes corresponding to the currently visible rows.
-         */
-        func visibleRowIndexes() -> [Int] {
-            rows(in: visibleRect).array
+        /// Returns the row indexes currently visible.
+        func visibleRowIndexes() -> IndexSet {
+            IndexSet(rows(in: visibleRect).array)
         }
 
-        /**
-         Returns the row views currently visible.
-
-         - Returns: The array of row views corresponding to the currently visible row views.
-         */
+        /// Returns the row views currently visible.
         func visibleRows() -> [NSTableRowView] {
             visibleRowIndexes().compactMap{rowView(atRow: $0, makeIfNecessary: false)}
         }
+        
+        /// Returns the column indexes currently visible.
+        var visibleColumnIndexes: IndexSet {
+            columnIndexes(in: visibleRect)
+        }
 
-        /**
-         Returns the columns currently visible.
-
-         - Returns: The array of columns corresponding to the currently visible table columns.
-         */
+        /// Returns the columns currently visible.
         var visibleColumns: [NSTableColumn] {
-            columnIndexes(in: visibleRect).compactMap { tableColumns[$0] }
+            visibleColumnIndexes.compactMap { tableColumns[$0] }
+        }
+        
+        /// Returns the cell views currently visible.
+        func visibleCells() -> [NSTableCellView] {
+            visibleRows().flatMap({ $0.cellViews })
         }
 
         /**
          Returns the cell views of a column currently visible.
          
          - Parameter column: The column fot the visible cell views.
-         - Returns: The array of row views corresponding to the currently visible cell view.
          */
         func visibleCells(for column: NSTableColumn) -> [NSTableCellView] {
             let rowIndexes = visibleRowIndexes()
