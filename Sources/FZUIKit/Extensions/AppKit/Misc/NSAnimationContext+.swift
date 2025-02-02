@@ -49,7 +49,7 @@ public extension NSAnimationContext {
         - animations: The handler containing the changes to commit to the views. This is where you programmatically change any animatable properties of the views in your view hierarchy.
         - completion: The handler to be executed when the animation sequence ends.
      */
-    class func run(withSpring spring: CASpringAnimation, allowsImplicitAnimation: Bool = false, animations: @escaping ()->(), completion: (()->())? = nil) {
+    class func run(withSpring spring: CASpringAnimation, allowsImplicitAnimation: Bool = false, animations: ()->(), completion: (()->())? = nil) {
         NSView.swizzleAnimationForKey()
         NSWindow.swizzleAnimationForKey()
         NSLayoutConstraint.swizzleAnimationForKey()

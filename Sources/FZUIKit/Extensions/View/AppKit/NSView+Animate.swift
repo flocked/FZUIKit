@@ -19,7 +19,7 @@ extension NSView {
         - animations: The handler containing the changes to commit to the views. This is where you programmatically change any animatable properties of the views in your view hierarchy.
         - completion: The handler to be executed when the animation sequence ends.
      */
-    public static func animate(withDuration duration: CGFloat = 0.2, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, animations: @escaping () -> Void, completion: (() -> Void)? = nil) {
+    public static func animate(withDuration duration: CGFloat = 0.2, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, animations: () -> Void, completion: (() -> Void)? = nil) {
         NSAnimationContext.runAnimationGroup({ context in
             context.springAnimation = nil
             context.duration = duration.clamped(min: 0.0)
@@ -38,7 +38,7 @@ extension NSView {
         - animations: The handler containing the changes to commit to the views. This is where you programmatically change any animatable properties of the views in your view hierarchy.
         - completion: The handler to be executed when the animation sequence ends.
      */
-    public static func animate(withSpring spring: CASpringAnimation, allowsImplicitAnimation: Bool = false, animations: @escaping ()->(), completion: (()->())? = nil) {
+    public static func animate(withSpring spring: CASpringAnimation, allowsImplicitAnimation: Bool = false, animations: ()->(), completion: (()->())? = nil) {
         NSAnimationContext.run(withSpring: spring, allowsImplicitAnimation: allowsImplicitAnimation, animations: animations, completion: completion)
     }
     
