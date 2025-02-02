@@ -128,26 +128,22 @@ extension NSDraggingSource where Self: NSObject {
         }
     }
     
-    var didSwizzleDraggingSourceWillBegin: Bool {
+    private var didSwizzleDraggingSourceWillBegin: Bool {
         get { getAssociatedValue("didSwizzleDraggingSourceWillBegin") ?? false }
         set { setAssociatedValue(newValue, key: "didSwizzleDraggingSourceWillBegin") }
     }
     
-    var didSwizzleDraggingSourceDidUpdate: Bool {
+    private var didSwizzleDraggingSourceDidUpdate: Bool {
         get { getAssociatedValue("didSwizzleDraggingSourceDidUpdate") ?? false }
         set { setAssociatedValue(newValue, key: "didSwizzleDraggingSourceDidUpdate") }
     }
     
-    var didSwizzleDraggingSourceDidEnd: Bool {
+    private var didSwizzleDraggingSourceDidEnd: Bool {
         get { getAssociatedValue("didSwizzleDraggingSourceDidEnd") ?? false }
         set { setAssociatedValue(newValue, key: "didSwizzleDraggingSourceDidEnd") }
     }
     
-    func swizzleDraggingSource() {
-        
-    }
-    
-    func swizzleDraggingSourceWillBegin() {
+    private func swizzleDraggingSourceWillBegin() {
         guard !didSwizzleDraggingSourceWillBegin else { return }
         didSwizzleDraggingSourceWillBegin = true
         if responds(to: #selector(NSDraggingSource.draggingSession(_:willBeginAt:))) {
@@ -171,12 +167,11 @@ extension NSDraggingSource where Self: NSObject {
                 self.draggingSourceHandlers.willBegin?(session, screenLocation)
             }
             let methodIMP = imp_implementationWithBlock(block)
-            class_addMethod(object_getClass(self), selector, methodIMP, "v@:@{CGPoint=dd}")
+            class_addMethod(object_getClass(self), selector, methodIMP, method_getTypeEncoding(methodIMP))
         }
     }
     
-    func swizzleDraggingSourcedidUpdate() {
-        Swift.print("swizzleDraggingSourcedidUpdate", didSwizzleDraggingSourceDidUpdate)
+    private func swizzleDraggingSourcedidUpdate() {
         guard !didSwizzleDraggingSourceDidUpdate else { return }
         didSwizzleDraggingSourceDidUpdate = true
         if responds(to: #selector(NSDraggingSource.draggingSession(_:movedTo:))) {
@@ -196,16 +191,14 @@ extension NSDraggingSource where Self: NSObject {
         } else {
             let selector = #selector(NSDraggingSource.draggingSession(_:movedTo:))
             let block: @convention(block) (AnyObject, NSDraggingSession, NSPoint) -> Void = { [weak self] _self, session, screenLocation in
-                Swift.print("movedTo", self != nil)
                 guard let self = self else { return }
                 self.draggingSourceHandlers.didUpdate?(session, screenLocation)
             }
             let methodIMP = imp_implementationWithBlock(block)
-            Swift.print("swizzle", class_addMethod(object_getClass(self), selector, methodIMP, "v@:@{CGPoint=dd}Q"))
         }
     }
     
-    func swizzleDraggingSourcedidEnd() {
+    private func swizzleDraggingSourcedidEnd() {
         guard !didSwizzleDraggingSourceDidEnd else { return }
         didSwizzleDraggingSourceDidEnd = true
         if responds(to: #selector(NSDraggingSource.draggingSession(_:endedAt:operation:))) {
@@ -229,7 +222,7 @@ extension NSDraggingSource where Self: NSObject {
                 self.draggingSourceHandlers.didEnd?(session, screenLocation, operation)
             }
             let methodIMP = imp_implementationWithBlock(block)
-            class_addMethod(object_getClass(self), selector, methodIMP, "v@:@{CGPoint=dd}Q")
+            class_addMethod(object_getClass(self), selector, methodIMP, method_getTypeEncoding(methodIMP))
         }
     }
 }
