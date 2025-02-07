@@ -7,8 +7,15 @@
 
 #if os(macOS)
     import AppKit
+import UniformTypeIdentifiers
 
     extension NSPasteboard {
+        /// Returns a Boolean value that indicates whether the receiver contains any items that conform to the specified UTIs.
+        @available(macOS 11.0, *)
+        func canReadItem(withDataConformingToTypes types: [UTType]) -> Bool {
+            canReadItem(withDataConformingToTypes: types.compactMap({ $0.identifier }))
+        }
+        
         /// The string of the pasteboard or `nil` if no string is available.
         public var string: String? {
             get { strings?.first }

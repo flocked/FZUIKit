@@ -49,5 +49,12 @@
         var isDisplayingRowAction: Bool {
             get { subviews.contains(where: { $0.className == "NSTableViewActionButtonsGroupView" }) }
         }
+        
+        /// The tint configuration of the table row.
+        @available(macOS 11.0, *)
+        var tintConfiguration: NSTintConfiguration? {
+            get {value(forKey: "_contentTintConfiguration") as? NSTintConfiguration }
+            set { setValue(newValue, forKey: "_contentTintConfiguration") }
+        }
     }
 #endif

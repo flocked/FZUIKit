@@ -7,6 +7,7 @@
 
 #if canImport(QuartzCore)
 import Foundation
+import FZSwiftUtils
 
 /// Rotation in a three-dimensional space.
 public struct Rotation: Hashable, Codable, ExpressibleByFloatLiteral, CustomStringConvertible {

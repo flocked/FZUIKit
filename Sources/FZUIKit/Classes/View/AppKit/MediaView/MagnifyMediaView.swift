@@ -752,6 +752,15 @@
             sharedInit()
         }
         
+        /// A Boolean value that indicates whether the media is draggable outside.
+        open var isDraggable: Bool = false
+        
+        /// Sets the Boolean value that indicates whether the media is draggable outside.
+        open func isDraggable(_ isDraggable: Bool) -> Self {
+            self.isDraggable = isDraggable
+            return self
+        }
+        
         private func sharedInit() {
             backgroundColor = .black
             mediaView.wantsLayer = true
@@ -759,6 +768,11 @@
             scrollView.frame = bounds
             scrollView.documentView = mediaView
             addSubview(scrollView)
+            
+            dragHandlers.canDrag = { _ in
+                guard self.isDraggable, let url = self.mediaURL else { return nil }
+                return [url]
+            }
         }
         
         open override var menu: NSMenu? {

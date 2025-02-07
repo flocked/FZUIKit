@@ -292,10 +292,13 @@
          The default value is `zero`.
          */
         @objc public var anchorPoint: FractionalPoint {
-            get { layer?.anchorPoint.fractional ?? .zero }
+            get {
+                let anchorPoint = layer?.anchorPoint ?? .zero
+                return FractionalPoint(anchorPoint.x, anchorPoint.y)
+            }
             set {
                 NSView.swizzleAnimationForKey()
-                setAnchorPoint(newValue.point)
+                setAnchorPoint(CGPoint(newValue.x, newValue.y))
             }
         }
 

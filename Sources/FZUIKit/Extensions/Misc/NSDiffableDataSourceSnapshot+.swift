@@ -61,5 +61,13 @@
         mutating func moveItems(_ identifiers: [ItemIdentifierType], beforeItem toIdentifier: ItemIdentifierType) {
             identifiers.forEach { moveItem($0, beforeItem: toIdentifier) }
         }
+        
+        /// Returns a new snapshot with the items filtered by the specified predicate.
+        func filter(_ predicate: (ItemIdentifierType) -> Bool) -> Self {
+            let remove = itemIdentifiers.filter({ !predicate($0) })
+            var snapshot = self
+            snapshot.deleteItems(remove)
+            return snapshot
+        }
     }
 #endif
