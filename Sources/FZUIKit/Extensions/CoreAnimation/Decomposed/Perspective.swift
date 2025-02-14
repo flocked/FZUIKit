@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 29.03.24.
 //
 
+/*
 import Foundation
 import simd
 
@@ -90,3 +91,4 @@ typealias Scalar = Double
 typealias Vector3 = SIMD3<Double>
 typealias Matrix3x3 = double3x3
 typealias Matrix4x4 = double4x4
+*/

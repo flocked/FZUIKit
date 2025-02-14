@@ -9,6 +9,7 @@
 
     import Foundation
     import QuartzCore
+import FZSwiftUtils
 
     // MARK: - Interaction Enhancements
 
