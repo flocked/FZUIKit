@@ -20,13 +20,14 @@
         
         /// The configuration of the border.
         public var configuration: BorderConfiguration {
-            get { BorderConfiguration(color: borderedLayer.strokeColor?.nsUIColor, width: borderedLayer.lineWidth, dash: .init(pattern: borderDashPattern, phase: borderedLayer.lineDashPhase, lineCap: borderedLayer.lineCap.cgLineCap), insets: borderInsets) }
+            get { BorderConfiguration(color: borderedLayer.strokeColor?.nsUIColor, width: borderedLayer.lineWidth, dash: .init(pattern: borderDashPattern, phase: borderedLayer.lineDashPhase, lineCap: borderedLayer.lineCap.cgLineCap, lineJoin: borderedLayer.lineJoin.cgLineJoin), insets: borderInsets) }
             set {
                 guard newValue != configuration else { return }
                 borderedLayer.lineWidth = newValue.width
                 borderedLayer.strokeColor = newValue.resolvedColor()?.cgColor
                 borderDashPattern = newValue.dash.pattern
                 borderedLayer.lineDashPhase = newValue.dash.phase
+                borderedLayer.lineJoin = newValue.dash.lineJoin.shapeLayerLineJoin
                 borderedLayer.lineCap = newValue.dash.lineCap.shapeLayerLineCap
                 borderInsets = newValue.insets
             }
@@ -70,9 +71,7 @@
             
             let frameSize = CGSize(width: bounds.size.width - borderInsets.width, height: bounds.size.height - borderInsets.height)
             let shapeRect = CGRect(origin: CGPoint(x: borderInsets.leading, y: borderInsets.bottom), size: frameSize)
-            
-            Swift.print("inset",  bounds.inset(by: configuration.insets),shapeRect, bounds)
-            
+                        
             
             /*
             let scale = (shapeRect.size.width - borderWidth) / frame.size.width
@@ -132,7 +131,7 @@
         }
     }
 
-extension CGLineCap {
+fileprivate extension CGLineCap {
     var shapeLayerLineCap: CAShapeLayerLineCap {
         switch self {
         case .round: return .round
@@ -142,12 +141,32 @@ extension CGLineCap {
     }
 }
 
-extension CAShapeLayerLineCap {
+fileprivate extension CAShapeLayerLineCap {
     var cgLineCap: CGLineCap {
         switch self {
         case .round: return .round
         case .square: return .square
         default: return .butt
+        }
+    }
+}
+
+fileprivate extension CGLineJoin {
+    var shapeLayerLineJoin: CAShapeLayerLineJoin {
+        switch self {
+        case .miter: return .miter
+        case .round: return .round
+        default: return .bevel
+        }
+    }
+}
+
+fileprivate extension CAShapeLayerLineJoin {
+    var cgLineJoin: CGLineJoin {
+        switch self {
+        case .miter: return .miter
+        case .round: return .round
+        default: return .bevel
         }
     }
 }

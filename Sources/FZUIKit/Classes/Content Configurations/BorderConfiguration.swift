@@ -63,6 +63,9 @@ public struct BorderConfiguration: Hashable {
         /// The endpoint style of a dash segment.
         public var lineCap: CGLineCap = .butt
         
+        /// The shape of the joints between connected dash segments.
+        public var lineJoin: CGLineJoin = .miter
+        
         /// A Boolean value that indicates whether the dash animates.
         public var animates: Bool = false
         
@@ -92,10 +95,11 @@ public struct BorderConfiguration: Hashable {
             }
         }
         
-        public init(pattern: [CGFloat] = [], phase: CGFloat = 0, lineCap: CGLineCap = .butt, animates: Bool = false, animationSpeed: AnimationSpeed = .normal) {
+        public init(pattern: [CGFloat] = [], phase: CGFloat = 0, lineCap: CGLineCap = .butt, lineJoin: CGLineJoin = .miter, animates: Bool = false, animationSpeed: AnimationSpeed = .normal) {
             self.pattern = pattern
             self.phase = phase
             self.lineCap = lineCap
+            self.lineJoin = lineJoin
             self.animates = animates
             self.animationSpeed = animationSpeed
         }
@@ -185,6 +189,7 @@ extension BorderConfiguration: Codable {
 }
 
 extension CGLineCap: Codable { }
+extension CGLineJoin: Codable { }
 
 extension BorderConfiguration.Dash.AnimationSpeed: ExpressibleByFloatLiteral {
     public init(floatLiteral value: Double) {
@@ -297,6 +302,7 @@ extension BorderConfiguration: ReferenceConvertible {
                         \tpattern: \(dash.pattern)
                         \tphase: \(dash.phase)
                         \tlineCap: \(dash.lineCap.rawValue)
+                        \tlineJoin: \(dash.lineJoin.rawValue)
                         \tanimates: \(dash.animates)
                         )
                         insets: \(insets)
@@ -327,7 +333,7 @@ extension Shape {
             stroke(Color(border.resolvedColor() ?? .clear), lineWidth: border.width)
                 .padding(border.insets.edgeInsets)
         } else {
-            stroke(Color(border.resolvedColor() ?? .clear), style: StrokeStyle(lineWidth: border.width, lineCap: border.dash.lineCap, dash: border.dash.pattern, dashPhase: border.dash.phase))
+            stroke(Color(border.resolvedColor() ?? .clear), style: StrokeStyle(lineWidth: border.width, lineCap: border.dash.lineCap, lineJoin: border.dash.lineJoin, dash: border.dash.pattern, dashPhase: border.dash.phase))
                 .padding(border.insets.edgeInsets)
         }
     }

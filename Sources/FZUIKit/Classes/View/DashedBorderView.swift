@@ -14,7 +14,7 @@ import UIKit
 import FZSwiftUtils
 import SwiftUI
 
-/// A layer with a dashed border.
+/// A view with a dashed border.
 class DashedBorderView: NSUIView {
     
     /// The configuration of the border.
@@ -118,7 +118,7 @@ extension Shape {
             stroke(Color(border.resolvedColor() ?? .clear), lineWidth: border.width)
                 .padding(border.insets.edgeInsets)
         } else {
-            stroke(Color(border.resolvedColor() ?? .clear), style: StrokeStyle(lineWidth: border.width, lineCap: border.dash.lineCap, dash: border.dash.pattern, dashPhase: phase))
+            stroke(Color(border.resolvedColor() ?? .clear), style: StrokeStyle(lineWidth: border.width, lineCap: border.dash.lineCap, lineJoin: border.dash.lineJoin, dash: border.dash.pattern, dashPhase: phase))
                 .padding(border.insets.edgeInsets)
         }
     }
