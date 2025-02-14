@@ -30,10 +30,21 @@ open class ImageView: NSControl {
         
         
         class ImageCell: NSImageCell {
+            var isUpadting = false
             override var backgroundStyle: NSView.BackgroundStyle {
                 didSet { 
-                    
-                  //  (controlView as? NSImageView)?.draw(<#T##dirtyRect: NSRect##NSRect#>)
+                    guard !isUpadting else { return }
+                    if let view = (controlView as? NSImageView) {
+                        isUpadting = true
+                        let tintColor = view.contentTintColor
+                        view.contentTintColor = nil
+                        let image = view.image
+                        view.image = nil
+                        view.contentTintColor = .systemRed
+                        view.contentTintColor = tintColor
+                        view.image = image
+                        isUpadting = false
+                    }
                     Swift.print("backgroundStyle", backgroundStyle.rawValue, controlView ?? "nil")
                 }
             }
