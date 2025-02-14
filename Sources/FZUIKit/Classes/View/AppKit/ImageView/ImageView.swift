@@ -343,6 +343,7 @@ open class ImageView: NSControl {
         guard backgroundStyle != currentBackgroundStyle else { return }
         currentBackgroundStyle = backgroundStyle
         tintColorTransformer = backgroundStyle == .emphasized ? .color(.white) : nil
+        super.setBackgroundStyle(backgroundStyle)
     }
     
     func updateTintColor() {
