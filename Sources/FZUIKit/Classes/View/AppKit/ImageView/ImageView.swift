@@ -15,17 +15,26 @@ open class ImageView: NSControl {
     
     
     class TestImageView: NSImageView {
-        let imageCell = ImageCell()
+        /*
+       let imageCell = ImageCell()
         override var cell: NSCell? {
             get { imageCell }
             set { }
         }
+         */
+        
+        override class var cellClass: AnyClass? {
+            get { ImageCell.self }
+            set {}
+        }
+        
         
         class ImageCell: NSImageCell {
             override var backgroundStyle: NSView.BackgroundStyle {
                 didSet { Swift.print("backgroundStyle", backgroundStyle.rawValue) }
             }
         }
+         
     }
     
     let containerView = ContainerView()
