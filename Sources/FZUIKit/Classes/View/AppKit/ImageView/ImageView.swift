@@ -31,7 +31,10 @@ open class ImageView: NSControl {
         
         class ImageCell: NSImageCell {
             override var backgroundStyle: NSView.BackgroundStyle {
-                didSet { Swift.print("backgroundStyle", backgroundStyle.rawValue) }
+                didSet { 
+                    controlView?.setNeedsDisplay()
+                    Swift.print("backgroundStyle", backgroundStyle.rawValue)
+                }
             }
         }
          
@@ -348,12 +351,14 @@ open class ImageView: NSControl {
     
     var currentBackgroundStyle: NSView.BackgroundStyle = .normal
 
+    /*
     open override func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
         guard backgroundStyle != currentBackgroundStyle else { return }
         currentBackgroundStyle = backgroundStyle
         tintColorTransformer = backgroundStyle == .emphasized ? .color(.white) : nil
         super.setBackgroundStyle(backgroundStyle)
     }
+     */
     
     func updateTintColor() {
         if let tintColor = tintColor {
