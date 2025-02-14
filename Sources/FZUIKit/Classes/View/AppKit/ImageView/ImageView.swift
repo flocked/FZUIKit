@@ -13,8 +13,23 @@ import FZSwiftUtils
 @IBDesignable
 open class ImageView: NSControl {
     
-    public let containerView = ContainerView()
-    public let imageView = NSImageView()
+    
+    class TestImageView: NSImageView {
+        let imageCell = ImageCell()
+        override var cell: NSCell? {
+            get { imageCell }
+            set { }
+        }
+        
+        class ImageCell: NSImageCell {
+            override var backgroundStyle: NSView.BackgroundStyle {
+                didSet { Swift.print("backgroundStyle", backgroundStyle.rawValue) }
+            }
+        }
+    }
+    
+    let containerView = ContainerView()
+    let imageView = TestImageView()
     var timer: DisplayLinkTimer? = nil
     var currentRepeatCount = 0
     var ignoreTransition = false
@@ -327,7 +342,7 @@ open class ImageView: NSControl {
     open override func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
         guard backgroundStyle != currentBackgroundStyle else { return }
         currentBackgroundStyle = backgroundStyle
-        tintColorTransformer = backgroundStyle != .normal ? .color(.white) : nil
+        tintColorTransformer = backgroundStyle == .emphasized ? .color(.white) : nil
     }
     
     func updateTintColor() {
@@ -1138,7 +1153,7 @@ open class ImageView: NSControl {
         var frames: SynchronizedArray<Frame> = []
     }
     
-    public class ContainerView: NSView {
+    class ContainerView: NSView {
         let containerView = NSView()
         var didSetup = false
         var shadowObservation: KeyValueObservation?
