@@ -12,48 +12,8 @@ import FZSwiftUtils
 /// An enhanced image view.
 @IBDesignable
 open class ImageView: NSControl {
-    
-    
-    class TestImageView: NSImageView {
-        /*
-       let imageCell = ImageCell()
-        override var cell: NSCell? {
-            get { imageCell }
-            set { }
-        }
-         */
-        
-        override class var cellClass: AnyClass? {
-            get { ImageCell.self }
-            set {}
-        }
-        
-        
-        class ImageCell: NSImageCell {
-            var isUpadting = false
-            override var backgroundStyle: NSView.BackgroundStyle {
-                didSet { 
-                    guard !isUpadting else { return }
-                    if let view = (controlView as? NSImageView) {
-                        isUpadting = true
-                        let tintColor = view.contentTintColor
-                        view.contentTintColor = nil
-                        let image = view.image
-                        view.image = nil
-                        view.contentTintColor = .systemRed
-                        view.contentTintColor = tintColor
-                        view.image = image
-                        isUpadting = false
-                    }
-                    Swift.print("backgroundStyle", backgroundStyle.rawValue, controlView ?? "nil")
-                }
-            }
-        }
-         
-    }
-    
     let containerView = ContainerView()
-    let imageView = TestImageView()
+    let imageView = NSImageView()
     var timer: DisplayLinkTimer? = nil
     var currentRepeatCount = 0
     var ignoreTransition = false
@@ -363,14 +323,12 @@ open class ImageView: NSControl {
     
     var currentBackgroundStyle: NSView.BackgroundStyle = .normal
 
-    /*
     open override func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
         guard backgroundStyle != currentBackgroundStyle else { return }
         currentBackgroundStyle = backgroundStyle
         tintColorTransformer = backgroundStyle == .emphasized ? .color(.white) : nil
         super.setBackgroundStyle(backgroundStyle)
     }
-     */
     
     func updateTintColor() {
         if let tintColor = tintColor {
