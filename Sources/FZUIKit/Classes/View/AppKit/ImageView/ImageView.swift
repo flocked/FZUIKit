@@ -308,8 +308,7 @@ open class ImageView: NSControl {
         
     /// The image tint color for template and symbol images.
     @IBInspectable open var tintColor: NSColor? {
-        get { imageView.contentTintColor }
-        set { imageView.contentTintColor = newValue }
+        didSet { updateTintColor() }
     }
     
     /// Sets the image tint color for template and symbol images.
@@ -317,6 +316,27 @@ open class ImageView: NSControl {
     open func tintColor(_ tintColor: NSColor?) -> Self {
         self.tintColor = tintColor
         return self
+    }
+    
+    var tintColorTransformer: ColorTransformer? = nil {
+        didSet { updateTintColor() }
+    }
+    
+    var currentBackgroundStyle: NSView.BackgroundStyle = .normal
+
+    open override func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
+      //  guard backgroundStyle != currentBackgroundStyle else { return }
+        imageView.backgroundStyle = backgroundStyle
+      //  currentBackgroundStyle = backgroundStyle
+      //  tintColorTransformer = backgroundStyle != .normal ? .color(.white) : nil
+    }
+    
+    func updateTintColor() {
+        if let tintColor = tintColor {
+            imageView.contentTintColor = tintColorTransformer?(tintColor) ?? tintColor
+        } else {
+            imageView.contentTintColor = nil
+        }
     }
     
     // MARK: - Configurating animations
