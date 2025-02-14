@@ -1053,6 +1053,7 @@ open class ImageView: NSControl {
         imageView.baselineOffsetFromBottom
     }
     
+    /*
     open override var firstBaselineAnchor: NSLayoutYAxisAnchor {
         get { imageView.firstBaselineAnchor }
     }
@@ -1060,6 +1061,7 @@ open class ImageView: NSControl {
     open override var lastBaselineAnchor: NSLayoutYAxisAnchor {
         get { imageView.lastBaselineAnchor }
     }
+     */
     
     open override var acceptsFirstResponder: Bool { isSelectable != .off }
         
