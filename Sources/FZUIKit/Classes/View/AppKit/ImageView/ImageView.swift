@@ -32,8 +32,9 @@ open class ImageView: NSControl {
         class ImageCell: NSImageCell {
             override var backgroundStyle: NSView.BackgroundStyle {
                 didSet { 
-                    controlView?.setNeedsDisplay()
-                    Swift.print("backgroundStyle", backgroundStyle.rawValue)
+                    
+                  //  (controlView as? NSImageView)?.draw(<#T##dirtyRect: NSRect##NSRect#>)
+                    Swift.print("backgroundStyle", backgroundStyle.rawValue, controlView ?? "nil")
                 }
             }
         }
