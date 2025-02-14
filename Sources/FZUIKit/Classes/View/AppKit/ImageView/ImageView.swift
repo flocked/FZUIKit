@@ -327,6 +327,7 @@ open class ImageView: NSControl {
     open override func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
       //  guard backgroundStyle != currentBackgroundStyle else { return }
         imageView.backgroundStyle = backgroundStyle
+        Swift.print(backgroundStyle.rawValue, imageView.backgroundStyle.rawValue)
       //  currentBackgroundStyle = backgroundStyle
       //  tintColorTransformer = backgroundStyle != .normal ? .color(.white) : nil
     }
