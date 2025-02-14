@@ -323,7 +323,7 @@ open class ImageView: NSControl {
     }
     
     var currentBackgroundStyle: NSView.BackgroundStyle = .normal
-
+/*
     open override func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
         guard backgroundStyle != currentBackgroundStyle else { return }
       //  imageView.backgroundStyle = backgroundStyle
@@ -332,6 +332,7 @@ open class ImageView: NSControl {
         currentBackgroundStyle = backgroundStyle
         tintColorTransformer = backgroundStyle != .normal ? .color(.white) : nil
     }
+    */
     
     func updateTintColor() {
         if let tintColor = tintColor {
