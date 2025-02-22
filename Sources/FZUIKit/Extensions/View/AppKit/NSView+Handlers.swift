@@ -726,10 +726,6 @@ extension NSView {
             super.init(frame: .zero)
             allowedTouchTypes = .indirect
             wantsRestingTouches = view.wantsRestingTouches
-            observation = view.observeChanges(for: \.wantsRestingTouches) { [weak self] old, new in
-                guard let self = self else { return }
-                self.wantsRestingTouches = new
-            }
             zPosition = 100000
             view.addSubview(withConstraint: self)
             do {
@@ -745,6 +741,10 @@ extension NSView {
                }
             } catch {
                debugPrint(error)
+            }
+            observation = view.observeChanges(for: \.wantsRestingTouches) { [weak self] old, new in
+                guard let self = self else { return }
+                self.wantsRestingTouches = new
             }
         }
         
