@@ -165,7 +165,7 @@ extension NSView {
     }
     
     /// A touch event.
-    public struct TouchEvent: Hashable {
+    public struct TouchEvent: Hashable, CustomStringConvertible {
         /// Phase of the event.
         public enum Phase: Int, Hashable, CustomStringConvertible {
             /// A new set of touches has been recognized.
@@ -195,6 +195,10 @@ extension NSView {
         
         /// The touch event.
         public let event: NSEvent
+        
+        public var description: String {
+            "TouchEvent(touches: \(touches.count), phase: \(phase.description))"
+        }
         
         init(event: NSEvent, view: NSView, phase: Phase) {
             self.touches = event.touches(matching: .any, in: view)
