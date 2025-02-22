@@ -91,33 +91,51 @@ public extension NSUIView {
     #endif
     
     /// Constants how a view is constraint.
-    enum ConstraintMode {
-        
+    enum ConstraintMode: Hashable, Codable {
         /// The view's frame is constraint to the edges of the other view.
         case full
         /// The view's frame is constraint relative to the edges of the other view.
         case relative
         /// The view's frame is constraint absolute to the edges of the other view.
         case absolute
-        /// The view's frame is constraint to the edges of the other view with the specified insets.
-        case insets(NSUIEdgeInsets)
+        /**
+         The view's frame is constraint to the edges of the other view with the specified inset values.
+         
+         A value of `nil` specifies no constraint for the corresponding edge.
+         */
+        case insets(top: CGFloat?, leading: CGFloat?, bottom: CGFloat?, trailing: CGFloat?)
         /// The view's frame is constraint to the specified position of the other view.
         case positioned(Position, padding: CGPoint = .zero)
+        
+        /// The view's frame is constraint to the edges of the other view with the specified insets.
+        public static func insets(_ insets: NSDirectionalEdgeInsets) -> ConstraintMode {
+            .insets(top: insets.top, leading: insets.leading, bottom: insets.bottom, trailing: insets.trailing)
+        }
         
         /// The view's frame is constraint to the specified position of the other view.
         public static func positioned(_ position: Position, padding: CGFloat) -> Self {
             .positioned(position, padding: CGPoint(padding, padding))
         }
         
-        public enum Position: Int {
+        /// The position of the view inside another view.
+        public enum Position: Int, Hashable, Codable {
+            /// Top.
             case top
+            /// Top leading.
             case topLeading
+            /// Top trailing.
             case topTrailing
+            /// Center.
             case center
+            /// Leading.
             case leading
+            /// Trailing.
             case trailing
+            /// Bottom.
             case bottom
+            /// Bottom leading.
             case bottomLeading
+            /// Bottom trailing.
             case bottomTrailing
         }
     }
@@ -126,7 +144,7 @@ public extension NSUIView {
      Adds a view to the end of the receiver’s list of subviews and constraits it's frame to the receiver.
      
      - Parameter view: The view to be added. After being added, this view appears on top of any other subviews.
-     - Returns: The layout constraints in the following order: bottom, left, width and height.
+     - Returns: The layout constraints in the following order: `leading`, `bottom`, `trailing` and `top`.
      */
     @discardableResult
     func addSubview(withConstraint view: NSUIView) -> [NSLayoutConstraint] {
@@ -140,7 +158,7 @@ public extension NSUIView {
         - view: The view to be added. After being added, this view appears on top of any other subviews.
         - mode: The mode for constraining the subview's frame.
      
-     - Returns: The layout constraints in the following order: bottom, left, width and height.
+     - Returns: The layout constraints in the following order: `leading`, `bottom`, `trailing` and `top`.
      */
     @discardableResult
     func addSubview(withConstraint view: NSUIView, _ mode: ConstraintMode) -> [NSLayoutConstraint] {
@@ -155,7 +173,7 @@ public extension NSUIView {
         - view: The view to insert.
         - index: The index of insertation.
      
-     - Returns: The layout constraints in the following order: bottom, left, width and height.
+     - Returns: The layout constraints in the following order: `leading`, `bottom`, `trailing` and `top`.
      */
     @discardableResult
     
@@ -171,7 +189,7 @@ public extension NSUIView {
         - index: The index of insertation.
         - mode: The mode for constraining the subview's frame.
      
-     - Returns: The layout constraints in the following order: bottom, left, width and height.
+     - Returns: The layout constraints in the following order: `leading`, `bottom`, `trailing` and `top`.
      */
     @discardableResult
     func insertSubview(withConstraint view: NSUIView, _ mode: ConstraintMode, at index: Int) -> [NSLayoutConstraint] {
@@ -184,7 +202,7 @@ public extension NSUIView {
      Constraits the view's frame to the superview.
      
      - Parameter view: The mode for constraining the subview's frame.
-     - Returns: The layout constraints in the following order: bottom, left, width and height.
+     - Returns: The layout constraints in the following order: `leading`, `bottom`, `trailing` and `top`.
      */
     @discardableResult
     func constraintToSuperview(_ mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
@@ -211,8 +229,6 @@ public extension NSUIView {
             let width = view.frame.width - bounds.width
             let height = view.frame.height - bounds.height
             constants = [x, y, width, height]
-        case let .insets(insets):
-            constants = [insets.left, insets.bottom, -insets.right, -insets.top]
         default:
             constants = [0, 0, 0, 0]
         }
@@ -232,11 +248,23 @@ public extension NSUIView {
         case .full: frame = view.bounds
         default: break
         }
-        
         translatesAutoresizingMaskIntoConstraints = false
         
         var constraints: [NSLayoutConstraint] = []
         switch mode {
+        case let .insets(top, leading, bottom, trailing):
+            if let top = top {
+                constraints.append(topAnchor.constraint(equalTo: view.topAnchor, constant: top))
+            }
+            if let leading = leading {
+                constraints.append(leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: leading))
+            }
+            if let bottom = bottom {
+                constraints.append(bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: bottom))
+            }
+            if let trailing = trailing {
+                constraints.append(trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: trailing))
+            }
         case let .positioned(position, padding):
             switch position {
             case .top, .topLeading, .topTrailing:
@@ -255,18 +283,15 @@ public extension NSUIView {
                 constraints.append(centerXAnchor.constraint(equalTo: view.centerXAnchor))
             }
         default:
-            //  self.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: constants[0]).
-            constraints = [
-                .init(item: self, attribute: .leading, relatedBy: .equal, toItem: view, attribute: .leading, multiplier: multipliers[0], constant: constants[0]),
-                .init(item: self, attribute: .bottom, relatedBy: .equal, toItem: view, attribute: .bottom, multiplier: multipliers[1], constant: constants[1]),
-                .init(item: self, attribute: .trailing, relatedBy: .equal, toItem: view, attribute: .trailing, multiplier: multipliers[2], constant: constants[2]),
-                .init(item: self, attribute: .top, relatedBy: .equal, toItem: view, attribute: .top, multiplier: multipliers[3], constant: constants[3]),
-            ]
+            constraints = [leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: constants[0], multiplier:  multipliers[0]),
+                bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: constants[1], multiplier:  multipliers[1]),
+                trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: constants[2], multiplier:  multipliers[2]),
+                topAnchor.constraint(equalTo: view.topAnchor, constant: constants[3], multiplier:  multipliers[3]),]
         }
         constraints.activate()
         return constraints
     }
-    
+        
 #if os(macOS)
     /**
      Adds a view to the end of the receiver’s list of subviews and autoresizes it.
@@ -309,10 +334,12 @@ public extension NSUIView {
         switch mode {
         case .full:
             frame = view.bounds
-        case let .insets(insets):
-            let width = insets.right - insets.left
-            let height = insets.top - insets.bottom
-            frame = CGRect(x: insets.bottom, y: insets.left, width: width, height: height)
+        case let .insets(top, leading, bottom, trailing):
+            let top = top ?? 0
+            let bottom = bottom ?? 0
+            let leading = leading ?? 0
+            let trailing = trailing ?? 0
+            frame = CGRect(x: view.userInterfaceLayoutDirection == .leftToRight ? leading : view.bounds.width-trailing, y: bottom, width: view.bounds.width - leading - trailing, height: view.bounds.height - top - bottom)
         default:
             break
         }

@@ -320,7 +320,6 @@ public extension AXUIElement {
                     if case let .failure(error) = completion {
                         AXLogger.print(error, "publisher(for: \(notification))")
                     }
-                    let view = NSView()
                 })
                 .eraseToAnyPublisher()
         } catch {

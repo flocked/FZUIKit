@@ -70,7 +70,6 @@ extension NSTextField {
         do {
             cell = try textFieldCell.archiveBasedCopy(as: ExtendedTextFieldCell.self)
             layer?.delegate = self as? any CALayerDelegate
-            Swift.print("layerCheck", self.layer === layer, self.layer, layer)
             self.layer = layer
         } catch {
             debugPrint(error)

@@ -117,12 +117,13 @@ extension AXAction: CustomStringConvertible {
         case .scrollToVisible: return "scrollToVisible"
         default: return rawValue
         }
-        
+        /*
         var description = rawValue
         if let title = localizedTitle {
             description += "(\"\(title)\")"
          }
         return description
+         */
     }
 }
 
