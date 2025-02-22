@@ -732,7 +732,20 @@ extension NSView {
             }
             zPosition = 100000
             view.addSubview(withConstraint: self)
-            // sendToBack()
+            do {
+               try view.replaceMethod(
+               #selector(NSView.didAddSubview(_:)),
+               methodSignature: (@convention(c)  (AnyObject, Selector, NSView) -> ()).self,
+               hookSignature: (@convention(block)  (AnyObject, NSView) -> ()).self) { [weak self] store in {
+                   object, view in
+                   defer { store.original(object, #selector(NSView.didAddSubview(_:)), view) }
+                   guard let self = self else { return }
+                   self.sendToFront()
+                   }
+               }
+            } catch {
+               debugPrint(error)
+            }
         }
         
         required init?(coder: NSCoder) {
