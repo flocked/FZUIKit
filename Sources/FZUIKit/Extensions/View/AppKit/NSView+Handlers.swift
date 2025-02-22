@@ -730,9 +730,9 @@ extension NSView {
                 guard let self = self else { return }
                 self.wantsRestingTouches = new
             }
-            zPosition = -100000
+            zPosition = 100000
             view.addSubview(withConstraint: self)
-            sendToBack()
+            // sendToBack()
         }
         
         required init?(coder: NSCoder) {
