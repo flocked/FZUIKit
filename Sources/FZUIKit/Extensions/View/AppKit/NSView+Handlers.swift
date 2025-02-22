@@ -758,6 +758,7 @@ extension NSView {
         }
 
         override func touchesMoved(with event: NSEvent) {
+            Swift.print("touchesMoved")
             touchHandler?(.init(event: event, view: self, phase: .moved))
         }
 
