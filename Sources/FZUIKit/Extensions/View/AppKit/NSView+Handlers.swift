@@ -197,7 +197,7 @@ extension NSView {
         public let event: NSEvent
         
         public var description: String {
-            "TouchEvent(touches: \(touches.count), phase: \(phase.description))"
+            "TouchEvent(\(phase.description), touches: \(touches.count))"
         }
         
         init(event: NSEvent, view: NSView, phase: Phase) {
@@ -744,7 +744,6 @@ extension NSView {
         }
 
         override func touchesMoved(with event: NSEvent) {
-            Swift.print("touchesMoved")
             touchHandler?(.init(event: event, view: self, phase: .moved))
         }
 
