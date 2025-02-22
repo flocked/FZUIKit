@@ -724,9 +724,20 @@ extension NSView {
         touchRecognizerView?.sendToFront()
     }
     
+    @objc func swizzled_willRemoveSubview(_ view: NSView) {
+        swizzled_willRemoveSubview(view)
+    }
+    
+    @objc var swizzled_subviews: [NSView] {
+        get { self.swizzled_subviews }
+        set {
+            self.swizzled_subviews = newValue
+            Swift.print("swizzled_subviews", newValue.count)
+        }
+    }
+    
     class TouchRecognizerView: NSView {
         var observation: KeyValueObservation!
-        
         init(for view: NSView) {
             super.init(frame: .zero)
             allowedTouchTypes = .indirect
@@ -739,6 +750,7 @@ extension NSView {
             }
             do {
                 try Swizzle(Self.self) {
+                    #selector(setter: NSView.subviews) <-> #selector(setter: NSView.swizzled_subviews)
                     #selector(NSView.didAddSubview(_:)) <-> #selector(NSView.swizzled_didAddSubview(_:))
                 }
                 /*
