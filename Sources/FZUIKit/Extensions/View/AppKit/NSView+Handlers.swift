@@ -722,34 +722,13 @@ extension NSView {
     class TouchRecognizerView: NSView {
         var observation: KeyValueObservation!
         
-        override var acceptsFirstResponder: Bool {
-            false
-        }
-        
-        override func hitTest(_ point: NSPoint) -> NSView? {
-            return nil
-        }
-        
         init(for view: NSView) {
             super.init(frame: .zero)
             allowedTouchTypes = .indirect
             wantsRestingTouches = view.wantsRestingTouches
             zPosition = 100000
             view.addSubview(withConstraint: self)
-            do {
-               try view.replaceMethod(
-               #selector(NSView.didAddSubview(_:)),
-               methodSignature: (@convention(c)  (AnyObject, Selector, NSView) -> ()).self,
-               hookSignature: (@convention(block)  (AnyObject, NSView) -> ()).self) { [weak self] store in {
-                   object, view in
-                   defer { store.original(object, #selector(NSView.didAddSubview(_:)), view) }
-                   guard let self = self else { return }
-                   self.sendToFront()
-                   }
-               }
-            } catch {
-               debugPrint(error)
-            }
+            isAlwaysAtFront = true
             observation = view.observeChanges(for: \.wantsRestingTouches) { [weak self] old, new in
                 guard let self = self else { return }
                 self.wantsRestingTouches = new
@@ -774,6 +753,18 @@ extension NSView {
         
         override func touchesCancelled(with event: NSEvent) {
             touchHandler?(.init(event: event, view: self, phase: .cancelled))
+        }
+        
+        override var acceptsFirstResponder: Bool {
+            false
+        }
+        
+        override func hitTest(_ point: NSPoint) -> NSView? {
+            return nil
+        }
+        
+        override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+            return false
         }
     }
 }

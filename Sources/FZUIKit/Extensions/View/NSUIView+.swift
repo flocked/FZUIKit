@@ -606,6 +606,55 @@ import FZSwiftUtils
         }
         #endif
         
+        /**
+         A Boolean value indicating whether the view is always at the front of it's superview (e.g. for an overlay view).
+         
+         If set to `true`, the view is always set to tjhe front of it's superview, even if new views are added to superview.
+         */
+        @objc public var isAlwaysAtFront: Bool {
+            get { isAlwaysAtFrontObservation != nil }
+            set {
+                guard newValue != isAlwaysAtFront else { return }
+                if newValue {
+                    sendToFront()
+                    superview?.observeNewSubviews()
+                    isAlwaysAtFrontObservation = observeChanges(for: \.superview) { [weak self] old, new in
+                        guard let self = self else { return }
+                        old?.observeNewSubviews(shouldObserve: false)
+                        new?.observeNewSubviews()
+                    }
+                } else {
+                    superview?.observeNewSubviews(shouldObserve: false)
+                    isAlwaysAtFrontObservation = nil
+                }
+            }
+        }
+        
+        private var isAlwaysAtFrontObservation: KeyValueObservation? {
+            get { getAssociatedValue("isAlwaysAtFrontObservation") }
+            set { setAssociatedValue(newValue, key: "isAlwaysAtFrontObservation") }
+        }
+        
+        private func observeNewSubviews(shouldObserve: Bool = true) {
+            if shouldObserve {
+                guard !isMethodReplaced(#selector(NSView.didAddSubview(_:))) else { return }
+                do {
+                    try replaceMethod(
+                        #selector(NSView.didAddSubview(_:)),
+                        methodSignature: (@convention(c)  (AnyObject, Selector, NSView) -> ()).self,
+                        hookSignature: (@convention(block)  (AnyObject, NSView) -> ()).self) { store in {
+                            object, view in
+                            (object as? NSView)?.subviews.filter({ $0.isAlwaysAtFront }).forEach({ $0.sendToFront() })
+                            store.original(object, #selector(NSView.didAddSubview(_:)), view)
+                        }
+                        }
+                } catch {
+                    debugPrint(error)
+                }
+            } else if !subviews.contains(where: { $0.isAlwaysAtFront }) {
+                resetMethod(#selector(NSView.didAddSubview(_:)))
+            }
+        }
     }
 
 extension NSUIView {
