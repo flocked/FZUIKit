@@ -66,6 +66,12 @@ extension NSLayoutAnchor where AnchorType == NSLayoutDimension {
 }
 
     public extension NSLayoutConstraint {
+        /// Sets the name that identifies the constraint.
+        @discardableResult func identifier(_ identifier: String?) -> NSLayoutConstraint {
+            self.identifier = identifier
+            return self
+        }
+        
         /// Activates the constraint and returns itself.
         @discardableResult func activate() -> NSLayoutConstraint {
             activate(true)
@@ -104,29 +110,14 @@ extension NSLayoutAnchor where AnchorType == NSLayoutDimension {
         /// Sets the constant multiplied with the attribute on the right side of the constraint as part of getting the modified attribute.
         @discardableResult
         func multiplier(_ multiplier: CGFloat) -> NSLayoutConstraint {
-            guard self.multiplier != multiplier, firstAttribute.canMultiply, let firstItem = firstItem else { return self }
-            let constraint = NSLayoutConstraint(
-                item: firstItem,
-                attribute: firstAttribute,
-                relatedBy: relation,
-                toItem: secondItem,
-                attribute: secondAttribute,
-                multiplier: multiplier,
-                constant: constant
-            ).priority(priority).activate(isActive)
-            activate(false)
+            guard self.multiplier != multiplier, let firstItem = firstItem, secondItem != nil else { return self }
+            let constraint = NSLayoutConstraint(item: firstItem, attribute: firstAttribute, relatedBy: relation, toItem: secondItem, attribute: secondAttribute, multiplier: multiplier, constant: constant).priority(priority)
+            let isActive = isActive
+            self.isActive = false
+            constraint.isActive = isActive
             return constraint
         }
     }
-
-extension NSLayoutConstraint.Attribute {
-    var canMultiply: Bool {
-        switch self {
-        case .left, .leading, .right, .trailing, .bottom, .top, .width, .height: return true
-        default: return false
-        }
-    }
-}
 
     public extension Collection where Element: NSLayoutConstraint {
         /// Activates the constraints and returns itself.
@@ -146,16 +137,16 @@ extension NSLayoutConstraint.Attribute {
             forEach { $0.priority(priority) }
             return self
         }
-
-        /// Updates the constant of the constraints and returns itself.
-        @discardableResult func constant(_ constant: CGFloat) -> Self {
-            forEach { $0.constant(constant) }
-            return self
-        }
         
         /// Updates the constant multiplied with the attribute on the right side of the constraint as part of getting the modified attribute.
         @discardableResult func multiplier(_ multiplier: CGFloat) -> Self {
             forEach { $0.multiplier(multiplier) }
+            return self
+        }
+
+        /// Updates the constant of the constraints and returns itself.
+        @discardableResult func constant(_ constant: CGFloat) -> Self {
+            forEach { $0.constant(constant) }
             return self
         }
 
