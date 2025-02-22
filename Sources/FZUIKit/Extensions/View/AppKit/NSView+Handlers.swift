@@ -167,7 +167,7 @@ extension NSView {
     /// A touch event.
     public struct TouchEvent: Hashable {
         /// Phase of the event.
-        public enum Phase: Int, Hashable {
+        public enum Phase: Int, Hashable, CustomStringConvertible {
             /// A new set of touches has been recognized.
             case began
             /// One or more touches have moved.
@@ -176,6 +176,15 @@ extension NSView {
             case ended
             /// The tracking of the touches has been cancelled for any reason (e.g. if the window associated with the touches resigns key or is deactivated).
             case cancelled
+            
+            public var description: String {
+                switch self {
+                case .began: return "began"
+                case .moved: return "moved"
+                case .ended: return "ended"
+                case .cancelled: return "cancelled"
+                }
+            }
         }
         
         /// The touches.
@@ -718,7 +727,7 @@ extension NSView {
                 self.wantsRestingTouches = new
             }
             zPosition = -100000
-            view.addSubview(withConstraint: touchRecognizerView!)
+            view.addSubview(withConstraint: self)
             sendToBack()
         }
         
