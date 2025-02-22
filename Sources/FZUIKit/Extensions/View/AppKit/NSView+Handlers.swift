@@ -722,6 +722,14 @@ extension NSView {
     class TouchRecognizerView: NSView {
         var observation: KeyValueObservation!
         
+        override var acceptsFirstResponder: Bool {
+            false
+        }
+        
+        override func hitTest(_ point: NSPoint) -> NSView? {
+            return nil
+        }
+        
         init(for view: NSView) {
             super.init(frame: .zero)
             allowedTouchTypes = .indirect
