@@ -775,6 +775,10 @@ extension NSView {
         }
         
         override func hitTest(_ point: NSPoint) -> NSView? {
+            guard let event = NSEvent.current else { return nil }
+            if event.type == .beginGesture || event.type == .gesture || event.type == .endGesture {
+                return super.hitTest(point)
+            }
             return nil
         }
         
