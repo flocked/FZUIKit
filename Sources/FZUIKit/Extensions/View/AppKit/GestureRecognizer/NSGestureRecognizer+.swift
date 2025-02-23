@@ -7,6 +7,7 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
 extension NSGestureRecognizer {
     /// The mouse button (or buttons) required to recognize a gesture.
@@ -60,6 +61,86 @@ extension NSPressGestureRecognizer {
     public var requiredButtons: ButtonMask {
         get { ButtonMask(rawValue: buttonMask) }
         set { buttonMask = newValue.rawValue }
+    }
+}
+
+extension NSGestureRecognizer {
+    /// Handlers of the gesture recognizer.
+    public struct Handlers {
+        /// The handler that determines whether the gesture recognizer should begin.
+        public var shouldBegin: (()->(Bool))?
+        
+        /// The handler that determines whether the gesture recognizer should process an event.
+        public var shouldProcessEvent: ((NSEvent)->(Bool))?
+        
+        /// The handler that determines whether the gesture recognizer should receive a touchbar touch.
+        public var shouldReceiveTouch: ((NSTouch)->(Bool))?
+        
+        /// The handler that determines whether the gesture recognizer must wait to recognize it's gesture until the other gesture recognizer fails.
+        public var shouldRequireFailure: ((NSGestureRecognizer)->(Bool))?
+        
+        /// The handler that determines whether the gesture recognizer must fail before the other gesture recognizer is allowed to recognize its gesture.
+        public var shouldBeRequiredToFail: ((NSGestureRecognizer)->(Bool))?
+        
+        /// The handler that determines whether the gesture recognizer should be allowed to recognize it's gesture simultaneously with the other one.
+        public var shouldRecognizeSimultaneously: ((NSGestureRecognizer)->(Bool))?
+        
+        var needsDelegate: Bool {
+            shouldProcessEvent != nil || shouldBegin != nil || shouldReceiveTouch != nil || shouldRequireFailure != nil || shouldBeRequiredToFail != nil || shouldRecognizeSimultaneously != nil
+        }
+    }
+    
+    /// The handlers of the gesture recognizer.
+    public var handlers: Handlers {
+        get { getAssociatedValue("handlers", initialValue: Handlers()) }
+        set {
+            setAssociatedValue(newValue, key: "handlers")
+            if !newValue.needsDelegate {
+                if delegate === delegateProxy {
+                    delegate = nil
+                }
+                delegateProxy = nil
+            } else {
+                if delegateProxy == nil {
+                    delegateProxy = .init()
+                    delegate = delegateProxy!
+                }
+                delegateProxy?.handlers = newValue
+            }
+        }
+    }
+    
+    private var delegateProxy: Delegate? {
+        get { getAssociatedValue("delegate") }
+        set { setAssociatedValue(newValue, key: "delegate") }
+    }
+    
+    private class Delegate: NSObject, NSGestureRecognizerDelegate {
+        var handlers = Handlers()
+        
+        func gestureRecognizerShouldBegin(_ gestureRecognizer: NSGestureRecognizer) -> Bool {
+            handlers.shouldBegin?() ?? true
+        }
+        
+        func gestureRecognizer(_ gestureRecognizer: NSGestureRecognizer, shouldReceive touch: NSTouch) -> Bool {
+            handlers.shouldReceiveTouch?(touch) ?? true
+        }
+        
+        func gestureRecognizer(_ gestureRecognizer: NSGestureRecognizer, shouldRequireFailureOf otherGestureRecognizer: NSGestureRecognizer) -> Bool {
+            handlers.shouldRequireFailure?(otherGestureRecognizer) ?? false
+        }
+        
+        func gestureRecognizer(_ gestureRecognizer: NSGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: NSGestureRecognizer) -> Bool {
+            handlers.shouldBeRequiredToFail?(otherGestureRecognizer) ?? false
+        }
+        
+        func gestureRecognizer(_ gestureRecognizer: NSGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: NSGestureRecognizer) -> Bool {
+            handlers.shouldRecognizeSimultaneously?(otherGestureRecognizer) ?? false
+        }
+        
+        func gestureRecognizer(_ gestureRecognizer: NSGestureRecognizer, shouldAttemptToRecognizeWith event: NSEvent) -> Bool {
+            handlers.shouldProcessEvent?(event) ?? true
+        }
     }
 }
 
