@@ -77,6 +77,14 @@ open class MenuItemView: NSTableCellView {
         didSet { updateBackgroundStyle() }
     }
     
+    /// A Boolean value that indicates whether the view displays the highlight background view (``highlightView``) when it's enclosing menu item is highlighted.
+    public var showsHighlight: Bool = true {
+        didSet {
+            guard oldValue != showsHighlight else { return }
+            updateHighlight()
+        }
+    }
+    
     /// A Boolean value that indicates whether the enclosing menu item is enabled.
     var isEnabled: Bool {
         get { enclosingMenuItem?.isEnabled ?? true }
@@ -87,16 +95,13 @@ open class MenuItemView: NSTableCellView {
         }
     }
     
-    /// A Boolean value that indicates whether the view displays the highlight background view (``highlightView``) when it's enclosing menu item is highlighted.
-    public var showsHighlight: Bool = true {
+    var isHighlighted: Bool = false {
         didSet {
-            guard oldValue != showsHighlight else { return }
+            guard oldValue != isHighlighted else { return }
             updateHighlight()
         }
     }
-    
-    // MARK: - Constants
-    
+        
     /// The margins that are used to layout the ``highlightView``.
     public var highlightMargins = NSEdgeInsets(top: 0, left: 5, bottom: 0, right: 5) {
         didSet { highlightViewConstraits.constant(highlightMargins) }
@@ -122,7 +127,7 @@ open class MenuItemView: NSTableCellView {
 
      You can change the configuration of this view at any time.
      */
-    public private(set) var highlightView = NSVisualEffectView().material(.menu).blendingMode(.behindWindow).state(.active).isEmphasized(true).isHidden(false).cornerRadius(4.0)
+    public let highlightView = NSVisualEffectView().material(.menu).blendingMode(.behindWindow).state(.active).isEmphasized(true).cornerRadius(4.0)
     
     /**
      Add a subview to the menu item and automatically add constraints to make it fill the content area.
@@ -234,7 +239,10 @@ open class MenuItemView: NSTableCellView {
     
     public override var intrinsicContentSize: NSSize {
         subviews.forEach({ $0.invalidateIntrinsicContentSize() })
-        let intrinsicContentSize = subviews.map{ $0.intrinsicContentSize }.max(by: \.width) ?? .zero
+        var intrinsicContentSize = subviews.map{ $0.intrinsicContentSize }.max(by: \.width) ?? .zero
+        if intrinsicContentSize == CGSize(-1, -1) {
+            intrinsicContentSize = subviews.map{ $0.bounds.size }.max(by: \.width) ?? .zero
+        }
         return intrinsicContentSize
         /*
         let fittingSize = subviews.map{ $0.fittingSize }.max(by: \.width) ?? .zero
@@ -242,13 +250,6 @@ open class MenuItemView: NSTableCellView {
         let contentSize = innerContentGuide.frame.size
         Swift.print("intrinsicContentSize", subviews.last?.className ?? "nil", intrinsicContentSize, fittingSize, size, super.intrinsicContentSize)
          */
-    }
-    
-    var isHighlighted: Bool = false {
-        didSet {
-            guard oldValue != isHighlighted else { return }
-            updateHighlight()
-        }
     }
     
     func updateHighlight() {
@@ -263,8 +264,10 @@ open class MenuItemView: NSTableCellView {
     func updateBackgroundStyle() {
         if autoHighlightSubviews {
             if isEnabled {
+                subviews.forEach({ $0.alphaValue = 1.0 })
                 backgroundStyle = isHighlighted ? .emphasized : .normal
             } else {
+                subviews.forEach({ $0.alphaValue = 0.4 })
                 backgroundStyle = .lowered
             }
         } else {
@@ -275,6 +278,7 @@ open class MenuItemView: NSTableCellView {
     public override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         isHighlighted = enclosingMenuItem?.isHighlighted ?? isHighlighted
+        updateBackgroundStyle()
     }
 }
 #endif
