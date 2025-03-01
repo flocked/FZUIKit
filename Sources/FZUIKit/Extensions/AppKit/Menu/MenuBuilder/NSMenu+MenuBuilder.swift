@@ -39,15 +39,26 @@
             expr.map { [$0] } ?? []
         }
         
-        public static func buildExpression(_ expr: String?) -> [NSMenuItem] {
-            if let string = expr {
+        public static func buildExpression(_ string: String?) -> [NSMenuItem] {
+            if let string = string {
                 return [NSMenuItem(string)]
             }
             return []
         }
         
-        public static func buildExpression(_ expr: [String]?) -> [NSMenuItem] {
-            expr?.compactMap({NSMenuItem($0)}) ?? []
+        public static func buildExpression(_ strings: [String]?) -> [NSMenuItem] {
+            strings?.compactMap({NSMenuItem($0)}) ?? []
+        }
+        
+        public static func buildExpression(_ view: NSView?) -> [NSMenuItem] {
+            if let view = view {
+                return [NSMenuItem(view: view)]
+            }
+            return []
+        }
+        
+        public static func buildExpression(_ views: [NSView]?) -> [NSMenuItem] {
+            views?.compactMap({NSMenuItem(view: $0)}) ?? []
         }
     }
 
