@@ -29,9 +29,9 @@ extension NSUILayoutGuide {
             return []
         }
         return [
-            leftAnchor.constraint(equalTo: view.leadingAnchor, constant: insets.left),
+            leftAnchor.constraint(equalTo: view.leftAnchor, constant: insets.left),
             bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -insets.bottom),
-            rightAnchor.constraint(equalTo: view.trailingAnchor, constant: -insets.right),
+            rightAnchor.constraint(equalTo: view.rightAnchor, constant: -insets.right),
             topAnchor.constraint(equalTo: view.topAnchor, constant: insets.top),
         ].activate()
     }
@@ -51,9 +51,9 @@ extension NSUIView {
     func constraint(to guide: NSUILayoutGuide, insets: NSUIEdgeInsets = .zero) -> [NSLayoutConstraint] {
         translatesAutoresizingMaskIntoConstraints = false
         return [
-            leadingAnchor.constraint(equalTo: guide.leadingAnchor, constant: insets.left),
+            leftAnchor.constraint(equalTo: guide.leftAnchor, constant: insets.left),
             bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: -insets.bottom),
-            trailingAnchor.constraint(equalTo: guide.trailingAnchor, constant: -insets.right),
+            rightAnchor.constraint(equalTo: guide.rightAnchor, constant: -insets.right),
             topAnchor.constraint(equalTo: guide.topAnchor, constant: insets.top),
         ].activate()
     }
