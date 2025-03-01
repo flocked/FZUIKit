@@ -31,7 +31,7 @@ public class NSMenuItemHostingView<Content: View>: NSMenuItemView {
     /// The root view of the `SwiftUI view hierarchy displayed by the menu item view.
     public var rootView: Content {
         get { hostingView.rootView.content }
-        set { hostingView.rootView = ItemView(newValue, isHighlighted: isHighlighted && isEnabled && showsHighlight, isEnabled: isEnabled) }
+        set { hostingView.rootView = ItemView(newValue, isHighlighted: isHighlighted, isEnabled: isEnabled) }
     }
     
     /// Sets the root view of the `SwiftUI` view hierarchy displayed by the menu item view.
