@@ -6,42 +6,47 @@
 //
 
 #if os(macOS)
-    import AppKit
-    import FZSwiftUtils
+import AppKit
+import FZSwiftUtils
+import SwiftUI
 
-    public extension NSControl {
-        /**
-         The background style of the view.
+protocol _NSHostingView: NSView {}
+extension NSHostingView: _NSHostingView {}
 
-         The background style describes the surface the view is drawn onto in the draw(withFrame:in:) method. A view may draw differently based on background characteristics. For example, a table view drawing a cell in a selected row might set the value to dark. A text cell might decide to render its text white as a result. A rating-style level indicator might draw its stars white instead of gray.
-         */
-        var backgroundStyle: NSView.BackgroundStyle {
-            get { cell?.backgroundStyle ?? .normal }
-            set { cell?.backgroundStyle = newValue }
-        }
+public extension NSControl {
+    /**
+     The background style of the control.
+     
+     The background style describes the surface the view is drawn onto in the draw(withFrame:in:) method. A control may draw differently based on background characteristics. For example, a text cell might decide to render its text white, if the backgroundStyle is `emphasized`. A rating-style level indicator might draw its stars white instead of gray.
+     */
+    var backgroundStyle: NSView.BackgroundStyle {
+        get { cell?.backgroundStyle ?? .normal }
+        set { cell?.backgroundStyle = newValue }
     }
+}
 
-    extension NSView {
-        /**
-         Updates the background style of the view and all nested subviews to the specified style.
-
-         It updates all views that implement ``setBackgroundStyle(_:)``: or are a `NSControl` or `NSTableCellView`.
-
-         - Parameter backgroundStyle: The background style to apply.
-         */
-        @objc open func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
+extension NSView {
+    /**
+     Updates the background style of the view and all nested subviews to the specified style.
+     
+     It updates the background style of `NSControl`, `NSTableCellView` and all views that implement ``setBackgroundStyle(_:)``.
+          
+     - Parameter backgroundStyle: The background style to apply.
+     */
+    @objc open func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
+        if let view = self as? NSTableCellView {
+            view.backgroundStyle = backgroundStyle
+        } else {
             (self as? NSControl)?.backgroundStyle = backgroundStyle
-            (self as? NSTableCellView)?.backgroundStyle = backgroundStyle
-
             if #available(macOS 12.0, *), let view = self as? NSImageView {
                 view.updateSymbolConfiguration()
             }
-            
-            for subview in subviews {
-                subview.setBackgroundStyle(backgroundStyle)
-            }
+            let selector = NSSelectorFromString("_setBackgroundStyleForSubtree:")
+            guard let method = Self.instanceMethod(for: selector) else { return }
+            subviews.forEach({ unsafeBitCast(method, to: (@convention(c) (AnyObject, Selector, BackgroundStyle) -> ()).self)($0, selector, backgroundStyle) })
         }
     }
+}
 
 @available(macOS 12.0, *)
 extension NSImageView {
@@ -77,7 +82,7 @@ extension NSImageView {
     }
 }
 
-class BackgroundStyleObserverView: NSControl {    
+class BackgroundStyleObserverView: NSControl {
     override class var cellClass: AnyClass? {
         get { Cell.self }
         set { }

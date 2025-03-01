@@ -307,6 +307,7 @@ extension NSMenu {
         }
         
         func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {
+            menu.items.forEach({($0.view as? NSMenuItemView)?.isHighlighted = $0 === item })
             if menu.delegate === self {
                 menu.handlers.willHighlight?(item)
             }

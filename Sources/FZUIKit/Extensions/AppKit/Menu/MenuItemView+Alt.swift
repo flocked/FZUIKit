@@ -48,7 +48,7 @@ import FZSwiftUtils
 
  If ``autoHighlightSubviews`` is set to `true` (default), supported views will automatically change their appearance to match the highlighted state.
  */
-open class NSMenuItemView: NSTableCellView {
+open class NSMenuItemView: NSView {
     private var highlightViewConstraits: [NSLayoutConstraint] = []
     private var contentViewConstraits: [NSLayoutConstraint] = []
     
@@ -63,12 +63,26 @@ open class NSMenuItemView: NSTableCellView {
         didSet { updateBackgroundStyle() }
     }
     
+    /// Sets the Boolean value that indicates whether this menu item view should automatically change the appearance of subviews based on the highlight state.
+    @discardableResult
+    public func autoHighlightSubviews(_ autoHighlightSubviews: Bool) -> Self {
+        self.autoHighlightSubviews = autoHighlightSubviews
+        return self
+    }
+    
     /// A Boolean value that indicates whether the view displays the highlight background view (``highlightView``) when it's enclosing menu item is highlighted.
     public var showsHighlight: Bool = true {
         didSet {
             guard oldValue != showsHighlight else { return }
             updateHighlight()
         }
+    }
+    
+    /// Sets the Boolean value that indicates whether the view displays the highlight background view (``highlightView``) when it's enclosing menu item is highlighted.
+    @discardableResult
+    public func showsHighlight(_ showsHighlight: Bool) -> Self {
+        self.showsHighlight = showsHighlight
+        return self
     }
     
     /// A Boolean value that indicates whether the enclosing menu item is enabled.
@@ -93,15 +107,27 @@ open class NSMenuItemView: NSTableCellView {
         didSet { highlightViewConstraits.constant(highlightMargins) }
     }
     
+    /// Sets the margins that are used to layout the ``highlightView``.
+    @discardableResult
+    public func highlightMargins(_ margins: NSEdgeInsets) -> Self {
+        self.highlightMargins = margins
+        return self
+    }
+    
     /**
-     The margins that should be used to layout any content inside the menu item view.
-     
-     The margins are used  for the ``layoutMarginsGuide``.
-     
+     The margins that are used to layout the ``contentView``.
+          
      Any view added using ``addSubview(_:layoutAutomatically:)`` and `layoutAutomatically` is `true`, gets constraint to the `layoutGuide` and it's margins.
      */
     public var contentMargins = NSEdgeInsets(top: 3, left: 8, bottom: 3, right: 8) {
         didSet { contentViewConstraits.constant(highlightMargins) }
+    }
+    
+    /// Sets the margins that are used to layout the ``contentView``.
+    @discardableResult
+    public func contentMargins(_ margins: NSEdgeInsets) -> Self {
+        self.contentMargins = margins
+        return self
     }
     
     // MARK: - Views
@@ -270,13 +296,13 @@ open class NSMenuItemView: NSTableCellView {
         if autoHighlightSubviews {
             if isEnabled {
                 subviews.forEach({ $0.alphaValue = 1.0 })
-                backgroundStyle = isHighlighted ? .emphasized : .normal
+                setBackgroundStyle(isHighlighted ? .emphasized : .normal)
             } else {
                 subviews.forEach({ $0.alphaValue = 0.4 })
-                backgroundStyle = .lowered
+                setBackgroundStyle(.normal)
             }
         } else {
-            backgroundStyle = .normal
+            setBackgroundStyle(.normal)
         }
     }
      
@@ -284,6 +310,9 @@ open class NSMenuItemView: NSTableCellView {
         super.draw(dirtyRect)
         isHighlighted = enclosingMenuItem?.isHighlighted ?? isHighlighted
         updateBackgroundStyle()
+        if let menu = enclosingMenuItem?.menu, !(menu.delegate is NSMenu.Delegate) && !(menu.delegate is ViewMenuProviderMenu) {
+            menu.delegateProxy = NSMenu.Delegate(menu)
+        }
     }
 }
 #endif

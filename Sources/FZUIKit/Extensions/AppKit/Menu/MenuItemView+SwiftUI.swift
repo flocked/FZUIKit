@@ -11,7 +11,7 @@ import SwiftUI
 
 /// A custom menu item view that manages highlight state and renders an appropriate backdrop behind the view when highlighted.
 public class NSMenuItemHostingView<Content: View>: NSMenuItemView {
-    private var hostingView: NSHostingView<ItemView>
+    private let hostingView: NSHostingView<ItemView>
     
     private struct ItemView: View {
         let content: Content
@@ -28,10 +28,17 @@ public class NSMenuItemHostingView<Content: View>: NSMenuItemView {
         }
     }
     
-    /// The root view of the SwiftUI view hierarchy displayed by the menu item view.
+    /// The root view of the `SwiftUI view hierarchy displayed by the menu item view.
     public var rootView: Content {
         get { hostingView.rootView.content }
         set { hostingView.rootView = ItemView(newValue, isHighlighted: isHighlighted && isEnabled && showsHighlight, isEnabled: isEnabled) }
+    }
+    
+    /// Sets the root view of the `SwiftUI` view hierarchy displayed by the menu item view.
+    @discardableResult
+    public func rootView(_ rootView: Content) -> Self {
+        self.rootView = rootView
+        return self
     }
     
     /// The options for how the view creates and updates constraints based on the size of ``rootView``.
@@ -42,6 +49,14 @@ public class NSMenuItemHostingView<Content: View>: NSMenuItemView {
             hostingView.sizingOptions = newValue
             frame.size = hostingView.fittingSize
         }
+    }
+    
+    /// Sets the options for how the view creates and updates constraints based on the size of ``rootView``.
+    @discardableResult
+    @available(macOS 13.0, *)
+    public func sizingOptions(_ sizingOptions: NSHostingSizingOptions) -> Self {
+        self.sizingOptions = sizingOptions
+        return self
     }
     
     /**
