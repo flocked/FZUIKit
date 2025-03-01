@@ -1,5 +1,5 @@
 //
-//  NSMenu+MenuItemHostingView.swift
+//  NSMenu+NSMenuItemHostingView.swift
 //
 //
 //  Created by Florian Zand on 09.04.23.
@@ -10,7 +10,7 @@ import AppKit
 import SwiftUI
 
 /// A custom menu item view that manages highlight state and renders an appropriate backdrop behind the view when highlighted.
-public class MenuItemHostingView<Content: View>: MenuItemView {
+public class NSMenuItemHostingView<Content: View>: NSMenuItemView {
     private var hostingView: NSHostingView<ItemView>
     
     private struct ItemView: View {
@@ -99,7 +99,7 @@ public class MenuItemHostingView<Content: View>: MenuItemView {
     
     public override func updateHighlight() {
         super.updateHighlight()
-        hostingView.rootView = ItemView(rootView, isHighlighted: isHighlighted && isEnabled && showsHighlight)
+        hostingView.rootView = ItemView(rootView, isHighlighted: isHighlighted && isEnabled && showsHighlight, isEnabled: isEnabled)
     }
     
     @available(*, unavailable)
@@ -114,7 +114,7 @@ extension EnvironmentValues {
      
      Use this to adjust your content to look good in front of the selection background.
      
-     - Note: Only updated inside of a `MenuItemHostingView(...).view { ... }` closure.
+     - Note: Only updated inside of a `NSMenuItemHostingView(...).view { ... }` closure.
      */
     public var menuItemIsHighlighted: Bool {
         get { self[MenuItemIsHighlightedKey.self] }
@@ -126,7 +126,7 @@ extension EnvironmentValues {
      
      Use this to adjust your content to look good in front of the selection background.
      
-     - Note: Only updated inside of a `MenuItemHostingView(...).view { ... }` closure.
+     - Note: Only updated inside of a `NSMenuItemHostingView(...).view { ... }` closure.
      */
     public var menuItemIsEnabled: Bool {
         get { self[MenuItemIsEnabledKey.self] }

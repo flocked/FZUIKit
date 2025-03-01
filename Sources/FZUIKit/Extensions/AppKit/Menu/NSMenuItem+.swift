@@ -315,7 +315,7 @@ public extension NSMenuItem {
     func view(_ view: NSView?, showsHighlight: Bool = true) -> Self {
         if let view = view {
             if showsHighlight {
-                self.view = MenuItemView(content: view)
+                self.view = NSMenuItemView(content: view)
             } else {
                 self.view = view
             }
@@ -354,7 +354,7 @@ public extension NSMenuItem {
      */
     @discardableResult
     func view<V: View>(_ view: V, showsHighlight: Bool = true) -> Self {
-        self.view = MenuItemHostingView(rootView: view, showsHighlight: showsHighlight)
+        self.view = NSMenuItemHostingView(rootView: view, showsHighlight: showsHighlight)
         return self
     }
     
@@ -392,7 +392,7 @@ public extension NSMenuItem {
     @available(macOS 13.0, *)
     @discardableResult
     func view<V: View>(_ view: V, sizingOptions: NSHostingSizingOptions, showsHighlight: Bool = true) -> Self {
-        self.view = MenuItemHostingView(rootView: view, showsHighlight: showsHighlight, sizingOptions: sizingOptions)
+        self.view = NSMenuItemHostingView(rootView: view, showsHighlight: showsHighlight, sizingOptions: sizingOptions)
         return self
     }
     

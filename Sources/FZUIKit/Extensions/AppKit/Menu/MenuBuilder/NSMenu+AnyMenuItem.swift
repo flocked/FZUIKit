@@ -110,7 +110,7 @@
             - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
          */
             func view<Content: View>(@ViewBuilder _ content: () -> Content, showsHighlight: Bool = true) -> Self {
-                view(MenuItemHostingView(contentView: content(), showsHighlight: showsHighlight))
+                view(NSMenuItemHostingView(contentView: content(), showsHighlight: showsHighlight))
             }
         
         /**
@@ -121,7 +121,7 @@
             - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
          */
         func view<Content: View>(_ view: Content, showsHighlight: Bool = true) -> Self {
-            self.view(MenuItemHostingView(contentView: view, showsHighlight: showsHighlight))
+            self.view(NSMenuItemHostingView(contentView: view, showsHighlight: showsHighlight))
         }
 
         /// Sets the image associated with this menu item.

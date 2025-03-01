@@ -8,7 +8,7 @@
 #if os(macOS)
 import AppKit
 
-public class FontMenuItemView: MenuItemView {
+public class FontMenuItemView: NSMenuItemView {
     let _contentView = ContentView()
     
     public var font: NSFont {

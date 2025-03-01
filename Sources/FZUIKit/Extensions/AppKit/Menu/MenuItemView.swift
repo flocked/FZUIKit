@@ -1,5 +1,5 @@
 //
-//  MenuItemView.swift
+//  NSMenuItemView.swift
 //
 //
 //  Created by Florian Zand on 24.02.24.
@@ -14,13 +14,13 @@ import FZSwiftUtils
  A view that can be used as view of a `NSMenuItem` and displays a highlight background when the menu item is highlighted.
 
  # Overview
- This view is designed to be used as the `view` property of an `NSMenuItem`. By default, the view is empty: you can design your own content and add it as a subview of a `MenuItemView` instance to automatically get menu-like behaviors such as selection, highlighting, and flashing animations when clicked.
+ This view is designed to be used as the `view` property of an `NSMenuItem`. By default, the view is empty: you can design your own content and add it as a subview of a `NSMenuItemView` instance to automatically get menu-like behaviors such as selection, highlighting, and flashing animations when clicked.
 
- The general use-case is that you pass a custom view to ``addSubview(_:layoutAutomatically:)`` and let the `MenuItemView` handle everything.
+ The general use-case is that you pass a custom view to ``addSubview(_:layoutAutomatically:)`` and let the `NSMenuItemView` handle everything.
 
  ```swift
  let customView = { /* Build your view */ }()
- let menuItemView = MenuItemView()
+ let menuItemView = NSMenuItemView()
  menuItemView.addSubview(customView, layoutAutomatically: true)
 
  // When you're ready to assign the view to a `NSMenuItem`.
@@ -53,7 +53,7 @@ import FZSwiftUtils
 
  This behavior is supported, at the moment, for `NSTextField` and (on macOS 10.14 and higher) `NSImageView` instances.
 
- - Note: You can implement support for additional views, such as your own custom views, by subclassing `MenuItemView` and overriding ``highlightIfNeeded(_:isHighlighted:isEnabled:)``.
+ - Note: You can implement support for additional views, such as your own custom views, by subclassing `NSMenuItemView` and overriding ``highlightIfNeeded(_:isHighlighted:isEnabled:)``.
 
  - warning: The automatic highlighting of subviews changes the appearance of views directly. If you don't want the view to change at all, make sure you set the property to `false` **before** the menu item is displayed. If the item is highlighted even once before the property is turned off, your custom colors will be overridden by the automatic highlighting.
 
@@ -62,7 +62,7 @@ import FZSwiftUtils
 
  Although it looks similar to what the `NSMenuItem` does by default, it is not exactly the same. If you would like to change it, you can assign a different animation (or group of animations) to the ``highlightAnimation`` property. You can also turn off the animation by setting this property to `nil`.
  */
-open class MenuItemView: NSTableCellView {
+open class NSMenuItemView: NSTableCellView {
     private var highlightViewConstraits: [NSLayoutConstraint] = []
     private var innerContentConstraits: [NSLayoutConstraint] = []
     private lazy var innerContentGuide = NSLayoutGuide()

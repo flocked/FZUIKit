@@ -1,5 +1,5 @@
 //
-//  MenuItemView.swift
+//  NSMenuItemView.swift
 //
 //
 //  Created by Florian Zand on 24.02.24.
@@ -13,13 +13,13 @@ import FZSwiftUtils
  A view that can be used as view of a `NSMenuItem` and displays a highlight background when the menu item is highlighted.
 
  # Overview
- This view is designed to be used as the `view` property of an `NSMenuItem`. By default, the view is empty: you can design your own content and add it as a subview of a `MenuItemView` instance to automatically get menu-like behaviors such as selection, highlighting, and flashing animations when clicked.
+ This view is designed to be used as the `view` property of an `NSMenuItem`. By default, the view is empty: you can design your own content and add it as a subview of a `NSMenuItemView` instance to automatically get menu-like behaviors such as selection, highlighting, and flashing animations when clicked.
 
- The general use-case is that you pass a custom view to ``addSubview(_:layoutAutomatically:)`` and let the `MenuItemView` handle everything.
+ The general use-case is that you pass a custom view to ``addSubview(_:layoutAutomatically:)`` and let the `NSMenuItemView` handle everything.
 
  ```swift
  let customView = { /* Build your view */ }()
- let menuItemView = MenuItemView()
+ let menuItemView = NSMenuItemView()
  menuItemView.addSubview(customView, layoutAutomatically: true)
 
  // When you're ready to assign the view to a `NSMenuItem`.
@@ -48,7 +48,7 @@ import FZSwiftUtils
 
  If ``autoHighlightSubviews`` is set to `true` (default), supported views will automatically change their appearance to match the highlighted state.
  */
-open class MenuItemView: NSTableCellView {
+open class NSMenuItemView: NSTableCellView {
     private var highlightViewConstraits: [NSLayoutConstraint] = []
     private var contentViewConstraits: [NSLayoutConstraint] = []
     
