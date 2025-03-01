@@ -44,7 +44,7 @@ extension NSView {
         }
     }
     
-    fileprivate class ViewMenuProviderMenu: NSMenu, NSMenuDelegate {
+    class ViewMenuProviderMenu: NSMenu, NSMenuDelegate {
         weak var view: NSView?
         var handler: ((_ location: CGPoint)->(NSMenu?)) = { _ in return nil }
         var providedMenu: NSMenu?
@@ -59,16 +59,35 @@ extension NSView {
             menu.items = []
             guard let view = view, let location = NSApp.currentEvent?.location(in: view) else { return }
             providedMenu = handler(location)
+            if let providedMenu = providedMenu {
+                providedMenu.delegate?.menuNeedsUpdate?(providedMenu)
+            }
             let items = providedMenu?.items ?? []
             providedMenu?.items = []
             menu.items = items
         }
         
+        func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {
+            menu.items.forEach({
+                guard let view = $0.view as? MenuItemView else { return }
+                view.isHighlighted = $0 === item
+            })
+            guard let providedMenu = providedMenu else { return }
+            providedMenu.delegate?.menu?(providedMenu, willHighlight: item)
+        }
+        
+        func menuWillOpen(_ menu: NSMenu) {
+            guard let providedMenu = providedMenu else { return }
+            providedMenu.delegate?.menuWillOpen?(providedMenu)
+        }
+        
         func menuDidClose(_ menu: NSMenu) {
             let items = menu.items
             menu.items = []
-            providedMenu?.items = items
-            providedMenu = nil
+            guard let providedMenu = providedMenu else { return }
+            providedMenu.items = items
+            providedMenu.delegate?.menuDidClose?(menu)
+            self.providedMenu = nil
         }
         
         required init(coder: NSCoder) {

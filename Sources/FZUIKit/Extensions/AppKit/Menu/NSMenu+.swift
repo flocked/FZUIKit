@@ -311,8 +311,10 @@ extension NSMenu {
             if menu.delegate === self {
                 menu.handlers.willHighlight?(item)
             }
-            menu.items.compactMap({$0.view as? MenuItemView}).forEach({$0.isHighlighted = false})
-            (item?.view as? MenuItemView)?.isHighlighted = true
+            menu.items.forEach({
+                guard let view = $0.view as? MenuItemView else { return }
+                view.isHighlighted = $0 === item
+            })
             delegate?.menu?(menu, willHighlight: item)
         }
     }

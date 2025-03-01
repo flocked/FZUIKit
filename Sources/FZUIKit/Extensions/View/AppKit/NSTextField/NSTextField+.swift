@@ -127,6 +127,13 @@
             return self
         }
         
+        /// Sets the maximum width of the text field’s intrinsic content size.
+        @discardableResult
+        func preferredMaxLayoutWidth(_ maxWidth: CGFloat) -> Self {
+            preferredMaxLayoutWidth = maxWidth
+            return self
+        }
+                
         /// The selected string value, or `nil` if the no string is selected.
         var selectedStringValue: String? {
             get { selectedStringRange != nil ? String(stringValue[selectedStringRange!]) : nil }
