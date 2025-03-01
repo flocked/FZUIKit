@@ -78,7 +78,7 @@ open class MenuItemView: NSTableCellView {
     }
     
     /// A Boolean value that indicates whether the enclosing menu item is enabled.
-    public var isEnabled: Bool {
+    var isEnabled: Bool {
         get { enclosingMenuItem?.isEnabled ?? true }
         set {
             guard newValue != isEnabled else { return }
@@ -98,7 +98,7 @@ open class MenuItemView: NSTableCellView {
     // MARK: - Constants
     
     /// The margins that are used to layout the ``highlightView``.
-    open var highlightMargins = NSEdgeInsets(top: 0, left: 5, bottom: 0, right: 5) {
+    public var highlightMargins = NSEdgeInsets(top: 0, left: 5, bottom: 0, right: 5) {
         didSet { highlightViewConstraits.constant(highlightMargins) }
     }
     
@@ -109,7 +109,7 @@ open class MenuItemView: NSTableCellView {
      
      Any view added using ``addSubview(_:layoutAutomatically:)`` and `layoutAutomatically` is `true`, gets constraint to the `layoutGuide` and it's margins.
      */
-    open var contentMargins = NSEdgeInsets(top: 3, left: 8, bottom: 3, right: 8) {
+    public var contentMargins = NSEdgeInsets(top: 3, left: 8, bottom: 3, right: 8) {
         didSet { innerContentConstraits.constant(highlightMargins) }
     }
     
@@ -203,7 +203,6 @@ open class MenuItemView: NSTableCellView {
         autoHighlightSubviews = coder.decodeBool(forKey: "autoHighlightSubviews")
         isHighlighted = coder.decodeBool(forKey: "isHighlighted")
         showsHighlight = coder.decodeBool(forKey: "showsHighlight")
-        isEnabled = coder.decodeBool(forKey: "isEnabled")
         initialSetup()
         (coder.decodeObject(forKey: "subviews") as? [NSView])?.forEach({ addSubview($0, layoutAutomatically: true) })
     }
@@ -212,7 +211,6 @@ open class MenuItemView: NSTableCellView {
         coder.encode(autoHighlightSubviews, forKey: "autoHighlightSubviews")
         coder.encode(isHighlighted, forKey: "isHighlighted")
         coder.encode(showsHighlight, forKey: "showsHighlight")
-        coder.encode(isEnabled, forKey: "isEnabled")
         coder.encode(highlightMargins, forKey: "highlightMargins")
         coder.encode(contentMargins, forKey: "contentMargins")
         coder.encode(subviews, forKey: "subviews")
@@ -235,25 +233,15 @@ open class MenuItemView: NSTableCellView {
     }
     
     public override var intrinsicContentSize: NSSize {
-       let intrinsicContentSize =  subviews
-            .map { $0.intrinsicContentSize }
-            .max { $0.width < $1.width } ?? .zero
-        let fittingSize =  subviews
-             .map { $0.fittingSize }
-             .max { $0.width < $1.width } ?? .zero
-        let size =  subviews
-            .map { $0.frame.size }
-             .max { $0.width < $1.width } ?? .zero
-        let contentSize = innerContentGuide.frame.size
-        let width = contentSize.width + contentMargins.left + contentMargins.right
-        let height = contentSize.height + contentMargins.top + contentMargins.bottom
-
-        // Adjust for the highlight margins
-        let highlightWidth = width + highlightMargins.left + highlightMargins.right
-        let highlightHeight = height + highlightMargins.top + highlightMargins.bottom
-        
-      //  Swift.print("intrinsicContentSize", subviews.last?.className ?? "nil", intrinsicContentSize, fittingSize, size, super.intrinsicContentSize, CGSize(width: highlightWidth, height: highlightHeight))
+        subviews.forEach({ $0.invalidateIntrinsicContentSize() })
+        let intrinsicContentSize = subviews.map{ $0.intrinsicContentSize }.max(by: \.width) ?? .zero
         return intrinsicContentSize
+        /*
+        let fittingSize = subviews.map{ $0.fittingSize }.max(by: \.width) ?? .zero
+        let size = subviews.map{ $0.frame.size }.max(by: \.width) ?? .zero
+        let contentSize = innerContentGuide.frame.size
+        Swift.print("intrinsicContentSize", subviews.last?.className ?? "nil", intrinsicContentSize, fittingSize, size, super.intrinsicContentSize)
+         */
     }
     
     var isHighlighted: Bool = false {
@@ -283,12 +271,10 @@ open class MenuItemView: NSTableCellView {
             backgroundStyle = .normal
         }
     }
-        
+     
     public override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
-        if let menu = enclosingMenuItem?.menu, menu.delegateProxy == nil && !(menu is ViewMenuProviderMenu) {
-            menu.delegateProxy = NSMenu.Delegate(menu)
-        }
+        isHighlighted = enclosingMenuItem?.isHighlighted ?? isHighlighted
     }
 }
 #endif

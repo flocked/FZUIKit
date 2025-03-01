@@ -68,10 +68,6 @@ extension NSView {
         }
         
         func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {
-            menu.items.forEach({
-                guard let view = $0.view as? MenuItemView else { return }
-                view.isHighlighted = $0 === item
-            })
             guard let providedMenu = providedMenu else { return }
             providedMenu.delegate?.menu?(providedMenu, willHighlight: item)
         }
