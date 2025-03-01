@@ -69,7 +69,7 @@
             let indexPaths = indexPaths.compactMap({ if let frame = layoutAttributesForItem(at: $0)?.frame { return (indexPath: $0, frame: frame) } else { return nil }})
             guard !indexPaths.isEmpty else { return }
             let frames = indexPaths.compactMap({$0.frame})
-            if let index = frames.indexOfCenteredRect(), let indexPath = indexPaths[safe: index]?.indexPath {
+            if let index = frames.indexOfCenteredRect, let indexPath = indexPaths[safe: index]?.indexPath {
                 scrollToItem(at: indexPath, at: scrollPosition, animated: animated)
             } else {
                 scrollRectToVisible(frames.union(), animated: animated)

@@ -306,7 +306,7 @@ import FZSwiftUtils
             @objc open var gradient: Gradient? {
                 get { self.optionalLayer?._gradientLayer?.gradient }
                 set {
-                    NSView.swizzleAnimationForKey()
+                    NSUIView.swizzleAnimationForKey()
                     let newGradient = newValue ?? .init(stops: [])
                     var didSetupNewGradientLayer = false
                     if newValue?.stops.isEmpty == false {
@@ -619,7 +619,7 @@ import FZSwiftUtils
                     sendToFront()
                     superview?.observeNewSubviews()
                     isAlwaysAtFrontObservation = observeChanges(for: \.superview) { [weak self] old, new in
-                        guard let self = self else { return }
+                        guard self != nil else { return }
                         old?.observeNewSubviews(shouldObserve: false)
                         new?.observeNewSubviews()
                     }
@@ -637,22 +637,22 @@ import FZSwiftUtils
         
         private func observeNewSubviews(shouldObserve: Bool = true) {
             if shouldObserve {
-                guard !isMethodReplaced(#selector(NSView.didAddSubview(_:))) else { return }
+                guard !isMethodReplaced(#selector(NSUIView.didAddSubview(_:))) else { return }
                 do {
                     try replaceMethod(
-                        #selector(NSView.didAddSubview(_:)),
-                        methodSignature: (@convention(c)  (AnyObject, Selector, NSView) -> ()).self,
-                        hookSignature: (@convention(block)  (AnyObject, NSView) -> ()).self) { store in {
+                        #selector(NSUIView.didAddSubview(_:)),
+                        methodSignature: (@convention(c)  (AnyObject, Selector, NSUIView) -> ()).self,
+                        hookSignature: (@convention(block)  (AnyObject, NSUIView) -> ()).self) { store in {
                             object, view in
-                            (object as? NSView)?.subviews.filter({ $0.isAlwaysAtFront }).forEach({ $0.sendToFront() })
-                            store.original(object, #selector(NSView.didAddSubview(_:)), view)
+                            (object as? NSUIView)?.subviews.filter({ $0.isAlwaysAtFront }).forEach({ $0.sendToFront() })
+                            store.original(object, #selector(NSUIView.didAddSubview(_:)), view)
                         }
                         }
                 } catch {
                     debugPrint(error)
                 }
             } else if !subviews.contains(where: { $0.isAlwaysAtFront }) {
-                resetMethod(#selector(NSView.didAddSubview(_:)))
+                resetMethod(#selector(NSUIView.didAddSubview(_:)))
             }
         }
     }

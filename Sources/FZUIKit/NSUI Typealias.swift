@@ -49,7 +49,6 @@ import SwiftUI
     public typealias NSUITableViewDiffableDataSource = NSTableViewDiffableDataSource
     public typealias NSUICollectionViewUpdateItem = NSCollectionViewUpdateItem
     public typealias NSUICollectionViewDelegateFlowLayout = NSCollectionViewDelegateFlowLayout
-
 #elseif canImport(UIKit)
     import UIKit
     public typealias NSUIBezierPath = UIBezierPath

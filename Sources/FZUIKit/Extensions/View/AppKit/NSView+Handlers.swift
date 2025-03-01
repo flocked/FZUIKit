@@ -33,25 +33,20 @@ extension NSView {
      The handler provides the location of the right click inside the view. Return the menu to the handler, or `nil`, if you don't want to display a menu.
      */
     public var menuProvider: ((_ location: CGPoint)->(NSMenu?))? {
-        get { menuProviderMenu?.handler }
+        get { (menu as? ViewMenuProviderMenu)?.handler }
         set {
             if let newValue = newValue {
-                menu = menuProviderMenu ?? ViewMenuProviderMenu(for: self)
-                menuProviderMenu?.handler = newValue
+                menu = menu as? ViewMenuProviderMenu ?? ViewMenuProviderMenu(for: self)
+                (menu as? ViewMenuProviderMenu)?.handler = newValue
             } else if menu is ViewMenuProviderMenu {
                 menu = nil
             }
         }
     }
     
-    fileprivate var menuProviderMenu: ViewMenuProviderMenu? {
-        menu as? ViewMenuProviderMenu
-    }
-    
     fileprivate class ViewMenuProviderMenu: NSMenu, NSMenuDelegate {
         weak var view: NSView?
         var handler: ((_ location: CGPoint)->(NSMenu?)) = { _ in return nil }
-        var providedItems: [(original: NSMenuItem, new: NSMenuItem)] = []
         var providedMenu: NSMenu?
         
         init(for view: NSView) {
@@ -62,64 +57,22 @@ extension NSView {
         
         func menuNeedsUpdate(_ menu: NSMenu) {
             menu.items = []
-            guard let view = view, let location = NSApp.currentEvent?.location(in: view) else { 
-                providedMenu = nil
-                return
-            }
+            guard let view = view, let location = NSApp.currentEvent?.location(in: view) else { return }
             providedMenu = handler(location)
-            if let providedMenu = providedMenu {
-                providedMenu.delegate?.menuNeedsUpdate?(providedMenu)
-            }
-            providedItems = (providedMenu?.items ?? []).compactMap({ if let new = $0.copy() as? NSMenuItem { return ($0, new)
-                } else { return nil } })
-            menu.items = providedItems.compactMap({ $0.new })
+            let items = providedMenu?.items ?? []
+            providedMenu?.items = []
+            menu.items = items
         }
         
         func menuDidClose(_ menu: NSMenu) {
-            guard let providedMenu = providedMenu else { return }
-            providedMenu.delegate?.menuDidClose?(providedMenu)
-        }
-        
-        func menuWillOpen(_ menu: NSMenu) {
-            guard let providedMenu = providedMenu else { return }
-            providedMenu.delegate?.menuWillOpen?(providedMenu)
-        }
-        
-        func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {
-            guard let providedMenu = providedMenu, let willHighlight: ((NSMenu, NSMenuItem?) -> Void) = providedMenu.delegate?.menu else { return }
-            if item == nil {
-                willHighlight(providedMenu, nil)
-            } else if let item = item, let providedItem = providedItems.first(where: {$0.new === item})?.original {
-                willHighlight(providedMenu, providedItem)
-            }
+            let items = menu.items
+            menu.items = []
+            providedMenu?.items = items
+            providedMenu = nil
         }
         
         required init(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
-        }
-    }
-    
-    func swizzleEventMenu() {
-        let isReplaced = isMethodReplaced(#selector(NSView.menu(for:)))
-        if menuProvider != nil {
-            guard !isReplaced else { return }
-            do {
-               try replaceMethod(
-                #selector(NSView.menu(for:)),
-               methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> (NSMenu?)).self,
-               hookSignature: (@convention(block)  (AnyObject, NSEvent) -> (NSMenu?)).self) { store in {
-                   object, event in
-                   if let view = object as? NSView, let menuProvider = view.menuProvider {
-                       return menuProvider(event.location(in: view))
-                   }
-                   return store.original(object, #selector(NSView.menu(for:)), event)
-                   }
-               }
-            } catch {
-               debugPrint(error)
-            }
-        } else if isReplaced {
-            resetMethod(#selector(NSView.menu(for:)))
         }
     }
     
