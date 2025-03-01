@@ -81,6 +81,7 @@ extension NSView {
         func menuDidClose(_ menu: NSMenu) {
             let items = menu.items
             menu.items = []
+            Swift.print("menuDidClose",  providedMenu?.delegate?.menuDidClose  != nil)
             guard let providedMenu = providedMenu else { return }
             providedMenu.items = items
             providedMenu.delegate?.menuDidClose?(menu)
