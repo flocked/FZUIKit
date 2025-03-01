@@ -37,7 +37,7 @@ extension NSUILayoutGuide {
     }
 }
 
-extension NSUIView {
+public extension NSUIView {
     /**
      Constraits the view's frame to the specified layout guide.
      

@@ -140,6 +140,8 @@ public extension NSUIView {
         }
     }
     
+    
+    
     /**
      Adds a view to the end of the receiver’s list of subviews and constraits it's frame to the receiver.
      
@@ -147,7 +149,7 @@ public extension NSUIView {
      - Returns: The layout constraints in the following order: `leading`, `bottom`, `trailing` and `top`.
      */
     @discardableResult
-    func addSubview(withConstraint view: NSUIView) -> [NSLayoutConstraint] {
+    @objc func addSubview(withConstraint view: NSUIView) -> [NSLayoutConstraint] {
         addSubview(withConstraint: view, .full)
     }
     
@@ -161,7 +163,7 @@ public extension NSUIView {
      - Returns: The layout constraints in the following order: `leading`, `bottom`, `trailing` and `top`.
      */
     @discardableResult
-    func addSubview(withConstraint view: NSUIView, _ mode: ConstraintMode) -> [NSLayoutConstraint] {
+    @objc func addSubview(withConstraint view: NSUIView, _ mode: ConstraintMode) -> [NSLayoutConstraint] {
         addSubview(view)
         return view.constraint(to: self, mode)
     }
@@ -176,8 +178,7 @@ public extension NSUIView {
      - Returns: The layout constraints in the following order: `leading`, `bottom`, `trailing` and `top`.
      */
     @discardableResult
-    
-    func insertSubview(withConstraint view: NSUIView, at index: Int) -> [NSLayoutConstraint] {
+    @objc func insertSubview(withConstraint view: NSUIView, at index: Int) -> [NSLayoutConstraint] {
         insertSubview(withConstraint: view, .full, at: index)
     }
     
@@ -192,7 +193,7 @@ public extension NSUIView {
      - Returns: The layout constraints in the following order: `leading`, `bottom`, `trailing` and `top`.
      */
     @discardableResult
-    func insertSubview(withConstraint view: NSUIView, _ mode: ConstraintMode, at index: Int) -> [NSLayoutConstraint] {
+    @objc func insertSubview(withConstraint view: NSUIView, _ mode: ConstraintMode, at index: Int) -> [NSLayoutConstraint] {
         guard index >= 0 else { return [] }
         insertSubview(view, at: index)
         return view.constraint(to: self, mode)
@@ -205,7 +206,7 @@ public extension NSUIView {
      - Returns: The layout constraints in the following order: `leading`, `bottom`, `trailing` and `top`.
      */
     @discardableResult
-    func constraintToSuperview(_ mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
+    @objc func constraintToSuperview(_ mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
         guard let superview = superview else { return [] }
         return constraint(to: superview, mode)
     }
@@ -220,7 +221,7 @@ public extension NSUIView {
      - Returns: The layout constraints in the following order: `leading`, `bottom`, `trailing` and `top`.
      */
     @discardableResult
-    func constraint(to view: NSUIView, _ mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
+    @objc func constraint(to view: NSUIView, _ mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
         let constants: [CGFloat]
         switch mode {
         case .absolute:
@@ -351,5 +352,57 @@ public extension NSUIView {
         }
     }
 #endif
+}
+
+/// The Objective-C class for ``NSUIView/ConstraintMode``.
+public class __ViewConstraintMode: NSObject, NSCopying {
+    let mode: NSUIView.ConstraintMode
+    
+    public init(mode: NSUIView.ConstraintMode) {
+        self.mode = mode
+    }
+    
+    public func copy(with zone: NSZone? = nil) -> Any {
+        __ViewConstraintMode(mode: mode)
+    }
+    
+    public override func isEqual(_ object: Any?) -> Bool {
+        mode == (object as? __ViewConstraintMode)?.mode
+    }
+}
+
+extension NSUIView.ConstraintMode: ReferenceConvertible {
+    /// The Objective-C type for the configuration.
+    public typealias ReferenceType = __ViewConstraintMode
+    
+    public func _bridgeToObjectiveC() -> __ViewConstraintMode {
+        return __ViewConstraintMode(mode: self)
+    }
+    
+    public static func _forceBridgeFromObjectiveC(_ source: __ViewConstraintMode, result: inout NSUIView.ConstraintMode?) {
+        result = source.mode
+    }
+    
+    public static func _conditionallyBridgeFromObjectiveC(_ source: __ViewConstraintMode, result: inout NSUIView.ConstraintMode?) -> Bool {
+        _forceBridgeFromObjectiveC(source, result: &result)
+        return true
+    }
+    
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: __ViewConstraintMode?) -> NSUIView.ConstraintMode {
+        if let source = source {
+            var result: NSUIView.ConstraintMode?
+            _forceBridgeFromObjectiveC(source, result: &result)
+            return result!
+        }
+        return .full
+    }
+    
+    public var description: String {
+              "\(self)"
+    }
+    
+    public var debugDescription: String {
+        description
+    }
 }
 #endif

@@ -9,21 +9,21 @@
 import AppKit
 
 public class FontMenuItemView: MenuItemView {
-    let contentView = ContentView()
+    let _contentView = ContentView()
     
     public var font: NSFont {
-        get { contentView.font }
-        set { contentView.font = newValue }
+        get { _contentView.font }
+        set { _contentView.font = newValue }
     }
     
     public var title: String? {
-        get { contentView.title }
-        set { contentView.title = newValue }
+        get { _contentView.title }
+        set { _contentView.title = newValue }
     }
     
     public var showsSelection: Bool {
-        get { contentView.showsSelection }
-        set { contentView.showsSelection = newValue }
+        get { _contentView.showsSelection }
+        set { _contentView.showsSelection = newValue }
     }
     
     public init() {
@@ -49,12 +49,12 @@ public class FontMenuItemView: MenuItemView {
     }
         
     func sharedInit() {
-        addSubview(contentView, layoutAutomatically: true)
+        addSubview(_contentView, layoutAutomatically: true)
     }
     
     public override var intrinsicContentSize: NSSize {
         var intrinsicContentSize = super.intrinsicContentSize
-        intrinsicContentSize.width = contentView.frame.width
+        intrinsicContentSize.width = _contentView.frame.width
         return intrinsicContentSize
     }
 }
