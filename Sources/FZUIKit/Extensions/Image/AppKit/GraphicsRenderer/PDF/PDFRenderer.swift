@@ -9,27 +9,46 @@
 import AppKit
 import FZSwiftUtils
 
+/// A graphics renderer for creating PDFs.
 public class PDFGraphicsRenderer: GraphicsRenderer {
-    
     public typealias Context = PDFGraphicsRendererContext
     
     /// The format used to create the graphics renderer.
     public let format: PDFGraphicsRendererFormat
-    private let size: NSSize
     
+    /**
+     Creates a PDF from a set of drawing instructions and saves it to a specified URL.
+     
+     You provide a set of drawing instructions as the block argument to this method, and the method attempts to write the resulting PDF to the supplied URL.
+     You can call this method repeatedly to create multiple PDFs, each of which has identical dimensions and format.
+     
+     - Parameters:
+        - url: The URL where the complete PDF file is saved.
+        - actions: A block that, when invoked by the renderer, executes a set of drawing instructions to create the output PDF.
+     */
     public func writePDF(to url: URL, withActions actions: (_ context: Context) -> Void) throws {
-        var bounds = CGRect(.zero, size)
-        if let consumer = CGDataConsumer(url: url as CFURL), let context = CGContext(consumer: consumer, mediaBox: &bounds, format.documentInfo.cfDictionary) {
+        var bounds = format.renderingBounds
+        if let consumer = CGDataConsumer(url: url as CFURL), let context = CGContext(consumer: consumer, mediaBox: &bounds, format.documentInfo.dictionary) {
             runDrawingActions(forContext: context, drawingActions: actions)
         } else {
             throw Errors.renderingFailed
         }
     }
     
+    /**
+     Creates a PDF from a set of drawing instructions and returns it as a data object.
+     
+     You provide a set of drawing instructions as the block argument to this method, and the method returns the resulting PDF encoded in a `Data` object.
+     
+     You can call this method repeatedly to create multiple PDFs, each of which has identical dimensions and format.
+     
+     - Parameter actions: A block that, when invoked by the renderer, executes a set of drawing instructions to create the output PDF.
+     - Returns: A Data object that contains the encoded PDF.
+     */
     public func pdfData(actions: (_ context: Context) -> Void) throws -> Data {
-        var rect = format.bounds
+        var rect = format.renderingBounds
         let data = NSMutableData()
-        if let consumer = CGDataConsumer(data: data), let context = CGContext(consumer: consumer, mediaBox: &rect, format.documentInfo as CFDictionary?) {
+        if let consumer = CGDataConsumer(data: data), let context = CGContext(consumer: consumer, mediaBox: &rect, format.documentInfo.dictionary) {
             runDrawingActions(forContext: context, drawingActions: actions)
             return data as Data
         } else {
@@ -43,17 +62,15 @@ public class PDFGraphicsRenderer: GraphicsRenderer {
     
     func runDrawingActions(forContext cgContext: CGContext, drawingActions: (_ context: Context) -> Void, completionActions: ((_ context: Context) -> Void)? = nil) {
         let context = PDFGraphicsRendererContext(context: NSGraphicsContext(cgContext: cgContext, flipped: format.isFlipped), format: format)
-        format.bounds = CGRect(.zero, size)
-        context.begin()
+        context.beginRendering()
         drawingActions(context)
         completionActions?(context)
-        context.end()
-        format.bounds = .zero
+        context.endRendering()
     }
     
     public required init(bounds: CGRect) {
-        self.size = bounds.size
         self.format = .default()
+        format.bounds = bounds
     }
     
     /**
@@ -67,8 +84,8 @@ public class PDFGraphicsRenderer: GraphicsRenderer {
      - Returns: An initialized image renderer.
      */
     public init(bounds: NSRect, format: PDFGraphicsRendererFormat) {
-        self.size = bounds.size
         self.format = format
+        format.bounds = bounds
     }
     
     /**
@@ -80,7 +97,7 @@ public class PDFGraphicsRenderer: GraphicsRenderer {
      - Returns: An initialized image renderer.
      
      */
-    public convenience init(size: NSSize) {
+    public convenience init(size: CGSize) {
         self.init(size: size, format: .default())
     }
     
@@ -94,9 +111,9 @@ public class PDFGraphicsRenderer: GraphicsRenderer {
         - format: A ``NSGraphicsImageGraphicsRendererFormat`` object that encapsulates the format used to create the renderer context.
      - Returns: An initialized image renderer.
      */
-    public init(size: NSSize, format: PDFGraphicsRendererFormat) {
-        self.size = size
+    public init(size: CGSize, format: PDFGraphicsRendererFormat) {
         self.format = format
+        format.bounds = CGRect(.zero, size)
     }
 }
 

@@ -12,7 +12,7 @@ import QuickLookThumbnailing
 
 /// A graphical preview for a single drag item, used by the system after a drag has started.
 public class DragPreview {
-    var render: ((_ completion:  @escaping ([NSDraggingImageComponent])->())->())!
+    var render: ((_ completion:  @escaping ([NSDraggingImageComponent])->())->()) =  { $0([]) }
     var id = UUID().hashValue
     var draggingImageComponents: [NSDraggingImageComponent]?
     
@@ -52,14 +52,6 @@ public class DragPreview {
         }
     }
     
-    /// Creates a drag item preview that displays the specified image.
-    public init(image: CGImage, frame: CGRect? = nil) {
-        render = { [weak self] completion in
-            guard let self = self else { return }
-            completion(self.components(for: image.nsImage, frame: frame))
-        }
-    }
-    
     /// Creates a drag item preview that displays the specified view.
     public init(view: NSView, frame: CGRect? = nil) {
         render = { [weak self] completion in
@@ -82,10 +74,21 @@ public class DragPreview {
         }
     }
     
-    init() {
+    /// Creates a drag item preview that displays the specified dragging image components.
+    public init(imageComponents: [NSDraggingImageComponent]) {
         render = { completion in
-            completion([])
+            completion(imageComponents)
         }
+    }
+    
+    /// Creates a drag item preview that displays the dragging image components returned by the specified handler.
+    public init(imageComponentsProvider: @escaping ()->([NSDraggingImageComponent])) {
+        render = { completion in
+            completion(imageComponentsProvider())
+        }
+    }
+    
+    init() {
         id = -1
     }
 }

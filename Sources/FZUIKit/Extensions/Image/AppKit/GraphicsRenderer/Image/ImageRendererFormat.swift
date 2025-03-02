@@ -16,31 +16,6 @@ import AppKit
  The image renderer format object contains properties that determine the attributes of the underlying Core Graphics contexts that the image renderer creates. Use the `default()` static method to create an image renderer format instance optimized for the current device.
  */
 public class ImageGraphicsRendererFormat: GraphicsRendererFormat {
-
-    /// Constants that specify the color range of the image renderer context.
-    public enum Range: Int, Hashable {
-        /// The system automatically chooses the image renderer context’s pixel format according to the color range of its content.
-        case automatic
-        /// The image renderer context supports wide color.
-        case extended
-        /**
-         The image renderer context doesn’t support extended colors.
-         
-         If you draw wide-color content into an image renderer context that uses the standard color range, you may lose color information. The system matches the colors to the standard range of their corresponding color space.
-         */
-        case standard
-        
-        var colorSpace: NSColorSpace {
-            switch self {
-            case .standard:
-                return .sRGB
-            case .extended:
-                return .extendedSRGB
-            case .automatic:
-                return .deviceRGB
-            }
-        }
-    }
     
     /**
      The display scale of the image renderer context.
@@ -79,9 +54,14 @@ public class ImageGraphicsRendererFormat: GraphicsRendererFormat {
      
      If the graphics renderer itself creates a format object, the bounds are set to those provided to the renderer as part of the initializer.
      */
-    public internal(set) var bounds: CGRect = .zero
-
+    public internal(set) var bounds: CGRect {
+        get { isRendering ? renderingBounds : .zero }
+        set { renderingBounds = newValue }
+    }
     
+    var renderingBounds: CGRect = .zero
+    var isRendering: Bool = false
+
     /**
      Returns a format that represents the highest fidelity that the current device supports.
      
@@ -108,6 +88,33 @@ public class ImageGraphicsRendererFormat: GraphicsRendererFormat {
         self.isOpaque = isOpaque
         self.isFlipped = isFlipped
         self.preferredRange = preferredRange
+    }
+}
+
+extension ImageGraphicsRendererFormat {
+    /// Constants that specify the color range of the image renderer context.
+    public enum Range: Int, Hashable {
+        /// The system automatically chooses the image renderer context’s pixel format according to the color range of its content.
+        case automatic
+        /// The image renderer context supports wide color.
+        case extended
+        /**
+         The image renderer context doesn’t support extended colors.
+         
+         If you draw wide-color content into an image renderer context that uses the standard color range, you may lose color information. The system matches the colors to the standard range of their corresponding color space.
+         */
+        case standard
+        
+        var colorSpace: NSColorSpace {
+            switch self {
+            case .standard:
+                return .sRGB
+            case .extended:
+                return .extendedSRGB
+            case .automatic:
+                return .deviceRGB
+            }
+        }
     }
 }
 

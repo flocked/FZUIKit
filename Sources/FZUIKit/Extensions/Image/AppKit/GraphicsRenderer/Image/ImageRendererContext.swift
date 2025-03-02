@@ -10,7 +10,8 @@ import AppKit
 
 public final class ImageGraphicsRendererContext: GraphicsRendererContext {
     private let bitmapRep: NSBitmapImageRep
-    
+    private var previousContext: NSGraphicsContext?
+
     /**
      The format used to create the associated graphics renderer.
      
@@ -18,23 +19,8 @@ public final class ImageGraphicsRendererContext: GraphicsRendererContext {
      */
     public let context: NSGraphicsContext
     
+    /// The drawing configuration of the context.
     public let format: ImageGraphicsRendererFormat
-    
-    private var previousContext: NSGraphicsContext?
-    
-    func begin() {
-        previousContext = NSGraphicsContext.current
-        NSGraphicsContext.saveGraphicsState()
-        NSGraphicsContext.current = context
-        context.saveGraphicsState()
-    }
-    
-    func end() {
-        context.restoreGraphicsState()
-        NSGraphicsContext.restoreGraphicsState()
-        NSGraphicsContext.current = previousContext
-        previousContext = nil
-    }
     
     /**
      The current state of the drawing context, expressed as an object that manages image data in your app.
@@ -48,9 +34,25 @@ public final class ImageGraphicsRendererContext: GraphicsRendererContext {
         return image
     }
     
+    func beginRendering() {
+        format.isRendering = true
+        previousContext = NSGraphicsContext.current
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.current = context
+        context.saveGraphicsState()
+    }
+    
+    func endRendering() {
+        format.isRendering = false
+        context.restoreGraphicsState()
+        NSGraphicsContext.restoreGraphicsState()
+        NSGraphicsContext.current = previousContext
+        previousContext = nil
+    }
+    
     init?(format: ImageGraphicsRendererFormat) {
         self.format = format
-        let size = format.bounds.size
+        let size = format.renderingBounds.size
         let hasAlpha = !format.isOpaque
         guard let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(size.width * format.scale), pixelsHigh: Int(size.height * format.scale), bitsPerSample: 8, samplesPerPixel: hasAlpha ? 4 : 3, hasAlpha: hasAlpha, isPlanar: false, colorSpaceName: .deviceRGB, bitmapFormat: [], bytesPerRow: 0, bitsPerPixel: 0) else { return nil }
         bitmapRep = rep.converting(to: format.preferredRange.colorSpace, renderingIntent: .default) ?? rep
@@ -60,12 +62,11 @@ public final class ImageGraphicsRendererContext: GraphicsRendererContext {
             cgContext.scaleBy(x: format.scale, y: format.scale)
         }
         if format.isOpaque {
-            cgContext.setFillColor(NSColor.white.cgColor) // or any other opaque color
+            cgContext.setFillColor(NSColor.white.cgColor)
             cgContext.fill(NSRect(origin: .zero, size: size))
         }
         if format.isFlipped {
-            cgContext.translateBy(x: 0, y: size.height)
-            cgContext.scaleBy(x: 1.0, y: -1.0)
+            cgContext.concatenate(CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: size.height))
         }
     }
 }

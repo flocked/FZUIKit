@@ -9,22 +9,13 @@
 import AppKit
 import FZSwiftUtils
 
+/// A graphics renderer for creating Core Graphics-backed images.
 public class ImageGraphicsRenderer: GraphicsRenderer {
     public typealias Context = ImageGraphicsRendererContext
     
     /// The format used to create the graphics renderer.
     public let format: ImageGraphicsRendererFormat
-    private let size: NSSize
     private var bitmapRep: NSBitmapImageRep?
-    
-    func runDrawingActions(_ drawingActions: (_ context: Context) -> Void, completionActions: ((_ context: Context) -> Void)? = nil) throws {
-        format.bounds = CGRect(.zero, size)
-        if let context = ImageGraphicsRendererContext(format: format) {
-            drawingActions(context)
-            completionActions?(context)
-        }
-        format.bounds = .zero
-    }
     
     /**
      Returns a new image with the specified drawing actions applied
@@ -35,14 +26,12 @@ public class ImageGraphicsRenderer: GraphicsRenderer {
      */
     public func image(actions: (_ context: Context) -> Void) -> NSImage? {
         var image: NSImage?
-        format.bounds = CGRect(.zero, size)
         if let context = ImageGraphicsRendererContext(format: format) {
-            context.begin()
+            context.beginRendering()
             actions(context)
             image = context.currentImage
-            context.end()
+            context.endRendering()
         }
-        format.bounds = .zero
         return image
     }
     
@@ -96,8 +85,8 @@ public class ImageGraphicsRenderer: GraphicsRenderer {
     }
     
     public required init(bounds: CGRect) {
-        self.size = bounds.size
         self.format = .default()
+        format.bounds = bounds
     }
     
     /**
@@ -111,8 +100,8 @@ public class ImageGraphicsRenderer: GraphicsRenderer {
      - Returns: An initialized image renderer.
      */
     public init(bounds: NSRect, format: ImageGraphicsRendererFormat) {
-        self.size = bounds.size
         self.format = format
+        format.bounds = bounds
     }
     
     /**
@@ -139,8 +128,8 @@ public class ImageGraphicsRenderer: GraphicsRenderer {
      - Returns: An initialized image renderer.
      */
     public init(size: NSSize, format: ImageGraphicsRendererFormat) {
-        self.size = size
         self.format = format
+        format.bounds = CGRect(.zero, size)
     }
 }
 

@@ -8,6 +8,7 @@
 #if os(macOS)
 import Foundation
 
+/// An object for creating graphics renderers.
 public protocol GraphicsRenderer: AnyObject {
     /// The associated context type this renderer will use.
     associatedtype Context: GraphicsRendererContext
