@@ -24,8 +24,31 @@ extension NSUILayoutGuide {
      */
     @discardableResult
     public func constrainToOwningView(insets: NSUIEdgeInsets = .zero) -> [NSLayoutConstraint] {
-        guard let view = owningView else {
+        guard let owningView = owningView else {
             assertionFailure("The guide must be added to a view before constraining the layout guide.")
+            return []
+        }
+        return constraint(to: owningView, insets: insets)
+    }
+    
+    /**
+     Constrains the layout guide to the specified view's edges, with optional inset values, and returns an array of the constraints.
+     - Parameters:
+        - view: The view to constraint to. It must be descendant of the layout guides owning view.
+        - insets: The inset values to apply to the layout guide's edges relative to the view. Default is `.zero`.
+
+     - Returns: The layout constraints that constrain the layout guide to the view's edges.  In the following order: `leading`, `bottom`, `trailing` and `top`.
+
+     - Note: This method will assert if the guide is not yet added to a view or if the specified view isn't a descendant of the layout guides owning view.
+     */
+    @discardableResult
+    public func constraint(to view: NSView, insets: NSUIEdgeInsets = .zero) -> [NSLayoutConstraint] {
+        guard let owningView = owningView else {
+            assertionFailure("The guide must be added to a view before constraining the layout guide.")
+            return []
+        }
+        guard view.isDescendant(of: owningView) else {
+            assertionFailure("The specified view needs to be descendant of the layout guides owning view.")
             return []
         }
         return [
