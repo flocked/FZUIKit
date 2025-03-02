@@ -262,8 +262,8 @@ extension NSShadow {
     }
 }
 
-extension NSObjectProtocol where Self == NSImage {
-    init(shadowPath: NSBezierPath, size: CGSize, configuration: ShadowConfiguration) {
+extension NSImage {
+   convenience init(shadowPath: NSBezierPath, size: CGSize, configuration: ShadowConfiguration) {
         self.init(size: size)
         self.lockFocus()
         NSShadow(configuration: configuration).set()
@@ -271,7 +271,7 @@ extension NSObjectProtocol where Self == NSImage {
         self.unlockFocus()
     }
     
-    init(shadowPath: NSBezierPath, size: CGSize, color: NSColor = .shadowColor, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) {
+    convenience init(shadowPath: NSBezierPath, size: CGSize, color: NSColor = .shadowColor, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) {
         self.init(shadowPath: shadowPath, size: size, configuration: .color(color, opacity: 1.0, radius: radius, offset: offset))
     }
 }

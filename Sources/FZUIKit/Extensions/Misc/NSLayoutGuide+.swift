@@ -35,6 +35,11 @@ extension NSUILayoutGuide {
             topAnchor.constraint(equalTo: view.topAnchor, constant: insets.top),
         ].activate()
     }
+    
+    /// Removes the layout guide from it's owning view.
+    public func removeFromView() {
+        owningView?.removeLayoutGuide(self)
+    }
 }
 
 public extension NSUIView {
