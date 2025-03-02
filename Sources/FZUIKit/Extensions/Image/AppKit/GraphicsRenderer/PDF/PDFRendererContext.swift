@@ -11,7 +11,6 @@ import AppKit
 /// The drawing environment for a PDF renderer.
 public final class PDFGraphicsRendererContext: GraphicsRendererContext {
     private var hasOpenPage: Bool = false
-    private var previousContext: NSGraphicsContext?
     
     /**
      The format used to create the associated graphics renderer.
@@ -23,6 +22,11 @@ public final class PDFGraphicsRendererContext: GraphicsRendererContext {
     /// The drawing configuration of the context.
     public let format: PDFGraphicsRendererFormat
     
+    /**
+     The bounds of the PDF context for the current page.
+     
+     This value represents the bounds provided to the ``beginPage(withBounds:pageInfo:)`` method that created the current page. If the current page was created using the ``beginPage(pageInfo:)`` method, the bounds are equal to those provided at the initialization of the PDF renderer.
+     */
     public internal(set) var pdfContextBounds: CGRect = .zero
     
     /**
@@ -112,7 +116,6 @@ public final class PDFGraphicsRendererContext: GraphicsRendererContext {
     
     func beginRendering() {
         format.isRendering = true
-        previousContext = NSGraphicsContext.current
         NSGraphicsContext.saveGraphicsState()
         NSGraphicsContext.current = context
         context.saveGraphicsState()
@@ -124,14 +127,31 @@ public final class PDFGraphicsRendererContext: GraphicsRendererContext {
         cgContext.closePDF()
         context.restoreGraphicsState()
         NSGraphicsContext.restoreGraphicsState()
-        NSGraphicsContext.current = previousContext
-        previousContext = nil
     }
     
     init(context: NSGraphicsContext, format: PDFGraphicsRendererFormat) {
         self.context = context
         self.format = format
     }
+    
+    init?(url: URL, format: PDFGraphicsRendererFormat) {
+        var bounds = format.renderingBounds
+        guard let consumer = CGDataConsumer(url: url as CFURL), let context = CGContext(consumer: consumer, mediaBox: &bounds, format.documentInfo.dictionary) else { return nil }
+        self.context = NSGraphicsContext(cgContext: context, flipped: format.isFlipped)
+        self.format = format
+    }
+    
+    let data = NSMutableData()
+    init?(format: PDFGraphicsRendererFormat) {
+        var bounds = format.renderingBounds
+        guard let consumer = CGDataConsumer(data: data), let context = CGContext(consumer: consumer, mediaBox: &bounds, format.documentInfo.dictionary) else { return nil }
+        self.context = NSGraphicsContext(cgContext: context, flipped: format.isFlipped)
+        self.format = format
+    }
+    
+    /*
+     if let consumer = CGDataConsumer(data: data), let context = CGContext(consumer: consumer, mediaBox: &rect, format.documentInfo.dictionary)
+     */
 }
 
 #endif

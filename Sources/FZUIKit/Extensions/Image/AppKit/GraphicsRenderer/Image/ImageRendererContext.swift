@@ -10,7 +10,6 @@ import AppKit
 
 public final class ImageGraphicsRendererContext: GraphicsRendererContext {
     private let bitmapRep: NSBitmapImageRep
-    private var previousContext: NSGraphicsContext?
 
     /**
      The format used to create the associated graphics renderer.
@@ -36,7 +35,6 @@ public final class ImageGraphicsRendererContext: GraphicsRendererContext {
     
     func beginRendering() {
         format.isRendering = true
-        previousContext = NSGraphicsContext.current
         NSGraphicsContext.saveGraphicsState()
         NSGraphicsContext.current = context
         context.saveGraphicsState()
@@ -46,8 +44,6 @@ public final class ImageGraphicsRendererContext: GraphicsRendererContext {
         format.isRendering = false
         context.restoreGraphicsState()
         NSGraphicsContext.restoreGraphicsState()
-        NSGraphicsContext.current = previousContext
-        previousContext = nil
     }
     
     init?(format: ImageGraphicsRendererFormat) {

@@ -46,9 +46,9 @@ public class PDFGraphicsRenderer: GraphicsRenderer {
      - Returns: A Data object that contains the encoded PDF.
      */
     public func pdfData(actions: (_ context: Context) -> Void) throws -> Data {
-        var rect = format.renderingBounds
+        var bounds = format.renderingBounds
         let data = NSMutableData()
-        if let consumer = CGDataConsumer(data: data), let context = CGContext(consumer: consumer, mediaBox: &rect, format.documentInfo.dictionary) {
+        if let consumer = CGDataConsumer(data: data), let context = CGContext(consumer: consumer, mediaBox: &bounds, format.documentInfo.dictionary) {
             runDrawingActions(forContext: context, drawingActions: actions)
             return data as Data
         } else {
