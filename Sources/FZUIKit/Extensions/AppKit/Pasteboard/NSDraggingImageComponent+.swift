@@ -13,30 +13,21 @@ extension NSDraggingImageComponent {
     public convenience init(image: NSImage, frame: CGRect? = nil, key: NSDraggingItem.ImageComponentKey = .icon) {
         self.init(key: key)
         contents = image
-        if let frame = frame {
-            self.frame = frame
-        } else {
-            self.frame = CGRect(.zero, image.size)
-        }
+        self.frame = frame ?? CGRect(.zero, image.size)
     }
     
     /// Creates a dragging image component for the specified image.
     public convenience init(image: CGImage, frame: CGRect? = nil, key: NSDraggingItem.ImageComponentKey = .icon) {
         self.init(key: key)
         contents = image
-        if let frame = frame {
-            self.frame = frame
-        } else {
-            self.frame = CGRect(.zero, image.size)
-        }
+        self.frame = frame ?? CGRect(.zero, image.size)
     }
     
     /// Creates a dragging image component for the specified view.
     public convenience init(view: NSView) {
         self.init(key: .icon)
         contents = view.renderedImage
-        frame.origin = .zero
-        frame.size = view.bounds.size
+        frame = CGRect(.zero, view.bounds.size)
     }
 }
 

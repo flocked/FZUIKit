@@ -7,6 +7,7 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
  /// A type that can be read from a pasteboard.
  public protocol PasteboardReading {
@@ -94,10 +95,6 @@ import AppKit
      var pasteboardItems: [NSPasteboardItem] {
          compactMap({$0 as? NSPasteboardItem})
      }
-     
-     internal func content<Content: Codable>(_ content: Content.Type) -> [Content] {
-         pasteboardItems.compactMap({$0.content(content)})
-     }
  }
 
  public extension NSPasteboard {
@@ -106,5 +103,22 @@ import AppKit
          return readAll() + (pasteboardItems ?? [])
      }
  }
+
+public extension NSPasteboardItem {
+    /// The current `PasteboardReading` objects of the pasteboard item.
+    var content: [PasteboardReading] {
+        var readings: [PasteboardReading] = []
+        readings += string
+        readings += attributedString
+        readings += color
+        readings += sound
+        readings += pngImage
+        readings += tiffImage
+        readings += url
+        readings += fileURL
+        readings += self
+        return readings
+    }
+}
 
 #endif

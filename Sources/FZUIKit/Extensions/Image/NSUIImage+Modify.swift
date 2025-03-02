@@ -131,6 +131,30 @@ public extension NSUIImage {
             opacityImage.unlockFocus()
             return opacityImage
         }
+        
+        /**
+         Creates a new image by masking the current image to the area defined by a `NSBezierPath`.
+         
+         This method uses the provided `NSBezierPath` as a mask to retain only the area inside the path and discard everything outside of it.
+         
+         - Parameters:
+            - path: The `NSBezierPath` that defines the mask for the image. Only the area inside the path will remain visible.
+            - size: The size of the resulting image. The image will be scaled to fit this size.
+
+         - Returns: A new `NSImage` masked by the given path, or `nil` if the operation fails.
+         */
+        func image(maskedBy path: NSBezierPath, size: CGSize) -> NSImage? {
+            guard let bitmapRep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(size.width), pixelsHigh: Int(size.height), bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0) else { return nil }
+                guard let context = NSGraphicsContext(bitmapImageRep: bitmapRep) else { return nil }
+                NSGraphicsContext.saveGraphicsState()
+                NSGraphicsContext.current = context
+                path.addClip()
+                draw(at: .zero, from: NSRect(origin: .zero, size: size), operation: .sourceOver, fraction: 1.0)
+                NSGraphicsContext.restoreGraphicsState()
+                let finalImage = NSImage(size: size)
+                finalImage.addRepresentation(bitmapRep)
+                return finalImage
+        }
     }
 
 #elseif canImport(UIKit)
@@ -171,6 +195,26 @@ public extension NSUIImage {
             UIGraphicsEndImageContext()
 
             return newImage!
+        }
+        
+        /**
+         Creates a new image by masking the current image to the area defined by a `UIBezierPath`.
+         
+         This method uses the provided `UIBezierPath` as a mask to retain only the area inside the path and discard everything outside of it.
+         
+         - Parameters:
+            - path: The `UIBezierPath` that defines the mask for the image. Only the area inside the path will remain visible.
+            - size: The size of the resulting image. The image will be scaled to fit this size.
+
+         - Returns: A new `UIImage` masked by the given path, or `nil` if the operation fails.
+         */
+        func image(maskedBy path: UIBezierPath, size: CGSize) -> UIImage {
+            let renderer = UIGraphicsImageRenderer(size: size)
+            let maskedImage = renderer.image { context in
+                path.addClip()
+                draw(at: .zero)
+            }
+            return maskedImage
         }
 
         #if os(iOS) || os(tvOS)

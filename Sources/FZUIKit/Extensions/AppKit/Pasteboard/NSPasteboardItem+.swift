@@ -10,23 +10,6 @@ import AppKit
 import FZSwiftUtils
 
 extension NSPasteboardItem {
-    /// Creates a pasteboard item for a custom content.
-    public convenience init<Content>(_ content: Content) {
-        self.init()
-        self.setString(UUID().uuidString, forType: .textFinderOptions)
-        self.content = content
-    }
-    
-    /// Returns the custom content of the pasteboard item.
-    public func content<Content>(_ : Content.Type) -> Content? {
-        self.content as? Content
-    }
-    
-    var content: Any? {
-        get { getAssociatedValue("itemContent") }
-        set { setAssociatedValue(newValue, key: "itemContent") }
-    }
-    
     /// The string of the pasteboard item.
     public var string: String? {
         get { string(forType: .string) }

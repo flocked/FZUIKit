@@ -97,11 +97,6 @@ import UniformTypeIdentifiers
             get { read(for: NSFilePromiseReceiver.self) }
         }
         
-        /// The contents of the specified content type  or `nil` if no content is available.
-        public func content<Content>(_ : Content.Type) -> [Content]? {
-            pasteboardItems?.compactMap({$0.content(Content.self)})
-        }
-        
         func write<Value: NSPasteboardWriting>(_ values: [Value]) {
             guard !values.isEmpty else { return }
             clearContents()

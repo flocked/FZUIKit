@@ -106,10 +106,6 @@ public extension Collection where Element == (any PasteboardWriting) {
     var pasteboardItems: [NSPasteboardItem] {
         compactMap({$0 as? NSPasteboardItem})
     }
-    
-    func content<Content: Codable>(_ content: Content.Type) -> [Content] {
-        pasteboardItems.compactMap({$0.content(content)})
-    }
 }
 
 extension NSDraggingItem {

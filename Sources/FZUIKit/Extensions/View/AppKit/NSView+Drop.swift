@@ -92,6 +92,8 @@ extension NSView {
         /// The handler that gets called when a pasteboard dragging exits the view’s bounds rectangle.
         public var dropExited: (()->())?
         
+        public var dropImage: ((_ item: NSPasteboardItem) -> (DragPreview?))?
+        
         public var springLoading = SpringLoading()
         
         public struct SpringLoading {
@@ -127,12 +129,13 @@ fileprivate class DropView: NSView, NSSpringLoadingDestination {
         guard  handlers.isActive else { return [] }
         dropContent = sender.draggingPasteboard.content
         handlers.dropEntered?(dropContent, sender.location(in: self))
-        return canDrop(sender) ? .copy : []
+        return canDrop(sender, updateDraggingImage: true) ? .copy : []
     }
     
     override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
         guard handlers.isActive else { return [] }
-        return canDrop(sender) ? .copy : []
+        let canDrop = self.canDrop(sender)
+        return canDrop ? .copy : []
     }
     
     override func draggingExited(_ sender: NSDraggingInfo?) {
@@ -172,7 +175,40 @@ fileprivate class DropView: NSView, NSSpringLoadingDestination {
         nil
     }
     
-    func canDrop(_ draggingInfo: NSDraggingInfo) -> Bool {
+    var renderItemsCount = -1
+    weak var draggingInfo: NSDraggingInfo?
+    var draggingItemImageComponents: [NSPasteboardItem: [NSDraggingImageComponent]] = [:] {
+        didSet { updateDraggingItemImages() }
+    }
+    
+    func updateDraggingItemImages() {
+        guard renderItemsCount == draggingItemImageComponents.count, let draggingInfo = draggingInfo else { return }
+        draggingInfo.enumerateDraggingItems(for: self, classes: [NSPasteboardItem.self]) { [weak self] draggingItem, index, shouldStop in
+            guard let item = draggingItem.item as? NSPasteboardItem, let imageComponents = self?.draggingItemImageComponents[item] else { return }
+            draggingItem.imageComponentsProvider = { imageComponents }
+        }
+    }
+    
+    override func updateDraggingItemsForDrag(_ sender: NSDraggingInfo?) {
+        guard let draggingInfo = sender, let dropImageHandler = handlers.dropImage else { 
+            super.updateDraggingItemsForDrag(sender)
+            return
+        }
+        draggingItemImageComponents = [:]
+        renderItemsCount = -1
+        self.draggingInfo = draggingInfo
+        let renderItems = (draggingInfo.draggingPasteboard.pasteboardItems ?? []).filter({ item in
+            item.content.contains(where: { reading in self.acceptedDropContent.contains(where: { $0.pasteboardReading === reading.pasteboardReading }) })
+        })
+        renderItemsCount = renderItems.count
+        renderItems.forEach({ item in
+            (dropImageHandler(item) ?? .init()).render { [weak self] images in
+                self?.draggingItemImageComponents[item] = images
+            }
+        })
+    }
+    
+    func canDrop(_ draggingInfo: NSDraggingInfo, updateDraggingImage: Bool = false) -> Bool {
         acceptedDropContent = []
         let location = draggingInfo.location(in: self)
         var canDrop = false
@@ -197,6 +233,7 @@ fileprivate class DropView: NSView, NSSpringLoadingDestination {
             acceptedDropContent = []
             return false
         }
+        
         return true
     }
     
@@ -217,6 +254,34 @@ fileprivate class DropView: NSView, NSSpringLoadingDestination {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+}
+
+extension NSShadow {
+    func renderAsImage(path shadowPath: NSBezierPath, size: CGSize) -> NSImage {
+        NSImage(shadowPath: shadowPath, size: size, color: shadowColor ?? .clear, radius: shadowBlurRadius, offset: shadowOffset.point)
+    }
+}
+
+extension NSObjectProtocol where Self == NSImage {
+    init(shadowPath: NSBezierPath, size: CGSize, configuration: ShadowConfiguration) {
+        self.init(size: size)
+        self.lockFocus()
+        NSShadow(configuration: configuration).set()
+        shadowPath.fill()
+        self.unlockFocus()
+    }
+    
+    init(shadowPath: NSBezierPath, size: CGSize, color: NSColor = .shadowColor, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) {
+        self.init(shadowPath: shadowPath, size: size, configuration: .color(color, opacity: 1.0, radius: radius, offset: offset))
+    }
+}
+
+extension NSDraggingItem.ImageComponentKey {
+    /// A key for a corresponding value that is a dragging item’s background color.
+    public static let backgroundColor = NSDraggingItem.ImageComponentKey("backgroundColor")
+    
+    /// A key for a corresponding value that is a dragging item’s shadow.
+    public static let shadow = NSDraggingItem.ImageComponentKey("shadow")
 }
 
 #endif
