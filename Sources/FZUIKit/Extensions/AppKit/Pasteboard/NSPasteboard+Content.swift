@@ -21,8 +21,8 @@ public extension NSPasteboard {
 
 public class PasteboardValidation {
     private weak var pasteboard: NSPasteboard?
-    private var lastChangeCounts: [PasteboardType: Int] = [:]
     private var hasItems: [PasteboardType: Bool] = [:]
+    private var lastChangeCount = -1
     
     /// Initializes the `PasteboardValidation` with the given pasteboard.
     init(_ pasteboard: NSPasteboard) {
@@ -110,9 +110,12 @@ public class PasteboardValidation {
     
     private func refreshIfNeeded(for type: PasteboardType) -> Bool {
         guard let pasteboard = pasteboard else { return false }
-        let currentChangeCount = pasteboard.changeCount
-        guard lastChangeCounts[type] != currentChangeCount else { return hasItems[type] ?? false }
-        lastChangeCounts[type] = currentChangeCount
+        if pasteboard.changeCount != lastChangeCount {
+            lastChangeCount = pasteboard.changeCount
+            hasItems.removeAll()
+        } else if let canRead = hasItems[type] {
+            return canRead
+        }
         let canRead = pasteboard.canReadObject(forClasses: [type.pasteboardReading], options: type == .fileURLs ? [.urlReadingFileURLsOnly: true] : nil)
         hasItems[type] = canRead
         return canRead
@@ -121,8 +124,9 @@ public class PasteboardValidation {
 
 public class PasteboardContent {
     private weak var pasteboard: NSPasteboard?
-    private var lastChangeCounts: [PasteboardType: Int] = [:]
-
+    private var lastChangeCount = -1
+    private var values: [PasteboardType : Any] = [:]
+    
     init(_ pasteboard: NSPasteboard) {
         self.pasteboard = pasteboard
     }
@@ -141,51 +145,35 @@ public class PasteboardContent {
     
     public var strings: [String] {
         refreshIfNeeded(for: .strings)
-        return _strings
     }
-    private var _strings: [String] = []
     
     public var attributedStrings: [NSAttributedString] {
         refreshIfNeeded(for: .attributedStrings)
-        return _attributedStrings
     }
-    private var _attributedStrings: [NSAttributedString] = []
     
     public var urls: [URL] {
         refreshIfNeeded(for: .urls)
-        return _urls
     }
-    private var _urls: [URL] = []
     
     public var fileURLs: [URL] {
-        refreshIfNeeded(for: .urls)
-        return _fileURLs
+        refreshIfNeeded(for: .fileURLs)
     }
-    private var _fileURLs: [URL] = []
     
     public var colors: [NSColor] {
         refreshIfNeeded(for: .colors)
-        return _colors
     }
-    private var _colors: [NSColor] = []
     
     public var images: [NSImage] {
         refreshIfNeeded(for: .images)
-        return _images
     }
-    private var _images: [NSImage] = []
     
     public var sounds: [NSSound] {
         refreshIfNeeded(for: .sounds)
-        return _sounds
     }
-    private var _sounds: [NSSound] = []
     
     public var filePromiseReceivers: [NSFilePromiseReceiver] {
         refreshIfNeeded(for: .filePromiseReceivers)
-        return _filePromiseReceivers
     }
-    private var _filePromiseReceivers: [NSFilePromiseReceiver] = []
     
     @available(macOS 11.0, *)
     public func urls(contentTypes: [UTType]) -> [URL] {
@@ -205,22 +193,24 @@ public class PasteboardContent {
         fileURLs.filter { $0.fileType?.exists(in: types) == true }
     }
     
-    /*
-    private var allValues: [PasteboardType:Any] = [:]
-    private func refreshIfNeededAlt<V>(for type: PasteboardType) -> [V] {
-        let currentChangeCount = pasteboard.changeCount
-        guard lastChangeCounts[type] != currentChangeCount else { return allValues[type] as? [V] ?? [] }
-        lastChangeCounts[type] = currentChangeCount
+    private func refreshIfNeeded<V>(for type: PasteboardType) -> [V] {
+        guard let pasteboard = pasteboard else { return [] }
+        if lastChangeCount != pasteboard.changeCount {
+            lastChangeCount = pasteboard.changeCount
+            values.removeAll()
+        } else if let values = values[type] as? [V] {
+            return values
+        }
         var values: [V] = []
         if type == .fileURLs {
             values = (urls.filter({ $0.isFileURL }) as? [V] ?? [])
         }
         values = readObjects(for: type.pasteboardReading) as? [V] ?? []
-        allValues[type] = values
+        self.values[type] = values
         return values
     }
-     */
-        
+    
+    /*
     private func refreshIfNeeded(for type: PasteboardType) {
         guard let currentChangeCount = pasteboard?.changeCount else { return }
         guard lastChangeCounts[type] != currentChangeCount else { return }
@@ -244,6 +234,7 @@ public class PasteboardContent {
         default: break
         }
     }
+     */
 }
 
 fileprivate enum PasteboardType: CaseIterable {
