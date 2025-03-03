@@ -13,12 +13,17 @@ import FZSwiftUtils
  public protocol PasteboardReading {
      /// A representation of the content that can be read from a pasteboard.
      var pasteboardReading: NSPasteboardReading { get }
+     
+     /// The class type used for pasteboard reading.
+     static var pasteboardReadingType: NSPasteboardReading.Type { get }
  }
 
  extension PasteboardReading where Self: NSPasteboardReading {
      public var pasteboardReading: NSPasteboardReading {
          self as NSPasteboardReading
      }
+     
+     public static var pasteboardReadingType: NSPasteboardReading.Type { self }
  }
 
  extension NSString: PasteboardReading { }
@@ -34,6 +39,8 @@ import FZSwiftUtils
      public var pasteboardReading: NSPasteboardReading {
          self as NSPasteboardReading
      }
+     
+     public static var pasteboardReadingType: NSPasteboardReading.Type { NSString.self }
  }
 
  @available(macOS 12, *)
@@ -41,12 +48,16 @@ import FZSwiftUtils
      public var pasteboardReading: NSPasteboardReading {
          NSAttributedString(self).pasteboardReading
      }
+     
+     public static var pasteboardReadingType: NSPasteboardReading.Type { NSAttributedString.self }
  }
 
  extension URL: PasteboardReading {
      public var pasteboardReading: NSPasteboardReading {
          self as NSPasteboardReading
      }
+     
+     public static var pasteboardReadingType: NSPasteboardReading.Type { NSURL.self }
  }
 
 

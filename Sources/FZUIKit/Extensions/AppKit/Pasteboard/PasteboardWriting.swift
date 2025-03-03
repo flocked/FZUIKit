@@ -11,12 +11,17 @@ import AppKit
 public protocol PasteboardWriting {
     /// A representation of the content that can be written to a pasteboard.
     var pasteboardWriting: NSPasteboardWriting { get }
+    
+    /// The class type used for pasteboard writing.
+    static var pasteboardWritingType: NSPasteboardWriting.Type { get }
 }
 
 extension PasteboardWriting where Self: NSPasteboardWriting {
     public var pasteboardWriting: NSPasteboardWriting {
         self as NSPasteboardWriting
     }
+    
+    public static var pasteboardWritingType: NSPasteboardWriting.Type { self }
 }
 
 public extension NSPasteboard {
@@ -46,6 +51,8 @@ extension String: PasteboardWriting {
     public var pasteboardWriting: NSPasteboardWriting {
         self as NSPasteboardWriting
     }
+    
+    public static var pasteboardWritingType: NSPasteboardWriting.Type { NSString.self }
 }
 
 @available(macOS 12, *)
@@ -53,12 +60,16 @@ extension AttributedString: PasteboardWriting {
     public var pasteboardWriting: NSPasteboardWriting {
         NSAttributedString(self).pasteboardWriting
     }
+    
+    public static var pasteboardWritingType: NSPasteboardWriting.Type { NSAttributedString.self }
 }
 
 extension URL: PasteboardWriting {
     public var pasteboardWriting: NSPasteboardWriting {
         self as NSPasteboardWriting
     }
+    
+    public static var pasteboardWritingType: NSPasteboardWriting.Type { NSURL.self }
 }
 
 public extension Collection where Element == (any PasteboardWriting) {
