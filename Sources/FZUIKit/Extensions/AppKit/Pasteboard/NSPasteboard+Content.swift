@@ -9,22 +9,13 @@ import AppKit
 import FZSwiftUtils
 import UniformTypeIdentifiers
 
-public extension NSPasteboard {
-    var validation: PasteboardValidation {
-        getAssociatedValue("PasteboardValidation", initialValue: .init(self))
-    }
-    
-    var reader: PasteboardContent {
-        getAssociatedValue("PasteboardContent", initialValue: .init(self))
-    }
-}
 
-public class PasteboardValidation {
+public class PasteboardContentValidation {
     private weak var pasteboard: NSPasteboard?
     private var hasItems: [PasteboardType: Bool] = [:]
     private var lastChangeCount = -1
     
-    /// Initializes the `PasteboardValidation` with the given pasteboard.
+    /// Initializes the `PasteboardContentValidation` with the given pasteboard.
     init(_ pasteboard: NSPasteboard) {
         self.pasteboard = pasteboard
     }
@@ -42,42 +33,42 @@ public class PasteboardValidation {
     
     /// Returns whether the pasteboard contains string objects.
     public var hasStrings: Bool {
-        refreshIfNeeded(for: .strings)
+        value(for: .strings)
     }
     
     /// Returns whether the pasteboard contains attributed string objects.
     public var hasAttributedStrings: Bool {
-        refreshIfNeeded(for: .attributedStrings)
+        value(for: .attributedStrings)
     }
     
     /// Returns whether the pasteboard contains color objects.
     public var hasColors: Bool {
-        refreshIfNeeded(for: .colors)
+        value(for: .colors)
     }
     
     /// Returns whether the pasteboard contains image objects.
     public var hasImages: Bool {
-        refreshIfNeeded(for: .images)
+        value(for: .images)
     }
     
     /// Returns whether the pasteboard contains sound objects.
     public var hasSounds: Bool {
-        refreshIfNeeded(for: .sounds)
+        value(for: .sounds)
     }
     
     /// Returns whether the pasteboard contains file promise receivers.
     public var hasFilePromiseReceivers: Bool {
-        refreshIfNeeded(for: .filePromiseReceivers)
+        value(for: .filePromiseReceivers)
     }
     
     /// Returns whether the pasteboard contains URL objects.
     public var hasURLs: Bool {
-        refreshIfNeeded(for: .urls)
+        value(for: .urls)
     }
     
     /// Returns whether the pasteboard contains file URL objects.
     public var hasFileURLs: Bool {
-        refreshIfNeeded(for: .fileURLs)
+        value(for: .fileURLs)
     }
     
     /// Checks if the pasteboard contains URLs conforming to the specified content types.
@@ -108,7 +99,7 @@ public class PasteboardValidation {
         return pasteboard?.canReadObject(forClasses: [NSURL.self], options: options) ?? false
     }
     
-    private func refreshIfNeeded(for type: PasteboardType) -> Bool {
+    private func value(for type: PasteboardType) -> Bool {
         guard let pasteboard = pasteboard else { return false }
         if pasteboard.changeCount != lastChangeCount {
             lastChangeCount = pasteboard.changeCount
@@ -144,35 +135,35 @@ public class PasteboardContent {
     }
     
     public var strings: [String] {
-        refreshIfNeeded(for: .strings)
+        value(for: .strings)
     }
     
     public var attributedStrings: [NSAttributedString] {
-        refreshIfNeeded(for: .attributedStrings)
+        value(for: .attributedStrings)
     }
     
     public var urls: [URL] {
-        refreshIfNeeded(for: .urls)
+        value(for: .urls)
     }
     
     public var fileURLs: [URL] {
-        refreshIfNeeded(for: .fileURLs)
+        value(for: .fileURLs)
     }
     
     public var colors: [NSColor] {
-        refreshIfNeeded(for: .colors)
+        value(for: .colors)
     }
     
     public var images: [NSImage] {
-        refreshIfNeeded(for: .images)
+        value(for: .images)
     }
     
     public var sounds: [NSSound] {
-        refreshIfNeeded(for: .sounds)
+        value(for: .sounds)
     }
     
     public var filePromiseReceivers: [NSFilePromiseReceiver] {
-        refreshIfNeeded(for: .filePromiseReceivers)
+        value(for: .filePromiseReceivers)
     }
     
     @available(macOS 11.0, *)
@@ -193,7 +184,7 @@ public class PasteboardContent {
         fileURLs.filter { $0.fileType?.exists(in: types) == true }
     }
     
-    private func refreshIfNeeded<V>(for type: PasteboardType) -> [V] {
+    private func value<V>(for type: PasteboardType) -> [V] {
         guard let pasteboard = pasteboard else { return [] }
         if lastChangeCount != pasteboard.changeCount {
             lastChangeCount = pasteboard.changeCount
@@ -201,40 +192,10 @@ public class PasteboardContent {
         } else if let values = values[type] as? [V] {
             return values
         }
-        var values: [V] = []
-        if type == .fileURLs {
-            values = (urls.filter({ $0.isFileURL }) as? [V] ?? [])
-        }
-        values = readObjects(for: type.pasteboardReading) as? [V] ?? []
+        let values = pasteboard.readObjects(forClasses: [type.pasteboardReading], options: type == .fileURLs ? [.urlReadingFileURLsOnly: true] : nil) as? [V] ?? []
         self.values[type] = values
         return values
     }
-    
-    /*
-    private func refreshIfNeeded(for type: PasteboardType) {
-        guard let currentChangeCount = pasteboard?.changeCount else { return }
-        guard lastChangeCounts[type] != currentChangeCount else { return }
-        lastChangeCounts[type] = currentChangeCount
-        switch type {
-        case .strings:
-            _strings = readObjects(for: NSString.self) as [String]
-        case .attributedStrings:
-            _attributedStrings = readObjects(for: NSAttributedString.self)
-        case .urls:
-            _urls = readObjects(for: NSURL.self) as [URL]
-            _fileURLs = _urls.filter { $0.isFileURL }
-        case .colors:
-            _colors = readObjects(for: NSColor.self)
-        case .images:
-            _images = readObjects(for: NSImage.self)
-        case .sounds:
-            _sounds = readObjects(for: NSSound.self)
-        case .filePromiseReceivers:
-            _filePromiseReceivers = readObjects(for: NSFilePromiseReceiver.self)
-        default: break
-        }
-    }
-     */
 }
 
 fileprivate enum PasteboardType: CaseIterable {
