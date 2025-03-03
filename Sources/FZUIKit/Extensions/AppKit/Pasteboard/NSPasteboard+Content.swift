@@ -16,7 +16,7 @@ public class PasteboardContentValidation {
     private var lastChangeCount = -1
     
     /// Initializes the `PasteboardContentValidation` with the given pasteboard.
-    init(_ pasteboard: NSPasteboard) {
+    public init(pasteboard: NSPasteboard) {
         self.pasteboard = pasteboard
     }
     
@@ -118,7 +118,7 @@ public class PasteboardContent {
     private var lastChangeCount = -1
     private var values: [PasteboardType : Any] = [:]
     
-    init(_ pasteboard: NSPasteboard) {
+    public init(pasteboard: NSPasteboard) {
         self.pasteboard = pasteboard
     }
     
