@@ -9,7 +9,19 @@ import AppKit
 import FZSwiftUtils
 import UniformTypeIdentifiers
 
+public extension NSDraggingInfo {
+    /// The content of the pasteboard.
+    var pasteboardContent: PasteboardContent {
+        FZSwiftUtils.getAssociatedValue("pasteboardContent", object: self, initialValue: .init(pasteboard: draggingPasteboard))
+    }
+    
+    /// Object to validate the content of the pasteboard.
+    var pasteboardContentValidation: PasteboardContentValidation {
+        FZSwiftUtils.getAssociatedValue("pasteboardContentValidation", object: self, initialValue: .init(pasteboard: draggingPasteboard))
+    }
+}
 
+/// Object to validate the content of a pasteboard.
 public class PasteboardContentValidation {
     private weak var pasteboard: NSPasteboard?
     private var hasItems: [PasteboardType: Bool] = [:]
@@ -29,6 +41,14 @@ public class PasteboardContentValidation {
     /// Checks if the pasteboard can read objects of the specified classes.
     public func canReadObjects(for classes: [NSPasteboardReading.Type]) -> Bool {
         pasteboard?.canReadObject(forClasses: classes) ?? false
+    }
+    
+    public var pasteboardTyoes: [NSPasteboard.PasteboardType] {
+        pasteboard?.types ?? []
+    }
+    
+    public func availablePasteboardType(from types: [NSPasteboard.PasteboardType]) -> NSPasteboard.PasteboardType? {
+        pasteboard?.availableType(from: types)
     }
     
     /// Returns whether the pasteboard contains string objects.
@@ -113,6 +133,7 @@ public class PasteboardContentValidation {
     }
 }
 
+/// Object to read the content of a pasteboard.
 public class PasteboardContent {
     private weak var pasteboard: NSPasteboard?
     private var lastChangeCount = -1
