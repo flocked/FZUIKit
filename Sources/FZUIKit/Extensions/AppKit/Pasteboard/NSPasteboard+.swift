@@ -118,6 +118,9 @@ import UniformTypeIdentifiers
 
 extension NSPasteboard.PasteboardType {
     ///Promised files.
-    public static let fileReceiver = NSPasteboard.PasteboardType(kPasteboardTypeFileURLPromise)
+    public static let fileReceiver = Self(kPasteboardTypeFileURLPromise)
+    
+    /// Source app bundle identifier.
+    public static let sourceAppBundleIdentifier = Self("org.nspasteboard.source")
 }
 #endif

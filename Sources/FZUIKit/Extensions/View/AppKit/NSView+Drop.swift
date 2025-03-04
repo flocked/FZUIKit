@@ -142,7 +142,7 @@ fileprivate class DropView: NSView, NSSpringLoadingDestination {
         handlers.dropExited?()
     }
     
-    override func draggingEnded(_ sender: any NSDraggingInfo) {
+    override func draggingEnded(_ sender: NSDraggingInfo) {
         dropContent = []
         acceptedDropContent = []
     }
@@ -155,19 +155,19 @@ fileprivate class DropView: NSView, NSSpringLoadingDestination {
         return !acceptedDropContent.isEmpty
     }
     
-    func springLoadingEntered(_ draggingInfo: any NSDraggingInfo) -> NSSpringLoadingOptions {
+    func springLoadingEntered(_ draggingInfo: NSDraggingInfo) -> NSSpringLoadingOptions {
         acceptedDropContent.isEmpty ? .disabled : handlers.springLoading.options?(acceptedDropContent) ?? .disabled
     }
     
-    func springLoadingUpdated(_ draggingInfo: any NSDraggingInfo) -> NSSpringLoadingOptions {
+    func springLoadingUpdated(_ draggingInfo: NSDraggingInfo) -> NSSpringLoadingOptions {
         acceptedDropContent.isEmpty ? .disabled : handlers.springLoading.options?(acceptedDropContent) ?? .disabled
     }
     
-    func springLoadingActivated(_ activated: Bool, draggingInfo: any NSDraggingInfo) {
+    func springLoadingActivated(_ activated: Bool, draggingInfo: NSDraggingInfo) {
         handlers.springLoading.activated?(activated)
     }
     
-    func springLoadingHighlightChanged(_ draggingInfo: any NSDraggingInfo) {
+    func springLoadingHighlightChanged(_ draggingInfo: NSDraggingInfo) {
         handlers.springLoading.highlightChanged?(draggingInfo.springLoadingHighlight)
     }
     
@@ -282,6 +282,86 @@ extension NSDraggingItem.ImageComponentKey {
     
     /// A key for a corresponding value that is a dragging item’s shadow.
     public static let shadow = NSDraggingItem.ImageComponentKey("shadow")
+}
+
+extension NSView {
+    struct DropHandlersAlt {
+        public var canDrop: ((NSDraggingInfo)->(Bool))?
+        public var performDrop: ((NSDraggingInfo)->())?
+        
+        public var sessionDidEnter: ((NSDraggingInfo)->())?
+        public var sessionDidUpdate: ((NSDraggingInfo) -> NSDragOperation)?
+        public var sessionDidExit: ((NSDraggingInfo?)->())?
+        public var sessionDidEnd: ((NSDraggingInfo)->())?
+        
+        public var updatePreviewItems: ((NSDraggingInfo?)->())?
+        
+        var isActive: Bool {
+            canDrop != nil && performDrop != nil
+        }
+    }
+}
+
+fileprivate class DropViewAlt: NSView {
+    var handlers = DropHandlersAlt()
+    var canDrop = false
+    var isDragging = false
+    var operation: NSDragOperation = .copy
+    
+    override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
+        if !isDragging {
+            canDrop = handlers.isActive && (handlers.canDrop?(sender) ?? false)
+            isDragging = true
+        }
+        guard canDrop else { return [] }
+        handlers.sessionDidEnter?(sender)
+        return operation
+    }
+    
+    override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
+        guard canDrop else { return [] }
+        operation = handlers.sessionDidUpdate?(sender) ?? operation
+        return operation
+    }
+    
+    override func draggingEnded(_ sender: NSDraggingInfo) {
+        isDragging = false
+        operation = .copy
+        guard canDrop else { return }
+        handlers.sessionDidEnd?(sender)
+    }
+    
+    override func draggingExited(_ sender: NSDraggingInfo?) {
+        guard canDrop else { return }
+        handlers.sessionDidExit?(sender)
+    }
+    
+    override func updateDraggingItemsForDrag(_ sender: NSDraggingInfo?) {
+        guard canDrop else { return }
+        handlers.updatePreviewItems?(sender)
+    }
+    
+    override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        guard canDrop, let performDrop = handlers.performDrop else { return false }
+        performDrop(sender)
+        return true
+    }
+}
+
+class DropSession {
+    public let draggingInfo: NSDraggingInfo
+    
+    public var draggingPasteboard: NSPasteboard { draggingInfo.draggingPasteboard }
+    
+    public let draggingContent: PasteboardContent
+    
+    public let draggingValidation: PasteboardContentValidation
+    
+    init(draggingInfo: NSDraggingInfo) {
+        self.draggingInfo = draggingInfo
+        self.draggingContent = .init(pasteboard: draggingInfo.draggingPasteboard)
+        self.draggingValidation = .init(pasteboard: draggingInfo.draggingPasteboard)
+    }
 }
 
 #endif

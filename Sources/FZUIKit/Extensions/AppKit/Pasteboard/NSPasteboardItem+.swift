@@ -8,8 +8,17 @@
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
+import UniformTypeIdentifiers
 
 extension NSPasteboardItem {
+    @available(macOS 11.0, *)
+    var contentTypes: [UTType] { types.compactMap({ $0.uttype }) }
+    
+    @available(macOS 11.0, *)
+    func contentTypes(conformingTo contentType: UTType) -> [UTType] {
+        contentTypes.filter({ $0.conforms(to: contentType) })
+    }
+    
     /// The string of the pasteboard item.
     public var string: String? {
         get { string(forType: .string) }

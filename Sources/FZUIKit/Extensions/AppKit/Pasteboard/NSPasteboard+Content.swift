@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 03.03.25.
 //
 
+#if os(macOS)
 import AppKit
 import FZSwiftUtils
 import UniformTypeIdentifiers
@@ -21,6 +22,13 @@ public extension NSDraggingInfo {
     }
 }
 
+extension NSPasteboard.PasteboardType {
+    @available(macOS 11.0, *)
+    public var uttype: UTType? {
+        UTType(rawValue)
+    }
+}
+
 /// Object to validate the content of a pasteboard.
 public class PasteboardContentValidation {
     private weak var pasteboard: NSPasteboard?
@@ -34,7 +42,7 @@ public class PasteboardContentValidation {
     
     /// Checks if the pasteboard contains items conforming to the specified type identifiers.
     @available(macOS 11.0, *)
-    public func hasItemsConforming(toTypeIdentifiers typeIdentifiers: [UTType]) -> Bool {
+    public func hasItemsConforming(to typeIdentifiers: [UTType]) -> Bool {
         pasteboard?.canReadItem(withDataConformingToTypes: typeIdentifiers.map { $0.identifier }) ?? false
     }
     
@@ -113,10 +121,8 @@ public class PasteboardContentValidation {
         hasURLs(fileOnly: true, types: types.compactMap({$0.identifier}))
     }
     
-    private func hasURLs(fileOnly: Bool? = nil, types: [String]) -> Bool {
-        var options: [NSPasteboard.ReadingOptionKey : Any] = [.urlReadingContentsConformToTypes : types]
-        options[.urlReadingFileURLsOnly] = fileOnly
-        return pasteboard?.canReadObject(forClasses: [NSURL.self], options: options) ?? false
+    private func hasURLs(fileOnly: Bool = false, types: [String]) -> Bool {
+        pasteboard?.canReadObject(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly : fileOnly, .urlReadingContentsConformToTypes : types]) ?? false
     }
     
     private func value(for type: PasteboardType) -> Bool {
@@ -127,7 +133,7 @@ public class PasteboardContentValidation {
         } else if let canRead = hasItems[type] {
             return canRead
         }
-        let canRead = pasteboard.canReadObject(forClasses: [type.pasteboardReading], options: type == .fileURLs ? [.urlReadingFileURLsOnly: true] : nil)
+        let canRead = pasteboard.canReadObject(forClasses: [type.pasteboardReading], options: type.options)
         hasItems[type] = canRead
         return canRead
     }
@@ -145,6 +151,10 @@ public class PasteboardContent {
     
     public func readObjects<T: NSPasteboardReading>(for type: T.Type) -> [T] {
         (pasteboard?.readObjects(forClasses: [T.self]) ?? []).compactMap { $0 as? T }
+    }
+    
+    public func readObjects<T>(for type: T.Type) -> [T] where T : _ObjectiveCBridgeable, T._ObjectiveCType : NSPasteboardReading {
+        (pasteboard?.readObjects(forClasses: [T._ObjectiveCType.self]) ?? []).compactMap { $0 as? T }
     }
     
     public func readObjects(for types: [NSPasteboardReading.Type]) -> [NSPasteboardReading] {
@@ -213,13 +223,13 @@ public class PasteboardContent {
         } else if let values = values[type] as? [V] {
             return values
         }
-        let values = pasteboard.readObjects(forClasses: [type.pasteboardReading], options: type == .fileURLs ? [.urlReadingFileURLsOnly: true] : nil) as? [V] ?? []
+        let values = pasteboard.readObjects(forClasses: [type.pasteboardReading], options: type.options) as? [V] ?? []
         self.values[type] = values
         return values
     }
 }
 
-fileprivate enum PasteboardType: CaseIterable {
+fileprivate enum PasteboardType {
     case strings, attributedStrings, colors, images, sounds, filePromiseReceivers, urls, fileURLs
     
     var pasteboardReading: NSPasteboardReading.Type  {
@@ -234,4 +244,43 @@ fileprivate enum PasteboardType: CaseIterable {
         case .fileURLs: return NSURL.self
         }
     }
+    
+    var options: [NSPasteboard.ReadingOptionKey : Any]? {
+        self == .fileURLs ? [.urlReadingFileURLsOnly: true] : nil
+    }
 }
+
+extension NSPasteboard {
+    func readObjects(for classes: [NSPasteboardReading.Type]) -> [NSPasteboardReading] {
+        let classReadableTypes = classes.map { ($0, $0.readableTypes(for: self)) }
+        return pasteboardItems?.compactMap { item in
+            for (type, readableTypes) in classReadableTypes {
+                   for readableType in readableTypes {
+                    let options = type.readingOptions?(forType: readableType, pasteboard: self) ?? .asData
+                     if let data = item.data(forType: readableType, options: options), let object = type.init(pasteboardPropertyList: data, ofType: readableType) {
+                        return object
+                     } else if options.contains(.asKeyedArchive), let data = item.data(forType: readableType), let object = try? NSKeyedUnarchiver.unarchive(data) as? NSPasteboardReading {
+                           return object
+                    }
+                }
+            }
+            return nil
+        } ?? []
+    }
+}
+
+extension NSPasteboardItem {
+    func data(forType type: NSPasteboard.PasteboardType, options: NSPasteboard.ReadingOptions) -> Any? {
+        if options.contains(.asString) {
+            return string(forType: type)
+        } else if options.contains(.asPropertyList) {
+            return propertyList(forType: type)
+        } else if options.contains(.asData) {
+            return data(forType: type)
+        }
+        return nil
+    }
+}
+
+#endif
+ 

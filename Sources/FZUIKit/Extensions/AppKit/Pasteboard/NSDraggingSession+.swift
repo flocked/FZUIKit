@@ -24,7 +24,6 @@ extension NSDraggingSession {
         NSApp.windows.first(where: { $0.frame.contains(draggingLocation)})
     }
     
-    
     /// The current destination window location of the drag.
     public var destinationWindowLocation: CGPoint? {
         guard let window = destinationWindow else { return nil }
