@@ -166,6 +166,35 @@ import FZSwiftUtils
         }
         
         /**
+         Creates a Bézier path for the specified symbol image, point size, font weight, and symbol scale.
+         
+         - Parameters:
+            - symbolName: The name of the system symbol image.
+            - pointSize: The point size of the symbol.
+            - weight: The font weight of the symbol.
+            - scale: The scale of the symbol.
+         */
+        @available(macOS 11.0, *)
+        convenience init?(symbolName: String, pointSize: CGFloat, weight: NSFont.Weight = .regular, scale: NSImage.SymbolScale = .default) {
+            self.init(symbolName: symbolName, symbolConfiguration: .init(pointSize: pointSize, weight: weight, scale: scale))
+
+        }
+        
+        /**
+         Creates a Bézier path for the specified symbol image, text style, font weight, and symbol scale.
+         
+         - Parameters:
+            - symbolName: The name of the system symbol image.
+            - textStyle: The text style of the symbol.
+            - weight: The font weight of the symbol.
+            - scale: The scale of the symbol.
+         */
+        @available(macOS 11.0, *)
+        convenience init?(symbolName: String, textStyle: NSFont.TextStyle, weight: NSUISymbolWeight = .regular, scale: NSImage.SymbolScale = .default) {
+            self.init(symbolName: symbolName, symbolConfiguration: .init(textStyle: textStyle, weight: weight, scale: scale))
+        }
+        
+        /**
          Creates a Bézier path for the specified symbol image and symbol configuration.
          
          - Parameters:
@@ -173,7 +202,7 @@ import FZSwiftUtils
             - symbolConfiguration: The symbol configuration.
          */
         @available(macOS 11.0, *)
-        convenience init?(symbolName: String, symbolConfiguration: NSImage.SymbolConfiguration) {
+        private convenience init?(symbolName: String, symbolConfiguration: NSImage.SymbolConfiguration) {
             guard let representation = NSImage(systemSymbolName: symbolName)?.withSymbolConfiguration(symbolConfiguration)?.representations.first, representation.responds(to: NSSelectorFromString("outlinePath")), let path = representation.value(forKey: "outlinePath") as? NSBezierPath else { return nil }
             self.init(cgPath: path.cgPath)
         }

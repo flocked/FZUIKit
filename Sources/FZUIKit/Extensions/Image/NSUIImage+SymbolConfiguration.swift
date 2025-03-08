@@ -13,6 +13,51 @@ import UIKit
 import SwiftUI
 import FZSwiftUtils
 
+
+@available(macOS 11.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+extension NSUIImage.SymbolConfiguration {
+    #if os(macOS)
+    /// Creates a symbol configuration with the specified text style, font weight and symbol scale.
+    public convenience init(textStyle: NSFont.TextStyle, weight: NSFont.Weight, scale: NSImage.SymbolScale) {
+        self.init(textStyle: textStyle, scale: scale)
+        guard weight != .regular else { return }
+        self.weight = weight
+    }
+    #endif
+
+    /// Returns the symbol configuration with the specified symbol scale.
+    func scale(_ scale: NSUIImage.SymbolScale) -> NSUIImage.SymbolConfiguration {
+        let configuration = self
+        configuration.scale = scale
+        return configuration
+    }
+    
+    /// Returns the symbol configuration with the specified symbol weight.
+    func weight(_ weight: NSUISymbolWeight?) -> NSUIImage.SymbolConfiguration {
+        let configuration = self
+        configuration.weight = weight
+        return configuration
+    }
+
+    /// A symbol configuration with the specified text style, symbol weight and symbol scale.
+    static func textStyle(_ textStyle: NSUIFont.TextStyle, weight: NSUISymbolWeight = .regular, scale: NSUIImage.SymbolScale = .default) -> NSUIImage.SymbolConfiguration {
+        if weight != .regular {
+            return Self(textStyle: textStyle, scale: scale).weight(weight)
+        }
+        return Self(textStyle: textStyle, scale: scale)
+    }
+
+    /// A symbol configuration with system font with specified point size, symbol weight, and symbol scale.
+    static func systemFont(_ pointSize: CGFloat, weight: NSUISymbolWeight = .regular, scale: NSUIImage.SymbolScale = .default) -> NSUIImage.SymbolConfiguration {
+        Self(pointSize: pointSize, weight: weight, scale: scale)
+    }
+
+    /// A symbol configuration with the specified symbol scale.
+    static func scale(_ scale: NSUIImage.SymbolScale) -> NSUIImage.SymbolConfiguration {
+        Self(scale: scale)
+    }
+}
+
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension NSUIImage.SymbolConfiguration {
     /// Returns the symbol configuration with the specified text style.
@@ -34,27 +79,20 @@ extension NSUIImage.SymbolConfiguration {
     func font(_ textStyle: NSUIFont.TextStyle, weight: NSUISymbolWeight = .regular, scale: NSUIImage.SymbolScale = .default) -> NSUIImage.SymbolConfiguration {
         return applying(Self.textStyle(textStyle, weight: weight, scale: scale))
     }
+    
+    /// A symbol configuration with the specified symbol weight.
+    static func weight(_ weight: NSUISymbolWeight?) -> NSUIImage.SymbolConfiguration {
+        let configuration = NSUIImage.SymbolConfiguration.monochrome()
+        configuration.weight = weight ?? .regular
+        return configuration
+    }
 
     /// Returns the symbol configuration with a system font with the specified point size, symbol weight and symbol scale.
     func font(size: CGFloat, weight: NSUISymbolWeight = .regular, scale: NSUIImage.SymbolScale = .default) -> NSUIImage.SymbolConfiguration {
         let configuration: NSUIImage.SymbolConfiguration = .systemFont(size, weight: weight, scale: scale)
         return applying(configuration)
     }
-
-    /// Returns the symbol configuration with the specified symbol scale.
-    func scale(_ scale: NSUIImage.SymbolScale) -> NSUIImage.SymbolConfiguration {
-        let configuration = self
-        configuration.scale = scale
-        return configuration
-    }
-
-    /// Returns the symbol configuration with the specified symbol weight.
-    func weight(_ weight: NSUISymbolWeight?) -> NSUIImage.SymbolConfiguration {
-        let configuration = self
-        configuration.weight = weight
-        return configuration
-    }
-
+    
     /// Returns the symbol configuration with a monochrome color configuration.
     func monochrome() -> NSUIImage.SymbolConfiguration {
         let configuration = applying(NSUIImage.SymbolConfiguration.monochrome())
@@ -88,27 +126,8 @@ extension NSUIImage.SymbolConfiguration {
         #endif
         return configuration
     }
-
-    /// A symbol configuration with the specified text style, symbol weight and symbol scale.
-    static func textStyle(_ textStyle: NSUIFont.TextStyle, weight: NSUISymbolWeight = .regular, scale: NSUIImage.SymbolScale = .default) -> NSUIImage.SymbolConfiguration {
-        if weight != .regular {
-            return Self(textStyle: textStyle, scale: scale).weight(weight)
-        }
-        return Self(textStyle: textStyle, scale: scale)
-    }
-
-    /// A symbol configuration with system font with specified point size, symbol weight, and symbol scale.
-    static func systemFont(_ pointSize: CGFloat, weight: NSUISymbolWeight = .regular, scale: NSUIImage.SymbolScale = .default) -> NSUIImage.SymbolConfiguration {
-        Self(pointSize: pointSize, weight: weight, scale: scale)
-    }
-
-    /// A symbol configuration with the specified symbol scale.
-    static func scale(_ scale: NSUIImage.SymbolScale) -> NSUIImage.SymbolConfiguration {
-        Self(scale: scale)
-    }
     
     /// A symbol configuration with the image symbol configuration.
-    @available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 8.0, *)
     static func configuration(_ configuration: ImageSymbolConfiguration) -> NSUIImage.SymbolConfiguration {
         return configuration.nsUI()
     }
@@ -141,30 +160,23 @@ extension NSUIImage.SymbolConfiguration {
     static func palette(_ primary: NSUIColor, _ secondary: NSUIColor? = nil, _ tertiary: NSUIColor? = nil) -> NSUIImage.SymbolConfiguration {
         Self(paletteColors: [primary, secondary, tertiary].compactMap { $0 })
     }
-
-    /// A symbol configuration with the specified symbol weight.
-    static func weight(_ weight: NSUISymbolWeight?) -> NSUIImage.SymbolConfiguration {
-        let configuration = NSUIImage.SymbolConfiguration.monochrome()
-        configuration.weight = weight ?? .regular
-        return configuration
-    }
     
     /// Returns a configuration object that applies the right configuration values on top of the left object’s values.
-    static func + (lhs: NSUIImage.SymbolConfiguration, rhs: NSUIImage.SymbolConfiguration) -> NSUIImage.SymbolConfiguration {
+    public static func + (lhs: NSUIImage.SymbolConfiguration, rhs: NSUIImage.SymbolConfiguration) -> NSUIImage.SymbolConfiguration {
         lhs.applying(rhs)
     }
     
     /// Applies the right configuration values on top of the left object’s values.
-    static func += (lhs: inout NSUIImage.SymbolConfiguration, rhs: NSUIImage.SymbolConfiguration) {
+    public static func += (lhs: inout NSUIImage.SymbolConfiguration, rhs: NSUIImage.SymbolConfiguration) {
         lhs = lhs.applying(rhs)
     }
     
-    static func && (lhs: NSUIImage.SymbolConfiguration, rhs: NSUIImage.SymbolConfiguration) -> NSUIImage.SymbolConfiguration {
+    public static func && (lhs: NSUIImage.SymbolConfiguration, rhs: NSUIImage.SymbolConfiguration) -> NSUIImage.SymbolConfiguration {
         lhs.applying(rhs)
     }
 }
 
-@available(macOS 12.0, iOS 13.0, *)
+@available(macOS 11.0, iOS 13.0, *)
 extension NSUIImage.SymbolConfiguration {
     private struct Keys {
         static let weight = "weight".mangled
@@ -175,6 +187,11 @@ extension NSUIImage.SymbolConfiguration {
         static let paletteType = "paletteType".mangled
         static let renderingStyle = "renderingStyle".mangled
         static let textStyle = "textStyle".mangled
+    }
+
+    var pointSize: CGFloat {
+        get { value(forKey: Keys.pointSize.unmangled) ?? 0.0 }
+        set { setValue(safely: newValue, forKey: Keys.pointSize.unmangled) }
     }
     
     var weight: NSUISymbolWeight? {
@@ -188,11 +205,6 @@ extension NSUIImage.SymbolConfiguration {
             #endif
         }
         set { setValue(safely: newValue?.rawValue ?? 0, forKey: Keys.weight.unmangled) }
-    }
-
-    var pointSize: CGFloat {
-        get { value(forKey: Keys.pointSize.unmangled) ?? 0.0 }
-        set { setValue(safely: newValue, forKey: Keys.pointSize.unmangled) }
     }
 
     var prefersMulticolor: Bool {
