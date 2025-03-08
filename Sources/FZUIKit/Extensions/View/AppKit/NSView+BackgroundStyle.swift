@@ -44,7 +44,11 @@ extension NSView {
             subviews.forEach({  $0.setBackgroundStyle(backgroundStyle)  })
             let selector = NSSelectorFromString("_setBackgroundStyleForSubtree:")
             guard let method = Self.instanceMethod(for: selector) else { return }
-            subviews.forEach({ unsafeBitCast(method, to: (@convention(c) (AnyObject, Selector, BackgroundStyle) -> ()).self)($0, selector, backgroundStyle) })
+            subviews.forEach({ 
+                if $0.responds(to: selector) {
+                    unsafeBitCast(method, to: (@convention(c) (AnyObject, Selector, BackgroundStyle) -> ()).self)($0, selector, backgroundStyle)
+                }
+            })
         }
     }
 }
