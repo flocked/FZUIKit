@@ -174,7 +174,7 @@ import FZSwiftUtils
          */
         @available(macOS 11.0, *)
         convenience init?(symbolName: String, symbolConfiguration: NSImage.SymbolConfiguration) {
-            guard let path = NSImage(systemSymbolName: symbolName)?.withSymbolConfiguration(symbolConfiguration)?.value(forKey: "outlinePath") as? NSBezierPath else { return nil }
+            guard let representation = NSImage(systemSymbolName: symbolName)?.withSymbolConfiguration(symbolConfiguration)?.representations.first, representation.responds(to: NSSelectorFromString("outlinePath")), let path = representation.value(forKey: "outlinePath") as? NSBezierPath else { return nil }
             self.init(cgPath: path.cgPath)
         }
         
