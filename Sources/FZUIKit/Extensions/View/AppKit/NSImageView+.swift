@@ -27,7 +27,7 @@ extension NSImageView {
     }
     
     /// Sets the symbol configuration.
-    @available(macOS 12, *)
+    @available(macOS 13, *)
     @discardableResult
     func symbolConfiguration(_ configuration: ImageSymbolConfiguration?) -> Self {
         self.imageSymbolConfiguration = configuration

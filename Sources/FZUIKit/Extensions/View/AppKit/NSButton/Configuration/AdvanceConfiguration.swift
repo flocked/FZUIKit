@@ -242,7 +242,7 @@
                         
             func resolvedSymbolConfiguration() -> ImageSymbolConfiguration? {
                 guard var configuration = imageSymbolConfiguration, let foregroundColor = resolvedForegroundColor() else { return nil }
-                configuration.color?.primary = foregroundColor
+                configuration.color?.colors[safe: 0] = foregroundColor
                 return configuration
             }
             

@@ -120,7 +120,7 @@ open class ImageView: NSControl {
     }
     
     /// The symbol configuration of the image.
-    @available(macOS 12.0, *)
+    @available(macOS 13.0, *)
     open var imageSymbolConfiguration: ImageSymbolConfiguration? {
         get { imageView.imageSymbolConfiguration }
         set { imageView.imageSymbolConfiguration = newValue }
@@ -136,7 +136,7 @@ open class ImageView: NSControl {
     
     /// Sets the symbol configuration of the image.
     @discardableResult
-    @available(macOS 12.0, *)
+    @available(macOS 13.0, *)
     open func symbolConfiguration(_ symbolConfiguration: ImageSymbolConfiguration?) -> Self {
         imageSymbolConfiguration = symbolConfiguration
         return self
