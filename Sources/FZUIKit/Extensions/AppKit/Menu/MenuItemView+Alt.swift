@@ -120,7 +120,7 @@ open class NSMenuItemView: NSTableCellView {
      Any view added using ``addSubview(_:layoutAutomatically:)`` and `layoutAutomatically` is `true`, gets constraint to the `layoutGuide` and it's margins.
      */
     public var contentMargins = NSEdgeInsets(top: 3, left: 8, bottom: 3, right: 8) {
-        didSet { contentViewConstraits.constant(highlightMargins) }
+        didSet { contentViewConstraits.constant(contentMargins) }
     }
     
     /// Sets the margins that are used to layout the ``contentView``.
