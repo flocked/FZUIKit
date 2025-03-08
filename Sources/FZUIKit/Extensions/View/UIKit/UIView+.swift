@@ -89,6 +89,27 @@
                 layer.zPosition = newValue
             }
         }
+        
+        /**
+         The handler that gets called to determinate the path of the mask.
+         
+         The handler gets called whenenver the size of the size of the view changes.
+         */
+        public var maskPathHandler: ((CGSize)->(NSBezierPath))? {
+            get {
+                if let handler = layer.maskPathHandler {
+                    return { NSBezierPath(cgPath: handler($0)) }
+                }
+                return nil
+            }
+            set {
+                if let newValue = newValue {
+                    layer.maskPathHandler = { newValue($0).cgPath }
+                } else {
+                    layer.maskPathHandler = nil
+                }
+            }
+        }
 
         /**
          The border of the view.
@@ -241,9 +262,30 @@
 
          Changes to this property can be animated. The default value is `nil`, which results in a view with no shadow path.
          */
-        @objc public var shadowPath: CGPath? {
-            get { layer.shadowPath }
-            set { layer.shadowPath = newValue }
+        @objc public var shadowPath: NSUIBezierPath? {
+            get { layer.shadowPath?.bezierPath }
+            set { layer.shadowPath = newValue?.cgPath }
+        }
+        
+        /**
+         The handler that gets called to determinate the path of the mask.
+         
+         The handler gets called whenenver the size of the size of the view changes.
+         */
+        public var shadowPathHandler: ((CGSize)->(NSBezierPath))? {
+            get {
+                if let handler = layer.shadowPathHandler {
+                    return { NSBezierPath(cgPath: handler($0)) }
+                }
+                return nil
+            }
+            set {
+                if let newValue = newValue {
+                    layer.shadowPathHandler = { newValue($0).cgPath }
+                } else {
+                    layer.shadowPathHandler = nil
+                }
+            }
         }
         
         /**

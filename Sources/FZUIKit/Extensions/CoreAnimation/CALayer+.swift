@@ -67,6 +67,68 @@ import FZSwiftUtils
             }
         }
         
+        /**
+         The handler that gets called to determinate the shadow path of the layer.
+         
+         The handler gets called whenenver the size of the size of the layer changes.
+         */
+        public var shadowPathHandler: ((CGSize)->(CGPath))? {
+            get { getAssociatedValue("shadowPathHandler") }
+            set {
+                setAssociatedValue(newValue, key: "shadowPathHandler")
+                if let newValue = newValue {
+                    shadowPathObservation = observeChanges(for: \.bounds) { [weak self] old, new in
+                        guard let self = self, old.size != new.size else { return }
+                        self.shadowPath = newValue(new.size)
+                    }
+                    shadowPath = newValue(bounds.size)
+                } else {
+                    shadowPathObservation = nil
+                }
+            }
+        }
+        
+        var shadowPathObservation: KeyValueObservation? {
+            get { getAssociatedValue("shadowPathObservation") }
+            set { setAssociatedValue(newValue, key: "shadowPathObservation") }
+        }
+        
+        /**
+         The handler that gets called to determinate the path of the layer mask.
+         
+         The handler gets called whenenver the size of the size of the layer changes.
+         */
+        public var maskPathHandler: ((CGSize)->(CGPath))? {
+            get { (mask as? MaskPathLayer)?.handler }
+            set {
+                mask?.removeFromSuperlayer()
+                mask = nil
+                if let newValue = newValue {
+                    mask = MaskPathLayer(layer: self, handler: newValue)
+                }
+            }
+        }
+        
+        class MaskPathLayer: CAShapeLayer {
+            let handler: ((CGSize)->(CGPath))
+            var observation: KeyValueObservation!
+            init(layer: CALayer, handler: @escaping ((CGSize)->(CGPath))) {
+                self.handler = handler
+                super.init()
+                frame = layer.bounds
+                layer.mask = self
+                observation = layer.observeChanges(for: \.bounds) { [weak self] old, new in
+                    guard let self = self, old.size != new.size else { return }
+                    self.frame = new
+                    self.path = self.handler(new.size)
+                }
+            }
+            
+            required init?(coder: NSCoder) {
+                fatalError("init(coder:) has not been implemented")
+            }
+        }
+        
         internal var innerShadowLayer: InnerShadowLayer? {
             firstSublayer(type: InnerShadowLayer.self)
         }

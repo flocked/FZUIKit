@@ -108,6 +108,27 @@
                 optionalLayer?.mask = newValue?.optionalLayer
             }
         }
+        
+        /**
+         The handler that gets called to determinate the path of the mask.
+         
+         The handler gets called whenenver the size of the size of the view changes.
+         */
+        public var maskPathHandler: ((CGSize)->(NSBezierPath))? {
+            get {
+                if let handler = layer?.maskPathHandler {
+                    return { NSBezierPath(cgPath: handler($0)) }
+                }
+                return nil
+            }
+            set {
+                if let newValue = newValue {
+                    optionalLayer?.maskPathHandler = { newValue($0).cgPath }
+                } else {
+                    layer?.maskPathHandler = nil
+                }
+            }
+        }
 
         /**
          The view whose inverse alpha channel is used to mask a view’s content.
@@ -522,6 +543,27 @@
             set {
                 NSView.swizzleAnimationForKey()
                 optionalLayer?.shadowPath = newValue?.cgPath
+            }
+        }
+        
+        /**
+         The handler that gets called to determinate the path of the mask.
+         
+         The handler gets called whenenver the size of the size of the view changes.
+         */
+        public var shadowPathHandler: ((CGSize)->(NSBezierPath))? {
+            get {
+                if let handler = layer?.shadowPathHandler {
+                    return { NSBezierPath(cgPath: handler($0)) }
+                }
+                return nil
+            }
+            set {
+                if let newValue = newValue {
+                    optionalLayer?.shadowPathHandler = { newValue($0).cgPath }
+                } else {
+                    layer?.shadowPathHandler = nil
+                }
             }
         }
 
