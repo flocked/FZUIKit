@@ -41,6 +41,7 @@ extension NSView {
             if #available(macOS 12.0, *), let view = self as? NSImageView {
                 view.updateSymbolConfiguration()
             }
+            subviews.forEach({  $0.setBackgroundStyle(backgroundStyle)  })
             let selector = NSSelectorFromString("_setBackgroundStyleForSubtree:")
             guard let method = Self.instanceMethod(for: selector) else { return }
             subviews.forEach({ unsafeBitCast(method, to: (@convention(c) (AnyObject, Selector, BackgroundStyle) -> ()).self)($0, selector, backgroundStyle) })
