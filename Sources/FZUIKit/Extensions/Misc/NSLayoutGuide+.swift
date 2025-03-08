@@ -42,7 +42,7 @@ extension NSUILayoutGuide {
      - Note: This method will assert if the guide is not yet added to a view or if the specified view isn't a descendant of the layout guides owning view.
      */
     @discardableResult
-    public func constraint(to view: NSView, insets: NSUIEdgeInsets = .zero) -> [NSLayoutConstraint] {
+    public func constraint(to view: NSUIView, insets: NSUIEdgeInsets = .zero) -> [NSLayoutConstraint] {
         guard let owningView = owningView else {
             assertionFailure("The guide must be added to a view before constraining the layout guide.")
             return []

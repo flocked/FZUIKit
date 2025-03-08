@@ -241,19 +241,10 @@
             }
                         
             func resolvedSymbolConfiguration() -> ImageSymbolConfiguration? {
-                guard var configuration = imageSymbolConfiguration, let colorConfiguration = configuration.color else { return nil }
-                switch colorConfiguration {
-                case let .palette(primary, secondary, ter):
-                    configuration.color = .palette(foregroundColor ?? primary, secondary, ter)
-                case .monochrome: break
-                case let .multicolor(color):
-                    configuration.color = .multicolor(foregroundColor ?? color)
-                case let .hierarchical(color):
-                    configuration.color = .hierarchical(foregroundColor ?? color)
-                }
+                guard var configuration = imageSymbolConfiguration, let foregroundColor = resolvedForegroundColor() else { return nil }
+                configuration.color?.primary = foregroundColor
                 return configuration
             }
-
             
             public func makeContentView() -> NSView & NSContentView {
                 AdvanceButtonView(configuration: self)

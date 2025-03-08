@@ -95,10 +95,10 @@
          
          The handler gets called whenenver the size of the size of the view changes.
          */
-        public var maskPathHandler: ((CGSize)->(NSBezierPath))? {
+        public var maskPathHandler: ((CGSize)->(NSUIBezierPath))? {
             get {
                 if let handler = layer.maskPathHandler {
-                    return { NSBezierPath(cgPath: handler($0)) }
+                    return { NSUIBezierPath(cgPath: handler($0)) }
                 }
                 return nil
             }
@@ -272,10 +272,10 @@
          
          The handler gets called whenenver the size of the size of the view changes.
          */
-        public var shadowPathHandler: ((CGSize)->(NSBezierPath))? {
+        public var shadowPathHandler: ((CGSize)->(NSUIBezierPath))? {
             get {
                 if let handler = layer.shadowPathHandler {
-                    return { NSBezierPath(cgPath: handler($0)) }
+                    return { NSUIBezierPath(cgPath: handler($0)) }
                 }
                 return nil
             }
