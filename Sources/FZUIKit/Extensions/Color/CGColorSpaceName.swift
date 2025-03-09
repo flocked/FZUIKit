@@ -175,6 +175,21 @@ public struct CGColorSpaceName: ExpressibleByStringLiteral {
     
     /// The generic XYZ color space.
     public static let genericXYZ = Self(CGColorSpace.genericXYZ, model: .XYZ)
+    
+    /// Returns all color space names.
+    public static var allNames: [CGColorSpaceName] {
+        var colorSpaceNames: [CGColorSpaceName] = [.acescgLinear, .adobeRGB1998, .deviceRGB, .extendedLinearSRGB, .extendedSRGB, .genericRGBLinear, .linearSRGB, .rommRGB, .sRGB, .dcip3, .displayP3, .displayP3_HLG, .extendedLinearDisplayP3, .deviceGray, .extendedGray, .extendedLinearGray, .genericGrayGamma2_2, .linearGray, .extendedLinearITUR_2020, .itur_2020, .itur_709, .genericCMYK, .deviceCMYK, .genericLab, .genericXYZ]
+        if #available(macOS 10.15.4, iOS 13.4, tvOS 13.4, watchOS 6.2, *) {
+            colorSpaceNames += .displayP3_PQ
+        }
+        if #available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
+            colorSpaceNames += [.extendedDisplayP3, .extendedITUR_2020, .itur_2100_HLG, .itur_2100_PQ]
+        }
+        if #available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, *) {
+            colorSpaceNames += [.linearDisplayP3, .itur_2020_sRGBGamma, .itur_709_HLG, .itur_709_PQ, .linearITUR_2020,]
+        }
+        return colorSpaceNames
+    }
 }
 
 extension CFType where Self == CGColorSpace {
