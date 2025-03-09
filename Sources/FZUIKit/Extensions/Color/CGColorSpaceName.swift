@@ -13,7 +13,7 @@
 import FZSwiftUtils
 
 /// Constants that specify color space names.
-public struct CGColorSpaceName: ExpressibleByStringLiteral {
+public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
     public let rawValue: String
     
     /// The number of color components in a color space.
@@ -28,9 +28,15 @@ public struct CGColorSpaceName: ExpressibleByStringLiteral {
         self.model = model
     }
     
+    public init(rawValue: String) {
+        self.rawValue = rawValue
+        self.numberOfComponents = 3
+        self.model = .rgb
+    }
+    
     public init(stringLiteral value: String) {
-        rawValue = value
-        numberOfComponents = 3
+        self.rawValue = value
+        self.numberOfComponents = 3
         self.model = .rgb
     }
     
@@ -188,14 +194,15 @@ public struct CGColorSpaceName: ExpressibleByStringLiteral {
         if #available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, *) {
             colorSpaceNames += [.linearDisplayP3, .itur_2020_sRGBGamma, .itur_709_HLG, .itur_709_PQ, .linearITUR_2020,]
         }
-        return colorSpaceNames
+        let modalColorSpaces = Dictionary(grouping: colorSpaceNames, by: \.model.rawValue)
+        return modalColorSpaces.keys.sorted(.smallestFirst).flatMap({ (modalColorSpaces[$0] ?? []).sorted(by: \.rawValue) })
     }
 }
 
 extension CFType where Self == CGColorSpace {
     /// Creates a color space with the specified name.
     public init?(name: CGColorSpaceName) {
-        guard let space = CGColorSpace(name: name.rawValue as CFString) else { return nil }
+        guard let space = name.colorSpace else { return nil }
         self = space
     }
 }
