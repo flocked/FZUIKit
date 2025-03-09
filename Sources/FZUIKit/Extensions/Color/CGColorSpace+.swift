@@ -37,3 +37,20 @@ extension CGColorSpace {
         CGColorSpaceCreateExtended(self)
     }
 }
+
+extension CGColorSpaceModel: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .unknown: return "unknown"
+        case .monochrome: return "monochrome"
+        case .rgb: return "rgb"
+        case .cmyk: return "cmyk"
+        case .lab: return "lab"
+        case .deviceN: return "deviceN"
+        case .indexed: return "indexed"
+        case .pattern: return "pattern"
+        case .XYZ: return "XYZ"
+        default: return "unknown(\(rawValue))"
+        }
+    }
+}
