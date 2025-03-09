@@ -111,7 +111,7 @@ public extension NSColor {
     
     /// A Boolean value that indicates whether the color has a color space. Accessing `colorSpace` directly crashes if a color doesn't have a color space. Therefore it's recommended to use this property prior.
     var hasColorSpace: Bool {
-        type == .pattern ? false : !String(describing: self).contains("customDynamic")
+        type == .componentBased && !String(describing: self).contains("customDynamic")
     }
     
     /// Supported color spaces for displaying a color.

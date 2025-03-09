@@ -255,7 +255,8 @@
 
              - Parameter state: A state to use as a basis for the update.
              */
-            public func updated(for state: ConfigurationState) -> Self {
+            public func updated(for state: NSConfigurationState) -> Self {
+                guard let state = state as? ControlConfigurationState else { return self }
                 var configuration = self
                 if !state.isEnabled || state.isPressed {
                     let systemEffect = ColorTransformer.systemEffect(state.isPressed ? .pressed : .disabled)

@@ -398,6 +398,19 @@ public extension NSButton {
         set { state = newValue ? .on : .off }
     }
     
+    /// A Boolean value that indicates if the button’s image and text appear “dim” when the button is disabled.
+    var dimsWhenDisabled: Bool {
+        get { (cell as? NSButtonCell)?.imageDimsWhenDisabled ?? true }
+        set { (cell as? NSButtonCell)?.imageDimsWhenDisabled = newValue }
+    }
+    
+    /// Sets the Boolean value that indicates if the button’s image and text appear “dim” when the button is disabled.
+    @discardableResult
+    func dimsWhenDisabled(_ dims: Bool) -> Self {
+        dimsWhenDisabled = dims
+        return self
+    }
+    
     /**
      Returns the content tint color used for a state.
      

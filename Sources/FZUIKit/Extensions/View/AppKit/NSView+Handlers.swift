@@ -544,6 +544,9 @@ extension NSView {
         /// The handler that gets called when the mouse exited the view.
         public var exited: ((NSEvent) -> ())?
         
+        /// The handler that gets called when the mouse is hovering (is inside) the view.
+        public var isHovering: ((Bool) -> ())?
+        
         /// The handler that gets called when the user clicked the left mouse button.
         public var leftDown: ((NSEvent) -> ())?
         
@@ -578,7 +581,7 @@ extension NSView {
         public var rotate: ((NSEvent) -> ())?
         
         var needsObserving: Bool {
-            moved != nil || entered != nil || exited != nil
+            moved != nil || entered != nil || exited != nil || isHovering != nil
         }
         
         var needsGestureObserving: Bool {
@@ -637,11 +640,13 @@ extension NSView {
         
         override public func mouseEntered(with event: NSEvent) {
             mouseHandlers.entered?(event)
+            mouseHandlers.isHovering?(true)
             super.mouseEntered(with: event)
         }
         
         override public func mouseExited(with event: NSEvent) {
             mouseHandlers.exited?(event)
+            mouseHandlers.isHovering?(false)
             super.mouseExited(with: event)
         }
         

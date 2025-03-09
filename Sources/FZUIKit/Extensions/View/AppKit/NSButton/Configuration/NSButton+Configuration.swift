@@ -59,34 +59,34 @@ extension NSButton {
     
     func setupConfigurationStateObserver() {
         if (automaticallyUpdatesConfiguration && configuration is AdvanceConfiguration) || configurationUpdateHandler != nil {
-                hoverView = HoverView(frame: .zero)
-                addSubview(withConstraint: hoverView!)
-                hoverView?.sendToBack()
-                buttonObserver.add(\.state) { [weak self] old, new in
-                    guard let self = self, old != new else { return }
-                    if self.automaticallyUpdatesConfiguration {
-                        self.updateConfiguration()
-                    }
-                    self.configurationUpdateHandler?(self, self.configurationState)
-                }
-                buttonObserver.add(\.isEnabled) { [weak self] old, new in
-                    guard let self = self, old != new else { return }
-                    if self.automaticallyUpdatesConfiguration {
-                        self.updateConfiguration()
-                    }
-                    self.configurationUpdateHandler?(self, self.configurationState)
-                }
+            buttonObserver.add(\.state) { [weak self] old, new in
+                guard let self = self else { return }
+                self.updateConfigurationAutomatically()
+            }
+            buttonObserver.add(\.isEnabled) { [weak self] old, new in
+                guard let self = self else { return }
+                self.updateConfigurationAutomatically()
+            }
+            mouseHandlers.isHovering = { [weak self] isHovering in
+                guard let self = self else { return }
+                self.isHovered = isHovering
+            }
+            windowHandlers.isKey = { [weak self] isKey in
+                guard let self = self else { return }
+                self.updateConfigurationAutomatically()
+            }
+            updateConfigurationAutomatically()
         } else {
-            hoverView?.removeFromSuperview()
-            hoverView = nil
             buttonObserver.removeAll()
+            mouseHandlers.isHovering = nil
+            windowHandlers.isKey = nil
         }
     }
     
     var isHovered: Bool {
         get { getAssociatedValue("isHovered", initialValue: false) }
         set {
-            guard newValue != self.isHovered else { return }
+            guard newValue != isHovered else { return }
             setAssociatedValue(newValue, key: "isHovered")
             if automaticallyUpdatesConfiguration {
                 updateConfiguration()
@@ -95,8 +95,15 @@ extension NSButton {
         }
     }
     
-    var configurationState: ConfigurationState {
-        ConfigurationState(state: state, isEnabled: isEnabled, isHovered: isHovered, isPressed: isPressed)
+    func updateConfigurationAutomatically() {
+        if automaticallyUpdatesConfiguration {
+            updateConfiguration()
+        }
+        configurationUpdateHandler?(self, configurationState)
+    }
+    
+    var configurationState: ControlConfigurationState {
+        ControlConfigurationState(state: .init(rawValue: state.rawValue)!, isEnabled: isEnabled, isHovered: isHovered, isPressed: isPressed, activeState: window?.isKeyWindow == true ? .active : .inactive)
     }
     
     /**
@@ -181,7 +188,7 @@ extension NSButton {
      
      - Parameter state: The current state of the button.
      */
-    public typealias ConfigurationUpdateHandler = (_ button: NSButton, _ state: ConfigurationState) -> Void
+    public typealias ConfigurationUpdateHandler = (_ button: NSButton, _ state: ControlConfigurationState) -> Void
     
     var isPressed: Bool {
         (contentView as? NSButton.AdvanceButtonView)?.isPressed ?? false
@@ -192,39 +199,6 @@ extension NSButton {
         set {
             contentView?.removeFromSuperview()
             setAssociatedValue(newValue, key: "NSButton_contentView")
-        }
-    }
-    
-    var hoverView: HoverView? {
-        get { getAssociatedValue("HoverView") }
-        set { setAssociatedValue(newValue, key: "HoverView") }
-    }
-    
-    class HoverView: NSView {
-        lazy var trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .mouseEnteredAndExited])
-        
-        override init(frame frameRect: NSRect) {
-            super.init(frame: frameRect)
-            updateTrackingAreas()
-        }
-        
-        override func updateTrackingAreas() {
-            super.updateTrackingAreas()
-            trackingArea.update()
-        }
-        
-        override func mouseEntered(with event: NSEvent) {
-            super.mouseEntered(with: event)
-            (superview as? NSButton)?.isHovered = true
-        }
-        
-        override func mouseExited(with event: NSEvent) {
-            super.mouseExited(with: event)
-            (superview as? NSButton)?.isHovered = false
-        }
-        
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
         }
     }
 }
