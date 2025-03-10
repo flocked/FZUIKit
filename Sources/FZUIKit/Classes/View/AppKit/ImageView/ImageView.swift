@@ -62,6 +62,11 @@ open class ImageView: NSControl {
     var croppedImages: [NSImage] = []
     var nonAlphaRects: SynchronizedArray<CGRect> = []
     
+    public override var cell: NSCell? {
+        get { imageView.cell }
+        set {  }
+    }
+    
     /// A Boolean value that indicates whether the images should be cropped to  non their non alpha area.
     open var cropImagesToNonTransparent: Bool = false {
         didSet {
