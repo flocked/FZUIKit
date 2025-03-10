@@ -169,11 +169,18 @@ extension NSColorMenuItem {
             }
         }
         
+        var font: Font {
+            if let font = NSUIFont(name: ".AppleSystemUIFont", size: 13.0) {
+                return Font(font)
+            }
+            return .body.weight(.medium)
+        }
+        
         @ViewBuilder
         var titleView: some View {
             if let title = title {
                 Text(title)
-                    .font(.body.weight(.medium))
+                    .font(font)
             }
         }
         
@@ -214,4 +221,8 @@ fileprivate struct ColorViewModifier<S: Shape>: ViewModifier {
         }
     }
 }
+/*
+ <NSContextMenuItemView> (0.0, 0.0, 91.0, 22.0)
+ <_NSMenuItemTextField> (12.0, 3.0, 73.0, 16.0) ".AppleSystemUIFont 13.00 pt. P [] spc=3.58"
+ */
 #endif

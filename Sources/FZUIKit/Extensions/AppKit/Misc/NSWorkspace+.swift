@@ -8,6 +8,7 @@
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
+import UniformTypeIdentifiers
 
 public extension NSWorkspace {
     /// Handlers for the workspace.
@@ -109,6 +110,42 @@ public extension NSWorkspace {
         var options: [NSWorkspace.DesktopImageOptionKey: Any] = [.imageScaling: NSNumber(imageScaling.rawValue), .allowClipping: NSNumber(allowClipping)]
         options[.fillColor] = fillColor
         try setDesktopImageURL(url, for: screen, options: options)
+    }
+    
+    @available(macOS 12.0, *)
+    /// Returns an image containing the icon for the specified content type when opened with the specified application.
+    func icon(for type: UTType, toOpenWith app: URL, completion completionHandler: @escaping ((NSImage?) -> Void)) {
+        guard FileManager.default.fileExists(at: app), let currentApp = urlForApplication(toOpen: type) else { 
+            completionHandler(nil)
+            return
+        }
+        setDefaultApplication(at: app, toOpen: type) { error in
+            if let error = error {
+                Swift.print(error)
+                completionHandler(nil)
+            } else {
+                completionHandler(self.icon(for: type))
+                self.setDefaultApplication(at: currentApp, toOpen: type)
+            }
+        }
+    }
+    
+    @available(macOS 12.0, *)
+    /// Returns an image containing the icon for the specified file when opened with the specified application.
+    func icon(forFile fileURL: URL, toOpenWith app: URL, completion completionHandler: @escaping ((NSImage?) -> Void)) {
+        guard FileManager.default.fileExists(at: app), let currentApp = urlForApplication(toOpen: fileURL) else {
+            completionHandler(nil)
+            return
+        }
+        setDefaultApplication(at: app, toOpenFileAt: fileURL) { error in
+            if let error = error {
+                Swift.print(error)
+                completionHandler(nil)
+            } else {
+                completionHandler(self.icon(forFile: fileURL.path))
+                self.setDefaultApplication(at: currentApp, toOpenFileAt: fileURL)
+            }
+        }
     }
 }
 
