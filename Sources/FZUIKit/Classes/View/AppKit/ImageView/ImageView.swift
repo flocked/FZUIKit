@@ -67,6 +67,11 @@ open class ImageView: NSControl {
         set {  }
     }
     
+    open override class var cellClass: AnyClass? {
+        get { NSImageCell.self }
+        set { }
+    }
+    
     /// A Boolean value that indicates whether the images should be cropped to  non their non alpha area.
     open var cropImagesToNonTransparent: Bool = false {
         didSet {
