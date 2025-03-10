@@ -42,21 +42,16 @@ extension NSView {
                 view.updateSymbolConfiguration()
             }
             subviews.forEach({  $0.setBackgroundStyle(backgroundStyle)  })
+            /*
             let selector = NSSelectorFromString("_setBackgroundStyleForSubtree:")
             guard let method = Self.instanceMethod(for: selector) else { return }
-            guard !NSView.isApplyingBackgroundStyle else { return }
-            NSView.isApplyingBackgroundStyle = true
             subviews.forEach({
                 if $0.responds(to: selector) {
                     unsafeBitCast(method, to: (@convention(c) (AnyObject, Selector, BackgroundStyle) -> ()).self)($0, selector, backgroundStyle)
                 }
             })
-            NSView.isApplyingBackgroundStyle = false
+             */
         }
-    }
-    static var isApplyingBackgroundStyle: Bool {
-        get { getAssociatedValue("isApplyingBackgroundStyle") ?? false }
-        set { setAssociatedValue(newValue, key: "isApplyingBackgroundStyle") }
     }
 }
 
