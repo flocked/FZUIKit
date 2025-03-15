@@ -82,7 +82,7 @@ extension NSPasteboard {
     }
     
     /// The file promise receivers of the pasteboard.
-    public var filePromiseReceivers: [NSFilePromiseReceiver]? {
+    public var filePromiseReceivers: [NSFilePromiseReceiver] {
         get { readObjects(for: NSFilePromiseReceiver.self) }
     }
     
@@ -109,7 +109,9 @@ extension NSPasteboard {
     }
     
     func readAll() -> [PasteboardReading] {
-       (pasteboardItems ?? []) + strings + urls + images + colors + sounds + filePromiseReceivers
+        var content: [PasteboardReading] = (pasteboardItems ?? []) + strings + urls
+        content += images + colors + sounds
+        return content + filePromiseReceivers
     }
 
     /**
