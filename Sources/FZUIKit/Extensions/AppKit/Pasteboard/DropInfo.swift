@@ -131,7 +131,7 @@ public class DropInfo {
 }
 
 extension NSDraggingInfo {
-    func dropInfo(for view: NSView) -> DropInfo {
+    public func dropInfo(for view: NSView) -> DropInfo {
         DropInfo(for: self, view: view)
     }
 }
