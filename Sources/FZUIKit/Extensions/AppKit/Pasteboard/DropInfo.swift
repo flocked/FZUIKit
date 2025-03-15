@@ -55,6 +55,22 @@ public class DropInfo {
         set { draggingInfo.numberOfValidItemsForDrop = newValue }
     }
     
+    /**
+     Sets the image that visually represents the pasteboard content during the drop operation.
+     
+     - Parameters:
+        - image: The dragging image.
+        - frame: The dragging image frame.
+     */
+    public func setDraggedImage(_ image: NSImage, frame: CGRect? = nil) {
+        draggingInfo.setDraggedImage(image, frame: frame)
+    }
+    
+    /// Sets the image that visually represents the pasteboard content during the drop operation using the specified view.
+    public func setDraggedImage(view: NSView) {
+        draggingInfo.setDraggedImage(view: view)
+    }
+    
     public func enumerateDropItems<Content: PasteboardReading>(for contentType: Content.Type = NSPasteboardItem.self, using block: @escaping (_ item: DropItem<Content>) -> ()) {
         draggingInfo.enumerateDraggingItems(for: view, classes: [contentType.pasteboardReadingType]) { item, index, stopPointer in
             block(DropItem<Content>(item))
