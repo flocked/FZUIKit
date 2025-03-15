@@ -23,9 +23,8 @@ extension NSPasteboardItem {
     public var string: String? {
         get { string(forType: .string) }
         set {
-            if let newValue = newValue {
-                setString(newValue, forType: .string)
-            }
+            guard let newValue = newValue else { return }
+            setString(newValue, forType: .string)
         }
     }
     
@@ -36,10 +35,9 @@ extension NSPasteboardItem {
             return NSAttributedString(rtf: data, documentAttributes: nil)
         }
         set {
-            if let newValue = newValue, let data = newValue.rtf(from: newValue.string.nsRange) {
-                setString(newValue.string, forType: .string)
-                setData(data, forType: .rtf)
-            }
+            guard let newValue = newValue, let data = newValue.rtf(from: newValue.string.nsRange) else { return }
+            setString(newValue.string, forType: .string)
+            setData(data, forType: .rtf)
         }
     }
     
@@ -50,9 +48,8 @@ extension NSPasteboardItem {
             return NSImage(data: data)
         }
         set {
-            if let data = newValue?.pngData() {
-                setData(data, forType: .png)
-            }
+            guard let data = newValue?.pngData() else { return }
+            setData(data, forType: .png)
         }
     }
     
@@ -63,9 +60,8 @@ extension NSPasteboardItem {
             return NSImage(data: data)
         }
         set {
-            if let data = newValue?.tiffRepresentation {
-                setData(data, forType: .tiff)
-            }
+            guard let data = newValue?.tiffRepresentation else { return }
+            setData(data, forType: .tiff)
         }
     }
     
@@ -78,9 +74,8 @@ extension NSPasteboardItem {
             return nil
         }
         set {
-            if let newValue = newValue, let data = try? NSKeyedArchiver.archivedData(withRootObject: newValue, requiringSecureCoding: false) {
-                setData(data, forType: .color)
-            }
+            guard let data = try? newValue?.archivedData() else { return }
+            setData(data, forType: .color)
         }
     }
     
@@ -91,9 +86,8 @@ extension NSPasteboardItem {
             return NSSound(data: data)
         }
         set {
-            if let newValue = newValue, let data = try? NSKeyedArchiver.archivedData(withRootObject: newValue, requiringSecureCoding: false) {
-                setData(data, forType: .sound)
-            }
+            guard let data = try? newValue?.archivedData() else { return }
+            setData(data, forType: .sound)
         }
     }
     

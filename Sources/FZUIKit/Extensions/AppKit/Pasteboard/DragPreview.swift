@@ -99,4 +99,33 @@ extension DragPreview: Equatable {
     }
 }
 
+extension NSShadow {
+    func renderAsImage(path shadowPath: NSBezierPath, size: CGSize) -> NSImage {
+        NSImage(shadowPath: shadowPath, size: size, color: shadowColor ?? .clear, radius: shadowBlurRadius, offset: shadowOffset.point)
+    }
+}
+
+extension NSImage {
+   convenience init(shadowPath: NSBezierPath, size: CGSize, configuration: ShadowConfiguration) {
+        self.init(size: size)
+        self.lockFocus()
+        NSShadow(configuration: configuration).set()
+        shadowPath.fill()
+        self.unlockFocus()
+    }
+    
+    convenience init(shadowPath: NSBezierPath, size: CGSize, color: NSColor = .shadowColor, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) {
+        self.init(shadowPath: shadowPath, size: size, configuration: .color(color, opacity: 1.0, radius: radius, offset: offset))
+    }
+}
+
+
+extension NSDraggingItem.ImageComponentKey {
+    /// A key for a corresponding value that is a dragging item’s background color.
+    static let backgroundColor = NSDraggingItem.ImageComponentKey("backgroundColor")
+    
+    /// A key for a corresponding value that is a dragging item’s shadow.
+    static let shadow = NSDraggingItem.ImageComponentKey("shadow")
+}
+
 #endif
