@@ -876,6 +876,7 @@ open class ImageView: NSControl {
             guard let self = self else { return }
             self.performAction()
         }
+        cell = imageView.cell
     }
     
     open override func layout() {
@@ -928,6 +929,11 @@ open class ImageView: NSControl {
             overlayContentView.frame = containerView.bounds
             didChangeValue(for: \.imageBounds)
         }
+    }
+    
+    open override class var cellClass: AnyClass? {
+        get { NSImageView.cellClass }
+        set { }
     }
     
     open override func updateTrackingAreas() {
