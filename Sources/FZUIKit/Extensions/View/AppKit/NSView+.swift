@@ -425,6 +425,8 @@
             set {
                 if let box = self as? NSBox {
                     box.borderWidth = newValue
+                } else if let shapeLayer = layer as? CAShapeLayer {
+                    shapeLayer.lineWidth = newValue
                 } else {
                     optionalLayer?.borderWidth = newValue
                 }
@@ -432,9 +434,13 @@
         }
         
         @objc var _borderColor: NSColor? {
-            get { (self as? NSBox)?.borderColor ?? dynamicColors.border ?? layer?.borderColor?.nsUIColor }
+            get { (self as? NSBox)?.borderColor ?? dynamicColors.border ?? (layer as? CAShapeLayer)?.strokeColor?.nsUIColor ?? layer?.borderColor?.nsUIColor }
             set {
-                optionalLayer?.borderColor = newValue?.cgColor
+                if let shapeLayer = layer as? CAShapeLayer {
+                    shapeLayer.strokeColor = newValue?.cgColor
+                } else {
+                    optionalLayer?.borderColor = newValue?.cgColor
+                }
                 /*
                 if let box = self as? NSBox {
                     box.borderColor = newValue ?? box.borderColor
