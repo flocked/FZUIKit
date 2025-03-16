@@ -33,7 +33,7 @@ public struct PathShape {
     public func trim(from start: CGFloat, to end: CGFloat) -> PathShape {
         PathShape { rect in
             let path = path(in: rect)
-            return path.trimmedPath(start: start, end: end)
+            return path.trimmedPath(from: start, to: end)
         }
     }
 
@@ -45,12 +45,12 @@ public struct PathShape {
         }
     }
 
-    /// Returns a new version of self representing the same shape, but that will ask it to create its path from a rect of size. This does not affect the layout properties of any views created from the shape (e.g. by filling it).
+    /// Returns a new version of self representing the same shape, but that will ask it to create its path from a rect of size.
     public func size(_ size: CGSize) -> PathShape {
         self.size(width: size.width, height: size.height)
     }
 
-    /// Returns a new version of self representing the same shape, but that will ask it to create its path from a rect of size (width, height). This does not affect the layout properties of any views created from the shape (e.g. by filling it).
+    /// Returns a new version of self representing the same shape, but that will ask it to create its path from a rect of size (width, height).
     public func size(width: CGFloat, height: CGFloat) -> PathShape {
         PathShape { _ in
             path(in: CGRect(origin: .zero, size: CGSize(width: width, height: height)))

@@ -188,12 +188,14 @@ extension NSDraggingSource where Self: NSObject {
                debugPrint(error)
             }
         } else {
+            /*
             let selector = #selector(NSDraggingSource.draggingSession(_:movedTo:))
             let block: @convention(block) (AnyObject, NSDraggingSession, NSPoint) -> Void = { [weak self] _self, session, screenLocation in
                 guard let self = self else { return }
                 self.draggingSourceHandlers.didUpdate?(session, screenLocation)
             }
             let methodIMP = imp_implementationWithBlock(block)
+             */
         }
     }
     

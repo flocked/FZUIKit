@@ -9,14 +9,14 @@
 import CoreGraphics
 
 extension CGPath {
-    public func trimmedPath(start: CGFloat, end: CGFloat) -> CGPath {
+    public func trimmedPath(from start: CGFloat, to end: CGFloat) -> CGPath {
         let mutablePath = CGMutablePath()
-        let length = self.length()
+        let length = length()
         let trimStart = start * length
         let trimEnd = end * length
         var currentLength: CGFloat = 0
 
-        self.applyWithBlock { element in
+        applyWithBlock { element in
             let points = element.pointee.points
             switch element.pointee.type {
             case .moveToPoint:
@@ -42,7 +42,7 @@ extension CGPath {
         self.applyWithBlock { element in
             let points = element.pointee.points
             if element.pointee.type == .addLineToPoint {
-                length += points[0].distance(to: self.currentPoint)
+                length += points[0].distance(to: currentPoint)
             }
         }
         return length

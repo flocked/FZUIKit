@@ -45,7 +45,7 @@ extension NSImage {
             let angle = (index % 2 == 0) ? rotation : -rotation
             
             // Create a rotation transform
-            var transform = NSAffineTransform()
+            let transform = NSAffineTransform()
             transform.translateX(by: currentOffset.x, yBy: currentOffset.y)
             transform.rotate(byDegrees: angle)
             
