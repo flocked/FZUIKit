@@ -17,6 +17,8 @@ public extension NSImage {
     func withShadow(_ shadow: ShadowConfiguration) -> NSImage? {
         guard let color = shadow.resolvedColor()?.cgColor, color.alpha >= 0.0 else { return self }
         
+        self.nonAlphaRect
+        
         let repImages = representations.compactMap({ ($0 as? NSBitmapImageRep)?.cgImage?.withShadow(shadow) })
         if !repImages.isEmpty {
             let newImage = NSImage(size: size)
