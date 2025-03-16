@@ -23,13 +23,19 @@ extension NSUIImage {
      - Returns: The combined images, or `nil` if the images couldn't be combined.
      */
     public convenience init?(combineVertical images: [NSUIImage], alignment: HorizontalAlignment = .center) {
-        guard let image = NSUIImage.combined(images: images, vertical: true, alignment: alignment.rawValue)?.cgImage else { return nil }
-        self.init(cgImage: image)
+        guard let image = NSUIImage.combined(images: images, vertical: true, alignment: alignment.rawValue) else { return nil }
+        self.init(size: image.size)
+        lockFocus()
+        defer { unlockFocus() }
+        image.draw(at: .zero, from: CGRect(origin: .zero, size: image.size), operation: .copy, fraction: 1.0)
     }
     
     public convenience init?(combineHorizontal images: [NSUIImage], alignment: VerticalAlignment = .center) {
-        guard let image = NSUIImage.combined(images: images, vertical: false, alignment: alignment.rawValue)?.cgImage else { return nil }
-        self.init(cgImage: image)
+        guard let image = NSUIImage.combined(images: images, vertical: false, alignment: alignment.rawValue) else { return nil }
+        self.init(size: image.size)
+        lockFocus()
+        defer { unlockFocus() }
+        image.draw(at: .zero, from: CGRect(origin: .zero, size: image.size), operation: .copy, fraction: 1.0)
     }
 
     /// The vertical alignment of images when combining them to a new image.
