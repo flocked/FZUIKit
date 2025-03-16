@@ -106,6 +106,20 @@ public struct PathShape {
         }
     }
     
+    /// Insets the shape.
+    public func inset(by amount: CGFloat) -> PathShape {
+        PathShape { rect in
+            path(in: rect.insetBy(dx: amount, dy: amount))
+        }
+    }
+    
+    /// Insets the shape.
+    public func insetBy(x: CGFloat, y: CGFloat) -> PathShape {
+        PathShape { rect in
+            path(in: rect.insetBy(dx: x, dy: y))
+        }
+    }
+    
     public func fill(rect: CGRect) {
         #if os(macOS)
         NSBezierPath(cgPath: path(in: rect)).fill()
