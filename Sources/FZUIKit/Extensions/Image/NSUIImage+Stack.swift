@@ -1,10 +1,11 @@
 //
-//  File.swift
-//  
+//  NSUIImage+Stack.swift
+//
 //
 //  Created by Florian Zand on 15.03.25.
 //
 
+#if os(macOS)
 import AppKit
 import FZSwiftUtils
 
@@ -76,3 +77,4 @@ extension CGSize {
         return CGSize(width: newWidth, height: newHeight)
     }
 }
+#endif

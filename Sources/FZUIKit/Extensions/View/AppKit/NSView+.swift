@@ -109,25 +109,10 @@
             }
         }
         
-        /**
-         The handler that gets called to determinate the path of the mask.
-         
-         The handler gets called whenenver the size of the size of the view changes.
-         */
-        public var maskPathHandler: ((CGSize)->(NSBezierPath))? {
-            get {
-                if let handler = layer?.maskPathHandler {
-                    return { NSBezierPath(cgPath: handler($0)) }
-                }
-                return nil
-            }
-            set {
-                if let newValue = newValue {
-                    optionalLayer?.maskPathHandler = { newValue($0).cgPath }
-                } else {
-                    layer?.maskPathHandler = nil
-                }
-            }
+        /// The shape that is used for masking the view.
+        public var maskShape: PathShape? {
+            get { layer?.maskShape }
+            set { optionalLayer?.maskShape = newValue }
         }
 
         /**
@@ -546,25 +531,10 @@
             }
         }
         
-        /**
-         The handler that gets called to determinate the path of the mask.
-         
-         The handler gets called whenenver the size of the size of the view changes.
-         */
-        public var shadowPathHandler: ((CGSize)->(NSBezierPath))? {
-            get {
-                if let handler = layer?.shadowPathHandler {
-                    return { NSBezierPath(cgPath: handler($0)) }
-                }
-                return nil
-            }
-            set {
-                if let newValue = newValue {
-                    optionalLayer?.shadowPathHandler = { newValue($0).cgPath }
-                } else {
-                    layer?.shadowPathHandler = nil
-                }
-            }
+        /// The shape of the shadow.
+        public var shadowShape: PathShape? {
+            get { layer?.shadowShape }
+            set { optionalLayer?.shadowShape = newValue }
         }
 
         /**

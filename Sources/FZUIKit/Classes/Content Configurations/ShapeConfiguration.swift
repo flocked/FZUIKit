@@ -327,4 +327,19 @@ extension View {
             addSublayer(imageLayer)
         }
     }
+
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+struct ShapeShadowView: View {
+    let shape: AnyShape
+    let shadow: ShadowConfiguration
+    
+    public init(_ configuration: ShapeConfiguration, shadow: ShadowConfiguration) {
+        self.shape = configuration.shape?.asAnyShape() ?? Rectangle().asAnyShape()
+        self.shadow = shadow
+    }
+
+    public var body: some View {
+        shape.fill(Color(shadow.resolvedColor() ?? .black)).shadow(shadow)
+    }
+}
 #endif

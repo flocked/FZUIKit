@@ -23,10 +23,21 @@ extension NSUIImage {
      */
     public convenience init?(combineVertical images: [NSUIImage], alignment: HorizontalAlignment = .center) {
         guard let image = NSUIImage.combined(images: images, vertical: true, alignment: alignment.rawValue) else { return nil }
+        #if os(macOS)
         self.init(size: image.size)
         lockFocus()
         defer { unlockFocus() }
         image.draw(at: .zero, from: CGRect(origin: .zero, size: image.size), operation: .copy, fraction: 1.0)
+        #else
+        UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
+        defer { UIGraphicsEndImageContext() }
+        image.draw(at: .zero)
+        if let cgImage = UIGraphicsGetImageFromCurrentImageContext()?.cgImage {
+            self.init(cgImage: cgImage)
+        } else {
+            self.init()
+        }
+        #endif
     }
     
     /**
@@ -39,10 +50,21 @@ extension NSUIImage {
      */
     public convenience init?(combineHorizontal images: [NSUIImage], alignment: VerticalAlignment = .center) {
         guard let image = NSUIImage.combined(images: images, vertical: false, alignment: alignment.rawValue) else { return nil }
+        #if os(macOS)
         self.init(size: image.size)
         lockFocus()
         defer { unlockFocus() }
         image.draw(at: .zero, from: CGRect(origin: .zero, size: image.size), operation: .copy, fraction: 1.0)
+        #else
+        UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
+        defer { UIGraphicsEndImageContext() }
+        image.draw(at: .zero)
+        if let cgImage = UIGraphicsGetImageFromCurrentImageContext()?.cgImage {
+            self.init(cgImage: cgImage)
+        } else {
+            self.init()
+        }
+        #endif
     }
 
     /// The vertical alignment of images when combining them to a new image.
