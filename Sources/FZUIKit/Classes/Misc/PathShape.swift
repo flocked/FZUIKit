@@ -8,6 +8,7 @@
 #if canImport(CoreGraphics)
 import CoreGraphics
 import SwiftUI
+import FZSwiftUtils
 
 /// A 2D shape represented as `CGPath`.
 public struct PathShape {
@@ -124,6 +125,51 @@ public struct PathShape {
     }
 }
 
+@available(macOS 14.0, iOS 16.0, tvOS 14.0, watchOS 10.0, *)
+extension PathShape {
+    /// Returns a new shape with filled regions common to both shapes.
+    public func intersection(_ other: PathShape, eoFill: Bool = true) -> PathShape {
+        PathShape { rect in
+            path(in: rect).intersection(other.path(in: rect), using: eoFill ? .evenOdd : .winding)
+        }
+    }
+
+    /// Returns a new shape with a line from this shape that overlaps the filled regions of the given shape.
+    public func lineIntersection(_ other: PathShape, eoFill: Bool = true) -> PathShape {
+        PathShape { rect in
+            path(in: rect).lineIntersection(other.path(in: rect), using: eoFill ? .evenOdd : .winding)
+        }
+    }
+
+    /// Returns a new shape with a line from this shape that does not overlap the filled region of the given shape.
+    public func lineSubtraction(_ other: PathShape, eoFill: Bool = true) -> PathShape {
+        PathShape { rect in
+            path(in: rect).lineSubtracting(other.path(in: rect), using: eoFill ? .evenOdd : .winding)
+        }
+    }
+    
+    /// Returns a new shape with filled regions from this shape that are not in the given shape.
+    public func subtracting(_ other: PathShape, eoFill: Bool = true) -> PathShape {
+        PathShape { rect in
+            path(in: rect).subtracting(other.path(in: rect), using: eoFill ? .evenOdd : .winding)
+        }
+    }
+
+    /// Returns a new shape with filled regions either from this shape or the given shape, but not in both.
+    public func symmetricDifference(_ other: PathShape, eoFill: Bool = true) -> PathShape {
+        PathShape { rect in
+            path(in: rect).symmetricDifference(other.path(in: rect), using: eoFill ? .evenOdd : .winding)
+        }
+    }
+
+    /// Returns a new shape with filled regions in either this shape or the given shape.
+    public func union(_ other: PathShape, eoFill: Bool = true) -> PathShape {
+        PathShape { rect in
+            path(in: rect).union(other.path(in: rect), using: eoFill ? .evenOdd : .winding)
+        }
+    }
+}
+
 extension PathShape {
     /// A rectangular shape.
     public static var rect: PathShape { PathShape(.rect) }
@@ -154,5 +200,37 @@ extension PathShape {
     
     /// A star shape.
     public static func star(points: Int = 5, cutout: Bool = false, rounded: Bool = false) -> PathShape { PathShape(Star(points: points, cutout: cutout, rounded: rounded)) }
+}
+
+extension CAShapeLayer {
+    /// Creates a shape layer with the specified shape.
+    public convenience init(shape: PathShape) {
+        self.init()
+        pathShape = shape
+    }
+    
+    /// The shape of the path.
+    public var pathShape: PathShape? {
+        get { getAssociatedValue("pathShape") }
+        set {
+            setAssociatedValue(newValue, key: "pathShape")
+            if let newValue = newValue {
+                if boundsObservation == nil {
+                    boundsObservation = observeChanges(for: \.bounds) { [weak self] old, new in
+                        guard old.size != new.size, let self = self, let pathShape = self.pathShape else { return }
+                        self.path = pathShape.path(in: new)
+                    }
+                }
+                path = newValue.path(in: bounds)
+            } else {
+                boundsObservation = nil
+            }
+        }
+    }
+    
+    var boundsObservation: KeyValueObservation? {
+        get { getAssociatedValue("boundsObservation") }
+        set { setAssociatedValue(newValue, key: "boundsObservation") }
+    }
 }
 #endif
