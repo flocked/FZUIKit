@@ -141,6 +141,13 @@ public struct PathShape {
 
 @available(macOS 14.0, iOS 16.0, tvOS 14.0, watchOS 10.0, *)
 extension PathShape {
+    /// Returns the shape inverted.
+    public func inverted() -> PathShape {
+        PathShape { rect in
+            CGPath(rect: rect, transform: nil).subtracting(path(in: rect))
+        }
+    }
+    
     /// Returns a new shape with filled regions common to both shapes.
     public func intersection(_ other: PathShape, eoFill: Bool = true) -> PathShape {
         PathShape { rect in
@@ -199,6 +206,15 @@ extension PathShape {
     public static func rect(topLeadingRadius: CGFloat = 0, bottomLeadingRadius: CGFloat = 0, bottomTrailingRadius: CGFloat = 0, topTrailingRadius: CGFloat = 0, style: RoundedCornerStyle = .continuous) -> PathShape {
         PathShape(.rect(topLeadingRadius: topLeadingRadius, bottomLeadingRadius: bottomLeadingRadius, bottomTrailingRadius: bottomTrailingRadius, topTrailingRadius: topTrailingRadius, style: style))
     }
+    
+    /**
+     A rectangular shape with relative corner radius.
+     
+     The corner radius is defined as a fraction of the smaller dimension of the rectangle,
+     ensuring proportional rounding regardless of the rectangle's size.
+     */
+    public static func rect(relativeCornerRadius cornerRadius: CGFloat, style: RoundedCornerStyle = .continuous) -> PathShape { PathShape(.rect(relativeCornerRadius: cornerRadius, style: style)) }
+
     
     /// A circle centered on the frame.
     public static var circle: PathShape { PathShape(.circle) }

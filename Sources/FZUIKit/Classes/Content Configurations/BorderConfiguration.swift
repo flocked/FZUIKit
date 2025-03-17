@@ -339,4 +339,44 @@ extension Shape {
     }
 }
 
+extension CGLineCap {
+    var shapeLayerLineCap: CAShapeLayerLineCap {
+        switch self {
+        case .round: return .round
+        case .square: return .square
+        default: return .butt
+        }
+    }
+}
+
+extension CGLineJoin {
+    var shapeLayerLineJoin: CAShapeLayerLineJoin {
+        switch self {
+        case .round: return .round
+        case .bevel: return .bevel
+        default: return .miter
+        }
+    }
+}
+
+extension CAShapeLayerLineJoin {
+    var cgLineJoin: CGLineJoin {
+        switch self {
+        case .round: return .round
+        case .bevel: return .bevel
+        default: return .miter
+        }
+    }
+}
+
+extension CAShapeLayerLineCap {
+    var cgLineCap: CGLineCap {
+        switch self {
+        case .round: return .round
+        case .square: return .square
+        default: return .butt
+        }
+    }
+}
+
 #endif

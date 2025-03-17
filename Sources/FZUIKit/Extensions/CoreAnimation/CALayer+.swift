@@ -130,13 +130,11 @@ import FZSwiftUtils
         
         /// The border of the layer.
         @objc open var border: BorderConfiguration {
-            get { borderLayer?.configuration ?? BorderConfiguration(color: borderColor?.nsUIColor, width: borderWidth) }
+            get { borderLayer?.configuration ?? (self as? CAShapeLayer)?.border ?? BorderConfiguration(color: borderColor?.nsUIColor, width: borderWidth) }
             set {
                 guard newValue != border else { return }
                 if let layer = self as? CAShapeLayer {
-                    layer.strokeColor = newValue.resolvedColor()?.cgColor
-                    layer.lineDashPattern = newValue.dash.pattern  as [NSNumber]
-                    layer.lineWidth = newValue.width
+                    layer._border = newValue
                 } else {
                     if newValue.needsDashedBorder {
                         borderColor = nil
@@ -146,6 +144,8 @@ import FZSwiftUtils
                             layer.lineDashPattern = newValue.dash.pattern  as [NSNumber]
                             layer.lineWidth = newValue.width
                             layer.lineDashPhase = newValue.dash.phase
+                            layer.lineJoin = newValue.dash.lineJoin.shapeLayerLineJoin
+                            layer.lineCap = newValue.dash.lineCap.shapeLayerLineCap
                         } else {
                             if let borderLayer = borderLayer {
                                 borderLayer.configuration = newValue
@@ -448,6 +448,68 @@ import FZSwiftUtils
             }
         }
     }
+
+extension CAShapeLayer {
+    var borderColorTransformer: ColorTransformer? {
+        get { getAssociatedValue("borderColorTransformer") }
+        set { setAssociatedValue(newValue, key: "borderColorTransformer") }
+    }
+    
+    var borderConfigurationColor: (color: NSUIColor?, cgColor: CGColor?) {
+        get { getAssociatedValue("borderConfigurationColor") ?? (nil, nil) }
+        set { setAssociatedValue(newValue, key: "borderConfigurationColor") }
+    }
+    
+    var borderInsets: NSDirectionalEdgeInsets {
+        get { getAssociatedValue("borderInsets") ?? .zero }
+        set { setAssociatedValue(newValue, key: "borderInsets") }
+    }
+    
+    var _border: BorderConfiguration {
+        get {
+            var configuration = BorderConfiguration()
+            configuration.insets = borderInsets
+            configuration.colorTransformer = borderColorTransformer
+            configuration.width = lineWidth
+            configuration.dash.lineCap = lineCap.cgLineCap
+            configuration.dash.lineJoin = lineJoin.cgLineJoin
+            configuration.dash.phase = lineDashPhase
+            configuration.dash.pattern = lineDashPattern?.compactMap({ CGFloat($0.doubleValue) }) ?? []
+            if strokeColor == borderConfigurationColor.cgColor {
+                configuration.color = borderConfigurationColor.color
+            } else {
+                borderConfigurationColor = (nil, nil)
+            }
+            return configuration
+        }
+        set {
+            if let color = newValue.resolvedColor() {
+                if let parentView = parentView {
+                    strokeColor = color.resolvedColor(for: parentView).cgColor
+                }
+                strokeColor = color.cgColor
+            } else {
+                strokeColor = nil
+            }
+            lineDashPattern = newValue.dash.pattern  as [NSNumber]
+            lineWidth = newValue.width
+            lineDashPhase = newValue.dash.phase
+            lineJoin = newValue.dash.lineJoin.shapeLayerLineJoin
+            lineCap = newValue.dash.lineCap.shapeLayerLineCap
+            borderConfigurationColor = (newValue.color, strokeColor)
+            borderInsets = newValue.insets
+            borderColorTransformer = newValue.colorTransformer
+        }
+    }
+}
+
+/*
+ public init(color: NSUIColor? = nil,
+             colorTransformer: ColorTransformer? = nil,
+             width: CGFloat = 0.0,
+             dash: Dash = Dash(),
+             insets: NSDirectionalEdgeInsets = .init(0)) {
+ */
 #endif
 
 #if os(macOS)

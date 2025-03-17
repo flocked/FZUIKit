@@ -130,44 +130,4 @@
             
         }
     }
-
-fileprivate extension CGLineCap {
-    var shapeLayerLineCap: CAShapeLayerLineCap {
-        switch self {
-        case .round: return .round
-        case .square: return .square
-        default: return .butt
-        }
-    }
-}
-
-fileprivate extension CAShapeLayerLineCap {
-    var cgLineCap: CGLineCap {
-        switch self {
-        case .round: return .round
-        case .square: return .square
-        default: return .butt
-        }
-    }
-}
-
-fileprivate extension CGLineJoin {
-    var shapeLayerLineJoin: CAShapeLayerLineJoin {
-        switch self {
-        case .miter: return .miter
-        case .round: return .round
-        default: return .bevel
-        }
-    }
-}
-
-fileprivate extension CAShapeLayerLineJoin {
-    var cgLineJoin: CGLineJoin {
-        switch self {
-        case .miter: return .miter
-        case .round: return .round
-        default: return .bevel
-        }
-    }
-}
 #endif
