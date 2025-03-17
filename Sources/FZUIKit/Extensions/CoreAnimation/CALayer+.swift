@@ -130,7 +130,7 @@ import FZSwiftUtils
         
         /// The border of the layer.
         @objc open var border: BorderConfiguration {
-            get { borderLayer?.configuration ?? (self as? CAShapeLayer)?.border ?? BorderConfiguration(color: borderColor?.nsUIColor, width: borderWidth) }
+            get { borderLayer?.configuration ?? BorderConfiguration(color: borderColor?.nsUIColor, width: borderWidth) }
             set {
                 guard newValue != border else { return }
                 if let layer = self as? CAShapeLayer {
