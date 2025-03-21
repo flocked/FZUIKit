@@ -7,6 +7,11 @@
 
 #if canImport(CoreGraphics)
 import CoreGraphics
+#if os(macOS)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 
 extension CGPath {
     public func trimmedPath(from start: CGFloat, to end: CGFloat) -> CGPath {
@@ -46,6 +51,14 @@ extension CGPath {
             }
         }
         return length
+    }
+    
+    var reversed: CGPath {
+        #if os(macOS)
+        NSUIBezierPath(cgPath: self).reversed.cgPath
+        #else
+        NSUIBezierPath(cgPath: self).reversing().cgPath
+        #endif
     }
 }
 

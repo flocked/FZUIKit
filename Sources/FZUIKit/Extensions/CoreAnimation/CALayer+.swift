@@ -14,7 +14,6 @@
 #endif
 import FZSwiftUtils
 
-
 #if os(macOS) || os(iOS) || os(tvOS)
     extension CALayer {
         /**
@@ -23,8 +22,6 @@ import FZSwiftUtils
          Setting this property updates the origin of the rectangle in the frame property appropriately.
 
          Use this property, instead of the frame property, when you want to change the position of a layer. The center point is always valid, even when scaling or rotation factors are applied to the layer's transform.
-
-         Changes to this property can be animated via `animator().center`.
          */
         @objc open var center: CGPoint {
             get { frame.center }
@@ -140,12 +137,7 @@ import FZSwiftUtils
                         borderColor = nil
                         borderWidth = 0.0
                         if let layer = self as? CAShapeLayer {
-                            layer.strokeColor = newValue.resolvedColor()?.cgColor
-                            layer.lineDashPattern = newValue.dash.pattern  as [NSNumber]
-                            layer.lineWidth = newValue.width
-                            layer.lineDashPhase = newValue.dash.phase
-                            layer.lineJoin = newValue.dash.lineJoin.shapeLayerLineJoin
-                            layer.lineCap = newValue.dash.lineCap.shapeLayerLineCap
+                            layer._border = newValue
                         } else {
                             if let borderLayer = borderLayer {
                                 borderLayer.configuration = newValue
@@ -170,53 +162,6 @@ import FZSwiftUtils
         
         internal var borderLayer: DashedBorderLayer? {
             firstSublayer(type: DashedBorderLayer.self)
-        }
-        
-        /**
-         The relative percentage (between `0.0` and `1.0`) for rounding the corners based on the layer's height.
-         
-         For e.g. a  value of `0.5`  sets the corner radius to half the height of layer. The value can be used for a circular or capsule appearence of the layer depending if it's square.
-
-         The corner radius updates automatically, if the height of the layer changes.
-         
-         Changing the ``cornerRadius``, sets the value to `nil`.
-         */
-        public var relativeCornerRadius: CGFloat? {
-            get { getAssociatedValue("relativeCornerRadius") }
-            set {
-                setAssociatedValue(newValue?.clamped(to: 0...1), key: "relativeCornerRadius")
-                if newValue == nil {
-                    cornerFrameObservation = nil
-                    cornerRadiusObservation = nil
-                } else if cornerFrameObservation == nil {
-                    self.cornerRadius = frame.height * newValue!
-                    cornerFrameObservation = observeChanges(for: \.bounds) { [weak self] old, new in
-                        guard let self = self, old.height != new.height, let relativeCornerRadius = self.relativeCornerRadius else { return }
-                        self.isUpdatingCornerRadius = true
-                        self.cornerRadius = new.height * relativeCornerRadius
-                        self.isUpdatingCornerRadius = false
-                    }
-                    cornerRadiusObservation = observeChanges(for: \.cornerRadius) { [weak self] old, new in
-                        guard let self = self, !self.isUpdatingCornerRadius else { return }
-                        self.relativeCornerRadius = nil
-                    }
-                }
-            }
-        }
-        
-        var cornerRadiusObservation: KeyValueObservation? {
-            get { getAssociatedValue("cornerRadiusObservation") }
-            set { setAssociatedValue(newValue, key: "cornerRadiusObservation") }
-        }
-        
-        var isUpdatingCornerRadius: Bool {
-            get { getAssociatedValue("isUpdatingCornerRadius") ?? false }
-            set { setAssociatedValue(newValue, key: "isUpdatingCornerRadius") }
-        }
-        
-        var cornerFrameObservation: KeyValueObservation? {
-            get { getAssociatedValue("cornerFrameObservation") }
-            set { setAssociatedValue(newValue, key: "cornerFrameObservation") }
         }
         
         /// Sends the layer to the front of it's superlayer.
@@ -517,6 +462,51 @@ extension CAShapeLayer {
         static let all: CAAutoresizingMask = [.layerHeightSizable, .layerWidthSizable, .layerMinXMargin, .layerMinYMargin, .layerMaxXMargin, .layerMaxYMargin]
     }
 #endif
+
+/*
+ extension CALayer {
+     class SavedColors {
+         enum Color: Int {
+             case background
+             case shadow
+             case border
+         }
+         var layer: CALayer
+         init(for layer: CALayer) {
+             self.layer = layer
+         }
+         var effectiveAppearanceObservation: KeyValueObservation?
+         var colors: [Color: (cgColor: CGColor?, nsColor: NSColor?)] = [:] {
+             didSet {
+                 guard let parentView = layer.parentView else { return }
+                 if !colors.contains(where: { $0.value.nsColor?.isDynamic == true }) {
+                     effectiveAppearanceObservation = nil
+                 } else if effectiveAppearanceObservation == nil {
+                     effectiveAppearanceObservation = parentView.observeChanges(for: \.appearance) { [weak self] old, new in
+                         guard let self = self else { return }
+                         self.updateColors()
+                     }
+                 }
+                 }
+         }
+         
+         func updateColors() {
+             if let color = colors[.background] {
+                 
+             }
+         }
+                 
+         func getColor(for type: Color, current: CGColor?) -> NSUIColor? {
+             let color = colors[type, default: (nil, nil)]
+             if color.cgColor != current {
+                 colors[type] = (current, nil)
+                 return current?.nsUIColor
+             }
+             return color.nsColor
+         }
+     }
+ }
+ */
 
 /*
 class CALayerConstraint {

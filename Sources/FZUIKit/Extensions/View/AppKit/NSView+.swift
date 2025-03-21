@@ -322,7 +322,6 @@
             set {
                 let clipsToBounds = clipsToBounds
                 NSView.swizzleAnimationForKey()
-                relativeCornerRadius = nil
                 optionalLayer?.cornerRadius = newValue
                 if newValue != 0.0 {
                     // cornerShape = .normal

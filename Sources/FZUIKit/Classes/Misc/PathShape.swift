@@ -32,16 +32,15 @@ public struct PathShape {
     /// Trims this shape by a fractional amount based on its representation as a path.
     public func trim(from start: CGFloat, to end: CGFloat) -> PathShape {
         PathShape { rect in
-            let path = path(in: rect)
-            return path.trimmedPath(from: start, to: end)
+            path(in: rect).trimmedPath(from: start, to: end)
         }
     }
 
     /// Applies an affine transform to this shape.
     public func transform(_ transform: CGAffineTransform) -> PathShape {
-        var transform = transform
-        return PathShape { rect in
-            path(in: rect).copy(using: &transform) ?? CGPath(rect: rect, transform: nil)
+        PathShape { rect in
+            var transform = transform
+            return path(in: rect).copy(using: &transform) ?? CGPath(rect: rect, transform: nil)
         }
     }
 
@@ -120,6 +119,7 @@ public struct PathShape {
         }
     }
     
+    /// Fills the shape using the current fill color and drawing attributes.
     public func fill(rect: CGRect) {
         #if os(macOS)
         NSBezierPath(cgPath: path(in: rect)).fill()
@@ -129,6 +129,7 @@ public struct PathShape {
         #endif
     }
     
+    /// Draws a line along the shape using the current stroke color and drawing attributes.
     public func stroke(rect: CGRect) {
         #if os(macOS)
         NSBezierPath(cgPath: path(in: rect)).stroke()
@@ -141,52 +142,55 @@ public struct PathShape {
 
 @available(macOS 14.0, iOS 16.0, tvOS 14.0, watchOS 10.0, *)
 extension PathShape {
+    /// Rules for determining which regions are interior to a shape.
+    public typealias FileRule = CGPathFillRule
+    
     /// Returns the shape inverted.
-    public func inverted() -> PathShape {
+    public var inverted: PathShape {
         PathShape { rect in
             CGPath(rect: rect, transform: nil).subtracting(path(in: rect))
         }
     }
-    
+        
     /// Returns a new shape with filled regions common to both shapes.
-    public func intersection(_ other: PathShape, eoFill: Bool = true) -> PathShape {
+    public func intersection(_ other: PathShape, using rule: FileRule = .evenOdd) -> PathShape {
         PathShape { rect in
-            path(in: rect).intersection(other.path(in: rect), using: eoFill ? .evenOdd : .winding)
+            path(in: rect).intersection(other.path(in: rect), using: rule)
         }
     }
 
     /// Returns a new shape with a line from this shape that overlaps the filled regions of the given shape.
-    public func lineIntersection(_ other: PathShape, eoFill: Bool = true) -> PathShape {
+    public func lineIntersection(_ other: PathShape, using rule: FileRule = .evenOdd) -> PathShape {
         PathShape { rect in
-            path(in: rect).lineIntersection(other.path(in: rect), using: eoFill ? .evenOdd : .winding)
+            path(in: rect).lineIntersection(other.path(in: rect), using: rule)
         }
     }
 
     /// Returns a new shape with a line from this shape that does not overlap the filled region of the given shape.
-    public func lineSubtraction(_ other: PathShape, eoFill: Bool = true) -> PathShape {
+    public func lineSubtraction(_ other: PathShape, using rule: FileRule = .evenOdd) -> PathShape {
         PathShape { rect in
-            path(in: rect).lineSubtracting(other.path(in: rect), using: eoFill ? .evenOdd : .winding)
+            path(in: rect).lineSubtracting(other.path(in: rect), using: rule)
         }
     }
     
     /// Returns a new shape with filled regions from this shape that are not in the given shape.
-    public func subtracting(_ other: PathShape, eoFill: Bool = true) -> PathShape {
+    public func subtracting(_ other: PathShape, using rule: FileRule = .evenOdd) -> PathShape {
         PathShape { rect in
-            path(in: rect).subtracting(other.path(in: rect), using: eoFill ? .evenOdd : .winding)
+            path(in: rect).subtracting(other.path(in: rect), using: rule)
         }
     }
 
     /// Returns a new shape with filled regions either from this shape or the given shape, but not in both.
-    public func symmetricDifference(_ other: PathShape, eoFill: Bool = true) -> PathShape {
+    public func symmetricDifference(_ other: PathShape, using rule: FileRule = .evenOdd) -> PathShape {
         PathShape { rect in
-            path(in: rect).symmetricDifference(other.path(in: rect), using: eoFill ? .evenOdd : .winding)
+            path(in: rect).symmetricDifference(other.path(in: rect), using: rule)
         }
     }
 
     /// Returns a new shape with filled regions in either this shape or the given shape.
-    public func union(_ other: PathShape, eoFill: Bool = true) -> PathShape {
+    public func union(_ other: PathShape, using rule: FileRule = .evenOdd) -> PathShape {
         PathShape { rect in
-            path(in: rect).union(other.path(in: rect), using: eoFill ? .evenOdd : .winding)
+            path(in: rect).union(other.path(in: rect), using: rule)
         }
     }
 }
