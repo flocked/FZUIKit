@@ -11,10 +11,6 @@ import AppKit
 /// A column within a grid view.
 public class GridColumn: CustomStringConvertible {
     
-    public var description: String {
-        ""
-    }
-    
     /// The grid view of the column.
     public var gridView: NSGridView? {
         gridColumn?.gridView
@@ -22,7 +18,13 @@ public class GridColumn: CustomStringConvertible {
     
     /// Merges the cells at the specified range.
     public func mergeCells(in range: Range<Int>) {
-        gridColumn?.mergeCells(in: range.nsRange)
+        guard numberOfCells > 0 else { return }
+        gridColumn?.mergeCells(in: range.clamped(max: numberOfCells).nsRange)
+    }
+    
+    /// Merges the cells at the specified range.
+    public func mergeCells(in range: ClosedRange<Int>) {
+        mergeCells(in: range.lowerBound..<range.upperBound-1)
     }
     
     /// The content views of the grid column cells.
@@ -167,6 +169,10 @@ public class GridColumn: CustomStringConvertible {
     var _trailingPadding: CGFloat = 0.0
     var _width: CGFloat = 1.1754943508222875e-38
     var _xPlacement: NSGridCell.Placement = .inherited
+    
+    public var description: String {
+        "GridColumn(views: \(views), xPlacement: \(xPlacement),  width: \(width), leadingPadding: \(leadingPadding), trailingPadding: \(trailingPadding), isHidden \(isHidden))"
+    }
 }
 
 #endif

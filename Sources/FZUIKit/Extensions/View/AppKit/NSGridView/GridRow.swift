@@ -10,7 +10,7 @@ import AppKit
 import FZSwiftUtils
 
 /// A row within a grid view.
-public class GridRow {
+public class GridRow: CustomStringConvertible {
     
     /// The grid view of the row.
     public var gridView: NSGridView? {
@@ -19,7 +19,13 @@ public class GridRow {
     
     /// Merges the cells at the specified range.
     public func mergeCells(in range: Range<Int>) {
-        gridRow?.mergeCells(in: range.nsRange)
+        guard numberOfCells > 0 else { return }
+        gridRow?.mergeCells(in: range.clamped(max: numberOfCells).nsRange)
+    }
+    
+    /// Merges the cells at the specified range.
+    public func mergeCells(in range: ClosedRange<Int>) {
+        mergeCells(in: range.lowerBound..<range.upperBound-1)
     }
     
     /// The content views of the grid row cells.
@@ -182,6 +188,10 @@ public class GridRow {
     var _height: CGFloat = 1.1754943508222875e-38
     var _yPlacement: NSGridCell.Placement = .inherited
     var _rowAlignment: NSGridRow.Alignment = .inherited
+    
+    public var description: String {
+        "GridRow(views: \(views), yPlacement: \(yPlacement),  height: \(height), topPadding: \(topPadding), bottomPadding: \(bottomPadding), isHidden \(isHidden))"
+    }
 }
 
 #endif

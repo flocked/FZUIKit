@@ -208,4 +208,19 @@ extension NSGridView {
     }
 }
 
+extension NSGridCell.Placement: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .inherited: return "inherited"
+        case .none: return "none"
+        case .leading: return "leading"
+        case .top: return "top"
+        case .trailing: return "trailing"
+        case .bottom: return "bottom"
+        case .center: return "center"
+        default: return "fill"
+        }
+    }
+}
+
 #endif
