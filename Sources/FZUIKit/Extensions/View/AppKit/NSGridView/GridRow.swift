@@ -195,7 +195,7 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible {
     
     public var debugDescription: String {
         let views = views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} })
-        var strings = ["GridColumn:"]
+        var strings = ["GridRow:"]
         strings += "  - views: [\(views.joined(separator: ", "))]"
         strings += "  - yPlacement: \(yPlacement)"
         strings += "  - rowAlignment: \(rowAlignment)"
