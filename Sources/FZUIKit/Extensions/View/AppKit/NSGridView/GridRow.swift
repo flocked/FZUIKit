@@ -10,7 +10,7 @@ import AppKit
 import FZSwiftUtils
 
 /// A row within a `NSGridView`.
-public class GridRow: CustomStringConvertible, CustomDebugStringConvertible, Equatable {
+public class GridRow {
     /// The grid view of the row.
     public var gridView: NSGridView? { gridRow?.gridView }
     
@@ -19,45 +19,6 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible, Equ
     
     /// The cells of the row.
     public var cells: [GridCell] { (gridRow?.cells ?? []).compactMap({ GridCell($0) }) }
-    
-    /// Merges the cells of the row.
-    @discardableResult
-    public func mergeCells() -> Self {
-        if gridRow != nil {
-            mergeCells(in: 0..<numberOfCells)
-        } else {
-            properties.merge = true
-        }
-        return self
-    }
-    
-    /// Merges the cells at the specified range.
-    @discardableResult
-    public func mergeCells(in range: Range<Int>) -> Self {
-        if gridRow != nil {
-            guard numberOfCells > 0 else { return self }
-            gridRow?.mergeCells(in: range.clamped(max: numberOfCells).nsRange)
-        } else {
-            properties.mergeRange = range.toClosedRange
-        }
-        return self
-    }
-    
-    /// Merges the cells at the specified range.
-    @discardableResult
-    public func mergeCells(in range: ClosedRange<Int>) -> Self {
-        mergeCells(in: range.toRange)
-    }
-    
-    /// Merges the cells from the first view to the second view.
-    @discardableResult
-    public func mergeCells(from firstView: NSView, to secondView: NSView) -> Self {
-        let views = views
-        if let startIndex = views.firstIndex(of: firstView), let endIndex = views.firstIndex(of: secondView), startIndex <= endIndex {
-            mergeCells(in: startIndex..<endIndex)
-        }
-        return self
-    }
     
     /// The content views of the grid row cells.
     public var views: [NSView?] {
@@ -175,6 +136,45 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible, Equ
         return self
     }
     
+    /// Merges the cells of the row.
+    @discardableResult
+    public func mergeCells() -> Self {
+        if gridRow != nil {
+            mergeCells(in: 0..<numberOfCells)
+        } else {
+            properties.merge = true
+        }
+        return self
+    }
+    
+    /// Merges the cells at the specified range.
+    @discardableResult
+    public func mergeCells(in range: Range<Int>) -> Self {
+        if gridRow != nil {
+            guard numberOfCells > 0 else { return self }
+            gridRow?.mergeCells(in: range.clamped(max: numberOfCells).nsRange)
+        } else {
+            properties.mergeRange = range.toClosedRange
+        }
+        return self
+    }
+    
+    /// Merges the cells at the specified range.
+    @discardableResult
+    public func mergeCells(in range: ClosedRange<Int>) -> Self {
+        mergeCells(in: range.toRange)
+    }
+    
+    /// Merges the cells from the first view to the second view.
+    @discardableResult
+    public func mergeCells(from firstView: NSView, to secondView: NSView) -> Self {
+        let views = views
+        if let startIndex = views.firstIndex(of: firstView), let endIndex = views.firstIndex(of: secondView), startIndex <= endIndex {
+            mergeCells(in: startIndex..<endIndex)
+        }
+        return self
+    }
+    
     /// A grid row with a line.
     public static var line: GridRow { GridRow(NSBox.horizontalLine()).mergeCells() }
     
@@ -205,7 +205,9 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible, Equ
     }
     
     var properties = Properties()
+    
     var numberOfCells: Int { gridRow?.numberOfCells ?? properties.views.count }
+    
     weak var gridRow: NSGridRow? {
         didSet {
             if let gridRow = gridRow {
@@ -227,7 +229,7 @@ extension GridRow {
     /// The y-placement of the views.
     public enum Alignment: Int, CustomStringConvertible {
         /// None.
-        case none
+        case none = 1
         /// Top.
         case top
         /// Bottom.
@@ -254,20 +256,23 @@ extension GridRow {
         }
         
         var placement: NSGridCell.Placement? {
-            switch self {
-            case .none: return NSGridCell.Placement.none
-            case .top: return .top
-            case .bottom: return .bottom
-            case .center: return .center
-            case .fill: return .fill
-            default: return nil
-            }
+            if self == .firstBaseline || self == .lastBaseline { return nil }
+            return NSGridCell.Placement(rawValue: rawValue)!
         }
+        
         var rowAlignment: NSGridRow.Alignment? {
             switch self {
             case .firstBaseline: return .firstBaseline
             case .lastBaseline: return .lastBaseline
             default: return nil
+            }
+        }
+        
+        init(_ placement: NSGridCell.Placement, _ alignment: NSGridRow.Alignment) {
+            if alignment == .firstBaseline || alignment == .lastBaseline {
+                self = alignment == .firstBaseline ? .firstBaseline : .lastBaseline
+            } else {
+                self = .init(rawValue: placement.rawValue) ?? .none
             }
         }
     }
@@ -283,32 +288,7 @@ extension GridRow {
         var merge: Bool = false
         var mergeRange: ClosedRange<Int>? = nil
     }
-    
-    public var description: String {
-        let height = gridRow?.height ?? properties.height
-        return "GridRow(views: \(views.count), alignment: \(alignment),  height: \(height == NSGridView.automaticSizing ? "automatic" : "\(height)"))"
-    }
-    
-    public var debugDescription: String {
-        let height = gridRow?.height ?? properties.height
-        var strings = ["GridRow:"]
-        strings += "views: [\(views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} }).joined(separator: ", "))]"
-        strings += "alignment: \(alignment)"
-        strings += "height: \(height == NSGridView.automaticSizing ? "automatic" : "\(height)")"
-        strings += "bottomPadding: \(bottomPadding), topPadding: \(topPadding)"
-        strings += "isHidden: \(isHidden)"
-        return strings.joined(separator: "\n  - ")
-    }
-    
-    public static func == (lhs: GridRow, rhs: GridRow) -> Bool {
-        if let lhs = lhs.gridRow, let rhs = rhs.gridRow {
-            return lhs === rhs
-        }
-        return lhs === rhs
-    }
-}
 
-extension GridRow {
     /// A function builder type that produces an array of grid rows.
     @resultBuilder
     public enum Builder {
@@ -350,19 +330,30 @@ extension GridRow {
     }
 }
 
-extension GridRow.Alignment {
-    init(_ placement: NSGridCell.Placement, _ alignment: NSGridRow.Alignment) {
-        if alignment == .firstBaseline || alignment == .lastBaseline {
-            self = alignment == .firstBaseline ? .firstBaseline : .lastBaseline
-        } else {
-            switch placement {
-            case .top, .leading, .inherited: self = .top
-            case .bottom, .trailing: self = .bottom
-            case .center: self = .center
-            case .fill: self = .fill
-            default: self = .none
-            }
+extension GridRow: CustomStringConvertible, CustomDebugStringConvertible {
+    public var description: String {
+        let height = gridRow?.height ?? properties.height
+        return "GridRow(views: \(views.count), alignment: \(alignment),  height: \(height == NSGridView.automaticSizing ? "automatic" : "\(height)"))"
+    }
+    
+    public var debugDescription: String {
+        let height = gridRow?.height ?? properties.height
+        var strings = ["GridRow:"]
+        strings += "views: [\(views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} }).joined(separator: ", "))]"
+        strings += "alignment: \(alignment)"
+        strings += "height: \(height == NSGridView.automaticSizing ? "automatic" : "\(height)")"
+        strings += "bottomPadding: \(bottomPadding), topPadding: \(topPadding)"
+        strings += "isHidden: \(isHidden)"
+        return strings.joined(separator: "\n  - ")
+    }
+}
+
+extension GridRow: Equatable {
+    public static func == (lhs: GridRow, rhs: GridRow) -> Bool {
+        if let lhs = lhs.gridRow, let rhs = rhs.gridRow {
+            return lhs === rhs
         }
+        return lhs === rhs
     }
 }
 #endif

@@ -10,7 +10,7 @@ import AppKit
 import FZSwiftUtils
 
 /// A column within a `NSGridView`.
-public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible, Equatable {
+public class GridColumn {
     /// The grid view of the column.
     public var gridView: NSGridView? { gridColumn?.gridView }
     
@@ -19,46 +19,6 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible, 
     
     /// The cells of the column.
     public var cells: [GridCell] { (gridColumn?.cells ?? []).compactMap({ GridCell($0) }) }
-    
-    /// Merges the cells of the column.
-    @discardableResult
-    public func mergeCells() -> Self {
-        if gridColumn != nil {
-            mergeCells(in: 0..<numberOfCells)
-        } else {
-            properties.merge = true
-        }
-        return self
-    }
-    
-    /// Merges the cells of the column at the specified range.
-    @discardableResult
-    public func mergeCells(in range: Range<Int>) -> Self {
-        guard numberOfCells > 0 else { return self }
-        if gridColumn != nil {
-            guard numberOfCells > 0 else { return self }
-            gridColumn?.mergeCells(in: range.clamped(max: numberOfCells).nsRange)
-        } else {
-            properties.mergeRange = range.toClosedRange
-        }
-        return self
-    }
-    
-    /// Merges the cells of the column at the specified range.
-    @discardableResult
-    public func mergeCells(in range: ClosedRange<Int>) -> Self {
-        mergeCells(in: range.toRange)
-    }
-    
-    /// Merges the cells from the first view to the second view.
-    @discardableResult
-    public func mergeCells(from firstView: NSView, to secondView: NSView) -> Self {
-        let views = views
-        if let startIndex = views.firstIndex(of: firstView), let endIndex = views.firstIndex(of: secondView), startIndex <= endIndex {
-            mergeCells(in: startIndex..<endIndex)
-        }
-        return self
-    }
     
     /// The content views of the grid column cells.
     public var views: [NSView?] {
@@ -169,6 +129,46 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible, 
         return self
     }
     
+    /// Merges the cells of the column.
+    @discardableResult
+    public func mergeCells() -> Self {
+        if gridColumn != nil {
+            mergeCells(in: 0..<numberOfCells)
+        } else {
+            properties.merge = true
+        }
+        return self
+    }
+    
+    /// Merges the cells of the column at the specified range.
+    @discardableResult
+    public func mergeCells(in range: Range<Int>) -> Self {
+        guard numberOfCells > 0 else { return self }
+        if gridColumn != nil {
+            guard numberOfCells > 0 else { return self }
+            gridColumn?.mergeCells(in: range.clamped(max: numberOfCells).nsRange)
+        } else {
+            properties.mergeRange = range.toClosedRange
+        }
+        return self
+    }
+    
+    /// Merges the cells of the column at the specified range.
+    @discardableResult
+    public func mergeCells(in range: ClosedRange<Int>) -> Self {
+        mergeCells(in: range.toRange)
+    }
+    
+    /// Merges the cells from the first view to the second view.
+    @discardableResult
+    public func mergeCells(from firstView: NSView, to secondView: NSView) -> Self {
+        let views = views
+        if let startIndex = views.firstIndex(of: firstView), let endIndex = views.firstIndex(of: secondView), startIndex <= endIndex {
+            mergeCells(in: startIndex..<endIndex)
+        }
+        return self
+    }
+    
     /// A grid column with the specific spacing.
     public static func spacing(_ width: CGFloat) -> GridColumn {
         let spacer = NSView()
@@ -196,7 +196,9 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible, 
     }
     
     var properties = Properties()
+    
     var numberOfCells: Int { gridColumn?.numberOfCells ?? properties.views.count }
+    
     weak var gridColumn: NSGridColumn? {
         didSet {
             if let gridColumn = gridColumn {
@@ -217,7 +219,7 @@ extension GridColumn {
     /// The x-placement of the views.
     public enum Alignment: Int, CustomStringConvertible {
         /// None.
-        case none
+        case none = 1
         /// Leading.
         case leading
         /// Trailing.
@@ -238,13 +240,11 @@ extension GridColumn {
         }
         
         var placement: NSGridCell.Placement {
-            switch self {
-            case .none: return NSGridCell.Placement.none
-            case .leading: return .leading
-            case .trailing: return .trailing
-            case .center: return .center
-            case .fill: return .fill
-            }
+            NSGridCell.Placement(rawValue: rawValue)!
+        }
+        
+        init(_ placement: NSGridCell.Placement) {
+            self = .init(rawValue: placement.rawValue) ?? .none
         }
     }
     
@@ -258,32 +258,7 @@ extension GridColumn {
         var merge: Bool = false
         var mergeRange: ClosedRange<Int>? = nil
     }
-    
-    public var description: String {
-        let width = gridColumn?.width ?? properties.width
-        return "GridColumn(views: \(views.count), alignment: \(alignment),  width: \(width == NSGridView.automaticSizing ? "automatic" : "\(width)"))"
-    }
-    
-    public var debugDescription: String {
-        let width = gridColumn?.width ?? properties.width
-        var strings = ["GridColumn:"]
-        strings += "views: [\(views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} }).joined(separator: ", "))]"
-        strings += "alignment: \(alignment)"
-        strings += "width: \(width == NSGridView.automaticSizing ? "automatic" : "\(width)")"
-        strings += "leadingPadding: \(leadingPadding), trailingPadding: \(trailingPadding)"
-        strings += "isHidden: \(isHidden)"
-        return strings.joined(separator: "\n  - ")
-    }
-    
-    public static func == (lhs: GridColumn, rhs: GridColumn) -> Bool {
-        if let lhs = lhs.gridColumn, let rhs = rhs.gridColumn {
-            return lhs === rhs
-        }
-        return lhs === rhs
-    }
-}
 
-extension GridColumn {
     /// A function builder type that produces an array of grid column.
     @resultBuilder
     public enum Builder {
@@ -325,15 +300,30 @@ extension GridColumn {
     }
 }
 
-extension GridColumn.Alignment {
-    init(_ placement: NSGridCell.Placement) {
-        switch placement {
-        case .top, .leading, .inherited: self = .leading
-        case .bottom, .trailing: self = .trailing
-        case .center: self = .center
-        case .fill: self = .fill
-        default: self = .none
+extension GridColumn: CustomStringConvertible, CustomDebugStringConvertible {
+    public var description: String {
+        let width = gridColumn?.width ?? properties.width
+        return "GridColumn(views: \(views.count), alignment: \(alignment),  width: \(width == NSGridView.automaticSizing ? "automatic" : "\(width)"))"
+    }
+    
+    public var debugDescription: String {
+        let width = gridColumn?.width ?? properties.width
+        var strings = ["GridColumn:"]
+        strings += "views: [\(views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} }).joined(separator: ", "))]"
+        strings += "alignment: \(alignment)"
+        strings += "width: \(width == NSGridView.automaticSizing ? "automatic" : "\(width)")"
+        strings += "leadingPadding: \(leadingPadding), trailingPadding: \(trailingPadding)"
+        strings += "isHidden: \(isHidden)"
+        return strings.joined(separator: "\n  - ")
+    }
+}
+
+extension GridColumn: Equatable {
+    public static func == (lhs: GridColumn, rhs: GridColumn) -> Bool {
+        if let lhs = lhs.gridColumn, let rhs = rhs.gridColumn {
+            return lhs === rhs
         }
+        return lhs === rhs
     }
 }
 #endif
