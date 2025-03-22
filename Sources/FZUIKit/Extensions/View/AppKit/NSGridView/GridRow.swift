@@ -200,6 +200,23 @@ public class GridRow {
         return self
     }
     
+    /// Unmerges the cells of the row.
+    @discardableResult
+    public func unmergeCells() -> Self {
+        let cells = gridRow?.cells ?? []
+        cells.filter({ if let head = $0.headOfMergedCell { return cells.contains(head) } else { return false } }).forEach({ $0.unmerge() })
+        return self
+    }
+    
+    /// Unmerges the cells of the row containing the cell at the specified index.
+    @discardableResult
+    public func unmergeCells(at index: Int) -> Self {
+        let cells = gridRow?.cells ?? []
+        guard let cell = cells[safe: index], let head = cell.headOfMergedCell, cells.contains(head) else { return self }
+        cell.unmerge()
+        return self
+    }
+    
     /// A grid row with a line.
     public static var line: GridRow { GridRow(NSBox.horizontalLine()).mergeCells() }
     

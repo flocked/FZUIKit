@@ -120,6 +120,11 @@ public class GridCell {
         return cells[safe: index+1]
     }
     
+    /// Unmerges the cell and all related cells.
+    public func unmerge() {
+        gridCell?.unmerge()
+    }
+    
     init(_ view: NSView?) {
         properties.view = view
     }
@@ -215,9 +220,7 @@ extension GridCell {
             "(x: \(x), y: \(y), customConstraints: \(customConstraints)))"
         }
         
-        init() {
-            
-        }
+        init() { }
         
         init(for gridCell: GridCell) {
             if let gridCell = gridCell.gridCell {

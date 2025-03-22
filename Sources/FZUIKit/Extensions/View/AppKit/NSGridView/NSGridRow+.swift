@@ -34,8 +34,7 @@ public extension NSGridRow {
     
     /// The cells of the grid row.
     var cells: [NSGridCell] {
-        guard let gridView = gridView else { return [] }
-        return (0..<numberOfCells).map({ gridView.cell(atColumnIndex: $0, rowIndex: gridView.index(of: self)) })
+        (0..<numberOfCells).map({ cell(at: $0) })
     }
 }
 

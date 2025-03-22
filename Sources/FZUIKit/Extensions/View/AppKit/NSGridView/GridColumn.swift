@@ -194,6 +194,23 @@ public class GridColumn {
         return self
     }
     
+    /// Unmerges the cells of the column.
+    @discardableResult
+    public func unmergeCells() -> Self {
+        let cells = gridColumn?.cells ?? []
+        cells.filter({ if let head = $0.headOfMergedCell { return cells.contains(head) } else { return false } }).forEach({ $0.unmerge() })
+        return self
+    }
+    
+    /// Unmerges the cells of the column containing the cell at the specified index.
+    @discardableResult
+    public func unmergeCells(at index: Int) -> Self {
+        let cells = gridColumn?.cells ?? []
+        guard let cell = cells[safe: index], let head = cell.headOfMergedCell, cells.contains(head) else { return self }
+        cell.unmerge()
+        return self
+    }
+    
     /// A grid column with the specific spacing.
     public static func spacing(_ width: CGFloat) -> GridColumn {
         let spacer = NSView()

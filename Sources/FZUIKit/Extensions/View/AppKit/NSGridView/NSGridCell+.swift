@@ -52,6 +52,25 @@ public extension NSGridCell {
         guard columnIndex+1 < gridView.numberOfColumns else { return nil }
         return gridView.cell(atColumnIndex: columnIndex+1, rowIndex: gridView.index(of: row))
     }
+    
+    internal var rowCells: [NSGridCell] {
+        row?.cells ?? []
+    }
+    
+    internal var columnCells: [NSGridCell] {
+        column?.cells ?? []
+    }
+    
+    internal var headOfMergedCell: NSGridCell? {
+        get { value(forKey: "_headOfMergedCell") as? NSGridCell }
+        set { setValue(newValue, forKey: "_headOfMergedCell")}
+    }
+    
+    internal func unmerge() {
+        guard let headCell = headOfMergedCell else { return }
+        columnCells.filter({ $0.headOfMergedCell === headCell }).reversed().forEach({ $0.headOfMergedCell = nil })
+        rowCells.filter({ $0.headOfMergedCell === headCell }).reversed().forEach({ $0.headOfMergedCell = nil })
+    }
 }
 
 #endif
