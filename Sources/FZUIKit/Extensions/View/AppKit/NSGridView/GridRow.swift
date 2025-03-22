@@ -126,10 +126,10 @@ public class GridRow {
             return .init(properties.alignment, properties.rowAlignment)
         }
         set {
-            gridRow?.yPlacement = newValue.placement ?? .inherited
-            gridRow?.rowAlignment = newValue.rowAlignment ?? .inherited
-            properties.alignment = newValue.placement ?? .inherited
-            properties.rowAlignment = newValue.rowAlignment ?? .inherited
+            gridRow?.yPlacement = newValue.placement
+            gridRow?.rowAlignment = newValue.rowAlignment
+            properties.alignment = newValue.placement
+            properties.rowAlignment = newValue.rowAlignment
         }
     }
     
@@ -333,17 +333,17 @@ extension GridRow {
             }
         }
         
-        var placement: NSGridCell.Placement? {
-            if self == .firstBaseline || self == .lastBaseline { return nil }
+        var placement: NSGridCell.Placement {
+            if self == .firstBaseline || self == .lastBaseline { return .inherited }
             return NSGridCell.Placement(rawValue: rawValue) ?? .inherited
         }
         
-        var rowAlignment: NSGridRow.Alignment? {
+        var rowAlignment: NSGridRow.Alignment {
             switch self {
             case .firstBaseline: return .firstBaseline
             case .lastBaseline: return .lastBaseline
             case .inherited: return .inherited
-            default: return nil
+            default: return .inherited
             }
         }
         
