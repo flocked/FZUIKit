@@ -113,7 +113,7 @@ public class GridColumn {
         return self
     }
 
-    /// The alignment of the views of the x-coordinate.
+    /// The alignment of the views on the x-coordinate.
     public var alignment: Alignment {
         get {.init(gridColumn?.xPlacement ?? properties.alignment) }
         set {
@@ -122,7 +122,7 @@ public class GridColumn {
         }
     }
     
-    /// Sets the alignment of the views of the x-coordinate.
+    /// Sets the alignment of the views on the x-coordinate.
     @discardableResult
     public func alignment(_ alignment: Alignment) -> Self {
         self.alignment = alignment
@@ -227,7 +227,7 @@ public class GridColumn {
 }
 
 extension GridColumn {
-    /// The x-placement of the views.
+    /// The alignment of the views on the x-coordinate.
     public enum Alignment: Int, CustomStringConvertible {
         /// None.
         case none = 1

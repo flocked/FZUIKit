@@ -113,7 +113,7 @@ public class GridRow {
         return self
     }
     
-    /// The alignment of the views of the y-coordinate.
+    /// The alignment of the views on the y-coordinate.
     public var alignment: Alignment {
         get {
             if let gridRow = gridRow {
@@ -129,7 +129,7 @@ public class GridRow {
         }
     }
     
-    /// Sets the alignment of the views of the y-coordinate.
+    /// Sets the alignment of the views on the y-coordinate.
     @discardableResult
     public func alignment(_ alignment: Alignment) -> Self {
         self.alignment = alignment
@@ -233,7 +233,7 @@ public class GridRow {
 }
 
 extension GridRow {
-    /// The y-placement of the views.
+    /// The alignment of the views on the y-coordinate.
     public enum Alignment: Int, CustomStringConvertible {
         /// None.
         case none = 1
