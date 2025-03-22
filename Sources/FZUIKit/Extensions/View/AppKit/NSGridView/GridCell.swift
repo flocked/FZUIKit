@@ -121,29 +121,22 @@ public class GridCell: CustomStringConvertible, CustomDebugStringConvertible {
     weak var gridCell: NSGridCell?
     
     public var description: String {
-        if let columnIndex = column?.index, let rowIndex = row?.index {
-            if let view = view {
-                return "GridCell(row: \(rowIndex), column: \(columnIndex), view: \(view))"
-            }
-            return "GridCell(row: \(rowIndex), column: \(columnIndex))"
-        }
-        if let view = view {
-            return "GridCell(view: \(view))"
-        }
-        return "GridCell"
+        description(debug: false)
     }
     
     public var debugDescription: String {
-        if let columnIndex = column?.index, let rowIndex = row?.index {
-            if let view = view {
-                return "GridCell(row: \(rowIndex), column: \(columnIndex), view: \(view), alignment: \(alignment))"
-            }
-            return "GridCell(row: \(rowIndex), column: \(columnIndex), view: -, alignment: \(alignment))"
-        }
+        description(debug: true)
+    }
+    
+    func description(debug: Bool) -> String {
+        let alignment = debug ? ", alignment: \(alignment)" : ""
+        let indexes = (row: row?.index, column: column?.index)
+        let row = indexes.row != nil ? "row: \(indexes.row!), " : debug ? "row: -, " : ""
+        let column = indexes.column != nil ? "column: \(indexes.column!), " : debug ? "column: -, " : ""
         if let view = view {
-            return "GridCell(row: -, column: -, view: \(view), alignment: \(alignment))"
+            return "GridCell(\(row)\(column)view: \(view)\(alignment))"
         }
-        return "GridCell(row: -, column: -, view: -, alignment: \(alignment))"
+        return "GridCell(\(row)\(column)\(alignment))"
     }
 }
 #endif
