@@ -176,22 +176,22 @@ public class GridColumn {
         return GridColumn(spacer)
     }
     
-    /// Creates a grid column with rows displaying the specified views.
+    /// Creates a grid column with cells displaying the specified views.
     public init(views: [NSView?] = []) {
         properties.views = views
     }
     
-    /// Creates a grid column with rows displaying the specified views.
+    /// Creates a grid column with cells displaying the specified views.
     public init(@NSGridView.Builder views: () -> [NSView?]) {
         properties.views = views()
     }
     
-    /// Creates a grid column with a row displaying the specified view.
+    /// Creates a grid column with a cell displaying the specified view.
     public init(_ view: NSView) {
         properties.views = [view]
     }
     
-    /// Creates a grid column with rows displaying text fields with the specified labels.
+    /// Creates a grid column with cells displaying text fields with the specified labels.
     public init(labels: [String] = []) {
         properties.views = labels.map({NSTextField.wrapping($0)})
     }
