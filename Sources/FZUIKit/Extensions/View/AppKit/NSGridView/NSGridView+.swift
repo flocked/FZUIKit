@@ -118,35 +118,28 @@ extension NSGridView {
     /// A function builder type that produces an array of views for grid view cells.
     @resultBuilder
     public enum Builder {
-        public static func buildBlock(_ block: [NSView?]...) -> [NSView?] {
-            block.flatMap { $0 }
+        public static func buildBlock(_ components: NSView?...) -> [NSView?] {
+            return components
         }
 
-        /*
-        public static func buildOptional(_ item: [NSView?]?) -> [NSView?] {
-            item ?? []
+        public static func buildExpression(_ expression: NSView) -> NSView? {
+            return expression
         }
-         */
-
-        public static func buildEither(first: [NSView?]?) -> [NSView?] {
-            first ?? []
+        
+        public static func buildExpression(_ expression: NSView?) -> NSView? {
+            return expression
         }
-
-        public static func buildEither(second: [NSView?]?) -> [NSView?] {
-            second ?? []
+        
+        public static func buildOptional(_ component: [NSView?]?) -> [NSView?] {
+            return component ?? []
         }
-
-        public static func buildArray(_ components: [[NSView?]]) -> [NSView?] {
-            components.flatMap { $0 }
+        
+        public static func buildEither(first component: [NSView?]) -> [NSView?] {
+            return component
         }
 
-        /*
-        public static func buildExpression(_ expr: [NSView?]?) -> [NSView?] {
-            expr ?? []
-        }
-*/
-        public static func buildExpression(_ expr: NSView??) -> [NSView?] {
-            expr.map { [$0] } ?? []
+        public static func buildEither(second component: [NSView?]) -> [NSView?] {
+            return component
         }
     }
     
