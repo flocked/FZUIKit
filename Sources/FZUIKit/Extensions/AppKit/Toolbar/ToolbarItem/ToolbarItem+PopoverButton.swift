@@ -179,9 +179,7 @@
                                     title: String? = nil,
                                     image: NSImage? = nil,
                                     popoverViewController: NSViewController) {
-                let button = NSButton.toolbar().title(title ?? "").image(image)
-                button.sizeToFit()
-                self.init(identifier, button: button, popoverViewController: popoverViewController)
+                self.init(identifier, button: NSButton.toolbar(title ?? "", image: image), popoverViewController: popoverViewController)
             }
             
             /**
@@ -197,9 +195,7 @@
                                     title: String? = nil,
                                     image: NSImage? = nil,
                                     popoverView: NSView) {
-                let button = NSButton.toolbar().title(title ?? "").image(image)
-                button.sizeToFit()
-                self.init(identifier, button: button, popoverView: popoverView)
+                self.init(identifier, button: NSButton.toolbar(title ?? "", image: image), popoverView: popoverView)
             }
             
             /**

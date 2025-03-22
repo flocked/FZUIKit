@@ -81,7 +81,7 @@ class DashedBorderView: NSUIView {
         @ViewBuilder
         var borderItem: some View {
             if roundedCorners != [] || roundedCorners != .all, #available(macOS 13.0, iOS 16.0, tvOS 16.0, *) {
-                UnevenRoundedRectangle(cornerRadius: cornerRadius, roundedCorners: roundedCorners, style: cornerCurve == .continuous ? .continuous : .circular)
+                UnevenRoundedRectangle.init(topLeadingRadius: roundedCorners.contains(.topLeft) ? cornerRadius : 0, bottomLeadingRadius: roundedCorners.contains(.bottomLeft) ? cornerRadius : 0, bottomTrailingRadius: roundedCorners.contains(.bottomRight) ? cornerRadius : 0, topTrailingRadius: roundedCorners.contains(.topRight) ? cornerRadius : 0, style:  cornerCurve == .continuous ? .continuous : .circular)
                     .stroke(border, phase: phase)
             } else {
                 RoundedRectangle(cornerRadius: cornerRadius, style: cornerCurve == .continuous ? .continuous : .circular)

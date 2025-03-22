@@ -10,13 +10,13 @@ import AppKit
 
 extension NSGridView {
     /// Creates a new grid view obect with the specified columns.
-    public convenience init(@ColumnBuilder _ columns: () -> [GridColumn]) {
+    public convenience init(@ColumnBuilder columns: () -> [GridColumn]) {
         self.init()
         self.columns = columns()
     }
     
     /// Creates a new grid view object with the specified rows.
-    public convenience init(@RowBuilder _ rows: () -> [GridRow]) {
+    public convenience init(@RowBuilder rows: () -> [GridRow]) {
         self.init()
         self.rows = rows()
     }
@@ -29,6 +29,10 @@ extension NSGridView {
             if newValue.count > numberOfColumns {
                 let count = newValue.count - numberOfColumns
                 (0..<count).forEach({ _ in addColumn(with: [])})
+            } else if newValue.count < numberOfColumns, let index = nsColumns.firstIndex(where: {$0.cells.compactMap({$0.contentView}).count == 0}), index <= newValue.count {
+                (index..<numberOfColumns).reversed().forEach({
+                    removeColumn(at: $0)
+                })
             }
             for (index, column) in newValue.enumerated() {
                 if let columnIndex = column.gridColumn?.index {
@@ -48,16 +52,6 @@ extension NSGridView {
                     }
                 }
             }
-            if newValue.count < numberOfColumns {
-                let columns = self.nsColumns
-                for index in stride(from: columns.count-1, to: newValue.count-1, by: -1) {
-                    if let column = columns[safe: index] {
-                        if column.cells.compactMap({$0.contentView}).count == 0 {
-                            removeColumn(at: index)
-                        }
-                    }
-                }
-            }
         }
     }
     
@@ -74,8 +68,11 @@ extension NSGridView {
         set {
             translatesAutoresizingMaskIntoConstraints = false
             if newValue.count > numberOfRows {
-                let count = newValue.count - numberOfRows
-                (0..<count).forEach({ _ in addRow(with: [])})
+                (0..<(newValue.count - numberOfRows)).forEach({ _ in addRow(with: [])})
+            } else if newValue.count < numberOfRows, let index = nsRows.firstIndex(where: {$0.cells.compactMap({$0.contentView}).count == 0}), index <= newValue.count {
+                (index..<numberOfRows).reversed().forEach({
+                    removeRow(at: $0)
+                })
             }
             for (index, row) in newValue.enumerated() {
                 if let rowIndex = row.gridRow?.index {
@@ -93,16 +90,6 @@ extension NSGridView {
                         gridRow.views = row._views
                         row._views = []
                         row.gridRow = gridRow
-                    }
-                }
-            }
-            if newValue.count < numberOfRows {
-                let rows = self.nsRows
-                for index in stride(from: rows.count-1, to: newValue.count-1, by: -1) {
-                    if let row = rows[safe: index] {
-                        if row.cells.compactMap({$0.contentView}).count == 0 {
-                            removeRow(at: index)
-                        }
                     }
                 }
             }
