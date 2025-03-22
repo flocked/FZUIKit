@@ -34,7 +34,7 @@ public class GridCell: CustomStringConvertible, CustomDebugStringConvertible {
     }
     
     /// The alignment of the cell.
-    public struct Alignment {
+    public struct Alignment: CustomStringConvertible, CustomDebugStringConvertible {
         /// The alignment of the cell on the x-coordinate.
         public var x: GridColumn.Alignment
         
@@ -43,6 +43,14 @@ public class GridCell: CustomStringConvertible, CustomDebugStringConvertible {
         
         /// The custom alignment layout constraits.
         public var customConstraints: [NSLayoutConstraint]
+        
+        public var description: String {
+            "(x: \(x), y: \(y), customConstraints: \(customConstraints.count))"
+        }
+        
+        public var debugDescription: String {
+            "(x: \(x), y: \(y), customConstraints: \(customConstraints)))"
+        }
         
         init(_ x: GridColumn?, _ y: GridRow?, _ customConstraints: [NSLayoutConstraint]) {
             self.x = x?.alignment ?? .init(.inherited)
@@ -126,18 +134,16 @@ public class GridCell: CustomStringConvertible, CustomDebugStringConvertible {
     }
     
     public var debugDescription: String {
-        let xAlignment: GridColumn.Alignment = column?.alignment ?? .init(.inherited)
-        let yAlignment: GridRow.Alignment = row?.alignment ?? .init(.inherited, .inherited)
         if let columnIndex = column?.index, let rowIndex = row?.index {
             if let view = view {
-                return "GridCell(row: \(rowIndex), column: \(columnIndex), view: \(view), xAlignment: \(xAlignment), yPlacement: \(yAlignment))"
+                return "GridCell(row: \(rowIndex), column: \(columnIndex), view: \(view), alignment: \(alignment))"
             }
-            return "GridCell(row: \(rowIndex), column: \(columnIndex), view: -, xAlignment: \(xAlignment), yAlignment: \(yAlignment))"
+            return "GridCell(row: \(rowIndex), column: \(columnIndex), view: -, alignment: \(alignment))"
         }
         if let view = view {
-            return "GridCell(row: -, column: -, view: \(view), xAlignment: \(xAlignment), yAlignment: \(yAlignment))"
+            return "GridCell(row: -, column: -, view: \(view), alignment: \(alignment))"
         }
-        return "GridCell(row: -, column: -, view: -, xAlignment: \(xAlignment), yAlignment: \(yAlignment))"
+        return "GridCell(row: -, column: -, view: -, alignment: \(alignment))"
     }
 }
 #endif
