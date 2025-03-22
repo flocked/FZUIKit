@@ -36,6 +36,11 @@ public extension NSGridRow {
     var cells: [NSGridCell] {
         (0..<numberOfCells).map({ cell(at: $0) })
     }
+    
+    internal var autoMerge: Bool {
+        get { getAssociatedValue("autoMerge") ?? false }
+        set { setAssociatedValue(newValue, key: "autoMerge") }
+    }
 }
 
 extension NSGridRow.Alignment: CustomStringConvertible {

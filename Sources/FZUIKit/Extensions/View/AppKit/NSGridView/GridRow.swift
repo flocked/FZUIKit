@@ -25,7 +25,11 @@ public class GridRow {
         get { gridRow?.views ?? properties.views }
         set {
             if let gridRow = gridRow {
+                let numberOfCells = numberOfCells
                 gridRow.views = newValue
+                if self.numberOfCells > numberOfCells {
+                    gridView?.rows.filter({ $0.properties.autoMerge }).forEach({ $0.applyMerge() })
+                }
             } else {
                 properties.views = newValue
             }
@@ -232,7 +236,11 @@ public class GridRow {
     }
     
     /// A grid row with a line.
-    public static var line: GridRow { GridRow(NSBox.horizontalLine()).mergeCells() }
+    public static var line: GridRow { 
+        let row = GridRow(NSBox.horizontalLine()).mergeCells()
+        row.properties.autoMerge = true
+        return row
+    }
     
     /// A grid row with the specific spacing.
     public static func spacing(_ height: CGFloat) -> GridRow {
@@ -258,11 +266,14 @@ public class GridRow {
     
     init(_ gridRow: NSGridRow) {
         self.gridRow = gridRow
+        self.properties.autoMerge = gridRow.autoMerge
     }
     
     var properties = Properties()
     
     var numberOfCells: Int { gridRow?.numberOfCells ?? properties.views.count }
+    
+  //  var autoMerge: Bool { properties.autoMerge }
     
     weak var gridRow: NSGridRow? {
         didSet {
@@ -274,6 +285,7 @@ public class GridRow {
                 gridRow.yPlacement = properties.alignment
                 gridRow.rowAlignment = properties.rowAlignment
                 gridRow.height = properties.height
+                gridRow.autoMerge = properties.autoMerge
                 properties.views = []
             } else if let gridRow = oldValue {
                 properties.views = gridRow.views
@@ -351,6 +363,7 @@ extension GridRow {
         var merge: Bool = false
         var mergeStart: Int? = nil
         var mergeEnd: Int? = nil
+        var autoMerge: Bool = false
     }
     
     func applyMerge() {
@@ -358,7 +371,7 @@ extension GridRow {
             mergeCells(in: (properties.mergeStart ?? 0)..<(properties.mergeEnd ?? numberOfCells))
             properties.mergeStart = nil
             properties.mergeEnd = nil
-        } else if properties.merge {
+        } else if properties.merge || properties.autoMerge {
             properties.merge = false
             mergeCells()
         }

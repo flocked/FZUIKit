@@ -27,6 +27,7 @@ extension NSGridView {
         get { (0..<numberOfColumns).map({ GridColumn(column(at: $0)) }) }
         set {
             translatesAutoresizingMaskIntoConstraints = false
+            let numberOfColumns = numberOfColumns
             let existing = newValue.filter({$0.gridColumn != nil })
             let added = newValue.filter({$0.gridColumn == nil })
             columns.filter({ column in !existing.contains(where: { $0.gridColumn === column.gridColumn }) }).reversed().forEach({ $0.remove() })
@@ -42,6 +43,9 @@ extension NSGridView {
                 }
             }
             newValue.forEach({ $0.applyMerge() })
+            if self.numberOfColumns > numberOfColumns {
+                rows.filter({ $0.properties.autoMerge }).forEach({ $0.applyMerge() })
+            }
         }
     }
     
@@ -73,12 +77,6 @@ extension NSGridView {
                 }
             }
             newValue.forEach({ $0.applyMerge() })
-            /*
-            let viewsCount = newValue.map({$0.views.count}).max() ?? 0
-            for row in newValue.filter({ $0.gridRow != nil }) {
-                
-            }
-             */
         }
     }
     
