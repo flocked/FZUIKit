@@ -165,6 +165,16 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible, Equ
         return self
     }
     
+    /// A grid row with a line.
+    public static var line: GridRow { GridRow(NSBox.horizontalLine()).mergeCells() }
+    
+    /// A grid row with the specific spacing.
+    public static func spacing(_ height: CGFloat) -> GridRow {
+        let spacer = NSView()
+        spacer.heightAnchor.constraint(equalToConstant: height).activate()
+        return GridRow(spacer)
+    }
+    
     /// Creates a grid row with the specified views.
     public init(views: [NSView?] = []) {
         properties.views = views
@@ -265,14 +275,16 @@ extension GridRow {
     }
     
     public var description: String {
-        return "GridRow(views: \(views.count), alignment: \(alignment),  height: \(height == NSGridView.automaticSizing ? "automatic" : "\(height!)"))"
+        let height = gridRow?.height ?? properties.height
+        return "GridRow(views: \(views.count), alignment: \(alignment),  height: \(height == NSGridView.automaticSizing ? "automatic" : "\(height)"))"
     }
     
     public var debugDescription: String {
+        let height = gridRow?.height ?? properties.height
         var strings = ["GridRow:"]
         strings += "views: [\(views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} }).joined(separator: ", "))]"
         strings += "alignment: \(alignment)"
-        strings += "height: \(height == NSGridView.automaticSizing ? "automatic" : "\(height!)")"
+        strings += "height: \(height == NSGridView.automaticSizing ? "automatic" : "\(height)")"
         strings += "bottomPadding: \(bottomPadding), topPadding: \(topPadding)"
         strings += "isHidden: \(isHidden)"
         return strings.joined(separator: "\n  - ")

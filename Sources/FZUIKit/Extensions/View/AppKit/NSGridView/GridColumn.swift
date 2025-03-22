@@ -159,6 +159,13 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible, 
         return self
     }
     
+    /// A grid column with the specific spacing.
+    public static func spacing(_ width: CGFloat) -> GridColumn {
+        let spacer = NSView()
+        spacer.widthAnchor.constraint(equalToConstant: width).activate()
+        return GridColumn(spacer)
+    }
+    
     /// Creates a grid column with the specified views.
     public init(views: [NSView?] = []) {
         properties.views = views
@@ -243,14 +250,16 @@ extension GridColumn {
     }
     
     public var description: String {
-        "GridColumn(views: \(views.count), alignment: \(alignment),  width: \(width == NSGridView.automaticSizing ? "automatic" : "\(width!)"))"
+        let width = gridColumn?.width ?? properties.width
+        return "GridColumn(views: \(views.count), alignment: \(alignment),  width: \(width == NSGridView.automaticSizing ? "automatic" : "\(width)"))"
     }
     
     public var debugDescription: String {
+        let width = gridColumn?.width ?? properties.width
         var strings = ["GridColumn:"]
         strings += "views: [\(views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} }).joined(separator: ", "))]"
         strings += "alignment: \(alignment)"
-        strings += "width: \(width == NSGridView.automaticSizing ? "automatic" : "\(width!)")"
+        strings += "width: \(width == NSGridView.automaticSizing ? "automatic" : "\(width)")"
         strings += "leadingPadding: \(leadingPadding), trailingPadding: \(trailingPadding)"
         strings += "isHidden: \(isHidden)"
         return strings.joined(separator: "\n  - ")

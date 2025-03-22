@@ -10,25 +10,15 @@
     import AppKit
 
     public extension NSBox {
-        /**
-         Returns a horizontal line with the specified width.
-
-         - Parameter width: The width of the line.
-         - Returns: A horizontal line.
-         */
-        static func horizontalLine(width: CGFloat) -> NSBox {
+        /// Returns a horizontal line with the specified width.
+        static func horizontalLine(width: CGFloat = 1.0) -> NSBox {
             let box = NSBox(frame: NSRect(origin: .zero, size: NSSize(width: width, height: 1)))
             box.boxType = .separator
             return box
         }
 
-        /**
-         Returns a vertical line with the specified height.
-
-         - Parameter width: The height of the line.
-         - Returns: A vertical line.
-         */
-        static func verticalLine(height: CGFloat) -> NSBox {
+        /// Returns a vertical line with the specified height.
+        static func verticalLine(height: CGFloat = 1.0) -> NSBox {
             let box = NSBox(frame: NSRect(origin: .zero, size: NSSize(width: 1, height: height)))
             box.boxType = .separator
             return box

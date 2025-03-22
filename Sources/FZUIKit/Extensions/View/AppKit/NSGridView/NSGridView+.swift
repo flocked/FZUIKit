@@ -7,6 +7,7 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
 extension NSGridView {
     /// Creates a new grid view with the specified columns.
@@ -127,6 +128,38 @@ extension NSGridView {
      */
     public func mergeCells(inHorizontalRange horizontalRange: Range<Int>, verticalRange: Range<Int>) {
         mergeCells(inHorizontalRange: horizontalRange.nsRange, verticalRange: verticalRange.nsRange)
+    }
+    
+    /// Adds a horizontal line.
+    public func addHorizontalLine() {
+        rows += .line
+    }
+    
+    /// Inserts a horizontal line at the specific index.
+    public func insertHorizontalLine(at index: Int) {
+        rows.insert(.line, at: index)
+    }
+    
+    /// Adds a horizontal spacing with the specific height.
+    public func addHorizontalSpacing(_ height: CGFloat) {
+        let spacer = NSView()
+        spacer.heightAnchor.constraint(equalToConstant: height).activate()
+        rows += .spacing(height)
+    }
+    
+    /// Inserts a horizontal spacing at the specific index.
+    public func insertHorizontalSpacing(_ height: CGFloat, at index: Int) {
+        rows.insert(.spacing(height), at: index)
+    }
+    
+    /// Adds a vertical spacing with the specific height.
+    public func addVerticalSpacing(_ width: CGFloat) {
+        columns += .spacing(width)
+    }
+    
+    /// Inserts a horizontal spacing at the specific index.
+    public func insertVerticalSpacing(_ width: CGFloat, at index: Int) {
+        columns.insert(.spacing(width), at: index)
     }
     
     static let automaticSizing: CGFloat = 1.1754943508222875e-38
