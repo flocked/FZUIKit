@@ -136,36 +136,48 @@ extension NSGridView {
     /// A function builder type that produces an array of views for grid view cells.
     @resultBuilder
     public enum Builder {
-        public static func buildBlock(_ components: NSView?...) -> [NSView?] {
-            components
+        public static func buildBlock(_ components: [NSView?]...) -> [NSView?] {
+            components.flatMap { $0 }
         }
-
-        public static func buildExpression(_ expression: NSView) -> NSView? {
+            
+        public static func buildExpression(_ expression: NSView) -> [NSView?] {
+            [expression]
+        }
+        
+        public static func buildExpression(_ expression: NSView?) -> [NSView?] {
+            [expression]
+        }
+        
+        public static func buildExpression(_ expression: [NSView]) -> [NSView?] {
+            expression.map { $0 }
+        }
+        
+        public static func buildExpression(_ expression: [NSView?]) -> [NSView?] {
             expression
         }
-        
-        public static func buildExpression(_ expression: NSView?) -> NSView? {
-            expression
-        }
-        
-        public static func buildExpression(_ expression: String) -> NSView? {
-            NSTextField.wrapping(expression)
-        }
-        
-        public static func buildExpression(_ expression: [String]) -> [NSView?] {
-            expression.map({ NSTextField.wrapping($0) })
-        }
-        
+            
         public static func buildOptional(_ component: [NSView?]?) -> [NSView?] {
             component ?? []
         }
-        
+            
+        public static func buildArray(_ components: [[NSView?]]) -> [NSView?] {
+            components.flatMap { $0 }
+        }
+            
         public static func buildEither(first component: [NSView?]) -> [NSView?] {
             component
         }
-
+        
         public static func buildEither(second component: [NSView?]) -> [NSView?] {
             component
+        }
+        
+        public static func buildExpression(_ expression: String) -> [NSView?] {
+            [NSTextField.wrapping(expression)]
+        }
+        
+        public static func buildExpression(_ expression: [String?]) -> [NSView?] {
+            expression.map { $0.map(NSTextField.wrapping) }
         }
     }
 }

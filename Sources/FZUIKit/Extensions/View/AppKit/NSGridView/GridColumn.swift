@@ -289,48 +289,54 @@ extension GridColumn {
     /// A function builder type that produces an array of grid column.
     @resultBuilder
     public enum Builder {
-        public static func buildBlock(_ block: [GridColumn]...) -> [GridColumn] {
-            block.flatMap { $0 }
+        public static func buildBlock(_ components: [GridColumn]...) -> [GridColumn] {
+            components.flatMap { $0 }
         }
-
-        public static func buildOptional(_ item: [GridColumn]?) -> [GridColumn] {
-            item ?? []
+            
+        public static func buildExpression(_ expression: GridColumn) -> [GridColumn] {
+            [expression]
         }
-
-        public static func buildEither(first: [GridColumn]?) -> [GridColumn] {
-            first ?? []
+        
+        /*
+        public static func buildExpression(_ expression: GridColumn?) -> [GridColumn] {
+            [expression]
         }
-
-        public static func buildEither(second: [GridColumn]?) -> [GridColumn] {
-            second ?? []
+         */
+        
+        public static func buildExpression(_ expression: [GridColumn]) -> [GridColumn] {
+            expression.map { $0 }
         }
-
+            
+        public static func buildOptional(_ component: [GridColumn]?) -> [GridColumn] {
+            component ?? []
+        }
+            
         public static func buildArray(_ components: [[GridColumn]]) -> [GridColumn] {
             components.flatMap { $0 }
         }
-
-        public static func buildExpression(_ expression: [GridColumn]?) -> [GridColumn] {
-            expression ?? []
-        }
-
-        public static func buildExpression(_ expression: GridColumn?) -> [GridColumn] {
-            expression.map { [$0] } ?? []
+            
+        public static func buildEither(first component: [GridColumn]) -> [GridColumn] {
+            component
         }
         
-        public static func buildExpression(_ expression: NSView) -> [GridColumn] {
+        public static func buildEither(second component: [GridColumn]) -> [GridColumn] {
+            component
+        }
+
+        public static func buildExpression(_ expression: NSView?) -> [GridColumn] {
             [GridColumn(views: [expression])]
         }
         
         public static func buildExpression(_ expression: [NSView?]) -> [GridColumn] {
             [GridColumn(views: expression)]
         }
-        
+
         public static func buildExpression(_ expression: String) -> [GridColumn] {
-            [GridColumn(views: [NSTextField.wrapping(expression)])]
+            [GridColumn(NSTextField.wrapping(expression))]
         }
-        
-        public static func buildExpression(_ expression: [String]) -> [GridColumn] {
-            [GridColumn(views: expression.map({ NSTextField.wrapping($0) }))]
+
+        public static func buildExpression(_ expression: [String?]) -> [GridColumn] {
+            [GridColumn(views: expression.map { $0.map(NSTextField.wrapping) })]
         }
     }
 }

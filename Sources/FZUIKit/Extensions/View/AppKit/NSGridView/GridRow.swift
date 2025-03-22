@@ -315,40 +315,54 @@ extension GridRow {
     /// A function builder type that produces an array of grid rows.
     @resultBuilder
     public enum Builder {
-        public static func buildBlock(_ block: [GridRow]...) -> [GridRow] {
-            block.flatMap { $0 }
+        public static func buildBlock(_ components: [GridRow]...) -> [GridRow] {
+            components.flatMap { $0 }
         }
-
-        public static func buildOptional(_ item: [GridRow]?) -> [GridRow] {
-            item ?? []
+            
+        public static func buildExpression(_ expression: GridRow) -> [GridRow] {
+            [expression]
         }
-
-        public static func buildEither(first: [GridRow]?) -> [GridRow] {
-            first ?? []
+        
+        /*
+        public static func buildExpression(_ expression: GridRow?) -> [GridRow] {
+            [expression]
         }
-
-        public static func buildEither(second: [GridRow]?) -> [GridRow] {
-            second ?? []
+         */
+        
+        public static func buildExpression(_ expression: [GridRow]) -> [GridRow] {
+            expression.map { $0 }
         }
-
+            
+        public static func buildOptional(_ component: [GridRow]?) -> [GridRow] {
+            component ?? []
+        }
+            
         public static func buildArray(_ components: [[GridRow]]) -> [GridRow] {
             components.flatMap { $0 }
         }
-
-        public static func buildExpression(_ expression: [GridRow]?) -> [GridRow] {
-            expression ?? []
-        }
-
-        public static func buildExpression(_ expression: GridRow?) -> [GridRow] {
-            expression.map { [$0] } ?? []
+            
+        public static func buildEither(first component: [GridRow]) -> [GridRow] {
+            component
         }
         
-        public static func buildExpression(_ expression: NSView) -> [GridRow] {
+        public static func buildEither(second component: [GridRow]) -> [GridRow] {
+            component
+        }
+
+        public static func buildExpression(_ expression: NSView?) -> [GridRow] {
             [GridRow(views: [expression])]
         }
         
         public static func buildExpression(_ expression: [NSView?]) -> [GridRow] {
-            expression.map({ GridRow(views: [$0]) })
+            [GridRow(views: expression)]
+        }
+        
+        public static func buildExpression(_ expression: String) -> [GridRow] {
+            [GridRow(NSTextField.wrapping(expression))]
+        }
+
+        public static func buildExpression(_ expression: [String?]) -> [GridRow] {
+            [GridRow(views: expression.map { $0.map(NSTextField.wrapping) })]
         }
     }
 }
@@ -379,4 +393,5 @@ extension GridRow: Equatable {
         return lhs === rhs
     }
 }
+
 #endif

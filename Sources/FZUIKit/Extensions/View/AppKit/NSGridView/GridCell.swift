@@ -7,13 +7,20 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
 /// A cell within a `NSGridView`.
-public class GridCell: CustomStringConvertible, CustomDebugStringConvertible {
+public class GridCell {
     /// The view of the cell.
     public var view: NSView? {
-        get { gridCell?.contentView }
-        set { gridCell?.contentView = newValue }
+        get { gridCell?.contentView ?? contentView }
+        set {
+            if let gridCell = gridCell {
+                gridCell.contentView = newValue
+            } else {
+                contentView = newValue
+            }
+        }
     }
     
     /// Sets the view of the cell.
@@ -114,12 +121,52 @@ public class GridCell: CustomStringConvertible, CustomDebugStringConvertible {
         gridCell?.rowIndexes ?? []
     }
     
+    /// The grid cell above.
+    public var topCell: GridCell? {
+        guard let cells = row?.cells, let index = cells.firstIndex(of: self), index > 0 else { return nil }
+        return cells[safe: index-1]
+    }
+    
+    /// The grid cell bellow.
+    public var bottomCell: GridCell? {
+        guard let cells = row?.cells, let index = cells.firstIndex(of: self), index+1 < cells.count else { return nil }
+        return cells[safe: index+1]
+    }
+    
+    /// The grid cell leading.
+    public var leadingCell: GridCell? {
+        guard let cells = column?.cells, let index = cells.firstIndex(of: self), index > 0 else { return nil }
+        return cells[safe: index-1]
+    }
+    
+    /// The grid cell trailing.
+    public var trailingCell: GridCell? {
+        guard let cells = column?.cells, let index = cells.firstIndex(of: self), index+1 < cells.count else { return nil }
+        return cells[safe: index+1]
+    }
+    
     init(_ gridCell: NSGridCell) {
         self.gridCell = gridCell
     }
     
     weak var gridCell: NSGridCell?
+    var contentView: NSView?
     
+    init(_ view: NSView?) {
+        contentView = view
+    }
+}
+
+extension GridCell: Equatable {
+    public static func == (lhs: GridCell, rhs: GridCell) -> Bool {
+        if let lhs = lhs.gridCell, let rhs = rhs.gridCell {
+            return lhs === rhs
+        }
+        return lhs === rhs
+    }
+}
+
+extension GridCell: CustomStringConvertible, CustomDebugStringConvertible {
     public var description: String {
         description(debug: false)
     }
@@ -137,6 +184,44 @@ public class GridCell: CustomStringConvertible, CustomDebugStringConvertible {
             return "GridCell(\(row)\(column)view: \(view)\(alignment))"
         }
         return "GridCell(\(row)\(column)\(alignment))"
+    }
+}
+
+extension GridCell {
+    /// A function builder type that produces an array of grid column.
+    @resultBuilder
+    public enum Builder {
+        public static func buildBlock(_ components: [GridCell]...) -> [GridCell] {
+            components.flatMap { $0 }
+        }
+            
+        public static func buildExpression(_ expression: GridCell) -> [GridCell] {
+            [expression]
+        }
+        
+        public static func buildExpression(_ expression: GridCell?) -> [GridCell] {
+            expression != nil ? [expression!] : []
+        }
+        
+        public static func buildExpression(_ expression: [GridCell]) -> [GridCell] {
+            expression.map { $0 }
+        }
+            
+        public static func buildOptional(_ component: [GridCell]?) -> [GridCell] {
+            component ?? []
+        }
+            
+        public static func buildArray(_ components: [[GridCell]]) -> [GridCell] {
+            components.flatMap { $0 }
+        }
+            
+        public static func buildEither(first component: [GridCell]) -> [GridCell] {
+            component
+        }
+        
+        public static func buildEither(second component: [GridCell]) -> [GridCell] {
+            component
+        }
     }
 }
 #endif

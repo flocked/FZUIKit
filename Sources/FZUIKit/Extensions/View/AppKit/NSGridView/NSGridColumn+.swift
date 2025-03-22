@@ -7,6 +7,7 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
 public extension NSGridColumn {
     /// The index of the column inside it's grid view, or `nil` if the column isn't displayed in a grid view.
@@ -16,7 +17,7 @@ public extension NSGridColumn {
     
     /// The content views of the grid column cells.
     var views: [NSView?] {
-        get { cells.map({$0.contentView}) }
+        get { cells.map({ $0.contentView }) }
         set {
             guard let gridView = gridView else { return }
             if newValue.count > gridView.numberOfRows {
@@ -25,8 +26,8 @@ public extension NSGridColumn {
                 })
             }
             let cells = cells
-            newValue.enumerated().forEach({
-                cells[$0.offset].contentView = $0.element ?? NSGridCell.emptyContentView
+            newValue.indexed().forEach({
+                cells[$0.index].contentView = $0.element ?? NSGridCell.emptyContentView
             })
         }
     }
@@ -34,7 +35,7 @@ public extension NSGridColumn {
     /// The cells of the grid column.
     var cells: [NSGridCell] {
         guard let gridView = gridView else { return [] }
-        return (0..<numberOfCells).compactMap({ gridView.cell(atColumnIndex: gridView.index(of: self), rowIndex: $0) })
+        return (0..<numberOfCells).map({ gridView.cell(atColumnIndex: gridView.index(of: self), rowIndex: $0) })
     }
 }
 #endif
