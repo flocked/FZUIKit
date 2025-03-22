@@ -198,11 +198,22 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible {
         var strings = ["GridColumn:"]
         strings += "  - views: [\(views.joined(separator: ", "))]"
         strings += "  - yPlacement: \(yPlacement)"
+        strings += "  - rowAlignment: \(rowAlignment)"
         strings += "  - height: \(height == 1.1754943508222875e-38 ? "automatic" : "\(height)")"
-        strings += "  - bottomPadding: \(bottomPadding)"
-        strings += "  - topPadding: \(topPadding)"
+        strings += "  - bottomPadding: \(bottomPadding), topPadding: \(topPadding)"
         strings += "  - isHidden: \(isHidden)"
         return strings.joined(separator: "\n")
+    }
+}
+
+extension NSGridRow.Alignment: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .inherited: return "inherited"
+        case .firstBaseline: return "firstBaseline"
+        case .lastBaseline: return "lastBaseline"
+        default: return "none"
+        }
     }
 }
 

@@ -181,8 +181,7 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible {
         strings += "  - views: [\(views.joined(separator: ", "))]"
         strings += "  - xPlacement: \(xPlacement)"
         strings += "  - width: \(width == 1.1754943508222875e-38 ? "automatic" : "\(width)")"
-        strings += "  - leadingPadding: \(leadingPadding)"
-        strings += "  - trailingPadding: \(trailingPadding)"
+        strings += "  - leadingPadding: \(leadingPadding), trailingPadding: \(trailingPadding)"
         strings += "  - isHidden: \(isHidden)"
         return strings.joined(separator: "\n")
     }
