@@ -50,6 +50,16 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible, 
         mergeCells(in: range.toRange)
     }
     
+    /// Merges the cells from the first view to the second view.
+    @discardableResult
+    public func mergeCells(from firstView: NSView, to secondView: NSView) -> Self {
+        let views = views
+        if let startIndex = views.firstIndex(of: firstView), let endIndex = views.firstIndex(of: secondView), startIndex <= endIndex {
+            mergeCells(in: startIndex..<endIndex)
+        }
+        return self
+    }
+    
     /// The content views of the grid column cells.
     public var views: [NSView?] {
         get { gridColumn?.views ?? properties.views }
