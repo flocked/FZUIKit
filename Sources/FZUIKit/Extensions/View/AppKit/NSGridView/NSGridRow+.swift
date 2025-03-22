@@ -2,58 +2,39 @@
 //  NSGridRow+.swift
 //
 //
-//  Created by Florian Zand on 23.02.24.
+//  Created by Florian Zand on 22.03.25.
 //
 
 #if os(macOS)
 import AppKit
 
-extension NSGridRow {
+public extension NSGridRow {
     /// The index of the row inside it's grid view, or `nil` if the row isn't displayed in a grid view.
-    public var index: Int? {
-        gridView?.nsRows.firstIndex(of: self)
-    }
-    
-    /// The cells of the grid row.
-    public var cells: [NSGridCell] {
-        get { (0..<numberOfCells).compactMap({cell(at: $0)}) }
+    var index: Int? {
+        gridView?.index(of: self)
     }
     
     /// The content views of the grid row cells.
-    public var views: [NSView?] {
-        get { cells.compactMap({$0.contentView}) }
+    var views: [NSView?] {
+        get { cells.map({$0.contentView}) }
         set {
-            guard let gridView = self.gridView else { return }
+            guard let gridView = gridView else { return }
             if newValue.count > gridView.numberOfColumns {
-                let count = newValue.count - gridView.numberOfColumns
-                for _ in (0..<count) {
+                (0..<(newValue.count - gridView.numberOfColumns)).forEach({ _ in
                     gridView.addColumn(with: [])
-                }
-            } else if newValue.count < gridView.numberOfColumns, let index = gridView.nsColumns.indexed().firstIndex(where: {$0.element.cells.compactMap({$0.contentView}).count == 0 && $0.index >= newValue.count}) {
-                (index..<gridView.numberOfColumns).reversed().forEach({
-                    gridView.removeColumn(at: $0)
                 })
             }
             let cells = cells
-            cells.forEach({$0.contentView?.removeFromSuperview() })
-            for (index, view) in newValue.enumerated() {
-                cells[safe: index]?.contentView = view
-            }
+            newValue.enumerated().forEach({
+                cells[$0.offset].contentView = $0.element ?? NSGridCell.emptyContentView
+            })
         }
     }
     
-    /// Sets the content views of the grid row cells.
-    @discardableResult
-    public func views(_ views: [NSView?]) -> Self {
-        self.views = views
-        return self
-    }
-    
-    /// Sets the content views of the grid row cells.
-    @discardableResult
-    public func views(@NSGridView.Builder _ views: () -> [NSView]) -> Self {
-        self.views = views()
-        return self
+    /// The cells of the grid row.
+    var cells: [NSGridCell] {
+        guard let gridView = gridView else { return [] }
+        return (0..<numberOfCells).compactMap({ gridView.cell(atColumnIndex: $0, rowIndex: gridView.index(of: self)) })
     }
 }
 
@@ -67,5 +48,4 @@ extension NSGridRow.Alignment: CustomStringConvertible {
         }
     }
 }
-
 #endif

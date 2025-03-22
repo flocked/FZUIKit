@@ -2,7 +2,7 @@
 //  NSGridView+.swift
 //
 //
-//  Created by Florian Zand on 23.02.24.
+//  Created by Florian Zand on 22.03.25.
 //
 
 #if os(macOS)
@@ -10,69 +10,38 @@ import AppKit
 
 extension NSGridView {
     /// Creates a new grid view obect with the specified columns.
-    public convenience init(@ColumnBuilder columns: () -> [GridColumn]) {
+    public convenience init(@GridColumn.Builder columns: () -> [GridColumn]) {
         self.init()
         self.columns = columns()
     }
     
     /// Creates a new grid view object with the specified rows.
-    public convenience init(@RowBuilder rows: () -> [GridRow]) {
+    public convenience init(@GridRow.Builder rows: () -> [GridRow]) {
         self.init()
         self.rows = rows()
     }
     
-    /*
     /// The columns of the grid view.
     public var columns: [GridColumn] {
-        get { nsColumns.compactMap({GridColumn($0)}) }
+        get { (0..<numberOfColumns).map({ GridColumn(column(at: $0)) }) }
         set {
             translatesAutoresizingMaskIntoConstraints = false
-            if newValue.count > numberOfColumns {
-                let count = newValue.count - numberOfColumns
-                (0..<count).forEach({ _ in addColumn(with: [])})
-            } else if newValue.count < numberOfColumns, let index = nsColumns.indexed().firstIndex(where: {$0.element.cells.compactMap({$0.contentView}).count == 0 && $0.index >= newValue.count}) {
-                (index..<numberOfColumns).reversed().forEach({
-                    removeColumn(at: $0)
-                })
-            }
-            for (index, column) in newValue.indexed() {
-                if let columnIndex = column.gridColumn?.index {
-                    if columnIndex != index {
-                        moveColumn(at: columnIndex, to: index)
-                    }
-                } else if let gridColumn = nsColumns[safe: index] {
-                    gridColumn.isHidden = column._isHidden
-                    gridColumn.leadingPadding = column._leadingPadding
-                    gridColumn.trailingPadding = column._trailingPadding
-                    gridColumn.xPlacement = column._xPlacement
-                    gridColumn.width = column._width
-                    gridColumn.views = column._views
-                    column._views = []
-                    column.gridColumn = gridColumn
+            let existing = newValue.filter({$0.gridColumn != nil })
+            columns.filter({ column in !existing.contains(where: { $0.gridColumn === column.gridColumn }) }).reversed().forEach({
+                if let index = $0.index {
+                    $0.gridColumn = nil
+                    removeColumn(at: index)
                 }
-            }
-        }
-    }
-    */
-    
-    /// The columns of the grid view.
-    public var columns: [GridColumn] {
-        get { nsColumns.compactMap({GridColumn($0)}) }
-        set {
-            translatesAutoresizingMaskIntoConstraints = false
-            let oldColumns = columns
-            for index in (0..<oldColumns.count).reversed() where !newValue.contains(where: { $0.gridColumn === oldColumns[index].gridColumn }) {
-                removeColumn(at: index)
-            }
-            
+            })
             newValue.filter({$0.gridColumn == nil }).forEach({
                 addColumn(with: [])
-                $0.gridColumn = column(at: numberOfColumns-1)
+                $0.gridColumn = column(at: numberOfColumns - 1)
             })
-            
-            for (newIndex, column) in newValue.enumerated() {
-                if let oldIndex = columns.firstIndex(where: { $0.gridColumn === column.gridColumn }), oldIndex != newIndex {
-                    moveColumn(at: oldIndex, to: newIndex)
+            var columns = columns
+            for (index, column) in newValue.indexed() {
+                if let oldIndex = columns.firstIndex(of: column), oldIndex != index {
+                    moveColumn(at: oldIndex, to: index)
+                    columns.swapAt(oldIndex, index)
                 }
             }
         }
@@ -80,63 +49,32 @@ extension NSGridView {
     
     /// Sets the columns of the grid view.
     @discardableResult
-    public func columns(@ColumnBuilder _ columns: () -> [GridColumn]) -> Self {
+    public func columns(@GridColumn.Builder _ columns: () -> [GridColumn]) -> Self {
         self.columns = columns()
         return self
     }
     
-    /*
     /// The rows of the grid view.
     public var rows: [GridRow] {
-        get { nsRows.compactMap({GridRow($0)}) }
+        get { (0..<numberOfRows).map({ GridRow(row(at: $0)) }) }
         set {
             translatesAutoresizingMaskIntoConstraints = false
-            if newValue.count > numberOfRows {
-                (0..<(newValue.count - numberOfRows)).forEach({ _ in addRow(with: [])})
-            } else if newValue.count < numberOfRows, let index = nsRows.indexed().firstIndex(where: {$0.element.cells.compactMap({$0.contentView}).count == 0 && $0.index >= newValue.count}) {
-                (index..<numberOfRows).reversed().forEach({
-                    removeRow(at: $0)
-                })
-            }
-            for (index, row) in newValue.indexed() {
-                if let rowIndex = row.gridRow?.index {
-                    if rowIndex != index {
-                        moveRow(at: rowIndex, to: index)
-                    }
-                } else if let gridRow = nsRows[safe: index] {
-                    gridRow.isHidden = row._isHidden
-                    gridRow.topPadding = row._topPadding
-                    gridRow.bottomPadding = row._bottomPadding
-                    gridRow.yPlacement = row._yPlacement
-                    gridRow.rowAlignment = row._rowAlignment
-                    gridRow.height = row._height
-                    gridRow.views = row._views
-                    row._views = []
-                    row.gridRow = gridRow
+            let existing = newValue.filter({$0.gridRow != nil })
+            rows.filter({ row in !existing.contains(where: { $0.gridRow === row.gridRow }) }).reversed().forEach({
+                if let index = $0.index {
+                    $0.gridRow = nil
+                    removeRow(at: index)
                 }
-            }
-        }
-    }
-     */
-    
-    /// The rows of the grid view.
-    public var rows: [GridRow] {
-        get { nsRows.compactMap({GridRow($0)}) }
-        set {
-            translatesAutoresizingMaskIntoConstraints = false
-            let oldRows = rows
-            for index in (0..<oldRows.count).reversed() where !newValue.contains(where: { $0.gridRow === oldRows[index].gridRow }) {
-                removeRow(at: index)
-            }
-            
+            })
             newValue.filter({$0.gridRow == nil }).forEach({
                 addRow(with: [])
-                $0.gridRow = row(at: numberOfRows-1)
+                $0.gridRow = row(at: numberOfRows - 1)
             })
-            
-            for (newIndex, row) in newValue.indexed() {
-                if let oldIndex = rows.firstIndex(where: { $0.gridRow === row.gridRow }), oldIndex != newIndex {
-                    moveRow(at: oldIndex, to: newIndex)
+            var rows = rows
+            for (index, row) in newValue.indexed() {
+                if let oldIndex = rows.firstIndex(of: row), oldIndex != index {
+                    moveRow(at: oldIndex, to: index)
+                    rows.swapAt(oldIndex, index)
                 }
             }
         }
@@ -144,19 +82,31 @@ extension NSGridView {
     
     /// Sets the rows of the grid view.
     @discardableResult
-    public func rows(@RowBuilder _ rows: () -> [GridRow]) -> Self {
+    public func rows(@GridRow.Builder _ rows: () -> [GridRow]) -> Self {
         self.rows  = rows()
         return self
     }
     
-    /// The columns of the grid view as `NSGridColumn`.
-    var nsColumns: [NSGridColumn] {
-        get { (0..<numberOfColumns).compactMap({column(at: $0)}) }
+    /**
+     Expands the cell at the top-leading corner of the horizontal and vertical range to cover the entire area.
+     
+     This function invalidates other cells in the range, and they no longer maintain their layout, constraints, or content views. Cell merging has no effect on the base cell coordinate system of the grid view, and cell references within a merged region refer to the single merged cell.
+     
+     Use this method to configure the grid geometry before installing views. If the cells being merged contain content views, only the top-leading views are kept.
+     */
+    public func mergeCells(inHorizontalRange horizontalRange: ClosedRange<Int>, verticalRange: ClosedRange<Int>) {
+        mergeCells(inHorizontalRange: horizontalRange.nsRange, verticalRange: verticalRange.nsRange)
     }
     
-    /// The rows of the grid view as `NSGridRow`.
-    var nsRows: [NSGridRow] {
-        get { (0..<numberOfRows).compactMap({row(at: $0)}) }
+    /**
+     Expands the cell at the top-leading corner of the horizontal and vertical range to cover the entire area.
+     
+     This function invalidates other cells in the range, and they no longer maintain their layout, constraints, or content views. Cell merging has no effect on the base cell coordinate system of the grid view, and cell references within a merged region refer to the single merged cell.
+     
+     Use this method to configure the grid geometry before installing views. If the cells being merged contain content views, only the top-leading views are kept.
+     */
+    public func mergeCells(inHorizontalRange horizontalRange: Range<Int>, verticalRange: Range<Int>) {
+        mergeCells(inHorizontalRange: horizontalRange.nsRange, verticalRange: verticalRange.nsRange)
     }
 }
 
@@ -165,91 +115,27 @@ extension NSGridView {
     @resultBuilder
     public enum Builder {
         public static func buildBlock(_ components: NSView?...) -> [NSView?] {
-            return components
+            components
         }
 
         public static func buildExpression(_ expression: NSView) -> NSView? {
-            return expression
+            expression
         }
         
         public static func buildExpression(_ expression: NSView?) -> NSView? {
-            return expression
+            expression
         }
         
         public static func buildOptional(_ component: [NSView?]?) -> [NSView?] {
-            return component ?? []
+            component ?? []
         }
         
         public static func buildEither(first component: [NSView?]) -> [NSView?] {
-            return component
+            component
         }
 
         public static func buildEither(second component: [NSView?]) -> [NSView?] {
-            return component
-        }
-    }
-    
-    /// A function builder type that produces an array of grid column.
-    @resultBuilder
-    public enum ColumnBuilder {
-        public static func buildBlock(_ block: [GridColumn]...) -> [GridColumn] {
-            block.flatMap { $0 }
-        }
-
-        public static func buildOptional(_ item: [GridColumn]?) -> [GridColumn] {
-            item ?? []
-        }
-
-        public static func buildEither(first: [GridColumn]?) -> [GridColumn] {
-            first ?? []
-        }
-
-        public static func buildEither(second: [GridColumn]?) -> [GridColumn] {
-            second ?? []
-        }
-
-        public static func buildArray(_ components: [[GridColumn]]) -> [GridColumn] {
-            components.flatMap { $0 }
-        }
-
-        public static func buildExpression(_ expr: [GridColumn]?) -> [GridColumn] {
-            expr ?? []
-        }
-
-        public static func buildExpression(_ expr: GridColumn?) -> [GridColumn] {
-            expr.map { [$0] } ?? []
-        }
-    }
-    
-    /// A function builder type that produces an array of grid rows.
-    @resultBuilder
-    public enum RowBuilder {
-        public static func buildBlock(_ block: [GridRow]...) -> [GridRow] {
-            block.flatMap { $0 }
-        }
-
-        public static func buildOptional(_ item: [GridRow]?) -> [GridRow] {
-            item ?? []
-        }
-
-        public static func buildEither(first: [GridRow]?) -> [GridRow] {
-            first ?? []
-        }
-
-        public static func buildEither(second: [GridRow]?) -> [GridRow] {
-            second ?? []
-        }
-
-        public static func buildArray(_ components: [[GridRow]]) -> [GridRow] {
-            components.flatMap { $0 }
-        }
-
-        public static func buildExpression(_ expr: [GridRow]?) -> [GridRow] {
-            expr ?? []
-        }
-
-        public static func buildExpression(_ expr: GridRow?) -> [GridRow] {
-            expr.map { [$0] } ?? []
+            component
         }
     }
 }
@@ -268,5 +154,4 @@ extension NSGridCell.Placement: CustomStringConvertible {
         }
     }
 }
-
 #endif

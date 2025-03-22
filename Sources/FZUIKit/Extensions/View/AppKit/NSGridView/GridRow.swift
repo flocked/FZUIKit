@@ -2,19 +2,27 @@
 //  GridRow.swift
 //
 //
-//  Created by Florian Zand on 23.02.24.
+//  Created by Florian Zand on 22.03.25.
 //
 
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
 
-/// A row within a grid view.
-public class GridRow: CustomStringConvertible, CustomDebugStringConvertible {
-    
+/// A row within a `NSGridView`.
+public class GridRow: CustomStringConvertible, CustomDebugStringConvertible, Equatable {
     /// The grid view of the row.
-    public var gridView: NSGridView? {
-        gridRow?.gridView
+    public var gridView: NSGridView? { gridRow?.gridView }
+    
+    /// The index of the row inside it's grid view, or `nil` if the row isn't displayed in a grid view.
+    public var index: Int? { gridRow?.index }
+    
+    /// The cells of the row.
+    public var cells: [GridCell] { (gridRow?.cells ?? []).compactMap({ GridCell($0) }) }
+    
+    /// Merges all cells.
+    public func mergeCells() {
+        mergeCells(in: 0..<numberOfCells)
     }
     
     /// Merges the cells at the specified range.
@@ -30,12 +38,12 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible {
     
     /// The content views of the grid row cells.
     public var views: [NSView?] {
-        get { gridRow?.views ?? _views }
+        get { gridRow?.views ?? properties.views }
         set {
-            if let gridRow = self.gridRow {
+            if let gridRow = gridRow {
                 gridRow.views = newValue
             } else {
-                _views = newValue
+                properties.views = newValue
             }
         }
     }
@@ -54,33 +62,12 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible {
         return self
     }
     
-    /// A Boolean value that indicates whether the row is hidden.
-    public var isHidden: Bool {
-        get { gridRow?.isHidden ?? _isHidden }
-        set {
-            gridRow?.isHidden = newValue
-            _isHidden = newValue
-        }
-    }
-    
-    /// Sets the boolean value that indicates whether the row is hidden.
-    @discardableResult
-    public func isHidden(_ isHidden: Bool) -> Self {
-        self.isHidden = isHidden
-        return self
-    }
-    
-    /// The number of cells of the row.
-    public var numberOfCells: Int {
-        get { gridRow?.numberOfCells ?? _views.count }
-    }
-    
     /// The top padding of the row.
     public var topPadding: CGFloat {
-        get { gridRow?.topPadding ?? _topPadding }
+        get { gridRow?.topPadding ?? properties.topPadding }
         set {
             gridRow?.topPadding = newValue
-            _topPadding = newValue
+            properties.topPadding = newValue
         }
     }
     
@@ -93,10 +80,10 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible {
     
     /// The bottom padding of the row.
     public var bottomPadding: CGFloat {
-        get { gridRow?.bottomPadding ?? _bottomPadding }
+        get { gridRow?.bottomPadding ?? properties.bottomPadding }
         set {
             gridRow?.bottomPadding = newValue
-            _bottomPadding = newValue
+            properties.bottomPadding = newValue
         }
     }
     
@@ -107,28 +94,28 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible {
         return self
     }
     
-    /// The row alignment.
-    public var rowAlignment: NSGridRow.Alignment {
-        get { gridRow?.rowAlignment ?? _rowAlignment }
+    /// A Boolean value that indicates whether the row is hidden.
+    public var isHidden: Bool {
+        get { gridRow?.isHidden ?? properties.isHidden }
         set {
-            gridRow?.rowAlignment = newValue
-            _rowAlignment = newValue
+            gridRow?.isHidden = newValue
+            properties.isHidden = newValue
         }
     }
     
-    /// Sets the row alignment.
+    /// Sets the boolean value that indicates whether the row is hidden.
     @discardableResult
-    public func rowAlignment(_ alignment: NSGridRow.Alignment) -> Self {
-        rowAlignment = alignment
+    public func isHidden(_ isHidden: Bool) -> Self {
+        self.isHidden = isHidden
         return self
     }
     
     /// The row height.
     public var height: CGFloat {
-        get { gridRow?.height ?? _height }
+        get { gridRow?.height ?? properties.height }
         set {
             gridRow?.height = newValue
-            _height = newValue
+            properties.height = newValue
         }
     }
     
@@ -141,10 +128,10 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible {
     
     /// The y-placement of the views.
     public var yPlacement: Placement {
-        get { .init(rawValue: (gridRow?.yPlacement ?? _yPlacement).rawValue) ?? .inherited }
+        get { .init(rawValue: (gridRow?.yPlacement ?? properties.yPlacement).rawValue) ?? .inherited }
         set {
             gridRow?.yPlacement = newValue.placement
-            _yPlacement = newValue.placement
+            properties.yPlacement = newValue.placement
         }
     }
     
@@ -155,6 +142,57 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible {
         return self
     }
     
+    /// The row alignment.
+    public var rowAlignment: NSGridRow.Alignment {
+        get { gridRow?.rowAlignment ?? properties.rowAlignment }
+        set {
+            gridRow?.rowAlignment = newValue
+            properties.rowAlignment = newValue
+        }
+    }
+    
+    /// Sets the row alignment.
+    @discardableResult
+    public func rowAlignment(_ alignment: NSGridRow.Alignment) -> Self {
+        rowAlignment = alignment
+        return self
+    }
+    
+    /// Creates a grid row with the specified views.
+    public init(views: [NSView?] = []) {
+        properties.views = views
+    }
+    
+    /// Creates a grid row with the specified views.
+    public init(@NSGridView.Builder _ views: () -> [NSView?]) {
+        properties.views = views()
+    }
+    
+    init(_ gridRow: NSGridRow) {
+        self.gridRow = gridRow
+    }
+    
+    var properties = Properties()
+    let id = UUID()
+    var numberOfCells: Int { gridRow?.numberOfCells ?? properties.views.count }
+    weak var gridRow: NSGridRow? {
+        didSet {
+            if let gridRow = gridRow {
+                gridRow.views = properties.views
+                gridRow.isHidden = properties.isHidden
+                gridRow.bottomPadding = properties.bottomPadding
+                gridRow.topPadding = properties.topPadding
+                gridRow.yPlacement = properties.yPlacement
+                gridRow.rowAlignment = properties.rowAlignment
+                properties.views = []
+            } else if let gridRow = oldValue {
+                properties.views = gridRow.views
+            }
+        }
+    }
+}
+
+extension GridRow {
     /// The y-placement of the views.
     public enum Placement: Int, CustomStringConvertible {
         /// Inherited.
@@ -186,52 +224,15 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible {
         }
     }
     
-    /// Creates a grid row with the specified views.
-    public init(@NSGridView.Builder _ views: () -> [NSView?]) {
-        _views = views()
+    struct Properties {
+        var views: [NSView?] = []
+        var isHidden = false
+        var yPlacement: NSGridCell.Placement = .inherited
+        var height: CGFloat = 1.1754943508222875e-38
+        var topPadding: CGFloat = 0.0
+        var bottomPadding: CGFloat = 0.0
+        var rowAlignment: NSGridRow.Alignment = .inherited
     }
-    
-    /// Creates a grid row with the specified views.
-    public init(views: [NSView?]) {
-        _views = views
-    }
-    
-    /// Creates a grid row.
-    public init() {
-        
-    }
-    
-    init(_ gridRow: NSGridRow) {
-        self.gridRow = gridRow
-        _isHidden = gridRow.isHidden
-        _topPadding = gridRow.topPadding
-        _bottomPadding = gridRow.bottomPadding
-        _height = gridRow.height
-        _yPlacement = gridRow.yPlacement
-        _rowAlignment = gridRow.rowAlignment
-    }
-    
-    weak var gridRow: NSGridRow? {
-        didSet {
-            guard let gridRow = gridRow else { return }
-            gridRow.views = _views
-            gridRow.isHidden = _isHidden
-            gridRow.topPadding = _topPadding
-            gridRow.bottomPadding = _bottomPadding
-            gridRow.height = _height
-            gridRow.yPlacement = _yPlacement
-            gridRow.rowAlignment = _rowAlignment
-            _views = []
-
-        }
-    }
-    var _views: [NSView?] = []
-    var _isHidden: Bool = false
-    var _topPadding: CGFloat = 0.0
-    var _bottomPadding: CGFloat = 0.0
-    var _height: CGFloat = 1.1754943508222875e-38
-    var _yPlacement: NSGridCell.Placement = .inherited
-    var _rowAlignment: NSGridRow.Alignment = .inherited
     
     public var description: String {
         return "GridRow(views: \(views.count), yPlacement: \(yPlacement),  height: \(height))"
@@ -248,6 +249,54 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible {
         strings += "  - isHidden: \(isHidden)"
         return strings.joined(separator: "\n")
     }
+    
+    public static func == (lhs: GridRow, rhs: GridRow) -> Bool {
+        if let lhs = lhs.gridRow, let rhs = rhs.gridRow {
+            return lhs === rhs
+        }
+        return lhs.id == rhs.id
+    }
 }
 
+extension GridRow {
+    /// A function builder type that produces an array of grid rows.
+    @resultBuilder
+    public enum Builder {
+        public static func buildBlock(_ block: [GridRow]...) -> [GridRow] {
+            block.flatMap { $0 }
+        }
+
+        public static func buildOptional(_ item: [GridRow]?) -> [GridRow] {
+            item ?? []
+        }
+
+        public static func buildEither(first: [GridRow]?) -> [GridRow] {
+            first ?? []
+        }
+
+        public static func buildEither(second: [GridRow]?) -> [GridRow] {
+            second ?? []
+        }
+
+        public static func buildArray(_ components: [[GridRow]]) -> [GridRow] {
+            components.flatMap { $0 }
+        }
+
+        public static func buildExpression(_ expression: [GridRow]?) -> [GridRow] {
+            expression ?? []
+        }
+
+        public static func buildExpression(_ expression: GridRow?) -> [GridRow] {
+            expression.map { [$0] } ?? []
+        }
+        
+        public static func buildExpression(_ expression: NSView) -> [GridRow] {
+            [GridRow(views: [expression])]
+        }
+        
+        public static func buildExpression(_ expression: [NSView]) -> [GridRow] {
+            expression.map({ GridRow(views: [$0]) })
+        }
+    }
+}
 #endif

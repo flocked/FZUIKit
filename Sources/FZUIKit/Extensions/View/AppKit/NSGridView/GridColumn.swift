@@ -2,40 +2,48 @@
 //  GridColumn.swift
 //
 //
-//  Created by Florian Zand on 23.02.24.
+//  Created by Florian Zand on 22.03.25.
 //
 
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
 
-/// A column within a grid view.
-public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible {
-    
+/// A column within a `NSGridView`.
+public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible, Equatable {
     /// The grid view of the column.
-    public var gridView: NSGridView? {
-        gridColumn?.gridView
+    public var gridView: NSGridView? { gridColumn?.gridView }
+    
+    /// The index of the column inside it's grid view, or `nil` if the column isn't displayed in a grid view.
+    public var index: Int? { gridColumn?.index }
+    
+    /// The cells of the column.
+    public var cells: [GridCell] { (gridColumn?.cells ?? []).compactMap({ GridCell($0) }) }
+    
+    /// Merges all cells.
+    public func mergeCells() {
+        mergeCells(in: 0..<numberOfCells)
     }
     
-    /// Merges the cells at the specified range.
+    /// Merges the cells of the column at the specified range.
     public func mergeCells(in range: Range<Int>) {
         guard numberOfCells > 0 else { return }
         gridColumn?.mergeCells(in: range.clamped(max: numberOfCells).nsRange)
     }
     
-    /// Merges the cells at the specified range.
+    /// Merges the cells of the column at the specified range.
     public func mergeCells(in range: ClosedRange<Int>) {
         mergeCells(in: range.lowerBound..<range.upperBound-1)
     }
     
     /// The content views of the grid column cells.
     public var views: [NSView?] {
-        get { gridColumn?.views ?? _views }
+        get { gridColumn?.views ?? properties.views }
         set {
-            if let gridColumn = self.gridColumn {
+            if let gridColumn = gridColumn {
                 gridColumn.views = newValue
             } else {
-                _views = newValue
+                properties.views = newValue
             }
         }
     }
@@ -53,34 +61,13 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible {
         self.views = views
         return self
     }
-    
-    /// A Boolean value that indicates whether the column is hidden.
-    public var isHidden: Bool {
-        get { gridColumn?.isHidden ?? _isHidden }
-        set {
-            gridColumn?.isHidden = newValue
-            _isHidden = newValue
-        }
-    }
-    
-    /// Sets the Boolean value that indicates whether the column is hidden.
-    @discardableResult
-    public func isHidden(_ isHidden: Bool) -> Self {
-        self.isHidden = isHidden
-        return self
-    }
-    
-    /// The number of cells of the column.
-    public var numberOfCells: Int {
-        get { gridColumn?.numberOfCells ?? _views.count }
-    }
-    
+
     /// The leading padding of the column.
     public var leadingPadding: CGFloat {
-        get { gridColumn?.leadingPadding ?? _leadingPadding }
+        get { gridColumn?.leadingPadding ?? properties.leadingPadding }
         set {
             gridColumn?.leadingPadding = newValue
-            _leadingPadding = newValue
+            properties.leadingPadding = newValue
         }
     }
     
@@ -90,13 +77,13 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible {
         leadingPadding = padding
         return self
     }
-    
+
     /// The trailing padding of the column.
     public var trailingPadding: CGFloat {
-        get { gridColumn?.trailingPadding ?? _trailingPadding }
+        get { gridColumn?.trailingPadding ?? properties.trailingPadding }
         set {
             gridColumn?.trailingPadding = newValue
-            _trailingPadding = newValue
+            properties.trailingPadding = newValue
         }
     }
     
@@ -106,13 +93,29 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible {
         trailingPadding = padding
         return self
     }
+
+    /// A Boolean value that indicates whether the column is hidden.
+    public var isHidden: Bool {
+        get { gridColumn?.isHidden ?? properties.isHidden }
+        set {
+            gridColumn?.isHidden = newValue
+            properties.isHidden = newValue
+        }
+    }
     
+    /// Sets the Boolean value that indicates whether the column is hidden.
+    @discardableResult
+    public func isHidden(_ isHidden: Bool) -> Self {
+        self.isHidden = isHidden
+        return self
+    }
+
     /// The column width.
     public var width: CGFloat {
-        get { gridColumn?.width ?? _width }
+        get { gridColumn?.width ?? properties.width }
         set {
             gridColumn?.width = newValue
-            _width = newValue
+            properties.width = newValue
         }
     }
     
@@ -122,13 +125,13 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible {
         self.width = width
         return self
     }
-    
+
     /// The x-placement of the views.
     public var xPlacement: Placement {
-        get {.init(rawValue: (gridColumn?.xPlacement ?? _xPlacement).rawValue) ?? .inherited }
+        get {.init(rawValue: (gridColumn?.xPlacement ?? properties.xPlacement).rawValue) ?? .inherited }
         set {
             gridColumn?.xPlacement = newValue.placement
-            _xPlacement = newValue.placement
+            properties.xPlacement = newValue.placement
         }
     }
     
@@ -171,47 +174,45 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible {
     }
     
     /// Creates a grid column with the specified views.
-    public init(@NSGridView.Builder _ views: () -> [NSView?]) {
-        _views = views()
+    public init(views: [NSView?] = []) {
+        properties.views = views
     }
     
     /// Creates a grid column with the specified views.
-    public init(views: [NSView?]) {
-        _views = views
-    }
-    
-    /// Creates a grid column.
-    public init() {
-        
+    public init(@NSGridView.Builder _ views: () -> [NSView?]) {
+        properties.views = views()
     }
     
     init(_ gridColumn: NSGridColumn) {
         self.gridColumn = gridColumn
-        _isHidden = gridColumn.isHidden
-        _leadingPadding = gridColumn.leadingPadding
-        _trailingPadding = gridColumn.trailingPadding
-        _width = gridColumn.width
-        _xPlacement = gridColumn.xPlacement
+    }
+        
+    struct Properties {
+        var views: [NSView?] = []
+        var isHidden = false
+        var xPlacement: NSGridCell.Placement = .inherited
+        var width: CGFloat = 1.1754943508222875e-38
+        var leadingPadding: CGFloat = 0.0
+        var trailingPadding: CGFloat = 0.0
     }
     
+    var properties = Properties()
+    let id = UUID()
+    var numberOfCells: Int { gridColumn?.numberOfCells ?? properties.views.count }
     weak var gridColumn: NSGridColumn? {
         didSet {
-            guard let gridColumn = gridColumn else { return }
-            gridColumn.views = _views
-            gridColumn.isHidden = _isHidden
-            gridColumn.leadingPadding = _leadingPadding
-            gridColumn.trailingPadding = _trailingPadding
-            gridColumn.width = width
-            gridColumn.xPlacement = _xPlacement
-            _views = []
+            if let gridColumn = gridColumn {
+                gridColumn.views = properties.views
+                gridColumn.isHidden = properties.isHidden
+                gridColumn.leadingPadding = properties.leadingPadding
+                gridColumn.trailingPadding = properties.trailingPadding
+                gridColumn.xPlacement = properties.xPlacement
+                properties.views = []
+            } else if let gridColumn = oldValue {
+                properties.views = gridColumn.views
+            }
         }
     }
-    var _views: [NSView?] = []
-    var _isHidden: Bool = false
-    var _leadingPadding: CGFloat = 0.0
-    var _trailingPadding: CGFloat = 0.0
-    var _width: CGFloat = 1.1754943508222875e-38
-    var _xPlacement: NSGridCell.Placement = .inherited
     
     public var description: String {
         "GridColumn(views: \(views.count), xPlacement: \(xPlacement),  width: \(width))"
@@ -227,6 +228,54 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible {
         strings += "  - isHidden: \(isHidden)"
         return strings.joined(separator: "\n")
     }
+    
+    public static func == (lhs: GridColumn, rhs: GridColumn) -> Bool {
+        if let lhs = lhs.gridColumn, let rhs = rhs.gridColumn {
+            return lhs === rhs
+        }
+        return lhs.id == rhs.id
+    }
 }
 
+extension GridColumn {
+    /// A function builder type that produces an array of grid column.
+    @resultBuilder
+    public enum Builder {
+        public static func buildBlock(_ block: [GridColumn]...) -> [GridColumn] {
+            block.flatMap { $0 }
+        }
+
+        public static func buildOptional(_ item: [GridColumn]?) -> [GridColumn] {
+            item ?? []
+        }
+
+        public static func buildEither(first: [GridColumn]?) -> [GridColumn] {
+            first ?? []
+        }
+
+        public static func buildEither(second: [GridColumn]?) -> [GridColumn] {
+            second ?? []
+        }
+
+        public static func buildArray(_ components: [[GridColumn]]) -> [GridColumn] {
+            components.flatMap { $0 }
+        }
+
+        public static func buildExpression(_ expression: [GridColumn]?) -> [GridColumn] {
+            expression ?? []
+        }
+
+        public static func buildExpression(_ expression: GridColumn?) -> [GridColumn] {
+            expression.map { [$0] } ?? []
+        }
+        
+        public static func buildExpression(_ expression: NSView) -> [GridColumn] {
+            [GridColumn(views: [expression])]
+        }
+        
+        public static func buildExpression(_ expression: [NSView]) -> [GridColumn] {
+            expression.map({ GridColumn(views: [$0]) })
+        }
+    }
+}
 #endif
