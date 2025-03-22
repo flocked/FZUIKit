@@ -29,30 +29,16 @@ extension NSGridRow {
                 for _ in (0..<count) {
                     gridView.addColumn(with: [])
                 }
+            } else if newValue.count < gridView.numberOfColumns, let index = gridView.nsColumns.indexed().firstIndex(where: {$0.element.cells.compactMap({$0.contentView}).count == 0 && $0.index >= newValue.count}) {
+                (index..<gridView.numberOfColumns).reversed().forEach({
+                    gridView.removeColumn(at: $0)
+                })
             }
-            let cells = self.cells
+            let cells = cells
             cells.forEach({$0.contentView?.removeFromSuperview() })
             for (index, view) in newValue.enumerated() {
-                self.cells[safe: index]?.contentView = view
-             // self.cells[safe: index]?.contentView = (view as? GridSpacer) != nil ? nil : view
+                cells[safe: index]?.contentView = view
             }
-            if newValue.count < gridView.numberOfColumns {
-                let columns = gridView.nsColumns
-                for index in stride(from: columns.count-1, to: newValue.count-1, by: -1) {
-                    if let column = columns[safe: index] {
-                        if column.cells.compactMap({$0.contentView}).count == 0 {
-                            gridView.removeColumn(at: index)
-                        }
-                    }
-                }
-            }
-            /*
-            for index in newValue.indexes(where: {($0 as? GridSpacer) != nil}) {
-                if let value = (newValue[safe: index] as? GridSpacer)?.value, index < gridView.numberOfColumns, gridView.column(at: index).views.count == 0 {
-                    gridView.column(at: index).width = value
-                }
-            }
-            */
         }
     }
     
@@ -71,5 +57,15 @@ extension NSGridRow {
     }
 }
 
+extension NSGridRow.Alignment: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .inherited: return "inherited"
+        case .firstBaseline: return "firstBaseline"
+        case .lastBaseline: return "lastBaseline"
+        default: return "none"
+        }
+    }
+}
 
 #endif

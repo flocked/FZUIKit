@@ -29,30 +29,16 @@ extension NSGridColumn {
                 for _ in (0..<count) {
                     gridView.addRow(with: [])
                 }
+            } else if newValue.count < gridView.numberOfRows, let index = gridView.nsRows.indexed().firstIndex(where: {$0.element.cells.compactMap({$0.contentView}).count == 0 && $0.index >= newValue.count}) {
+                (index..<gridView.numberOfRows).reversed().forEach({
+                    gridView.removeRow(at: $0)
+                })
             }
-            let cells = self.cells
+            let cells = cells
             cells.forEach({$0.contentView?.removeFromSuperview() })
             for (index, view) in newValue.enumerated() {
-                self.cells[safe: index]?.contentView = view
-                // self.cells[safe: index]?.contentView = (view as? GridSpacer) != nil ? nil : view
+                cells[safe: index]?.contentView = view
             }
-            if newValue.count < gridView.numberOfRows {
-                let rows = gridView.nsRows
-                for index in stride(from: rows.count-1, to: newValue.count-1, by: -1) {
-                    if let row = rows[safe: index] {
-                        if row.cells.compactMap({$0.contentView}).count == 0 {
-                            gridView.removeRow(at: index)
-                        }
-                    }
-                }
-            }
-            /*
-            for index in newValue.indexes(where: {($0 as? GridSpacer) != nil}) {
-                if let value = (newValue[safe: index] as? GridSpacer)?.value, index < gridView.numberOfRows, gridView.row(at: index).views.compactMap({$0}).count == 0 {
-                    gridView.row(at: index).height = value
-                }
-            }
-            */
         }
     }
     

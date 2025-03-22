@@ -206,15 +206,4 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible {
     }
 }
 
-extension NSGridRow.Alignment: CustomStringConvertible {
-    public var description: String {
-        switch self {
-        case .inherited: return "inherited"
-        case .firstBaseline: return "firstBaseline"
-        case .lastBaseline: return "lastBaseline"
-        default: return "none"
-        }
-    }
-}
-
 #endif

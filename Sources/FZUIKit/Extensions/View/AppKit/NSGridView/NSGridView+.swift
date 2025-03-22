@@ -29,27 +29,25 @@ extension NSGridView {
             if newValue.count > numberOfColumns {
                 let count = newValue.count - numberOfColumns
                 (0..<count).forEach({ _ in addColumn(with: [])})
-            } else if newValue.count < numberOfColumns, let index = nsColumns.firstIndex(where: {$0.cells.compactMap({$0.contentView}).count == 0}), index <= newValue.count {
+            } else if newValue.count < numberOfColumns, let index = nsColumns.indexed().firstIndex(where: {$0.element.cells.compactMap({$0.contentView}).count == 0 && $0.index >= newValue.count}) {
                 (index..<numberOfColumns).reversed().forEach({
                     removeColumn(at: $0)
                 })
             }
-            for (index, column) in newValue.enumerated() {
+            for (index, column) in newValue.indexed() {
                 if let columnIndex = column.gridColumn?.index {
                     if columnIndex != index {
                         moveColumn(at: columnIndex, to: index)
                     }
-                } else {
-                    if let gridColumn = nsColumns[safe: index] {
-                        gridColumn.isHidden = column._isHidden
-                        gridColumn.leadingPadding = column._leadingPadding
-                        gridColumn.trailingPadding = column._trailingPadding
-                        gridColumn.xPlacement = column._xPlacement
-                        gridColumn.width = column._width
-                        gridColumn.views = column._views
-                        column._views = []
-                        column.gridColumn = gridColumn
-                    }
+                } else if let gridColumn = nsColumns[safe: index] {
+                    gridColumn.isHidden = column._isHidden
+                    gridColumn.leadingPadding = column._leadingPadding
+                    gridColumn.trailingPadding = column._trailingPadding
+                    gridColumn.xPlacement = column._xPlacement
+                    gridColumn.width = column._width
+                    gridColumn.views = column._views
+                    column._views = []
+                    column.gridColumn = gridColumn
                 }
             }
         }
@@ -69,28 +67,26 @@ extension NSGridView {
             translatesAutoresizingMaskIntoConstraints = false
             if newValue.count > numberOfRows {
                 (0..<(newValue.count - numberOfRows)).forEach({ _ in addRow(with: [])})
-            } else if newValue.count < numberOfRows, let index = nsRows.firstIndex(where: {$0.cells.compactMap({$0.contentView}).count == 0}), index <= newValue.count {
+            } else if newValue.count < numberOfRows, let index = nsRows.indexed().firstIndex(where: {$0.element.cells.compactMap({$0.contentView}).count == 0 && $0.index >= newValue.count}) {
                 (index..<numberOfRows).reversed().forEach({
                     removeRow(at: $0)
                 })
             }
-            for (index, row) in newValue.enumerated() {
+            for (index, row) in newValue.indexed() {
                 if let rowIndex = row.gridRow?.index {
                     if rowIndex != index {
                         moveRow(at: rowIndex, to: index)
                     }
-                } else {
-                    if let gridRow = nsRows[safe: index] {
-                        gridRow.isHidden = row._isHidden
-                        gridRow.topPadding = row._topPadding
-                        gridRow.bottomPadding = row._bottomPadding
-                        gridRow.yPlacement = row._yPlacement
-                        gridRow.rowAlignment = row._rowAlignment
-                        gridRow.height = row._height
-                        gridRow.views = row._views
-                        row._views = []
-                        row.gridRow = gridRow
-                    }
+                } else if let gridRow = nsRows[safe: index] {
+                    gridRow.isHidden = row._isHidden
+                    gridRow.topPadding = row._topPadding
+                    gridRow.bottomPadding = row._bottomPadding
+                    gridRow.yPlacement = row._yPlacement
+                    gridRow.rowAlignment = row._rowAlignment
+                    gridRow.height = row._height
+                    gridRow.views = row._views
+                    row._views = []
+                    row.gridRow = gridRow
                 }
             }
         }
