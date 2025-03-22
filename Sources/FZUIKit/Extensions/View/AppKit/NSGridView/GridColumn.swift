@@ -142,7 +142,7 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible, 
 
     /// The alignment of the views of the x-coordinate.
     public var xAlignment: Alignment {
-        get {.init(rawValue: (gridColumn?.xPlacement ?? properties.xAlignment).rawValue) ?? .inherited }
+        get {.init(gridColumn?.xPlacement ?? properties.xAlignment) }
         set {
             gridColumn?.xPlacement = newValue.placement
             properties.xAlignment = newValue.placement
@@ -196,8 +196,6 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible, 
 extension GridColumn {
     /// The x-placement of the views.
     public enum Alignment: Int, CustomStringConvertible {
-        /// Inherited.
-        case inherited
         /// None.
         case none
         /// Leading.
@@ -211,7 +209,6 @@ extension GridColumn {
         
         public var description: String {
             switch self {
-            case .inherited: return "inherited"
             case .none: return "none"
             case .leading: return "leading"
             case .trailing: return "trailing"
@@ -221,7 +218,13 @@ extension GridColumn {
         }
         
         var placement: NSGridCell.Placement {
-            .init(rawValue: rawValue)!
+            switch self {
+            case .none: return NSGridCell.Placement.none
+            case .leading: return .leading
+            case .trailing: return .trailing
+            case .center: return .center
+            case .fill: return .fill
+            }
         }
     }
     
@@ -296,6 +299,18 @@ extension GridColumn {
         
         public static func buildExpression(_ expression: [NSView]) -> [GridColumn] {
             expression.map({ GridColumn(views: [$0]) })
+        }
+    }
+}
+
+extension GridColumn.Alignment {
+    init(_ placement: NSGridCell.Placement) {
+        switch placement {
+        case .top, .leading, .inherited: self = .leading
+        case .bottom, .trailing: self = .trailing
+        case .center: self = .center
+        case .fill: self = .fill
+        default: self = .none
         }
     }
 }

@@ -141,11 +141,11 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible, Equ
     
     /// The alignment of the views of the y-coordinate.
     public var yAlignment: Alignment {
-        get { 
-            if let gridRow = gridRow, gridRow.rowAlignment == .firstBaseline || gridRow.rowAlignment == .lastBaseline {
-                return gridRow.rowAlignment == .firstBaseline ? .firstBaseline : .lastBaseline
+        get {
+            if let gridRow = gridRow {
+                return .init(gridRow.yPlacement, gridRow.rowAlignment)
             }
-            return .init(rawValue: (gridRow?.yPlacement ?? properties.yAlignment).rawValue) ?? .inherited
+            return .init(properties.yAlignment, properties.rowAlignment)
         }
         set {
             gridRow?.yPlacement = newValue.placement ?? .inherited
@@ -203,8 +203,6 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible, Equ
 extension GridRow {
     /// The y-placement of the views.
     public enum Alignment: Int, CustomStringConvertible {
-        /// Inherited.
-        case inherited
         /// None.
         case none
         /// Top.
@@ -222,7 +220,6 @@ extension GridRow {
         
         public var description: String {
             switch self {
-            case .inherited: return "inherited"
             case .none: return "none"
             case .top: return "top"
             case .bottom: return "bottom"
@@ -235,7 +232,6 @@ extension GridRow {
         
         var placement: NSGridCell.Placement? {
             switch self {
-            case .inherited: return .inherited
             case .none: return NSGridCell.Placement.none
             case .top: return .top
             case .bottom: return .bottom
@@ -325,6 +321,22 @@ extension GridRow {
         
         public static func buildExpression(_ expression: [NSView]) -> [GridRow] {
             expression.map({ GridRow(views: [$0]) })
+        }
+    }
+}
+
+extension GridRow.Alignment {
+    init(_ placement: NSGridCell.Placement, _ alignment: NSGridRow.Alignment) {
+        if alignment == .firstBaseline || alignment == .lastBaseline {
+            self = alignment == .firstBaseline ? .firstBaseline : .lastBaseline
+        } else {
+            switch placement {
+            case .top, .leading, .inherited: self = .top
+            case .bottom, .trailing: self = .bottom
+            case .center: self = .center
+            case .fill: self = .fill
+            default: self = .none
+            }
         }
     }
 }

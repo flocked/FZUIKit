@@ -1,6 +1,6 @@
 //
 //  GridCell.swift
-//  
+//
 //
 //  Created by Florian Zand on 22.03.25.
 //
@@ -25,7 +25,7 @@ public class GridCell: CustomStringConvertible, CustomDebugStringConvertible {
     
     /// The alignment of the cell of the x-coordinate.
     public var xAlignment: GridColumn.Alignment {
-        get { column?.xAlignment ?? .inherited }
+        get { column?.xAlignment ?? .init(.inherited) }
         set { column?.xAlignment = newValue }
     }
     
@@ -38,7 +38,7 @@ public class GridCell: CustomStringConvertible, CustomDebugStringConvertible {
     
     /// The alignment of the cell of the y-coordinate.
     public var yAlignment: GridRow.Alignment {
-        get { row?.yAlignment ?? .inherited }
+        get { row?.yAlignment ?? .init(.inherited, .inherited) }
         set { row?.yAlignment = newValue }
     }
     
