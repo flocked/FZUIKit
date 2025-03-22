@@ -122,9 +122,11 @@ extension NSGridView {
             block.flatMap { $0 }
         }
 
+        /*
         public static func buildOptional(_ item: [NSView?]?) -> [NSView?] {
             item ?? []
         }
+         */
 
         public static func buildEither(first: [NSView?]?) -> [NSView?] {
             first ?? []
@@ -138,10 +140,11 @@ extension NSGridView {
             components.flatMap { $0 }
         }
 
+        /*
         public static func buildExpression(_ expr: [NSView?]?) -> [NSView?] {
             expr ?? []
         }
-
+*/
         public static func buildExpression(_ expr: NSView??) -> [NSView?] {
             expr.map { [$0] } ?? []
         }

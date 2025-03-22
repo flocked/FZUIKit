@@ -9,7 +9,11 @@
 import AppKit
 
 /// A column within a grid view.
-public class GridColumn {
+public class GridColumn: CustomStringConvertible {
+    
+    public var description: String {
+        ""
+    }
     
     /// The grid view of the column.
     public var gridView: NSGridView? {
