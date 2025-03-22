@@ -194,7 +194,18 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible {
         _xPlacement = gridColumn.xPlacement
     }
     
-    weak var gridColumn: NSGridColumn?
+    weak var gridColumn: NSGridColumn? {
+        didSet {
+            guard let gridColumn = gridColumn else { return }
+            gridColumn.views = _views
+            gridColumn.isHidden = _isHidden
+            gridColumn.leadingPadding = _leadingPadding
+            gridColumn.trailingPadding = _trailingPadding
+            gridColumn.width = width
+            gridColumn.xPlacement = _xPlacement
+            _views = []
+        }
+    }
     var _views: [NSView?] = []
     var _isHidden: Bool = false
     var _leadingPadding: CGFloat = 0.0

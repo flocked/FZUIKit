@@ -213,14 +213,14 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible {
     
     weak var gridRow: NSGridRow? {
         didSet {
-            guard let gridView = gridRow else { return }
-            gridRow?.views = _views
-            gridRow?.isHidden = _isHidden
-            gridRow?.topPadding = _topPadding
-            gridRow?.bottomPadding = _bottomPadding
-            gridRow?.height = _height
-            gridRow?.yPlacement = _yPlacement
-            gridRow?.rowAlignment = _rowAlignment
+            guard let gridRow = gridRow else { return }
+            gridRow.views = _views
+            gridRow.isHidden = _isHidden
+            gridRow.topPadding = _topPadding
+            gridRow.bottomPadding = _bottomPadding
+            gridRow.height = _height
+            gridRow.yPlacement = _yPlacement
+            gridRow.rowAlignment = _rowAlignment
             _views = []
 
         }
