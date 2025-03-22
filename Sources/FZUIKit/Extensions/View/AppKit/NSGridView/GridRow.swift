@@ -119,12 +119,12 @@ public class GridRow {
             if let gridRow = gridRow {
                 return .init(gridRow.yPlacement, gridRow.rowAlignment)
             }
-            return .init(properties.yAlignment, properties.rowAlignment)
+            return .init(properties.alignment, properties.rowAlignment)
         }
         set {
             gridRow?.yPlacement = newValue.placement ?? .inherited
             gridRow?.rowAlignment = newValue.rowAlignment ?? .inherited
-            properties.yAlignment = newValue.placement ?? .inherited
+            properties.alignment = newValue.placement ?? .inherited
             properties.rowAlignment = newValue.rowAlignment ?? .inherited
         }
     }
@@ -215,11 +215,16 @@ public class GridRow {
                 gridRow.isHidden = properties.isHidden
                 gridRow.bottomPadding = properties.bottomPadding
                 gridRow.topPadding = properties.topPadding
-                gridRow.yPlacement = properties.yAlignment
+                gridRow.yPlacement = properties.alignment
                 gridRow.rowAlignment = properties.rowAlignment
                 properties.views = []
             } else if let gridRow = oldValue {
                 properties.views = gridRow.views
+                properties.isHidden = gridRow.isHidden
+                properties.bottomPadding = gridRow.bottomPadding
+                properties.topPadding = gridRow.topPadding
+                properties.alignment = gridRow.yPlacement
+                properties.rowAlignment = gridRow.rowAlignment
             }
         }
     }
@@ -280,7 +285,7 @@ extension GridRow {
     struct Properties {
         var views: [NSView?] = []
         var isHidden = false
-        var yAlignment: NSGridCell.Placement = .inherited
+        var alignment: NSGridCell.Placement = .inherited
         var height: CGFloat = NSGridView.automaticSizing
         var topPadding: CGFloat = 0.0
         var bottomPadding: CGFloat = 0.0

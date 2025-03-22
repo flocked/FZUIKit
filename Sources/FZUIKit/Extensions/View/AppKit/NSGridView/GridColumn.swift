@@ -115,10 +115,10 @@ public class GridColumn {
 
     /// The alignment of the views of the x-coordinate.
     public var alignment: Alignment {
-        get {.init(gridColumn?.xPlacement ?? properties.xAlignment) }
+        get {.init(gridColumn?.xPlacement ?? properties.alignment) }
         set {
             gridColumn?.xPlacement = newValue.placement
-            properties.xAlignment = newValue.placement
+            properties.alignment = newValue.placement
         }
     }
     
@@ -206,10 +206,14 @@ public class GridColumn {
                 gridColumn.isHidden = properties.isHidden
                 gridColumn.leadingPadding = properties.leadingPadding
                 gridColumn.trailingPadding = properties.trailingPadding
-                gridColumn.xPlacement = properties.xAlignment
+                gridColumn.xPlacement = properties.alignment
                 properties.views = []
             } else if let gridColumn = oldValue {
                 properties.views = gridColumn.views
+                properties.isHidden = gridColumn.isHidden
+                properties.leadingPadding = gridColumn.leadingPadding
+                properties.trailingPadding = gridColumn.trailingPadding
+                properties.alignment = gridColumn.xPlacement
             }
         }
     }
@@ -251,7 +255,7 @@ extension GridColumn {
     struct Properties {
         var views: [NSView?] = []
         var isHidden = false
-        var xAlignment: NSGridCell.Placement = .inherited
+        var alignment: NSGridCell.Placement = .inherited
         var width: CGFloat = NSGridView.automaticSizing
         var leadingPadding: CGFloat = 0.0
         var trailingPadding: CGFloat = 0.0
