@@ -41,7 +41,7 @@ public class GridCell: CustomStringConvertible, CustomDebugStringConvertible {
         /// The alignment of the cell on the y-coordinate.
         public var y: GridRow.Alignment
         
-        /// The custom alignment layout constraits.
+        /// The custom alignment layout constraints.
         public var customConstraints: [NSLayoutConstraint]
         
         public var description: String {
@@ -81,7 +81,7 @@ public class GridCell: CustomStringConvertible, CustomDebugStringConvertible {
         return self
     }
     
-    /// Sets the custom alignment layout constraits.
+    /// Sets the custom alignment layout constraints.
     @discardableResult
     public func customAlignmentConstraints(_ constraints: [NSLayoutConstraint]) -> Self {
         alignment.customConstraints = constraints
