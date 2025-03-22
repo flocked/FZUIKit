@@ -9,13 +9,13 @@
 import AppKit
 
 extension NSGridView {
-    /// Creates a new grid view obect with the specified columns.
+    /// Creates a new grid view with the specified columns.
     public convenience init(@GridColumn.Builder columns: () -> [GridColumn]) {
         self.init()
         self.columns = columns()
     }
     
-    /// Creates a new grid view object with the specified rows.
+    /// Creates a new grid view with the specified rows.
     public convenience init(@GridRow.Builder rows: () -> [GridRow]) {
         self.init()
         self.rows = rows()
@@ -44,12 +44,22 @@ extension NSGridView {
                     columns.swapAt(oldIndex, index)
                 }
             }
+            newValue.filter({$0.properties.merge}).forEach({
+                $0.mergeCells()
+                $0.properties.merge = false
+            })
+            newValue.filter({$0.properties.mergeRange != nil}).forEach({
+                if let range = $0.properties.mergeRange {
+                    $0.mergeCells(in: range)
+                    $0.properties.mergeRange = nil
+                }
+            })
         }
     }
     
     /// Sets the columns of the grid view.
     @discardableResult
-    public func columns(@GridColumn.Builder _ columns: () -> [GridColumn]) -> Self {
+    public func columns(@GridColumn.Builder columns: () -> [GridColumn]) -> Self {
         self.columns = columns()
         return self
     }
@@ -77,12 +87,22 @@ extension NSGridView {
                     rows.swapAt(oldIndex, index)
                 }
             }
+            newValue.filter({$0.properties.merge}).forEach({
+                $0.mergeCells()
+                $0.properties.merge = false
+            })
+            newValue.filter({$0.properties.mergeRange != nil}).forEach({
+                if let range = $0.properties.mergeRange {
+                    $0.mergeCells(in: range)
+                    $0.properties.mergeRange = nil
+                }
+            })
         }
     }
     
     /// Sets the rows of the grid view.
     @discardableResult
-    public func rows(@GridRow.Builder _ rows: () -> [GridRow]) -> Self {
+    public func rows(@GridRow.Builder rows: () -> [GridRow]) -> Self {
         self.rows  = rows()
         return self
     }

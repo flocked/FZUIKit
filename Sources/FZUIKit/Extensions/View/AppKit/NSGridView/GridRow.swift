@@ -20,20 +20,33 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible, Equ
     /// The cells of the row.
     public var cells: [GridCell] { (gridRow?.cells ?? []).compactMap({ GridCell($0) }) }
     
-    /// Merges all cells.
-    public func mergeCells() {
-        mergeCells(in: 0..<numberOfCells)
+    /// Merges the cells of the row.
+    @discardableResult
+    public func mergeCells() -> Self {
+        if gridRow != nil {
+            mergeCells(in: 0..<numberOfCells)
+        } else {
+            properties.merge = true
+        }
+        return self
     }
     
     /// Merges the cells at the specified range.
-    public func mergeCells(in range: Range<Int>) {
-        guard numberOfCells > 0 else { return }
-        gridRow?.mergeCells(in: range.clamped(max: numberOfCells).nsRange)
+    @discardableResult
+    public func mergeCells(in range: Range<Int>) -> Self {
+        if gridRow != nil {
+            guard numberOfCells > 0 else { return self }
+            gridRow?.mergeCells(in: range.clamped(max: numberOfCells).nsRange)
+        } else {
+            properties.mergeRange = range.toClosedRange
+        }
+        return self
     }
     
     /// Merges the cells at the specified range.
-    public func mergeCells(in range: ClosedRange<Int>) {
-        mergeCells(in: range.lowerBound..<range.upperBound-1)
+    @discardableResult
+    public func mergeCells(in range: ClosedRange<Int>) -> Self {
+        mergeCells(in: range.toRange)
     }
     
     /// The content views of the grid row cells.
@@ -164,8 +177,13 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible, Equ
     }
     
     /// Creates a grid row with the specified views.
-    public init(@NSGridView.Builder _ views: () -> [NSView?]) {
+    public init(@NSGridView.Builder views: () -> [NSView?]) {
         properties.views = views()
+    }
+    
+    /// Creates a grid row with the specified view.
+    public init(_ view: NSView) {
+        properties.views = [view]
     }
     
     init(_ gridRow: NSGridRow) {
@@ -173,7 +191,6 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible, Equ
     }
     
     var properties = Properties()
-    let id = UUID()
     var numberOfCells: Int { gridRow?.numberOfCells ?? properties.views.count }
     weak var gridRow: NSGridRow? {
         didSet {
@@ -232,6 +249,8 @@ extension GridRow {
         var topPadding: CGFloat = 0.0
         var bottomPadding: CGFloat = 0.0
         var rowAlignment: NSGridRow.Alignment = .inherited
+        var merge: Bool = false
+        var mergeRange: ClosedRange<Int>? = nil
     }
     
     public var description: String {
@@ -239,22 +258,21 @@ extension GridRow {
     }
     
     public var debugDescription: String {
-        let views = views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} })
         var strings = ["GridRow:"]
-        strings += "  - views: [\(views.joined(separator: ", "))]"
-        strings += "  - yPlacement: \(yPlacement)"
-        strings += "  - rowAlignment: \(rowAlignment)"
-        strings += "  - height: \(height == 1.1754943508222875e-38 ? "automatic" : "\(height)")"
-        strings += "  - bottomPadding: \(bottomPadding), topPadding: \(topPadding)"
-        strings += "  - isHidden: \(isHidden)"
-        return strings.joined(separator: "\n")
+        strings += "views: [\(views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} }).joined(separator: ", "))]"
+        strings += "yPlacement: \(yPlacement)"
+        strings += "rowAlignment: \(rowAlignment)"
+        strings += "height: \(height == 1.1754943508222875e-38 ? "automatic" : "\(height)")"
+        strings += "bottomPadding: \(bottomPadding), topPadding: \(topPadding)"
+        strings += "isHidden: \(isHidden)"
+        return strings.joined(separator: "\n  - ")
     }
     
     public static func == (lhs: GridRow, rhs: GridRow) -> Bool {
         if let lhs = lhs.gridRow, let rhs = rhs.gridRow {
             return lhs === rhs
         }
-        return lhs.id == rhs.id
+        return lhs === rhs
     }
 }
 
