@@ -139,35 +139,26 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible, Equ
         return self
     }
     
-    /// The y-placement of the views.
-    public var yPlacement: Placement {
-        get { .init(rawValue: (gridRow?.yPlacement ?? properties.yPlacement).rawValue) ?? .inherited }
+    /// The alignment of the views of the y-coordinate.
+    public var yAlignment: Alignment {
+        get { 
+            if let gridRow = gridRow, gridRow.rowAlignment == .firstBaseline || gridRow.rowAlignment == .lastBaseline {
+                return gridRow.rowAlignment == .firstBaseline ? .firstBaseline : .lastBaseline
+            }
+            return .init(rawValue: (gridRow?.yPlacement ?? properties.yAlignment).rawValue) ?? .inherited
+        }
         set {
-            gridRow?.yPlacement = newValue.placement
-            properties.yPlacement = newValue.placement
+            gridRow?.yPlacement = newValue.placement ?? .inherited
+            gridRow?.rowAlignment = newValue.rowAlignment ?? .inherited
+            properties.yAlignment = newValue.placement ?? .inherited
+            properties.rowAlignment = newValue.rowAlignment ?? .inherited
         }
     }
     
-    /// Sets the y-placement of the views.
+    /// Sets the alignment of the views of the y-coordinate.
     @discardableResult
-    public func yPlacement(_ placement: Placement) -> Self {
-        yPlacement = placement
-        return self
-    }
-    
-    /// The row alignment.
-    public var rowAlignment: NSGridRow.Alignment {
-        get { gridRow?.rowAlignment ?? properties.rowAlignment }
-        set {
-            gridRow?.rowAlignment = newValue
-            properties.rowAlignment = newValue
-        }
-    }
-    
-    /// Sets the row alignment.
-    @discardableResult
-    public func rowAlignment(_ alignment: NSGridRow.Alignment) -> Self {
-        rowAlignment = alignment
+    public func yAlignment(_ alignment: Alignment) -> Self {
+        yAlignment = alignment
         return self
     }
     
@@ -199,7 +190,7 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible, Equ
                 gridRow.isHidden = properties.isHidden
                 gridRow.bottomPadding = properties.bottomPadding
                 gridRow.topPadding = properties.topPadding
-                gridRow.yPlacement = properties.yPlacement
+                gridRow.yPlacement = properties.yAlignment
                 gridRow.rowAlignment = properties.rowAlignment
                 properties.views = []
             } else if let gridRow = oldValue {
@@ -211,7 +202,7 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible, Equ
 
 extension GridRow {
     /// The y-placement of the views.
-    public enum Placement: Int, CustomStringConvertible {
+    public enum Alignment: Int, CustomStringConvertible {
         /// Inherited.
         case inherited
         /// None.
@@ -224,6 +215,10 @@ extension GridRow {
         case center
         /// Fill.
         case fill
+        /// First baseline.
+        case firstBaseline
+        /// Last baseline.
+        case lastBaseline
         
         public var description: String {
             switch self {
@@ -233,18 +228,35 @@ extension GridRow {
             case .bottom: return "bottom"
             case .center: return "center"
             case .fill: return "fill"
+            case .firstBaseline: return "firstBaseline"
+            case .lastBaseline: return "lastBaseline"
             }
         }
         
-        var placement: NSGridCell.Placement {
-            .init(rawValue: rawValue)!
+        var placement: NSGridCell.Placement? {
+            switch self {
+            case .inherited: return .inherited
+            case .none: return NSGridCell.Placement.none
+            case .top: return .top
+            case .bottom: return .bottom
+            case .center: return .center
+            case .fill: return .fill
+            default: return nil
+            }
+        }
+        var rowAlignment: NSGridRow.Alignment? {
+            switch self {
+            case .firstBaseline: return .firstBaseline
+            case .lastBaseline: return .lastBaseline
+            default: return nil
+            }
         }
     }
     
     struct Properties {
         var views: [NSView?] = []
         var isHidden = false
-        var yPlacement: NSGridCell.Placement = .inherited
+        var yAlignment: NSGridCell.Placement = .inherited
         var height: CGFloat = 1.1754943508222875e-38
         var topPadding: CGFloat = 0.0
         var bottomPadding: CGFloat = 0.0
@@ -254,14 +266,13 @@ extension GridRow {
     }
     
     public var description: String {
-        return "GridRow(views: \(views.count), yPlacement: \(yPlacement),  height: \(height))"
+        return "GridRow(views: \(views.count), yAlignment: \(yAlignment),  height: \(height))"
     }
     
     public var debugDescription: String {
         var strings = ["GridRow:"]
         strings += "views: [\(views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} }).joined(separator: ", "))]"
-        strings += "yPlacement: \(yPlacement)"
-        strings += "rowAlignment: \(rowAlignment)"
+        strings += "yAlignment: \(yAlignment)"
         strings += "height: \(height == 1.1754943508222875e-38 ? "automatic" : "\(height)")"
         strings += "bottomPadding: \(bottomPadding), topPadding: \(topPadding)"
         strings += "isHidden: \(isHidden)"

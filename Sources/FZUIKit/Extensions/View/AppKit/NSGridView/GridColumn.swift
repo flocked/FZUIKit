@@ -140,24 +140,62 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible, 
         return self
     }
 
-    /// The x-placement of the views.
-    public var xPlacement: Placement {
-        get {.init(rawValue: (gridColumn?.xPlacement ?? properties.xPlacement).rawValue) ?? .inherited }
+    /// The alignment of the views of the x-coordinate.
+    public var xAlignment: Alignment {
+        get {.init(rawValue: (gridColumn?.xPlacement ?? properties.xAlignment).rawValue) ?? .inherited }
         set {
             gridColumn?.xPlacement = newValue.placement
-            properties.xPlacement = newValue.placement
+            properties.xAlignment = newValue.placement
         }
     }
     
-    /// Sets the x-placement of the views.
+    /// Sets the alignment of the views of the x-coordinate.
     @discardableResult
-    public func xPlacement(_ placement: Placement) -> Self {
-        xPlacement = placement
+    public func xAlignment(_ alignment: Alignment) -> Self {
+        xAlignment = alignment
         return self
     }
     
+    /// Creates a grid column with the specified views.
+    public init(views: [NSView?] = []) {
+        properties.views = views
+    }
+    
+    /// Creates a grid column with the specified views.
+    public init(@NSGridView.Builder views: () -> [NSView?]) {
+        properties.views = views()
+    }
+    
+    /// Creates a grid column with the specified view.
+    public init(_ view: NSView) {
+        properties.views = [view]
+    }
+    
+    init(_ gridColumn: NSGridColumn) {
+        self.gridColumn = gridColumn
+    }
+    
+    var properties = Properties()
+    var numberOfCells: Int { gridColumn?.numberOfCells ?? properties.views.count }
+    weak var gridColumn: NSGridColumn? {
+        didSet {
+            if let gridColumn = gridColumn {
+                gridColumn.views = properties.views
+                gridColumn.isHidden = properties.isHidden
+                gridColumn.leadingPadding = properties.leadingPadding
+                gridColumn.trailingPadding = properties.trailingPadding
+                gridColumn.xPlacement = properties.xAlignment
+                properties.views = []
+            } else if let gridColumn = oldValue {
+                properties.views = gridColumn.views
+            }
+        }
+    }
+}
+
+extension GridColumn {
     /// The x-placement of the views.
-    public enum Placement: Int, CustomStringConvertible {
+    public enum Alignment: Int, CustomStringConvertible {
         /// Inherited.
         case inherited
         /// None.
@@ -187,29 +225,10 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible, 
         }
     }
     
-    /// Creates a grid column with the specified views.
-    public init(views: [NSView?] = []) {
-        properties.views = views
-    }
-    
-    /// Creates a grid column with the specified views.
-    public init(@NSGridView.Builder views: () -> [NSView?]) {
-        properties.views = views()
-    }
-    
-    /// Creates a grid column with the specified view.
-    public init(_ view: NSView) {
-        properties.views = [view]
-    }
-    
-    init(_ gridColumn: NSGridColumn) {
-        self.gridColumn = gridColumn
-    }
-        
     struct Properties {
         var views: [NSView?] = []
         var isHidden = false
-        var xPlacement: NSGridCell.Placement = .inherited
+        var xAlignment: NSGridCell.Placement = .inherited
         var width: CGFloat = 1.1754943508222875e-38
         var leadingPadding: CGFloat = 0.0
         var trailingPadding: CGFloat = 0.0
@@ -217,31 +236,14 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible, 
         var mergeRange: ClosedRange<Int>? = nil
     }
     
-    var properties = Properties()
-    var numberOfCells: Int { gridColumn?.numberOfCells ?? properties.views.count }
-    weak var gridColumn: NSGridColumn? {
-        didSet {
-            if let gridColumn = gridColumn {
-                gridColumn.views = properties.views
-                gridColumn.isHidden = properties.isHidden
-                gridColumn.leadingPadding = properties.leadingPadding
-                gridColumn.trailingPadding = properties.trailingPadding
-                gridColumn.xPlacement = properties.xPlacement
-                properties.views = []
-            } else if let gridColumn = oldValue {
-                properties.views = gridColumn.views
-            }
-        }
-    }
-    
     public var description: String {
-        "GridColumn(views: \(views.count), xPlacement: \(xPlacement),  width: \(width))"
+        "GridColumn(views: \(views.count), xAlignment: \(xAlignment),  width: \(width))"
     }
     
     public var debugDescription: String {
         var strings = ["GridColumn:"]
         strings += "views: [\(views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} }).joined(separator: ", "))]"
-        strings += "xPlacement: \(xPlacement)"
+        strings += "xAlignment: \(xAlignment)"
         strings += "width: \(width == 1.1754943508222875e-38 ? "automatic" : "\(width)")"
         strings += "leadingPadding: \(leadingPadding), trailingPadding: \(trailingPadding)"
         strings += "isHidden: \(isHidden)"

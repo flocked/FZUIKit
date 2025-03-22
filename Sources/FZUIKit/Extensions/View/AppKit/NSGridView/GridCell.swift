@@ -23,29 +23,29 @@ public class GridCell: CustomStringConvertible, CustomDebugStringConvertible {
         return self
     }
     
-    /// The x-placement of the views.
-    public var xPlacement: GridColumn.Placement {
-        get { column?.xPlacement ?? .inherited }
-        set { column?.xPlacement = newValue }
+    /// The alignment of the cell of the x-coordinate.
+    public var xAlignment: GridColumn.Alignment {
+        get { column?.xAlignment ?? .inherited }
+        set { column?.xAlignment = newValue }
     }
     
-    /// Sets the x-placement of the views.
+    /// Sets the alignment of the cell of the x-coordinate.
     @discardableResult
-    public func xPlacement(_ placement: GridColumn.Placement) -> Self {
-        xPlacement = placement
+    public func xAlignment(_ alignment: GridColumn.Alignment) -> Self {
+        xAlignment = alignment
         return self
     }
     
-    /// The y-placement of the views.
-    public var yPlacement: GridRow.Placement {
-        get { row?.yPlacement ?? .inherited }
-        set { row?.yPlacement = newValue }
+    /// The alignment of the cell of the y-coordinate.
+    public var yAlignment: GridRow.Alignment {
+        get { row?.yAlignment ?? .inherited }
+        set { row?.yAlignment = newValue }
     }
     
-    /// Sets the y-placement of the views.
+    /// Sets the alignment of the cell of the y-coordinate.
     @discardableResult
-    public func yPlacement(_ placement: GridRow.Placement) -> Self {
-        yPlacement = placement
+    public func yAlignment(_ alignment: GridRow.Alignment) -> Self {
+        yAlignment = alignment
         return self
     }
     
@@ -59,19 +59,6 @@ public class GridCell: CustomStringConvertible, CustomDebugStringConvertible {
     @discardableResult
     public func customPlacementConstraints(_ constraints: [NSLayoutConstraint]) -> Self {
         customPlacementConstraints = constraints
-        return self
-    }
-    
-    /// The row alignment.
-    public var rowAlignment: NSGridRow.Alignment {
-        get { row?.rowAlignment ?? .inherited }
-        set { row?.rowAlignment = newValue }
-    }
-    
-    /// Sets the row alignment.
-    @discardableResult
-    public func rowAlignment(_ alignment: NSGridRow.Alignment) -> Self {
-        rowAlignment = alignment
         return self
     }
     
@@ -123,14 +110,14 @@ public class GridCell: CustomStringConvertible, CustomDebugStringConvertible {
     public var debugDescription: String {
         if let columnIndex = column?.index, let rowIndex = row?.index {
             if let contentView = contentView {
-                return "GridCell(row: \(rowIndex), column: \(columnIndex), contentView: \(contentView), xPlacement: \(xPlacement), yPlacement: \(yPlacement))"
+                return "GridCell(row: \(rowIndex), column: \(columnIndex), contentView: \(contentView), xAlignment: \(xAlignment), yPlacement: \(yAlignment))"
             }
-            return "GridCell(row: \(rowIndex), column: \(columnIndex), contentView: -, xPlacement: \(xPlacement), yPlacement: \(yPlacement))"
+            return "GridCell(row: \(rowIndex), column: \(columnIndex), contentView: -, xAlignment: \(xAlignment), yAlignment: \(yAlignment))"
         }
         if let contentView = contentView {
-            return "GridCell(row: -, column: -, contentView: \(contentView), xPlacement: \(xPlacement), yPlacement: \(yPlacement))"
+            return "GridCell(row: -, column: -, contentView: \(contentView), xAlignment: \(xAlignment), yAlignment: \(yAlignment))"
         }
-        return "GridCell(row: -, column: -, contentView: -, xPlacement: \(xPlacement), yPlacement: \(yPlacement))"
+        return "GridCell(row: -, column: -, contentView: -, xAlignment: \(xAlignment), yAlignment: \(yAlignment))"
     }
 }
 #endif
