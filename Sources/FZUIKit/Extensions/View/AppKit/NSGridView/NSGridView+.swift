@@ -28,13 +28,14 @@ extension NSGridView {
         set {
             translatesAutoresizingMaskIntoConstraints = false
             let existing = newValue.filter({$0.gridColumn != nil })
+            let added = newValue.filter({$0.gridColumn == nil })
             columns.filter({ column in !existing.contains(where: { $0.gridColumn === column.gridColumn }) }).reversed().forEach({
                 if let index = $0.index {
                     $0.gridColumn = nil
                     removeColumn(at: index)
                 }
             })
-            newValue.filter({$0.gridColumn == nil }).forEach({
+            added.forEach({
                 addColumn(with: [])
                 $0.gridColumn = column(at: numberOfColumns - 1)
             })
@@ -71,13 +72,14 @@ extension NSGridView {
         set {
             translatesAutoresizingMaskIntoConstraints = false
             let existing = newValue.filter({$0.gridRow != nil })
+            let added = newValue.filter({$0.gridRow == nil })
             rows.filter({ row in !existing.contains(where: { $0.gridRow === row.gridRow }) }).reversed().forEach({
                 if let index = $0.index {
                     $0.gridRow = nil
                     removeRow(at: index)
                 }
             })
-            newValue.filter({$0.gridRow == nil }).forEach({
+            added.filter({$0.gridRow == nil }).forEach({
                 addRow(with: [])
                 $0.gridRow = row(at: numberOfRows - 1)
             })
