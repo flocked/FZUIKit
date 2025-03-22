@@ -130,6 +130,31 @@ extension NSGridView {
         mergeCells(inHorizontalRange: horizontalRange.nsRange, verticalRange: verticalRange.nsRange)
     }
     
+    /// Merges the cells of the rows at the specified range.
+    public func mergeCells(rows: Range<Int>) {
+        mergeCells(inHorizontalRange: 0..<numberOfColumns, verticalRange: rows)
+    }
+    
+    /// Merges the cells of the rows at the specified range.
+    public func mergeCells(rows: ClosedRange<Int>) {
+        mergeCells(inHorizontalRange: 0...numberOfColumns, verticalRange: rows)
+    }
+    
+    /// Merges the cells of the columns at the specified range.
+    public func mergeCells(columns: Range<Int>) {
+        mergeCells(inHorizontalRange: columns, verticalRange: 0..<numberOfRows)
+    }
+    
+    /// Merges the cells of the columns at the specified range.
+    public func mergeCells(columns: ClosedRange<Int>) {
+        mergeCells(inHorizontalRange: columns, verticalRange: 0...numberOfRows)
+    }
+    
+    /// Merges the cells of the specified index range.
+    func mergeCells(from fromIndex: (column: Int, row: Int), to toIndex: (column: Int, row: Int)) {
+        mergeCells(inHorizontalRange: fromIndex.column..<toIndex.column, verticalRange: fromIndex.row..<toIndex.row)
+    }
+    
     static let automaticSizing: CGFloat = 1.1754943508222875e-38
 }
 
