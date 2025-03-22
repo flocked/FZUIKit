@@ -191,6 +191,11 @@ public class GridColumn {
         properties.views = [view]
     }
     
+    /// Creates a grid column with text fields with the specified string values.
+    public init(labels: [String] = []) {
+        properties.views = labels.map({NSTextField.wrapping($0)})
+    }
+    
     init(_ gridColumn: NSGridColumn) {
         self.gridColumn = gridColumn
     }
@@ -298,8 +303,16 @@ extension GridColumn {
             [GridColumn(views: [expression])]
         }
         
-        public static func buildExpression(_ expression: [NSView]) -> [GridColumn] {
-            expression.map({ GridColumn(views: [$0]) })
+        public static func buildExpression(_ expression: [NSView?]) -> [GridColumn] {
+            [GridColumn(views: expression)]
+        }
+        
+        public static func buildExpression(_ expression: String) -> [GridColumn] {
+            [GridColumn(views: [NSTextField.wrapping(expression)])]
+        }
+        
+        public static func buildExpression(_ expression: [String]) -> [GridColumn] {
+            [GridColumn(views: expression.map({ NSTextField.wrapping($0) }))]
         }
     }
 }

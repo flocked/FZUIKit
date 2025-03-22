@@ -329,7 +329,7 @@ extension GridRow {
             [GridRow(views: [expression])]
         }
         
-        public static func buildExpression(_ expression: [NSView]) -> [GridRow] {
+        public static func buildExpression(_ expression: [NSView?]) -> [GridRow] {
             expression.map({ GridRow(views: [$0]) })
         }
     }
