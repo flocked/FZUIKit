@@ -343,7 +343,7 @@ extension GridRow {
             case .firstBaseline: return .firstBaseline
             case .lastBaseline: return .lastBaseline
             case .inherited: return .inherited
-            default: return .inherited
+            default: return .none
             }
         }
         
