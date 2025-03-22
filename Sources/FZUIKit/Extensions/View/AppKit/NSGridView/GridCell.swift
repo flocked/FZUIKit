@@ -13,12 +13,12 @@ import FZSwiftUtils
 public class GridCell {
     /// The view of the cell.
     public var view: NSView? {
-        get { gridCell?.contentView ?? contentView }
+        get { gridCell?.contentView ?? properties.view }
         set {
             if let gridCell = gridCell {
                 gridCell.contentView = newValue
             } else {
-                contentView = newValue
+                properties.view = newValue
             }
         }
     }
@@ -32,58 +32,33 @@ public class GridCell {
     
     /// The alignment of the cell.
     public var alignment: Alignment {
-        get { Alignment(column, row, gridCell?.customPlacementConstraints ?? []) }
+        get { Alignment(for: self) }
         set {
-            column?.alignment = newValue.x
-            row?.alignment = newValue.y
+            gridCell?.xPlacement = .init(rawValue: newValue.x.rawValue) ?? .inherited
+            gridCell?.yPlacement = .init(rawValue: newValue.y.rawValue) ?? .inherited
             gridCell?.customPlacementConstraints = newValue.customConstraints
-        }
-    }
-    
-    /// The alignment of the cell.
-    public struct Alignment: CustomStringConvertible, CustomDebugStringConvertible {
-        /// The alignment of the cell on the x-coordinate.
-        public var x: GridColumn.Alignment
-        
-        /// The alignment of the cell on the y-coordinate.
-        public var y: GridRow.Alignment
-        
-        /// The custom alignment layout constraints.
-        public var customConstraints: [NSLayoutConstraint]
-        
-        public var description: String {
-            "(x: \(x), y: \(y), customConstraints: \(customConstraints.count))"
-        }
-        
-        public var debugDescription: String {
-            "(x: \(x), y: \(y), customConstraints: \(customConstraints)))"
-        }
-        
-        init(_ x: GridColumn?, _ y: GridRow?, _ customConstraints: [NSLayoutConstraint]) {
-            self.x = x?.alignment ?? .init(.inherited)
-            self.y = y?.alignment ?? .init(.inherited, .inherited)
-            self.customConstraints = customConstraints
+            properties.alignment = newValue
         }
     }
     
     /// Sets the alignment of the cell.
     @discardableResult
-    public func alignment(x: GridColumn.Alignment, y: GridRow.Alignment) -> Self {
+    public func alignment(x: Alignment.Horizontal, y: Alignment.Vertical) -> Self {
         alignment.x = x
         alignment.y = y
         return self
     }
     
-    /// Sets the alignment of the cell on the x-coordinate.
+    /// Sets the horizontal alignment of the cell.
     @discardableResult
-    public func alignment(x: GridColumn.Alignment) -> Self {
+    public func alignment(x: Alignment.Horizontal) -> Self {
         alignment.x = x
         return self
     }
     
-    /// Sets the alignment of the cell on the y-coordinate.
+    /// Sets the vertical alignment of the cell.
     @discardableResult
-    public func alignment(y: GridRow.Alignment) -> Self {
+    public func alignment(y: Alignment.Vertical) -> Self {
         alignment.y = y
         return self
     }
@@ -145,15 +120,114 @@ public class GridCell {
         return cells[safe: index+1]
     }
     
+    init(_ view: NSView?) {
+        properties.view = view
+    }
+    
+    static var empty: GridCell {
+        GridCell(nil)
+    }
+    
     init(_ gridCell: NSGridCell) {
         self.gridCell = gridCell
     }
     
     weak var gridCell: NSGridCell?
-    var contentView: NSView?
+    var properties = Properties()
     
-    init(_ view: NSView?) {
-        contentView = view
+    struct Properties {
+        var view: NSView?
+        var alignment = Alignment()
+    }
+}
+
+extension GridCell {
+    /// The alignment of a cell.
+    public struct Alignment: CustomStringConvertible, CustomDebugStringConvertible {
+        /// The horizontal alignment of a cell.
+        public enum Horizontal: Int, CustomStringConvertible {
+            /// Inherited from the cell's column alignment.
+            case inherited
+            /// None.
+            case none
+            /// Leading.
+            case leading
+            /// Trailing.
+            case trailing
+            /// Center.
+            case center
+            /// Fill.
+            case fill
+            
+            public var description: String {
+                switch self {
+                case .none: return "none"
+                case .leading: return "leading"
+                case .trailing: return "trailing"
+                case .center: return "center"
+                case .fill: return "fill"
+                case .inherited: return "inherited"
+                }
+            }
+        }
+        
+        /// The vertical alignment of a cell.
+        public enum Vertical: Int, CustomStringConvertible {
+            /// Inherited from the cell's row alignment.
+            case inherited
+            /// None.
+            case none
+            /// Top.
+            case top
+            /// Bottom.
+            case bottom
+            /// Center.
+            case center
+            /// Fill.
+            case fill
+            
+            public var description: String {
+                switch self {
+                case .none: return "none"
+                case .top: return "top"
+                case .bottom: return "bottom"
+                case .center: return "center"
+                case .fill: return "fill"
+                case .inherited: return "inherited"
+                }
+            }
+        }
+        
+        /// The horizontal alignment of the cell.
+        public var x: Horizontal = .inherited
+        
+        /// The vertical alignment of the cell.
+        public var y: Vertical = .inherited
+        
+        /// The custom alignment layout constraints.
+        public var customConstraints: [NSLayoutConstraint] = []
+        
+        public var description: String {
+            "(x: \(x), y: \(y), customConstraints: \(customConstraints.count))"
+        }
+        
+        public var debugDescription: String {
+            "(x: \(x), y: \(y), customConstraints: \(customConstraints)))"
+        }
+        
+        init() {
+            
+        }
+        
+        init(for gridCell: GridCell) {
+            if let gridCell = gridCell.gridCell {
+                x = .init(rawValue: (gridCell.xPlacement).rawValue) ?? .inherited
+                y = .init(rawValue: (gridCell.yPlacement).rawValue) ?? .inherited
+                customConstraints = gridCell.customPlacementConstraints
+            } else {
+                self = gridCell.properties.alignment
+            }
+        }
     }
 }
 
@@ -199,9 +273,11 @@ extension GridCell {
             [expression]
         }
         
+        /*
         public static func buildExpression(_ expression: GridCell?) -> [GridCell] {
-            expression != nil ? [expression!] : []
+            [expression].nonNil
         }
+         */
         
         public static func buildExpression(_ expression: [GridCell]) -> [GridCell] {
             expression.map { $0 }
@@ -222,6 +298,24 @@ extension GridCell {
         public static func buildEither(second component: [GridCell]) -> [GridCell] {
             component
         }
+        
+        /*
+        public static func buildExpression(_ expression: NSView?) -> [GridCell] {
+            [GridCell(expression)]
+        }
+        
+        public static func buildExpression(_ expression: [NSView?]) -> [GridCell] {
+            expression.map { GridCell($0) }
+        }
+        
+        public static func buildExpression(_ expression: String) -> [GridCell] {
+            [GridCell(NSTextField.wrapping(expression))]
+        }
+
+        public static func buildExpression(_ expression: [String?]) -> [GridCell] {
+            expression.map { GridCell($0.map(NSTextField.wrapping)) }
+        }
+         */
     }
 }
 #endif

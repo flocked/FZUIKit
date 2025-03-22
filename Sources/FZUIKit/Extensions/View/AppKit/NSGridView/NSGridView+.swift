@@ -59,6 +59,7 @@ extension NSGridView {
             translatesAutoresizingMaskIntoConstraints = false
             let existing = newValue.filter({$0.gridRow != nil })
             let added = newValue.filter({$0.gridRow == nil })
+            
             rows.filter({ row in !existing.contains(where: { $0.gridRow === row.gridRow }) }).reversed().forEach({ $0.remove() })
             for row in added {
                 addRow(with: [])
@@ -72,6 +73,12 @@ extension NSGridView {
                 }
             }
             newValue.forEach({ $0.applyMerge() })
+            /*
+            let viewsCount = newValue.map({$0.views.count}).max() ?? 0
+            for row in newValue.filter({ $0.gridRow != nil }) {
+                
+            }
+             */
         }
     }
     

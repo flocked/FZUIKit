@@ -148,7 +148,8 @@ public class GridColumn {
             guard numberOfCells > 0 else { return self }
             gridColumn?.mergeCells(in: range.clamped(max: numberOfCells).nsRange)
         } else {
-            properties.mergeRange = range.toClosedRange
+            properties.mergeStart = range.lowerBound
+            properties.mergeEnd = range.upperBound
         }
         return self
     }
@@ -165,6 +166,30 @@ public class GridColumn {
         let views = views
         if let startIndex = views.firstIndex(of: firstView), let endIndex = views.firstIndex(of: secondView), startIndex <= endIndex {
             mergeCells(in: startIndex..<endIndex)
+        }
+        return self
+    }
+    
+    /// Merges the cells of the column starting from the specified index.
+    @discardableResult
+    public func mergeCells(from index: Int) -> Self {
+        if gridColumn != nil {
+            mergeCells(in: index..<numberOfCells)
+        } else {
+            properties.mergeStart = index
+            properties.mergeEnd = nil
+        }
+        return self
+    }
+    
+    /// Merges the cells of the column upto the specified index.
+    @discardableResult
+    public func mergeCells(upto index: Int) -> Self {
+        if gridColumn != nil {
+            mergeCells(in: 0..<index)
+        } else {
+            properties.mergeStart = nil
+            properties.mergeEnd = index
         }
         return self
     }
@@ -255,7 +280,7 @@ extension GridColumn {
         }
         
         init(_ placement: NSGridCell.Placement) {
-            self = .init(rawValue: placement.rawValue) ?? .none
+            self = .init(rawValue: placement.rawValue) ?? .leading
         }
     }
     
@@ -267,13 +292,15 @@ extension GridColumn {
         var leadingPadding: CGFloat = 0.0
         var trailingPadding: CGFloat = 0.0
         var merge: Bool = false
-        var mergeRange: ClosedRange<Int>? = nil
+        var mergeStart: Int? = nil
+        var mergeEnd: Int? = nil
     }
     
     func applyMerge() {
-        if let range = properties.mergeRange {
-            properties.mergeRange = nil
-            mergeCells(in: range)
+        if properties.mergeStart != nil || properties.mergeEnd != nil {
+            mergeCells(in: (properties.mergeStart ?? 0)..<(properties.mergeEnd ?? numberOfCells))
+            properties.mergeStart = nil
+            properties.mergeEnd = nil
         } else if properties.merge {
             properties.merge = false
             mergeCells()
