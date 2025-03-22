@@ -123,20 +123,51 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible {
         return self
     }
     
-    /// The x-placement of the column.
-    public var xPlacement: NSGridCell.Placement {
-        get { gridColumn?.xPlacement ?? _xPlacement }
+    /// The x-placement of the views.
+    public var xPlacement: Placement {
+        get {.init(rawValue: (gridColumn?.xPlacement ?? _xPlacement).rawValue) ?? .inherited }
         set {
-            gridColumn?.xPlacement = newValue
-            _xPlacement = newValue
+            gridColumn?.xPlacement = newValue.placement
+            _xPlacement = newValue.placement
         }
     }
     
-    /// Sets the x-placement of the column.
+    /// Sets the x-placement of the views.
     @discardableResult
-    public func xPlacement(_ placement: NSGridCell.Placement) -> Self {
+    public func xPlacement(_ placement: Placement) -> Self {
         xPlacement = placement
         return self
+    }
+    
+    /// The x-placement of the views.
+    public enum Placement: Int, CustomStringConvertible {
+        /// Inherited.
+        case inherited
+        /// None.
+        case none
+        /// Leading.
+        case leading
+        /// Trailing.
+        case trailing
+        /// Center.
+        case center
+        /// Fill.
+        case fill
+        
+        public var description: String {
+            switch self {
+            case .inherited: return "inherited"
+            case .none: return "none"
+            case .leading: return "leading"
+            case .trailing: return "trailing"
+            case .center: return "center"
+            case .fill: return "fill"
+            }
+        }
+        
+        var placement: NSGridCell.Placement {
+            .init(rawValue: rawValue)!
+        }
     }
     
     /// Creates a grid column with the specified views.

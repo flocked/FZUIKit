@@ -21,6 +21,7 @@ extension NSGridView {
         self.rows = rows()
     }
     
+    /*
     /// The columns of the grid view.
     public var columns: [GridColumn] {
         get { nsColumns.compactMap({GridColumn($0)}) }
@@ -52,6 +53,29 @@ extension NSGridView {
             }
         }
     }
+    */
+    
+    /// The columns of the grid view.
+    public var columns: [GridColumn] {
+        get { nsColumns.compactMap({GridColumn($0)}) }
+        set {
+            let oldColumns = columns
+            for index in (0..<oldColumns.count).reversed() where !newValue.contains(where: { $0.gridColumn === oldColumns[index].gridColumn }) {
+                removeColumn(at: index)
+            }
+            
+            newValue.filter({$0.gridColumn == nil }).forEach({
+                addColumn(with: [])
+                $0.gridColumn = column(at: numberOfColumns-1)
+            })
+            
+            for (newIndex, column) in newValue.enumerated() {
+                if let oldIndex = columns.firstIndex(where: { $0.gridColumn === column.gridColumn }), oldIndex != newIndex {
+                    moveColumn(at: oldIndex, to: newIndex)
+                }
+            }
+        }
+    }
     
     /// Sets the columns of the grid view.
     @discardableResult
@@ -60,6 +84,7 @@ extension NSGridView {
         return self
     }
     
+    /*
     /// The rows of the grid view.
     public var rows: [GridRow] {
         get { nsRows.compactMap({GridRow($0)}) }
@@ -87,6 +112,29 @@ extension NSGridView {
                     gridRow.views = row._views
                     row._views = []
                     row.gridRow = gridRow
+                }
+            }
+        }
+    }
+     */
+    
+    /// The rows of the grid view.
+    public var rows: [GridRow] {
+        get { nsRows.compactMap({GridRow($0)}) }
+        set {
+            let oldRows = rows
+            for index in (0..<oldRows.count).reversed() where !newValue.contains(where: { $0.gridRow === oldRows[index].gridRow }) {
+                removeRow(at: index)
+            }
+            
+            newValue.filter({$0.gridRow == nil }).forEach({
+                addRow(with: [])
+                $0.gridRow = row(at: numberOfRows-1)
+            })
+            
+            for (newIndex, row) in newValue.indexed() {
+                if let oldIndex = rows.firstIndex(where: { $0.gridRow === row.gridRow }), oldIndex != newIndex {
+                    moveRow(at: oldIndex, to: newIndex)
                 }
             }
         }

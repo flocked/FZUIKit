@@ -139,20 +139,51 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible {
         return self
     }
     
-    /// The y-placement of the row.
-    public var yPlacement: NSGridCell.Placement {
-        get { gridRow?.yPlacement ?? _yPlacement }
+    /// The y-placement of the views.
+    public var yPlacement: Placement {
+        get { .init(rawValue: (gridRow?.yPlacement ?? _yPlacement).rawValue) ?? .inherited }
         set {
-            gridRow?.yPlacement = newValue
-            _yPlacement = newValue
+            gridRow?.yPlacement = newValue.placement
+            _yPlacement = newValue.placement
         }
     }
     
-    /// Sets the y-placement of the row.
+    /// Sets the y-placement of the views.
     @discardableResult
-    public func yPlacement(_ placement: NSGridCell.Placement) -> Self {
+    public func yPlacement(_ placement: Placement) -> Self {
         yPlacement = placement
         return self
+    }
+    
+    /// The y-placement of the views.
+    public enum Placement: Int, CustomStringConvertible {
+        /// Inherited.
+        case inherited
+        /// None.
+        case none
+        /// Top.
+        case top
+        /// Bottom.
+        case bottom
+        /// Center.
+        case center
+        /// Fill.
+        case fill
+        
+        public var description: String {
+            switch self {
+            case .inherited: return "inherited"
+            case .none: return "none"
+            case .top: return "top"
+            case .bottom: return "bottom"
+            case .center: return "center"
+            case .fill: return "fill"
+            }
+        }
+        
+        var placement: NSGridCell.Placement {
+            .init(rawValue: rawValue)!
+        }
     }
     
     /// Creates a grid row with the specified views.
@@ -180,7 +211,20 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible {
         _rowAlignment = gridRow.rowAlignment
     }
     
-    weak var gridRow: NSGridRow?
+    weak var gridRow: NSGridRow? {
+        didSet {
+            guard let gridView = gridRow else { return }
+            gridRow?.views = _views
+            gridRow?.isHidden = _isHidden
+            gridRow?.topPadding = _topPadding
+            gridRow?.bottomPadding = _bottomPadding
+            gridRow?.height = _height
+            gridRow?.yPlacement = _yPlacement
+            gridRow?.rowAlignment = _rowAlignment
+            _views = []
+
+        }
+    }
     var _views: [NSView?] = []
     var _isHidden: Bool = false
     var _topPadding: CGFloat = 0.0
