@@ -211,6 +211,20 @@ public class GridColumn {
         return self
     }
     
+    /// Unmerges the cells of the row at the specified range.
+    @discardableResult
+    public func unmergeCells(in range: ClosedRange<Int>) -> Self {
+        (gridColumn?.cells ?? [])[safe: range].forEach({ $0.unmerge() })
+        return self
+    }
+    
+    /// Unmerges the cells of the row at the specified range.
+    @discardableResult
+    public func unmergeCells(in range: Range<Int>) -> Self {
+        (gridColumn?.cells ?? [])[safe: range].forEach({ $0.unmerge() })
+        return self
+    }
+    
     /// A grid column with the specific spacing.
     public static func spacing(_ width: CGFloat) -> GridColumn {
         let spacer = NSView()

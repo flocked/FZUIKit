@@ -217,6 +217,20 @@ public class GridRow {
         return self
     }
     
+    /// Unmerges the cells of the row at the specified range.
+    @discardableResult
+    public func unmergeCells(in range: ClosedRange<Int>) -> Self {
+        (gridRow?.cells ?? [])[safe: range].forEach({ $0.unmerge() })
+        return self
+    }
+    
+    /// Unmerges the cells of the row at the specified range.
+    @discardableResult
+    public func unmergeCells(in range: Range<Int>) -> Self {
+        (gridRow?.cells ?? [])[safe: range].forEach({ $0.unmerge() })
+        return self
+    }
+    
     /// A grid row with a line.
     public static var line: GridRow { GridRow(NSBox.horizontalLine()).mergeCells() }
     
