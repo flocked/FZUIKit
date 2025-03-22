@@ -124,23 +124,26 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible, Equ
     }
     
     /// The row height.
-    public var height: CGFloat {
-        get { gridRow?.height ?? properties.height }
+    public var height: CGFloat? {
+        get {
+            let height = gridRow?.height ?? properties.height
+            return height == NSGridView.automaticSizing ? nil : height
+        }
         set {
-            gridRow?.height = newValue
-            properties.height = newValue
+            gridRow?.height = newValue ?? NSGridView.automaticSizing
+            properties.height = newValue ?? NSGridView.automaticSizing
         }
     }
     
     /// Sets the row height.
     @discardableResult
-    public func height(_ height: CGFloat) -> Self {
+    public func height(_ height: CGFloat?) -> Self {
         self.height = height
         return self
     }
     
     /// The alignment of the views of the y-coordinate.
-    public var yAlignment: Alignment {
+    public var alignment: Alignment {
         get {
             if let gridRow = gridRow {
                 return .init(gridRow.yPlacement, gridRow.rowAlignment)
@@ -157,8 +160,8 @@ public class GridRow: CustomStringConvertible, CustomDebugStringConvertible, Equ
     
     /// Sets the alignment of the views of the y-coordinate.
     @discardableResult
-    public func yAlignment(_ alignment: Alignment) -> Self {
-        yAlignment = alignment
+    public func alignment(_ alignment: Alignment) -> Self {
+        self.alignment = alignment
         return self
     }
     
@@ -253,7 +256,7 @@ extension GridRow {
         var views: [NSView?] = []
         var isHidden = false
         var yAlignment: NSGridCell.Placement = .inherited
-        var height: CGFloat = 1.1754943508222875e-38
+        var height: CGFloat = NSGridView.automaticSizing
         var topPadding: CGFloat = 0.0
         var bottomPadding: CGFloat = 0.0
         var rowAlignment: NSGridRow.Alignment = .inherited
@@ -262,14 +265,14 @@ extension GridRow {
     }
     
     public var description: String {
-        return "GridRow(views: \(views.count), yAlignment: \(yAlignment),  height: \(height))"
+        return "GridRow(views: \(views.count), alignment: \(alignment),  height: \(height == NSGridView.automaticSizing ? "automatic" : "\(height!)"))"
     }
     
     public var debugDescription: String {
         var strings = ["GridRow:"]
         strings += "views: [\(views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} }).joined(separator: ", "))]"
-        strings += "yAlignment: \(yAlignment)"
-        strings += "height: \(height == 1.1754943508222875e-38 ? "automatic" : "\(height)")"
+        strings += "alignment: \(alignment)"
+        strings += "height: \(height == NSGridView.automaticSizing ? "automatic" : "\(height!)")"
         strings += "bottomPadding: \(bottomPadding), topPadding: \(topPadding)"
         strings += "isHidden: \(isHidden)"
         return strings.joined(separator: "\n  - ")

@@ -125,23 +125,26 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible, 
     }
 
     /// The column width.
-    public var width: CGFloat {
-        get { gridColumn?.width ?? properties.width }
+    public var width: CGFloat? {
+        get {
+            let width = gridColumn?.width ?? properties.width
+            return width == NSGridView.automaticSizing ? nil : width
+        }
         set {
-            gridColumn?.width = newValue
-            properties.width = newValue
+            gridColumn?.width = newValue ?? NSGridView.automaticSizing
+            properties.width = newValue ?? NSGridView.automaticSizing
         }
     }
     
     /// Sets the column width.
     @discardableResult
-    public func width(_ width: CGFloat) -> Self {
+    public func width(_ width: CGFloat?) -> Self {
         self.width = width
         return self
     }
 
     /// The alignment of the views of the x-coordinate.
-    public var xAlignment: Alignment {
+    public var alignment: Alignment {
         get {.init(gridColumn?.xPlacement ?? properties.xAlignment) }
         set {
             gridColumn?.xPlacement = newValue.placement
@@ -151,8 +154,8 @@ public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible, 
     
     /// Sets the alignment of the views of the x-coordinate.
     @discardableResult
-    public func xAlignment(_ alignment: Alignment) -> Self {
-        xAlignment = alignment
+    public func alignment(_ alignment: Alignment) -> Self {
+        self.alignment = alignment
         return self
     }
     
@@ -232,7 +235,7 @@ extension GridColumn {
         var views: [NSView?] = []
         var isHidden = false
         var xAlignment: NSGridCell.Placement = .inherited
-        var width: CGFloat = 1.1754943508222875e-38
+        var width: CGFloat = NSGridView.automaticSizing
         var leadingPadding: CGFloat = 0.0
         var trailingPadding: CGFloat = 0.0
         var merge: Bool = false
@@ -240,14 +243,14 @@ extension GridColumn {
     }
     
     public var description: String {
-        "GridColumn(views: \(views.count), xAlignment: \(xAlignment),  width: \(width))"
+        "GridColumn(views: \(views.count), alignment: \(alignment),  width: \(width == NSGridView.automaticSizing ? "automatic" : "\(width!)"))"
     }
     
     public var debugDescription: String {
         var strings = ["GridColumn:"]
         strings += "views: [\(views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} }).joined(separator: ", "))]"
-        strings += "xAlignment: \(xAlignment)"
-        strings += "width: \(width == 1.1754943508222875e-38 ? "automatic" : "\(width)")"
+        strings += "alignment: \(alignment)"
+        strings += "width: \(width == NSGridView.automaticSizing ? "automatic" : "\(width!)")"
         strings += "leadingPadding: \(leadingPadding), trailingPadding: \(trailingPadding)"
         strings += "isHidden: \(isHidden)"
         return strings.joined(separator: "\n  - ")

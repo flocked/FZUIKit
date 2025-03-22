@@ -23,32 +23,6 @@ public class GridCell: CustomStringConvertible, CustomDebugStringConvertible {
         return self
     }
     
-    /// The alignment of the cell of the x-coordinate.
-    public var xAlignment: GridColumn.Alignment {
-        get { column?.xAlignment ?? .init(.inherited) }
-        set { column?.xAlignment = newValue }
-    }
-    
-    /// Sets the alignment of the cell of the x-coordinate.
-    @discardableResult
-    public func xAlignment(_ alignment: GridColumn.Alignment) -> Self {
-        xAlignment = alignment
-        return self
-    }
-    
-    /// The alignment of the cell of the y-coordinate.
-    public var yAlignment: GridRow.Alignment {
-        get { row?.yAlignment ?? .init(.inherited, .inherited) }
-        set { row?.yAlignment = newValue }
-    }
-    
-    /// Sets the alignment of the cell of the y-coordinate.
-    @discardableResult
-    public func yAlignment(_ alignment: GridRow.Alignment) -> Self {
-        yAlignment = alignment
-        return self
-    }
-    
     /// The custom placement layout constraits.
     public var customPlacementConstraints: [NSLayoutConstraint] {
         get { gridCell?.customPlacementConstraints ?? [] }
@@ -108,6 +82,8 @@ public class GridCell: CustomStringConvertible, CustomDebugStringConvertible {
     }
     
     public var debugDescription: String {
+        let xAlignment: GridColumn.Alignment = column?.alignment ?? .init(.inherited)
+        let yAlignment: GridRow.Alignment = row?.alignment ?? .init(.inherited, .inherited)
         if let columnIndex = column?.index, let rowIndex = row?.index {
             if let contentView = contentView {
                 return "GridCell(row: \(rowIndex), column: \(columnIndex), contentView: \(contentView), xAlignment: \(xAlignment), yPlacement: \(yAlignment))"

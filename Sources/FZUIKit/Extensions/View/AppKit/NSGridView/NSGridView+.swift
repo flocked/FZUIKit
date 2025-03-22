@@ -128,6 +128,8 @@ extension NSGridView {
     public func mergeCells(inHorizontalRange horizontalRange: Range<Int>, verticalRange: Range<Int>) {
         mergeCells(inHorizontalRange: horizontalRange.nsRange, verticalRange: verticalRange.nsRange)
     }
+    
+    static let automaticSizing: CGFloat = 1.1754943508222875e-38
 }
 
 extension NSGridView {
