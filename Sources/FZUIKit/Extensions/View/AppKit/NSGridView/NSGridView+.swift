@@ -148,6 +148,14 @@ extension NSGridView {
             expression
         }
         
+        public static func buildExpression(_ expression: String) -> NSView? {
+            NSTextField(wrappingLabelWithString: expression)
+        }
+        
+        public static func buildExpression(_ expression: [String]) -> [NSView?] {
+            expression.map({ NSTextField(wrappingLabelWithString: $0) })
+        }
+        
         public static func buildOptional(_ component: [NSView?]?) -> [NSView?] {
             component ?? []
         }
