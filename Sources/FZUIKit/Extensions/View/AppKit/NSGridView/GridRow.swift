@@ -217,10 +217,12 @@ public class GridRow {
                 gridRow.topPadding = properties.topPadding
                 gridRow.yPlacement = properties.alignment
                 gridRow.rowAlignment = properties.rowAlignment
+                gridRow.height = properties.height
                 properties.views = []
             } else if let gridRow = oldValue {
                 properties.views = gridRow.views
                 properties.isHidden = gridRow.isHidden
+                properties.height = gridRow.height
                 properties.bottomPadding = gridRow.bottomPadding
                 properties.topPadding = gridRow.topPadding
                 properties.alignment = gridRow.yPlacement
@@ -292,6 +294,22 @@ extension GridRow {
         var rowAlignment: NSGridRow.Alignment = .inherited
         var merge: Bool = false
         var mergeRange: ClosedRange<Int>? = nil
+    }
+    
+    func applyMerge() {
+        if let range = properties.mergeRange {
+            properties.mergeRange = nil
+            mergeCells(in: range)
+        } else if properties.merge {
+            properties.merge = false
+            mergeCells()
+        }
+    }
+    
+    func remove() {
+        guard let index = index, let gridView = gridView else { return }
+        gridRow = nil
+        gridView.removeRow(at: index)
     }
 
     /// A function builder type that produces an array of grid rows.

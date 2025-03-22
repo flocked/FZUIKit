@@ -208,6 +208,7 @@ public class GridColumn {
         didSet {
             if let gridColumn = gridColumn {
                 gridColumn.views = properties.views
+                gridColumn.width = properties.width
                 gridColumn.isHidden = properties.isHidden
                 gridColumn.leadingPadding = properties.leadingPadding
                 gridColumn.trailingPadding = properties.trailingPadding
@@ -215,6 +216,7 @@ public class GridColumn {
                 properties.views = []
             } else if let gridColumn = oldValue {
                 properties.views = gridColumn.views
+                properties.width = gridColumn.width
                 properties.isHidden = gridColumn.isHidden
                 properties.leadingPadding = gridColumn.leadingPadding
                 properties.trailingPadding = gridColumn.trailingPadding
@@ -266,6 +268,22 @@ extension GridColumn {
         var trailingPadding: CGFloat = 0.0
         var merge: Bool = false
         var mergeRange: ClosedRange<Int>? = nil
+    }
+    
+    func applyMerge() {
+        if let range = properties.mergeRange {
+            properties.mergeRange = nil
+            mergeCells(in: range)
+        } else if properties.merge {
+            properties.merge = false
+            mergeCells()
+        }
+    }
+    
+    func remove() {
+        guard let index = index, let gridView = gridView else { return }
+        gridColumn = nil
+        gridView.removeColumn(at: index)
     }
 
     /// A function builder type that produces an array of grid column.

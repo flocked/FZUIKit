@@ -29,16 +29,11 @@ extension NSGridView {
             translatesAutoresizingMaskIntoConstraints = false
             let existing = newValue.filter({$0.gridColumn != nil })
             let added = newValue.filter({$0.gridColumn == nil })
-            columns.filter({ column in !existing.contains(where: { $0.gridColumn === column.gridColumn }) }).reversed().forEach({
-                if let index = $0.index {
-                    $0.gridColumn = nil
-                    removeColumn(at: index)
-                }
-            })
-            added.forEach({
+            columns.filter({ column in !existing.contains(where: { $0.gridColumn === column.gridColumn }) }).reversed().forEach({ $0.remove() })
+            for column in added {
                 addColumn(with: [])
-                $0.gridColumn = column(at: numberOfColumns - 1)
-            })
+                column.gridColumn = self.column(at: numberOfColumns - 1)
+            }
             var columns = columns
             for (index, column) in newValue.indexed() {
                 if let oldIndex = columns.firstIndex(of: column), oldIndex != index {
@@ -46,16 +41,7 @@ extension NSGridView {
                     columns.swapAt(oldIndex, index)
                 }
             }
-            newValue.filter({$0.properties.merge}).forEach({
-                $0.mergeCells()
-                $0.properties.merge = false
-            })
-            newValue.filter({$0.properties.mergeRange != nil}).forEach({
-                if let range = $0.properties.mergeRange {
-                    $0.mergeCells(in: range)
-                    $0.properties.mergeRange = nil
-                }
-            })
+            newValue.forEach({ $0.applyMerge() })
         }
     }
     
@@ -73,16 +59,11 @@ extension NSGridView {
             translatesAutoresizingMaskIntoConstraints = false
             let existing = newValue.filter({$0.gridRow != nil })
             let added = newValue.filter({$0.gridRow == nil })
-            rows.filter({ row in !existing.contains(where: { $0.gridRow === row.gridRow }) }).reversed().forEach({
-                if let index = $0.index {
-                    $0.gridRow = nil
-                    removeRow(at: index)
-                }
-            })
-            added.filter({$0.gridRow == nil }).forEach({
+            rows.filter({ row in !existing.contains(where: { $0.gridRow === row.gridRow }) }).reversed().forEach({ $0.remove() })
+            for row in added {
                 addRow(with: [])
-                $0.gridRow = row(at: numberOfRows - 1)
-            })
+                row.gridRow = self.row(at: numberOfRows - 1)
+            }
             var rows = rows
             for (index, row) in newValue.indexed() {
                 if let oldIndex = rows.firstIndex(of: row), oldIndex != index {
@@ -90,16 +71,7 @@ extension NSGridView {
                     rows.swapAt(oldIndex, index)
                 }
             }
-            newValue.filter({$0.properties.merge}).forEach({
-                $0.mergeCells()
-                $0.properties.merge = false
-            })
-            newValue.filter({$0.properties.mergeRange != nil}).forEach({
-                if let range = $0.properties.mergeRange {
-                    $0.mergeCells(in: range)
-                    $0.properties.mergeRange = nil
-                }
-            })
+            newValue.forEach({ $0.applyMerge() })
         }
     }
     
