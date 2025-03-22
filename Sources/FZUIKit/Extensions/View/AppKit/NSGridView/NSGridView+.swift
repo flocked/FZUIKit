@@ -33,7 +33,7 @@ extension NSGridView {
             columns.filter({ column in !existing.contains(where: { $0.gridColumn === column.gridColumn }) }).reversed().forEach({ $0.remove() })
             for column in added {
                 addColumn(with: [])
-                column.gridColumn = self.column(at: numberOfColumns - 1)
+                column.gridColumn = self.column(at: self.numberOfColumns - 1)
             }
             var columns = columns
             for (index, column) in newValue.indexed() {
@@ -132,9 +132,120 @@ extension NSGridView {
     /// Merges the cells of the specified index range.
     func mergeCells(from fromIndex: (column: Int, row: Int), to toIndex: (column: Int, row: Int)) {
         mergeCells(inHorizontalRange: fromIndex.column..<toIndex.column, verticalRange: fromIndex.row..<toIndex.row)
+    }    
+}
+
+extension NSGridView {
+    /// The alignment of grid cells.
+    public struct Alignment: CustomStringConvertible {
+        /// The horizontal alignment of grid cells.
+        public enum Horizontal: Int, CustomStringConvertible {
+            /// None.
+            case none
+            /// Leading.
+            case leading
+            /// Trailing.
+            case trailing
+            /// Center.
+            case center
+            /// Fill.
+            case fill
+            
+            public var description: String {
+                switch self {
+                case .none: return "none"
+                case .leading: return "leading"
+                case .trailing: return "trailing"
+                case .center: return "center"
+                case .fill: return "fill"
+                }
+            }
+            
+            init(_ placement: NSGridCell.Placement) {
+                self = .init(rawValue: placement.rawValue) ?? .none
+            }
+            
+            var placement: NSGridCell.Placement {
+                .init(rawValue: rawValue) ?? .leading
+            }
+        }
+        
+        /// The vertical alignment of grid cells.
+        public enum Vertical: Int, CustomStringConvertible {
+            /// None.
+            case none
+            /// Top.
+            case top
+            /// Bottom.
+            case bottom
+            /// Center.
+            case center
+            /// Fill.
+            case fill
+            /// First baseline.
+            case firstBaseline
+            /// Last baseline.
+            case lastBaseline
+            
+            public var description: String {
+                switch self {
+                case .none: return "none"
+                case .top: return "top"
+                case .bottom: return "bottom"
+                case .center: return "center"
+                case .fill: return "fill"
+                case .firstBaseline: return "firstBaseline"
+                case .lastBaseline: return "lastBaseline"
+                }
+            }
+            
+            init(_ placement: NSGridCell.Placement, _ alignment: NSGridRow.Alignment) {
+                if alignment == .firstBaseline || alignment == .lastBaseline {
+                    self = alignment == .firstBaseline ? .firstBaseline : .lastBaseline
+                } else {
+                    self = .init(rawValue: placement.rawValue) ?? .none
+                }
+            }
+            
+            var placement: NSGridCell.Placement {
+                if self == .firstBaseline || self == .lastBaseline { return .none }
+                return .init(rawValue: rawValue) ?? .bottom
+            }
+            
+            var rowAlignment: NSGridRow.Alignment {
+                switch self {
+                case .firstBaseline: return .firstBaseline
+                case .lastBaseline: return .lastBaseline
+                default: return .none
+                }
+            }
+        }
+        
+        /// The horizontal alignment of the grid cells.
+        public var x: Horizontal = .none
+        
+        /// The vertical alignment of the grid cells.
+        public var y: Vertical = .none
+        
+        public var description: String {
+            "(x: \(x), y: \(y))"
+        }
+        
+        init(_ gridView: NSGridView) {
+            x = .init(gridView.xPlacement)
+            y = .init(gridView.yPlacement, gridView.rowAlignment)
+        }
     }
     
-    static let automaticSizing: CGFloat = 1.1754943508222875e-38
+    /// The alignment of the grid cells.
+    public var alignment: Alignment {
+        get { Alignment(self) }
+        set {
+            xPlacement = newValue.x.placement
+            yPlacement = newValue.y.placement
+            rowAlignment = newValue.y.rowAlignment
+        }
+    }
 }
 
 extension NSGridView {

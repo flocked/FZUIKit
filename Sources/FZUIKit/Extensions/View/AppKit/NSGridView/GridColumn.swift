@@ -98,11 +98,11 @@ public class GridColumn {
     public var width: CGFloat? {
         get {
             let width = gridColumn?.width ?? properties.width
-            return width == NSGridView.automaticSizing ? nil : width
+            return width == NSGridView.sizedForContent ? nil : width
         }
         set {
-            gridColumn?.width = newValue ?? NSGridView.automaticSizing
-            properties.width = newValue ?? NSGridView.automaticSizing
+            gridColumn?.width = newValue ?? NSGridView.sizedForContent
+            properties.width = newValue ?? NSGridView.sizedForContent
         }
     }
     
@@ -113,7 +113,7 @@ public class GridColumn {
         return self
     }
 
-    /// The alignment of the views on the x-coordinate.
+    /// The horizontal alignment of the column's cells.
     public var alignment: Alignment {
         get {.init(gridColumn?.xPlacement ?? properties.alignment) }
         set {
@@ -122,7 +122,7 @@ public class GridColumn {
         }
     }
     
-    /// Sets the alignment of the views on the x-coordinate.
+    /// Sets the horizontal alignment of the column's cells.
     @discardableResult
     public func alignment(_ alignment: Alignment) -> Self {
         self.alignment = alignment
@@ -283,10 +283,12 @@ public class GridColumn {
 }
 
 extension GridColumn {
-    /// The alignment of the views on the x-coordinate.
+    /// The horizontal alignment of column cells.
     public enum Alignment: Int, CustomStringConvertible {
+        /// Inherited from the grid view's column alignment.
+        case inherited = 0
         /// None.
-        case none = 1
+        case none
         /// Leading.
         case leading
         /// Trailing.
@@ -298,6 +300,7 @@ extension GridColumn {
         
         public var description: String {
             switch self {
+            case .inherited: return "inherited"
             case .none: return "none"
             case .leading: return "leading"
             case .trailing: return "trailing"
@@ -311,7 +314,7 @@ extension GridColumn {
         }
         
         init(_ placement: NSGridCell.Placement) {
-            self = .init(rawValue: placement.rawValue) ?? .leading
+            self = .init(rawValue: placement.rawValue) ?? .inherited
         }
     }
     
@@ -319,7 +322,7 @@ extension GridColumn {
         var views: [NSView?] = []
         var isHidden = false
         var alignment: NSGridCell.Placement = .inherited
-        var width: CGFloat = NSGridView.automaticSizing
+        var width: CGFloat = NSGridView.sizedForContent
         var leadingPadding: CGFloat = 0.0
         var trailingPadding: CGFloat = 0.0
         var merge: Bool = false
@@ -402,7 +405,7 @@ extension GridColumn {
 extension GridColumn: CustomStringConvertible, CustomDebugStringConvertible {
     public var description: String {
         let width = gridColumn?.width ?? properties.width
-        return "GridColumn(views: \(views.count), alignment: \(alignment),  width: \(width == NSGridView.automaticSizing ? "automatic" : "\(width)"))"
+        return "GridColumn(views: \(views.count), alignment: \(alignment),  width: \(width == NSGridView.sizedForContent ? "sizedForContent" : "\(width)"))"
     }
     
     public var debugDescription: String {
@@ -410,7 +413,7 @@ extension GridColumn: CustomStringConvertible, CustomDebugStringConvertible {
         var strings = ["GridColumn:"]
         strings += "views: [\(views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} }).joined(separator: ", "))]"
         strings += "alignment: \(alignment)"
-        strings += "width: \(width == NSGridView.automaticSizing ? "automatic" : "\(width)")"
+        strings += "width: \(width == NSGridView.sizedForContent ? "sizedForContent" : "\(width)")"
         strings += "leadingPadding: \(leadingPadding), trailingPadding: \(trailingPadding)"
         strings += "isHidden: \(isHidden)"
         return strings.joined(separator: "\n  - ")

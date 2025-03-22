@@ -102,11 +102,11 @@ public class GridRow {
     public var height: CGFloat? {
         get {
             let height = gridRow?.height ?? properties.height
-            return height == NSGridView.automaticSizing ? nil : height
+            return height == NSGridView.sizedForContent ? nil : height
         }
         set {
-            gridRow?.height = newValue ?? NSGridView.automaticSizing
-            properties.height = newValue ?? NSGridView.automaticSizing
+            gridRow?.height = newValue ?? NSGridView.sizedForContent
+            properties.height = newValue ?? NSGridView.sizedForContent
         }
     }
     
@@ -117,7 +117,7 @@ public class GridRow {
         return self
     }
     
-    /// The alignment of the views on the y-coordinate.
+    /// The vertical alignment of the row's cells.
     public var alignment: Alignment {
         get {
             if let gridRow = gridRow {
@@ -133,7 +133,7 @@ public class GridRow {
         }
     }
     
-    /// Sets the alignment of the views on the y-coordinate.
+    /// Sets the vertical alignment of the row's cells.
     @discardableResult
     public func alignment(_ alignment: Alignment) -> Self {
         self.alignment = alignment
@@ -301,10 +301,12 @@ public class GridRow {
 }
 
 extension GridRow {
-    /// The alignment of the views on the y-coordinate.
+    /// The vertical alignment of a row cells.
     public enum Alignment: Int, CustomStringConvertible {
+        /// Inherited from the grid view's row alignment.
+        case inherited = 0
         /// None.
-        case none = 1
+        case none
         /// Top.
         case top
         /// Bottom.
@@ -320,6 +322,7 @@ extension GridRow {
         
         public var description: String {
             switch self {
+            case .inherited: return "inherited"
             case .none: return "none"
             case .top: return "top"
             case .bottom: return "bottom"
@@ -332,13 +335,14 @@ extension GridRow {
         
         var placement: NSGridCell.Placement? {
             if self == .firstBaseline || self == .lastBaseline { return nil }
-            return NSGridCell.Placement(rawValue: rawValue)!
+            return NSGridCell.Placement(rawValue: rawValue) ?? .inherited
         }
         
         var rowAlignment: NSGridRow.Alignment? {
             switch self {
             case .firstBaseline: return .firstBaseline
             case .lastBaseline: return .lastBaseline
+            case .inherited: return .inherited
             default: return nil
             }
         }
@@ -347,7 +351,7 @@ extension GridRow {
             if alignment == .firstBaseline || alignment == .lastBaseline {
                 self = alignment == .firstBaseline ? .firstBaseline : .lastBaseline
             } else {
-                self = .init(rawValue: placement.rawValue) ?? .bottom
+                self = .init(rawValue: placement.rawValue) ?? .inherited
             }
         }
     }
@@ -356,7 +360,7 @@ extension GridRow {
         var views: [NSView?] = []
         var isHidden = false
         var alignment: NSGridCell.Placement = .inherited
-        var height: CGFloat = NSGridView.automaticSizing
+        var height: CGFloat = NSGridView.sizedForContent
         var topPadding: CGFloat = 0.0
         var bottomPadding: CGFloat = 0.0
         var rowAlignment: NSGridRow.Alignment = .inherited
@@ -441,7 +445,7 @@ extension GridRow {
 extension GridRow: CustomStringConvertible, CustomDebugStringConvertible {
     public var description: String {
         let height = gridRow?.height ?? properties.height
-        return "GridRow(views: \(views.count), alignment: \(alignment),  height: \(height == NSGridView.automaticSizing ? "automatic" : "\(height)"))"
+        return "GridRow(views: \(views.count), alignment: \(alignment),  height: \(height == NSGridView.sizedForContent ? "sizedForContent" : "\(height)"))"
     }
     
     public var debugDescription: String {
@@ -449,7 +453,7 @@ extension GridRow: CustomStringConvertible, CustomDebugStringConvertible {
         var strings = ["GridRow:"]
         strings += "views: [\(views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} }).joined(separator: ", "))]"
         strings += "alignment: \(alignment)"
-        strings += "height: \(height == NSGridView.automaticSizing ? "automatic" : "\(height)")"
+        strings += "height: \(height == NSGridView.sizedForContent ? "sizedForContent" : "\(height)")"
         strings += "bottomPadding: \(bottomPadding), topPadding: \(topPadding)"
         strings += "isHidden: \(isHidden)"
         return strings.joined(separator: "\n  - ")
