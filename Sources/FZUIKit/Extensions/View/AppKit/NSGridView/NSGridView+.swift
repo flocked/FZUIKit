@@ -59,6 +59,7 @@ extension NSGridView {
     public var columns: [GridColumn] {
         get { nsColumns.compactMap({GridColumn($0)}) }
         set {
+            translatesAutoresizingMaskIntoConstraints = false
             let oldColumns = columns
             for index in (0..<oldColumns.count).reversed() where !newValue.contains(where: { $0.gridColumn === oldColumns[index].gridColumn }) {
                 removeColumn(at: index)
@@ -122,6 +123,7 @@ extension NSGridView {
     public var rows: [GridRow] {
         get { nsRows.compactMap({GridRow($0)}) }
         set {
+            translatesAutoresizingMaskIntoConstraints = false
             let oldRows = rows
             for index in (0..<oldRows.count).reversed() where !newValue.contains(where: { $0.gridRow === oldRows[index].gridRow }) {
                 removeRow(at: index)
