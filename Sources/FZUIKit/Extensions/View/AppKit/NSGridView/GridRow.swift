@@ -10,7 +10,7 @@ import AppKit
 import FZSwiftUtils
 
 /// A row within a grid view.
-public class GridRow: CustomStringConvertible {
+public class GridRow: CustomStringConvertible, CustomDebugStringConvertible {
     
     /// The grid view of the row.
     public var gridView: NSGridView? {
@@ -190,7 +190,19 @@ public class GridRow: CustomStringConvertible {
     var _rowAlignment: NSGridRow.Alignment = .inherited
     
     public var description: String {
-        "GridRow(views: \(views), yPlacement: \(yPlacement),  height: \(height), topPadding: \(topPadding), bottomPadding: \(bottomPadding), isHidden \(isHidden))"
+        return "GridRow(views: \(views.count), yPlacement: \(yPlacement),  height: \(height))"
+    }
+    
+    public var debugDescription: String {
+        let views = views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} })
+        var strings = ["GridColumn:"]
+        strings += "  - views: [\(views.joined(separator: ", "))]"
+        strings += "  - yPlacement: \(yPlacement)"
+        strings += "  - height: \(height == 1.1754943508222875e-38 ? "automatic" : "\(height)")"
+        strings += "  - bottomPadding: \(bottomPadding)"
+        strings += "  - topPadding: \(topPadding)"
+        strings += "  - isHidden: \(isHidden)"
+        return strings.joined(separator: "\n")
     }
 }
 

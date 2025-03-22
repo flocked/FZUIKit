@@ -7,9 +7,10 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
 /// A column within a grid view.
-public class GridColumn: CustomStringConvertible {
+public class GridColumn: CustomStringConvertible, CustomDebugStringConvertible {
     
     /// The grid view of the column.
     public var gridView: NSGridView? {
@@ -171,7 +172,19 @@ public class GridColumn: CustomStringConvertible {
     var _xPlacement: NSGridCell.Placement = .inherited
     
     public var description: String {
-        "GridColumn(views: \(views), xPlacement: \(xPlacement),  width: \(width), leadingPadding: \(leadingPadding), trailingPadding: \(trailingPadding), isHidden \(isHidden))"
+        "GridColumn(views: \(views.count), xPlacement: \(xPlacement),  width: \(width))"
+    }
+    
+    public var debugDescription: String {
+        let views = views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} })
+        var strings = ["GridColumn:"]
+        strings += "  - views: [\(views.joined(separator: ", "))]"
+        strings += "  - xPlacement: \(xPlacement)"
+        strings += "  - width: \(width == 1.1754943508222875e-38 ? "automatic" : "\(width)")"
+        strings += "  - leadingPadding: \(leadingPadding)"
+        strings += "  - trailingPadding: \(trailingPadding)"
+        strings += "  - isHidden: \(isHidden)"
+        return strings.joined(separator: "\n")
     }
 }
 
