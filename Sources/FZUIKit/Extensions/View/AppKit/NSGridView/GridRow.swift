@@ -185,17 +185,17 @@ public class GridRow {
         return GridRow(spacer)
     }
     
-    /// Creates a grid row with the specified views.
+    /// Creates a grid row with columns displaying the specified views.
     public init(views: [NSView?] = []) {
         properties.views = views
     }
     
-    /// Creates a grid row with the specified views.
+    /// Creates a grid row with columns displaying the specified views.
     public init(@NSGridView.Builder views: () -> [NSView?]) {
         properties.views = views()
     }
     
-    /// Creates a grid row with the specified view.
+    /// Creates a grid row with a column displaying the specified view.
     public init(_ view: NSView) {
         properties.views = [view]
     }
