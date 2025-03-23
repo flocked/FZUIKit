@@ -40,14 +40,14 @@ public extension NSGridRow {
     
     /// The cells of the grid row.
     var cells: [NSGridCell] {
-        (0..<numberOfCells).map({ cell(at: $0) }).uniqueCells
+        allCells.uniqueCells
     }
     
-    var allCells: [NSGridCell] {
+    internal var allCells: [NSGridCell] {
         (0..<numberOfCells).map({ cell(at: $0) })
     }
     
-    var allCells_: [NSGridCell] {
+    internal var allCells_: [NSGridCell] {
         value(forKey: "_cells") as? [NSGridCell] ?? []
     }
     
@@ -60,6 +60,26 @@ public extension NSGridRow {
     internal var autoMerge: Bool {
         get { getAssociatedValue("autoMerge") ?? false }
         set { setAssociatedValue(newValue, key: "autoMerge") }
+    }
+    
+    /// The top boundary layout anchor.
+    var topBoundaryAnchor: NSLayoutXAxisAnchor? {
+        value(forKey: "_topBoundaryAnchor") as? NSLayoutXAxisAnchor
+    }
+    
+    /// The top content layout anchor.
+    var topContentAnchor: NSLayoutXAxisAnchor? {
+        value(forKey: "_topContentAnchor") as? NSLayoutXAxisAnchor
+    }
+    
+    /// The bottom boundary layout anchor.
+    var bottomBoundaryAnchor: NSLayoutXAxisAnchor? {
+        value(forKey: "_bottomBoundaryAnchor") as? NSLayoutXAxisAnchor
+    }
+    
+    /// The bottom content layout anchor.
+    var bottomContentAnchor: NSLayoutXAxisAnchor? {
+        value(forKey: "_bottomContentAnchor") as? NSLayoutXAxisAnchor
     }
 }
 

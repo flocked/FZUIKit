@@ -393,4 +393,23 @@ extension GridCell {
         }
     }
 }
+
+/*
+class GridMergedCell: GridCell {
+    var _count: Int = 0
+    
+    init(_ view: NSView?, count: Int) {
+        super.init(view)
+        _count = count
+    }
+    
+    override init(_ gridCell: NSGridCell) {
+        super.init(gridCell)
+    }
+    
+    func sdsds() {
+        
+    }
+}
+*/
 #endif
