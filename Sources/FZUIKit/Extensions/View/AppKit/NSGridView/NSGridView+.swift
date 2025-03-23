@@ -8,6 +8,7 @@
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
+import SwiftUI
 
 extension NSGridView {
     /// Creates a new grid view with the specified columns.
@@ -312,6 +313,10 @@ extension NSGridView {
         
         public static func buildExpression(_ expression: [String?]) -> [NSView?] {
             expression.map { $0.map(NSTextField.wrapping) }
+        }
+        
+        public static func buildExpression(_ expression: some View) -> [NSView?] {
+            [NSHostingView(rootView: expression)]
         }
     }
 }
