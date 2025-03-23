@@ -242,6 +242,28 @@ extension NSGridView {
             rowAlignment = newValue.y.rowAlignment
         }
     }
+    
+    /// Sets the alignment of the grid cells.
+    @discardableResult
+    public func alignment(x: Alignment.Horizontal, y: Alignment.Vertical) -> Self {
+        alignment.x = x
+        alignment.y = y
+        return self
+    }
+    
+    /// Sets the horizontal alignment of the grid cells.
+    @discardableResult
+    public func alignment(x: Alignment.Horizontal) -> Self {
+        alignment.x = x
+        return self
+    }
+    
+    /// Sets the vertical alignment of the grid cells.
+    @discardableResult
+    public func alignment(y: Alignment.Vertical) -> Self {
+        alignment.y = y
+        return self
+    }
 }
 
 extension NSGridView {
