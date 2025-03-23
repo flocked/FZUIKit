@@ -15,7 +15,7 @@ public struct PathShape {
     let handler: (CGRect)->(CGPath)
     
     /// Creates a shape with the specified handler that provides the path of the shape.
-    public init(handler: @escaping (CGRect) -> CGPath) {
+    public init(handler: @escaping (_ rect: CGRect) -> CGPath) {
         self.handler = handler
     }
     
@@ -205,10 +205,18 @@ extension PathShape {
     /// A rectangular shape with rounded corners.
     public static func rect(cornerRadius: CGFloat, style: RoundedCornerStyle = .continuous) -> PathShape { PathShape(.rect(cornerRadius: cornerRadius, style: style)) }
 
-    @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
     /// A rectangular shape with rounded corners with different values.
     public static func rect(topLeadingRadius: CGFloat = 0, bottomLeadingRadius: CGFloat = 0, bottomTrailingRadius: CGFloat = 0, topTrailingRadius: CGFloat = 0, style: RoundedCornerStyle = .continuous) -> PathShape {
-        PathShape(.rect(topLeadingRadius: topLeadingRadius, bottomLeadingRadius: bottomLeadingRadius, bottomTrailingRadius: bottomTrailingRadius, topTrailingRadius: topTrailingRadius, style: style))
+        if topLeadingRadius == bottomLeadingRadius && topLeadingRadius == bottomTrailingRadius && topLeadingRadius == topTrailingRadius {
+            return  .rect(cornerRadius: topLeadingRadius, style: style)
+        }
+        if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
+            return PathShape(.rect(topLeadingRadius: topLeadingRadius, bottomLeadingRadius: bottomLeadingRadius, bottomTrailingRadius: bottomTrailingRadius, topTrailingRadius: topTrailingRadius, style: style))
+        } else {
+            return PathShape { rect in
+                CGPath(roundedRect: rect, topLeftRadius: topLeadingRadius, bottomLeftRadius: bottomLeadingRadius, bottomRightRadius: bottomTrailingRadius, topRightRadius: topTrailingRadius, style: style == .circular ? .circular : .continuous)
+            }
+        }
     }
     
     /**

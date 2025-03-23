@@ -169,6 +169,16 @@ extension NSUIBezierPath {
         path.close()
         return path
     }
+    
+    /// Creates and returns a new Bézier path object initialized with a rounded rectangular path.
+    public convenience init(roundedRect rect: CGRect, cornerRadius: CGFloat, style: CornerCurveStyle = .continuous) {
+        self.init(cgPath: CGPath(roundedRect: rect, cornerRadius: cornerRadius, style: style))
+    }
+    
+    /// Creates and returns a new Bézier path object initialized with a rounded rectangular path  with different values.
+    public convenience init(roundedRect rect: CGRect, topLeftRadius: CGFloat = 0, bottomLeftRadius: CGFloat = 0, bottomRightRadius: CGFloat = 0, topRightRadius: CGFloat = 0, style: CornerCurveStyle = .continuous) {
+        self.init(cgPath: CGPath(roundedRect: rect, topLeftRadius: topLeftRadius, bottomLeftRadius: bottomLeftRadius, bottomRightRadius: bottomRightRadius, topRightRadius: topRightRadius, style: style))
+    }
 }
 
 #endif

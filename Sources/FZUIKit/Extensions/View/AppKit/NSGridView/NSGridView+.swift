@@ -126,7 +126,13 @@ extension NSGridView {
     /// Merges the cells of the specified index range.
     func mergeCells(from fromIndex: (column: Int, row: Int), to toIndex: (column: Int, row: Int)) {
         mergeCells(inHorizontalRange: fromIndex.column..<toIndex.column, verticalRange: fromIndex.row..<toIndex.row)
-    }    
+    }
+    
+    /// Returns the grid cell that contains the given view or one of its ancestors.
+    public func gridCell(for view: NSView) -> GridCell? {
+        guard let cell = cell(for: view) else { return nil }
+        return GridCell(cell)
+    }
 }
 
 extension NSGridView {
