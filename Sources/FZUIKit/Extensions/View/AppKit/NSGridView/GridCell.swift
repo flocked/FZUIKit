@@ -8,6 +8,8 @@
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
+import SwiftUI
+import AppKit
 
 /// A cell within a `NSGridView`.
 public class GridCell {
@@ -32,10 +34,11 @@ public class GridCell {
     
     /// The alignment of the cell.
     public var alignment: Alignment {
-        get { Alignment(for: self) }
+        get { Alignment(self) }
         set {
-            gridCell?.xPlacement = .init(rawValue: newValue.x.rawValue) ?? .inherited
-            gridCell?.yPlacement = .init(rawValue: newValue.y.rawValue) ?? .inherited
+            gridCell?.xPlacement = newValue.x.placement
+            gridCell?.yPlacement = newValue.y.placement
+            gridCell?.rowAlignment = newValue.y.rowAlignment
             gridCell?.customPlacementConstraints = newValue.customConstraints
             properties.alignment = newValue
         }
@@ -120,6 +123,11 @@ public class GridCell {
         return cells[safe: index+1]
     }
     
+    /// A Boolean value indicating whether the cell is merged with one or several other cells.
+    var isMerged: Bool {
+        gridCell?.isMerged ?? false
+    }
+    
     /// Unmerges the cell and all related cells.
     public func unmerge() {
         gridCell?.unmerge()
@@ -127,6 +135,14 @@ public class GridCell {
     
     init(_ view: NSView?) {
         properties.view = view
+    }
+    
+    init(_ view: some View) {
+        properties.view = NSHostingView(rootView: view)
+    }
+    
+    init(_ string: String, font: NSFont = .body) {
+        properties.view = NSTextField.wrapping(string)
     }
     
     static var empty: GridCell {
@@ -137,7 +153,19 @@ public class GridCell {
         self.gridCell = gridCell
     }
     
-    weak var gridCell: NSGridCell?
+    weak var gridCell: NSGridCell? {
+        didSet {
+            if gridCell != nil {
+                view = properties.view
+                alignment = properties.alignment
+                properties.view = nil
+            } else if let oldValue = oldValue {
+                properties.view = oldValue.contentView
+                properties.alignment = .init(oldValue)
+            }
+        }
+    }
+    
     var properties = Properties()
     
     struct Properties {
@@ -174,6 +202,14 @@ extension GridCell {
                 case .inherited: return "inherited"
                 }
             }
+            
+            init(_ placement: NSGridCell.Placement) {
+                self = .init(rawValue: placement.rawValue) ?? .none
+            }
+            
+            var placement: NSGridCell.Placement {
+                .init(rawValue: rawValue) ?? .inherited
+            }
         }
         
         /// The vertical alignment of a cell.
@@ -190,6 +226,10 @@ extension GridCell {
             case center
             /// Fill.
             case fill
+            /// First baseline.
+            case firstBaseline
+            /// Last baseline.
+            case lastBaseline
             
             public var description: String {
                 switch self {
@@ -199,7 +239,30 @@ extension GridCell {
                 case .center: return "center"
                 case .fill: return "fill"
                 case .inherited: return "inherited"
+                case .firstBaseline: return "firstBaseline"
+                case .lastBaseline: return "lastBaseline"
                 }
+            }
+            
+            init(_ placement: NSGridCell.Placement, _ alignment: NSGridRow.Alignment) {
+                if alignment == .firstBaseline || alignment == .lastBaseline {
+                    self = alignment == .firstBaseline ? .firstBaseline : .lastBaseline
+                } else {
+                    self = .init(rawValue: placement.rawValue) ?? .none
+                }
+            }
+            
+            var rowAlignment: NSGridRow.Alignment {
+                switch self {
+                case .firstBaseline: return .firstBaseline
+                case .lastBaseline: return .lastBaseline
+                default: return .inherited
+                }
+            }
+            
+            var placement: NSGridCell.Placement {
+                if self == .firstBaseline || self == .lastBaseline { return .inherited }
+                return .init(rawValue: rawValue) ?? .inherited
             }
         }
         
@@ -222,14 +285,17 @@ extension GridCell {
         
         init() { }
         
-        init(for gridCell: GridCell) {
+        init(_ gridCell: GridCell) {
             if let gridCell = gridCell.gridCell {
-                x = .init(rawValue: (gridCell.xPlacement).rawValue) ?? .inherited
-                y = .init(rawValue: (gridCell.yPlacement).rawValue) ?? .inherited
-                customConstraints = gridCell.customPlacementConstraints
+                self = .init(gridCell)
             } else {
                 self = gridCell.properties.alignment
             }
+        }
+        init(_ gridCell: NSGridCell) {
+            x = .init(gridCell.xPlacement)
+            y = .init(gridCell.yPlacement, gridCell.rowAlignment)
+            customConstraints = gridCell.customPlacementConstraints
         }
     }
 }
@@ -253,7 +319,7 @@ extension GridCell: CustomStringConvertible, CustomDebugStringConvertible {
     }
     
     func description(debug: Bool) -> String {
-        let alignment = debug ? ", alignment: \(alignment)" : ""
+        let alignment = debug ? ", alignment: \(alignmentString)" : ""
         let indexes = (row: row?.index, column: column?.index)
         let row = indexes.row != nil ? "row: \(indexes.row!), " : debug ? "row: -, " : ""
         let column = indexes.column != nil ? "column: \(indexes.column!), " : debug ? "column: -, " : ""
@@ -261,6 +327,10 @@ extension GridCell: CustomStringConvertible, CustomDebugStringConvertible {
             return "GridCell(\(row)\(column)view: \(view)\(alignment))"
         }
         return "GridCell(\(row)\(column)\(alignment))"
+    }
+    
+    var alignmentString: String {
+        "(x: \(column?.cellAlignmentString ?? alignment.x.description), y: \(row?.cellAlignmentString ?? alignment.y.description))"
     }
 }
 
@@ -302,13 +372,16 @@ extension GridCell {
             component
         }
         
-        /*
         public static func buildExpression(_ expression: NSView?) -> [GridCell] {
             [GridCell(expression)]
         }
         
         public static func buildExpression(_ expression: [NSView?]) -> [GridCell] {
             expression.map { GridCell($0) }
+        }
+        
+        public static func buildExpression(_ expression: some View) -> [GridCell] {
+            [GridCell(NSHostingView(rootView: expression))]
         }
         
         public static func buildExpression(_ expression: String) -> [GridCell] {
@@ -318,7 +391,6 @@ extension GridCell {
         public static func buildExpression(_ expression: [String?]) -> [GridCell] {
             expression.map { GridCell($0.map(NSTextField.wrapping)) }
         }
-         */
     }
 }
 #endif

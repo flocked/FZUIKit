@@ -20,20 +20,27 @@ public extension NSGridRow {
         get { cells.map({ $0.contentView }) }
         set {
             guard let gridView = gridView else { return }
-            if newValue.count > gridView.numberOfColumns {
-                (0..<(newValue.count - gridView.numberOfColumns)).forEach({ _ in
+            var newValue = newValue
+            let cellsCount = cells.count
+            if newValue.count > cellsCount {
+                (0..<(newValue.count - cellsCount)).forEach({ _ in
                     gridView.addColumn(with: [])
                 })
+            } else if newValue.count < cellsCount {
+                newValue += Array(repeating: nil, count: cellsCount - newValue.count)
             }
             zip(cells, newValue).forEach({
-                $0.0.contentView = $0.1
+                if $0.0.contentView !== $0.1 {
+                    $0.0.contentView?.removeFromSuperview()
+                    $0.0.contentView = $0.1
+                }
             })
         }
     }
     
     /// The cells of the grid row.
     var cells: [NSGridCell] {
-        (0..<numberOfCells).map({ cell(at: $0) })
+        (0..<numberOfCells).map({ cell(at: $0) }).uniqueCells
     }
     
     internal var autoMerge: Bool {

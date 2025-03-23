@@ -20,20 +20,46 @@ public extension NSGridColumn {
         get { cells.map({ $0.contentView }) }
         set {
             guard let gridView = gridView else { return }
-            if newValue.count > gridView.numberOfRows {
-                (0..<(newValue.count - gridView.numberOfRows)).forEach({ _ in
+            var newValue = newValue
+            let cellsCount = cells.count
+            if newValue.count > cellsCount {
+                (0..<(newValue.count - cellsCount)).forEach({ _ in
                     gridView.addRow(with: [])
                 })
+            } else if newValue.count < cellsCount {
+                newValue += Array(repeating: nil, count: cellsCount - newValue.count)
             }
             zip(cells, newValue).forEach({
-                $0.0.contentView = $0.1
+                if $0.0.contentView !== $0.1 {
+                    $0.0.contentView?.removeFromSuperview()
+                    $0.0.contentView = $0.1
+                }
             })
         }
     }
     
     /// The cells of the grid column.
     var cells: [NSGridCell] {
-        (0..<numberOfCells).map({ cell(at: $0) })
+        (0..<numberOfCells).map({ cell(at: $0) }).uniqueCells
+    }
+    
+    internal var _cells: [GridCell] {
+        get { (0..<numberOfCells).map({ GridCell(cell(at: $0)) }) }
+        set {
+            guard let gridView = gridView else { return }
+            if newValue.count > gridView.numberOfRows {
+                (0..<(newValue.count - gridView.numberOfRows)).forEach({ _ in
+                    gridView.addRow(with: [])
+                })
+            }
+            zip(cells, newValue).forEach({
+                $0.0.contentView = $0.1.view
+                $0.0.xPlacement = $0.1.alignment.x.placement
+                $0.0.yPlacement = $0.1.alignment.y.placement
+                $0.0.rowAlignment = $0.1.alignment.y.rowAlignment
+                $0.0.customPlacementConstraints = $0.1.alignment.customConstraints
+            })
+        }
     }
 }
 #endif

@@ -452,11 +452,27 @@ extension GridRow: CustomStringConvertible, CustomDebugStringConvertible {
         let height = gridRow?.height ?? properties.height
         var strings = ["GridRow:"]
         strings += "views: [\(views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} }).joined(separator: ", "))]"
-        strings += "alignment: \(alignment)"
+        strings += "alignment: \(alignmentString)"
         strings += "height: \(height == NSGridView.sizedForContent ? "sizedForContent" : "\(height)")"
         strings += "bottomPadding: \(bottomPadding), topPadding: \(topPadding)"
         strings += "isHidden: \(isHidden)"
         return strings.joined(separator: "\n  - ")
+    }
+    
+    var alignmentString: String {
+        if alignment == .inherited, let description = gridView?.alignment.y.description {
+            return "inherited(\(description))"
+        }
+        return alignment.description
+    }
+    
+    var cellAlignmentString: String? {
+        if alignment == .inherited, let description = gridView?.alignment.y.description {
+            return "inherited(\(description))"
+        } else if alignment != .inherited {
+            return "inherited(\(alignment.description))"
+        }
+        return nil
     }
 }
 

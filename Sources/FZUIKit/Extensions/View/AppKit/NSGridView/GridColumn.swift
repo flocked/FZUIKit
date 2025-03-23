@@ -412,11 +412,27 @@ extension GridColumn: CustomStringConvertible, CustomDebugStringConvertible {
         let width = gridColumn?.width ?? properties.width
         var strings = ["GridColumn:"]
         strings += "views: [\(views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} }).joined(separator: ", "))]"
-        strings += "alignment: \(alignment)"
+        strings += "alignment: \(alignmentString)"
         strings += "width: \(width == NSGridView.sizedForContent ? "sizedForContent" : "\(width)")"
         strings += "leadingPadding: \(leadingPadding), trailingPadding: \(trailingPadding)"
         strings += "isHidden: \(isHidden)"
         return strings.joined(separator: "\n  - ")
+    }
+    
+    var alignmentString: String {
+        if alignment == .inherited, let description = gridView?.alignment.x.description {
+            return "inherited(\(description))"
+        }
+        return alignment.description
+    }
+    
+    var cellAlignmentString: String? {
+        if alignment == .inherited, let description = gridView?.alignment.x.description {
+            return "inherited(\(description))"
+        } else if alignment != .inherited {
+            return "inherited(\(alignment.description))"
+        }
+        return nil
     }
 }
 
