@@ -137,7 +137,7 @@ extension NSGridView {
         /// The horizontal alignment of grid cells.
         public enum Horizontal: Int, CustomStringConvertible {
             /// None.
-            case none
+            case none = 1
             /// Leading.
             case leading
             /// Trailing.
@@ -169,7 +169,7 @@ extension NSGridView {
         /// The vertical alignment of grid cells.
         public enum Vertical: Int, CustomStringConvertible {
             /// None.
-            case none
+            case none = 1
             /// Top.
             case top
             /// Bottom.
