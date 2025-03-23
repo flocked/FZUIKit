@@ -267,7 +267,7 @@ extension GridCell: CustomStringConvertible, CustomDebugStringConvertible {
 extension GridCell {
     /// A function builder type that produces an array of grid column.
     @resultBuilder
-    public enum Builder {
+    enum Builder {
         public static func buildBlock(_ components: [GridCell]...) -> [GridCell] {
             components.flatMap { $0 }
         }
