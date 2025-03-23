@@ -246,13 +246,6 @@ public class GridColumn {
         return self
     }
     
-    /// A grid column with the specific spacing.
-    public static func spacing(_ width: CGFloat) -> GridColumn {
-        let spacer = NSView()
-        spacer.widthAnchor.constraint(equalToConstant: width).activate()
-        return GridColumn(spacer)
-    }
-    
     /// Creates a grid column with cells displaying the specified views.
     public init(views: [NSView?] = []) {
         properties.views = views

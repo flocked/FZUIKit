@@ -263,13 +263,6 @@ public class GridRow {
         return row
     }
     
-    /// A grid row with the specific spacing.
-    public static func spacing(_ height: CGFloat) -> GridRow {
-        let spacer = NSView()
-        spacer.heightAnchor.constraint(equalToConstant: height).activate()
-        return GridRow(spacer)
-    }
-    
     /// Creates a grid row with cells displaying the specified views.
     public init(views: [NSView?] = []) {
         properties.views = views
