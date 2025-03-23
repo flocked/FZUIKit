@@ -137,7 +137,7 @@ public class GridColumn {
         if gridColumn != nil {
             mergeCells(in: 0..<numberOfCells)
         } else {
-            properties.merge = true
+            properties.mergeStart = 0
         }
         return self
     }
@@ -346,24 +346,20 @@ extension GridColumn {
         var width: CGFloat = NSGridView.sizedForContent
         var leadingPadding: CGFloat = 0.0
         var trailingPadding: CGFloat = 0.0
-        var merge: Bool = false
         var mergeStart: Int? = nil
         var mergeEnd: Int? = nil
     }
     
     func applyMerge() {
-        if properties.mergeStart != nil || properties.mergeEnd != nil {
-            mergeCells(in: (properties.mergeStart ?? 0)..<(properties.mergeEnd ?? numberOfCells))
-            properties.mergeStart = nil
-            properties.mergeEnd = nil
-        } else if properties.merge {
-            properties.merge = false
-            mergeCells()
-        }
+        guard properties.mergeStart != nil || properties.mergeEnd != nil else { return }
+        mergeCells(in: (properties.mergeStart ?? 0)..<(properties.mergeEnd ?? numberOfCells))
+        properties.mergeStart = nil
+        properties.mergeEnd = nil
     }
     
     func remove() {
         guard let index = index, let gridView = gridView else { return }
+        cells.forEach({ $0.unmerge() })
         gridColumn = nil
         gridView.removeColumn(at: index)
     }

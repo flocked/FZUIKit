@@ -148,7 +148,7 @@ public class GridRow {
         if gridRow != nil {
             mergeCells(in: 0..<numberOfCells)
         } else {
-            properties.merge = true
+            properties.mergeStart = 0
         }
         return self
     }
@@ -385,7 +385,6 @@ extension GridRow {
         var topPadding: CGFloat = 0.0
         var bottomPadding: CGFloat = 0.0
         var rowAlignment: NSGridRow.Alignment = .inherited
-        var merge: Bool = false
         var mergeStart: Int? = nil
         var mergeEnd: Int? = nil
         var autoMerge: Bool = false
@@ -396,14 +395,14 @@ extension GridRow {
             mergeCells(in: (properties.mergeStart ?? 0)..<(properties.mergeEnd ?? numberOfCells))
             properties.mergeStart = nil
             properties.mergeEnd = nil
-        } else if properties.merge || properties.autoMerge {
-            properties.merge = false
+        } else if properties.autoMerge {
             mergeCells()
         }
     }
     
     func remove() {
         guard let index = index, let gridView = gridView else { return }
+        cells.forEach({ $0.unmerge() })
         gridRow = nil
         gridView.removeRow(at: index)
     }
