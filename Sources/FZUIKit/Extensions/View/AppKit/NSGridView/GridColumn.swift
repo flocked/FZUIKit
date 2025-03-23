@@ -19,7 +19,9 @@ public class GridColumn {
     
     /// The cells of the column.
     public var cells: [GridCell] { (gridColumn?.cells ?? []).compactMap({ GridCell($0) }) }
-    
+   
+    var allCells: [GridCell] { (gridColumn?.allCells ?? []).compactMap({ GridCell($0) }) }
+
     /// The content views of the grid column cells.
     public var views: [NSView?] {
         get { gridColumn?.views ?? properties.views }
@@ -146,11 +148,12 @@ public class GridColumn {
         guard numberOfCells > 0 else { return self }
         if gridColumn != nil {
             guard numberOfCells > 0 else { return self }
-            cells[safe: range].dropFirst().forEach({
-                $0.view?.removeFromSuperview()
-                $0.view = nil
-            })
+            let allCells = allCells.uniqued().compactMap({ (cell: $0, view: $0.view) })
             gridColumn?.mergeCells(in: range.clamped(max: numberOfCells).nsRange)
+            let newAllCells = self.allCells.uniqued()
+            var views = allCells.filter({ !newAllCells.contains($0.cell) }).compactMap({ $0.view })
+            views = views.filter({ view in !newAllCells.contains(where: {$0.view === view }) })
+            views.forEach({ $0.removeFromSuperview() })
         } else {
             properties.mergeStart = range.lowerBound
             properties.mergeEnd = range.upperBound
@@ -164,36 +167,36 @@ public class GridColumn {
         mergeCells(in: range.toRange)
     }
     
+    /// Merges the cells of the column starting from the specified range's lowerBound value.
+    @discardableResult
+    public func mergeCells(in range: PartialRangeFrom<Int>) -> Self {
+        if gridColumn != nil {
+            mergeCells(in: range.lowerBound..<numberOfCells)
+        } else {
+            properties.mergeStart = range.lowerBound
+            properties.mergeEnd = nil
+        }
+        return self
+    }
+    
+    /// Merges the cells of the column upto the specified range's upperBound value.
+    @discardableResult
+    public func mergeCells(in range: PartialRangeUpTo<Int>) -> Self {
+        if gridColumn != nil {
+            mergeCells(in: 0..<range.upperBound)
+        } else {
+            properties.mergeStart = nil
+            properties.mergeEnd = range.upperBound
+        }
+        return self
+    }
+    
     /// Merges the cells from the first view to the second view.
     @discardableResult
     public func mergeCells(from firstView: NSView, to secondView: NSView) -> Self {
         let views = views
         if let startIndex = views.firstIndex(of: firstView), let endIndex = views.firstIndex(of: secondView), startIndex <= endIndex {
             mergeCells(in: startIndex..<endIndex)
-        }
-        return self
-    }
-    
-    /// Merges the cells of the column starting from the specified index.
-    @discardableResult
-    public func mergeCells(from index: Int) -> Self {
-        if gridColumn != nil {
-            mergeCells(in: index..<numberOfCells)
-        } else {
-            properties.mergeStart = index
-            properties.mergeEnd = nil
-        }
-        return self
-    }
-    
-    /// Merges the cells of the column upto the specified index.
-    @discardableResult
-    public func mergeCells(upto index: Int) -> Self {
-        if gridColumn != nil {
-            mergeCells(in: 0..<index)
-        } else {
-            properties.mergeStart = nil
-            properties.mergeEnd = index
         }
         return self
     }
@@ -215,16 +218,30 @@ public class GridColumn {
         return self
     }
     
-    /// Unmerges the cells of the row at the specified range.
+    /// Unmerges the cells of the column at the specified range.
     @discardableResult
     public func unmergeCells(in range: ClosedRange<Int>) -> Self {
         (gridColumn?.cells ?? [])[safe: range].forEach({ $0.unmerge() })
         return self
     }
     
-    /// Unmerges the cells of the row at the specified range.
+    /// Unmerges the cells of the column at the specified range.
     @discardableResult
     public func unmergeCells(in range: Range<Int>) -> Self {
+        (gridColumn?.cells ?? [])[safe: range].forEach({ $0.unmerge() })
+        return self
+    }
+    
+    /// Unmerges the cells of the column starting from the specified range's lowerBound value.
+    @discardableResult
+    public func unmergeCells(in range: PartialRangeFrom<Int>) -> Self {
+        (gridColumn?.cells ?? [])[safe: range].forEach({ $0.unmerge() })
+        return self
+    }
+    
+    /// Unmerges the cells of the column upto the specified range's upperBound value.
+    @discardableResult
+    public func unmergeCells(in range: PartialRangeUpTo<Int>) -> Self {
         (gridColumn?.cells ?? [])[safe: range].forEach({ $0.unmerge() })
         return self
     }
