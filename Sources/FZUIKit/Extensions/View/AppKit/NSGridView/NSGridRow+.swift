@@ -43,6 +43,20 @@ public extension NSGridRow {
         (0..<numberOfCells).map({ cell(at: $0) }).uniqueCells
     }
     
+    var allCells: [NSGridCell] {
+        (0..<numberOfCells).map({ cell(at: $0) })
+    }
+    
+    var allCells_: [NSGridCell] {
+        value(forKey: "_cells") as? [NSGridCell] ?? []
+    }
+    
+    /*
+    var _cells: [NSGridCell] {
+        value(forKey: "_cells") as? [NSGridCell] ?? []
+    }
+     */
+    
     internal var autoMerge: Bool {
         get { getAssociatedValue("autoMerge") ?? false }
         set { setAssociatedValue(newValue, key: "autoMerge") }

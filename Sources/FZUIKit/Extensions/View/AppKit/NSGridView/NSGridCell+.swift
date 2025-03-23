@@ -12,13 +12,13 @@ import FZSwiftUtils
 public extension NSGridCell {
     /// The column indexes of the cell.
     var columnIndexes: [Int] {
-        guard let cells = column?.cells, let startIndex = cells.firstIndex(of: self), let endIndex = cells.lastIndex(of: self) else { return [] }
+        guard let cells = column?.allCells, let startIndex = cells.firstIndex(of: self), let endIndex = cells.lastIndex(of: self) else { return [] }
         return (startIndex...endIndex).map({$0})
     }
     
     /// The row indexes of the cell.
     var rowIndexes: [Int] {
-        guard let cells = row?.cells, let startIndex = cells.firstIndex(of: self), let endIndex = cells.lastIndex(of: self) else { return [] }
+        guard let cells = row?.allCells, let startIndex = cells.firstIndex(of: self), let endIndex = cells.lastIndex(of: self) else { return [] }
         return (startIndex...endIndex).map({$0})
     }
     
@@ -64,14 +64,15 @@ public extension NSGridCell {
         guard let headCell = headOfMergedCell else { return }
         columnCells.unmerge(headCell)
         rowCells.unmerge(headCell)
+        (row?.allCells_ ?? []).unmerge(headCell)
     }
     
     internal var rowCells: [NSGridCell] {
-        row?.cells ?? []
+        row?.allCells ?? []
     }
     
     internal var columnCells: [NSGridCell] {
-        column?.cells ?? []
+        column?.allCells ?? []
     }
     
     internal var headOfMergedCell: NSGridCell? {

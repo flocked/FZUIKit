@@ -47,7 +47,7 @@ extension NSGridView {
     
     /// Sets the columns of the grid view.
     @discardableResult
-    public func columns(@GridColumn.Builder columns: () -> [GridColumn]) -> Self {
+    public func columns(@GridColumn.Builder _ columns: () -> [GridColumn]) -> Self {
         self.columns = columns()
         return self
     }
@@ -76,7 +76,7 @@ extension NSGridView {
     
     /// Sets the rows of the grid view.
     @discardableResult
-    public func rows(@GridRow.Builder rows: () -> [GridRow]) -> Self {
+    public func rows(@GridRow.Builder _ rows: () -> [GridRow]) -> Self {
         self.rows  = rows()
         return self
     }

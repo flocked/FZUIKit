@@ -146,6 +146,10 @@ public class GridColumn {
         guard numberOfCells > 0 else { return self }
         if gridColumn != nil {
             guard numberOfCells > 0 else { return self }
+            cells[safe: range].dropFirst().forEach({
+                $0.view?.removeFromSuperview()
+                $0.view = nil
+            })
             gridColumn?.mergeCells(in: range.clamped(max: numberOfCells).nsRange)
         } else {
             properties.mergeStart = range.lowerBound

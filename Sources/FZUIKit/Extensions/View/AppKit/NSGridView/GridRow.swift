@@ -156,6 +156,10 @@ public class GridRow {
     public func mergeCells(in range: Range<Int>) -> Self {
         if gridRow != nil {
             guard numberOfCells > 0 else { return self }
+            cells[safe: range].dropFirst().forEach({
+                $0.view?.removeFromSuperview()
+                $0.view = nil
+            })
             gridRow?.mergeCells(in: range.clamped(max: numberOfCells).nsRange)
         } else {
             properties.mergeStart = range.lowerBound

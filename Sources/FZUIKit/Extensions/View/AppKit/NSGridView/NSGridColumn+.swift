@@ -43,6 +43,11 @@ public extension NSGridColumn {
         (0..<numberOfCells).map({ cell(at: $0) }).uniqueCells
     }
     
+    var allCells: [NSGridCell] {
+        (0..<numberOfCells).map({ cell(at: $0) })
+    }
+    
+    /*
     internal var _cells: [GridCell] {
         get { (0..<numberOfCells).map({ GridCell(cell(at: $0)) }) }
         set {
@@ -61,5 +66,6 @@ public extension NSGridColumn {
             })
         }
     }
+     */
 }
 #endif
