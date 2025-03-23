@@ -35,11 +35,9 @@ extension NSGridView {
                 addColumn(with: [])
                 column.gridColumn = self.column(at: self.numberOfColumns - 1)
             }
-            var columns = columns
             for (index, column) in newValue.indexed() {
                 if let oldIndex = columns.firstIndex(of: column), oldIndex != index {
                     moveColumn(at: oldIndex, to: index)
-                    columns.swapAt(oldIndex, index)
                 }
             }
             newValue.forEach({ $0.applyMerge() })
@@ -69,11 +67,9 @@ extension NSGridView {
                 addRow(with: [])
                 row.gridRow = self.row(at: numberOfRows - 1)
             }
-            var rows = rows
             for (index, row) in newValue.indexed() {
                 if let oldIndex = rows.firstIndex(of: row), oldIndex != index {
                     moveRow(at: oldIndex, to: index)
-                    rows.swapAt(oldIndex, index)
                 }
             }
             newValue.forEach({ $0.applyMerge() })

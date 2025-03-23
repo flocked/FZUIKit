@@ -25,9 +25,8 @@ public extension NSGridColumn {
                     gridView.addRow(with: [])
                 })
             }
-            let cells = cells
-            newValue.indexed().forEach({
-                cells[$0.index].contentView = $0.element ?? NSGridCell.emptyContentView
+            zip(cells, newValue).forEach({
+                $0.0.contentView = $0.1
             })
         }
     }
