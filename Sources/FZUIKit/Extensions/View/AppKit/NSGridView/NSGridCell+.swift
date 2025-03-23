@@ -11,15 +11,15 @@ import FZSwiftUtils
 
 public extension NSGridCell {
     /// The column indexes of the cell.
-    var columnIndexes: [Int] {
+    var columnIndexes: IndexSet {
         guard let cells = column?.allCells, let startIndex = cells.firstIndex(of: self), let endIndex = cells.lastIndex(of: self) else { return [] }
-        return (startIndex...endIndex).map({$0})
+        return IndexSet((startIndex...endIndex).map({$0}))
     }
     
     /// The row indexes of the cell.
-    var rowIndexes: [Int] {
+    var rowIndexes: IndexSet {
         guard let cells = row?.allCells, let startIndex = cells.firstIndex(of: self), let endIndex = cells.lastIndex(of: self) else { return [] }
-        return (startIndex...endIndex).map({$0})
+        return IndexSet(((startIndex...endIndex).map({$0})))
     }
     
     /// The grid cell above.

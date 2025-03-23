@@ -90,12 +90,12 @@ public class GridCell {
     }
     
     /// The column indexes of the cell.
-    public var columnIndexes: [Int] {
+    public var columnIndexes: IndexSet {
         gridCell?.columnIndexes ?? []
     }
     
     /// The row indexes of the cell.
-    public var rowIndexes: [Int] {
+    public var rowIndexes: IndexSet {
         gridCell?.rowIndexes ?? []
     }
     
