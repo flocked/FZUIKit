@@ -30,20 +30,27 @@ import FZSwiftUtils
         
         /// The shadow of the layer.
         @objc open var shadow: ShadowConfiguration {
-            get { .init(color: shadowColor?.nsUIColor, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point) }
+            get { updatedShadowConfiguration() }
             set {
-                if let parentView = parentView {
-                    shadowColor = newValue.color?.resolvedColor(for: parentView).cgColor
-                    #if os(macOS)
-                    parentView.dynamicColors.shadow = newValue.color
-                    #endif
-                } else {
-                    shadowColor = newValue.color?.cgColor
-                }
+                shadowConfiguration = shadowConfiguration
+                shadowColor = resolvedColor(for: newValue.resolvedColor())
                 shadowOpacity = Float(newValue.opacity)
                 shadowRadius = newValue.radius
                 shadowOffset = newValue.offset.size
             }
+        }
+        
+        var shadowConfiguration: ShadowConfiguration {
+            get { getAssociatedValue("shadow", initialValue: ShadowConfiguration(color: shadowColor?.nsUIColor, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point)) }
+            set { setAssociatedValue(newValue, key: "shadow") }
+        }
+
+        func updatedShadowConfiguration() -> ShadowConfiguration {
+            resolvedColor(for: shadowConfiguration.resolvedColor()) == shadowColor ? shadowConfiguration.color : shadowColor?.nsUIColor
+            shadowConfiguration.radius = shadowRadius
+            shadowConfiguration.offset = shadowOffset.point
+            shadowConfiguration.opacity = CGFloat(shadowOpacity)
+            return shadowConfiguration
         }
         
         /// The inner shadow of the layer.
@@ -64,26 +71,31 @@ import FZSwiftUtils
             }
         }
         
+        var innerShadowConfiguration: ShadowConfiguration {
+            get { getAssociatedValue("innerShadow") ?? .none() }
+            set { setAssociatedValue(newValue, key: "innerShadow") }
+        }
+        
         /// The shape of the shadow.
         public var shadowShape: PathShape? {
-            get { getAssociatedValue("shadowPathHandler") }
+            get { getAssociatedValue("shadowShape") }
             set {
-                setAssociatedValue(newValue, key: "shadowPathHandler")
+                setAssociatedValue(newValue, key: "shadowShape")
                 if let newValue = newValue {
-                    shadowPathObservation = observeChanges(for: \.bounds) { [weak self] old, new in
+                    shadowShapeObservation = observeChanges(for: \.bounds) { [weak self] old, new in
                         guard let self = self, old.size != new.size else { return }
                         self.shadowPath = newValue.path(in: new)
                     }
                     shadowPath = newValue.path(in: bounds)
                 } else {
-                    shadowPathObservation = nil
+                    shadowShapeObservation = nil
                 }
             }
         }
         
-        var shadowPathObservation: KeyValueObservation? {
-            get { getAssociatedValue("shadowPathObservation") }
-            set { setAssociatedValue(newValue, key: "shadowPathObservation") }
+        var shadowShapeObservation: KeyValueObservation? {
+            get { getAssociatedValue("shadowShapeObservation") }
+            set { setAssociatedValue(newValue, key: "shadowShapeObservation") }
         }
         
         /// The shape that is used for masking the layer.
@@ -91,10 +103,101 @@ import FZSwiftUtils
             get { (mask as? PathShapeMaskLayer)?.shape }
             set {
                 if let newValue = newValue {
-                    let layer = mask as? PathShapeMaskLayer ?? PathShapeMaskLayer(layer: self, shape: newValue)
-                    layer.shape = newValue
+                    (mask as? PathShapeMaskLayer ?? PathShapeMaskLayer(layer: self, shape: newValue)).shape = newValue
                 } else if mask is PathShapeMaskLayer {
                     mask = nil
+                }
+                setupBoderLayer(for: border)
+            }
+        }
+        
+        var borderLayer: BorderLayer? {
+            get { getAssociatedValue("borderLayer") }
+            set { setAssociatedValue(newValue, key: "borderLayer") }
+        }
+        
+        class BorderLayer: CAShapeLayer {
+            var _shape: PathShape?
+            var observation: KeyValueObservation!
+            
+            var shape: PathShape? {
+                didSet { 
+                    _shape = shape?.inset(by: lineWidth*0.5)
+                    updateBorderShape()
+                }
+            }
+            
+            override var lineWidth: CGFloat {
+                didSet {
+                    guard oldValue != lineWidth else { return }
+                    _shape = shape?.inset(by: lineWidth*0.5)
+                    updateBorderShape()
+                }
+            }
+            
+            func updateBorderShape() {
+                path = _shape?.path(in: bounds)
+            }
+                        
+            init(for layer: CALayer) {
+                self.shape = layer.maskShape
+                super.init()
+                fillColor = nil
+                frame = layer.bounds
+                zPosition = .greatestFiniteMagnitude
+                layer.addSublayer(self)
+                observation = layer.observeChanges(for: \.bounds) { [weak self] old, new in
+                    guard let self = self, old.size != new.size else { return }
+                    self.frame = new
+                    self.updateBorderShape()
+                }
+            }
+            
+            required init?(coder: NSCoder) {
+                fatalError("init(coder:) has not been implemented")
+            }
+        }
+        
+        func setupBoderLayer(for border: BorderConfiguration) {
+            if (maskShape != nil && !border.isInvisible) || border.needsDashedBorder {
+                if borderLayer == nil {
+                    borderLayer = BorderLayer(for: self)
+                }
+                borderLayer?.shape = maskShape
+                borderLayer?.border = border
+                borderWidth = 0.0
+                borderColor = nil
+            } else {
+                borderLayer?.removeFromSuperlayer()
+                borderLayer = nil
+                borderColor = resolvedColor(for: border.resolvedColor())
+                borderWidth = border.width
+            }
+        }
+        
+        func resolvedColor(for color: NSUIColor?) -> CGColor? {
+            guard let view = parentView, let color = color else { return nil }
+            return color.resolvedColor(for: view).cgColor
+        }
+        
+        var nsuiBackgroundColor: NSUIColor? {
+            get {
+                if let color: NSUIColor = getAssociatedValue("nsuiBackgroundColor"), resolvedColor(for: color) != backgroundColor {
+                    nsuiBackgroundColor = backgroundColor?.nsUIColor
+                }
+                return getAssociatedValue("nsuiBackgroundColor")
+            }
+            set {
+                setAssociatedValue(newValue, key: "nsuiBackgroundColor")
+                backgroundColor = resolvedColor(for: newValue)
+            }
+        }
+        
+        func setupObser() {
+            if let parentView = parentView, shadowConfiguration.color?.isDynamic == true || innerShadowConfiguration.color?.isDynamic == true || borderConfiguration.color?.isDynamic == true || nsuiBackgroundColor?.isDynamic == true {
+                parentView.effectiveAppearanceObservation
+                parentView.observeChanges(for: \.effectiveAppearance) { [weak self] old, new in
+                    guard let self = self else { return }
                 }
             }
         }
@@ -127,41 +230,42 @@ import FZSwiftUtils
         
         /// The border of the layer.
         @objc open var border: BorderConfiguration {
-            get { borderLayer?.configuration ?? BorderConfiguration(color: borderColor?.nsUIColor, width: borderWidth) }
+            get { updatedBorderConfiguration() }
             set {
                 guard newValue != border else { return }
+                borderConfiguration = newValue
                 if let layer = self as? CAShapeLayer {
-                    layer._border = newValue
+                    layer.strokeColor = resolvedColor(for: newValue.resolvedColor())
+                    layer.lineDashPattern = newValue.dash.pattern  as [NSNumber]
+                    layer.lineWidth = newValue.width
+                    layer.lineDashPhase = newValue.dash.phase
+                    layer.lineJoin = newValue.dash.lineJoin.shapeLayerLineJoin
+                    layer.lineCap = newValue.dash.lineCap.shapeLayerLineCap
                 } else {
-                    if newValue.needsDashedBorder {
-                        borderColor = nil
-                        borderWidth = 0.0
-                        if let layer = self as? CAShapeLayer {
-                            layer._border = newValue
-                        } else {
-                            if let borderLayer = borderLayer {
-                                borderLayer.configuration = newValue
-                            } else {
-                                let borderedLayer = DashedBorderLayer()
-                                addSublayer(withConstraint: borderedLayer, insets: newValue.insets)
-                                borderedLayer.configuration = newValue
-                            }
-                        }
-                    } else {
-                        borderColor = newValue.resolvedColor()?.cgColor
-                        borderWidth = newValue.width
-                        if let layer = self as? CAShapeLayer {
-                            layer.strokeColor = nil
-                            layer.lineDashPattern = []
-                            layer.lineWidth = 0.0
-                        }
-                    }
+                    setupBoderLayer(for: newValue)
                 }
             }
         }
         
-        internal var borderLayer: DashedBorderLayer? {
-            firstSublayer(type: DashedBorderLayer.self)
+        var borderConfiguration: BorderConfiguration {
+            get { getAssociatedValue("border", initialValue: BorderConfiguration(color: borderColor?.nsUIColor, width: borderWidth)) }
+            set { setAssociatedValue(newValue, key: "border") }
+        }
+        
+        func updatedBorderConfiguration() -> BorderConfiguration {
+            let configurationColor = resolvedColor(for: borderConfiguration.resolvedColor())
+            if let layer = self as? CAShapeLayer {
+                borderConfiguration.color = configurationColor == layer.strokeColor ? configurationColor?.nsUIColor : layer.strokeColor?.nsUIColor
+                borderConfiguration.width = layer.lineWidth
+                borderConfiguration.dash.lineCap = layer.lineCap.cgLineCap
+                borderConfiguration.dash.lineJoin = layer.lineJoin.cgLineJoin
+                borderConfiguration.dash.phase = layer.lineDashPhase
+                borderConfiguration.dash.pattern = layer.lineDashPattern?.compactMap({ CGFloat($0.doubleValue) }) ?? []
+            } else {
+                borderConfiguration.color = configurationColor == borderColor ? configurationColor?.nsUIColor : borderColor?.nsUIColor
+                borderConfiguration.width = borderWidth
+            }
+            return borderConfiguration
         }
         
         /// Sends the layer to the front of it's superlayer.
@@ -393,60 +497,6 @@ import FZSwiftUtils
             }
         }
     }
-
-extension CAShapeLayer {
-    var borderColorTransformer: ColorTransformer? {
-        get { getAssociatedValue("borderColorTransformer") }
-        set { setAssociatedValue(newValue, key: "borderColorTransformer") }
-    }
-    
-    var borderConfigurationColor: (color: NSUIColor?, cgColor: CGColor?) {
-        get { getAssociatedValue("borderConfigurationColor") ?? (nil, nil) }
-        set { setAssociatedValue(newValue, key: "borderConfigurationColor") }
-    }
-    
-    var borderInsets: NSDirectionalEdgeInsets {
-        get { getAssociatedValue("borderInsets") ?? .zero }
-        set { setAssociatedValue(newValue, key: "borderInsets") }
-    }
-    
-    var _border: BorderConfiguration {
-        get {
-            var configuration = BorderConfiguration()
-            configuration.insets = borderInsets
-            configuration.colorTransformer = borderColorTransformer
-            configuration.width = lineWidth
-            configuration.dash.lineCap = lineCap.cgLineCap
-            configuration.dash.lineJoin = lineJoin.cgLineJoin
-            configuration.dash.phase = lineDashPhase
-            configuration.dash.pattern = lineDashPattern?.compactMap({ CGFloat($0.doubleValue) }) ?? []
-            if strokeColor == borderConfigurationColor.cgColor {
-                configuration.color = borderConfigurationColor.color
-            } else {
-                borderConfigurationColor = (nil, nil)
-            }
-            return configuration
-        }
-        set {
-            if let color = newValue.resolvedColor() {
-                if let parentView = parentView {
-                    strokeColor = color.resolvedColor(for: parentView).cgColor
-                }
-                strokeColor = color.cgColor
-            } else {
-                strokeColor = nil
-            }
-            lineDashPattern = newValue.dash.pattern  as [NSNumber]
-            lineWidth = newValue.width
-            lineDashPhase = newValue.dash.phase
-            lineJoin = newValue.dash.lineJoin.shapeLayerLineJoin
-            lineCap = newValue.dash.lineCap.shapeLayerLineCap
-            borderConfigurationColor = (newValue.color, strokeColor)
-            borderInsets = newValue.insets
-            borderColorTransformer = newValue.colorTransformer
-        }
-    }
-}
 
 /*
  public init(color: NSUIColor? = nil,

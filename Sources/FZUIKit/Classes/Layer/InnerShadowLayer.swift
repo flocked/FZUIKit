@@ -40,6 +40,10 @@ open class InnerShadowLayer: CALayer {
         }
     }
     
+    var _maskShape: PathShape? {
+        didSet { updateShadowPath() }
+    }
+    
     /**
      Initalizes an inner shadow layer with the specified configuration.
      
@@ -111,18 +115,25 @@ open class InnerShadowLayer: CALayer {
     }
     
     func updateShadowPath() {
-        let path = NSUIBezierPath(roundedRect: bounds.insetBy(dx: -20, dy: -20), cornerRadius: cornerRadius)
-        #if os(macOS)
-        let innerPart = NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).reversed
-        #else
-        let innerPart = NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).reversing()
-        #endif
+        let path: NSUIBezierPath
+        let innerPart: NSUIBezierPath
+        if let maskPath = _maskShape?.path(in: bounds.insetBy(dx: -20, dy: -20)), let innerMaskPath = maskShape?.path(in: bounds) {
+            path = NSUIBezierPath(cgPath: maskPath)
+            #if os(macOS)
+            innerPart = NSUIBezierPath(cgPath: innerMaskPath).reversed
+            #else
+            innerPart = NSUIBezierPath(cgPath: innerMaskPath).reversing()
+            #endif
+        } else {
+            path = NSUIBezierPath(roundedRect: bounds.insetBy(dx: -20, dy: -20), cornerRadius: cornerRadius)
+            #if os(macOS)
+            innerPart = NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).reversed
+            #else
+            innerPart = NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).reversing()
+            #endif
+        }
         path.append(innerPart)
-        #if os(macOS)
         shadowPath = path.cgPath
-        #else
-        shadowPath = path.cgPath
-        #endif
     }
     
     override open var shadowRadius: CGFloat {

@@ -112,7 +112,10 @@
         /// The shape that is used for masking the view.
         public var maskShape: PathShape? {
             get { layer?.maskShape }
-            set { optionalLayer?.maskShape = newValue }
+            set { 
+                optionalLayer?.maskShape = newValue
+                setupShadowShapeView()
+            }
         }
 
         /**
@@ -480,6 +483,7 @@
                 shadowOpacity = newValue.opacity
                 shadowRadius = newValue.radius
                 shadowColor = newValue.resolvedColor()
+                setupShadowShapeView()
                 if !newValue.isInvisible {
                     clipsToBounds = false
                 }
@@ -539,7 +543,62 @@
         /// The shape of the shadow.
         public var shadowShape: PathShape? {
             get { layer?.shadowShape }
-            set { optionalLayer?.shadowShape = newValue }
+            set {
+                optionalLayer?.shadowShape = newValue
+                setupShadowShapeView()
+            }
+        }
+        
+        func setupShadowShapeView() {
+            if !(shadowShape != nil && maskShape != nil && !outerShadow.isInvisible) {
+                shadowShapeView?.removeFromSuperview()
+                shadowShapeView = nil
+            } else if shadowShapeView == nil {
+                shadowShapeView = ShadowShapeView(for: self)
+            }
+            shadowShapeView?.outerShadow = outerShadow
+            shadowShapeView?.shadowShape = shadowShape
+        }
+        
+        var shadowShapeView: ShadowShapeView? {
+            get { getAssociatedValue("shadowShapeView") }
+            set { setAssociatedValue(newValue, key: "shadowShapeView") }
+        }
+        
+        class ShadowShapeView: NSView {
+            var viewObservation: KeyValueObserver<NSView>?
+            weak var view: NSView?
+            
+            init(for view: NSView) {
+                super.init(frame: .zero)
+                self.view = view
+                viewObservation = KeyValueObserver(view)
+                viewObservation?.add(\.superview) { [weak self] old, new in
+                    guard let self = self else { return }
+                    self.removeFromSuperview()
+                    new?.addSubview(self, positioned: .below, relativeTo: self.view)
+                }
+                viewObservation?.add(\.isHidden) { [weak self] old, new in
+                    guard let self = self else { return }
+                    self.isHidden = new
+                }
+                viewObservation?.add(\.alphaValue) { [weak self] old, new in
+                    guard let self = self else { return }
+                    self.alphaValue = new
+                }
+                viewObservation?.add(\.frame) { [weak self] old, new in
+                    guard let self = self else { return }
+                    self.frame = new
+                }
+                frame = view.frame
+                isHidden = view.isHidden
+                alphaValue = view.alphaValue
+                view.superview?.addSubview(self, positioned: .below, relativeTo: view)
+            }
+            
+            required init?(coder: NSCoder) {
+                fatalError("init(coder:) has not been implemented")
+            }
         }
 
         /**
@@ -963,6 +1022,18 @@
             }
         }
     }
+
+extension CALayer {
+
+    
+    var border_: BorderConfiguration {
+        get { borderConfiguration }
+        set {
+            borderConfiguration = newValue
+            border
+        }
+    }
+}
 
 /// The `NSView` properties keys that can be animated.
 fileprivate let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "_borderWidth", "_borderColor", "borderWidth", "borderColor", "mask", "inverseMask", "backgroundColorAnimatable", "center", "windowFrame", "screenFrame", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPath", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "contentOffsetFractional", "documentSize", "zPosition", "textColor", "selectionColor", "selectionTextColor", "placeholderTextColor"]
