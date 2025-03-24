@@ -137,12 +137,12 @@ import SwiftUI
         }
         
         
-        /// The mouse holding state.
+        /// The mouse click state.
         public enum MouseClickState: Int, Hashable {
             /// The mouse started clicking the item.
-            case started
+            case isPressed
             /// The mouse ended clicking the item.
-            case ended
+            case isReleased
         }
         
         /// The handler that gets called when the mouse is clicking and holding the item.
