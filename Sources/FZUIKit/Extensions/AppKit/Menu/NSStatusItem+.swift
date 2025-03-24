@@ -136,7 +136,6 @@ import SwiftUI
             return self
         }
         
-        
         /// The mouse click state.
         public enum MouseClickState: Int, Hashable {
             /// The mouse started clicking the item.
@@ -235,17 +234,17 @@ import SwiftUI
                     guard let self = self, let event = NSApp.currentEvent else { return }
                     switch event.type {
                     case .leftMouseDown:
-                        self.onMouseHold?(.started)
+                        self.onMouseHold?(.isPressed)
                     case .leftMouseUp:
-                        self.onMouseHold?(.ended)
+                        self.onMouseHold?(.isReleased)
                         self.onClick?()
                         if let leftClickMenu = self.leftClickMenu {
                             self.perform(NSSelectorFromString("popUpStatusItemMenu:"), with: leftClickMenu)
                         }
                     case .rightMouseDown:
-                        self.onRightMouseHold?(.started)
+                        self.onRightMouseHold?(.isPressed)
                     case .rightMouseUp:
-                        self.onRightMouseHold?(.ended)
+                        self.onRightMouseHold?(.isReleased)
                         self.onRightClick?()
                         if let rightClickMenu = self.rightClickMenu {
                             self.perform(NSSelectorFromString("popUpStatusItemMenu:"), with: rightClickMenu)
