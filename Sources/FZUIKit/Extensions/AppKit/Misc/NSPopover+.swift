@@ -134,7 +134,7 @@ extension NSPopover {
             if let view = newValue {
                 let viewController = NSViewController()
                 viewController.view = view
-                contentViewController = NSViewController()
+                contentViewController = viewController
                 contentSize = view.bounds.size
             } else {
                 contentViewController = nil

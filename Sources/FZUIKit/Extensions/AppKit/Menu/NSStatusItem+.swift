@@ -85,10 +85,29 @@ import SwiftUI
             return self
         }
         
-        /// Sets the allowed behaviors for the status item.
+        /// A Boolean value indicating whether the status item can be removed by the user.
+        public var allowsRemoval: Bool {
+            get { behavior.contains(.removalAllowed) }
+            set { behavior[.removalAllowed] = newValue }
+        }
+        
+        /// Sets the Boolean value indicating whether the status item can be removed by the user.
         @discardableResult
-        public func behavior(_ behavior: Behavior) -> Self {
-            self.behavior = behavior
+        public func allowsRemoval(_ allows: Bool) -> Self {
+            allowsRemoval = allows
+            return self
+        }
+        
+        /// A Boolean value indicating whether the application should quite upon removal of the status item.
+        public var terminateOnRemoval: Bool {
+            get { behavior.contains(.terminationOnRemoval) }
+            set { behavior[.terminationOnRemoval] = newValue }
+        }
+        
+        /// Sets the Boolean value indicating whether the application should quite upon removal of the status item.
+        @discardableResult
+        public func terminateOnRemoval(_ terminateOnRemoval: Bool) -> Self {
+            self.terminateOnRemoval = terminateOnRemoval
             return self
         }
         
@@ -171,7 +190,7 @@ import SwiftUI
         }
         
         /// A status item with the specified width.
-        public static func fiexedWidth(_ width: CGFloat) -> NSStatusItem {
+        public static func fixedWidth(_ width: CGFloat) -> NSStatusItem {
             NSStatusBar.system.statusItem(withLength: width)
         }
         
@@ -225,10 +244,12 @@ import SwiftUI
                     leftClickMenu = menu
                     self.menu = nil
                 }
-                menuObservation = observeChanges(for: \.menu) { [weak self] old, new in
-                    guard let self = self else { return }
+                menuObservation = observeChanges(for: \.menu, uniqueValues: false) { [weak self] old, new in
+                    guard let self = self, !self.isUpdatingMenu else { return }
                     self.leftClickMenu = new
+                    self.isUpdatingMenu = true
                     self.menu = nil
+                    self.isUpdatingMenu = false
                 }
                 button?.actionBlock = { [weak self] button in
                     guard let self = self, let event = NSApp.currentEvent else { return }
@@ -239,7 +260,7 @@ import SwiftUI
                         self.onMouseHold?(.isReleased)
                         self.onClick?()
                         if let leftClickMenu = self.leftClickMenu {
-                            self.perform(NSSelectorFromString("popUpStatusItemMenu:"), with: leftClickMenu)
+                            popUpMenu(leftClickMenu)
                         }
                     case .rightMouseDown:
                         self.onRightMouseHold?(.isPressed)
@@ -247,7 +268,7 @@ import SwiftUI
                         self.onRightMouseHold?(.isReleased)
                         self.onRightClick?()
                         if let rightClickMenu = self.rightClickMenu {
-                            self.perform(NSSelectorFromString("popUpStatusItemMenu:"), with: rightClickMenu)
+                            popUpMenu(rightClickMenu)
                         }
                     default: break
                     }
@@ -268,6 +289,11 @@ import SwiftUI
         var menuObservation: KeyValueObservation? {
             get { getAssociatedValue("menuObservation") }
             set { setAssociatedValue(newValue, key: "menuObservation") }
+        }
+        
+        var isUpdatingMenu: Bool {
+            get { getAssociatedValue("isUpdatingMenu") ?? false }
+            set { setAssociatedValue(newValue, key: "isUpdatingMenu") }
         }
         
         class MenuProvider: NSMenu, NSMenuDelegate {
