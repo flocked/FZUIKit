@@ -20,7 +20,8 @@ import SwiftUI
          */
         public var onClick: (()->())? {
             get { getAssociatedValue("onClick") }
-            set { setAssociatedValue(newValue, key: "onClick")
+            set { 
+                setAssociatedValue(newValue, key: "onClick")
                 updateAction()
             }
         }
@@ -34,7 +35,8 @@ import SwiftUI
          */
         public var onRightClick: (()->())? {
             get { getAssociatedValue("onRightClick") }
-            set { setAssociatedValue(newValue, key: "onRightClick")
+            set { 
+                setAssociatedValue(newValue, key: "onRightClick")
                 updateAction()
             }
         }
@@ -54,7 +56,8 @@ import SwiftUI
         /// The menu that is displayed when the item is right clicked.
         public var rightClickMenu: NSMenu? {
             get { getAssociatedValue("rightClickMenu") }
-            set { setAssociatedValue(newValue, key: "rightClickMenu")
+            set { 
+                setAssociatedValue(newValue, key: "rightClickMenu")
                 updateAction()
             }
         }
