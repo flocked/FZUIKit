@@ -17,7 +17,6 @@ import UniformTypeIdentifiers
 
 #if os(macOS)
     public extension NSImage {
-        
         convenience init(cgImage: CGImage) {
             self.init(cgImage: cgImage, size: .zero)
         }

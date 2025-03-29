@@ -412,29 +412,76 @@ var uiFont: Font? {
         /**
          Creates a symbol image with the system symbol name.
 
-         - Parameter systemSymbolName: The name of the system symbol image.
+         - Parameter name: The name of the system symbol image.
          - Returns: A symbol image based on the name you specify; otherwise `nil` if the method couldn’t find a suitable image.
          */
-        convenience init?(systemSymbolName: String) {
-            self.init(systemSymbolName: systemSymbolName, accessibilityDescription: nil)
+        convenience init?(systemSymbolName name: String) {
+            self.init(systemSymbolName: name, accessibilityDescription: nil)
         }
-    }
+        
+        /**
+         Creates a symbol image with the system symbol name and configuration.
 
-    @available(macOS 12.0, *)
-    public extension NSImage {
+         - Parameters:
+            - name: The name of the system symbol image.
+            - configuration: The symbol configuration the system applies to the image.
+         - Returns: A symbol image based on the name and configuration you specify; otherwise `nil` if the method couldn’t find a suitable image.
+         */
+        convenience init?(systemSymbolName name: String, WithConfiguration configuration: SymbolConfiguration) {
+            guard let image = NSImage(systemSymbolName: name)?.withSymbolConfiguration(configuration) else { return nil }
+            let archiver = NSKeyedArchiver(requiringSecureCoding: false)
+            image.encode(with: archiver)
+            archiver.finishEncoding()
+            guard let unarchiver = try? NSKeyedUnarchiver(forReadingFrom: archiver.encodedData) else { return nil }
+            self.init(coder: unarchiver)
+        }
+        
+        /**
+         Creates a symbol image with the system symbol name and configuration.
+
+         - Parameters:
+            - name: The name of the system symbol image.
+            - configuration: The symbol configuration the system applies to the image.
+         - Returns: A symbol image based on the name and configuration you specify; otherwise `nil` if the method couldn’t find a suitable image.
+         */
+        @available(macOS 12.0, *)
+        convenience init?(systemSymbolName name: String, WithConfiguration configuration: ImageSymbolConfiguration) {
+            guard let image = NSImage(systemSymbolName: name)?.withSymbolConfiguration(configuration) else { return nil }
+            let archiver = NSKeyedArchiver(requiringSecureCoding: false)
+            image.encode(with: archiver)
+            archiver.finishEncoding()
+            guard let unarchiver = try? NSKeyedUnarchiver(forReadingFrom: archiver.encodedData) else { return nil }
+            self.init(coder: unarchiver)
+        }
+        
         /**
          Returns a new version of the current image, applying the specified configuration attributes on top of the current attributes.
 
          - Parameter configuration: The configuration attributes to apply on top of the existing attributes. Values in this object take precedence over the image's current configuration values.
          - Returns: A new version of the image object that contains the merged configuration details.
          */
+        @available(macOS 12.0, *)
         func applyingSymbolConfiguration(_ configuration: NSImage.SymbolConfiguration) -> NSImage? {
             let updatedConfiguration = symbolConfiguration.applying(configuration)
             return withSymbolConfiguration(updatedConfiguration)
         }
     }
-#endif
+#elseif canImport(UIKit)
+public extension UIImage {
+    /**
+     Creates an image object that contains a system symbol image with the specified configuration.
 
+     - Parameters:
+        - name: The name of the system symbol image.
+        - configuration: The symbol configuration the system applies to the image.
+     - Returns: The object containing the image variant that matches the specified configuration data, or nil if no suitable image was found.
+     */
+    @available(iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+    convenience init?(systemName name: String, WithConfiguration configuration: ImageSymbolConfiguration) {
+        self.init(systemName: name, WithConfiguration: configuration.nsUI())
+    }
+}
+#endif
 /*
 #if os(iOS)
 @available(macOS 12.0, *)
