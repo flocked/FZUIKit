@@ -236,8 +236,8 @@ import SwiftUI
         
         func updateAction() {
             var mask: NSEvent.EventTypeMask = []
-            if onClick != nil { mask.insert(.leftMouseUp) }
-            if onRightClick != nil || rightClickMenu != nil { mask.insert(.rightMouseUp) }
+            if onClick != nil || popover != nil { mask.insert(.leftMouseUp) }
+            if onRightClick != nil || rightClickMenu != nil || rightClickPopover != nil { mask.insert(.rightMouseUp) }
             if onMouseHold != nil { mask.insert([.leftMouseDown, .leftMouseUp]) }
             if onRightMouseHold != nil { mask.insert([.rightMouseDown, .rightMouseUp]) }
             button?.sendAction(on: mask)
