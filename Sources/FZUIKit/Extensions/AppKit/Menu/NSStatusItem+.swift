@@ -242,7 +242,7 @@ import SwiftUI
             if onRightMouseHold != nil { mask.insert([.rightMouseDown, .rightMouseUp]) }
             button?.sendAction(on: mask)
             
-            if onClick != nil || onRightClick != nil || onMouseHold != nil || onRightMouseHold != nil || rightClickMenu != nil {
+            if onClick != nil || onRightClick != nil || onMouseHold != nil || onRightMouseHold != nil || rightClickMenu != nil || popover != nil || rightClickPopover != nil {
                 if let menu = menu {
                     leftClickMenu = menu
                     self.menu = nil
@@ -262,6 +262,9 @@ import SwiftUI
                     case .leftMouseUp:
                         self.onMouseHold?(.isReleased)
                         self.onClick?()
+                        if let popover = self.popover, let button = self.button {
+                            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+                        }
                         if let leftClickMenu = self.leftClickMenu {
                             perform(NSSelectorFromString("popUpMenu"), with: leftClickMenu)
                         }
@@ -270,6 +273,9 @@ import SwiftUI
                     case .rightMouseUp:
                         self.onRightMouseHold?(.isReleased)
                         self.onRightClick?()
+                        if let popover = self.rightClickPopover, let button = self.button {
+                            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+                        }
                         if let rightClickMenu = self.rightClickMenu {
                             perform(NSSelectorFromString("popUpMenu"), with: rightClickMenu)
                         }
@@ -330,19 +336,36 @@ import SwiftUI
             }
         }
         
-        /*
-        var popoverView: NSView? {
-            popover?.contentView
-        }
-        
-        var popoverViewController: NSViewController? {
-            popover?.contentViewController
-        }
-        
-        var popover: NSPopover? {
+        /// The popover displayed when clicking the item.
+        public var popover: NSPopover? {
             get { getAssociatedValue("popover") }
-            set { setAssociatedValue(newValue, key: "popover") }
+            set { 
+                setAssociatedValue(newValue, key: "popover")
+                updateAction()
+            }
         }
-         */
+        
+        /// Sets the popover displayed when clicking the item.
+        @discardableResult
+        public func popover(_ popover: NSPopover?) -> Self {
+            self.popover = popover
+            return self
+        }
+        
+        /// The popover displayed when right-clicking the item.
+        public var rightClickPopover: NSPopover? {
+            get { getAssociatedValue("rightClickPopover") }
+            set {
+                setAssociatedValue(newValue, key: "rightClickPopover")
+                updateAction()
+            }
+        }
+        
+        /// Sets the popover displayed when right-clicking the item.
+        @discardableResult
+        public func rightClickPopover(_ popover: NSPopover?) -> Self {
+            self.rightClickPopover = popover
+            return self
+        }
     }
 #endif

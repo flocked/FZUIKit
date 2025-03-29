@@ -65,6 +65,12 @@ extension NSPopover {
         self.contentView = view
     }
     
+    /// Creates and returns a popover with the specified content view.
+    public convenience init<V: View>(view: V) {
+        self.init()
+        self.contentView = NSHostingView(rootView: view)
+    }
+    
     /// Creates and returns a popover with the specified content view controller.
     public convenience init(viewController: NSViewController) {
         self.init()
