@@ -208,6 +208,19 @@ extension NSPopover {
         }
     }
     
+    /// Undetaches the popover.
+    @objc open func undetach() {
+        guard isDetached, isShown, let positioningView = positioningView else { return }
+        let animates = animates
+        self.animates = false
+        close()
+        detach()
+        DispatchQueue.main.asyncAfter(0.01) {
+            self.show(relativeTo: positioningView.bounds, of: positioningView, preferredEdge: self.preferredEdge)
+            self.animates = animates
+        }
+    }
+    
     /// The view to which the popover should be positioned.
     @objc open var positioningView: NSView? {
         get { value(forKey: Keys.positioningView.unmangled) as? NSView }
