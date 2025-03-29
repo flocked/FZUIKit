@@ -263,7 +263,12 @@ import SwiftUI
                         self.onMouseHold?(.isReleased)
                         self.onClick?()
                         if let popover = self.popover, let button = self.button {
-                            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+                            if popover.isShown {
+                                popover.close()
+                            } else {
+                                popover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY)
+                                button.isHighlighted = true
+                            }
                         }
                         if let leftClickMenu = self.leftClickMenu {
                             perform(NSSelectorFromString("popUpMenu"), with: leftClickMenu)
@@ -274,7 +279,12 @@ import SwiftUI
                         self.onRightMouseHold?(.isReleased)
                         self.onRightClick?()
                         if let popover = self.rightClickPopover, let button = self.button {
-                            popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+                            if popover.isShown {
+                                popover.close()
+                            } else {
+                                popover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY)
+                                button.isHighlighted = true
+                            }
                         }
                         if let rightClickMenu = self.rightClickMenu {
                             perform(NSSelectorFromString("popUpMenu"), with: rightClickMenu)
