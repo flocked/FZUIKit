@@ -1023,18 +1023,6 @@
         }
     }
 
-extension CALayer {
-
-    
-    var border_: BorderConfiguration {
-        get { borderConfiguration }
-        set {
-            borderConfiguration = newValue
-            border
-        }
-    }
-}
-
 /// The `NSView` properties keys that can be animated.
 fileprivate let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "_borderWidth", "_borderColor", "borderWidth", "borderColor", "mask", "inverseMask", "backgroundColorAnimatable", "center", "windowFrame", "screenFrame", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPath", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "contentOffsetFractional", "documentSize", "zPosition", "textColor", "selectionColor", "selectionTextColor", "placeholderTextColor"]
 
