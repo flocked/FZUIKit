@@ -263,7 +263,9 @@ import SwiftUI
                         self.onMouseHold?(.isReleased)
                         self.onClick?()
                         if let popover = self.popover, let button = self.button {
-                            if popover.isShown {
+                            if popover.isShown && popover.isDetached {
+                                popover.undetach()
+                            } else if popover.isShown {
                                 popover.close()
                             } else {
                                 popover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY)
@@ -279,7 +281,9 @@ import SwiftUI
                         self.onRightMouseHold?(.isReleased)
                         self.onRightClick?()
                         if let popover = self.rightClickPopover, let button = self.button {
-                            if popover.isShown {
+                            if popover.isShown && popover.isDetached {
+                                popover.undetach()
+                            } else if popover.isShown {
                                 popover.close()
                             } else {
                                 popover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY)
