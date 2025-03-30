@@ -18,7 +18,9 @@ public class GridCell {
         get { gridCell?.contentView ?? properties.view }
         set {
             if let gridCell = gridCell {
+                let contentView = gridCell.contentView
                 gridCell.contentView = newValue
+                contentView?.removeFromSuperview()
             } else {
                 properties.view = newValue
             }
@@ -123,6 +125,69 @@ public class GridCell {
         return cells[safe: index+1]
     }
     
+    /// The size of a cell.
+    public struct Size {
+        /// The width of the cell.
+        public var width: Int = 1 {
+            didSet { width = width.clamped(min: 1) }
+        }
+        
+        /// The height of the cell.
+        public var height: Int = 1 {
+            didSet { height = height.clamped(min: 1) }
+        }
+        
+        var needsMerge: Bool {
+            width > 1 || height > 1
+        }
+        
+        /// Creates a size with the specified width and height.
+        public init(width: Int = 1, height: Int = 1) {
+            self.width = width.clamped(min: 1)
+            self.height = height.clamped(min: 1)
+        }
+        
+        
+        /// Creates a size with the specified width and height.
+        public init(_ widthHeight:  Int) {
+            self.width = widthHeight.clamped(min: 1)
+            self.height = widthHeight.clamped(min: 1)
+        }
+    }
+    
+    /// The size of the cell.
+    var size: Size {
+        get { Size(width: columnIndexes.count, height: rowIndexes.count) }
+        set {
+            if let gridCell = gridCell {
+                let currentSize = size
+                if let row = row {
+                    if newValue.width > currentSize.width {
+                        
+                    } else if newValue.width < currentSize.width {
+                        
+                    }
+                }
+                if let column = column {
+                    if newValue.height > currentSize.height {
+                        
+                    } else if newValue.height < currentSize.height {
+                        
+                    }
+                }
+            } else {
+                properties.size = newValue
+            }
+        }
+    }
+    
+    /// Sets the size of the cell.
+    @discardableResult
+    func size(_ size: Size) -> Self {
+        self.size = size
+        return self
+    }
+    
     /// A Boolean value indicating whether the cell is merged with one or several other cells.
     var isMerged: Bool {
         gridCell?.isMerged ?? false
@@ -133,7 +198,7 @@ public class GridCell {
         gridCell?.unmerge()
     }
     
-    init(_ view: NSView?) {
+    init(_ view: NSView? = nil) {
         properties.view = view
     }
     
@@ -155,6 +220,7 @@ public class GridCell {
     
     weak var gridCell: NSGridCell? {
         didSet {
+            guard oldValue !== gridCell else { return }
             if gridCell != nil {
                 view = properties.view
                 alignment = properties.alignment
@@ -171,6 +237,7 @@ public class GridCell {
     struct Properties {
         var view: NSView?
         var alignment = Alignment()
+        var size = Size()
     }
 }
 

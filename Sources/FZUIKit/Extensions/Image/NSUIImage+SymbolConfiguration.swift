@@ -427,7 +427,7 @@ var uiFont: Font? {
             - configuration: The symbol configuration the system applies to the image.
          - Returns: A symbol image based on the name and configuration you specify; otherwise `nil` if the method couldn’t find a suitable image.
          */
-        convenience init?(systemSymbolName name: String, WithConfiguration configuration: SymbolConfiguration) {
+        convenience init?(systemSymbolName name: String, withConfiguration configuration: SymbolConfiguration) {
             guard let image = NSImage(systemSymbolName: name)?.withSymbolConfiguration(configuration) else { return nil }
             let archiver = NSKeyedArchiver(requiringSecureCoding: false)
             image.encode(with: archiver)

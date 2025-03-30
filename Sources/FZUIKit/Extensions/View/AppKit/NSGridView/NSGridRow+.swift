@@ -31,8 +31,9 @@ public extension NSGridRow {
             }
             zip(cells, newValue).forEach({
                 if $0.0.contentView !== $0.1 {
-                    $0.0.contentView?.removeFromSuperview()
+                    let contentView = $0.0.contentView
                     $0.0.contentView = $0.1
+                    contentView?.removeFromSuperview()
                 }
             })
         }

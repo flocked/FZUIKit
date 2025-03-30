@@ -18,37 +18,39 @@ public class GridRow {
     public var index: Int? { gridRow?.index }
     
     /// The cells of the row.
-    public var cells: [GridCell] { (gridRow?.cells ?? []).compactMap({ GridCell($0) }) }
-    
-    var allCells: [GridCell] { (gridRow?.allCells ?? []).compactMap({ GridCell($0) }) }
-    
-    /// The content views of the grid row cells.
-    public var views: [NSView?] {
-        get { gridRow?.views ?? properties.views }
+    public var cells: [GridCell] { 
+        get { gridRow?.cells.compactMap({ GridCell($0)}) ?? properties.cells }
         set {
-            if let gridRow = gridRow {
+            if let gridRow = gridRow, let gridView = gridView {
                 let numberOfCells = numberOfCells
-                gridRow.views = newValue
-                if self.numberOfCells > numberOfCells {
-                    gridView?.rows.filter({ $0.properties.autoMerge }).forEach({ $0.applyMerge() })
+                let cellsCount = cells.count
+                if newValue.count > cells.count {
+                    (0..<(newValue.count - cellsCount)).forEach({ _ in
+                        gridView.addColumn(with: [])
+                    })
+                }
+                zip(gridRow.cells[safe: 0..<newValue.count], newValue).forEach { gridCell, cell in
+                    cell.gridCell = gridCell
                 }
             } else {
-                properties.views = newValue
+                properties.cells = newValue
             }
         }
     }
     
-    /// Sets the content views of the grid row cells.
+    var allCells: [GridCell] { (gridRow?.allCells ?? []).compactMap({ GridCell($0) }) }
+    
+    /// Sets the cells of the grid row.
     @discardableResult
-    public func views(@NSGridView.Builder _ views: () -> [NSView]) -> Self {
-        self.views = views()
+    public func cells(@GridCell.Builder _ cells: () -> [GridCell]) -> Self {
+        self.cells = cells()
         return self
     }
     
-    /// Sets the content views of the grid row cells.
+    /// Sets the cells of the grid row.
     @discardableResult
-    public func views(_ views: [NSView]) -> Self {
-        self.views = views
+    public func cells(_ cells: [GridCell]) -> Self {
+        self.cells = cells
         return self
     }
     
@@ -204,8 +206,8 @@ public class GridRow {
     /// Merges the cells from the first view to the second view.
     @discardableResult
     public func mergeCells(from firstView: NSView, to secondView: NSView) -> Self {
-        let views = views
-        if let startIndex = views.firstIndex(of: firstView), let endIndex = views.firstIndex(of: secondView), startIndex <= endIndex {
+        let cells = cells
+        if let startIndex = cells.firstIndex(where: { $0.view === firstView} ), let endIndex = cells.firstIndex(where: { $0.view === secondView } ), startIndex <= endIndex {
             mergeCells(in: startIndex..<endIndex)
         }
         return self
@@ -263,19 +265,19 @@ public class GridRow {
         return row
     }
     
-    /// Creates a grid row with cells displaying the specified views.
-    public init(views: [NSView?] = []) {
-        properties.views = views
+    /// Creates a grid row with cells displaying the specified cells.
+    public init(_ cells: [GridCell] = []) {
+        properties.cells = cells
     }
     
-    /// Creates a grid row with cells displaying the specified views.
-    public init(@NSGridView.Builder views: () -> [NSView?]) {
-        properties.views = views()
+    /// Creates a grid row with cells displaying the specified cells.
+    public init(@GridCell.Builder cells: () -> [GridCell]) {
+        properties.cells = cells()
     }
     
     /// Creates a grid row with a cell displaying the specified view.
     public init(_ view: NSView) {
-        properties.views = [view]
+        properties.cells = [GridCell(view)]
     }
     
     init(_ gridRow: NSGridRow) {
@@ -285,14 +287,14 @@ public class GridRow {
     
     var properties = Properties()
     
-    var numberOfCells: Int { gridRow?.numberOfCells ?? properties.views.count }
+    var numberOfCells: Int { gridRow?.numberOfCells ?? properties.cells.count }
     
   //  var autoMerge: Bool { properties.autoMerge }
     
     weak var gridRow: NSGridRow? {
         didSet {
             if let gridRow = gridRow {
-                gridRow.views = properties.views
+                cells = properties.cells
                 gridRow.isHidden = properties.isHidden
                 gridRow.bottomPadding = properties.bottomPadding
                 gridRow.topPadding = properties.topPadding
@@ -300,9 +302,9 @@ public class GridRow {
                 gridRow.rowAlignment = properties.rowAlignment
                 gridRow.height = properties.height
                 gridRow.autoMerge = properties.autoMerge
-                properties.views = []
+                properties.cells = []
             } else if let gridRow = oldValue {
-                properties.views = gridRow.views
+                properties.cells = gridRow.cells.compactMap({ GridCell($0)})
                 properties.isHidden = gridRow.isHidden
                 properties.height = gridRow.height
                 properties.bottomPadding = gridRow.bottomPadding
@@ -371,7 +373,7 @@ extension GridRow {
     }
     
     struct Properties {
-        var views: [NSView?] = []
+        var cells: [GridCell] = []
         var isHidden = false
         var alignment: NSGridCell.Placement = .inherited
         var height: CGFloat = NSGridView.sizedForContent
@@ -438,19 +440,27 @@ extension GridRow {
         }
 
         public static func buildExpression(_ expression: NSView?) -> [GridRow] {
-            [GridRow(views: [expression])]
+            [GridRow([expression].map({ GridCell($0)}))]
         }
         
         public static func buildExpression(_ expression: [NSView?]) -> [GridRow] {
-            [GridRow(views: expression)]
+            [GridRow(expression.map({ GridCell($0)}))]
         }
         
         public static func buildExpression(_ expression: String) -> [GridRow] {
-            [GridRow(NSTextField.wrapping(expression))]
+            [GridRow([GridCell(NSTextField(wrappingLabelWithString: expression))])]
         }
 
         public static func buildExpression(_ expression: [String?]) -> [GridRow] {
-            [GridRow(views: expression.map { $0.map(NSTextField.wrapping) })]
+            [GridRow(expression.map { GridCell($0.map(NSTextField.wrapping)) })]
+        }
+        
+        public static func buildExpression(_ expression: GridCell) -> [GridRow] {
+            [GridRow([expression])]
+        }
+        
+        public static func buildExpression(_ expression: [GridCell]) -> [GridRow] {
+            [GridRow(expression)]
         }
     }
 }
@@ -458,13 +468,13 @@ extension GridRow {
 extension GridRow: CustomStringConvertible, CustomDebugStringConvertible {
     public var description: String {
         let height = gridRow?.height ?? properties.height
-        return "GridRow(views: \(views.count), alignment: \(alignment),  height: \(height == NSGridView.sizedForContent ? "sizedForContent" : "\(height)"))"
+        return "GridRow(cells: \(cells.count), alignment: \(alignment),  height: \(height == NSGridView.sizedForContent ? "sizedForContent" : "\(height)"))"
     }
     
     public var debugDescription: String {
         let height = gridRow?.height ?? properties.height
         var strings = ["GridRow:"]
-        strings += "views: [\(views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} }).joined(separator: ", "))]"
+        strings += "cells: [\(cells.compactMap({ if let view = $0.view { return "\(type(of: view))"} else { return "Empty"} }).joined(separator: ", "))]"
         strings += "alignment: \(alignmentString)"
         strings += "height: \(height == NSGridView.sizedForContent ? "sizedForContent" : "\(height)")"
         strings += "bottomPadding: \(bottomPadding), topPadding: \(topPadding)"
