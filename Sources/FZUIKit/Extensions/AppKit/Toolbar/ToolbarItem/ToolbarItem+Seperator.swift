@@ -17,17 +17,19 @@
          The item can be used with ``Toolbar``.
          */
         class TrackingSeparator: ToolbarItem {
-            lazy var separatorItem = NSTrackingSeparatorToolbarItem(identifier)
+            let separatorItem: NSTrackingSeparatorToolbarItem
             override var item: NSToolbarItem {
                 separatorItem
             }
 
+            /// Sets the vertical split view to align with the toolbar separator.
             @discardableResult
             public func splitView(_ splitView: NSSplitView) -> Self {
                 separatorItem.splitView = splitView
                 return self
             }
 
+            /// Sets the index of the split view divider to align with the tracking separator.
             @discardableResult
             public func dividerIndex(_ index: Int) -> Self {
                 separatorItem.dividerIndex = index
@@ -40,15 +42,11 @@
              - Parameters:
                 - identifier: An optional identifier of the item.
                 - splitView: The tracked split view.
-                - splitView: The index of the divider.
+                - dividerIndex: The index of the divider.
              */
-            public init(_ identifier: NSToolbarItem.Identifier? = nil,
-                        splitView: NSSplitView,
-                        dividerIndex: Int)
-            {
-                super.init(identifier)
-                self.splitView(splitView)
-                self.dividerIndex(dividerIndex)
+            public init(_ identifier: NSToolbarItem.Identifier? = nil, splitView: NSSplitView, dividerIndex: Int) {
+                self.separatorItem = .init(identifier: identifier ?? .random, splitView: splitView, dividerIndex: dividerIndex)
+                super.init(separatorItem.itemIdentifier)
             }
         }
     }

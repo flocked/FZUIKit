@@ -188,6 +188,20 @@ public class GridCell {
         return self
     }
     
+    /// Sets the width of the cell.
+    @discardableResult
+    func width(_ width: Int) -> Self {
+        size.width = width
+        return self
+    }
+    
+    /// Sets the height of the cell.
+    @discardableResult
+    func height(_ height: Int) -> Self {
+        size.height = height
+        return self
+    }
+    
     /// A Boolean value indicating whether the cell is merged with one or several other cells.
     var isMerged: Bool {
         gridCell?.isMerged ?? false
@@ -198,20 +212,16 @@ public class GridCell {
         gridCell?.unmerge()
     }
     
-    init(_ view: NSView? = nil) {
+    public init(_ view: NSView? = nil) {
         properties.view = view
     }
     
-    init(_ view: some View) {
+    public init(_ view: some View) {
         properties.view = NSHostingView(rootView: view)
     }
     
-    init(_ string: String, font: NSFont = .body) {
-        properties.view = NSTextField.wrapping(string)
-    }
-    
-    static var empty: GridCell {
-        GridCell(nil)
+    public init(_ text: String, font: NSFont = .body) {
+        properties.view = NSTextField.wrapping(text)
     }
     
     init(_ gridCell: NSGridCell) {
@@ -359,6 +369,7 @@ extension GridCell {
                 self = gridCell.properties.alignment
             }
         }
+        
         init(_ gridCell: NSGridCell) {
             x = .init(gridCell.xPlacement)
             y = .init(gridCell.yPlacement, gridCell.rowAlignment)
@@ -404,7 +415,7 @@ extension GridCell: CustomStringConvertible, CustomDebugStringConvertible {
 extension GridCell {
     /// A function builder type that produces an array of grid column.
     @resultBuilder
-    enum Builder {
+    public enum Builder {
         public static func buildBlock(_ components: [GridCell]...) -> [GridCell] {
             components.flatMap { $0 }
         }
@@ -460,23 +471,4 @@ extension GridCell {
         }
     }
 }
-
-/*
-class GridMergedCell: GridCell {
-    var _count: Int = 0
-    
-    init(_ view: NSView?, count: Int) {
-        super.init(view)
-        _count = count
-    }
-    
-    override init(_ gridCell: NSGridCell) {
-        super.init(gridCell)
-    }
-    
-    func sdsds() {
-        
-    }
-}
-*/
 #endif
