@@ -68,7 +68,18 @@
 
         /// Creates a toolbar item.
         public init(_ identifier: NSToolbarItem.Identifier? = nil) {
-            self.identifier = identifier ?? .random
+            self.identifier = identifier ?? Self.automaticIdentifier(for: "\(type(of: self))")
+        }
+        
+        private static var automaticIdentifiers = [String: Int]()
+        private static let lock = DispatchQueue(label: "com.toolbaritem.lock")
+
+        static func automaticIdentifier(for name: String) -> NSToolbarItem.Identifier {
+            return lock.sync {
+                let count = automaticIdentifiers[name, default: -1] + 1
+                automaticIdentifiers[name] = count
+                return NSToolbarItem.Identifier("\(name) \(count)")
+            }
         }
     }
 

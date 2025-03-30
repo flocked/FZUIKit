@@ -352,4 +352,11 @@ import FZSwiftUtils
         }
     }
 
+extension NSToolbar {
+    /// Returns the ``Toolbar`` representation of the toolbar if it is managed by it.
+    public var managed: Toolbar? {
+        (delegate as? Toolbar.Delegate)?.toolbar
+    }
+}
+
 #endif

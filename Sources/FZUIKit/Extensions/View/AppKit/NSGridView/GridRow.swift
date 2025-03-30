@@ -22,7 +22,6 @@ public class GridRow {
         get { gridRow?.cells.compactMap({ GridCell($0)}) ?? properties.cells }
         set {
             if let gridRow = gridRow, let gridView = gridView {
-                let numberOfCells = numberOfCells
                 let cellsCount = cells.count
                 if newValue.count > cells.count {
                     (0..<(newValue.count - cellsCount)).forEach({ _ in
