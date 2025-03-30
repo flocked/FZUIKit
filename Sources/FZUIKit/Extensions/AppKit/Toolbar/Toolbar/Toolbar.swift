@@ -16,7 +16,12 @@ import FZSwiftUtils
         /// The identifier of the toolbar.
         public let identifier: NSToolbar.Identifier
         
-        private var _items: [ToolbarItem] = []
+        private var _items: [ToolbarItem] = [] {
+            didSet {
+                guard #available(macOS 13.0, *) else { return }
+                centeredItems = Set(_items.filter(\.isCentered))
+            }
+        }
         private var selectedItemObservation: KeyValueObservation?
         private lazy var delegate = Delegate(self)
         private lazy var toolbar: NSToolbar = {
@@ -35,8 +40,7 @@ import FZSwiftUtils
 
          - Returns: The initialized `Toolbar` object.
          */
-        public init(_ identifier: NSToolbar.Identifier? = nil, allowsUserCustomization: Bool = true,
-            items: [ToolbarItem]) {
+        public init(_ identifier: NSToolbar.Identifier? = nil, allowsUserCustomization: Bool = true, items: [ToolbarItem]) {
             self.identifier = identifier ?? UUID().uuidString
             _items = items
             super.init()
@@ -169,41 +173,69 @@ import FZSwiftUtils
             get { toolbar.items.compactMap { item in self._items.first(where: { $0.item == item }) } }
         }
 
-        /// An array containing the toolbar’s currently visible items.
+        /**
+         An array containing the toolbar’s currently visible items.
+         
+         This property doesn’t contain items in the overflow menu because those items aren’t visible.
+         */
         public var visibleItems: [ToolbarItem]? {
             toolbar.visibleItems?.compactMap { item in self._items.first(where: { $0.item == item }) }
         }
 
         @available(macOS 13.0, *)
         /// The set of custom items to display in the center of the toolbar.
-        public var centeredItems: [ToolbarItem] {
-            toolbar.centeredItemIdentifiers.compactMap { identifier in self._items.first(where: { $0.identifier == identifier }) }
+        public internal(set) var centeredItems: Set<ToolbarItem> {
+            get { Set(toolbar.centeredItemIdentifiers.compactMap { identifier in _items.first(where: { $0.identifier == identifier }) }) }
+            set { toolbar.centeredItemIdentifiers = Set(newValue.map({$0.identifier})) }
         }
-
-        /*
-        /// The currently selected item.
-        public var selectedItem: ToolbarItem? {
+        
+        /// The toolbar’s current items.
+        public var displayingItems: [ToolbarItem] {
+            get {  _items.filter({ item in toolbar.items.contains(where: {$0.itemIdentifier == item.identifier})  }) }
+            set {
+                let diff = newValue.difference(from: displayingItems)
+                _items = _items + newValue.filter({ item in !_items.contains(where: {$0.identifier == item.identifier}) })
+                for val in diff {
+                    switch val {
+                    case .insert(offset: let index, element: let item, associatedWith: _):
+                        toolbar.insertItem(withItemIdentifier: item.identifier, at: index)
+                    case .remove(offset: let index, element: _, associatedWith: _):
+                        toolbar.removeItem(at: index)
+                    }
+                }
+            }
+        }
+        
+        /// Sets the toolbar’s current items.
+        @discardableResult
+        public func displayingItems(_ items: [ToolbarItem]) -> Self {
+            displayingItems = items
+            return self
+        }
+        
+        /// Sets the toolbar’s current items.
+        @discardableResult
+        public func displayingItems(@Builder items: () -> [ToolbarItem]) -> Self {
+            displayingItems = items()
+            return self
+        }
+        
+        /// The toolbar’s currently selected item.
+        @objc dynamic public var selectedItem: ToolbarItem? {
             get {
                 guard let selectedItemIdentifier = toolbar.selectedItemIdentifier else { return nil }
                 return _items.first(where: { $0.identifier == selectedItemIdentifier })
             }
             set {
                 guard newValue != selectedItem else { return }
-                if let newValue = newValue {
+                if newValue == nil {
+                    toolbar.selectedItemIdentifier = nil
+                } else if let newValue = newValue, displayingItems.contains(where: { $0.identifier == newValue.identifier }) {
                     toolbar.selectedItemIdentifier = newValue.identifier
-                    if !_items.contains(newValue) {
-                        _items.append(<#T##newElement: ToolbarItem##ToolbarItem#>)
-                    }
                 }
+
             }
         }
-        */
-        /*
-        var _selectedItem: ToolbarItem? {
-            guard let selectedItemIdentifier = toolbar.selectedItemIdentifier else { return nil }
-            return _items.first(where: { $0.identifier == selectedItemIdentifier })
-        }
-        */
 
         /// A Boolean value that indicates whether the toolbar autosaves its configuration.
         public var autosavesConfiguration: Bool {
@@ -219,7 +251,7 @@ import FZSwiftUtils
         }
 
         /// Displays the toolbar’s customization palette and handles any user-initiated customizations.
-        public func runCustomizationPalette(_ sender: Any?) {
+        public func runCustomizationPalette(_ sender: Any? = nil) {
             toolbar.runCustomizationPalette(sender)
         }
 
@@ -229,31 +261,6 @@ import FZSwiftUtils
         /// Toolbar item handlers.
         public var itemHandlers = ItemHandlers() {
             didSet { setupSelectedItemObserver() }
-        }
-
-        /**
-         Inserts an item into the toolbar at the specified index.
-
-         Any changes you make to the toolbar appear in all `Toolbar` objects with the same identifier.
-
-         - Parameters:
-            - item: The toolbar item to insert.
-            - index: The index at which to insert the item.
-
-         */
-        public func insertItem(_ item: ToolbarItem, at index: Int) {
-            toolbar.insertItem(withItemIdentifier: item.identifier, at: index)
-        }
-
-        /**
-         Removes the item at the specified index in the toolbar.
-
-         Any changes you make to the toolbar appear in all `Toolbar` objects with the same identifier.
-
-         - Parameter index: The index of the item to remove.
-         */
-        public func removeItem(at index: Int) {
-            toolbar.removeItem(at: index)
         }
 
         /// Toolbar item handlers.
@@ -279,23 +286,6 @@ import FZSwiftUtils
                         self.itemHandlers.selectionChanged?(item)
                     } else {
                         self.itemHandlers.selectionChanged?(nil)
-                    }
-                }
-            }
-        }
-        
-        var itemsAlt: [ToolbarItem] {
-            get { _items }
-            set {
-                let diff = _items.difference(from: newValue)
-                for val in diff {
-                    switch val {
-                    case .insert(offset: let index, element: let item, associatedWith: _):
-                        self._items.insert(item, at: index)
-                        self.insertItem(item, at: index)
-                    case .remove(offset: let index, element: _, associatedWith: _):
-                        self._items.remove(at: index)
-                        self.removeItem(at: index)
                     }
                 }
             }

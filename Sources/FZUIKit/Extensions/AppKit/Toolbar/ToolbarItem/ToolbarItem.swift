@@ -23,8 +23,23 @@
         open var isImmovable = false
         
         /// A Boolean value that indicates whether the item displays in the center of the toolbar.
-        open var isCentered = false
+        @available(macOS 13.0, *)
+        open var isCentered: Bool {
+            get { _isCentered }
+            set { _isCentered = newValue }
+        }
         
+        var _isCentered = false {
+            didSet {
+                guard #available(macOS 13.0, *), oldValue != isCentered, let toolbar = toolbar else { return }
+                if isCentered {
+                    toolbar.centeredItems.insert(self)
+                } else {
+                    toolbar.centeredItems.remove(self)
+                }
+            }
+        }
+                
         var _label: String = "" {
             didSet {
                 guard oldValue != _label else { return }
@@ -35,18 +50,6 @@
             }
         }
         
-        open var isHidden = false {
-            didSet {
-                guard let toolbar = toolbar else { return }
-                if isHidden, toolbar.items.contains(self) {
-                    
-                } else if !isHidden, !toolbar.items.contains(self) {
-                    
-                }
-            }
-        }
-        
-        /*
         /// A Boolean value that indicates whether the item is selected.
         var isSelected: Bool {
             get { toolbar?.selectedItem == self }
@@ -54,14 +57,13 @@
                 guard isSelectable, let toolbar = toolbar, newValue != isSelected else { return }
                 if newValue {
                     toolbar.selectedItem = self
-                } else if toolbar.selectedItemIdentifier == identifier {
-                    toolbar.selectedItemIdentifier = nil
+                } else if toolbar.selectedItem === self {
+                    toolbar.selectedItem = nil
                 }
             }
         }
-        */
       
-        lazy var rootItem = NSToolbarItem(itemIdentifier: self.identifier)
+        lazy var rootItem = NSToolbarItem(itemIdentifier: identifier)
         var item: NSToolbarItem {
             rootItem
         }
@@ -93,7 +95,7 @@
         @objc open var isVisible: Bool { item.isVisible }
 
         /// The toolbar that currently includes the item.
-        var toolbar: Toolbar? { item.toolbar?.delegate as? Toolbar }
+        public var toolbar: Toolbar? { item.toolbar?.delegate as? Toolbar }
         
 
         /// The label that appears for this item in the toolbar.
