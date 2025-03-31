@@ -90,6 +90,23 @@
                 return self
             }
             
+            /**
+             A Boolean value that enables the cancel button in the search field to resign the first responder in addition to clearing the contents.
+             
+             The default value is `true`. If set to `false`, the cancel button only clears the contents of the search field.
+             */
+            public var resignsFirstResponderWithCancel: Bool {
+                get { searchItem.resignsFirstResponderWithCancel }
+                set { searchItem.resignsFirstResponderWithCancel = newValue }
+            }
+            
+            /// Sets the Boolean value that enables the cancel button in the search field to resign the first responder in addition to clearing the contents.
+            @discardableResult
+            public func resignsFirstResponderWithCancel(_ resigns: Bool) -> Self {
+                resignsFirstResponderWithCancel = resigns
+                return self
+            }
+            
             var editingActionSearhField: EditingActionSearchField? {
                 searchItem.searchField as? EditingActionSearchField
             }
@@ -123,7 +140,7 @@
             /**
              Starts a search interaction and moves the keyboard focus to the search field.
              
-             If the system displays a compressed search field, starting the search interaction expands the field to the width stored in the `preferredWidthForSearchField` property and moves the keyboard focus into the search field. Use ``beginSearchInteraction()`` and ``endSearchInteraction()`` to programmatically control a search.
+             If the system displays a compressed search field, starting the search interaction expands the field to the width stored in the ``preferredWidthForSearchField(_:)`` property and moves the keyboard focus into the search field. Use ``beginSearchInteraction()`` and ``endSearchInteraction()`` to programmatically control a search.
              */
             public func beginSearchInteraction() {
                 searchItem.beginSearchInteraction()
@@ -132,7 +149,7 @@
             /**
              Ends a search interaction by giving up the first responder and adjusting the size of the search field to the available width for the toolbar item if necessary.
              
-             Use ``beginSearchInteraction()`` and endSearchInteraction() to programmatically control a search.
+             Use ``beginSearchInteraction()`` and ``endSearchInteraction()`` to programmatically control a search.
              */
             public func endSearchInteraction() {
                 searchItem.endSearchInteraction()
@@ -150,8 +167,7 @@
                     searchFieldConstraints.activate(false)
                     searchFieldConstraints = []
                     if let newValue = newValue {
-                        searchFieldConstraints = [searchField.widthAnchor.constraint(lessThanOrEqualToConstant: newValue),
-                                                  searchField.widthAnchor.constraint(greaterThanOrEqualToConstant: 40)].activate()
+                        searchFieldConstraints = [searchField.widthAnchor.constraint(lessThanOrEqualToConstant: newValue), searchField.widthAnchor.constraint(greaterThanOrEqualToConstant: 40)].activate()
                     }
                 }
             }

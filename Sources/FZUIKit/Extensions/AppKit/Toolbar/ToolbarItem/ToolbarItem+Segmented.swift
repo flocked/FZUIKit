@@ -39,7 +39,7 @@
              To get the last selected segment, check the selected segment where ``NSSegment/isLastSelected`` is `true.`
              */
             public var selectedSegments: [NSSegment] {
-                return segmentedControl.indexesOfSelectedSegments.compactMap({ segments[safe: $0] })
+                segmentedControl.indexesOfSelectedSegments.compactMap({ segments[safe: $0] })
             }
             
             /// Sets the segments of the segmented control.

@@ -329,7 +329,7 @@
         }
 
         /// The segments displayed by the segmented control.
-        var segments: [NSSegment] {
+       @objc dynamic var segments: [NSSegment] {
             get { (0..<segmentCount).compactMap {segment(at: $0)} }
             set {
                 segmentCount = newValue.count                

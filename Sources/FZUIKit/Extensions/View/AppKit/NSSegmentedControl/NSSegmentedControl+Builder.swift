@@ -16,56 +16,39 @@
             }
 
             public static func buildOptional(_ item: NSSegment?) -> [NSSegment] {
-                if let item = item {
-                    return [item]
-                }
-                return []
+                item != nil ? [item!] : []
             }
 
-            public static func buildOptional(_ item: [NSSegment]?) -> [NSSegment] {
-                item ?? []
+            public static func buildEither(first: [NSSegment]) -> [NSSegment] {
+                first
             }
 
-            public static func buildEither(first: [NSSegment]?) -> [NSSegment] {
-                first ?? []
-            }
-
-            public static func buildEither(second: [NSSegment]?) -> [NSSegment] {
-                second ?? []
+            public static func buildEither(second: [NSSegment]) -> [NSSegment] {
+                second
             }
 
             public static func buildArray(_ components: [[NSSegment]]) -> [NSSegment] {
                 components.flatMap { $0 }
             }
 
-            public static func buildExpression(_ expr: [NSSegment]?) -> [NSSegment] {
-                expr ?? []
-            }
-
             public static func buildExpression(_ expr: NSSegment?) -> [NSSegment] {
                 expr.map { [$0] } ?? []
             }
 
-            public static func buildExpression(_ expr: [NSImage]?) -> [NSSegment] {
-                expr?.map { NSSegment($0) } ?? []
+            public static func buildExpression(_ expr: NSImage) -> [NSSegment] {
+                [NSSegment(expr)]
+            }
+            
+            public static func buildExpression(_ expr: [NSImage]) -> [NSSegment] {
+                expr.map { NSSegment($0) }
+            }
+            
+            public static func buildExpression(_ expr: String) -> [NSSegment] {
+                [NSSegment(expr)]
             }
 
-            public static func buildExpression(_ expr: NSImage?) -> [NSSegment] {
-                if let image = expr {
-                    return [NSSegment(image)]
-                }
-                return []
-            }
-
-            public static func buildExpression(_ expr: [String]?) -> [NSSegment] {
-                expr?.map { NSSegment($0) } ?? []
-            }
-
-            public static func buildExpression(_ expr: String?) -> [NSSegment] {
-                if let string = expr {
-                    return [NSSegment(string)]
-                }
-                return []
+            public static func buildExpression(_ expr: [String]) -> [NSSegment] {
+                expr.map { NSSegment($0) }
             }
         }
     }

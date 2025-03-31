@@ -16,19 +16,8 @@ import FZSwiftUtils
         /// The identifier of the toolbar.
         public let identifier: NSToolbar.Identifier
         
-        private var _items: [ToolbarItem] = [] {
-            didSet {
-                guard #available(macOS 13.0, *) else { return }
-                centeredItems = Set(_items.filter(\.isCentered))
-            }
-        }
-        private var selectedItemObservation: KeyValueObservation?
         private lazy var delegate = Delegate(self)
-        private lazy var toolbar: NSToolbar = {
-            let toolbar = NSToolbar(identifier: identifier)
-            toolbar.delegate = delegate
-            return toolbar
-        }()
+        let toolbar: NotifyingToolbar
         
         /**
          Creates a newly toolbar with the specified identifier.
@@ -42,15 +31,17 @@ import FZSwiftUtils
          */
         public init(_ identifier: NSToolbar.Identifier? = nil, allowsUserCustomization: Bool = true, items: [ToolbarItem]) {
             self.identifier = identifier ?? UUID().uuidString
-            _items = items
+            self.items = items
+            toolbar = NotifyingToolbar(identifier: self.identifier)
             super.init()
-            if #available(macOS 13.0, *) {
-                toolbar.centeredItemIdentifiers = Set(items.filter(\.isCentered).ids)
-            }
+            toolbar.delegate = delegate
+            toolbar.manager = self
             self.allowsUserCustomization = allowsUserCustomization
-            if allowsUserCustomization {
-                autosavesConfiguration = true
+            autosavesConfiguration = allowsUserCustomization
+            if #available(macOS 13.0, *) {
+                centeredItems = Set(items.filter(\.isCentered))
             }
+            selectedItem = items.first
         }
 
         /**
@@ -78,7 +69,7 @@ import FZSwiftUtils
         }
 
         @discardableResult
-        /// The window of the toolbar.
+        /// Sets the window of the toolbar.
         public func attachedWindow(_ window: NSWindow?) -> Self {
             attachedWindow = window
             return self
@@ -90,7 +81,7 @@ import FZSwiftUtils
             set { toolbar.isVisible = newValue }
         }
         
-        /// A Boolean value that indicates whether the toolbar is visible.
+        /// Sets the Boolean value that indicates whether the toolbar is visible.
         @discardableResult
         public func isVisible(_ isVisible: Bool) -> Self {
             self.isVisible = isVisible
@@ -109,8 +100,8 @@ import FZSwiftUtils
         }
 
         @available(macOS 11.0, *)
-        /// The style that determines the appearance and location of the toolbar in relation to the title bar.
-        @discardableResult 
+        /// Sets the style that determines the appearance and location of the toolbar in relation to the title bar.
+        @discardableResult
         public func style(_ style: NSWindow.ToolbarStyle) -> Self {
             self.style = style
             return self
@@ -122,7 +113,7 @@ import FZSwiftUtils
             set { toolbar.displayMode = newValue }
         }
         
-        /// A value that indicates whether the toolbar displays items using a name, icon, or combination of elements.
+        /// Sets the value that indicates whether the toolbar displays items using a name, icon, or combination of elements.
         @discardableResult
         public func displayMode(_ mode: NSToolbar.DisplayMode) -> Self {
             displayMode = mode
@@ -135,7 +126,7 @@ import FZSwiftUtils
             set { toolbar.showsBaselineSeparator = newValue }
         }
         
-        /// A Boolean value that indicates whether the toolbar shows the separator between the toolbar and the main window contents.
+        /// Sets the Boolean value that indicates whether the toolbar shows the separator between the toolbar and the main window contents.
         @discardableResult
         public func showsBaselineSeparator(_ shows: Bool) -> Self {
             showsBaselineSeparator = shows
@@ -148,7 +139,7 @@ import FZSwiftUtils
             set { toolbar.allowsUserCustomization = newValue }
         }
         
-        /// A Boolean value that indicates whether users can modify the contents of the toolbar.
+        /// Sets the Boolean value that indicates whether users can modify the contents of the toolbar.
         @discardableResult
         public func allowsUserCustomization(_ allows: Bool) -> Self {
             allowsUserCustomization = allows
@@ -161,40 +152,38 @@ import FZSwiftUtils
             set { toolbar.allowsExtensionItems = newValue }
         }
         
-        /// A Boolean value that indicates whether the toolbar can add items for Action extensions.
+        /// Sets the Boolean value that indicates whether the toolbar can add items for Action extensions.
         @discardableResult
         public func allowsExtensionItems(_ allows: Bool) -> Self {
             allowsExtensionItems = allows
             return self
         }
-
-        /// An array containing the toolbar’s current items, in order.
-        public var items: [ToolbarItem] {
-            get { toolbar.items.compactMap { item in self._items.first(where: { $0.item == item }) } }
-        }
-
+        
         /**
-         An array containing the toolbar’s currently visible items.
+         The items that are managed by the toolbar.
          
-         This property doesn’t contain items in the overflow menu because those items aren’t visible.
+         It includes all items, regardless if they are currently displayed.
+         
+         To update the displayed items, use ``displayedItems``.
          */
-        public var visibleItems: [ToolbarItem]? {
-            toolbar.visibleItems?.compactMap { item in self._items.first(where: { $0.item == item }) }
-        }
-
-        @available(macOS 13.0, *)
-        /// The set of custom items to display in the center of the toolbar.
-        public internal(set) var centeredItems: Set<ToolbarItem> {
-            get { Set(toolbar.centeredItemIdentifiers.compactMap { identifier in _items.first(where: { $0.identifier == identifier }) }) }
-            set { toolbar.centeredItemIdentifiers = Set(newValue.map({$0.identifier})) }
+        public var items: [ToolbarItem] = [] {
+            didSet {
+                items.difference(to: oldValue).removed.forEach({
+                    if let index = displayedItems.firstIndex(of: $0) {
+                        toolbar.removeItem(at: index)
+                    }
+                })
+                guard #available(macOS 13.0, *) else { return }
+                centeredItems = Set(items.filter(\.isCentered))
+            }
         }
         
-        /// The toolbar’s current items.
-        public var displayingItems: [ToolbarItem] {
-            get {  _items.filter({ item in toolbar.items.contains(where: {$0.itemIdentifier == item.identifier})  }) }
+        /// The currenlty displayed items in the toolbar, in order.
+        public var displayedItems: [ToolbarItem] {
+            get {  items.filter({ item in toolbar.items.contains(where: {$0.itemIdentifier == item.identifier})  }) }
             set {
-                let diff = newValue.difference(from: displayingItems)
-                _items = _items + newValue.filter({ item in !_items.contains(where: {$0.identifier == item.identifier}) })
+                let diff = newValue.difference(from: displayedItems)
+                items = items + newValue.filter({ item in !items.contains(where: {$0.identifier == item.identifier}) })
                 for val in diff {
                     switch val {
                     case .insert(offset: let index, element: let item, associatedWith: _):
@@ -206,35 +195,50 @@ import FZSwiftUtils
             }
         }
         
-        /// Sets the toolbar’s current items.
+        /// Sets the displayed items in the toolbar.
         @discardableResult
-        public func displayingItems(_ items: [ToolbarItem]) -> Self {
-            displayingItems = items
+        public func displayedItems(_ items: [ToolbarItem]) -> Self {
+            displayedItems = items
             return self
         }
         
-        /// Sets the toolbar’s current items.
+        /// Sets the displayed items in the toolbar.
         @discardableResult
-        public func displayingItems(@Builder items: () -> [ToolbarItem]) -> Self {
-            displayingItems = items()
+        public func displayedItems(@Builder items: () -> [ToolbarItem]) -> Self {
+            displayedItems = items()
             return self
         }
         
-        /// The toolbar’s currently selected item.
+        /// The currenlty displayed items in the toolbar that aren't in the overflow menu.
+        public var visibleItems: [ToolbarItem] {
+            toolbar.visibleItems?.compactMap { item in self.items.first(where: { $0.item == item }) } ?? []
+        }
+        
+        /**
+         The toolbar’s currently selected item.
+         
+         This property is key-value observable (KVO).
+         */
         @objc dynamic public var selectedItem: ToolbarItem? {
             get {
                 guard let selectedItemIdentifier = toolbar.selectedItemIdentifier else { return nil }
-                return _items.first(where: { $0.identifier == selectedItemIdentifier })
+                return items.first(where: { $0.identifier == selectedItemIdentifier })
             }
             set {
                 guard newValue != selectedItem else { return }
                 if newValue == nil {
                     toolbar.selectedItemIdentifier = nil
-                } else if let newValue = newValue, displayingItems.contains(where: { $0.identifier == newValue.identifier }) {
+                } else if let newValue = newValue, displayedItems.contains(newValue) {
                     toolbar.selectedItemIdentifier = newValue.identifier
                 }
-
             }
+        }
+        
+        @available(macOS 13.0, *)
+        /// The items to be centered in the toolbar.
+        internal var centeredItems: Set<ToolbarItem> {
+            get { Set(toolbar.centeredItemIdentifiers.compactMap { identifier in items.first(where: { $0.identifier == identifier }) }) }
+            set { toolbar.centeredItemIdentifiers = Set(newValue.map({$0.identifier})) }
         }
 
         /// A Boolean value that indicates whether the toolbar autosaves its configuration.
@@ -243,7 +247,7 @@ import FZSwiftUtils
             set { toolbar.autosavesConfiguration = newValue }
         }
         
-        /// A Boolean value that indicates whether the toolbar autosaves its configuration.
+        /// Sets the Boolean value that indicates whether the toolbar autosaves its configuration.
         @discardableResult
         public func autosavesConfiguration(_ autosaves: Bool) -> Self {
             autosavesConfiguration = autosaves
@@ -259,9 +263,7 @@ import FZSwiftUtils
         public var customizationPaletteIsRunning: Bool { toolbar.customizationPaletteIsRunning }
 
         /// Toolbar item handlers.
-        public var itemHandlers = ItemHandlers() {
-            didSet { setupSelectedItemObserver() }
-        }
+        public var itemHandlers = ItemHandlers()
 
         /// Toolbar item handlers.
         public struct ItemHandlers {
@@ -274,19 +276,17 @@ import FZSwiftUtils
             /// Handler that gets called when a item did remove.
             public var didRemove: ((_ item: ToolbarItem) -> Void)?
         }
-
-        func setupSelectedItemObserver() {
-            if itemHandlers.selectionChanged == nil {
-                selectedItemObservation = nil
-            } else if selectedItemObservation == nil {
-                selectedItemObservation = observeChanges(for: \.toolbar.selectedItemIdentifier) { [weak self] _, identifier in
-                    guard let self = self else { return }
-                    if let identifier = identifier {
-                        guard let item = self._items[id: identifier] else { return }
-                        self.itemHandlers.selectionChanged?(item)
-                    } else {
-                        self.itemHandlers.selectionChanged?(nil)
-                    }
+        
+        class NotifyingToolbar: NSToolbar {
+            weak var manager: Toolbar?
+            
+            override var selectedItemIdentifier: NSToolbarItem.Identifier? {
+                willSet { 
+                    manager?.willChangeValue(for: \.selectedItem) }
+                didSet {
+                    manager?.didChangeValue(for: \.selectedItem)
+                    guard oldValue != selectedItemIdentifier else { return }
+                    manager?.itemHandlers.selectionChanged?(manager?.selectedItem)
                 }
             }
         }
@@ -296,7 +296,7 @@ import FZSwiftUtils
         class Delegate: NSObject, NSToolbarDelegate {
             weak var toolbar: Toolbar?
             var items: [ToolbarItem] {
-                toolbar?._items ?? []
+                toolbar?.items ?? []
             }
             init(_ toolbar: Toolbar) {
                 self.toolbar = toolbar
