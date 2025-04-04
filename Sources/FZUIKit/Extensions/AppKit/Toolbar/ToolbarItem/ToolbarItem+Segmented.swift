@@ -17,7 +17,7 @@
          */
         class Segmented: ToolbarItem {
             
-            lazy var groupItem = NSToolbarItemGroup(identifier)
+            lazy var groupItem = ValidateToolbarItemGroup(for: self)
             override var item: NSToolbarItem {
                 groupItem
             }
@@ -130,6 +130,8 @@
                         groupItem.label = _label
                     }
                 }
+                segmentedControl.segmentStyle = .capsule
+                item.label = "Fun"
                 segmentedControl.sizeToFit()
             }
             

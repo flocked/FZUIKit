@@ -89,6 +89,11 @@
                 actionBlock = action
                 return self
             }
+            
+            /// Creates a toolbar item.
+            public override init(_ identifier: NSToolbarItem.Identifier? = nil) {
+                super.init(identifier)
+            }
         }
     }
 #endif

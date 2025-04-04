@@ -16,7 +16,7 @@
          */
         class Menu: ToolbarItem {
             
-            lazy var menuItem = NSMenuToolbarItem(identifier)
+            lazy var menuItem = ValidateMenuToolbarItem(for: self)
             override var item: NSToolbarItem {
                 menuItem
             }
@@ -141,5 +141,19 @@
             }
         }
     }
+
+class ValidateMenuToolbarItem: NSMenuToolbarItem {
+    weak var item: ToolbarItem?
+    
+    init(for item: ToolbarItem) {
+        super.init(itemIdentifier: item.identifier)
+        self.item = item
+    }
+    
+    override func validate() {
+        super.validate()
+        item?.validate()
+    }
+}
 
 #endif

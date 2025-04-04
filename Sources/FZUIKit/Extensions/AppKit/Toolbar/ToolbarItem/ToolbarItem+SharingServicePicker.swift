@@ -16,7 +16,7 @@
          The item can be used with ``Toolbar``.
          */
         class SharingServicePicker: ToolbarItem {
-            lazy var servicePickerItem = NSSharingServicePickerToolbarItem(identifier)
+            lazy var servicePickerItem = ValidateServicePickerToolbarItem(for: self)
             override var item: NSToolbarItem {
                 servicePickerItem
             }
@@ -104,5 +104,19 @@
             }
         }
     }
+
+class ValidateServicePickerToolbarItem: NSSharingServicePickerToolbarItem {
+    weak var item: ToolbarItem?
+    
+    init(for item: ToolbarItem) {
+        super.init(itemIdentifier: item.identifier)
+        self.item = item
+    }
+    
+    override func validate() {
+        super.validate()
+        item?.validate()
+    }
+}
 
 #endif

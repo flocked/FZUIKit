@@ -17,7 +17,7 @@
          */
         class Search: ToolbarItem, NSSearchFieldDelegate, NSTextFieldDelegate {
 
-            lazy var searchItem = NSSearchToolbarItem(identifier)
+            lazy var searchItem = ValidateSearchToolbarItem(for: self)
             override var item: NSToolbarItem {
                 searchItem
             }
@@ -268,6 +268,21 @@ class EditingActionSearchField: NSSearchField, NSTextViewDelegate {
         default: break
         }
         return false
+    }
+}
+
+@available(macOS 11.0, *)
+class ValidateSearchToolbarItem: NSSearchToolbarItem {
+    weak var item: ToolbarItem?
+    
+    init(for item: ToolbarItem) {
+        super.init(itemIdentifier: item.identifier)
+        self.item = item
+    }
+    
+    override func validate() {
+        super.validate()
+        item?.validate()
     }
 }
 

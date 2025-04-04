@@ -30,7 +30,7 @@ import FZSwiftUtils
          - Returns: The initialized `Toolbar` object.
          */
         public init(_ identifier: NSToolbar.Identifier? = nil, allowsUserCustomization: Bool = true, items: [ToolbarItem]) {
-            self.identifier = identifier ?? UUID().uuidString
+            self.identifier = identifier ?? Self.automaticIdentifier(for: "\(type(of: self))").rawValue
             self.items = items
             toolbar = NotifyingToolbar(identifier: self.identifier)
             super.init()
@@ -61,10 +61,9 @@ import FZSwiftUtils
         /// The window of the toolbar.
         public var attachedWindow: NSWindow? {
             didSet {
+                guard oldValue != attachedWindow else { return }
                 oldValue?.toolbar = nil
-                if let attachedWindow = attachedWindow {
-                    attachedWindow.toolbar = toolbar
-                }
+                attachedWindow?.toolbar = toolbar
             }
         }
 
@@ -168,6 +167,7 @@ import FZSwiftUtils
          */
         public var items: [ToolbarItem] = [] {
             didSet {
+                items = items.uniqued()
                 items.difference(to: oldValue).removed.forEach({
                     if let index = displayedItems.firstIndex(of: $0) {
                         toolbar.removeItem(at: index)
@@ -180,10 +180,13 @@ import FZSwiftUtils
         
         /// The currenlty displayed items in the toolbar, in order.
         public var displayedItems: [ToolbarItem] {
-            get {  items.filter({ item in toolbar.items.contains(where: {$0.itemIdentifier == item.identifier})  }) }
+            get {
+                items.filter({ item in toolbar.items.contains(where: {$0.itemIdentifier == item.identifier}) })
+            }
             set {
+                let newValue = newValue.uniqued()
                 let diff = newValue.difference(from: displayedItems)
-                items = items + newValue.filter({ item in !items.contains(where: {$0.identifier == item.identifier}) })
+                items = items + newValue.filter({ !items.contains($0) })
                 for val in diff {
                     switch val {
                     case .insert(offset: let index, element: let item, associatedWith: _):
@@ -209,7 +212,7 @@ import FZSwiftUtils
             return self
         }
         
-        /// The currenlty displayed items in the toolbar that aren't in the overflow menu.
+        /// The currenlty visible items in the toolbar that aren't in the overflow menu.
         public var visibleItems: [ToolbarItem] {
             toolbar.visibleItems?.compactMap { item in self.items.first(where: { $0.item == item }) } ?? []
         }
@@ -221,8 +224,8 @@ import FZSwiftUtils
          */
         @objc dynamic public var selectedItem: ToolbarItem? {
             get {
-                guard let selectedItemIdentifier = toolbar.selectedItemIdentifier else { return nil }
-                return items.first(where: { $0.identifier == selectedItemIdentifier })
+                guard let selectedID = toolbar.selectedItemIdentifier else { return nil }
+                return items.first(where: { $0.identifier == selectedID })
             }
             set {
                 guard newValue != selectedItem else { return }
@@ -235,12 +238,20 @@ import FZSwiftUtils
         }
         
         @available(macOS 13.0, *)
-        /// The items to be centered in the toolbar.
+        /// The items displayed in the center in the toolbar.
         internal var centeredItems: Set<ToolbarItem> {
             get { Set(toolbar.centeredItemIdentifiers.compactMap { identifier in items.first(where: { $0.identifier == identifier }) }) }
             set { toolbar.centeredItemIdentifiers = Set(newValue.map({$0.identifier})) }
         }
 
+        /// Displays the toolbar’s customization palette and handles any user-initiated customizations.
+        @objc public func runCustomizationPalette(_ sender: Any? = nil) {
+            toolbar.runCustomizationPalette(sender)
+        }
+
+        /// A Boolean value that indicates whether the toolbar’s customization palette is in use.
+        public var customizationPaletteIsRunning: Bool { toolbar.customizationPaletteIsRunning }
+        
         /// A Boolean value that indicates whether the toolbar autosaves its configuration.
         public var autosavesConfiguration: Bool {
             get { toolbar.autosavesConfiguration }
@@ -253,14 +264,24 @@ import FZSwiftUtils
             autosavesConfiguration = autosaves
             return self
         }
-
-        /// Displays the toolbar’s customization palette and handles any user-initiated customizations.
-        public func runCustomizationPalette(_ sender: Any? = nil) {
-            toolbar.runCustomizationPalette(sender)
+        
+        /**
+         A dictionary containing the current configuration details for the toolbar.
+         
+         Use this property to retrieve the toolbar’s configuration details so you can save them to disk yourself. The dictionary in this property contains the identifiers of the current toolbar items and the values of important properties such as ``displayMode`` and ``isVisible``.
+         */
+        public var configuration: [String : Any] { toolbar.configuration }
+        
+        /**
+         Specifies the new configuration details for the toolbar.
+         
+         If you implement your own autosave mechanism, call this method to restore the configuration of your toolbar to a previously saved state. The dictionary you read from disk must match the format of the dictionary in the ``configuration`` property.
+                  
+         - Parameter configuration:  A dictionary with the toolbar configuration details. The toolbar ignores any keys it doesn’t recognize. Typically, you save the original configuration dictionary from the ``configuration`` property to disk and recreate it before passing it in this parameter.
+         */
+        public func setConfiguration(_ configuration: [String : Any]) {
+            toolbar.setConfiguration(configuration)
         }
-
-        /// A Boolean value that indicates whether the toolbar’s customization palette is in use.
-        public var customizationPaletteIsRunning: Bool { toolbar.customizationPaletteIsRunning }
 
         /// Toolbar item handlers.
         public var itemHandlers = ItemHandlers()
@@ -268,7 +289,7 @@ import FZSwiftUtils
         /// Toolbar item handlers.
         public struct ItemHandlers {
             /// Handler that gets called when the selected item changed.
-            public var selectionChanged: ((ToolbarItem?) -> Void)?
+            public var selectionChanged: ((_ selectedItem: ToolbarItem?) -> Void)?
             /// Handler that determines whether an item can be inserted.
             public var canInsert: ((_ item: ToolbarItem, _ index: Int) -> Bool)?
             /// Handler that gets called when a item will be added.
@@ -276,28 +297,14 @@ import FZSwiftUtils
             /// Handler that gets called when a item did remove.
             public var didRemove: ((_ item: ToolbarItem) -> Void)?
         }
-        
-        class NotifyingToolbar: NSToolbar {
-            weak var manager: Toolbar?
-            
-            override var selectedItemIdentifier: NSToolbarItem.Identifier? {
-                willSet { 
-                    manager?.willChangeValue(for: \.selectedItem) }
-                didSet {
-                    manager?.didChangeValue(for: \.selectedItem)
-                    guard oldValue != selectedItemIdentifier else { return }
-                    manager?.itemHandlers.selectionChanged?(manager?.selectedItem)
-                }
-            }
-        }
-    }
 
-    extension Toolbar {
         class Delegate: NSObject, NSToolbarDelegate {
             weak var toolbar: Toolbar?
+            
             var items: [ToolbarItem] {
                 toolbar?.items ?? []
             }
+            
             init(_ toolbar: Toolbar) {
                 self.toolbar = toolbar
             }
@@ -319,7 +326,7 @@ import FZSwiftUtils
             }
 
             public func toolbar(_: NSToolbar, itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier, willBeInsertedIntoToolbar _: Bool) -> NSToolbarItem? {
-                items[id: itemIdentifier]?.item
+                return items[id: itemIdentifier]?.item
             }
 
             public func toolbarWillAddItem(_ notification: Notification) {
@@ -340,7 +347,34 @@ import FZSwiftUtils
                 return canInsert(item, index)
             }
         }
+        
+        class NotifyingToolbar: NSToolbar {
+            weak var manager: Toolbar?
+            
+            override var selectedItemIdentifier: NSToolbarItem.Identifier? {
+                willSet {
+                    manager?.willChangeValue(for: \.selectedItem) }
+                didSet {
+                    manager?.didChangeValue(for: \.selectedItem)
+                    guard oldValue != selectedItemIdentifier else { return }
+                    manager?.itemHandlers.selectionChanged?(manager?.selectedItem)
+                }
+            }
+        }
     }
+
+extension Toolbar {
+    private static var automaticIdentifiers = [String: Int]()
+    private static let lock = DispatchQueue(label: "com.toolbaritem.lock")
+
+    static func automaticIdentifier(for name: String) -> NSToolbarItem.Identifier {
+        return lock.sync {
+            let count = automaticIdentifiers[name, default: -1] + 1
+            automaticIdentifiers[name] = count
+            return NSToolbarItem.Identifier("\(name) \(count)")
+        }
+    }
+}
 
 extension NSToolbar {
     /// Returns the ``Toolbar`` representation of the toolbar if it is managed by it.

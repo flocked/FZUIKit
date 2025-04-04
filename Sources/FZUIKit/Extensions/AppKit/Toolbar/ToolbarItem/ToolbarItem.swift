@@ -29,6 +29,10 @@
             set { _isCentered = newValue }
         }
         
+        open func validate() {
+            
+        }
+        
         var _isCentered = false {
             didSet {
                 guard #available(macOS 13.0, *), oldValue != isCentered, let toolbar = toolbar else { return }
@@ -63,25 +67,17 @@
             }
         }
       
-        lazy var rootItem = NSToolbarItem(itemIdentifier: identifier)
+        lazy var rootItem = ValidateToolbarItem(for: self)
         var item: NSToolbarItem {
             rootItem
         }
-
-        /// Creates a toolbar item.
-        public init(_ identifier: NSToolbarItem.Identifier? = nil) {
-            self.identifier = identifier ?? Self.automaticIdentifier(for: "\(type(of: self))")
-        }
         
-        private static var automaticIdentifiers = [String: Int]()
-        private static let lock = DispatchQueue(label: "com.toolbaritem.lock")
+        public var itemA: NSToolbarItem {
+            rootItem
+        }
 
-        static func automaticIdentifier(for name: String) -> NSToolbarItem.Identifier {
-            return lock.sync {
-                let count = automaticIdentifiers[name, default: -1] + 1
-                automaticIdentifiers[name] = count
-                return NSToolbarItem.Identifier("\(name) \(count)")
-            }
+        init(_ identifier: NSToolbarItem.Identifier? = nil) {
+            self.identifier = identifier ?? Toolbar.automaticIdentifier(for: "\(type(of: self))")
         }
     }
 
@@ -234,7 +230,7 @@
         /**
          The display priority associated with the toolbar item.
 
-         The default value of this property is standard. Assign a higher priority to give preference to the toolbar item when space is limited.
+         The default value of this property is `standard`. Assign a higher priority to give preference to the toolbar item when space is limited.
 
          When a toolbar doesn’t have enough space to fit all of its items, it pushes lower-priority items to the overflow menu first. When two or more items have the same priority, the toolbar removes them one at a time starting from the trailing edge.
          */
@@ -276,23 +272,12 @@
             item.menuFormRepresentation = menuItem
             return self
         }
-        
-        internal func apply(_ modifier: @escaping (Self) -> Void) -> Self {
-            modifier(self)
-            return self
-        }
-
-        internal func set<Value>(_ keyPath: ReferenceWritableKeyPath<ToolbarItem, Value>, to value: Value) -> Self {
-            apply {
-                $0[keyPath: keyPath] = value
-            }
-        }
     }
 
 public extension Sequence where Element == ToolbarItem {
     /// An array of identifier of the toolbar items.
     var ids: [NSToolbarItem.Identifier] {
-        compactMap(\.identifier)
+        map(\.identifier)
     }
     
     /// The toolbar item with the specified identifier, or `nil` if the sequence doesn't contain an item with the identifier.
@@ -303,6 +288,20 @@ public extension Sequence where Element == ToolbarItem {
     /// The toolbar items with the specified identifiers.
     subscript<S: Sequence<NSToolbarItem.Identifier>>(ids ids: S) -> [Element] {
         filter { ids.contains($0.identifier) }
+    }
+}
+
+class ValidateToolbarItem: NSToolbarItem {
+    weak var item: ToolbarItem?
+    
+    init(for item: ToolbarItem) {
+        super.init(itemIdentifier: item.identifier)
+        self.item = item
+    }
+    
+    override func validate() {
+        super.validate()
+        item?.validate()
     }
 }
 #endif
