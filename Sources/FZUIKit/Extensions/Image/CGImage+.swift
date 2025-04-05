@@ -415,9 +415,9 @@ extension CGImage {
     private func applyCoreImageFilter(filterName: String) -> CGImage? {
         let ciImage = CIImage(cgImage: self)
         guard let filter = CIFilter(name: filterName) else { return nil }
-        filter.setValue(ciImage, forKey: kCIInputImageKey)
+        filter.setValue(safely: ciImage, forKey: kCIInputImageKey)
         if filterName == "CIColorControls" {
-            filter.setValue(0.0, forKey: kCIInputSaturationKey)
+            filter.setValue(safely: 0.0, forKey: kCIInputSaturationKey)
         }
         let context = CIContext()
         return filter.outputImage.flatMap {

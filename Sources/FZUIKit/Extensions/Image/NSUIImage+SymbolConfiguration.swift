@@ -297,7 +297,7 @@ extension NSUIImage.SymbolConfiguration {
         }
         set {
             guard responds(to: NSSelectorFromString("renderingStyle")) else { return }
-            setValue(newValue, forKey: "renderingStyle")
+            setValue(safely: newValue, forKey: "renderingStyle")
         }
     }
     
@@ -308,7 +308,7 @@ extension NSUIImage.SymbolConfiguration {
         }
         set {
             guard responds(to: NSSelectorFromString("prefersMulticolor")) else { return }
-            setValue(newValue, forKey: "prefersMulticolor")
+            setValue(safely: newValue, forKey: "prefersMulticolor")
         }
     }
     #endif
@@ -319,19 +319,19 @@ extension NSUIImage.SymbolConfiguration {
     
     @discardableResult func pointSize(_ size: CGFloat) -> NSUIImage.SymbolConfiguration {
         guard responds(to: NSSelectorFromString("pointSize")) else { return self }
-        setValue(size, forKey: "pointSize")
+        setValue(safely: size, forKey: "pointSize")
         return self
     }
     
     @discardableResult func weight(_ weight: NSUISymbolWeight) -> NSUIImage.SymbolConfiguration {
         guard responds(to: NSSelectorFromString("weight")) else { return self }
-        setValue(weight.rawValue, forKey: "weight")
+        setValue(safely: weight.rawValue, forKey: "weight")
         return self
     }
     
     @discardableResult func scale(_ scale: NSUIImage.SymbolScale) -> NSUIImage.SymbolConfiguration {
         guard responds(to: NSSelectorFromString("scale")) else { return self }
-        setValue(scale.rawValue, forKey: "scale")
+        setValue(safely: scale.rawValue, forKey: "scale")
         return self
     }
     
@@ -359,7 +359,7 @@ extension NSUIImage.SymbolConfiguration {
     
     var colors: [NSUIColor]? {
         get { value(forKey: "_colors") }
-        set { setValue(newValue, forKey: "_colors") }
+        set { setValue(safely: newValue, forKey: "_colors") }
     }
 
     var primary: NSUIColor? {

@@ -100,7 +100,7 @@
             - index: The index of the segment whose label you want to set.
          */
         func setFont(_ font: NSFont, forSegment segment: Int) {
-            segmentViews[safe: segment]?.setValue(font, forKey: "font")
+            segmentViews[safe: segment]?.setValue(safely: font, forKey: "font")
         }
                 
         /**

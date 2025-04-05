@@ -52,7 +52,7 @@ extension NSCollectionLayoutVisibleItem {
         get { layoutAttributes?.transform ?? .identity }
         set { 
             layoutAttributes?.transform = newValue
-            (self as? NSObject)?.setValue(newValue, forKey: "transform")
+            (self as? NSObject)?.setValue(safely: newValue, forKey: "transform")
         }
     }
     
@@ -61,7 +61,7 @@ extension NSCollectionLayoutVisibleItem {
         get { layoutAttributes?.transform3D ?? .identity }
         set { 
             layoutAttributes?.transform3D = newValue
-            (self as? NSObject)?.setValue(newValue, forKey: "transform3D")
+            (self as? NSObject)?.setValue(safely: newValue, forKey: "transform3D")
         }
     }
     

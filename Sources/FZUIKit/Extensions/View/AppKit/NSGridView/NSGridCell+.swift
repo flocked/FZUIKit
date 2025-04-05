@@ -77,7 +77,7 @@ public extension NSGridCell {
     
     internal var headOfMergedCell: NSGridCell? {
         get { value(forKey: "_headOfMergedCell") as? NSGridCell }
-        set { setValue(newValue, forKey: "_headOfMergedCell")}
+        set { setValue(safely: newValue, forKey: "_headOfMergedCell")}
     }
 }
 

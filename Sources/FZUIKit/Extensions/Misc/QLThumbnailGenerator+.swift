@@ -76,7 +76,7 @@ import FZSwiftUtils
         /// The URL of the file for which you want to create a thumbnail.
         public var fileURL: URL {
             get { value(forKey: "fileURL") as? URL ?? URL(fileURLWithPath: "No request URL") }
-            set { setValue(newValue, forKey: "fileURL") }
+            set { setValue(safely: newValue, forKey: "fileURL") }
         }
         
         /**

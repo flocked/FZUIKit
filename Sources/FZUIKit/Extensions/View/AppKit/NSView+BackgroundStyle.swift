@@ -64,8 +64,8 @@ extension NSImageView {
             if let configuration = symbolConfiguration {
                 let copy = NSImage.SymbolConfiguration()
                 copy.pointSize = configuration.pointSize
-                copy.setValue(configuration.value(forKey: "weight"), forKey: "weight")
-                copy.setValue(configuration.value(forKey: "scale"), forKey: "scale")
+                copy.setValue(safely: configuration.value(forKey: "weight"), forKey: "weight")
+                copy.setValue(safely: configuration.value(forKey: "scale"), forKey: "scale")
                 symbolConfiguration = copy
             }
             configurationObservation = observeChanges(for: \.symbolConfiguration) { [weak self] old, new in

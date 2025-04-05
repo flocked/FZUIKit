@@ -226,7 +226,7 @@ extension NSPopover {
         get { value(forKey: "positioningView") as? NSView }
         set {
             guard newValue != positioningView else { return }
-            setValue(newValue, forKey: "positioningView")
+            setValue(safely: newValue, forKey: "positioningView")
             updateVisible()
         }
     }
@@ -243,7 +243,7 @@ extension NSPopover {
         get { NSRectEdge(rawValue: value(forKey: "_preferredEdge") as? UInt ?? 0)! }
         set {
             guard newValue != preferredEdge else { return }
-            setValue(newValue.rawValue, forKey: "_preferredEdge")
+            setValue(safely: newValue.rawValue, forKey: "_preferredEdge")
             updateVisible()
         }
     }
@@ -260,7 +260,7 @@ extension NSPopover {
         get { !(value(forKey: "shouldHideAnchor") as? Bool ?? false) }
         set {
             guard newValue != isArrowVisible else { return }
-            setValue(!newValue, forKey: "shouldHideAnchor")
+            setValue(safely: !newValue, forKey: "shouldHideAnchor")
             updateVisible()
         }
     }

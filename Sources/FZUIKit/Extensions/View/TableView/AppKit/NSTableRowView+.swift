@@ -54,7 +54,7 @@
         @available(macOS 11.0, *)
         var tintConfiguration: NSTintConfiguration? {
             get {value(forKey: "_contentTintConfiguration") as? NSTintConfiguration }
-            set { setValue(newValue, forKey: "_contentTintConfiguration") }
+            set { setValue(safely: newValue, forKey: "_contentTintConfiguration") }
         }
     }
 #endif

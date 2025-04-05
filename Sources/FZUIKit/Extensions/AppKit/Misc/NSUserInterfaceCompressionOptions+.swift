@@ -7,6 +7,7 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
 extension NSUserInterfaceCompressionOptions {
     /// The options of the compression.
@@ -17,7 +18,7 @@ extension NSUserInterfaceCompressionOptions {
     
     private var identifers: Set<String> {
         get { value(forKey: "identifiers") as! Set<String> }
-        set { setValue(newValue, forKey: "identifiers")}
+        set { setValue(safely: newValue, forKey: "identifiers")}
     }
     
     /// Inserts the specified options.

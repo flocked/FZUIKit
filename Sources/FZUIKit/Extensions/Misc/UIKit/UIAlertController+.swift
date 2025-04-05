@@ -22,9 +22,9 @@ extension UIAlertAction {
                 let swiftClosure: AlertHandler = { action in
                     newValue(action)
                 }
-                setValue(unsafeBitCast(swiftClosure, to: AnyObject.self), forKey: "handler")
+                setValue(safely: unsafeBitCast(swiftClosure, to: AnyObject.self), forKey: "handler")
             } else {
-                setValue(nil, forKey: "handler")
+                setValue(safely: nil, forKey: "handler")
             }
         }
     }
