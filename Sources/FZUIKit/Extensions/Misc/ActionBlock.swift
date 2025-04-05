@@ -10,12 +10,14 @@
 import AppKit
 import FZSwiftUtils
 
-/// An object with a target and action.
+/// An object that sends action-messages using `target` and `action`.
 public protocol TargetActionProvider: NSObjectProtocol {
+    /// The target object that receives action messages from the object.
+    var target: AnyObject? { get set }
+    /// The action-message selector.
+    var action: Selector? { get set }
     /// The action handler of the object.
     typealias ActionBlock = (Self) -> Void
-    var target: AnyObject? { get set }
-    var action: Selector? { get set }
 }
 
 extension NSControl: TargetActionProvider { }
@@ -26,13 +28,10 @@ extension NSGestureRecognizer: TargetActionProvider { }
 extension NSColorPanel: TargetActionProvider { }
 
 extension TargetActionProvider {
-    /// Performs the `action`.
+    /// Sends the `action` message to the `target` if it responds to the selector.
     public func performAction() {
-        if let actionBlock = actionBlock {
-            actionBlock(self)
-        } else if let action = action, let target = target, target.responds(to: action) {
-            _ = target.perform(action)
-        }
+        guard let action = action, let target = target, target.responds(to: action) else { return }
+        _ = target.perform(action)
     }
 }
 
@@ -74,7 +73,7 @@ public extension TargetActionProvider {
         return self
     }
     
-    internal var actionTrampoline: ActionTrampoline<Self>? {
+    private var actionTrampoline: ActionTrampoline<Self>? {
         get { FZSwiftUtils.getAssociatedValue("actionTrampoline", object: self) }
         set { FZSwiftUtils.setAssociatedValue(newValue, key: "actionTrampoline", object: self) }
     }
@@ -128,9 +127,39 @@ public extension NSObjectProtocol where Self: UIGestureRecognizer {
     }
 }
 
-extension UIGestureRecognizer {
+fileprivate extension UIGestureRecognizer {
     @objc func performActionBlock(sender: NSObject) {
         actionBlock?(self)
+    }
+}
+
+public extension NSObjectProtocol where Self: UIControl {
+    /// The action handler for the specific event.
+    func action(for event: UIControl.Event) -> ((Self) -> Void)? {
+        actionBlocks[event.rawValue]
+    }
+    
+    /// Sets the action handler for the specific event.
+    @discardableResult
+    func setAction(for event: UIControl.Event, to action: ((_ control: Self) -> Void)?) -> Self {
+        if action != nil, actionBlocks[event.rawValue] == nil {
+            addTarget(self, action: #selector(performActionBlock(for:sender:)), for: event)
+        } else if action == nil, actionBlocks[event.rawValue] != nil {
+            removeTarget(self, action: #selector(performActionBlock(for:sender:)), for: event)
+        }
+        actionBlocks[event.rawValue] = action
+        return self
+    }
+    
+    fileprivate var actionBlocks: [UInt: ((Self) -> Void)] {
+        get { getAssociatedValue("actionBlocks") ?? [:] }
+        set { setAssociatedValue(newValue, key: "actionBlocks") }
+    }
+}
+
+fileprivate extension UIControl {
+    @objc func performActionBlock(for event: UIControl.Event, sender: NSObject) {
+        actionBlocks[event]?(self)
     }
 }
 #endif
