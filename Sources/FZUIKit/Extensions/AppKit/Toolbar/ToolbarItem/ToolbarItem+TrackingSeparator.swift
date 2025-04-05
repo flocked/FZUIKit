@@ -67,7 +67,7 @@
                 - dividerIndex: The index of the divider.
              */
             public init(_ identifier: NSToolbarItem.Identifier? = nil, splitView: NSSplitView, dividerIndex: Int) {
-                self.separatorItem = .init(identifier: identifier ?? .random, splitView: splitView, dividerIndex: dividerIndex)
+                self.separatorItem = .init(identifier: identifier ?? Toolbar.automaticIdentifier(for: "TrackingSeparator"), splitView: splitView, dividerIndex: dividerIndex)
                 super.init(separatorItem.itemIdentifier)
             }
         }
