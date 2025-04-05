@@ -26,11 +26,9 @@
             public let segmentedControl: NSSegmentedControl
 
             /// The segments of the segmented control.
-            public var segments: [NSSegment] = [] {
-                didSet { 
-                    guard oldValue != segments else { return }
-                    updateSegments()
-                }
+            public var segments: [NSSegment] {
+                get { segmentedControl.segments }
+                set { segmentedControl.segments = newValue }
             }
             
             /**
@@ -115,11 +113,6 @@
             }
             
             func updateSegments() {
-                segments.indexed().forEach({
-                    $0.element.segmentedToolbarItem = self
-                    $0.element.segmentedControl = segmentedControl
-                    $0.element.index = $0.index
-                })
                 if displaysIndividualSegmentLabels, !segments.contains(where: { $0.image == nil }) {
                     segmentedControl.segments = segments.compactMap({ $0.withoutTitle })
                     groupItem.subitems = segments.compactMap({ $0.toolbarItem(for: self) })
@@ -182,6 +175,7 @@
                         segmentedControl: NSSegmentedControl) {
                 self.segmentedControl = segmentedControl
                 super.init(identifier)
+                segmentedControl.toolbarItem = self
                 segmentedControl.translatesAutoresizingMaskIntoConstraints = false
                 segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
                 segmentedControl.segmentDistribution = .fillEqually

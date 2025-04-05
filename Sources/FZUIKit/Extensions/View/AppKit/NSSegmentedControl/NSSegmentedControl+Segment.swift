@@ -12,63 +12,71 @@
     /// A segment of a `NSSegmentedControl`.
     public class NSSegment: NSObject, ExpressibleByStringLiteral {
         weak var segmentedControl: NSSegmentedControl?
-        weak var segmentedToolbarItem: ToolbarItem.Segmented?
+        weak var toolbarItem: ToolbarItem.Segmented?
 
         /// The title of the segment.
         public var title: String? {
-            didSet { if let index = index {
+            didSet {
+                guard let index = index else { return }
                 segmentedControl?.setLabel(title ?? "", forSegment: index)
-            } }
+            }
         }
 
         /// The title alignment of the segment.
         public var titleAlignment: NSTextAlignment = .center {
-            didSet { if let index = index {
+            didSet {
+                guard let index = index else { return }
                 segmentedControl?.setAlignment(titleAlignment, forSegment: index)
-            } }
+            }
         }
 
         /// The image of the segment.
         public var image: NSImage? {
-            didSet { if let index = index {
+            didSet {
+                guard let index = index else { return }
                 segmentedControl?.setImage(image, forSegment: index)
-            } }
+            }
         }
 
         /// The image scaling of the segment.
         public var imageScaling: NSImageScaling = .scaleProportionallyDown {
-            didSet { if let index = index {
+            didSet {
+                guard let index = index else { return }
                 segmentedControl?.setImageScaling(imageScaling, forSegment: index)
-            } }
+            }
         }
 
         /// The menu of the segment.
         public var menu: NSMenu? {
-            didSet { if let index = index {
+            didSet {
+                guard let index = index else { return }
                 segmentedControl?.setMenu(menu, forSegment: index)
-            } }
+            }
         }
 
         /// A Boolean value that indicates whether the segment shows a menu indicator.
         public var showsMenuIndicator: Bool = false {
-            didSet { if let index = index {
+            didSet {
+                guard let index = index else { return }
                 segmentedControl?.setShowsMenuIndicator(showsMenuIndicator, forSegment: index)
-            } }
+            }
         }
 
         /// A Boolean value that indicates whether the segment is selected.
         public var isSelected: Bool = false {
-            didSet { if let index = index {
+            didSet {
+                guard let index = index else { return }
                 segmentedControl?.setSelected(isSelected, forSegment: index)
-            } }
+            }
         }
 
         /// A Boolean value that indicates whether the segment is enabled.
         public var isEnabled: Bool = true {
-            didSet { if let index = index {
+            didSet {
+                guard let index = index else { return }
                 segmentedControl?.setEnabled(isEnabled, forSegment: index)
-                segmentedToolbarItem?.isEnabledUpdated(for: self)
-            } }
+                toolbarItem?.groupItem.subitems[safe: index]?.isEnabled = isEnabled
+            }
         }
 
         /**
@@ -77,32 +85,35 @@
          The default value is `0` and indicates that the segment is sized automatically to fit the available space.
          */
         public var width: CGFloat = 0 {
-            didSet { 
+            didSet {
                 width = width.clamped(min: 0)
-                if let index = index {
+                guard let index = index else { return }
                 segmentedControl?.setWidth(width, forSegment: index)
-            } }
+            }
         }
 
         /// The tooltip of the segment.
         public var toolTip: String? {
-            didSet { if let index = index {
+            didSet {
+                guard let index = index else { return }
                 segmentedControl?.setToolTip(toolTip, forSegment: index)
-            } }
+            }
         }
         
         /// The font of the segment.
         public var font: NSFont = .systemFont {
-            didSet { if let index = index {
+            didSet {
+                guard let index = index else { return }
                 segmentedControl?.setFont(font, forSegment: index)
-            } }
+            }
         }
         
         /// The tag of the segment.
         public var tag: Int = 0 {
-            didSet { if let index = index {
+            didSet {
+                guard let index = index else { return }
                 segmentedControl?.setTag(tag, forSegment: index)
-            } }
+            }
         }
 
         /// Sets the title of the segment.
@@ -277,6 +288,7 @@
             self.font = segmentedControl.font(forSegment: index) ?? segmentedControl.font ?? .systemFont
             self.index = index
             self.segmentedControl = segmentedControl
+            self.toolbarItem = segmentedControl.toolbarItem
         }
     }
 
@@ -330,7 +342,7 @@
 
         /// The segments displayed by the segmented control.
        @objc dynamic var segments: [NSSegment] {
-            get { (0..<segmentCount).compactMap {segment(at: $0)} }
+            get { (0..<segmentCount).compactMap { segment(at: $0) } }
             set {
                 segmentCount = newValue.count                
                 for (index, segment) in newValue.enumerated() {
@@ -388,6 +400,11 @@
 
         internal func index(forTag tag: Int) -> Int? {
              (0 ..< segmentCount).first(where: {self.tag(forSegment: $0) == tag})
+        }
+        
+        internal var toolbarItem: ToolbarItem.Segmented? {
+            get { getAssociatedValue("toolbarItem") }
+            set { setAssociatedValue(weak: newValue, key: "toolbarItem")}
         }
     }
 #endif
