@@ -164,8 +164,9 @@
              */
             public convenience init(_ identifier: NSToolbarItem.Identifier? = nil,
                                     selectionMode: SelectionMode = .selectOne,
+                                    style: NSSegmentedControl.Style = .automatic,
                                     @NSSegmentedControl.Builder segments: () -> [NSSegment]) {
-                self.init(identifier, segmentedControl: NSSegmentedControl().trackingMode(selectionMode.switchTracking))
+                self.init(identifier, segmentedControl: NSSegmentedControl().style(style).trackingMode(selectionMode.switchTracking))
                 self.segments = segments()
                 updateSegments()
             }
