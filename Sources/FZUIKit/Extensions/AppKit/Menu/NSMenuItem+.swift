@@ -178,8 +178,8 @@ public extension NSMenuItem {
     
     /// The font of the menu item.
     var font: NSFont? {
-        get { value(forKey: Keys.font.unmangled) as? NSFont }
-        set { setValue(newValue, forKey: Keys.font.unmangled) }
+        get { value(forKey: "font") as? NSFont }
+        set { setValue(newValue, forKey: "font") }
     }
     
     /// Sets the font of the menu item.
@@ -508,10 +508,6 @@ public extension NSMenuItem {
     internal var menuObservation: KeyValueObservation? {
         get { getAssociatedValue("menuObservation") }
         set { setAssociatedValue(newValue, key: "menuObservation") }
-    }
-    
-    private struct Keys {
-        static let font = "font".mangled
     }
 }
 

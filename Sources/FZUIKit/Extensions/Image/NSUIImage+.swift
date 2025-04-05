@@ -51,7 +51,7 @@ public extension NSUIImage {
     @available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
     var symbolName: String? {
         #if os(macOS)
-        return value(forKey: Keys.symbolDescription.unmangled) as? String
+        return value(forKey: "_symbolDescription") as? String
         #else
         return getAssociatedValue("symbolName", initialValue: _symbolName)
         #endif
@@ -122,11 +122,6 @@ public extension NSUIImage {
         NSUIImage(color: color, size: size)
     }
     #endif
-    
-    internal struct Keys {
-        static let symbolDescription = "_symbolDescription".mangled
-        static let isSymbolImage = "_isSymbolImage".mangled
-    }
 }
 
 extension Collection where Element == NSUIImage {

@@ -143,7 +143,7 @@ public extension UITableView {
      Each key in the dictionary is the reuse identifier used to register the nib file in the `register(_:forCellReuseIdentifier:)` method. The value of each key is the corresponding UINib object.
      */
     internal var registeredCellNibs: [String: UINib] {
-        let dict = value(forKey: Keys.registeredCellNibs.unmangled) as? [String: UINib]
+        let dict = value(forKey: "_nibMap") as? [String: UINib]
         return dict ?? [:]
     }
 
@@ -153,7 +153,7 @@ public extension UITableView {
      Each key in the dictionary is the reuse identifier used to register the class in the `register(_:forCellReuseIdentifier:)` method. The value of each key is the corresponding class.
      */
     internal var registeredCellClasses: [String: Any] {
-        let dict = value(forKey: Keys.registeredCellClasses.unmangled) as? [String: Any]
+        let dict = value(forKey: "_cellClassDict") as? [String: Any]
         return dict ?? [:]
     }
     
@@ -163,7 +163,7 @@ public extension UITableView {
      Each key in the dictionary is the reuse identifier used to register the nib file in the `register(_:forHeaderFooterViewReuseIdentifier:)` method. The value of each key is the corresponding UINib object.
      */
     internal var registeredHeaderFooterNibs: [String: UINib] {
-        let dict = value(forKey: Keys.registeredHeaderFooterNibs.unmangled) as? [String: UINib]
+        let dict = value(forKey: "_headerFooterNibMap") as? [String: UINib]
         return dict ?? [:]
     }
 
@@ -173,15 +173,8 @@ public extension UITableView {
      Each key in the dictionary is the reuse identifier used to register the class in the `register(_:forHeaderFooterViewReuseIdentifier:)` method. The value of each key is the corresponding class.
      */
     internal var registeredHeaderFooterClasses: [String: Any] {
-        let dict = value(forKey: Keys.registeredHeaderFooterClasses.unmangled) as? [String: Any]
+        let dict = value(forKey: "_headerFooterClassDict") as? [String: Any]
         return dict ?? [:]
-    }
-    
-    private struct Keys {
-        static let registeredHeaderFooterClasses = "_headerFooterClassDict".mangled
-        static let registeredHeaderFooterNibs = "_headerFooterNibMap".mangled
-        static let registeredCellClasses = "_cellClassDict".mangled
-        static let registeredCellNibs = "_nibMap".mangled
     }
 }
 #endif

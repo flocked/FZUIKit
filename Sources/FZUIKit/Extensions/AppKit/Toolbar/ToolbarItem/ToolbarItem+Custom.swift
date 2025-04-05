@@ -16,7 +16,7 @@ extension ToolbarItem {
      */
     open class Custom: ToolbarItem {
         /// The `NSToolbarItem` that represents the item.
-        @objc open var toolbarItem: NSToolbarItem
+        public let toolbarItem: NSToolbarItem
         
         override var item: NSToolbarItem {
             toolbarItem

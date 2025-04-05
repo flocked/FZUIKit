@@ -8,19 +8,19 @@
 #if os(macOS)
     import AppKit
 
-    public extension ToolbarItem {
+    extension ToolbarItem {
         /**
          A toolbar item that contains a popup button.
 
          The item can be used with ``Toolbar``.
          */
-        class PopUpButton: ToolbarItem {
+        open class PopUpButton: ToolbarItem {
             /// The popup button.
             public let button: NSPopUpButton
 
             /// Sets the handler that gets called when the user clicks the pop up button.
             @discardableResult
-            public func onAction(_ action: ((_ item: ToolbarItem.PopUpButton)->())?) -> Self {
+            open func onAction(_ action: ((_ item: ToolbarItem.PopUpButton)->())?) -> Self {
                 if let action = action {
                     button.actionBlock = { [weak self] _ in
                         guard let self = self else { return }
@@ -31,84 +31,84 @@
                 }
                 return self
             }
-
-            /// Sets the menu of the popup button.
-            @discardableResult
-            public func menu(_ menu: NSMenu) -> Self {
-                button.menu = menu
-                return self
-            }
-
+            
             /// The menu of the popup button.
-            public var menu: NSMenu? {
+            open var menu: NSMenu? {
                 get { button.menu }
                 set { button.menu = newValue }
             }
 
+            /// Sets the menu of the popup button.
+            @discardableResult
+            open func menu(_ menu: NSMenu) -> Self {
+                button.menu = menu
+                return self
+            }
+
             /// Sets the menu items of the popup button.
             @discardableResult
-            public func items(@MenuBuilder _ items: () -> [NSMenuItem]) -> Self {
+            open func items(@MenuBuilder _ items: () -> [NSMenuItem]) -> Self {
                 button.menu = NSMenu(title: "", items: items())
                 return self
             }
 
             /// Sets the string that is displayed on the popup button when the user isn’t pressing the mouse button.
             @discardableResult
-            public func title(_ title: String) -> Self {
+            open func title(_ title: String) -> Self {
                 button.setTitle(title)
                 return self
             }
-
-            /// Sets the Boolean value indicating whether the button displays a pull-down or pop-up menu.
-            @discardableResult
-            public func pullsDown(pullsDown: Bool) -> Self {
-                button.pullsDown = pullsDown
-                return self
-            }
-
+            
             /// A Boolean value indicating whether the button displays a pull-down or pop-up menu.
-            public var pullsDown: Bool {
+            open var pullsDown: Bool {
                 get { button.pullsDown }
                 set { button.pullsDown = newValue }
             }
 
+            /// Sets the Boolean value indicating whether the button displays a pull-down or pop-up menu.
+            @discardableResult
+            open func pullsDown(pullsDown: Bool) -> Self {
+                button.pullsDown = pullsDown
+                return self
+            }
+
             /// The index of the selected item, or `nil` if no item is selected.
-            public var indexOfSelectedItem: Int? {
+            open var indexOfSelectedItem: Int? {
                 get { (button.indexOfSelectedItem != -1) ? button.indexOfSelectedItem : nil }
                 set { button.selectItem(at: newValue ?? -1)
                 }
             }
 
             /// The selected menu item, or `nil` if no tem is selected.
-            public var selectedItem: NSMenuItem? {
+            open var selectedItem: NSMenuItem? {
                 get { button.selectedItem }
                 set { button.select(newValue) }
             }
 
             /// Selects the item of the popup button at the specified index.
             @discardableResult
-            public func selectItem(at index: Int) -> Self {
+            open func selectItem(at index: Int) -> Self {
                 button.selectItem(at: index)
                 return self
             }
 
             /// Selects the item of the popup button with the specified title.
             @discardableResult
-            public func selectItem(withTitle title: String) -> Self {
+            open func selectItem(withTitle title: String) -> Self {
                 button.selectItem(withTitle: title)
                 return self
             }
 
             /// Selects the item of the popup button with the specified tag.
             @discardableResult
-            public func selectItem(withTag tag: Int) -> Self {
+            open func selectItem(withTag tag: Int) -> Self {
                 button.selectItem(withTag: tag)
                 return self
             }
 
             /// Selects the specified menu item of the popup button.
             @discardableResult
-            public func select(_ item: NSMenuItem) -> Self {
+            open func select(_ item: NSMenuItem) -> Self {
                 button.select(item)
                 return self
             }

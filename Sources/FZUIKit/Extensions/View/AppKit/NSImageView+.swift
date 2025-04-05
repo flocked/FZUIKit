@@ -62,17 +62,13 @@ extension NSImageView {
         return self
     }
     
-    private struct Keys {
-        static let drawingRectForImage = "_drawingRectForImage".mangled
-    }
-    
     /**
      The current size and position of the image that displays within the image view’s bounds.
      
      Use this property to determine the display dimensions of the image within the image view’s bounds. The size and position of this rectangle depends on the image scaling and alignment.
      */
     public var imageBounds: CGRect {
-        if let bounds = value(forKey: Keys.drawingRectForImage.unmangled) as? CGRect {
+        if let bounds = value(forKey: "_drawingRectForImage") as? CGRect {
             return bounds
         }
         

@@ -8,162 +8,195 @@
 #if os(macOS)
     import AppKit
 
-    public extension ToolbarItem {
+    extension ToolbarItem {
         /**
          A toolbar item that contains a popover button.
 
          The item can be used with ``Toolbar``.
          */
-        class PopoverButton: ToolbarItem {
+        open class PopoverButton: ToolbarItem {
             /// The button of the toolbar item that opens the popover.
             public let button: NSButton
             
-            private weak var popover: NSPopover?
-            private var delegate: Delegate!
-            private var _viewController: NSViewController?
-
-            /// The view controller that manages the content of the popover.
-            public weak var popoverViewController: NSViewController? {
+            /// The popover of the item.
+            open var popover: NSPopover {
                 didSet {
-                    guard oldValue != popoverViewController else { return }
-                    _viewController = nil
-                    popover?.close()
-                    popover = nil
+                    guard oldValue != popover else { return }
+                    oldValue.close()
+                    popover.isDetachable = oldValue.isDetachable
+                    popover.isArrowVisible = oldValue.isArrowVisible
                 }
             }
             
-            /// Sets the view controller that manages the content of the popover.
+            /// Sets the popover of the item.
             @discardableResult
-            public func popoverViewController(_ viewController: NSViewController) -> Self {
-                popoverViewController = viewController
+            open func popover(_ popover: NSPopover) -> Self {
+                self.popover = popover
                 return self
             }
-            
-            /// The view of the pop over.
-            public var popoverView: NSView? {
-                get { popoverViewController?.view }
-                set {
-                    guard newValue != popoverViewController?.view, let view = newValue else { return }
-                    let viewController =  NSViewController()
-                    viewController.view = view
-                    popoverViewController = viewController
-                    _viewController = viewController
-                }
+                        
+            /// Sets the view controller that manages the content of the popover.
+            @discardableResult
+            open func popoverViewController(_ viewController: NSViewController) -> Self {
+                popover.contentViewController = viewController
+                return self
             }
             
             /// Sets the view of the popover.
             @discardableResult
-            public func popoverView(_ view: NSView) -> Self {
-                popoverView = view
+            open func popoverView(_ view: NSView) -> Self {
+                popover.contentView = view
                 return self
+            }
+            
+            /// The title of the button.
+            open var title: String? {
+                get { button.title == "" ? nil : button.title }
+                set {
+                    button.title = newValue ?? ""
+                    updateImagePosition()
+                }
             }
             
             /// Sets the title of the button.
             @discardableResult
-            public func title(_ title: String) -> Self {
-                button.title = title
+            open func title(_ title: String) -> Self {
+                self.title = title
                 return self
+            }
+            
+            /// The attributed title of the button.
+            open var attributedTitle: NSAttributedString {
+                get { button.attributedTitle }
+                set {
+                    button.attributedTitle = newValue
+                    updateImagePosition()
+                }
             }
 
             /// Sets the attributed title of the button.
             @discardableResult
-            public func attributedTitle(_ title: NSAttributedString) -> Self {
-                button.attributedTitle = title
+            open func attributedTitle(_ title: NSAttributedString) -> Self {
+                attributedTitle = title
                 return self
             }
+            
+            /// The image of the button.
+            open var image: NSImage? {
+                get { button.image }
+                set {
+                    button.image = newValue
+                    updateImagePosition()
+                }
+            }
 
-            /// The image of the button, or `nil` if none.
+            /// Sets the image of the button.
             @discardableResult
-            public func image(_ image: NSImage?) -> Self {
+            open func image(_ image: NSImage?) -> Self {
                 button.image = image
+                updateImagePosition()
                 return self
+            }
+            
+            /// Sets the symbol image of the button with the symbol name.
+            @available(macOS 11.0, *)
+            @discardableResult
+            open func image(symbolName: String) -> Self {
+                image(NSImage(systemSymbolName: symbolName))
+            }
+            
+            /// The image scaling of the button.
+            open var imageScaling: NSImageScaling {
+                get { button.imageScaling }
+                set { button.imageScaling = newValue }
             }
 
             /// Sets the image scaling of the button.
             @discardableResult
-            public func imageScaling(_ imageScaling: NSImageScaling) -> Self {
-                button.imageScaling = imageScaling
+            open func imageScaling(_ imageScaling: NSImageScaling) -> Self {
+                self.imageScaling = imageScaling
                 return self
+            }
+            
+            /// The bezel style of the button.
+            open var bezel: NSButton.BezelStyle {
+                get { button.bezelStyle }
+                set { button.bezelStyle = newValue }
             }
 
             /// Sets the bezel style of the button.
             @discardableResult
-            public func bezelStype(_ style: NSButton.BezelStyle) -> Self {
-                button.bezelStyle = style
-                return self
-            }
-
-            /// Sets the bezel color of the button, or `nil` if none.
-            @discardableResult
-            public func bezelColor(_ color: NSColor?) -> Self {
-                button.bezelColor = color
+            open func bezel(_ bezel: NSButton.BezelStyle) -> Self {
+                self.bezel = bezel
                 return self
             }
 
             /// Sets the key-equivalent character and modifier keys of the button.
             @discardableResult
-            public func shortcut(_ shortcut: String, holding modifiers: NSEvent.ModifierFlags = .command) -> Self {
+            open func shortcut(_ shortcut: String, holding modifiers: NSEvent.ModifierFlags = .command) -> Self {
                 button.keyEquivalent = shortcut
                 button.keyEquivalentModifierMask = modifiers
                 return self
             }
             
             /// A Boolean value that indicates whether the popover is detachable by the user.
-            public var isDetachable: Bool = false {
+            open var isDetachable: Bool = false {
                 didSet {
                     guard oldValue != isDetachable else { return }
-                    popover?.isDetachable = isDetachable
+                    popover.isDetachable = isDetachable
                 }
             }
             
             /// Sets the Boolean value that indicates whether the popover is detachable by the user.
             @discardableResult
-            public func isDetachable(_ isDetachable: Bool) -> Self {
+            open func isDetachable(_ isDetachable: Bool) -> Self {
                 self.isDetachable = isDetachable
                 return self
             }
             
             /// A Boolean value that indicates whether the popover hides it's arrow.
-            public var hidesArrow: Bool = false {
+            open var hidesArrow: Bool = false {
                 didSet {
                     guard oldValue != hidesArrow else { return }
-                    popover?.isArrowVisible = !hidesArrow
+                    popover.isArrowVisible = !hidesArrow
                 }
             }
             
             /// Sets the Boolean value that indicates whether the popover hides it's arrow.
             @discardableResult
-            public func hidesArrow(_ hidesArrow: Bool) -> Self {
+            open func hidesArrow(_ hidesArrow: Bool) -> Self {
                 self.hidesArrow = hidesArrow
                 return self
+            }
+            
+            /// The handler that gets called when the user clicks the popover button.
+            open var actionBlock: ((_ item: ToolbarItem.PopoverButton)->())? = nil {
+                didSet {
+                    button.actionBlock = { [weak self] _ in
+                        guard let self = self else { return }
+                        self.showPopover()
+                        self.actionBlock?(self)
+                    }
+                }
+                
             }
 
             /// Sets the handler that gets called when the user clicks the popover button.
             @discardableResult
-            public func onAction(_ action: ((_ item: ToolbarItem.PopoverButton)->())?) -> Self {
-                if let action = action {
-                    button.actionBlock = { [weak self] _ in
-                        guard let self = self else { return }
-                        self.showPopover()
-                        action(self)
-                    }
-                } else {
-                    button.actionBlock = { [weak self] _ in
-                        guard let self = self else { return }
-                        self.showPopover()
-                    }
-                }
+            open func onAction(_ action: ((_ item: ToolbarItem.PopoverButton)->())?) -> Self {
+                actionBlock = action
                 return self
             }
 
             func showPopover() {
-                guard popover == nil || popover?.isShown == false, let viewController = popoverViewController else { return }
-                let popover = NSPopover(viewController: viewController)
+                guard popover.isShown == false else { return }
                 popover.behavior = .transient
                 popover.isDetachable = isDetachable
-                popover.delegate = delegate
                 popover.show(relativeTo: button.bounds, of: button, preferredEdge: .maxY, hideArrow: false)
-                self.popover = popover
+            }
+            
+            func updateImagePosition() {
+                button.imagePosition = (button.title == "" && button.image != nil) ? .imageOnly : (button.title != "" && button.image == nil) ? .noImage : .imageLeft
             }
 
             /**
@@ -196,6 +229,7 @@
                                     image: NSImage? = nil,
                                     popoverView: NSView) {
                 self.init(identifier, button: NSButton.toolbar(title ?? "", image: image), popoverView: popoverView)
+                updateImagePosition()
             }
             
             /**
@@ -209,9 +243,8 @@
             public init(_ identifier: NSToolbarItem.Identifier? = nil, button: NSButton, popoverViewController: NSViewController) {
                 button.translatesAutoresizingMaskIntoConstraints = false
                 self.button = button
-                self.popoverViewController = popoverViewController
+                self.popover = .init(viewController: popoverViewController)
                 super.init(identifier)
-                delegate = Delegate(self)
                 item.view = button
                 button.actionBlock = { [weak self] _ in
                     guard let self = self else { return }
@@ -230,24 +263,12 @@
             public init(_ identifier: NSToolbarItem.Identifier? = nil, button: NSButton, popoverView: NSView) {
                 button.translatesAutoresizingMaskIntoConstraints = false
                 self.button = button
+                self.popover = .init(view: popoverView)
                 super.init(identifier)
-                self.popoverView = popoverView
-                delegate = Delegate(self)
                 item.view = button
                 button.actionBlock = { [weak self] _ in
                     guard let self = self else { return }
                     self.showPopover()
-                }
-            }
-            
-            class Delegate: NSObject, NSPopoverDelegate {
-                func popoverDidClose(_ notification: Notification) {
-                    item?.popover = nil
-                }
-                
-                weak var item: ToolbarItem.PopoverButton?
-                init(_ item: ToolbarItem.PopoverButton? = nil) {
-                    self.item = item
                 }
             }
         }

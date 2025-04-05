@@ -9,29 +9,29 @@
     import AppKit
     import SwiftUI
 
-    public extension ToolbarItem {
+    extension ToolbarItem {
         /**
          A toolbar item that displays a view.
 
          The item can be used with ``Toolbar``.
          */
-        class View: ToolbarItem {
+        open class View: ToolbarItem {
             /// The view of the toolbar item.
-            public var view: NSView {
+            open var view: NSView {
                 get { item.view! }
                 set { item.view = newValue }
             }
             
             /// Sets the view of the toolbar item.
             @discardableResult
-            public func view(_ view: NSView) -> Self {
+            open func view(_ view: NSView) -> Self {
                 self.view = view
                 return self
             }
             
             /// Sets a `SwiftUI` view as the view of the toolbar item.
             @discardableResult
-            public func view(_ view: some SwiftUI.View) -> Self {
+            open func view(_ view: some SwiftUI.View) -> Self {
                 self.view = NSHostingView(rootView: view)
                 return self
             }

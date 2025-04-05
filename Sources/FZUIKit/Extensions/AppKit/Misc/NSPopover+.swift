@@ -223,10 +223,10 @@ extension NSPopover {
     
     /// The view to which the popover should be positioned.
     @objc open var positioningView: NSView? {
-        get { value(forKey: Keys.positioningView.unmangled) as? NSView }
+        get { value(forKey: "positioningView") as? NSView }
         set {
             guard newValue != positioningView else { return }
-            setValue(newValue, forKey: Keys.positioningView.unmangled)
+            setValue(newValue, forKey: "positioningView")
             updateVisible()
         }
     }
@@ -240,10 +240,10 @@ extension NSPopover {
     
     /// The edge of `positioningView` the popover should prefer to be anchored to.
     @objc open var preferredEdge: NSRectEdge {
-        get { NSRectEdge(rawValue: value(forKey: Keys.preferredEdge.unmangled) as? UInt ?? 0)! }
+        get { NSRectEdge(rawValue: value(forKey: "_preferredEdge") as? UInt ?? 0)! }
         set {
             guard newValue != preferredEdge else { return }
-            setValue(newValue.rawValue, forKey: Keys.preferredEdge.unmangled)
+            setValue(newValue.rawValue, forKey: "_preferredEdge")
             updateVisible()
         }
     }
@@ -257,10 +257,10 @@ extension NSPopover {
     
     /// A Boolean value that indicates whether the arrow is visible
     @objc open var isArrowVisible: Bool {
-        get { !(value(forKey: Keys.shouldHideAnchor.unmangled) as? Bool ?? false) }
+        get { !(value(forKey: "shouldHideAnchor") as? Bool ?? false) }
         set {
             guard newValue != isArrowVisible else { return }
-            setValue(!newValue, forKey: Keys.shouldHideAnchor.unmangled)
+            setValue(!newValue, forKey: "shouldHideAnchor")
             updateVisible()
         }
     }
@@ -274,7 +274,7 @@ extension NSPopover {
     
     /// The window of the popover.
     @objc open var window: NSWindow? {
-        value(forKey: Keys.popoverWindow.unmangled) as? NSWindow
+        value(forKey: "_popoverWindow") as? NSWindow
     }
     
     func updateVisible() {
@@ -564,13 +564,6 @@ extension NSPopover {
                 self.popover.closeButton?.isHidden = self.popover.hidesDetachedCloseButton
             }
         }
-    }
-    
-    private struct Keys {
-        static let shouldHideAnchor = "shouldHideAnchor".mangled
-        static let popoverWindow = "_popoverWindow".mangled
-        static let positioningView = "positioningView".mangled
-        static let preferredEdge = "_preferredEdge".mangled
     }
 }
 

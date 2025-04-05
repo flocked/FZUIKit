@@ -9,13 +9,13 @@
     import AppKit
     import FZSwiftUtils
 
-    public extension ToolbarItem {
+    extension ToolbarItem {
         /**
          A toolbar item that contains a segmented control.
 
          The item can be used with ``Toolbar``.
          */
-        class Segmented: ToolbarItem {
+        open class Segmented: ToolbarItem {
             
             lazy var groupItem: ValidateToolbarItemGroup = {
                 let item = ValidateToolbarItemGroup(for: self)
@@ -31,7 +31,7 @@
             public let segmentedControl: NSSegmentedControl
 
             /// The segments of the segmented control.
-            public var segments: [NSSegment] {
+            open var segments: [NSSegment] {
                 get { segmentedControl.segments }
                 set {
                     segmentedControl.segments = newValue
@@ -44,27 +44,27 @@
              
              To get the last selected segment, check the selected segment where ``NSSegment/isLastSelected`` is `true.`
              */
-            public var selectedSegments: [NSSegment] {
+            open var selectedSegments: [NSSegment] {
                 segmentedControl.selectedSegments
             }
             
             /// Sets the segments of the segmented control.
             @discardableResult
-            public func segments(_ segments: [NSSegment]) -> Self {
+            open func segments(_ segments: [NSSegment]) -> Self {
                 self.segments = segments
                 return self
             }
             
             /// Sets the segments of the segmented control.
             @discardableResult
-            public func segments(@NSSegmentedControl.Builder segments: () -> [NSSegment]) -> Self {
+            open func segments(@NSSegmentedControl.Builder segments: () -> [NSSegment]) -> Self {
                 self.segments = segments()
                 return self
             }
 
             /// Sets rhe selection mode for the segmented control.
             @discardableResult
-            public func selectionMode(_ mode: SelectionMode) -> Self {
+            open func selectionMode(_ mode: SelectionMode) -> Self {
                 segmentedControl.trackingMode = mode.switchTracking
                 return self
             }
@@ -84,14 +84,14 @@
             }
             
             /// A Boolean value indicating whether the segmented control is bezeled.
-            public var isBezeled: Bool {
+            open var isBezeled: Bool {
                 get { segmentedControl.segmentStyle != .roundRect }
                 set { segmentedControl.segmentStyle = newValue ? .roundRect : .automatic }
             }
             
             /// Sets the Boolean value indicating whether the segmented control is bezeled.
             @discardableResult
-            public func isBezeled(_ isBezeled: Bool) -> Self {
+            open func isBezeled(_ isBezeled: Bool) -> Self {
                 self.isBezeled = isBezeled
                 return self
             }
@@ -101,7 +101,7 @@
 
              - Note: This property only works if you provide both `title` and `image` for each segment.
              */
-            public var displaysIndividualSegmentLabels: Bool = false {
+            open var displaysIndividualSegmentLabels: Bool = false {
                 didSet {
                     guard oldValue != displaysIndividualSegmentLabels else { return }
                     updateSegments()
@@ -114,7 +114,7 @@
              - Note: This property only works if you provide `image` for each segment.
              */
             @discardableResult
-            public func displaysIndividualSegmentLabels(_ displays: Bool) -> Self {
+            open func displaysIndividualSegmentLabels(_ displays: Bool) -> Self {
                 self.displaysIndividualSegmentLabels = displays
                 return self
             }
@@ -134,7 +134,7 @@
             }
             
             /// The handler that gets called when the user clicks the segmented control.
-            var actionBlock: ((_ item: ToolbarItem.Segmented)->())? {
+            open var actionBlock: ((_ item: ToolbarItem.Segmented)->())? {
                 didSet {
                     if let actionBlock = actionBlock {
                         segmentedControl.actionBlock = { [weak self] _ in
@@ -149,7 +149,7 @@
 
             /// Sets the handler that gets called when the user clicks the segmented control.
             @discardableResult
-            public func onAction(_ handler: ((_ item: ToolbarItem.Segmented)->())?) -> Self {
+            open func onAction(_ handler: ((_ item: ToolbarItem.Segmented)->())?) -> Self {
                 actionBlock = handler
                 return self
             }

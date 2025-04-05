@@ -9,13 +9,13 @@
     import AppKit
     import SwiftUI
 
-    public extension ToolbarItem {
+    extension ToolbarItem {
         /**
          A toolbar item that displays the macOS share sheet.
 
          The item can be used with ``Toolbar``.
          */
-        class SharingServicePicker: ToolbarItem {
+        open class SharingServicePicker: ToolbarItem {
             lazy var servicePickerItem = ValidateServicePickerToolbarItem(for: self)
             override var item: NSToolbarItem {
                 servicePickerItem
@@ -44,28 +44,28 @@
 
             /// Asks the items to share.
             @discardableResult
-            public func items(_ items: (() -> ([Any]))?) -> Self {
+            open func items(_ items: (() -> ([Any]))?) -> Self {
                 handlers.items = items
                 return self
             }
 
             /// Returns the selected sharing service for the current item, or `nil` if none is selected.
             @discardableResult
-            public func didChoose(_ didChoose: ((_ service: NSSharingService?) -> Void)?) -> Self {
+            open func didChoose(_ didChoose: ((_ service: NSSharingService?) -> Void)?) -> Self {
                 handlers.didChoose = didChoose
                 return self
             }
 
             /// Asks to specify which services to make available from the sharing service picker.
             @discardableResult
-            public func sharingServices(_ sharingServices: ((_ items: [Any], _ proposedServices: [NSSharingService]) -> ([NSSharingService]))?) -> Self {
+            open func sharingServices(_ sharingServices: ((_ items: [Any], _ proposedServices: [NSSharingService]) -> ([NSSharingService]))?) -> Self {
                 handlers.sharingServices = sharingServices
                 return self
             }
 
             /// Asks to provide an object that the selected sharing service can use as its delegate.
             @discardableResult
-            public func delegate(_ delegate: ((_ service: NSSharingService) -> (NSSharingServiceDelegate?))?) -> Self {
+            open func delegate(_ delegate: ((_ service: NSSharingService) -> (NSSharingServiceDelegate?))?) -> Self {
                 handlers.delegate = delegate
                 return self
             }

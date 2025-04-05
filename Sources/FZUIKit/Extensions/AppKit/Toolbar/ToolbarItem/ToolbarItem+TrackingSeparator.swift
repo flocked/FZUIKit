@@ -10,7 +10,7 @@
     import SwiftUI
 
     @available(macOS 11.0, *)
-    public extension ToolbarItem {
+    extension ToolbarItem {
         /**
          A toolbar separator that aligns with the vertical split view in the same window.
 
@@ -18,7 +18,7 @@
          
          The ``splitView`` must be in the same window as the toolbar containing this item before showing the toolbar.
          */
-        class TrackingSeparator: ToolbarItem {
+        open class TrackingSeparator: ToolbarItem {
             let separatorItem: NSTrackingSeparatorToolbarItem
             override var item: NSToolbarItem {
                 separatorItem
@@ -29,7 +29,7 @@
              
              The `splitView` must be in the same window as the toolbar containing the item before showing the toolbar.
              */
-            public var splitView: NSSplitView {
+            open var splitView: NSSplitView {
                 get { separatorItem.splitView }
                 set { separatorItem.splitView = newValue }
             }
@@ -40,20 +40,20 @@
              The `splitView` must be in the same window as the toolbar containing the item before showing the toolbar.
              */
             @discardableResult
-            public func splitView(_ splitView: NSSplitView) -> Self {
+            open func splitView(_ splitView: NSSplitView) -> Self {
                 self.splitView = splitView
                 return self
             }
             
             /// The index of the split view divider to align with the tracking separator.
-            public var dividerIndex: Int {
+            open var dividerIndex: Int {
                 get { separatorItem.dividerIndex }
                 set { separatorItem.dividerIndex = newValue }
             }
 
             /// Sets the index of the split view divider to align with the tracking separator.
             @discardableResult
-            public func dividerIndex(_ index: Int) -> Self {
+            open func dividerIndex(_ index: Int) -> Self {
                 self.dividerIndex = index
                 return self
             }

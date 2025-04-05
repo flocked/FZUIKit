@@ -8,13 +8,13 @@
 #if os(macOS)
     import AppKit
 
-    public extension ToolbarItem {
+    extension ToolbarItem {
         /**
          A group of subitems in a toolbar item.
 
          The item can be used with ``Toolbar``.
          */
-        class Group: ToolbarItem {
+        open class Group: ToolbarItem {
             
             /// The selection mode of a grouped toolbar item.
             public typealias SelectionMode = NSToolbarItemGroup.SelectionMode
@@ -27,81 +27,77 @@
             }
             
             /// The subitems of the group item.
-            public var subitems: [ToolbarItem] = [] {
+            open var subitems: [ToolbarItem] = [] {
                 didSet {
                     guard oldValue != subitems else { return }
-                    updateSubitems()
+                    groupItem.subitems = subitems.compactMap({ $0.item })
                 }
             }
 
             /// Sets the subitems of the grouped toolbar item.
             @discardableResult
-            public func subitems(_ items: [ToolbarItem]) -> Self {
+            open func subitems(_ items: [ToolbarItem]) -> Self {
                 subitems = items
                 return self
             }
             
             /// Sets the subitems of the group item.
             @discardableResult
-            public func subitems(@Toolbar.Builder builder: () -> [ToolbarItem]) -> Self {
+            open func subitems(@Toolbar.Builder builder: () -> [ToolbarItem]) -> Self {
                 subitems = builder()
                 return self
             }
 
             /// Sets the selection mode of the grouped toolbar item.
             @discardableResult
-            public func selectionMode(_ mode: SelectionMode) -> Self {
+            open func selectionMode(_ mode: SelectionMode) -> Self {
                 groupItem.selectionMode = mode
                 return self
             }
 
             /// The selection mode of the grouped toolbar item.
-            public var selectionMode: SelectionMode {
+            open var selectionMode: SelectionMode {
                 get { groupItem.selectionMode }
                 set { groupItem.selectionMode = newValue }
             }
 
             /// Sets the value that represents how a toolbar displays the grouped toolbar item.
             @discardableResult
-            public func controlRepresentation(_ representation: ControlRepresentation) -> Self {
+            open func controlRepresentation(_ representation: ControlRepresentation) -> Self {
                 groupItem.controlRepresentation = representation
                 return self
             }
 
             /// A value that represents how a toolbar displays the grouped toolbar item.
-            public var controlRepresentation: ControlRepresentation {
+            open var controlRepresentation: ControlRepresentation {
                 get { groupItem.controlRepresentation }
                 set { groupItem.controlRepresentation = newValue }
             }
 
             /// Sets the index value for the most recently selected subitem of the grouped toolbar item.
             @discardableResult
-            public func selectedIndex(_ selectedIndex: Int) -> Self {
+            open func selectedIndex(_ selectedIndex: Int) -> Self {
                 self.selectedIndex = selectedIndex
                 return self
             }
 
             /// The index value for the most recently selected subitem of the grouped toolbar item.
-            public var selectedIndex: Int {
+            open var selectedIndex: Int {
                 get { groupItem.selectedIndex }
                 set { groupItem.selectedIndex = newValue }
             }
 
             /// Sets the index values of the selected items in the group.
             @discardableResult
-            public func selectedIndexes(_ selectedIndexes: [Int]) -> Self {
+            open func selectedIndexes(_ selectedIndexes: [Int]) -> Self {
                 self.selectedIndexes = selectedIndexes
                 return self
             }
 
             /// The index values of the selected items in the group.
-            public var selectedIndexes: [Int] {
+            open var selectedIndexes: [Int] {
                 get { groupItem.selectedIndexes }
                 set { groupItem.selectedIndexes = newValue }
-            }
-            
-            private func updateSubitems() {
-                groupItem.subitems = subitems.compactMap({ $0.item })
             }
 
             /**
@@ -118,7 +114,7 @@
                 items: [ToolbarItem]) {
                 super.init(identifier)
                 subitems = items
-                updateSubitems()
+                groupItem.subitems = subitems.compactMap({ $0.item })
                 groupItem.selectionMode = selectionMode
             }
 

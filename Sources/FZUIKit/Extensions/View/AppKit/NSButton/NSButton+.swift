@@ -514,7 +514,7 @@ public extension NSButton {
     /// The button type which affects its user interface and behavior when clicked.
     var buttonType: ButtonType {
         get {
-            if let rawValue: UInt = cell?.value(forKey: Keys.buttonType.unmangled) as? UInt, let buttonType = ButtonType(rawValue: rawValue) {
+            if let rawValue: UInt = cell?.value(forKey: "_buttonType") as? UInt, let buttonType = ButtonType(rawValue: rawValue) {
                 return buttonType
             }
             return .momentaryPushIn
@@ -950,10 +950,6 @@ public extension NSButton {
             isBordered = false
         }
         sizeToFit(imageToTitleSpacing: 4.0)
-    }
-    
-    private struct Keys {
-        static let buttonType = "_buttonType".mangled
     }
     
     /*

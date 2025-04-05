@@ -267,11 +267,11 @@
          */
         public var firstBaselineOffsetFromTop: CGFloat? {
             if let view = self as? UITextField {
-                return view.constraints.isEmpty ? nil : value(forKey: Keys.firstBaselineOffsetFromTop.unmangled) as? CGFloat
+                return view.constraints.isEmpty ? nil : value(forKey: "_firstBaselineOffsetFromTop") as? CGFloat
             } else if let view = self as? UITextView {
-                return view.constraints.isEmpty ? nil : value(forKey: Keys.firstBaselineOffsetFromTop.unmangled) as? CGFloat
+                return view.constraints.isEmpty ? nil : value(forKey: "_firstBaselineOffsetFromTop") as? CGFloat
             }
-            return value(forKey: Keys.firstBaselineOffsetFromTop.unmangled) as? CGFloat
+            return value(forKey: "_firstBaselineOffsetFromTop") as? CGFloat
         }
         
         /**
@@ -281,16 +281,11 @@
          */
         public var lastBaselineOffsetFromBottom: CGFloat? {
             if let view = self as? UITextField {
-                return view.constraints.isEmpty ? nil : value(forKey: Keys.lastBaselineOffsetFromBottom.unmangled) as? CGFloat
+                return view.constraints.isEmpty ? nil : value(forKey: "_lastBaselineOffsetFromBottom") as? CGFloat
             } else if let view = self as? UITextView {
-                return view.constraints.isEmpty ? nil : value(forKey: Keys.lastBaselineOffsetFromBottom.unmangled) as? CGFloat
+                return view.constraints.isEmpty ? nil : value(forKey: "_lastBaselineOffsetFromBottom") as? CGFloat
             }
-            return value(forKey: Keys.lastBaselineOffsetFromBottom.unmangled) as? CGFloat
-        }
-        
-        private struct Keys {
-            static let lastBaselineOffsetFromBottom = "_lastBaselineOffsetFromBottom".mangled
-            static let firstBaselineOffsetFromTop = "_firstBaselineOffsetFromTop".mangled
+            return value(forKey: "_lastBaselineOffsetFromBottom") as? CGFloat
         }
         
         /**

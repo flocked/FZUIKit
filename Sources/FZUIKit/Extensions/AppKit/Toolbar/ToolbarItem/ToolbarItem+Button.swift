@@ -164,37 +164,12 @@ public extension ToolbarItem {
             - identifier: The item identifier.
             - title: The title of the button.
             - type: The button type.
+            - action: The handler that gets called when the user clicks the button.
          */
-        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, type: NSButton.BezelStyle = .toolbar) {
+        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, type: NSButton.BezelStyle = .toolbar, action: ((_ item: ToolbarItem.Button)->())? = nil) {
             let button = NSButton(frame: .zero).bezelStyle(type).translatesAutoresizingMaskIntoConstraints(false)
             button.title = title
-            self.init(identifier, button: button)
-        }
-        
-        /**
-         Creates a button toolbar item.
-         
-         - Parameters:
-            - identifier: The item identifier.
-            - image: The image of the button.
-            - type: The button type.
-         */
-        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, image: NSImage, type: NSButton.BezelStyle = .toolbar) {
-            self.init(identifier, title: "", image: image, type: type)
-        }
-        
-        /**
-         Creates a button toolbar item.
-         
-         - Parameters:
-            - identifier: The item identifier.
-            - symbolName: The symbol image name of the button.
-            - type: The button type.
-         */
-        @available(macOS 11.0, *)
-        public convenience init?(_ identifier: NSToolbarItem.Identifier? = nil, symbolName: String, type: NSButton.BezelStyle = .toolbar) {
-            guard let image = NSImage(systemSymbolName: symbolName) else { return nil }
-            self.init(identifier, image: image)
+            self.init(identifier, button: button, action: action)
         }
         
         /**
@@ -205,12 +180,30 @@ public extension ToolbarItem {
             - title: The title of the button.
             - image: The image of the button.
             - type: The button type.
+            - action: The handler that gets called when the user clicks the button.
          */
-        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, image: NSImage, type: NSButton.BezelStyle = .toolbar) {
+        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, image: NSImage, type: NSButton.BezelStyle = .toolbar, action: ((_ item: ToolbarItem.Button)->())? = nil) {
             let button = NSButton(frame: .zero).bezelStyle(type).translatesAutoresizingMaskIntoConstraints(false)
-            button.title = title
+            button.title = title ?? ""
             button.image = image
-            self.init(identifier, button: button)
+            button.imagePosition = .imageLeft
+            self.init(identifier, button: button, action: action)
+        }
+        
+        /**
+         Creates a button toolbar item.
+         
+         - Parameters:
+            - identifier: The item identifier.
+            - title: The title of the button.
+            - symbolName: The name for the symbol image of the button.
+            - type: The button type.
+            - action: The handler that gets called when the user clicks the button.
+         */
+        @available(macOS 11.0, *)
+        public convenience init?(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, symbolName: String, type: NSButton.BezelStyle = .toolbar, action: ((_ item: ToolbarItem.Button)->())? = nil) {
+            guard let image = NSImage(systemSymbolName: symbolName) else { return nil }
+            self.init(identifier, title: title, image: image, action: action)
         }
         
         /**
@@ -219,13 +212,15 @@ public extension ToolbarItem {
          - Parameters:
             - identifier: The item identifier.
             - button: The button.
+            - action: The handler that gets called when the user clicks the button.
          */
-        public init(_ identifier: NSToolbarItem.Identifier? = nil, button: NSButton) {
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, button: NSButton, action: ((_ item: ToolbarItem.Button)->())? = nil) {
             self.button = button
             super.init(identifier)
             button.invalidateIntrinsicContentSize()
             button.translatesAutoresizingMaskIntoConstraints = false
             item.view = button
+            onAction(action)
         }
     }
 }

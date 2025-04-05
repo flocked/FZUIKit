@@ -46,19 +46,13 @@ extension NSCollectionViewLayoutAttributes {
     }
 }
 
-fileprivate struct Keys {
-    static let transform = "transform".mangled
-    static let transform3D = "transform3D".mangled
-    static let layoutAttributes = "layoutAttributes".mangled
-}
-
 extension NSCollectionLayoutVisibleItem {
     /// The transform applied to the item, relative to the center of its bounds.
     public var transform: CGAffineTransform {
         get { layoutAttributes?.transform ?? .identity }
         set { 
             layoutAttributes?.transform = newValue
-            (self as? NSObject)?.setValue(newValue, forKey: Keys.transform.unmangled)
+            (self as? NSObject)?.setValue(newValue, forKey: "transform")
         }
     }
     
@@ -67,13 +61,13 @@ extension NSCollectionLayoutVisibleItem {
         get { layoutAttributes?.transform3D ?? .identity }
         set { 
             layoutAttributes?.transform3D = newValue
-            (self as? NSObject)?.setValue(newValue, forKey: Keys.transform3D.unmangled)
+            (self as? NSObject)?.setValue(newValue, forKey: "transform3D")
         }
     }
     
     var layoutAttributes: NSCollectionViewLayoutAttributes? {
-        guard let self = self as? NSObject, self.responds(to: NSSelectorFromString(Keys.layoutAttributes.unmangled)) else { return nil }
-        return self.value(forKey: Keys.layoutAttributes.unmangled) as? NSCollectionViewLayoutAttributes
+        guard let self = self as? NSObject, self.responds(to: NSSelectorFromString("layoutAttributes")) else { return nil }
+        return self.value(forKey: "layoutAttributes") as? NSCollectionViewLayoutAttributes
     }
 }
 

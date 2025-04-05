@@ -124,13 +124,9 @@ public extension NSBitmapImageRep {
         set { setAssociatedValue(newValue, key: "currentFrameDuration") }
     }
     
-    private struct Keys {
-        static let tiffData = "_tiffData".mangled
-    }
-    
     private var imageSource: ImageSource? {
-        guard String(describing: value(forKey: Keys.tiffData.unmangled)) != "nil" else { return nil }
-        return ImageSource(value(forKey: Keys.tiffData.unmangled) as! CGImageSource)
+        guard String(describing: value(forKey: "_tiffData")) != "nil" else { return nil }
+        return ImageSource(value(forKey: "_tiffData") as! CGImageSource)
     }
 }
 

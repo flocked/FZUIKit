@@ -56,49 +56,27 @@ import FZSwiftUtils
         
 
         var processingRequests: [QLThumbnailGenerator.Request] {
-            if let dic = value(forKey: Keys.requests.unmangled) as? NSDictionary {
-                return ((dic as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
-            }
-
-            return ((value(forKey: Keys.requests.unmangled) as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
+            ((value(forKey: "requests") as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
         }
 
         var pendingCancelledRequests: [QLThumbnailGenerator.Request] {
-            if let dic = value(forKey: Keys.pendingCancelledRequests.unmangled) as? NSDictionary {
-                return ((dic as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
-            }
-            return ((value(forKey: Keys.pendingCancelledRequests.unmangled) as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
+            ((value(forKey: "pendingCancelledRequests") as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
         }
 
         var pendingGenerationRequests: [QLThumbnailGenerator.Request] {
-            if let dic = value(forKey: Keys.pendingGenerationRequests.unmangled) as? NSDictionary {
-                return ((dic as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
-            }
-
-            return ((value(forKey: Keys.pendingGenerationRequests.unmangled) as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
+            ((value(forKey: "pendingGenerationRequests") as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
         }
 
         var preparingGenerationRequests: [QLThumbnailGenerator.Request] {
-            if let dic = value(forKey: Keys.preparingGenerationRequests.unmangled) as? NSDictionary {
-                return ((dic as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
-            }
-            return ((value(forKey: Keys.preparingGenerationRequests.unmangled) as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
-        }
-        
-        private struct Keys {
-            static let requests = "requests".mangled
-            static let pendingCancelledRequests = "pendingCancelledRequests".mangled
-            static let pendingGenerationRequests = "pendingGenerationRequests".mangled
-            static let preparingGenerationRequests = "preparingGenerationRequests".mangled
-            static let fileURL = "fileURL".mangled
+            ((value(forKey: "preparingGenerationRequests") as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
         }
     }
 
     extension QLThumbnailGenerator.Request {
         /// The URL of the file for which you want to create a thumbnail.
         public var fileURL: URL {
-            get { value(forKey: QLThumbnailGenerator.Keys.fileURL.unmangled) as? URL ?? URL(fileURLWithPath: "No request URL") }
-            set { setValue(newValue, forKey: QLThumbnailGenerator.Keys.fileURL.unmangled) }
+            get { value(forKey: "fileURL") as? URL ?? URL(fileURLWithPath: "No request URL") }
+            set { setValue(newValue, forKey: "fileURL") }
         }
         
         /**

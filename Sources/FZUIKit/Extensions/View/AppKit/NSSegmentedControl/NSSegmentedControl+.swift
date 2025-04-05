@@ -52,7 +52,7 @@
          - Parameter segment:The index of the segment whose font you want to get.
          */
         func font(forSegment segment: Int) -> NSFont? {
-            segmentViews[safe: segment]?.value(forKey: Keys.font.unmangled) as? NSFont
+            segmentViews[safe: segment]?.value(forKey: "font") as? NSFont
         }
         
         /**
@@ -63,7 +63,7 @@
             - index: The index of the segment whose label you want to set.
          */
         func setFont(_ font: NSFont, forSegment segment: Int) {
-            segmentViews[safe: segment]?.setValue(font, forKey: Keys.font.unmangled)
+            segmentViews[safe: segment]?.setValue(font, forKey: "font")
         }
                 
         /**
@@ -77,10 +77,6 @@
         
         internal var segmentViews: [NSView] {
             subviews.filter({ NSStringFromClass(type(of: $0)) == "NSSegmentItemView" })
-        }
-        
-        private struct Keys {
-            static let font = "font".mangled
         }
     }
 #endif

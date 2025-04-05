@@ -74,16 +74,12 @@ public extension NSAnimationContext {
      The property returns `true`, if it's called inside a `runAnimationGroup(_:)` closure or between `beginGrouping()` and `endGrouping()`.
      */
     class var hasActiveGrouping: Bool {
-        value(forKey: Keys.hasActiveGrouping.unmangled) as? Bool ?? false
+        value(forKey: "_hasActiveGrouping") as? Bool ?? false
     }
     
     internal var springAnimation: CASpringAnimation? {
         get { getAssociatedValue("springAnimation") }
         set { setAssociatedValue(newValue, key: "springAnimation") }
-    }
-    
-    private struct Keys {
-       static let hasActiveGrouping = "_hasActiveGrouping".mangled
     }
 }
 

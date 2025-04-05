@@ -53,12 +53,8 @@ extension NSColorPanel {
     
     /// The target object that receives action messages from the color panel.
     public var target: AnyObject? {
-        get { value(forKey: Keys.target.unmangled) as? AnyObject  }
+        get { value(forKey: "target") as? AnyObject  }
         set { setTarget(newValue) }
-    }
-    
-    private struct Keys {
-        static let target = "target".mangled
     }
     
     /// The handler that gets called when the color changes.
