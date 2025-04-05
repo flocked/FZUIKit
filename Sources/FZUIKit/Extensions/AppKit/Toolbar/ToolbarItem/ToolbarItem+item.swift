@@ -118,7 +118,7 @@
             public init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, action: ((_ item: Item)->())? = nil) {
                 super.init(identifier)
                 self.title = title
-                self.actionBlock = action
+                defer { actionBlock = action }
             }
             
             /**
@@ -134,7 +134,7 @@
                 super.init(identifier)
                 self.title = title ?? ""
                 self.image = image
-                self.actionBlock = action
+                defer { actionBlock = action }
             }
             
             /**
@@ -151,7 +151,7 @@
                 super.init(identifier)
                 self.title = title ?? ""
                 self.image = NSImage(systemSymbolName: symbolName)
-                self.actionBlock = action
+                defer { actionBlock = action }
             }
         }
     }
