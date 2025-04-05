@@ -32,6 +32,13 @@
         convenience init(_ name: String) {
             self.init(name: name, bundle: nil)
         }
+        
+        #if os(iOS) || os(tvOS)
+        static var main: NSUIStoryboard? {
+            guard let name = Bundle.main.infoDictionary?["UIMainStoryboardFile"] as? String, Bundle.main.path(forResource: name, ofType: "storyboardc") != nil else { return nil }
+            return NSUIStoryboard(name)
+        }
+        #endif
     }
 
 #endif

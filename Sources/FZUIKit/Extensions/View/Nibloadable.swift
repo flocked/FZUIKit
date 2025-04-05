@@ -35,12 +35,21 @@ public protocol Nibloadable: NSObject {
      Initalizes the object from a nib with the specified name.
      
      - Parameters:
-        - nibName: The name of the nib file, without any leading path information. Inclusion of the .nib extension on the nib file name is optional.
-        - bundle: The bundle in which to search for the nib file. If you specify `nil`, this method looks for the nib file in the main bundle.
+        - name: The name of the nib file, without any leading path information.
+        - bundle: The bundle containing the nib file.
+
+     - Returns: The initalized object, or `nil` if it couldn't be initalized.
+     */
+    static func loadFromNib(named name: String, bundle: Bundle) -> Self?
+    
+    /**
+     Initalizes the object from the main storyboard.
+     
+     - Parameters: identifier: The storyboard identifier of the object, or `nil` to use the object's class name as identifier.
      
      - Returns: The initalized object, or `nil` if it couldn't be initalized.
      */
-    static func loadFromNib(named nibName: String, bundle: Bundle?) -> Self?
+    static func loadFromStoryboard(identifier: String?) -> Self?
     
     /**
      Initalizes the object from the specified storyboard.
@@ -54,18 +63,18 @@ public protocol Nibloadable: NSObject {
     static func loadFromStoryboard(_ storyboard: NSUIStoryboard, identifier: String?) -> Self?
     
     /**
-     Initalizes the object from the storyboard.
+     Initalizes the object from a storyboard with the specified name.
      
      - Parameters:
-        - name: The name of the storyboard which holds the object.
+        - name: The name of the storyboard which holds the object, without any leading path information.
+        - bundle: The bundle containing the storyboard file.
         - identifier: The storyboard identifier of the object, or `nil` to use the object's class name as identifier.
      
      - Returns: The initalized object, or `nil` if it couldn't be initalized.
      */
-    static func loadFromStoryboard(name: String, identifier: String?) -> Self?
+    static func loadFromStoryboard(named name: String, bundle: Bundle, identifier: String?) -> Self?
     
 }
-
 
 extension NSUIView: Nibloadable { }
 extension NSUIViewController: Nibloadable { }
@@ -101,8 +110,8 @@ public extension Nibloadable where Self: NSWindowController {
         return controller
     }
     
-    static func loadFromNib(named nibName: String, bundle: Bundle? = nil) -> Self? {
-        if let bundle = bundle {
+    static func loadFromNib(named nibName: String, bundle: Bundle = .main) -> Self? {
+        if bundle != .main {
             guard let nib = NSNib(nibNamed: nibName, bundle: bundle) else { return nil }
             return loadFromNib(nib)
         } else {
@@ -125,7 +134,7 @@ public extension Nibloadable {
         loadFromNib(named: String(describing: self))
     }
     
-    static func loadFromNib(named name: String, bundle: Bundle? = nil) -> Self? {
+    static func loadFromNib(named name: String, bundle: Bundle = .main) -> Self? {
         #if os(macOS)
         guard let nib = NSNib(nibNamed: name, bundle: bundle) else { return nil }
         #elseif canImport(UIKit)
@@ -134,9 +143,14 @@ public extension Nibloadable {
         return loadFromNib(nib)
     }
 
-
-    static func loadFromStoryboard(name: String = "Main", identifier: String? = nil) -> Self? {
-        loadFromStoryboard(NSUIStoryboard(name: name, bundle: nil), identifier: identifier)
+    static func loadFromStoryboard(identifier: String? = nil) -> Self? {
+        guard let storyboard = NSUIStoryboard.main else { return nil }
+        return loadFromStoryboard(storyboard, identifier: identifier)
+    }
+    
+    static func loadFromStoryboard(named name: String, bundle: Bundle = .main, identifier: String? = nil) -> Self? {
+        guard bundle.path(forResource: name, ofType: "storyboardc") != nil else { return nil }
+        return loadFromStoryboard(NSUIStoryboard(name: name, bundle: nil), identifier: identifier)
     }
     
     static func loadFromStoryboard(_ storyboard: NSUIStoryboard, identifier: String? = nil) -> Self? {
