@@ -16,9 +16,10 @@
          */
         open class Group: ToolbarItem {
             
-            /// The selection mode of a grouped toolbar item.
+            /// A value that indicates how a group item selects its subitems.
             public typealias SelectionMode = NSToolbarItemGroup.SelectionMode
-            /// Display style of a grouped toolbar item.
+            
+            /// A value that represents how a toolbar displays a group item.
             public typealias ControlRepresentation = NSToolbarItemGroup.ControlRepresentation
 
             lazy var groupItem = ValidateToolbarItemGroup(for: self)
@@ -47,6 +48,12 @@
                 subitems = builder()
                 return self
             }
+            
+            /// The selection mode of the grouped toolbar item.
+            open var selectionMode: SelectionMode {
+                get { groupItem.selectionMode }
+                set { groupItem.selectionMode = newValue }
+            }
 
             /// Sets the selection mode of the grouped toolbar item.
             @discardableResult
@@ -54,43 +61,30 @@
                 groupItem.selectionMode = mode
                 return self
             }
-
-            /// The selection mode of the grouped toolbar item.
-            open var selectionMode: SelectionMode {
-                get { groupItem.selectionMode }
-                set { groupItem.selectionMode = newValue }
+            
+            /// The value that represents how a toolbar displays the item.
+            open var controlRepresentation: ControlRepresentation {
+                get { groupItem.controlRepresentation }
+                set { groupItem.controlRepresentation = newValue }
             }
 
-            /// Sets the value that represents how a toolbar displays the grouped toolbar item.
+            /// Sets the value that represents how a toolbar displays the item.
             @discardableResult
             open func controlRepresentation(_ representation: ControlRepresentation) -> Self {
                 groupItem.controlRepresentation = representation
                 return self
             }
 
-            /// A value that represents how a toolbar displays the grouped toolbar item.
-            open var controlRepresentation: ControlRepresentation {
-                get { groupItem.controlRepresentation }
-                set { groupItem.controlRepresentation = newValue }
-            }
-
-            /// Sets the index value for the most recently selected subitem of the grouped toolbar item.
-            @discardableResult
-            open func selectedIndex(_ selectedIndex: Int) -> Self {
-                self.selectedIndex = selectedIndex
-                return self
-            }
-
-            /// The index value for the most recently selected subitem of the grouped toolbar item.
+            /// The index value for the most recently selected subitem.
             open var selectedIndex: Int {
                 get { groupItem.selectedIndex }
                 set { groupItem.selectedIndex = newValue }
             }
-
-            /// Sets the index values of the selected items in the group.
+            
+            /// Selects the subitem at the specified index.
             @discardableResult
-            open func selectedIndexes(_ selectedIndexes: [Int]) -> Self {
-                self.selectedIndexes = selectedIndexes
+            open func selectItem(at index: Int) -> Self {
+                selectedIndex = index
                 return self
             }
 
@@ -98,6 +92,13 @@
             open var selectedIndexes: [Int] {
                 get { groupItem.selectedIndexes }
                 set { groupItem.selectedIndexes = newValue }
+            }
+            
+            /// Selects the subitems at the specified indexes.
+            @discardableResult
+            open func selectItems(at indexes: [Int]) -> Self {
+                self.selectedIndexes = indexes
+                return self
             }
 
             /**
@@ -108,10 +109,7 @@
                 - selectionMode: The selection mode of the item. The default value is `momentary`.
                 - items: The subitems.
              */
-            public init(
-                _ identifier: NSToolbarItem.Identifier? = nil,
-                selectionMode: SelectionMode = .momentary,
-                items: [ToolbarItem]) {
+            public init(_ identifier: NSToolbarItem.Identifier? = nil, selectionMode: SelectionMode = .momentary, items: [ToolbarItem]) {
                 super.init(identifier)
                 subitems = items
                 groupItem.subitems = subitems.compactMap({ $0.item })
@@ -127,10 +125,7 @@
                 - items: The subitems.
              */
             public convenience init(
-                _ identifier: NSToolbarItem.Identifier? = nil,
-                selectionMode: SelectionMode = .momentary,
-                view: NSView? = nil,
-                @Toolbar.Builder items: () -> [ToolbarItem]) {
+                _ identifier: NSToolbarItem.Identifier? = nil, selectionMode: SelectionMode = .momentary, view: NSView? = nil, @Toolbar.Builder items: () -> [ToolbarItem]) {
                 self.init(identifier, selectionMode: selectionMode, items: items())
                 self.item.view = view
             }
