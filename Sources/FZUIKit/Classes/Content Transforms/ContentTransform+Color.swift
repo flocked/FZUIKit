@@ -104,7 +104,7 @@ public struct ColorTransformer: ContentTransform {
         }
     
     /// A color transformer that generates a highlighted version of the color.
-    public static func highlight(_ amount: CGFloat) -> Self {
+    public static func highlight(_ amount: CGFloat = 0.2) -> Self {
         Self("highlight: \(amount)") { $0.highlight(withLevel: amount) ?? $0 }
     }
 
