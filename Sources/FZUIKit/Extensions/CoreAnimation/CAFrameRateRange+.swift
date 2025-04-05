@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 15.12.23.
 //
 
-#if canImport(QuartzCore)
+#if os(macOS) || os(iOS) || os(tvOS)
     import QuartzCore
 
     @available(macOS 12.0, iOS 15.0, tvOS 15.0, *)

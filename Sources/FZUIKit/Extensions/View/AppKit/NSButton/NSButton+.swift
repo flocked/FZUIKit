@@ -658,8 +658,8 @@ public extension NSButton {
         if !shouldObserveState {
             buttonStateObserver = nil
         } else if buttonStateObserver == nil {
-            buttonStateObserver = observeChanges(for: \.state) { [weak self] _, state in
-                guard let self = self else { return }
+            buttonStateObserver = observeChanges(for: \.cell?.state) { [weak self] _, state in
+                guard let self = self, let state = state else { return }
                 if let contentTintColor = self.contentTintColor(for: state) {
                     self.contentTintColor = contentTintColor
                 }
@@ -888,6 +888,7 @@ public extension NSButton {
         state == .on ? alternateImage ?? image : image
     }
     
+    /*
     internal convenience init(_ title: String? = nil, image: NSImage? = nil, style: BezelStyle? = nil) {
         self.init(title: title ?? "", target: nil, action: nil)
         self.image = image
@@ -902,8 +903,9 @@ public extension NSButton {
         }
         sizeToFit(imageToTitleSpacing: 4.0)
     }
+     */
     
-    static func button(_ title: String? = nil, image: NSImage? = nil, style: BezelStyle? = nil) -> Self {
+    internal static func button(_ title: String? = nil, image: NSImage? = nil, style: BezelStyle? = nil) -> Self {
         let button = Self.init(title: title ?? "", target: nil, action: nil)
         button.image = image
         if image != nil {
@@ -920,7 +922,7 @@ public extension NSButton {
     }
     
     @available(macOS 11.0, *)
-    static func button(_ title: String? = nil, symbolName: String, style: BezelStyle? = nil) -> Self {
+    internal static func button(_ title: String? = nil, symbolName: String, style: BezelStyle? = nil) -> Self {
         let button = Self.init(title: title ?? "", target: nil, action: nil)
         button.image = NSImage(systemSymbolName: symbolName)
         if button.image != nil {
@@ -936,6 +938,7 @@ public extension NSButton {
         return button
     }
     
+    /*
     @available(macOS 11.0, *)
     internal convenience init(_ title: String? = nil, symbolName: String, style: BezelStyle? = nil) {
         self.init(title: title ?? "", target: nil, action: nil)
@@ -951,6 +954,7 @@ public extension NSButton {
         }
         sizeToFit(imageToTitleSpacing: 4.0)
     }
+     */
     
     /*
     var autoSizes: Bool {
@@ -966,6 +970,108 @@ public extension NSButton {
         }
     }
     */
+}
+
+@available(macOS 12.0, *)
+extension NSButton {
+    /**
+     A Boolean value indicating whether the button highlights if the mouse is hovering the button.
+     
+     If the value is set to `true`, the button displays a highlighted variant of the `contentTintColor` or `systemBlue` color.
+     */
+    public var highlightsOnHover: Bool {
+        get { getAssociatedValue("highlightsOnHover") ?? false }
+        set {
+            guard newValue != highlightsOnHover else { return }
+            setAssociatedValue(newValue, key: "highlightsOnHover")
+            highlightView = newValue ? highlightView ?? .init(for: self) : nil
+        }
+    }
+    
+    var mouseIsInside: Bool {
+        get { getAssociatedValue("mouseIsInside") ?? false }
+        set {
+            setAssociatedValue(newValue, key: "mouseIsInside")
+            updateHighlightColor()
+        }
+    }
+    
+    private var highlightSymbolConfiguration: NSImage.SymbolConfiguration? {
+        get { getAssociatedValue("highlightSymbolConfiguration") }
+        set { setAssociatedValue(newValue, key: "highlightSymbolConfiguration") }
+    }
+    
+    private var didApplyHighlight: Bool {
+        get { getAssociatedValue("didApplyHighlight") ?? false }
+        set { setAssociatedValue(newValue, key: "didApplyHighlight") }
+    }
+    
+    private func updateHighlightColor() {
+        if mouseIsInside {
+            let color = contentTintColor ?? .systemBlue
+            let transformedColor = ColorTransformer.systemEffect(.pressed)(color)
+            attributedTitle = NSAttributedString(string: title, attributes: [.foregroundColor: transformedColor, .font: font ?? NSFont.systemFont(ofSize: NSFont.systemFontSize)])
+            guard !didApplyHighlight else { return }
+            didApplyHighlight = true
+            highlightSymbolConfiguration = symbolConfiguration
+            symbolConfiguration = symbolConfiguration?.applying(.init(paletteColors: [transformedColor])) ?? .init(paletteColors: [transformedColor])
+        } else {
+            symbolConfiguration = highlightSymbolConfiguration
+            title = title
+            highlightSymbolConfiguration = nil
+            didApplyHighlight = false
+        }
+    }
+    
+    private var highlightView: HighlightMouseView? {
+        get { getAssociatedValue("highlightView") }
+        set { setAssociatedValue(newValue, key: "highlightView") }
+    }
+    
+    private class HighlightMouseView: NSView {
+        lazy var trackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeInKeyWindow])
+        
+        var observation: KeyValueObservation?
+        
+        var button: NSButton? { superview as? NSButton }
+        
+        deinit {
+            button?.mouseIsInside = false
+            removeFromSuperview()
+        }
+        
+        init(for button: NSButton) {
+            super.init(frame: .zero)
+            zPosition = -2001
+            button.addSubview(withConstraint: self)
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        override func updateTrackingAreas() {
+            super.updateTrackingAreas()
+            trackingArea.update()
+        }
+                
+        override func mouseEntered(with event: NSEvent) {
+            guard let button = button else { return }
+            button.mouseIsInside = true
+            observation = button.observeChanges(for: \.cell?.state) { [weak self] old, new in
+                guard self != nil else { return }
+                button.mouseIsInside = true
+            }
+        }
+        
+        override func mouseExited(with event: NSEvent) {
+            observation = nil
+            (superview as? NSButton)?.mouseIsInside = false
+        }
+        
+        override var acceptsFirstResponder: Bool { false }
+        override func hitTest(_ point: NSPoint) -> NSView? { return nil }
+    }
 }
 
 #endif

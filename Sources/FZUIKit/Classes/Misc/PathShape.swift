@@ -140,7 +140,7 @@ public struct PathShape {
     }
 }
 
-@available(macOS 14.0, iOS 16.0, tvOS 14.0, watchOS 10.0, *)
+@available(macOS 14.0, iOS 16.0, tvOS 16.0, watchOS 10.0, *)
 extension PathShape {
     /// Rules for determining which regions are interior to a shape.
     public typealias FileRule = CGPathFillRule
@@ -244,6 +244,7 @@ extension PathShape {
     public static func star(points: Int = 5, cutout: Bool = false, rounded: Bool = false) -> PathShape { PathShape(Star(points: points, cutout: cutout, rounded: rounded)) }
 }
 
+#if os(macOS) || os(iOS) || os(tvOS)
 extension CAShapeLayer {
     /// Creates a shape layer with the specified shape.
     public convenience init(shape: PathShape) {
@@ -275,4 +276,5 @@ extension CAShapeLayer {
         set { setAssociatedValue(newValue, key: "boundsObservation") }
     }
 }
+#endif
 #endif

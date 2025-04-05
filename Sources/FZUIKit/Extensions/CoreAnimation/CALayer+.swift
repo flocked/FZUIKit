@@ -195,10 +195,11 @@ import FZSwiftUtils
         
         func setupObser() {
             if let parentView = parentView, shadowConfiguration.color?.isDynamic == true || innerShadowConfiguration.color?.isDynamic == true || borderConfiguration.color?.isDynamic == true || nsuiBackgroundColor?.isDynamic == true {
-                parentView.effectiveAppearanceObservation
-                parentView.observeChanges(for: \.effectiveAppearance) { [weak self] old, new in
+                #if os(macOS)
+                parentView.effectiveAppearanceObservation = parentView.observeChanges(for: \.effectiveAppearance) { [weak self] old, new in
                     guard let self = self else { return }
                 }
+                #endif
             }
         }
         

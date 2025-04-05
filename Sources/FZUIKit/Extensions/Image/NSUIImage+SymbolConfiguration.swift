@@ -182,13 +182,13 @@ extension NSUIImage.SymbolConfiguration {
             switch mode {
             case .monochrome:
                 if let primary = primary {
-                    if #available(macOS 13.0, iOS 16.0, tvOS 15.0, watchOS 9.0, *) {
+                    if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
                         return .init(paletteColors: [primary]) + .preferringMonochrome()
                     } else {
                         return .init(paletteColors: [primary])
                     }
                 } else {
-                    if #available(macOS 13.0, iOS 16.0, tvOS 15.0, watchOS 9.0, *) {
+                    if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
                         return .preferringMonochrome()
                     } else {
                         return .unspecified
@@ -466,8 +466,8 @@ public extension UIImage {
      - Returns: The object containing the image variant that matches the specified configuration data, or nil if no suitable image was found.
      */
     @available(iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-    convenience init?(systemName name: String, WithConfiguration configuration: ImageSymbolConfiguration) {
-        self.init(systemName: name, WithConfiguration: configuration.nsUI())
+    convenience init?(systemName name: String, withConfiguration configuration: ImageSymbolConfiguration) {
+        self.init(systemName: name, withConfiguration: configuration.nsUI())
     }
 }
 #endif

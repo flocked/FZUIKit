@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 23.02.23.
 //
 
-#if canImport(QuartzCore)
+#if os(macOS) || os(iOS) || os(tvOS)
     import QuartzCore.CoreAnimation
 
     public extension CACornerMask {

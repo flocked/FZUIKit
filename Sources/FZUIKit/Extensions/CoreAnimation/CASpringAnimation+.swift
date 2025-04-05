@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 04.01.25.
 //
 
-#if canImport(QuartzCore)
+#if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
 import QuartzCore
 

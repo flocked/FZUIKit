@@ -196,7 +196,8 @@ public extension NSUIImage {
 
             return newImage!
         }
-        
+
+        #if os(iOS) || os(tvOS)
         /**
          Creates a new image by masking the current image to the area defined by a `UIBezierPath`.
          
@@ -216,8 +217,7 @@ public extension NSUIImage {
             }
             return maskedImage
         }
-
-        #if os(iOS) || os(tvOS)
+        
             /// Returns the image as circle.
             func rounded() -> NSUIImage {
                 let maxRadius = min(size.width, size.height)

@@ -35,6 +35,7 @@ public struct InnerShadow<S: Shape>: View {
         self.y = y
     }
     
+    #if os(macOS) || os(iOS) || os(tvOS)
     /**
      Creates a view that displays an inner shadow.
      
@@ -49,6 +50,7 @@ public struct InnerShadow<S: Shape>: View {
         self.y = configuration.offset.y
         self.color = configuration.resolvedColor(withOpacity: true)?.swiftUI ?? .clear
     }
+    #endif
 
     public var body: some View {
         let padding: CGFloat = radius * 2

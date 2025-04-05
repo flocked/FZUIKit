@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 06.06.22.
 //
 
-#if canImport(QuartzCore)
+#if os(macOS) || os(iOS) || os(tvOS)
     import QuartzCore
 
     public extension CATransaction {

@@ -5,7 +5,7 @@
 //  Created by Adam Bell on 5/16/20.
 //
 
-#if canImport(QuartzCore)
+#if os(macOS) || os(iOS) || os(tvOS)
 
 import QuartzCore
 import simd

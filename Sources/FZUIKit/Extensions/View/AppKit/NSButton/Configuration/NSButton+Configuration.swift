@@ -59,7 +59,7 @@ extension NSButton {
     
     func setupConfigurationStateObserver() {
         if (automaticallyUpdatesConfiguration && configuration is AdvanceConfiguration) || configurationUpdateHandler != nil {
-            buttonObserver.add(\.state) { [weak self] old, new in
+            buttonObserver.add(\.cell?.state) { [weak self] old, new in
                 guard let self = self else { return }
                 self.updateConfigurationAutomatically()
             }
