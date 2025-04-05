@@ -278,7 +278,7 @@ import FZSwiftUtils
 
         /// Recursive description of the view useful for debugging.
         @objc open var recursiveDescription: String {
-            value(forKey: "recursiveDescription") as? String ?? ""
+            value(forKeySafely: "recursiveDescription") as? String ?? ""
         }
 
         #if os(macOS)

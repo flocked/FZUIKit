@@ -49,12 +49,12 @@ public extension NSGridRow {
     }
     
     internal var allCells_: [NSGridCell] {
-        value(forKey: "_cells") as? [NSGridCell] ?? []
+        value(forKeySafely: "_cells") as? [NSGridCell] ?? []
     }
     
     /*
     var _cells: [NSGridCell] {
-        value(forKey: "_cells") as? [NSGridCell] ?? []
+        value(forKeySafely: "_cells") as? [NSGridCell] ?? []
     }
      */
     
@@ -65,22 +65,22 @@ public extension NSGridRow {
     
     /// The top boundary layout anchor.
     var topBoundaryAnchor: NSLayoutXAxisAnchor? {
-        value(forKey: "_topBoundaryAnchor") as? NSLayoutXAxisAnchor
+        value(forKeySafely: "_topBoundaryAnchor") as? NSLayoutXAxisAnchor
     }
     
     /// The top content layout anchor.
     var topContentAnchor: NSLayoutXAxisAnchor? {
-        value(forKey: "_topContentAnchor") as? NSLayoutXAxisAnchor
+        value(forKeySafely: "_topContentAnchor") as? NSLayoutXAxisAnchor
     }
     
     /// The bottom boundary layout anchor.
     var bottomBoundaryAnchor: NSLayoutXAxisAnchor? {
-        value(forKey: "_bottomBoundaryAnchor") as? NSLayoutXAxisAnchor
+        value(forKeySafely: "_bottomBoundaryAnchor") as? NSLayoutXAxisAnchor
     }
     
     /// The bottom content layout anchor.
     var bottomContentAnchor: NSLayoutXAxisAnchor? {
-        value(forKey: "_bottomContentAnchor") as? NSLayoutXAxisAnchor
+        value(forKeySafely: "_bottomContentAnchor") as? NSLayoutXAxisAnchor
     }
 }
 

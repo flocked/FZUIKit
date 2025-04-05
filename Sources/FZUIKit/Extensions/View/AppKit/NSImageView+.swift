@@ -68,7 +68,7 @@ extension NSImageView {
      Use this property to determine the display dimensions of the image within the image view’s bounds. The size and position of this rectangle depends on the image scaling and alignment.
      */
     public var imageBounds: CGRect {
-        if let bounds = value(forKey: "_drawingRectForImage") as? CGRect {
+        if let bounds = value(forKeySafely: "_drawingRectForImage") as? CGRect {
             return bounds
         }
         

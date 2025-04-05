@@ -53,7 +53,7 @@ extension NSColorPanel {
     
     /// The target object that receives action messages from the color panel.
     public var target: AnyObject? {
-        get { value(forKey: "target") as? AnyObject  }
+        get { value(forKeySafely: "target") as? AnyObject  }
         set { setTarget(newValue) }
     }
     

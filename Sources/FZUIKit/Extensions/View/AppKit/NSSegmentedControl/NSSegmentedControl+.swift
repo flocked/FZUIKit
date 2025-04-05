@@ -89,7 +89,7 @@
          - Parameter segment:The index of the segment whose font you want to get.
          */
         func font(forSegment segment: Int) -> NSFont? {
-            segmentViews[safe: segment]?.value(forKey: "font") as? NSFont
+            segmentViews[safe: segment]?.value(forKeySafely: "font") as? NSFont
         }
         
         /**

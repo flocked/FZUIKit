@@ -51,7 +51,7 @@ public extension NSUIImage {
     @available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
     var symbolName: String? {
         #if os(macOS)
-        return value(forKey: "_symbolDescription") as? String
+        return value(forKeySafely: "_symbolDescription") as? String
         #else
         return getAssociatedValue("symbolName", initialValue: _symbolName)
         #endif

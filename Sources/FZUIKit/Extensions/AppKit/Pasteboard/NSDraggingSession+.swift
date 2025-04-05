@@ -7,6 +7,7 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
 extension NSDraggingSession {
     /// The source of the drag.
@@ -16,7 +17,7 @@ extension NSDraggingSession {
     
     /// The start location of the drag.
     public var startLocation: CGPoint {
-        value(forKey: "startLocation") as! CGPoint
+        value(forKeySafely: "startLocation") as? CGPoint ?? .zero
     }
 
     /// The current destination window of the drag.

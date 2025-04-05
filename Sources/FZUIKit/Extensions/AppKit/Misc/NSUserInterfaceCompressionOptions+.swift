@@ -17,7 +17,7 @@ extension NSUserInterfaceCompressionOptions {
     }
     
     private var identifers: Set<String> {
-        get { value(forKey: "identifiers") as! Set<String> }
+        get { value(forKeySafely: "identifiers") as? Set<String> ?? .init() }
         set { setValue(safely: newValue, forKey: "identifiers")}
     }
     

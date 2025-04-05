@@ -56,7 +56,7 @@ public extension NSGridCell {
     
     /// A Boolean value indicating whether the cell is merged with one or several other cells.
     var isMerged: Bool {
-        value(forKey: "_isMerged") as? Bool ?? false
+        value(forKeySafely: "_isMerged") as? Bool ?? false
     }
     
     /// Unmerges the cell and all related cells.
@@ -76,7 +76,7 @@ public extension NSGridCell {
     }
     
     internal var headOfMergedCell: NSGridCell? {
-        get { value(forKey: "_headOfMergedCell") as? NSGridCell }
+        get { value(forKeySafely: "_headOfMergedCell") as? NSGridCell }
         set { setValue(safely: newValue, forKey: "_headOfMergedCell")}
     }
 }

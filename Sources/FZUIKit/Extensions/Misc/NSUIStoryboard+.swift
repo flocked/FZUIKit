@@ -11,6 +11,7 @@
     #else
     import UIKit
     #endif
+import FZSwiftUtils
 
     public extension NSUIStoryboard {
         /**
@@ -36,7 +37,7 @@
         /// The name of the storyboard.
         var name: String {
             guard responds(to: NSSelectorFromString("name")) else { return "" }
-            return value(forKey: "name") as? String ?? ""
+            return value(forKeySafely: "name") as? String ?? ""
         }
         
         #if os(iOS) || os(tvOS)

@@ -267,11 +267,11 @@
          */
         public var firstBaselineOffsetFromTop: CGFloat? {
             if let view = self as? UITextField {
-                return view.constraints.isEmpty ? nil : value(forKey: "_firstBaselineOffsetFromTop") as? CGFloat
+                return view.constraints.isEmpty ? nil : value(forKeySafely: "_firstBaselineOffsetFromTop") as? CGFloat
             } else if let view = self as? UITextView {
-                return view.constraints.isEmpty ? nil : value(forKey: "_firstBaselineOffsetFromTop") as? CGFloat
+                return view.constraints.isEmpty ? nil : value(forKeySafely: "_firstBaselineOffsetFromTop") as? CGFloat
             }
-            return value(forKey: "_firstBaselineOffsetFromTop") as? CGFloat
+            return value(forKeySafely: "_firstBaselineOffsetFromTop") as? CGFloat
         }
         
         /**
@@ -281,11 +281,11 @@
          */
         public var lastBaselineOffsetFromBottom: CGFloat? {
             if let view = self as? UITextField {
-                return view.constraints.isEmpty ? nil : value(forKey: "_lastBaselineOffsetFromBottom") as? CGFloat
+                return view.constraints.isEmpty ? nil : value(forKeySafely: "_lastBaselineOffsetFromBottom") as? CGFloat
             } else if let view = self as? UITextView {
-                return view.constraints.isEmpty ? nil : value(forKey: "_lastBaselineOffsetFromBottom") as? CGFloat
+                return view.constraints.isEmpty ? nil : value(forKeySafely: "_lastBaselineOffsetFromBottom") as? CGFloat
             }
-            return value(forKey: "_lastBaselineOffsetFromBottom") as? CGFloat
+            return value(forKeySafely: "_lastBaselineOffsetFromBottom") as? CGFloat
         }
         
         /**

@@ -35,7 +35,7 @@ import UniformTypeIdentifiers
         /// A Boolean value that indicates whether the image is a symbol.
         @available(macOS 11.0, *)
         var isSymbolImage: Bool {
-            value(forKey: "_isSymbolImage") as? Bool ?? (symbolName != nil)
+            value(forKeySafely: "_isSymbolImage") as? Bool ?? (symbolName != nil)
         }
         
         /// Returns the image types supported by `NSImage`.

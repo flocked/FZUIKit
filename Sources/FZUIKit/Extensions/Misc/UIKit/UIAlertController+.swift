@@ -13,7 +13,7 @@ extension UIAlertAction {
     /// A block to execute when the user selects the action. This block has no return value and takes the selected action object as its only parameter.
     public var handler: ((UIAlertAction) -> Void)? {
         get {
-            guard let block = value(forKey: "handler") else { return nil }
+            guard let block = value(forKeySafely: "handler") else { return nil }
             let blockPtr = UnsafeRawPointer(Unmanaged<AnyObject>.passUnretained(block as AnyObject).toOpaque())
             return unsafeBitCast(blockPtr, to: AlertHandler.self)
         }

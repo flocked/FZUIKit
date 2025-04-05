@@ -49,22 +49,22 @@ public extension NSGridColumn {
     
     /// The leading boundary layout anchor.
     var leadingBoundaryAnchor: NSLayoutXAxisAnchor? {
-        value(forKey: "_leadingBoundaryAnchor") as? NSLayoutXAxisAnchor
+        value(forKeySafely: "_leadingBoundaryAnchor") as? NSLayoutXAxisAnchor
     }
     
     /// The leading content layout anchor.
     var leadingContentAnchor: NSLayoutXAxisAnchor? {
-        value(forKey: "_leadingContentAnchor") as? NSLayoutXAxisAnchor
+        value(forKeySafely: "_leadingContentAnchor") as? NSLayoutXAxisAnchor
     }
     
     /// The trailing boundary layout anchor.
     var trailingBoundaryAnchor: NSLayoutXAxisAnchor? {
-        value(forKey: "_trailingBoundaryAnchor") as? NSLayoutXAxisAnchor
+        value(forKeySafely: "_trailingBoundaryAnchor") as? NSLayoutXAxisAnchor
     }
     
     /// The trailing content layout anchor.
     var trailingContentAnchor: NSLayoutXAxisAnchor? {
-        value(forKey: "_trailingContentAnchor") as? NSLayoutXAxisAnchor
+        value(forKeySafely: "_trailingContentAnchor") as? NSLayoutXAxisAnchor
     }
     
     /*

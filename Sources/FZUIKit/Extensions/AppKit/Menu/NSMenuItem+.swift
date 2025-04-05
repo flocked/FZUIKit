@@ -178,7 +178,7 @@ public extension NSMenuItem {
     
     /// The font of the menu item.
     var font: NSFont? {
-        get { value(forKey: "font") as? NSFont }
+        get { value(forKeySafely: "font") as? NSFont }
         set { setValue(safely: newValue, forKey: "font") }
     }
     

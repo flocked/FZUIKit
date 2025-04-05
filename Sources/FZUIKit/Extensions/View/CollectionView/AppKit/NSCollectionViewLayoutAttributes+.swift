@@ -67,7 +67,7 @@ extension NSCollectionLayoutVisibleItem {
     
     var layoutAttributes: NSCollectionViewLayoutAttributes? {
         guard let self = self as? NSObject, self.responds(to: NSSelectorFromString("layoutAttributes")) else { return nil }
-        return self.value(forKey: "layoutAttributes") as? NSCollectionViewLayoutAttributes
+        return self.value(forKeySafely: "layoutAttributes") as? NSCollectionViewLayoutAttributes
     }
 }
 

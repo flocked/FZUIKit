@@ -293,7 +293,7 @@ extension NSUIImage.SymbolConfiguration {
     var renderingStyle: Int {
         get {
             guard responds(to: NSSelectorFromString("renderingStyle")) else { return 0 }
-            return value(forKey: "renderingStyle") as? Int ?? 0
+            return value(forKeySafely: "renderingStyle") as? Int ?? 0
         }
         set {
             guard responds(to: NSSelectorFromString("renderingStyle")) else { return }
@@ -304,7 +304,7 @@ extension NSUIImage.SymbolConfiguration {
     var prefersMulticolor: Bool {
         get {
             guard responds(to: NSSelectorFromString("prefersMulticolor")) else { return false }
-            return value(forKey: "prefersMulticolor") as? Bool ?? false
+            return value(forKeySafely: "prefersMulticolor") as? Bool ?? false
         }
         set {
             guard responds(to: NSSelectorFromString("prefersMulticolor")) else { return }

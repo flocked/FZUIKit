@@ -56,26 +56,26 @@ import FZSwiftUtils
         
 
         var processingRequests: [QLThumbnailGenerator.Request] {
-            ((value(forKey: "requests") as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
+            ((value(forKeySafely: "requests") as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
         }
 
         var pendingCancelledRequests: [QLThumbnailGenerator.Request] {
-            ((value(forKey: "pendingCancelledRequests") as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
+            ((value(forKeySafely: "pendingCancelledRequests") as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
         }
 
         var pendingGenerationRequests: [QLThumbnailGenerator.Request] {
-            ((value(forKey: "pendingGenerationRequests") as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
+            ((value(forKeySafely: "pendingGenerationRequests") as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
         }
 
         var preparingGenerationRequests: [QLThumbnailGenerator.Request] {
-            ((value(forKey: "preparingGenerationRequests") as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
+            ((value(forKeySafely: "preparingGenerationRequests") as? [UUID: QLThumbnailGenerator.Request]) ?? [:]).compactMap(\.value)
         }
     }
 
     extension QLThumbnailGenerator.Request {
         /// The URL of the file for which you want to create a thumbnail.
         public var fileURL: URL {
-            get { value(forKey: "fileURL") as? URL ?? URL(fileURLWithPath: "No request URL") }
+            get { value(forKeySafely: "fileURL") as? URL ?? URL(fileURLWithPath: "No request URL") }
             set { setValue(safely: newValue, forKey: "fileURL") }
         }
         

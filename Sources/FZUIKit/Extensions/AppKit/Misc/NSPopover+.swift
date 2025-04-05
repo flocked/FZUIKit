@@ -223,7 +223,7 @@ extension NSPopover {
     
     /// The view to which the popover should be positioned.
     @objc open var positioningView: NSView? {
-        get { value(forKey: "positioningView") as? NSView }
+        get { value(forKeySafely: "positioningView") as? NSView }
         set {
             guard newValue != positioningView else { return }
             setValue(safely: newValue, forKey: "positioningView")
@@ -240,7 +240,7 @@ extension NSPopover {
     
     /// The edge of `positioningView` the popover should prefer to be anchored to.
     @objc open var preferredEdge: NSRectEdge {
-        get { NSRectEdge(rawValue: value(forKey: "_preferredEdge") as? UInt ?? 0)! }
+        get { NSRectEdge(rawValue: value(forKeySafely: "_preferredEdge") as? UInt ?? 0)! }
         set {
             guard newValue != preferredEdge else { return }
             setValue(safely: newValue.rawValue, forKey: "_preferredEdge")
@@ -257,7 +257,7 @@ extension NSPopover {
     
     /// A Boolean value that indicates whether the arrow is visible
     @objc open var isArrowVisible: Bool {
-        get { !(value(forKey: "shouldHideAnchor") as? Bool ?? false) }
+        get { !(value(forKeySafely: "shouldHideAnchor") as? Bool ?? false) }
         set {
             guard newValue != isArrowVisible else { return }
             setValue(safely: !newValue, forKey: "shouldHideAnchor")
@@ -274,7 +274,7 @@ extension NSPopover {
     
     /// The window of the popover.
     @objc open var window: NSWindow? {
-        value(forKey: "_popoverWindow") as? NSWindow
+        value(forKeySafely: "_popoverWindow") as? NSWindow
     }
     
     func updateVisible() {

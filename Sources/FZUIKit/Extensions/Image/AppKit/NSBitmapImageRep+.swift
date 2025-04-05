@@ -125,7 +125,7 @@ public extension NSBitmapImageRep {
     }
     
     private var imageSource: ImageSource? {
-        guard String(describing: value(forKey: "_tiffData")) != "nil" else { return nil }
+        guard String(describing: value(forKeySafely: "_tiffData")) != "nil" else { return nil }
         return ImageSource(value(forKey: "_tiffData") as! CGImageSource)
     }
 }
