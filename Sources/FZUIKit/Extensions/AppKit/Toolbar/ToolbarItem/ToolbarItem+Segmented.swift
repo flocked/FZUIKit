@@ -17,7 +17,12 @@
          */
         class Segmented: ToolbarItem {
             
-            lazy var groupItem = ValidateToolbarItemGroup(for: self)
+            lazy var groupItem: ValidateToolbarItemGroup = {
+                let item = ValidateToolbarItemGroup(for: self)
+                item.view = segmentedControl
+                return item
+            }()
+            
             override var item: NSToolbarItem {
                 groupItem
             }
@@ -28,7 +33,10 @@
             /// The segments of the segmented control.
             public var segments: [NSSegment] {
                 get { segmentedControl.segments }
-                set { segmentedControl.segments = newValue }
+                set {
+                    segmentedControl.segments = newValue
+                    updateSegments()
+                }
             }
             
             /**
@@ -74,29 +82,17 @@
                     NSSegmentedControl.SwitchTracking(rawValue: rawValue)!
                 }
             }
-
-            /// Sets the visual style used to display the segmented control.
-            @discardableResult
-            public func style(_ type: NSSegmentedControl.Style) -> Self {
-                segmentedControl.segmentStyle = type
-                return self
-            }
-
-            /// Sets the color of the selected segment's bezel, in appearances that support it.
-            @discardableResult
-            public func selectedSegmentBezelColor(_ color: NSColor?) -> Self {
-                segmentedControl.selectedSegmentBezelColor = color
-                return self
+            
+            /// A Boolean value indicating whether the segmented control is bezeled.
+            public var isBezeled: Bool {
+                get { segmentedControl.segmentStyle != .roundRect }
+                set { segmentedControl.segmentStyle = newValue ? .roundRect : .automatic }
             }
             
-            /**
-             Sets the Boolean value that indicates whether the toolbar item is displayed as a group of individual toolbar items and labels for each segment.
-             
-             - Note: This property only works if you provide `image` for each segment.
-             */
+            /// Sets the Boolean value indicating whether the segmented control is bezeled.
             @discardableResult
-            public func displaysIndividualSegmentLabels(_ displays: Bool) -> Self {
-                self.displaysIndividualSegmentLabels = displays
+            public func isBezeled(_ isBezeled: Bool) -> Self {
+                self.isBezeled = isBezeled
                 return self
             }
             
@@ -110,6 +106,17 @@
                     guard oldValue != displaysIndividualSegmentLabels else { return }
                     updateSegments()
                 }
+            }
+            
+            /**
+             Sets the Boolean value that indicates whether the toolbar item is displayed as a group of individual toolbar items and labels for each segment.
+             
+             - Note: This property only works if you provide `image` for each segment.
+             */
+            @discardableResult
+            public func displaysIndividualSegmentLabels(_ displays: Bool) -> Self {
+                self.displaysIndividualSegmentLabels = displays
+                return self
             }
             
             func updateSegments() {
@@ -157,11 +164,9 @@
              */
             public convenience init(_ identifier: NSToolbarItem.Identifier? = nil,
                                     selectionMode: SelectionMode = .selectOne,
-                                    style: NSSegmentedControl.Style = .automatic,
                                     @NSSegmentedControl.Builder segments: () -> [NSSegment]) {
-                self.init(identifier, segmentedControl: NSSegmentedControl().style(style).trackingMode(selectionMode.switchTracking))
+                self.init(identifier, segmentedControl: NSSegmentedControl().trackingMode(selectionMode.switchTracking))
                 self.segments = segments()
-                updateSegments()
             }
 
             /**
@@ -179,7 +184,6 @@
                 segmentedControl.translatesAutoresizingMaskIntoConstraints = false
                 segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
                 segmentedControl.segmentDistribution = .fillEqually
-                item.view = segmentedControl
             }
         }
     }
