@@ -38,7 +38,7 @@ public extension NSUIColor {
         }
     }
 
-    enum ColorBlendMode {
+    enum ColorBlendMode: String {
         /// The RGB color space.
         case rgb
         /// The HSL color space.
