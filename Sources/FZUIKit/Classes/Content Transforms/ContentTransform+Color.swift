@@ -102,6 +102,11 @@ public struct ColorTransformer: ContentTransform {
         public static func systemEffect(_ systemEffect: NSColor.SystemEffect) -> Self {
             Self("systemEffect: \(systemEffect.description)") { $0.withSystemEffect(systemEffect) }
         }
+    
+    /// A color transformer that generates a highlighted version of the color.
+    public static func highlight(_ amount: CGFloat) -> Self {
+        Self("highlight: \(amount)") { $0.highlight(withLevel: amount) ?? $0 }
+    }
 
     #elseif os(iOS) || os(tvOS)
         public static var preferredTint: Self {
