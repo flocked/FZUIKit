@@ -34,11 +34,48 @@
             return self
         }
         
-        /// Sets the visual style used to display the control.
+        /// The visual style used to display the segmented control.
+        var style: Styling {
+            get { .init(segmentStyle) }
+            set { segmentStyle = newValue.segmentStyle }
+        }
+        
+        /// Sets the visual style used to display the segmented control.
         @discardableResult
-        func style(_ style: Style) -> Self {
-            segmentStyle = style
+        func style(_ style: Styling) -> Self {
+            segmentStyle = style.segmentStyle
             return self
+        }
+        
+        ///  The visual style used to display a segmented control.
+        enum Styling: Int, CaseIterable {
+            /// The appearance of the segmented control is automatically determined based on the type of window in which the control is displayed and the position within the window.
+            case automatic = 0
+            /// Rounded.
+            case rounded = 1
+            /// Round rect.
+            case roundRect = 3
+            /// Capsule.
+            case capsule = 5
+            /// Square.
+            case square = 6
+            /// The segments of the segmented control are displayed very close to each other but not touching.
+            case separated = 8
+            
+            init(_ style: Style) {
+                switch style {
+                case .rounded, .texturedRounded: self = .rounded
+                case .roundRect: self = .roundRect
+                case .smallSquare: self = .square
+                case .separated: self = .separated
+                case .capsule, .texturedSquare: self = .capsule
+                default: self = .automatic
+                }
+            }
+            
+            var segmentStyle: Style {
+                .init(rawValue: rawValue) ?? .automatic
+            }
         }
         
         /// The indexes of the selected segments.
