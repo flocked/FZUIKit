@@ -21,6 +21,11 @@
     }
 
     public extension TabbableWindow {
+        func newWindowForTab(_ sender: Any?) {
+            
+        }
+        
+        
         static func create() -> Self {
             let windowController = Self.loadFromNib() ?? Self.loadFromStoryboard()
             if let windowController = windowController {

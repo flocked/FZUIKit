@@ -33,6 +33,12 @@
             self.init(name: name, bundle: nil)
         }
         
+        /// The name of the storyboard.
+        var name: String {
+            guard responds(to: NSSelectorFromString("name")) else { return "" }
+            return value(forKey: "name") as? String ?? ""
+        }
+        
         #if os(iOS) || os(tvOS)
         static var main: NSUIStoryboard? {
             guard let name = Bundle.main.infoDictionary?["UIMainStoryboardFile"] as? String, Bundle.main.path(forResource: name, ofType: "storyboardc") != nil else { return nil }
