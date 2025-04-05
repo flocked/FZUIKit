@@ -117,7 +117,7 @@
              Creates a popup button toolbar item.
 
              - Parameters:
-                - identifier: An optional identifier of the item.
+                - identifier: The item identifier.
                 - items: The menu items of the popup button.
              */
             public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, @MenuBuilder _ items: () -> [NSMenuItem]) {
@@ -134,7 +134,7 @@
              Creates a popup button toolbar item.
 
              - Parameters:
-                - identifier: An optional identifier of the item.
+                - identifier: The item identifier.
                 - popUpButton: The popup button of the item.
              */
             public init(_ identifier: NSToolbarItem.Identifier? = nil, popUpButton: NSPopUpButton) {

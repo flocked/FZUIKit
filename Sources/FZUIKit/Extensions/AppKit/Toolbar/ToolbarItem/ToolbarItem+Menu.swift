@@ -115,29 +115,93 @@
              Creates a menu toolbar item.
 
              - Parameters:
-                - identifier: An optional identifier of the item.
-                - title: The title of the item.
-                - image: The image of the item.
+                - identifier: The item identifier.
                 - menu: The menu.
              */
-            public init(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, image: NSImage? = nil, menu: NSMenu) {
+            public init(_ identifier: NSToolbarItem.Identifier? = nil, menu: NSMenu) {
                 super.init(identifier)
                 menuItem.menu = menu
-                self.title = title ?? ""
-                self.image = image
+                title = menu.title
             }
-
+            
             /**
              Creates a menu toolbar item.
 
              - Parameters:
-                - identifier: An optional identifier of the item.
+                - identifier: The item identifier.
                 - title: The title of the item.
-                - image: The image of the item.
-                - items: The menu items of the menu.
+                - menu: The menu.
              */
-            public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, image: NSImage? = nil, @MenuBuilder _ items: () -> [NSMenuItem]) {
-                self.init(identifier, title: title, image: image, menu: NSMenu(items: items()))
+            public init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, menu: NSMenu) {
+                super.init(identifier)
+                menuItem.menu = menu
+                self.title = title
+            }
+            
+            /**
+             Creates a menu toolbar item.
+
+             - Parameters:
+                - identifier: The item identifier.
+                - image: The image of the item.
+                - menu: The menu.
+             */
+            public init(_ identifier: NSToolbarItem.Identifier? = nil, image: NSImage, menu: NSMenu) {
+                super.init(identifier)
+                menuItem.menu = menu
+                self.image = image
+            }
+            
+            /**
+             Creates a menu toolbar item.
+
+             - Parameters:
+                - identifier: The item identifier.
+                - symbolName: The symbol name for the image of the item.
+                - menu: The menu.
+             */
+            @available(macOS 11.0, *)
+            public init(_ identifier: NSToolbarItem.Identifier? = nil, symbolName: String, menu: NSMenu) {
+                super.init(identifier)
+                menuItem.menu = menu
+                image = NSImage(systemSymbolName: symbolName)
+            }
+            
+            /**
+             Creates a menu toolbar item.
+
+             - Parameters:
+                - identifier: The item identifier.
+                - title: The title of the item.
+                - items: The items of the menu.
+             */
+            public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, @MenuBuilder _ items: () -> [NSMenuItem]) {
+                self.init(identifier, title: title, menu: NSMenu(items: items()))
+            }
+            
+            /**
+             Creates a menu toolbar item.
+
+             - Parameters:
+                - identifier: The item identifier.
+                - image: The image of the item.
+                - items: The items of the menu.
+             */
+            public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, image: NSImage, @MenuBuilder _ items: () -> [NSMenuItem]) {
+                self.init(identifier, image: image, menu: NSMenu(items: items()))
+            }
+            
+            /**
+             Creates a menu toolbar item.
+
+             - Parameters:
+                - identifier: The item identifier.
+                - symbolName: The symbol name for the image of the item.
+                - items: The items of the menu.
+             */
+            @available(macOS 11.0, *)
+            public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, symbolName: String, @MenuBuilder _ items: () -> [NSMenuItem]) {
+                self.init(identifier, symbolName: symbolName, menu: NSMenu(items: items()))
             }
         }
     }

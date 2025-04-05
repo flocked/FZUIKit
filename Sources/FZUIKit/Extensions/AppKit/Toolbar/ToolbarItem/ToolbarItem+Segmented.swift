@@ -39,7 +39,7 @@
              To get the last selected segment, check the selected segment where ``NSSegment/isLastSelected`` is `true.`
              */
             public var selectedSegments: [NSSegment] {
-                segmentedControl.indexesOfSelectedSegments.compactMap({ segments[safe: $0] })
+                segmentedControl.selectedSegments
             }
             
             /// Sets the segments of the segmented control.
@@ -130,17 +130,7 @@
                         groupItem.label = _label
                     }
                 }
-                segmentedControl.segmentStyle = .capsule
-                item.label = "Fun"
                 segmentedControl.sizeToFit()
-            }
-            
-            func isEnabledUpdated(for segment: NSSegment) {
-                groupItem.subitems[safe: segment.index ?? -1]?.isEnabled = segment.isEnabled
-            }
-            
-            func segmentItemPressed(_ segment: NSSegment) {
-                actionBlock?(self)
             }
             
             /// The handler that gets called when the user clicks the segmented control.
@@ -168,16 +158,14 @@
              Creates a segmented control toolbar item.
 
              - Parameters:
-                - identifier: An optional identifier of the item.
-                - style: The segmented control style. The default value is `automatic`.
+                - identifier: The item identifier.
                 - switching: The segmented control switching mode. The default value is `selectOne`.
                 - segments: The segments of the segmented control.
              */
             public convenience init(_ identifier: NSToolbarItem.Identifier? = nil,
                                     selectionMode: SelectionMode = .selectOne,
-                                    style: NSSegmentedControl.Style = .automatic,
                                     @NSSegmentedControl.Builder segments: () -> [NSSegment]) {
-                self.init(identifier, segmentedControl: NSSegmentedControl().style(style).trackingMode(selectionMode.switchTracking))
+                self.init(identifier, segmentedControl: NSSegmentedControl().trackingMode(selectionMode.switchTracking))
                 self.segments = segments()
                 updateSegments()
             }
@@ -186,7 +174,7 @@
              Creates a segmented control toolbar item.
 
              - Parameters:
-                - identifier: An optional identifier of the item.
+                - identifier: The item identifier.
                 - segmentedControl: The segmented control of the item.
              */
             public init(_ identifier: NSToolbarItem.Identifier? = nil,
@@ -209,8 +197,8 @@ fileprivate extension NSSegment {
         item.isEnabled = isEnabled
         item.toolTip = toolTip
         item.actionBlock = { [weak self] _ in
-            guard let self = self else { return }
-            groupItem.segmentItemPressed(self)
+            guard self != nil else { return }
+            groupItem.actionBlock?(groupItem)
         }
         if let image = image {
             item.menuFormRepresentation = NSMenuItem(title, image: image)

@@ -161,7 +161,7 @@ public extension ToolbarItem {
          Creates a button toolbar item.
          
          - Parameters:
-            - identifier: An optional identifier of the item.
+            - identifier: The item identifier.
             - title: The title of the button.
             - type: The button type.
          */
@@ -175,7 +175,7 @@ public extension ToolbarItem {
          Creates a button toolbar item.
          
          - Parameters:
-            - identifier: An optional identifier of the item.
+            - identifier: The item identifier.
             - image: The image of the button.
             - type: The button type.
          */
@@ -187,7 +187,7 @@ public extension ToolbarItem {
          Creates a button toolbar item.
          
          - Parameters:
-            - identifier: An optional identifier of the item.
+            - identifier: The item identifier.
             - symbolName: The symbol image name of the button.
             - type: The button type.
          */
@@ -201,7 +201,7 @@ public extension ToolbarItem {
          Creates a button toolbar item.
          
          - Parameters:
-            - identifier: An optional identifier of the item.
+            - identifier: The item identifier.
             - title: The title of the button.
             - image: The image of the button.
             - type: The button type.
@@ -217,7 +217,7 @@ public extension ToolbarItem {
          Creates a button toolbar item.
          
          - Parameters:
-            - identifier: An optional identifier of the item.
+            - identifier: The item identifier.
             - button: The button.
          */
         public init(_ identifier: NSToolbarItem.Identifier? = nil, button: NSButton) {

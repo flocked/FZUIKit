@@ -14,25 +14,47 @@
         /**
          A toolbar separator that aligns with the vertical split view in the same window.
 
-         The item can be used with ``Toolbar``.
+         Use a `TrackingSeparator` to divide a toolbar into sections that visually align with the views on either side of the divider of the ``splitView``. This keeps toolbar items above the content that’s the target for the item’s target.
+         
+         The ``splitView`` must be in the same window as the toolbar containing this item before showing the toolbar.
          */
         class TrackingSeparator: ToolbarItem {
             let separatorItem: NSTrackingSeparatorToolbarItem
             override var item: NSToolbarItem {
                 separatorItem
             }
+            
+            /**
+             The vertical split view to align with the toolbar separator.
+             
+             The `splitView` must be in the same window as the toolbar containing the item before showing the toolbar.
+             */
+            public var splitView: NSSplitView {
+                get { separatorItem.splitView }
+                set { separatorItem.splitView = newValue }
+            }
 
-            /// Sets the vertical split view to align with the toolbar separator.
+            /**
+             Sets the vertical split view to align with the toolbar separator.
+             
+             The `splitView` must be in the same window as the toolbar containing the item before showing the toolbar.
+             */
             @discardableResult
             public func splitView(_ splitView: NSSplitView) -> Self {
-                separatorItem.splitView = splitView
+                self.splitView = splitView
                 return self
+            }
+            
+            /// The index of the split view divider to align with the tracking separator.
+            public var dividerIndex: Int {
+                get { separatorItem.dividerIndex }
+                set { separatorItem.dividerIndex = newValue }
             }
 
             /// Sets the index of the split view divider to align with the tracking separator.
             @discardableResult
             public func dividerIndex(_ index: Int) -> Self {
-                separatorItem.dividerIndex = index
+                self.dividerIndex = index
                 return self
             }
 
@@ -40,7 +62,7 @@
              Creates a tracking sseperator toolbar item.
 
              - Parameters:
-                - identifier: An optional identifier of the item.
+                - identifier: The item identifier.
                 - splitView: The tracked split view.
                 - dividerIndex: The index of the divider.
              */

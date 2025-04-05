@@ -170,7 +170,7 @@
              Creates a popover button toolbar item.
 
              - Parameters:
-                - identifier: An optional identifier of the item.
+                - identifier: The item identifier.
                 - title: The title of the button.
                 - image: The image of the button.
                 - popoverViewController: The view controller that manages the content of the popover.
@@ -186,7 +186,7 @@
              Creates a popover button toolbar item.
 
              - Parameters:
-                - identifier: An optional identifier of the item.
+                - identifier: The item identifier.
                 - title: The title of the button.
                 - image: The image of the button.
                 - popoverView: The view of the popover.
@@ -202,7 +202,7 @@
              Creates a popover button toolbar item.
 
              - Parameters:
-                - identifier: An optional identifier of the item.
+                - identifier: The item identifier.
                 - button: The popover button.
                 - popoverViewController: The view controller that manages the content of the popover.
              */
@@ -223,7 +223,7 @@
              Creates a popover button toolbar item.
 
              - Parameters:
-                - identifier: An optional identifier of the item.
+                - identifier: The item identifier.
                 - button: The popover button.
                 - popoverView: The view of the popover.
              */

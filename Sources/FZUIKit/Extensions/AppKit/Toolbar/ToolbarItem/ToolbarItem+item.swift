@@ -42,6 +42,14 @@
                 return self
             }
             
+            /// Sets the image with the specified symbol name.
+            @available(macOS 11.0, *)
+            @discardableResult
+            @objc open func image(symbolName: String) -> Self {
+                item.image = NSImage(systemSymbolName: symbolName)
+                return self
+            }
+            
             /// A Boolean value that indicates whether the toolbar item has a bordered style.
             public var isBordered: Bool {
                 get { item.isBordered }

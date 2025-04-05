@@ -108,7 +108,7 @@
              Creates a group toolbar item.
 
              - Parameters:
-                - identifier: An optional identifier of the item.
+                - identifier: The item identifier.
                 - selectionMode: The selection mode of the item. The default value is `momentary`.
                 - items: The subitems.
              */
@@ -126,7 +126,7 @@
              Creates a group toolbar item.
 
              - Parameters:
-                - identifier: An optional identifier of the item.
+                - identifier: The item identifier.
                 - selectionMode: The selection mode of the item. The default value is `momentary`.
                 - items: The subitems.
              */

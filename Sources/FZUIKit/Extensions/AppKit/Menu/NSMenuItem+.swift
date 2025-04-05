@@ -281,6 +281,17 @@ public extension NSMenuItem {
         return self
     }
     
+    /**
+     Sets the menu item as an alternate to the previous menu item in the menu, that is displayed when the specified modifier flags are hold.
+
+     If you set this value to `[]`, the item isn't an alternative and displayed all the time.
+     */
+    func alternateModifierFlags(_ modifierFlags: NSEvent.ModifierFlags) -> Self {
+        isAlternate = modifierFlags != []
+        keyEquivalentModifierMask = modifierFlags
+        return self
+    }
+    
     /// The menu item’s keyboard equivalent modifiers.
     @discardableResult
     func keyEquivalentModifierMask(_ modifierMask: NSEvent.ModifierFlags) -> Self {

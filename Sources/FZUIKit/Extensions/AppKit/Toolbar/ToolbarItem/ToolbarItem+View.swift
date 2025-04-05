@@ -40,13 +40,10 @@
              Creates a view toolbar item.
 
              - Parameters:
-                - identifier: An optional identifier of the item.
+                - identifier: The item identifier.
                 - view: The view of the item.
              */
-            public init(
-                _ identifier: NSToolbarItem.Identifier? = nil,
-                view: NSView
-            ) {
+            public init(_ identifier: NSToolbarItem.Identifier? = nil, view: NSView) {
                 super.init(identifier)
                 self.view = view
             }
@@ -55,13 +52,10 @@
              Creates a view toolbar item.
 
              - Parameters:
-                - identifier: An optional identifier of the item.
+                - identifier: The item identifier.
                 - view: The `SwiftUI` view of the item.
              */
-            public convenience init(
-                _ identifier: NSToolbarItem.Identifier? = nil,
-                view: some SwiftUI.View
-            ) {
+            public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, view: some SwiftUI.View) {
                 self.init(identifier, view: NSHostingView(rootView: view))
             }
         }

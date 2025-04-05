@@ -187,7 +187,7 @@
              Creates a search toolbar item.
 
              - Parameters:
-                - identifier: An optional identifier of the item.
+                - identifier: The item identifier.
                 - searchField: The search field of the item.
              */
             public init(_ identifier: NSToolbarItem.Identifier? = nil, searchField: NSSearchField) {
@@ -201,7 +201,7 @@
              Creates a search toolbar item.
 
              - Parameters:
-                - identifier: An optional identifier of the item.
+                - identifier: The item identifier.
              */
             override public init(_ identifier: NSToolbarItem.Identifier? = nil) {
                 super.init(identifier)

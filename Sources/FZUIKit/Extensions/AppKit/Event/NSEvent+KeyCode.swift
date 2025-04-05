@@ -26,11 +26,11 @@
         }
 
         var readableModifierFlags: String {
-            modifierFlags.readableString
+            modifierFlags.description
         }
 
         var readableModifierFlagsCompact: String {
-            modifierFlags.readableStringCompact
+            modifierFlags.debugDescription
         }
         
         /// The key associated with the event.
@@ -481,7 +481,28 @@
             /// Power
             case power = 127
             
-            public var string: (main: String, secondary: String?) {
+            /// 0
+            public static let d0 = Self.zero
+            /// 1
+            public static let d1 = Self.one
+            /// 2
+            public static let d2 = Self.two
+            /// 3
+            public static let d3 = Self.three
+            /// 4
+            public static let d4 = Self.four
+            /// 5
+            public static let d5 = Self.five
+            /// 6
+            public static let d6 = Self.six
+            /// 7
+            public static let d7 = Self.seven
+            /// 8
+            public static let d8 = Self.eight
+            /// 9
+            public static let d9 = Self.nine
+
+            public var characters: (main: String, secondary: String?) {
                 switch self {
                 case .zero: return ("0", "}")
                 case .one: return ("1", "!")
@@ -603,32 +624,31 @@
         }
     }
 
-public extension NSEvent.ModifierFlags {
-    var readableStringCompact: String {
-        ([
-            (.capsLock, "⇪"),
-            (.shift, "⇧"),
-            (.control, "⌃"),
-            (.option, "⌥"),
-            (.command, "⌘"),
-        ] as [(NSEvent.ModifierFlags, String)])
-            .map { self.contains($0.0) ? $0.1 : "" }
-            .joined()
+extension NSEvent.ModifierFlags: CustomStringConvertible, CustomDebugStringConvertible {
+    public var description: String {
+        var components: [String] = []
+        if contains(.control)    { components.append(".control") }
+        if contains(.option)     { components.append(".option") }
+        if contains(.shift)      { components.append(".shift") }
+        if contains(.command)    { components.append(".command") }
+        if contains(.capsLock)   { components.append(".capsLock") }
+        if contains(.function)   { components.append(".function") }
+        if contains(.numericPad) { components.append(".numericPad") }
+        if contains(.help)   { components.append(".help") }
+        return "[\(components.joined(separator: ", "))]"
     }
-
-    var readableString: String {
-        ([
-            (.capsLock, "⇪"),
-            (.shift, "⇧"),
-            (.control, "⌃"),
-            (.option, "⌥"),
-            (.command, "⌘"),
-            (.numericPad, "numeric pad"),
-            (.help, "help"),
-            (.function, "fn"),
-        ] as [(NSEvent.ModifierFlags, String)])
-            .map { self.contains($0.0) ? $0.1 : "" }
-            .joined(separator: ", ")
+    
+    public var debugDescription: String {
+        var components: [String] = []
+        if contains(.control)    { components.append("⌃") }
+        if contains(.option)     { components.append("⌥") }
+        if contains(.shift)      { components.append("⇧") }
+        if contains(.command)    { components.append("⌘") }
+        if contains(.capsLock)   { components.append("⇪") }
+        if contains(.function)   { components.append("Fn") }
+        if contains(.numericPad) { components.append("NumericPad") }
+        if contains(.help) { components.append("❓") }
+        return "[\(components.joined(separator: ", "))]"
     }
 }
 
