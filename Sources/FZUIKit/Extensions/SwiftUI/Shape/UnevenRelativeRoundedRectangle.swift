@@ -37,6 +37,8 @@ public struct UnevenRelativeRoundedRectangle: Shape {
     /// The style of corners drawn by the rounded rectangle.
     public var style: RoundedCornerStyle
     
+    var inset: CGFloat = 0.0
+    
     /// Creates a new relative rounded rectangle shape with uneven corners.
     public init(topLeadingRadius: CGFloat = 0.0, bottomLeadingRadius: CGFloat = 0.0, bottomTrailingRadius: CGFloat = 0.0, topTrailingRadius: CGFloat = 0.0, style: RoundedCornerStyle = .continuous) {
         self.style = style
@@ -45,12 +47,21 @@ public struct UnevenRelativeRoundedRectangle: Shape {
     
     public func path(in rect: CGRect) -> Path {
         let minDimension = min(rect.width, rect.height)
-        return UnevenRoundedRectangle(topLeadingRadius: minDimension * cornerRadii.topLeading, bottomLeadingRadius: minDimension * cornerRadii.bottomLeading, bottomTrailingRadius: minDimension * cornerRadii.bottomTrailing, topTrailingRadius: minDimension * cornerRadii.topTrailing).path(in: rect)
+        return UnevenRoundedRectangle(topLeadingRadius: minDimension * cornerRadii.topLeading, bottomLeadingRadius: minDimension * cornerRadii.bottomLeading, bottomTrailingRadius: minDimension * cornerRadii.bottomTrailing, topTrailingRadius: minDimension * cornerRadii.topTrailing).path(in: rect.insetBy(dx: inset, dy: inset))
     }
     
     public var animatableData: RectangleCornerRadii.AnimatableData {
         get { cornerRadii.animatableData }
         set { cornerRadii.animatableData = newValue }
+    }
+}
+
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+extension UnevenRelativeRoundedRectangle: InsettableShape {
+    public func inset(by amount: CGFloat) -> UnevenRelativeRoundedRectangle {
+        var shape = self
+        shape.inset += amount
+        return shape
     }
 }
 

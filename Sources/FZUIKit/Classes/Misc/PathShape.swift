@@ -23,7 +23,7 @@ public struct PathShape {
     public init<S: Shape>(_ shape: S) {
         handler = {
             #if os(macOS)
-            return shape.path(in: $0).verticallyFlipped(in: $0).cgPath
+            return shape.path(in: $0).cgPath.verticallyFlipped(in: $0)
             #else
             return shape.path(in: $0).cgPath
             #endif
@@ -233,9 +233,11 @@ extension PathShape {
     public static func relativeRoundedRect(cornerRadius: CGFloat, style: RoundedCornerStyle = .continuous) -> PathShape { PathShape(.relativeRoundedRect(cornerRadius: cornerRadius, style: style)) }
     
     /**
-     A rectangular shape with rounded corners with different relative values, aligned inside the frame of the view containing it.
+     A rectangular shape with rounded corners with different relative values.
 
-     The corner radius of each corner is defined as a fraction (between `0.0` and `1.0`) of the smaller dimension of the rectangle, ensuring proportional rounding regardless of the rectangle's size.
+     The corner radius of each corner is defined as a fraction of the smaller dimension of the rectangle, ensuring proportional rounding regardless of the rectangle's size.
+     
+     A corner radius of `0.0` represents no rounding and `1.0` the maximum.
      */
     @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
     public static func relativeRoundedRect(topLeadingRadius: CGFloat = 0.0, bottomLeadingRadius: CGFloat = 0.0, bottomTrailingRadius: CGFloat = 0.0, topTrailingRadius: CGFloat = 0.0, style: RoundedCornerStyle = .continuous) -> PathShape { PathShape(.relativeRoundedRect(topLeadingRadius: topLeadingRadius, bottomLeadingRadius: bottomLeadingRadius, bottomTrailingRadius: bottomTrailingRadius, topTrailingRadius: topTrailingRadius, style: style)) }
@@ -290,12 +292,11 @@ extension CAShapeLayer {
     }
 }
 
-fileprivate extension Path {
-    func verticallyFlipped(in rect: CGRect) -> Path {
+fileprivate extension CGPath {
+    func verticallyFlipped(in rect: CGRect) -> CGPath {
         var transform = CGAffineTransform(scaleX: 1, y: -1)
         transform = transform.translatedBy(x: 0, y: -rect.height)
-        let flippedCGPath = self.cgPath.copy(using: &transform)!
-        return Path(flippedCGPath)
+        return copy(using: &transform) ?? self
     }
 }
 #endif
