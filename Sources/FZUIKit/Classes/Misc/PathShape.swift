@@ -21,7 +21,7 @@ public struct PathShape {
     
     /// Creates a shape from the specified `SwiftUI`shape.
     public init<S: Shape>(_ shape: S) {
-        handler = { shape.path(in: $0).cgPath }
+        handler = { shape.path(in: $0).verticallyFlipped(in: $0).cgPath }
     }
     
     /// Describes this shape as a path within a rectangular frame of reference.
@@ -281,6 +281,15 @@ extension CAShapeLayer {
     var boundsObservation: KeyValueObservation? {
         get { getAssociatedValue("boundsObservation") }
         set { setAssociatedValue(newValue, key: "boundsObservation") }
+    }
+}
+
+fileprivate extension Path {
+    func verticallyFlipped(in rect: CGRect) -> Path {
+        var transform = CGAffineTransform(scaleX: 1, y: -1)
+        transform = transform.translatedBy(x: 0, y: -rect.height)
+        let flippedCGPath = self.cgPath.copy(using: &transform)!
+        return Path(flippedCGPath)
     }
 }
 #endif
