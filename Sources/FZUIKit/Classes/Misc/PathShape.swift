@@ -127,7 +127,7 @@ public struct PathShape {
     /// Insets the shape.
     public func inset(by amount: CGFloat) -> PathShape {
         if let insettableShape = insettableShape {
-            return PathShape(insettableShape)
+            return PathShape(insettableShape.inset(by: amount))
         }
         return PathShape { rect in
             path(in: rect.insetBy(dx: amount, dy: amount))
