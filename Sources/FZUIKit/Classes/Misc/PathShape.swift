@@ -203,7 +203,7 @@ extension PathShape {
 
 extension PathShape {
     /// A rectangular shape.
-    public static var rect: PathShape { PathShape(.rect) }
+    public static let rect = PathShape(.rect)
     
     /// A rectangular shape with rounded corners.
     public static func rect(cornerSize: CGSize, style: RoundedCornerStyle = .continuous) -> PathShape { PathShape(.rect(cornerSize: cornerSize, style: style)) }
@@ -242,16 +242,16 @@ extension PathShape {
 
     
     /// A circle centered on the frame.
-    public static var circle: PathShape { PathShape(.circle) }
+    public static let circle = PathShape(.circle)
     
     /// A capsule shape.
-    public static var capsule: PathShape { PathShape(.capsule) }
-    
+    public static let capsule = PathShape(.capsule)
+
     /// A capsule shape.
     public static func capsule(style: RoundedCornerStyle) -> PathShape { PathShape(.capsule(style: style)) }
     
     /// An ellipse shape.
-    public static var ellipse: PathShape { PathShape(.ellipse) }
+    public static let ellipse = PathShape(.ellipse)
     
     /// A star shape.
     public static func star(points: Int = 5, cutout: Bool = false, rounded: Bool = false) -> PathShape { PathShape(Star(points: points, cutout: cutout, rounded: rounded)) }
