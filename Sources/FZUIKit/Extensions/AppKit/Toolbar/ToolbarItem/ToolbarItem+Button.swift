@@ -70,13 +70,6 @@ public extension ToolbarItem {
             return self
         }
         
-        /// Sets the Boolean Value indiciating whether the button is transparent.
-        @discardableResult
-        public func transparent(_ isTransparent: Bool) -> Self {
-            button.isTransparent = isTransparent
-            return self
-        }
-        
         /// Sets the image of the button, or `nil` if none.
         @discardableResult
         public func image(_ image: NSImage?) -> Self {
@@ -135,6 +128,12 @@ public extension ToolbarItem {
             return self
         }
         
+        /// Sets the color of the button's bezel, in appearances that support it.
+        public func contentTintColor(_ color: NSColor?) -> Self {
+            button.contentTintColor = color
+            return self
+        }
+        
         /// Sets the key-equivalent character and modifier mask of the button.
         @discardableResult
         public func shortcut(_ shortcut: String, holding modifiers: NSEvent.ModifierFlags = .command) -> Self {
@@ -163,12 +162,10 @@ public extension ToolbarItem {
          - Parameters:
             - identifier: The item identifier.
             - title: The title of the button.
-            - type: The button type.
             - action: The handler that gets called when the user clicks the button.
          */
-        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, type: NSButton.BezelStyle = .toolbar, action: ((_ item: ToolbarItem.Button)->())? = nil) {
-            let button = NSButton(frame: .zero).bezelStyle(type).translatesAutoresizingMaskIntoConstraints(false)
-            button.title = title
+        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, action: ((_ item: ToolbarItem.Button)->())? = nil) {
+            let button = NSButton.toolbar(title).translatesAutoresizingMaskIntoConstraints(false)
             self.init(identifier, button: button, action: action)
         }
         
@@ -179,14 +176,10 @@ public extension ToolbarItem {
             - identifier: The item identifier.
             - title: The title of the button.
             - image: The image of the button.
-            - type: The button type.
             - action: The handler that gets called when the user clicks the button.
          */
-        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, image: NSImage, type: NSButton.BezelStyle = .toolbar, action: ((_ item: ToolbarItem.Button)->())? = nil) {
-            let button = NSButton(frame: .zero).bezelStyle(type).translatesAutoresizingMaskIntoConstraints(false)
-            button.title = title ?? ""
-            button.image = image
-            button.imagePosition = .imageLeft
+        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, image: NSImage, action: ((_ item: ToolbarItem.Button)->())? = nil) {
+            let button = NSButton.toolbar(title ?? "", image: image).translatesAutoresizingMaskIntoConstraints(false)
             self.init(identifier, button: button, action: action)
         }
         
@@ -197,11 +190,10 @@ public extension ToolbarItem {
             - identifier: The item identifier.
             - title: The title of the button.
             - symbolName: The name for the symbol image of the button.
-            - type: The button type.
             - action: The handler that gets called when the user clicks the button.
          */
         @available(macOS 11.0, *)
-        public convenience init?(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, symbolName: String, type: NSButton.BezelStyle = .toolbar, action: ((_ item: ToolbarItem.Button)->())? = nil) {
+        public convenience init?(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, symbolName: String, action: ((_ item: ToolbarItem.Button)->())? = nil) {
             guard let image = NSImage(systemSymbolName: symbolName) else { return nil }
             self.init(identifier, title: title, image: image, action: action)
         }

@@ -12,12 +12,10 @@ import FZSwiftUtils
 /**
  A shape that represents a rectangle with a relative corner radius.
 
- The corner radius is defined as a fraction of the smaller dimension of the rectangle,
- ensuring proportional rounding regardless of the rectangle's size.
+ The corner radius is defined as a fraction of the smaller dimension of the rectangle, ensuring proportional rounding regardless of the rectangle's size.
 
  - A `cornerRadius` of `0.0` results in a standard rectangle with no rounded corners.
- - A `cornerRadius` of `1.0` makes the corners fully rounded, effectively turning the shape
-   into a capsule if the width and height differ, or a circle if they are equal.
+ - A `cornerRadius` of `1.0` makes the corners fully rounded, effectively turning the shape into a capsule if the width and height differ, or a circle if they are equal.
  */
 public struct RelativeRoundedRectangle: Shape {
     /**
@@ -31,7 +29,13 @@ public struct RelativeRoundedRectangle: Shape {
     }
     
     /// The style of corners drawn by the rounded rectangle.
-    public var style: RoundedCornerStyle = .circular
+    public var style: RoundedCornerStyle
+    
+    /// Creates a new relative rounded rectangle shape.
+    public init(cornerRadius: CGFloat, style: RoundedCornerStyle = .continuous) {
+        self.cornerRadius = cornerRadius.clamped(max: 1.0)
+        self.style = style
+    }
     
     public func path(in rect: CGRect) -> Path {
         let minDimension = min(rect.width, rect.height)
@@ -56,7 +60,7 @@ extension Shape where Self == RelativeRoundedRectangle {
      - A `cornerRadius` of `1.0` makes the corners fully rounded, effectively turning the shape
        into a capsule if the width and height differ, or a circle if they are equal.
      */
-    public static func rect(relativeCornerRadius cornerRadius: CGFloat, style: RoundedCornerStyle = .circular) -> RelativeRoundedRectangle {
+    public static func relativeRoundedRect(cornerRadius cornerRadius: CGFloat, style: RoundedCornerStyle = .continuous) -> RelativeRoundedRectangle {
         RelativeRoundedRectangle(cornerRadius: cornerRadius, style: style)
     }
 }
