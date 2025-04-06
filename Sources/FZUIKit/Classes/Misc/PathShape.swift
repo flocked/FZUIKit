@@ -14,9 +14,22 @@ import FZSwiftUtils
 public struct PathShape {
     let handler: (CGRect)->(CGPath)
     
+    var insettableShape: (any InsettableShape)?
+    
     /// Creates a shape with the specified handler that provides the path of the shape.
     public init(handler: @escaping (_ rect: CGRect) -> CGPath) {
         self.handler = handler
+    }
+    
+    public init(_ shape: some InsettableShape) {
+        insettableShape = shape
+        handler = {
+            #if os(macOS)
+            return shape.path(in: $0).cgPath.verticallyFlipped(in: $0)
+            #else
+            return shape.path(in: $0).cgPath
+            #endif
+        }
     }
     
     /// Creates a shape from the specified `SwiftUI`shape.
@@ -113,15 +126,11 @@ public struct PathShape {
     
     /// Insets the shape.
     public func inset(by amount: CGFloat) -> PathShape {
-        PathShape { rect in
-            path(in: rect.insetBy(dx: amount, dy: amount))
+        if let insettableShape = insettableShape {
+            return PathShape(insettableShape)
         }
-    }
-    
-    /// Insets the shape.
-    public func insetBy(x: CGFloat, y: CGFloat) -> PathShape {
-        PathShape { rect in
-            path(in: rect.insetBy(dx: x, dy: y))
+        return PathShape { rect in
+            path(in: rect.insetBy(dx: amount, dy: amount))
         }
     }
     
