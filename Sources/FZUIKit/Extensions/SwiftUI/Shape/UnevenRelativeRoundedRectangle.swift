@@ -45,10 +45,6 @@ public struct UnevenRelativeRoundedRectangle: Shape {
     
     public func path(in rect: CGRect) -> Path {
         let minDimension = min(rect.width, rect.height)
-        var cornerRadii = cornerRadii
-        #if os(macOS)
-        cornerRadii = cornerRadii.reversed
-        #endif
         return UnevenRoundedRectangle(topLeadingRadius: minDimension * cornerRadii.topLeading, bottomLeadingRadius: minDimension * cornerRadii.bottomLeading, bottomTrailingRadius: minDimension * cornerRadii.bottomTrailing, topTrailingRadius: minDimension * cornerRadii.topTrailing).path(in: rect)
     }
     
@@ -76,12 +72,5 @@ extension Shape where Self == UnevenRelativeRoundedRectangle {
      */
     public static func relativeRoundedRect(topLeadingRadius: CGFloat = 0.0, bottomLeadingRadius: CGFloat = 0.0, bottomTrailingRadius: CGFloat = 0.0, topTrailingRadius: CGFloat = 0.0, style: RoundedCornerStyle = .continuous) -> UnevenRelativeRoundedRectangle {
         .init(topLeadingRadius: topLeadingRadius, bottomLeadingRadius: bottomLeadingRadius, bottomTrailingRadius: bottomTrailingRadius, topTrailingRadius: topTrailingRadius, style: style)
-    }
-}
-
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension RectangleCornerRadii {
-    var reversed: RectangleCornerRadii {
-        .init(topLeading: bottomLeading, bottomLeading: topLeading, bottomTrailing: topTrailing, topTrailing: bottomTrailing)
     }
 }
