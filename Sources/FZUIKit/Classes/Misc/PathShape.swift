@@ -21,7 +21,9 @@ public struct PathShape {
     
     /// Creates a shape from the specified `SwiftUI`shape.
     public init<S: Shape>(_ shape: S) {
-        handler = { shape.path(in: $0).verticallyFlipped(in: $0).cgPath }
+        handler = {
+            return shape.scale(x: 1, y: -1, anchor: .center).path(in: $0).verticallyFlipped(in: $0).cgPath
+            return shape.path(in: $0).verticallyFlipped(in: $0).cgPath }
     }
     
     /// Describes this shape as a path within a rectangular frame of reference.
