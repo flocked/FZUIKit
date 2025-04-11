@@ -112,7 +112,7 @@
         /// The shape that is used for masking the view.
         public var maskShape: PathShape? {
             get { layer?.maskShape }
-            set { 
+            set {
                 optionalLayer?.maskShape = newValue
                 setupShadowShapeView()
             }

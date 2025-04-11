@@ -529,6 +529,25 @@ public extension NSButton {
         return self
     }
     
+    /// A Boolean value that indicates whether the button's state is `on`.
+    var isToggled: Bool {
+        get { state == .on }
+        set { state = newValue ? .on : .off }
+    }
+    
+    /// A Boolean value that indicates if the button’s image and text appear “dim” when the button is disabled.
+    var dimsWhenDisabled: Bool {
+        get { (cell as? NSButtonCell)?.imageDimsWhenDisabled ?? true }
+        set { (cell as? NSButtonCell)?.imageDimsWhenDisabled = newValue }
+    }
+    
+    /// Sets the Boolean value that indicates if the button’s image and text appear “dim” when the button is disabled.
+    @discardableResult
+    func dimsWhenDisabled(_ dims: Bool) -> Self {
+        dimsWhenDisabled = dims
+        return self
+    }
+    
     /**
      Sets the content tint color to use for the specified state.
      
@@ -546,25 +565,6 @@ public extension NSButton {
         if self.state == state, let color = color {
             contentTintColor = color
         }
-        return self
-    }
-    
-    /// A Boolean value that indicates whether the button's state is `on`.
-    var isToggled: Bool {
-        get { state == .on }
-        set { state = newValue ? .on : .off }
-    }
-    
-    /// A Boolean value that indicates if the button’s image and text appear “dim” when the button is disabled.
-    var dimsWhenDisabled: Bool {
-        get { (cell as? NSButtonCell)?.imageDimsWhenDisabled ?? true }
-        set { (cell as? NSButtonCell)?.imageDimsWhenDisabled = newValue }
-    }
-    
-    /// Sets the Boolean value that indicates if the button’s image and text appear “dim” when the button is disabled.
-    @discardableResult
-    func dimsWhenDisabled(_ dims: Bool) -> Self {
-        dimsWhenDisabled = dims
         return self
     }
     
@@ -630,13 +630,13 @@ public extension NSButton {
     }
     
     internal var stateContentTintColor: [StateValue: NSColor] {
-        get { getAssociatedValue("stateContentTintColor", initialValue: [StateValue: NSColor].init()) }
+        get { getAssociatedValue("stateContentTintColor") ?? [:] }
         set { setAssociatedValue(newValue, key: "stateContentTintColor") }
     }
     
     @available(macOS 11.0, *)
     internal var stateSymbolConfiguration: [StateValue: NSImage.SymbolConfiguration] {
-        get { getAssociatedValue("stateSymbolConfiguration", initialValue: [StateValue: NSImage.SymbolConfiguration].init()) }
+        get { getAssociatedValue("stateSymbolConfiguration") ?? [:] }
         set { setAssociatedValue(newValue, key: "stateSymbolConfiguration") }
     }
     
@@ -908,9 +908,7 @@ public extension NSButton {
     internal static func button(_ title: String? = nil, image: NSImage? = nil, style: BezelStyle? = nil) -> Self {
         let button = Self.init(title: title ?? "", target: nil, action: nil)
         button.image = image
-        if image != nil {
-            button.imagePosition = .imageLeading
-        }
+        button.updateImagePosition()
         if let style = style {
             button.bezelStyle = style
         } else if title == nil {
@@ -925,9 +923,7 @@ public extension NSButton {
     internal static func button(_ title: String? = nil, symbolName: String, style: BezelStyle? = nil) -> Self {
         let button = Self.init(title: title ?? "", target: nil, action: nil)
         button.image = NSImage(systemSymbolName: symbolName)
-        if button.image != nil {
-            button.imagePosition = .imageLeading
-        }
+        button.updateImagePosition()
         if let style = style {
             button.bezelStyle = style
         } else if title == nil {
@@ -936,6 +932,11 @@ public extension NSButton {
         }
         button.sizeToFit(imageToTitleSpacing: 4.0)
         return button
+    }
+    
+    internal func updateImagePosition() {
+        let hasTitle = title != ""
+        imagePosition = image != nil ? hasTitle ? .imageLeading : .imageOnly : .noImage
     }
     
     /*

@@ -85,9 +85,7 @@
          */
         @objc open var zPosition: CGFloat {
             get { layer.zPosition }
-            set {
-                layer.zPosition = newValue
-            }
+            set { layer.zPosition = newValue }
         }
         
         /// The shape that is used for masking the view.
@@ -267,11 +265,13 @@
          */
         public var firstBaselineOffsetFromTop: CGFloat? {
             if let view = self as? UITextField {
-                return view.constraints.isEmpty ? nil : value(forKeySafely: "_firstBaselineOffsetFromTop") as? CGFloat
+                return value(forKeySafely: "_firstBaselineOffsetFromTop") as? CGFloat
             } else if let view = self as? UITextView {
-                return view.constraints.isEmpty ? nil : value(forKeySafely: "_firstBaselineOffsetFromTop") as? CGFloat
+                return value(forKeySafely: "_firstBaselineOffsetFromTop") as? CGFloat
+            } else if let view = self as? UILabel {
+                return value(forKeySafely: "_firstBaselineOffsetFromTop") as? CGFloat
             }
-            return value(forKeySafely: "_firstBaselineOffsetFromTop") as? CGFloat
+            return nil
         }
         
         /**
@@ -281,11 +281,13 @@
          */
         public var lastBaselineOffsetFromBottom: CGFloat? {
             if let view = self as? UITextField {
-                return view.constraints.isEmpty ? nil : value(forKeySafely: "_lastBaselineOffsetFromBottom") as? CGFloat
+                return value(forKeySafely: "_lastBaselineOffsetFromBottom") as? CGFloat
             } else if let view = self as? UITextView {
-                return view.constraints.isEmpty ? nil : value(forKeySafely: "_lastBaselineOffsetFromBottom") as? CGFloat
+                return value(forKeySafely: "_lastBaselineOffsetFromBottom") as? CGFloat
+            } else if let view = self as? UILabel {
+                return value(forKeySafely: "_baselineOffsetFromBottom") as? CGFloat
             }
-            return value(forKeySafely: "_lastBaselineOffsetFromBottom") as? CGFloat
+            return nil
         }
         
         /**
@@ -312,7 +314,7 @@
             public var activeAppearance: ((UIUserInterfaceActiveAppearance)->())?
             
             var needsTraitObservation: Bool {
-                trait != nil || userInterfaceStyle != nil
+                trait != nil || userInterfaceStyle != nil || activeAppearance != nil
             }
         }
         
@@ -330,9 +332,7 @@
                 traitObserverView?.removeFromSuperview()
                 traitObserverView = nil
             } else if traitObserverView == nil {
-                traitObserverView = TraitObserverView()
-                addSubview(traitObserverView!)
-                traitObserverView?.sendToBack()
+                traitObserverView = TraitObserverView(for: self)
             }
         }
         
@@ -342,19 +342,26 @@
         }
         
         class TraitObserverView: UIView {
+            var previousTraitCollection: UITraitCollection?
+            init(for view: UIView) {
+                super.init(frame: .zero)
+                view.addSubview(self)
+                previousTraitCollection = traitCollection
+                sendToBack()
+                zPosition = -10000
+            }
+            
+            required init?(coder: NSCoder) {
+                fatalError("init(coder:) has not been implemented")
+            }
+            
             override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-                guard let superview = superview else { return }
-                let previous = previousTraitCollection ?? superview.traitCollection
-                
-                func compare<Value>(_ keyPath: KeyPath<UITraitCollection, Value>, handler: KeyPath<UIView, ((Value)->())?>) where Value: RawRepresentable, Value.RawValue == Int {
-                    if previous[keyPath: keyPath].rawValue != traitCollection[keyPath: keyPath].rawValue {
-                        superview[keyPath: handler]?(traitCollection[keyPath: keyPath])
-                    }
-                }
-                
+                guard let superview = superview, let previous = previousTraitCollection ?? self.previousTraitCollection else { return }
+                self.previousTraitCollection = previousTraitCollection ?? self.previousTraitCollection
                 superview.handlers.trait?(traitCollection)
-                compare(\.activeAppearance, handler: \.handlers.activeAppearance)
-                
+                if previous.activeAppearance != traitCollection.activeAppearance {
+                    superview.handlers.activeAppearance?(traitCollection.activeAppearance)
+                }
                 if previous.userInterfaceStyle != traitCollection.userInterfaceStyle {
                     superview.dynamicColors.update()
                     superview.handlers.userInterfaceStyle?(traitCollection.userInterfaceStyle)
@@ -441,11 +448,6 @@ extension UIView {
         set { setAssociatedValue(newValue, key: "dynamicColors")
             setupTraitObservation()
         }
-    }
-
-    var effectiveAppearanceObservation: KeyValueObservation? {
-        get { getAssociatedValue("effectiveAppearanceObservation") }
-        set { setAssociatedValue(newValue, key: "effectiveAppearanceObservation") }
     }
 }
 

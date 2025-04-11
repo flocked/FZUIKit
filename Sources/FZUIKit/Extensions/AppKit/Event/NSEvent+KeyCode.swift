@@ -652,5 +652,38 @@ extension NSEvent.ModifierFlags: CustomStringConvertible, CustomDebugStringConve
     }
 }
 
+extension NSEvent {
+    static func characters(for keyCode: UInt16, modifierFlags: NSEvent.ModifierFlags = []) -> String? {
+        let maxNameLength = 4
+        var nameBuffer = [UniChar](repeating: 0, count : maxNameLength)
+        var nameLength = 0
+        
+        var flags: UInt32 = 0
+        if modifierFlags.contains(.shift)    { flags |= UInt32(shiftKey >> 8) }
+        if modifierFlags.contains(.option)   { flags |= UInt32(optionKey >> 8) }
+        if modifierFlags.contains(.control)  { flags |= UInt32(controlKey >> 8) }
+        if modifierFlags.contains(.command)  { flags |= UInt32(cmdKey >> 8) }
+        if modifierFlags.contains(.capsLock) { flags |= UInt32(alphaLock >> 8) }
+        var deadKeys: UInt32 = 0
+        let keyboardType = UInt32(LMGetKbdType())
+        let source = TISCopyCurrentKeyboardLayoutInputSource().takeRetainedValue()
+        guard let ptr = TISGetInputSourceProperty(source, kTISPropertyUnicodeKeyLayoutData) else {
+            Swift.print("Could not get keyboard layout data")
+            return nil
+        }
+        let layoutData = Unmanaged<CFData>.fromOpaque(ptr).takeUnretainedValue() as Data
+        let dataRef = unsafeBitCast(layoutData, to: CFData.self)
+        let keyLayout = unsafeBitCast(CFDataGetBytePtr(dataRef), to: UnsafePointer<UCKeyboardLayout>.self)
+        let osStatus = layoutData.withUnsafeBytes {
+            UCKeyTranslate($0.bindMemory(to: UCKeyboardLayout.self).baseAddress, keyCode, UInt16(kUCKeyActionDown), flags, keyboardType, UInt32(kUCKeyTranslateNoDeadKeysMask), &deadKeys, maxNameLength, &nameLength, &nameBuffer)
+        }
+        guard osStatus == noErr else {
+            Swift.print("KeyCode: \(keyCode) Status: \(osStatus)")
+            return nil
+        }
+        return  String(utf16CodeUnits: nameBuffer, count: nameLength)
+    }
+}
+
 
 #endif

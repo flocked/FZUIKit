@@ -121,9 +121,14 @@
             
             func updateSegments() {
                 if displaysIndividualSegmentLabels, !segments.contains(where: { $0.image == nil }) {
+                    groupItem.label = ""
+                    let subitems = segments.compactMap({ $0.toolbarItem(for: self) })
                     segmentedControl.segments = segments.compactMap({ $0.withoutTitle })
-                    groupItem.subitems = segments.compactMap({ $0.toolbarItem(for: self) })
+                    groupItem.subitems = subitems
                 } else {
+                    for val in zip(segmentedControl.segments, groupItem.subitems) {
+                        val.0.title = val.1.label
+                    }
                     groupItem.subitems = []
                     segmentedControl.segments = segments
                     if _label != "" {
