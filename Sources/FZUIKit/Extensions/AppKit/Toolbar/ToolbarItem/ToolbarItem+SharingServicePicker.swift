@@ -30,6 +30,7 @@
             public struct Handlers {
                 /// The handler that provides the items to share.
                 public var items: (() -> ([Any]))?
+
                 
                 /// The handler that gets called when the sharing service is selected for the current item.
                 public var didSelect: ((_ service: NSSharingService?) -> Void)?
@@ -43,6 +44,15 @@
                 
                 /// The handler that provides the delegate for the selected sharing service.
                 public var delegate: ((_ service: NSSharingService) -> (NSSharingServiceDelegate?))?
+                
+                /// The handler that gets called when items are about to share.
+                public var willShare: ((_ items: [Any], _ service: NSSharingService) -> ())?
+                
+                /// The handler that gets called when items did share.
+                public var didShare: ((_ items: [Any], _ service: NSSharingService) -> ())?
+                
+                /// The handler that gets called when items did fail to share.
+                public var didFailToShare: ((_ items: [Any], _ service: NSSharingService, _ error: any Error) -> ())?
             }
             
             /// The handlers for the sharing service picker item.
@@ -114,7 +124,7 @@
             }
         }
 
-        class Delegate: NSObject, NSSharingServicePickerToolbarItemDelegate {
+        class Delegate: NSObject, NSSharingServicePickerToolbarItemDelegate, NSSharingServiceDelegate {
             weak var pickerItem: ToolbarItem.SharingServicePicker!
             weak var delegate: NSSharingServicePickerToolbarItemDelegate?
 
@@ -128,11 +138,23 @@
             }
             
             func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, delegateFor sharingService: NSSharingService) -> (any NSSharingServiceDelegate)? {
-                pickerItem.handlers.delegate?(sharingService) ?? delegate?.sharingServicePicker?(sharingServicePicker, delegateFor: sharingService)
+                pickerItem.handlers.delegate?(sharingService) ?? delegate?.sharingServicePicker?(sharingServicePicker, delegateFor: sharingService) ?? self
             }
             
             public func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, sharingServicesForItems items: [Any], proposedSharingServices proposedServices: [NSSharingService]) -> [NSSharingService] {
                 pickerItem.handlers.sharingServices?(items, proposedServices) ?? delegate?.sharingServicePicker?(sharingServicePicker, sharingServicesForItems: items, proposedSharingServices: proposedServices) ?? proposedServices
+            }
+            
+            func sharingService(_ sharingService: NSSharingService, willShareItems items: [Any]) {
+                pickerItem.handlers.willShare?(items, sharingService)
+            }
+            
+            func sharingService(_ sharingService: NSSharingService, didShareItems items: [Any]) {
+                pickerItem.handlers.didShare?(items, sharingService)
+            }
+            
+            func sharingService(_ sharingService: NSSharingService, didFailToShareItems items: [Any], error: any Error) {
+                pickerItem.handlers.didFailToShare?(items, sharingService, error)
             }
             
             init(for item: ToolbarItem.SharingServicePicker) {
