@@ -38,28 +38,8 @@ extension NSSharingServicePickerToolbarItem {
             setAssociatedValue(newValue, key: "handlers")
             if !handlers.needsDelegate {
                 handlerDelegate = nil
-            } else {
-                var delegate: NSSharingServicePickerToolbarItemDelegate?
-                if let _delegate = delegate as? Delegate {
-                    delegate = _delegate.delegate
-                } else {
-                    delegate = self.delegate
-                }
-                handlerDelegate = nil
-                if delegate?.responds(to: #selector(NSSharingServicePickerToolbarItemDelegate.sharingServicePicker(_:sharingServicesForItems:proposedSharingServices:))) == true || handlers.sharingServices != nil {
-                    handlerDelegate = Delegate(for: self)
-                } else {
-                    handlerDelegate = DelegateAlt(for: self)
-                }
-                handlerDelegate?.delegate = delegate
-            }
-            
-            if !handlers.needsDelegate, delegate is Delegate {
-                delegate = nil
-                handlerDelegate = nil
-            } else if handlers.needsDelegate, !(delegate is Delegate) {
+            } else if handlerDelegate == nil {
                 handlerDelegate = Delegate(for: self)
-                delegate = handlerDelegate
             }
         }
     }
@@ -98,14 +78,12 @@ extension NSSharingServicePickerToolbarItem {
             item?.handlers.selected?(service)
         }
         
-        deinit {
-            item?.delegate = delegate
-        }
-    }
-    
-    private class DelegateAlt: Delegate {
         public func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, sharingServicesForItems items: [Any], proposedSharingServices proposedServices: [NSSharingService]) -> [NSSharingService] {
             item?.handlers.sharingServices?(items, proposedServices) ?? proposedServices
+        }
+        
+        deinit {
+            item?.delegate = delegate
         }
     }
 }
