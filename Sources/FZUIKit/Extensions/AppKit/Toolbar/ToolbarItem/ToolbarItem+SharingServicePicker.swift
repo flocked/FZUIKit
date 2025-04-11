@@ -140,6 +140,10 @@
                 delegate?.sharingServicePicker?(sharingServicePicker, didChoose: service)
             }
             
+            func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, delegateFor sharingService: NSSharingService) -> (any NSSharingServiceDelegate)? {
+                pickerItem.handlers.delegate?(sharingService) ?? delegate?.sharingServicePicker?(sharingServicePicker, delegateFor: sharingService)
+            }
+            
             init(for item: ToolbarItem.SharingServicePicker) {
                 pickerItem = item
                 super.init()
