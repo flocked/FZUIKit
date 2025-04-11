@@ -16,15 +16,19 @@ extension NSSharingServicePickerToolbarItem {
         /// The handler that determines the items to share.
         public var items: (()->([Any]))?
         
-        /// The handler that determines which services to make available from the sharing service picker.
+        /// The handler that gets called when the sharing service is selected for the current item.
+        public var didSelect: ((_ selected: NSSharingService?)->())?
+        
+        /**
+         The handler that provides the sharing services for items.
+         
+         Use this handler to remove default services, add custom services, or reorder the existing services before the picker appears onscreen.
+         */
         public var sharingServices: ((_ items: [Any], _ proposed: [NSSharingService])->([NSSharingService]))?
         
         
-        /// Asks to provide an object that the selected sharing service can use as its delegate.
+        /// The handler that provides the delegate for the selected sharing service.
         public var delegate: ((_ service: NSSharingService) -> (NSSharingServiceDelegate?))?
-        
-        /// The handler that gets called when the sharig service is selected.
-        public var selected: ((_ selected: NSSharingService?)->())?
         
         var needsDelegate: Bool {
             items != nil || sharingServices != nil || sharingServices != nil || delegate != nil
@@ -67,19 +71,20 @@ extension NSSharingServicePickerToolbarItem {
         }
         
         public func items(for pickerToolbarItem: NSSharingServicePickerToolbarItem) -> [Any] {
-            item?.handlers.items?() ?? []
+            item?.handlers.items?() ?? delegate?.items(for: pickerToolbarItem) ?? []
         }
         
         func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, delegateFor sharingService: NSSharingService) -> (any NSSharingServiceDelegate)? {
-            item?.handlers.delegate?(sharingService)
+            item?.handlers.delegate?(sharingService) ?? delegate?.sharingServicePicker?(sharingServicePicker, delegateFor: sharingService)
         }
         
         public func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, didChoose service: NSSharingService?) {
-            item?.handlers.selected?(service)
+            item?.handlers.didSelect?(service)
+            delegate?.sharingServicePicker?(sharingServicePicker, didChoose: service)
         }
         
         public func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, sharingServicesForItems items: [Any], proposedSharingServices proposedServices: [NSSharingService]) -> [NSSharingService] {
-            item?.handlers.sharingServices?(items, proposedServices) ?? proposedServices
+            item?.handlers.sharingServices?(items, proposedServices) ?? delegate?.sharingServicePicker?(sharingServicePicker, sharingServicesForItems: items, proposedSharingServices: proposedServices) ?? proposedServices
         }
         
         deinit {

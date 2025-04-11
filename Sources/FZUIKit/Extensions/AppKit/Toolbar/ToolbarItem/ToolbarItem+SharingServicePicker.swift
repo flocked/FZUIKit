@@ -31,16 +31,18 @@
                 /// The handler that provides the items to share.
                 public var items: (() -> ([Any]))?
                 
-                /// The handler that gets called when the user did choose a sharing service for the current item
-                /// Returns the selected sharing service for the current item, or `nil` if none is selected.
-                public var didChoose: ((_ service: NSSharingService?) -> Void)?
+                /// The handler that gets called when the sharing service is selected for the current item.
+                public var didSelect: ((_ service: NSSharingService?) -> Void)?
                 
-                /// Asks to provide an object that the selected sharing service can use as its delegate.
-                public var delegate: ((_ service: NSSharingService) -> (NSSharingServiceDelegate?))?
-                
-                /// The handler that provides the sharing servies for th
-                /// Asks to specify which services to make available from the sharing service picker.
+                /**
+                 The handler that provides the sharing services for items.
+                 
+                 Use this handler to remove default services, add custom services, or reorder the existing services before the picker appears onscreen.
+                 */
                 public var sharingServices: ((_ items: [Any], _ proposedServices: [NSSharingService]) -> ([NSSharingService]))?
+                
+                /// The handler that provides the delegate for the selected sharing service.
+                public var delegate: ((_ service: NSSharingService) -> (NSSharingServiceDelegate?))?
             }
             
             /// The handlers for the sharing service picker item.
@@ -55,8 +57,8 @@
 
             /// Returns the selected sharing service for the current item, or `nil` if none is selected.
             @discardableResult
-            open func didChoose(_ didChoose: ((_ service: NSSharingService?) -> Void)?) -> Self {
-                handlers.didChoose = didChoose
+            open func didSelect(_ didSelect: ((_ service: NSSharingService?) -> Void)?) -> Self {
+                handlers.didSelect = didSelect
                 return self
             }
             
@@ -121,7 +123,7 @@
             }
 
             public func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, didChoose service: NSSharingService?) {
-                pickerItem.handlers.didChoose?(service)
+                pickerItem.handlers.didSelect?(service)
                 delegate?.sharingServicePicker?(sharingServicePicker, didChoose: service)
             }
             
