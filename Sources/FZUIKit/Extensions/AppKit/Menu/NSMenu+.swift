@@ -242,7 +242,7 @@ extension NSMenu {
             super.init()
             menu.delegate = self
             delegateObservation = menu.observeChanges(for: \.delegate) { [weak self] old, new in
-                guard let self = self, new as? NSObject != self else { return }
+                guard let self = self, new !== self else { return }
                 self.delegate = new
                 menu.delegate = self
             }
