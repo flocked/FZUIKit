@@ -77,6 +77,7 @@
             }
             
             func updateDelegate(with itemDelegate: NSSharingServicePickerToolbarItemDelegate?) {
+                _delegate = nil
                 if itemDelegate?.responds(to: #selector(NSSharingServicePickerToolbarItemDelegate.sharingServicePicker(_:sharingServicesForItems:proposedSharingServices:))) == true || handlers.sharingServices != nil {
                     _delegate = DelegateAlt(for: self)
                 } else {
