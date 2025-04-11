@@ -17,7 +17,6 @@
          */
         open class Search: ToolbarItem {
 
-            var delegate: Delegate!
             fileprivate lazy var searchItem = ValidateSearchToolbarItem(for: self)
             override var item: NSToolbarItem {
                 searchItem
@@ -46,12 +45,7 @@
             /// The search field of the toolbar item.
             open internal(set) var searchField: NSSearchField {
                 get { searchItem.searchField }
-                set {
-                    guard newValue != searchField else { return }
-                    searchField.delegate = nil
-                    searchItem.searchField = newValue
-                    searchField.delegate = delegate
-                }
+                set { searchItem.searchField = newValue  }
             }
 
             /// The string value of the search field.
@@ -110,14 +104,10 @@
                 return self
             }
             
-            fileprivate var editingActionSearhField: EditingActionSearchField? {
-                searchItem.searchField as? EditingActionSearchField
-            }
-            
             /// The action to perform when the user pressed the enter key while searching.
             open var editingActionOnEnterKeyDown: NSTextField.EnterKeyAction {
-                get { editingActionSearhField?._editingActionOnEnterKeyDown ?? .none }
-                set { editingActionSearhField?._editingActionOnEnterKeyDown = newValue }
+                get { searchItem.searchField.editingActionOnEnterKeyDown }
+                set { searchItem.searchField.editingActionOnEnterKeyDown = newValue }
             }
             
             /// Sets the action to perform when the user pressed the enter key while searching.
@@ -129,8 +119,8 @@
             
             /// The action to perform when the user pressed the escape key while searching.
             open var editingActionOnEscapeKeyDown: NSTextField.EscapeKeyAction {
-                get { editingActionSearhField?._editingActionOnEscapeKeyDown ?? .none }
-                set { editingActionSearhField?._editingActionOnEscapeKeyDown = newValue }
+                get { searchItem.searchField.editingActionOnEscapeKeyDown }
+                set { searchItem.searchField.editingActionOnEscapeKeyDown = newValue }
             }
             
             /// Sets the action to perform when the user pressed the escape key while searching.
@@ -230,9 +220,6 @@
              */
             public init(_ identifier: NSToolbarItem.Identifier? = nil, preferredWidth: CGFloat? = nil) {
                 super.init(identifier)
-                delegate = Delegate(for: self)
-                searchItem.searchField = EditingActionSearchField()
-                searchField.delegate = delegate
                 searchField.translatesAutoresizingMaskIntoConstraints = false
                 self.preferredWidth = preferredWidth
             }
@@ -246,63 +233,60 @@
              */
             public init(_ identifier: NSToolbarItem.Identifier? = nil, searchField: NSSearchField) {
                 super.init(identifier)
-                delegate = Delegate(for: self)
                 searchField.translatesAutoresizingMaskIntoConstraints = false
                 searchItem.searchField = searchField
-                searchField.delegate = delegate
             }
         }
     }
 
-fileprivate class EditingActionSearchField: NSSearchField, NSTextViewDelegate {
-    var _editingActionOnEnterKeyDown: NSTextField.EnterKeyAction = .endEditing
-    var _editingActionOnEscapeKeyDown: NSTextField.EscapeKeyAction = .endEditing
-    
-    init() {
-        super.init(frame: .zero)
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-    }
-    
+@available(macOS 11.0, *)
+fileprivate class ValidateSearchToolbarItem: NSSearchToolbarItem, NSSearchFieldDelegate{
+    weak var item: ToolbarItem.Search?
     var startingString: String?
-    override func textDidBeginEditing(_ notification: Notification) {
-        startingString = stringValue
+
+    func controlTextDidBeginEditing(_ obj: Notification) {
+        startingString = searchField.stringValue
+        item?.textDidBeginEditing()
     }
     
-    func textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
-        switch commandSelector {
-        case #selector(NSControl.cancelOperation(_:)):
-            if _editingActionOnEscapeKeyDown == .endEditingAndReset {
-                stringValue = startingString ?? stringValue
+    func controlTextDidChange(_ obj: Notification) {
+        item?.textDidChange()
+    }
+    
+    func controlTextDidEndEditing(_ obj: Notification) {
+        item?.textDidEndEditing()
+    }
+    
+    func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+        if commandSelector == #selector(NSControl.cancelOperation(_:)) {
+            if searchField.editingActionOnEscapeKeyDown == .endEditingAndReset {
+                searchField.stringValue = startingString ?? searchField.stringValue
                 startingString = nil
-                resignFirstResponding()
+                searchField.resignFirstResponding()
                 return true
-            } else if _editingActionOnEscapeKeyDown == .endEditing {
+            } else if searchField.editingActionOnEscapeKeyDown == .endEditing {
                 startingString = nil
-                resignFirstResponding()
+                searchField.resignFirstResponding()
                 return true
             }
-        case #selector(NSControl.insertNewline(_:)):
-            if _editingActionOnEnterKeyDown == .endEditing {
+        } else if commandSelector == #selector(NSControl.insertNewline(_:)) {
+            if searchField.editingActionOnEnterKeyDown == .endEditing {
                 startingString = nil
-                resignFirstResponding()
+                searchField.resignFirstResponding()
                 return true
             }
-        default: break
         }
         return false
     }
-}
-
-@available(macOS 11.0, *)
-fileprivate class ValidateSearchToolbarItem: NSSearchToolbarItem {
-    weak var item: ToolbarItem?
     
-    init(for item: ToolbarItem) {
+    override var searchField: NSSearchField {
+        didSet { searchField.delegate = self }
+    }
+    
+    init(for item: ToolbarItem.Search) {
         super.init(itemIdentifier: item.identifier)
         self.item = item
+        searchField.delegate = self
     }
     
     override func validate() {
