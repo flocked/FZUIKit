@@ -137,18 +137,19 @@
             set { setAssociatedValue(newValue, key: "isEditingText") }
         }
 
-        /**
-         The action to perform when the user presses the enter key while editing.
-         
-         - Note: This property isn't working with `NSSearchField`.
-         */
+        /// The action to perform when the user presses the enter key while editing.
         public var editingActionOnEnterKeyDown: EnterKeyAction {
             get { getAssociatedValue("actionOnEnterKeyDown", initialValue: .none) }
             set {
                 guard editingActionOnEnterKeyDown != newValue else { return }
                 setAssociatedValue(newValue, key: "actionOnEnterKeyDown")
                 if let searchField = self as? NSSearchField {
-                    searchField.searchFieldDelegate = (editingActionOnEnterKeyDown == .none || editingActionOnEscapeKeyDown == .none) ? nil : .init(for: searchField)
+                    if editingActionOnEnterKeyDown == .none && editingActionOnEscapeKeyDown == .none {
+                        guard searchField.searchFieldDelegate != nil else { return }
+                        searchField.searchFieldDelegate = nil
+                    } else if searchField.searchFieldDelegate == nil {
+                        searchField.searchFieldDelegate = .init(for: searchField)
+                    }
                 } else {
                     swizzleDoCommandBy()
                 }
@@ -162,18 +163,19 @@
             return self
         }
 
-        /**
-         The action to perform when the user presses the escape key while editing.
-         
-         - Note: This property isn't working with `NSSearchField`.
-         */
+        /// The action to perform when the user presses the escape key while editing.
         public var editingActionOnEscapeKeyDown: EscapeKeyAction {
-            get { getAssociatedValue("actionOnEscapeKeyDown", initialValue: .none) }
+            get { getAssociatedValue("actionOnEscapeKeyDown", initialValue: self is NSSearchField ? .delete : .none) }
             set {
                 guard editingActionOnEscapeKeyDown != newValue else { return }
                 setAssociatedValue(newValue, key: "actionOnEscapeKeyDown")
                 if let searchField = self as? NSSearchField {
-                    searchField.searchFieldDelegate = (editingActionOnEnterKeyDown == .none || editingActionOnEscapeKeyDown == .none) ? nil : .init(for: searchField)
+                    if editingActionOnEnterKeyDown == .none && editingActionOnEscapeKeyDown == .none {
+                        guard searchField.searchFieldDelegate != nil else { return }
+                        searchField.searchFieldDelegate = nil
+                    } else if searchField.searchFieldDelegate == nil {
+                        searchField.searchFieldDelegate = .init(for: searchField)
+                    }
                 } else {
                     swizzleDoCommandBy()
                 }
