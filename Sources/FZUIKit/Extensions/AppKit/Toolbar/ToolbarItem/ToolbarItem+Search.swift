@@ -23,7 +23,7 @@
             }
 
             /// State of the searching.
-            public enum SearchState {
+            public enum SearchState: String {
                 /// Searching did start.
                 case didStart
                 /// Searching did update.
