@@ -584,8 +584,8 @@ extension NSSearchField {
             super.init()
             searchField.delegate = self
             delegateObservation = searchField.observeChanges(for: \.delegate) { [weak self] old, new in
-                guard let self = self else { return }
-                self.delegate = delegate
+                guard let self = self, new !== self else { return }
+                self.delegate = new
                 self.searchField?.delegate = self
             }
         }
