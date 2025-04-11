@@ -22,27 +22,32 @@
             override var item: NSToolbarItem {
                 servicePickerItem
             }
-
+            
             var itemsHandler: (() -> ([Any]))?
             var _delegate: Delegate!
-
+            
             /// The handlers for the sharing service picker item.
             public struct Handlers {
                 /// The handler that provides the items to share.
                 public var items: (() -> ([Any]))?
-
+                
                 /// Returns the selected sharing service for the current item, or `nil` if none is selected.
                 public var didChoose: ((_ service: NSSharingService?) -> Void)?
-
+                
                 /// Asks to provide an object that the selected sharing service can use as its delegate.
                 public var delegate: ((_ service: NSSharingService) -> (NSSharingServiceDelegate?))?
-
+                
                 /// Asks to specify which services to make available from the sharing service picker.
                 public var sharingServices: ((_ items: [Any], _ proposedServices: [NSSharingService]) -> ([NSSharingService]))?
             }
-
+            
             /// The handlers for the sharing service picker item.
-            open var handlers: Handlers = .init()
+            open var handlers: Handlers = .init() {
+                didSet {
+                    guard (oldValue.sharingServices == nil && handlers.sharingServices != nil) || (oldValue.sharingServices != nil && handlers.sharingServices == nil) else { return }
+                    updateDelegate(with: _delegate.delegate)
+                }
+            }
 
             /// Sets the handler that provides the items to share.
             @discardableResult
@@ -65,7 +70,19 @@
              */
             open var delegate: NSSharingServicePickerToolbarItemDelegate? {
                 get { _delegate?.delegate }
-                set { _delegate?.delegate = newValue }
+                set {
+                    guard newValue !== delegate else { return }
+                    updateDelegate(with: newValue)
+                }
+            }
+            
+            func updateDelegate(with itemDelegate: NSSharingServicePickerToolbarItemDelegate?) {
+                if itemDelegate?.responds(to: #selector(NSSharingServicePickerToolbarItemDelegate.sharingServicePicker(_:sharingServicesForItems:proposedSharingServices:))) == true || handlers.sharingServices != nil {
+                    _delegate = DelegateAlt(for: self)
+                } else {
+                    _delegate = Delegate(for: self)
+                }
+                _delegate.delegate = itemDelegate
             }
             
             /**
@@ -109,9 +126,7 @@
                 _delegate.delegate = delegate
             }
         }
-    }
 
-    extension ToolbarItem.SharingServicePicker {
         class Delegate: NSObject, NSSharingServicePickerToolbarItemDelegate {
             weak var pickerItem: ToolbarItem.SharingServicePicker!
             weak var delegate: NSSharingServicePickerToolbarItemDelegate?
@@ -124,19 +139,17 @@
                 pickerItem.handlers.didChoose?(service)
                 delegate?.sharingServicePicker?(sharingServicePicker, didChoose: service)
             }
-
-            public func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, delegateFor sharingService: NSSharingService) -> NSSharingServiceDelegate? {
-                pickerItem.handlers.delegate?(sharingService) ?? delegate?.sharingServicePicker?(sharingServicePicker, delegateFor: sharingService) ?? nil
-            }
-
-            public func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, sharingServicesForItems items: [Any], proposedSharingServices proposedServices: [NSSharingService]) -> [NSSharingService] {
-                pickerItem.handlers.sharingServices?(items, proposedServices) ?? delegate?.sharingServicePicker?(sharingServicePicker, sharingServicesForItems: items, proposedSharingServices: proposedServices) ?? []
-            }
-
+            
             init(for item: ToolbarItem.SharingServicePicker) {
                 pickerItem = item
                 super.init()
                 pickerItem.servicePickerItem.delegate = self
+            }
+        }
+        
+        class DelegateAlt: Delegate {
+            public func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, sharingServicesForItems items: [Any], proposedSharingServices proposedServices: [NSSharingService]) -> [NSSharingService] {
+                pickerItem.handlers.sharingServices?(items, proposedServices) ?? delegate?.sharingServicePicker?(sharingServicePicker, sharingServicesForItems: items, proposedSharingServices: proposedServices) ?? []
             }
         }
     }
