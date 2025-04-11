@@ -38,6 +38,10 @@
             case endEditing
             /// Ends editing the text and resets it to the the state before editing.
             case endEditingAndReset
+            /// Deletes the text.
+            case delete
+            /// Resets the text to the the state before editing.
+            case reset
         }
 
         /// The action to perform when the user presses the enter key while editing.
@@ -364,6 +368,14 @@
                                             textView.resignFirstResponding()
                                             return true
                                         }
+                                    case .delete:
+                                        textField.stringValue = ""
+                                        textField.adjustFontSize()
+                                        return false
+                                    case .reset:
+                                        textField.stringValue = textField.editStartString
+                                        textField.adjustFontSize()
+                                        return false
                                     case .none:
                                         break
                                     }
