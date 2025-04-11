@@ -10,11 +10,7 @@
     import FZSwiftUtils
 
     extension ToolbarItem {
-        /**
-         A toolbar item that contains a segmented control.
-
-         The item can be used with ``Toolbar``.
-         */
+        /// A toolbar item that contains a segmented control.
         open class Segmented: ToolbarItem {
             
             lazy var groupItem: ValidateToolbarItemGroup = {

@@ -9,11 +9,7 @@
     import AppKit
 
     extension ToolbarItem {
-        /**
-         A toolbar item.
-
-         The item can be used with ``Toolbar``.
-         */
+        /// A toolbar item.
         open class Item: ToolbarItem {
             
             /// The title of the item.

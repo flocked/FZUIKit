@@ -12,8 +12,10 @@
     extension ToolbarItem {
         /**
          A toolbar item that displays the macOS share sheet.
-
-         The item can be used with ``Toolbar``.
+         
+         When someone clicks the item, it displays the macOS share sheet. Use this item to share the selected or focal content from the current window. For example, you might share the photo someone is viewing, the currently selected text, or the window’s associated document.
+         
+         Provide the items to share using either provide them using ``handlers-swift.property`` or the ``delegate``.
          */
         open class SharingServicePicker: ToolbarItem {
             lazy var servicePickerItem = ValidateServicePickerToolbarItem(for: self)
@@ -22,11 +24,11 @@
             }
 
             var itemsHandler: (() -> ([Any]))?
-            var delegateObject: DelegateObject!
+            var _delegate: Delegate!
 
-            /// The handlers for the sharing service picker of a ``ToolbarItem/SharingServicePicker`` toolbar item.
+            /// The handlers for the sharing service picker item.
             public struct Handlers {
-                /// Asks the items to share.
+                /// The handler that provides the items to share.
                 public var items: (() -> ([Any]))?
 
                 /// Returns the selected sharing service for the current item, or `nil` if none is selected.
@@ -39,12 +41,12 @@
                 public var sharingServices: ((_ items: [Any], _ proposedServices: [NSSharingService]) -> ([NSSharingService]))?
             }
 
-            /// The handlers for the sharing service picker.
-            public var handlers: Handlers = .init()
+            /// The handlers for the sharing service picker item.
+            open var handlers: Handlers = .init()
 
-            /// Asks the items to share.
+            /// Sets the handler that provides the items to share.
             @discardableResult
-            open func items(_ items: (() -> ([Any]))?) -> Self {
+            open func itemsProvider(_ items: (() -> ([Any]))?) -> Self {
                 handlers.items = items
                 return self
             }
@@ -55,56 +57,83 @@
                 handlers.didChoose = didChoose
                 return self
             }
-
-            /// Asks to specify which services to make available from the sharing service picker.
-            @discardableResult
-            open func sharingServices(_ sharingServices: ((_ items: [Any], _ proposedServices: [NSSharingService]) -> ([NSSharingService]))?) -> Self {
-                handlers.sharingServices = sharingServices
-                return self
+            
+            /**
+             The delegate that provides the items to share.
+             
+             Either provide a delegate or use the item's ``handlers-swift.property`` to provide items.
+             */
+            open var delegate: NSSharingServicePickerToolbarItemDelegate? {
+                get { _delegate?.delegate }
+                set { _delegate?.delegate = newValue }
             }
-
-            /// Asks to provide an object that the selected sharing service can use as its delegate.
+            
+            /**
+             Sets the delegate that provides the items to share.
+             
+             Either provide a delegate or use the item's ``handlers-swift.property`` to provide items.
+             */
             @discardableResult
-            open func delegate(_ delegate: ((_ service: NSSharingService) -> (NSSharingServiceDelegate?))?) -> Self {
-                handlers.delegate = delegate
+            open func delegate(_ delegate: NSSharingServicePickerToolbarItemDelegate?) -> Self {
+                _delegate?.delegate = delegate
                 return self
             }
 
             /**
              Creates a toolbar item that displays the macOS share sheet.
              
-             - Parameter identifier: The item identifier.
+             - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `SharingServicePicker` toolbar items.
+             
+             - Parameters;
+                - identifier: The item identifier.
+                - itemsProvider: The handler that provides the items to share.
+            */
+            public init(_ identifier: NSToolbarItem.Identifier? = nil, itemsProvider: (() -> ([Any]))? = nil) {
+                super.init(identifier)
+                _delegate = Delegate(for: self)
+                handlers.items = itemsProvider
+            }
+            
+            /**
+             Creates a toolbar item that displays the macOS share sheet.
              
              - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `SharingServicePicker` toolbar items.
-             */
-            override public init(_ identifier: NSToolbarItem.Identifier? = nil) {
+             
+             - Parameters;
+                - identifier: The item identifier.
+                - delegate: The delegate that provides the items to share.
+            */
+            public init(_ identifier: NSToolbarItem.Identifier? = nil, delegate: NSSharingServicePickerToolbarItemDelegate) {
                 super.init(identifier)
-                delegateObject = DelegateObject(self)
+                _delegate = Delegate(for: self)
+                _delegate.delegate = delegate
             }
         }
     }
 
     extension ToolbarItem.SharingServicePicker {
-        class DelegateObject: NSObject, NSSharingServicePickerToolbarItemDelegate {
+        class Delegate: NSObject, NSSharingServicePickerToolbarItemDelegate {
             weak var pickerItem: ToolbarItem.SharingServicePicker!
+            weak var delegate: NSSharingServicePickerToolbarItemDelegate?
 
-            public func items(for _: NSSharingServicePickerToolbarItem) -> [Any] {
-                pickerItem.handlers.items?() ?? []
+            public func items(for item: NSSharingServicePickerToolbarItem) -> [Any] {
+                pickerItem.handlers.items?() ?? delegate?.items(for: item) ?? []
             }
 
-            public func sharingServicePicker(_: NSSharingServicePicker, didChoose service: NSSharingService?) {
+            public func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, didChoose service: NSSharingService?) {
                 pickerItem.handlers.didChoose?(service)
+                delegate?.sharingServicePicker?(sharingServicePicker, didChoose: service)
             }
 
-            public func sharingServicePicker(_: NSSharingServicePicker, delegateFor sharingService: NSSharingService) -> NSSharingServiceDelegate? {
-                pickerItem.handlers.delegate?(sharingService) ?? nil
+            public func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, delegateFor sharingService: NSSharingService) -> NSSharingServiceDelegate? {
+                pickerItem.handlers.delegate?(sharingService) ?? delegate?.sharingServicePicker?(sharingServicePicker, delegateFor: sharingService) ?? nil
             }
 
-            public func sharingServicePicker(_: NSSharingServicePicker, sharingServicesForItems items: [Any], proposedSharingServices proposedServices: [NSSharingService]) -> [NSSharingService] {
-                pickerItem.handlers.sharingServices?(items, proposedServices) ?? []
+            public func sharingServicePicker(_ sharingServicePicker: NSSharingServicePicker, sharingServicesForItems items: [Any], proposedSharingServices proposedServices: [NSSharingService]) -> [NSSharingService] {
+                pickerItem.handlers.sharingServices?(items, proposedServices) ?? delegate?.sharingServicePicker?(sharingServicePicker, sharingServicesForItems: items, proposedSharingServices: proposedServices) ?? []
             }
 
-            init(_ item: ToolbarItem.SharingServicePicker) {
+            init(for item: ToolbarItem.SharingServicePicker) {
                 pickerItem = item
                 super.init()
                 pickerItem.servicePickerItem.delegate = self

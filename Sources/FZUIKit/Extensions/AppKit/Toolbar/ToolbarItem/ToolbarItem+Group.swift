@@ -12,7 +12,9 @@
         /**
          A group of subitems in a toolbar item.
 
-         The item can be used with ``Toolbar``.
+         The item represents a collection set of subitems in a toolbar that the system displays based on available space and settings that you specify. The system uses the views and labels of the subitems, but the parent’s attributes take precedence. This differs from other toolbar items because they’re attached — the user drags them together as a single item rather than separately.
+         
+         If a subitem of the group has an action set on it, the group uses that action instead of its own when the user clicks or taps on that item. The system prefers the subitem’s action if it exists, otherwise it uses the group’s action.
          */
         open class Group: ToolbarItem {
             

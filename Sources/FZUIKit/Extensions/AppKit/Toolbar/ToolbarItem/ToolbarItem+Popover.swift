@@ -9,11 +9,7 @@
     import AppKit
 
     extension ToolbarItem {
-        /**
-         A toolbar item that displys a popover.
-
-         The item can be used with ``Toolbar``.
-         */
+        /// A toolbar item that displys a popover.
         open class Popover: ToolbarItem {
             /// The button of the toolbar item that opens the popover.
             public let button: NSButton

@@ -9,11 +9,7 @@
 import AppKit
 
 extension ToolbarItem {
-    /**
-     A custom toolbar item.
-
-     The item can be used with ``Toolbar``.
-     */
+    /// A custom toolbar item.
     open class Custom: ToolbarItem {
         /// The `NSToolbarItem` that represents the item.
         public let toolbarItem: NSToolbarItem
@@ -25,7 +21,7 @@ extension ToolbarItem {
         /**
          Creates a toolbar item with the specified `NSToolbarItem`.
                   
-         - Parameter item: The tool bar item.
+         - Parameter item: The toolbar item.
          */
         public init(item: NSToolbarItem) {
             self.toolbarItem = item

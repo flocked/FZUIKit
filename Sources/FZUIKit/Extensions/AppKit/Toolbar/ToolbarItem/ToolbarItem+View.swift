@@ -10,11 +10,7 @@
     import SwiftUI
 
     extension ToolbarItem {
-        /**
-         A toolbar item that displays a view.
-
-         The item can be used with ``Toolbar``.
-         */
+        /// A toolbar item that displays a view.
         open class View: ToolbarItem {
             /// The view of the toolbar item.
             open var view: NSView {

@@ -11,8 +11,10 @@
     extension ToolbarItem {
         /**
          A toolbar item that presents a menu.
-
-         The item can be used with ``Toolbar``.
+         
+         If you set an action on the item item, the user invokes the action when clicking on it through pressing and holding to display the menu. If you set an action on the item and ``showsIndicator`` to `true`, the system displays the indicator as a separate segment so the user can invoke the menu with a click on that segment.
+         
+         If you don’t set an action, a simple click invokes the menu, and the indicator is purely decorative.
          */
         open class Menu: ToolbarItem {
             

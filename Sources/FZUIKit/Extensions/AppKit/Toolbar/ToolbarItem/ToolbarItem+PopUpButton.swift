@@ -9,11 +9,7 @@
     import AppKit
 
     extension ToolbarItem {
-        /**
-         A toolbar item that contains a popup button.
-
-         The item can be used with ``Toolbar``.
-         */
+        /// A toolbar item that contains a popup button.
         open class PopUpButton: ToolbarItem {
             /// The popup button.
             public let button: NSPopUpButton
