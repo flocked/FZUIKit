@@ -1,5 +1,5 @@
 //
-//  ToolbarItem+PopoverButton.swift
+//  ToolbarItem+Popover.swift
 //
 //
 //  Created by Florian Zand on 09.04.23.
@@ -10,11 +10,11 @@
 
     extension ToolbarItem {
         /**
-         A toolbar item that contains a popover button.
+         A toolbar item that displys a popover.
 
          The item can be used with ``Toolbar``.
          */
-        open class PopoverButton: ToolbarItem {
+        open class Popover: ToolbarItem {
             /// The button of the toolbar item that opens the popover.
             public let button: NSButton
             
@@ -170,7 +170,7 @@
             }
             
             /// The handler that gets called when the user clicks the popover button.
-            open var actionBlock: ((_ item: ToolbarItem.PopoverButton)->())? = nil {
+            open var actionBlock: ((_ item: ToolbarItem.Popover)->())? = nil {
                 didSet {
                     button.actionBlock = { [weak self] _ in
                         guard let self = self else { return }
@@ -183,7 +183,7 @@
 
             /// Sets the handler that gets called when the user clicks the popover button.
             @discardableResult
-            open func onAction(_ action: ((_ item: ToolbarItem.PopoverButton)->())?) -> Self {
+            open func onAction(_ action: ((_ item: ToolbarItem.Popover)->())?) -> Self {
                 actionBlock = action
                 return self
             }
@@ -200,7 +200,9 @@
             }
 
             /**
-             Creates a popover button toolbar item.
+             Creates a toolbar item that displays a popover.
+
+             - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `Popover` toolbar items.
 
              - Parameters:
                 - identifier: The item identifier.
@@ -216,7 +218,9 @@
             }
             
             /**
-             Creates a popover button toolbar item.
+             Creates a toolbar item that displays a popover.
+
+             - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `Popover` toolbar items.
 
              - Parameters:
                 - identifier: The item identifier.
@@ -233,7 +237,9 @@
             }
             
             /**
-             Creates a popover button toolbar item.
+             Creates a toolbar item that displays a popover.
+
+             - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `Popover` toolbar items.
 
              - Parameters:
                 - identifier: The item identifier.
@@ -253,7 +259,9 @@
             }
             
             /**
-             Creates a popover button toolbar item.
+             Creates a toolbar item that displays a popover.
+             
+             - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `Popover` toolbar items.
 
              - Parameters:
                 - identifier: The item identifier.

@@ -103,6 +103,8 @@
 
             /**
              Creates a group toolbar item.
+             
+             - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `Group` toolbar items.
 
              - Parameters:
                 - identifier: The item identifier.
@@ -118,6 +120,8 @@
 
             /**
              Creates a group toolbar item.
+             
+             - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `Group` toolbar items.
 
              - Parameters:
                 - identifier: The item identifier.

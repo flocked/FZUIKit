@@ -24,7 +24,7 @@ extension ToolbarItem {
         
         /**
          Creates a toolbar item with the specified `NSToolbarItem`.
-         
+                  
          - Parameter item: The tool bar item.
          */
         public init(item: NSToolbarItem) {

@@ -161,6 +161,8 @@
             
             /**
              Creates a segmented control toolbar item.
+             
+             - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `Segmented` toolbar items.
 
              - Parameters:
                 - identifier: The item identifier.
@@ -176,6 +178,8 @@
 
             /**
              Creates a segmented control toolbar item.
+             
+             - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `Segmented` toolbar items.
 
              - Parameters:
                 - identifier: The item identifier.

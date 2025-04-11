@@ -70,6 +70,13 @@
                 return self
             }
 
+            /**
+             Creates a toolbar item that displays the macOS share sheet.
+             
+             - Parameter identifier: The item identifier.
+             
+             - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `SharingServicePicker` toolbar items.
+             */
             override public init(_ identifier: NSToolbarItem.Identifier? = nil) {
                 super.init(identifier)
                 delegateObject = DelegateObject(self)

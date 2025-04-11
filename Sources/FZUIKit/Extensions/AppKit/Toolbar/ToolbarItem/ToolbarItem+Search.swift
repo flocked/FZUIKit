@@ -17,25 +17,26 @@
          */
         open class Search: ToolbarItem {
 
+            private var widthConstraints: [NSLayoutConstraint] = []
             fileprivate lazy var searchItem = ValidateSearchToolbarItem(for: self)
             override var item: NSToolbarItem {
                 searchItem
             }
 
-            /// State of the searching.
+            /// The state of the searching.
             public enum SearchState: String {
                 /// Searching did start.
                 case didStart
                 /// Searching did update.
                 case didUpdate
-                /// Searching did emd.
+                /// Searching did end.
                 case didEnd
             }
 
-            /// The handler that gets called when the user changes the string of the search field.
+            /// The handler that gets called when the user changes the text of the search field.
             open var handler: ((_ stringValue: String, _ state: SearchState) -> Void)?
 
-            /// Sets the handler that gets called when the user changes the string of the search field.
+            /// Sets the handler that gets called when the user changes the text of the search field.
             @discardableResult
             open func onSearch(_ action: ((_ stringValue: String, _ state: SearchState) -> Void)?) -> Self {
                 handler = action
@@ -53,37 +54,37 @@
                 get { searchField.stringValue }
                 set { searchField.stringValue = newValue }
             }
+            
+            /// Sets the string value of the search field.
+            @discardableResult
+            open func stringValue(_ stringValue: String) -> Self {
+                self.stringValue = stringValue
+                return self
+            }
 
             /// The placeholder string of the search field.
             open var placeholderString: String? {
                 get { searchField.placeholderString }
                 set { searchField.placeholderString = newValue }
             }
-
-            /// The placeholder attributed string of the search field.
-            open var placeholderAttributedString: NSAttributedString? {
-                get { searchField.placeholderAttributedString }
-                set { searchField.placeholderAttributedString = newValue }
-            }
-
-            /// /// The placeholder string of the search field.
+            
+            /// Sets the placeholder string of the search field.
             @discardableResult
             open func placeholderString(_ placeholder: String?) -> Self {
                 placeholderString = placeholder
                 return self
             }
-
-            ///  /// The placeholder attributed string of the search field.
-            @discardableResult
-            open func placeholderAttributedString(_ placeholder: NSAttributedString?) -> Self {
-                placeholderAttributedString = placeholder
-                return self
+            
+            /// The preferred width for the toolbar item when it has keyboard focus.
+            open var preferredWidthWhenFocused: CGFloat {
+                get { searchItem.preferredWidthForSearchField }
+                set { searchItem.preferredWidthForSearchField = newValue }
             }
             
             /// Sets the preferred width for the toolbar item when it has keyboard focus.
             @discardableResult
-            open func preferredWidthForSearchField(_ preferredWidth: CGFloat) -> Self {
-                searchItem.preferredWidthForSearchField = preferredWidth
+            open func preferredWidthWhenFocused(_ preferredWidth: CGFloat) -> Self {
+                self.preferredWidthWhenFocused = preferredWidth
                 return self
             }
             
@@ -147,20 +148,20 @@
                 self.preferredWidth = preferredWidth
                 return self
             }
-            
-            private var widthConstraints: [NSLayoutConstraint] = []
-            
+                        
             /**
              Starts a search interaction and moves the keyboard focus to the search field.
              
-             If the system displays a compressed search field, starting the search interaction expands the field to the width stored in the ``preferredWidthForSearchField(_:)`` property and moves the keyboard focus into the search field. Use ``beginSearchInteraction()`` and ``endSearchInteraction()`` to programmatically control a search.
+             If the system displays a compressed search field, starting the search interaction expands the field to the width stored in the ``preferredWidthWhenFocused`` property and moves the keyboard focus into the search field.
+             
+             Use ``beginSearchInteraction()`` and ``endSearchInteraction()`` to programmatically control a search.
              */
             open func beginSearchInteraction() {
                 searchItem.beginSearchInteraction()
             }
             
             /**
-             Ends a search interaction by giving up the first responder and adjusting the size of the search field to the available width for the toolbar item if necessary.
+             Ends a search interaction by giving up the first responder and adjusting the size of the search field to either ``preferredWidth`` or the available width for the toolbar item if necessary.
              
              Use ``beginSearchInteraction()`` and ``endSearchInteraction()`` to programmatically control a search.
              */
@@ -168,12 +169,12 @@
                 searchItem.endSearchInteraction()
             }
             
-            /// The method that is called when the search field begins searching for content.
+            /// The method that is called when the user begins searching.
             open func textDidBeginEditing() {
                 handler?(stringValue, .didStart)
             }
             
-            /// The method that is called when the search field has ended its search for content.
+            /// The method that is called when the user has ended searching.
             open func textDidEndEditing() {
                 handler?(stringValue, .didEnd)
             }
@@ -182,50 +183,28 @@
             open func textDidChange() {
                 handler?(stringValue, .didUpdate)
             }
-            
-            class Delegate: NSObject, NSSearchFieldDelegate {
-                weak var item: ToolbarItem.Search?
-                
-                func searchFieldDidStartSearching(_: NSSearchField) {
-                    item?.textDidBeginEditing()
-                }
-
-                func searchFieldDidEndSearching(_: NSSearchField) {
-                    item?.textDidEndEditing()
-                }
-                
-                func controlTextDidBeginEditing(_ obj: Notification) {
-                    
-                }
-                
-                func controlTextDidEndEditing(_ obj: Notification) {
-                    
-                }
-
-                func controlTextDidChange(_: Notification) {
-                    item?.textDidChange()
-                }
-                
-                init(for item: ToolbarItem.Search? = nil) {
-                    self.item = item
-                }
-            }
                   
             /**
              Creates a search toolbar item.
-
+             
+             - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `Search` toolbar items.
+             
              - Parameters:
                 - identifier: The item identifier.
                 - preferredWidth: The preferred width of the search field item.
+                - handler: The handler that gets called when the user changes the text of the search field.
              */
-            public init(_ identifier: NSToolbarItem.Identifier? = nil, preferredWidth: CGFloat? = nil) {
+            public init(_ identifier: NSToolbarItem.Identifier? = nil, preferredWidth: CGFloat? = nil, handler: ((_ stringValue: String, _ state: SearchState) -> Void)? = nil) {
                 super.init(identifier)
                 searchField.translatesAutoresizingMaskIntoConstraints = false
                 self.preferredWidth = preferredWidth
+                self.handler = handler
             }
 
             /**
              Creates a search toolbar item.
+             
+             - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `Search` toolbar items.
 
              - Parameters:
                 - identifier: The item identifier.
