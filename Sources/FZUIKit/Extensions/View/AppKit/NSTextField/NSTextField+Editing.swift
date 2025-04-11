@@ -586,7 +586,7 @@ extension NSTextField {
             delegateObservation = textField.observeChanges(for: \.delegate) { [weak self] old, new in
                 guard let self = self else { return }
                 self.delegate = delegate
-                self.textField?.delegate = self
+            //    self.textField?.delegate = self
             }
         }
         
@@ -702,7 +702,7 @@ extension NSSearchField {
             delegateObservation = searchField.observeChanges(for: \.delegate) { [weak self] old, new in
                 guard let self = self else { return }
                 self.delegate = delegate
-                self.searchField?.delegate = self
+              //  self.searchField?.delegate = self
             }
         }
         
