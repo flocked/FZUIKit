@@ -46,12 +46,12 @@ extension NSSharingServicePickerToolbarItem {
                     delegate = self.delegate
                 }
                 handlerDelegate = nil
-                self.delegate = delegate
                 if delegate?.responds(to: #selector(NSSharingServicePickerToolbarItemDelegate.sharingServicePicker(_:sharingServicesForItems:proposedSharingServices:))) == true || handlers.sharingServices != nil {
                     handlerDelegate = Delegate(for: self)
                 } else {
                     handlerDelegate = DelegateAlt(for: self)
                 }
+                handlerDelegate?.delegate = delegate
             }
             
             if !handlers.needsDelegate, delegate is Delegate {
