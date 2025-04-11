@@ -23,7 +23,6 @@
                 servicePickerItem
             }
             
-            var itemsHandler: (() -> ([Any]))?
             var _delegate: Delegate!
             
             /// The handlers for the sharing service picker item.
