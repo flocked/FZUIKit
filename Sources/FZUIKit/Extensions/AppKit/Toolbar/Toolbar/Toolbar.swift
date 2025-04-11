@@ -16,7 +16,7 @@ import FZSwiftUtils
         /// The identifier of the toolbar.
         public let identifier: NSToolbar.Identifier
         
-        var delegate: Delegate!
+        private var delegate: Delegate!
         var toolbar: MangedToolbar!
         
         /**
@@ -311,7 +311,7 @@ import FZSwiftUtils
             public var didRemove: ((_ item: ToolbarItem) -> Void)?
         }
         
-        class Delegate: NSObject, NSToolbarDelegate {
+        private class Delegate: NSObject, NSToolbarDelegate {
             weak var toolbar: Toolbar?
             
             var items: [ToolbarItem] {
