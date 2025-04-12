@@ -22,16 +22,15 @@ open class TrimView: NSControl {
     private var overlayViews = [NSView().backgroundColor(.black.withAlphaComponent(0.5)).cornerRadius(6).roundedCorners(.leftCorners), NSView().backgroundColor(.black.withAlphaComponent(0.5)).cornerRadius(6).roundedCorners(.rightCorners)
     ]
     private var previousBounds: CGRect = .zero
-    private var itemPresentationSize: CGSize = .zero
-    private var itemIsReady = false
+    private var asssetPresentationSize: CGSize = .zero
+    private var assetIsReady = false
     private var isDraggingMin = false
     private var isDraggingMax = false
     private let trimHandleWidth: CGFloat = 13.0
     private var offset: CGFloat = 0
-    
-    private let markerTextField = NSTextField.wrapping("000:00,00").font(.caption).alignment(.center)
-    private let markerContentView = NSView()
-    private lazy var markerPopover = NSPopover(view: markerContentView).animates(false)
+    private let markerIndicatorTextField = NSTextField.wrapping("000:00,00").font(.caption).alignment(.center)
+    private let markerIndicatorView = NSView()
+    private lazy var markerIndicatorPopover = NSPopover(view: markerIndicatorView).animates(false)
     
     /// The content view.
     public let contentView = NSView(frame: .zero).cornerRadius(6.0)
@@ -192,13 +191,13 @@ open class TrimView: NSControl {
     open var asset: AVAsset? {
         didSet {
             guard oldValue !== asset else { return }
-            itemPresentationSize = .zero
-            itemIsReady = false
+            asssetPresentationSize = .zero
+            assetIsReady = false
             DispatchQueue.global(qos: .background).async {
                 guard let track = (try? self.asset?.load(.tracks))?.first else { return }
                 DispatchQueue.main.async {
-                    self.itemIsReady = true
-                    self.itemPresentationSize = track.naturalSize.applying(track.preferredTransform)
+                    self.assetIsReady = true
+                    self.asssetPresentationSize = track.naturalSize.applying(track.preferredTransform)
                     self.range = 0.0...track.timeRange.duration.seconds
                     self.trimmedRange = self.range
                     self.markerValue = 0.0
@@ -346,8 +345,8 @@ open class TrimView: NSControl {
     }
 
     private func updateThumbnails() {
-        guard let asset = asset, itemIsReady else { return }
-        let thumbnailSize = itemPresentationSize.scaled(toHeight: contentView.bounds.height)
+        guard let asset = asset, assetIsReady else { return }
+        let thumbnailSize = asssetPresentationSize.scaled(toHeight: contentView.bounds.height)
         let thumbnailCount = Int(ceil(contentView.bounds.width / thumbnailSize.width))
         guard thumbnailCount > 1 else { return }
         if imageViews.count > thumbnailCount {
@@ -461,25 +460,25 @@ open class TrimView: NSControl {
         if displaysMarkerIndicator, shouldDisplay {
             switch markerIndicatorStyle {
             case .automatic:
-                markerTextField.stringValue = asset != nil ? markerValue.timeString : "\(markerValue)"
+                markerIndicatorTextField.stringValue = asset != nil ? markerValue.timeString : "\(markerValue)"
             case .value:
-                markerTextField.stringValue = "\(markerValue)"
+                markerIndicatorTextField.stringValue = "\(markerValue)"
             case .time:
-                markerTextField.stringValue =  markerValue.timeString
+                markerIndicatorTextField.stringValue =  markerValue.timeString
             case .numberFormatter(let numberFormatter):
-                markerTextField.stringValue = numberFormatter.string(for: markerValue) ?? "\(markerValue)"
+                markerIndicatorTextField.stringValue = numberFormatter.string(for: markerValue) ?? "\(markerValue)"
             }
-            markerTextField.sizeToFit()
-            markerTextField.wraps = false
-            var rect = CGRect(.zero, markerTextField.bounds.size)
+            markerIndicatorTextField.sizeToFit()
+            markerIndicatorTextField.wraps = false
+            var rect = CGRect(.zero, markerIndicatorTextField.bounds.size)
             rect.size.width += 6
             rect.size.height += 6
-            markerContentView.frame = rect
-            markerTextField.center = markerContentView.bounds.center
-            markerPopover.contentSize = markerContentView.bounds.size
-            markerPopover.show(relativeTo: markerView.bounds, of: markerView, preferredEdge: .top)
+            markerIndicatorView.frame = rect
+            markerIndicatorTextField.center = markerIndicatorView.bounds.center
+            markerIndicatorPopover.contentSize = markerIndicatorView.bounds.size
+            markerIndicatorPopover.show(relativeTo: markerView.bounds, of: markerView, preferredEdge: .top)
         } else {
-            markerPopover.close()
+            markerIndicatorPopover.close()
         }
         // Swift.print(markerValue, markerValue.timeString)
     }
@@ -505,7 +504,7 @@ open class TrimView: NSControl {
         if #available(macOS 11.0, *) {
             size = CGSize(40, controlSize == .large ? 50 : 38)
         }
-        size.width += itemPresentationSize.scaled(toHeight: size.height).width*2.0
+        size.width += asssetPresentationSize.scaled(toHeight: size.height).width*2.0
         return size
     }
     
@@ -613,7 +612,7 @@ open class TrimView: NSControl {
         addSubview(markerView)
         overlayViews.forEach({ addSubview($0) })
         addSubview(trimBorderView)
-        markerContentView.addSubview(markerTextField)
+        markerIndicatorView.addSubview(markerIndicatorTextField)
     }
 }
 
