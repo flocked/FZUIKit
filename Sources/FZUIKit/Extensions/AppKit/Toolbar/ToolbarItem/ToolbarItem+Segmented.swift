@@ -58,14 +58,20 @@ extension ToolbarItem {
             return self
         }
         
-        /// Sets rhe selection mode for the segmented control.
+        /// The selection mode of the segmented control.
+        open var selectionMode: SelectionMode {
+            get { .init(rawValue: segmentedControl.trackingMode.rawValue) ?? .selectOne }
+            set { segmentedControl.trackingMode = .init(rawValue: newValue.rawValue) ?? .selectOne }
+        }
+        
+        /// Sets the selection mode of the segmented control.
         @discardableResult
         open func selectionMode(_ mode: SelectionMode) -> Self {
-            segmentedControl.trackingMode = mode.switchTracking
+            selectionMode = mode
             return self
         }
         
-        /// The selection mode for the segmented control.
+        /// The selection mode of a segmented control.
         public enum SelectionMode: UInt, Hashable, Codable {
             /// Only one segment can be selected at a time.
             case selectOne
@@ -73,10 +79,6 @@ extension ToolbarItem {
             case selectAny
             /// A segment is selected only when the user is pressing the mouse down. When the mouse is no longer down within the segment, the segment is automatically deselected.
             case momentary
-            
-            var switchTracking: NSSegmentedControl.SwitchTracking {
-                NSSegmentedControl.SwitchTracking(rawValue: rawValue)!
-            }
         }
         
         /// A Boolean value indicating whether the segmented control is bezeled.
@@ -162,13 +164,14 @@ extension ToolbarItem {
          
          - Parameters:
             - identifier: The item identifier.
-            - switching: The segmented control switching mode. The default value is `selectOne`.
+            - selectionMode: The segmented control selection mode.
             - segments: The segments of the segmented control.
          */
         public convenience init(_ identifier: NSToolbarItem.Identifier? = nil,
                                 selectionMode: SelectionMode = .selectOne,
                                 @NSSegmentedControl.Builder segments: () -> [NSSegment]) {
-            self.init(identifier, segmentedControl: NSSegmentedControl().trackingMode(selectionMode.switchTracking))
+            self.init(identifier, segmentedControl: NSSegmentedControl())
+            self.selectionMode = selectionMode
             self.segments = segments()
         }
         
