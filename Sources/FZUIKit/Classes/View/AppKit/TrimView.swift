@@ -31,7 +31,7 @@ open class TrimView: NSControl {
     
     private let markerTextField = NSTextField.wrapping("000:00,00").font(.caption).alignment(.center)
     private let markerContentView = NSView()
-    private lazy var markerPopover = NSPopover(view: markerContentView)
+    private lazy var markerPopover = NSPopover(view: markerContentView).animates(false)
     
     /// The content view.
     public let contentView = NSView(frame: .zero).cornerRadius(6.0)
