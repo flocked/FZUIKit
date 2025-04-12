@@ -18,7 +18,9 @@ open class TrimView: NSControl {
     private let trimBorderView = NSImageView(frame: .zero).imageScaling(.scaleAxesIndependently)
     private let markerView = NSView(frame: .zero).size(CGSize(1)).backgroundColor(.systemRed)
     private var imageViews: [ImageView] = []
-    private var overlayViews = Array(generate: {NSView(frame: .zero).backgroundColor(.black.withAlphaComponent(0.5))}, count: 2)
+    private var overlayViews = [NSView().backgroundColor(.black.withAlphaComponent(0.5)).cornerRadius(6).roundedCorners(.leftCorners), NSView().backgroundColor(.black.withAlphaComponent(0.5)).cornerRadius(6).roundedCorners(.rightCorners)
+    ]
+    // private var overlayViews = Array(generate: {NSView(frame: .zero).backgroundColor(.black.withAlphaComponent(0.9))}, count: 2)
     private var previousBounds: CGRect = .zero
     private let player = AVPlayer()
     private var itemIsReady = false
@@ -29,6 +31,11 @@ open class TrimView: NSControl {
     
     /// The content view.
     public let contentView = NSView(frame: .zero).cornerRadius(6.0)
+    
+    public struct Range {
+        public var lowerBound: CGFloat = 0.0
+        public var upperBound: CGFloat = 0.0
+    }
 
     /// The range that can be trimmed.
     open var range: ClosedRange<CGFloat> = 0...1.0 {
@@ -226,19 +233,24 @@ open class TrimView: NSControl {
 
         let trimStartX = (trimmedRange.lowerBound - range.lowerBound) / total * bounds.width
         let trimEndX = (trimmedRange.upperBound - range.lowerBound) / total * bounds.width
+        let trimFrame = CGRect(x: trimStartX, y: 0, width: trimEndX - trimStartX, height: bounds.height)
+        if trimBorderView.frame != trimFrame {
+            willChangeValue(for: \.trimmedContentBounds)
+            trimBorderView.frame = CGRect(x: trimStartX, y: 0, width: trimEndX - trimStartX, height: bounds.height)
+            didChangeValue(for: \.trimmedContentBounds)
+        }
+        
         let markerX = (clampedMarkerValue - range.lowerBound) / total * bounds.width
-
-        willChangeValue(for: \.trimmedContentBounds)
-        trimBorderView.frame = CGRect(x: trimStartX, y: 0, width: trimEndX - trimStartX, height: bounds.height)
-        didChangeValue(for: \.trimmedContentBounds)
         markerView.frame = CGRect(x: markerX - (markerWidth/2.0), y: 0, width: markerWidth, height: contentView.bounds.height)
         markerView.center.y = bounds.center.y
         
         overlayViews.forEach({ $0.frame.size.height = contentView.bounds.height })
-        overlayViews[0].frame.origin = .zero
+        overlayViews[0].frame.origin.x = contentView.frame.x
         overlayViews[0].frame.size.width = contentView.bounds.width*trimmedPercentageRange.lowerBound
+        overlayViews[0].center.y = bounds.center.y
         overlayViews[1].frame.size.width = contentView.bounds.width*(1.0-trimmedPercentageRange.upperBound)
-        overlayViews[1].frame.origin.x = contentView.bounds.width-(contentView.bounds.width*(1.0-trimmedPercentageRange.upperBound))
+        overlayViews[1].frame.origin.x = contentView.bounds.width-(contentView.bounds.width*(1.0-trimmedPercentageRange.upperBound))+contentView.frame.x
+        overlayViews[1].center.y = bounds.center.y
     }
     
     private func updateImageViews() {
@@ -465,7 +477,7 @@ open class TrimView: NSControl {
         trimBorderView.image = Bundle(for: AVPlayerView.self).image(forResource: "TrimViewSelectionSmall")
         addSubview(contentView)
         addSubview(markerView)
-        overlayViews.forEach({ contentView.addSubview($0) })
+        overlayViews.forEach({ addSubview($0) })
         addSubview(trimBorderView)
     }
 }
