@@ -62,7 +62,6 @@ open class TrimView: NSControl {
             trimmedRange = trimmedRange.clamped(to: range)
             markerValue = markerValue.clamped(to: trimmedRange)
             updateFrames()
-            updateImageViews()
             updateThumbnails()
         }
     }
@@ -189,6 +188,7 @@ open class TrimView: NSControl {
     open var asset: AVAsset? {
         didSet {
             guard oldValue !== asset else { return }
+            itemPresentationSize = .zero
             itemIsReady = false
             DispatchQueue.global(qos: .background).async {
                 guard let track = (try? self.asset?.load(.tracks))?.first else { return }
@@ -227,7 +227,6 @@ open class TrimView: NSControl {
         super.layout()
         if previousBounds.size != bounds.size {
             updateFrames()
-            updateImageViews()
         }
         previousBounds = bounds
     }
@@ -259,6 +258,8 @@ open class TrimView: NSControl {
         overlayViews[1].frame.size.width = contentView.bounds.width*(1.0-trimmedPercentageRange.upperBound)
         overlayViews[1].frame.origin.x = contentView.bounds.width-(contentView.bounds.width*(1.0-trimmedPercentageRange.upperBound))+contentView.frame.x
         overlayViews[1].center.y = bounds.center.y
+        
+        updateImageViews()
     }
     
     private func updateImageViews() {
@@ -395,11 +396,12 @@ open class TrimView: NSControl {
     }
     
     open override var fittingSize: NSSize {
+        var size = CGSize(40, 38)
         if #available(macOS 11.0, *) {
-            CGSize(40, controlSize == .large ? 50 : 38)
-        } else {
-            CGSize(40, 38)
+            size = CGSize(40, controlSize == .large ? 50 : 38)
         }
+        size.width += itemPresentationSize.scaled(toHeight: size.height).width*2.0
+        return size
     }
     
     @IBInspectable
@@ -439,7 +441,7 @@ open class TrimView: NSControl {
     }
     
     @IBInspectable
-    public override var isEnabled: Bool {
+    open override var isEnabled: Bool {
         didSet {
             trimBorderView.alphaValue = isEnabled ? 1.0 : 0.5
         }
