@@ -12,16 +12,14 @@
 #endif
 import FZSwiftUtils
 
-/**
- A transformer that generates a modified output image from an input image.
- */
+/// A transformer that generates a modified output image from an input image.
 public struct ImageTransformer: ContentTransform {
-    /// The transform closure of the image transformer.
+    /// The block that transforms a image.
     public let transform: (NSUIImage) -> NSUIImage
     /// The identifier of the transformer.
     public let id: String
 
-    /// Creates a image transformer with the specified identifier and closure.
+    /// Creates a image transformer with the specified identifier and block that transforms a image.
     public init(_ identifier: String, _ transform: @escaping (NSUIImage) -> NSUIImage) {
         self.transform = transform
         id = identifier

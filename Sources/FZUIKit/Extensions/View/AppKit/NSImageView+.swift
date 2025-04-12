@@ -13,7 +13,7 @@ import FZSwiftUtils
 extension NSImageView {
     /// Sets the image displayed by the image view.
     @discardableResult
-    func image(_ image: NSImage?) -> Self {
+    public func image(_ image: NSImage?) -> Self {
         self.image = image
         return self
     }
@@ -21,7 +21,7 @@ extension NSImageView {
     /// Sets the symbol configuration.
     @available(macOS 11, *)
     @discardableResult
-    func symbolConfiguration(_ configuration: NSImage.SymbolConfiguration?) -> Self {
+    public func symbolConfiguration(_ configuration: NSImage.SymbolConfiguration?) -> Self {
         self.symbolConfiguration = configuration
         return self
     }
@@ -29,35 +29,35 @@ extension NSImageView {
     /// Sets the symbol configuration.
     @available(macOS 13, *)
     @discardableResult
-    func symbolConfiguration(_ configuration: ImageSymbolConfiguration?) -> Self {
+    public func symbolConfiguration(_ configuration: ImageSymbolConfiguration?) -> Self {
         self.imageSymbolConfiguration = configuration
         return self
     }
     
     /// Sets the color used to tint template images in the view hierarchy.
     @discardableResult
-    func contentTintColor(_ color: NSColor?) -> Self {
+    public func contentTintColor(_ color: NSColor?) -> Self {
         contentTintColor = color
         return self
     }
         
     /// Sets the scaling mode applied to make the cell’s image fit the frame of the image view.
     @discardableResult
-    func imageScaling(_ imageScaling: NSImageScaling) -> Self {
+    public func imageScaling(_ imageScaling: NSImageScaling) -> Self {
         self.imageScaling = imageScaling
         return self
     }
     
     /// Sets the alignment of the cell’s image inside the image view.
     @discardableResult
-    func imageAlignment(_ alignment: NSImageAlignment) -> Self {
+    public func imageAlignment(_ alignment: NSImageAlignment) -> Self {
         imageAlignment = alignment
         return self
     }
     
     /// Sets Boolean value indicating whether the image view automatically plays animated images.
     @discardableResult
-    func animates(_ animates: Bool) -> Self {
+    public func animates(_ animates: Bool) -> Self {
         self.animates = animates
         return self
     }

@@ -86,6 +86,22 @@ extension Decodable where Self: NSAppearance {
 
 extension NSAppearance.Name: Codable { }
 
+extension NSAppearance.Name: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .aqua: return "aqua"
+        case .darkAqua: return "darkAqua"
+        case .vibrantLight: return "vibrantLight"
+        case .vibrantDark: return "vibrantDark"
+        case .accessibilityHighContrastAqua: return "accessibilityHighContrastAqua"
+        case .accessibilityHighContrastDarkAqua: return "accessibilityHighContrastDarkAqua"
+        case .accessibilityHighContrastVibrantLight: return "accessibilityHighContrastVibrantLight"
+        case .accessibilityHighContrastVibrantDark: return "accessibilityHighContrastVibrantDark"
+        default: return rawValue.replacingOccurrences(of: "NSAppearanceName", with: "").lowercasedFirst()
+        }
+    }
+}
+
 public extension NSAppearanceCustomization {
     /// Sets the appearance.
     @discardableResult

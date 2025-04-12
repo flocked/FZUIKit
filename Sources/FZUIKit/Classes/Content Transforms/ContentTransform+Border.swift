@@ -12,16 +12,14 @@
     import UIKit
 #endif
 
-/**
- A transformer that generates a modified output border from an input border.
- */
+/// A transformer that generates a modified output border from an input border.
 public struct BorderTransformer: ContentTransform {
-    /// The transform closure of the border transformer.
+    /// The block that transforms a border.
     public let transform: (BorderConfiguration) -> BorderConfiguration
     /// The identifier of the transformer.
     public let id: String
 
-    /// Creates a border transformer with the specified identifier and closure.
+    /// Creates a border transformer with the specified identifier and block that transforms a border.
     public init(_ identifier: String, _ transform: @escaping (BorderConfiguration) -> BorderConfiguration) {
         self.transform = transform
         id = identifier

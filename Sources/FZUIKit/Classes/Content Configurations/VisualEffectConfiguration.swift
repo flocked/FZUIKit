@@ -161,7 +161,18 @@ extension VisualEffectConfiguration: ReferenceConvertible {
         return VisualEffectConfiguration(material: .contentBackground, blendingMode: .behindWindow)
     }
     
-    public var description: String { "" }
+    public var description: String {
+                            """
+                            VisualEffectConfiguration(
+                                material: \(material)
+                                appearance: \(appearance?.name.description ?? "nil")
+                                blendingMode: \(blendingMode)
+                                isEmphasized: \(isEmphasized)
+                                state: \(state)
+                                maskImage: \(maskImage != nil ? "\(maskImage!)" : "nil")
+                            )
+                            """
+    }
 
     public var debugDescription: String {
         description

@@ -36,7 +36,7 @@ public extension AVAssetImageGenerator {
         - amount: The amount of images to generate.
         - handler: A callback that the image generator invokes for each requested image time.
      */
-    func generateCGImagesAsynchronously(amount: Int, completionHandler handler: @escaping CompletionHandler) {
+    func generateCGImagesAsynchronously(amount: Int, completionHandler handler: @escaping (_ index: Int, _ image: CGImage?, _ time: CMTime, _ result: AVAssetImageGenerator.Result, _ error: Error?) -> Void) {
         guard amount > 0 else { return }
         let times = times(amount: amount)
         generateCGImagesAsynchronously(forTimes: times) { requestedTime, image, actualTime, result, error in
@@ -51,7 +51,7 @@ public extension AVAssetImageGenerator {
         - percentages: An array of percentages of time within the video timeline
         - handler: A callback that the image generator invokes for each requested image time.
      */
-    func generateCGImagesAsynchronously(forPercentages percentages: [CGFloat], completionHandler handler: @escaping PercentagesCompletionHandler) {
+    func generateCGImagesAsynchronously(forPercentages percentages: [CGFloat], completionHandler handler: @escaping (_ percentage: CGFloat, _ image: CGImage?, _ time: CMTime, _ result: AVAssetImageGenerator.Result, _ error: Error?) -> Void) {
         guard !percentages.isEmpty else { return }
         let times = times(percentages: percentages)
         generateCGImagesAsynchronously(forTimes: times) { requestedTime, image, actualTime, result, error in
@@ -80,30 +80,6 @@ public extension AVAssetImageGenerator {
     func images(forPercentages percentages: [CGFloat]) -> AVAssetImageGenerator.Images {
         images(for: times(percentages: percentages))
     }
-    
-    /**
-     A type alias for a closure that provides the result of an image generation request.
-     
-     - Parameters:
-        - percentage: The percentage of the time in the video timeline.
-        - image: A generated image for the requested time.
-        - time: The time in the video timeline at which it generated an image.
-        - result: A value that indicates the result of the image generation request.
-        - error: An optional error. If an error occurs the system provides an error object that provides the details of the failure.
-     */
-    typealias PercentagesCompletionHandler = (_ percentage: CGFloat, _ image: CGImage?, _ time: CMTime, _ result: AVAssetImageGenerator.Result, _ error: Error?) -> Void
-    
-    /**
-     A type alias for a closure that provides the result of an image generation request.
-     
-     - Parameters:
-        - index: The index of the result.
-        - image: A generated image for the requested time.
-        - time: The time in the video timeline at which it generated an image.
-        - result: A value that indicates the result of the image generation request.
-        - error: An optional error. If an error occurs the system provides an error object that provides the details of the failure.
-     */
-    typealias CompletionHandler = (_ index: Int, _ image: CGImage?, _ time: CMTime, _ result: AVAssetImageGenerator.Result, _ error: Error?) -> Void
     
     internal func times(percentages: [CGFloat]) -> [CMTime] {
         let duration = duration

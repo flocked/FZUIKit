@@ -30,8 +30,13 @@ extension NSColorPanel: TargetActionProvider { }
 extension TargetActionProvider {
     /// Sends the `action` message to the `target` if it responds to the selector.
     public func performAction() {
-        guard let action = action, let target = target, target.responds(to: action) else { return }
-        _ = target.perform(action)
+        let target = target ?? self
+        guard let action = action, target.responds(to: action) else { return }
+        if let self = self as? NSControl {
+            self.sendAction(action, to: target)
+        } else {
+            _ = target.perform(action)
+        }
     }
 }
 

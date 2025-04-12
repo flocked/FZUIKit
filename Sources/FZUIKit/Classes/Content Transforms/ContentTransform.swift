@@ -9,23 +9,21 @@ import Foundation
 import FZSwiftUtils
 
 /// A transformer that takes an input and produces a modified output.
-public protocol ContentTransform: Hashable, Identifiable {
+public protocol ContentTransform: Hashable, Identifiable, Sendable where Content: Sendable {
     /// The content type.
     associatedtype Content
-    /// The block that transform the content.
+    /// The block that transforms the content.
     var transform: (Content) -> Content { get }
     /// The identifier of the transformer.
     var id: String { get }
     /**
-     Initalizes the transformer with the specified identifier and transform block.
+     Creates a new transformer with the specified identifier and block that transforms the content.
 
      - Parameters:
-     - id: The identifier of the transformer.
-     - transform: The block that transform a content.
-
-     - Returns: The content transformer..
+        - identifier: The identifier of the transformer.
+        - transform: The block that transforms the content.
      */
-    init(_ id: String, _ transform: @escaping ((Content) -> Content))
+    init(_ identifier: String, _ transform: @escaping ((Content) -> Content))
 }
 
 public extension ContentTransform {
@@ -107,7 +105,7 @@ public extension ContentTransform {
         }
     }
 
-    /// Performs the transformation asynchronous on a sequence of inputs
+    /// Performs the transformation asynchronous on a sequence of inputs.
     func callAsFunction<S>(_ inputs: S) async -> [Content] where S: Sequence<Content> {
         let results = await inputs.asyncMap { await self($0) }
         return results

@@ -91,11 +91,11 @@ public struct TextConfiguration {
     #endif
     
     /// The color transformer of the text color.
-    public var colorTansform: ColorTransformer?
+    public var colorTransformer: ColorTransformer?
     
     /// Generates the resolved text color, using the text color and color transformer.
     public func resolvedColor() -> NSUIColor {
-        colorTansform?(color) ?? color
+        colorTransformer?(color) ?? color
     }
     
     /// Initalizes a text configuration.
@@ -217,6 +217,99 @@ public struct TextConfiguration {
     }
 }
 
+/// The Objective-C class for ``BorderConfiguration``.
+@available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
+public class __TextConfiguration: NSObject, NSCopying {
+    let configuration: TextConfiguration
+    
+    public init(configuration: TextConfiguration) {
+        self.configuration = configuration
+    }
+    
+    public func copy(with zone: NSZone? = nil) -> Any {
+        __TextConfiguration(configuration: configuration)
+    }
+    
+    public override func isEqual(_ object: Any?) -> Bool {
+        configuration == (object as? __TextConfiguration)?.configuration
+    }
+}
+
+@available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
+extension TextConfiguration: ReferenceConvertible {
+    /// The Objective-C type for the configuration.
+    public typealias ReferenceType = __TextConfiguration
+    
+    public func _bridgeToObjectiveC() -> __TextConfiguration {
+        return __TextConfiguration(configuration: self)
+    }
+    
+    public static func _forceBridgeFromObjectiveC(_ source: __TextConfiguration, result: inout TextConfiguration?) {
+        result = source.configuration
+    }
+    
+    public static func _conditionallyBridgeFromObjectiveC(_ source: __TextConfiguration, result: inout TextConfiguration?) -> Bool {
+        _forceBridgeFromObjectiveC(source, result: &result)
+        return true
+    }
+    
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: __TextConfiguration?) -> TextConfiguration {
+        if let source = source {
+            var result: TextConfiguration?
+            _forceBridgeFromObjectiveC(source, result: &result)
+            return result!
+        }
+        return TextConfiguration()
+    }
+    
+    public var description: String {
+        #if os(macOS)
+                    """
+                    TextConfiguration(
+                        font: \(font)
+                        color: \(color)
+                        colorTransformer: \(colorTransformer?.id ?? "-")
+                        numberOfLines: \(numberOfLines)
+                        alignment: \(alignment)
+                        lineBreakMode: \(lineBreakMode)
+                        isSelectable: \(isSelectable)
+                        isEditable: \(isEditable)
+                        adjustsFontSizeToFitWidth: \(adjustsFontSizeToFitWidth)
+                        minimumScaleFactor: \(minimumScaleFactor)
+                        allowsDefaultTighteningForTruncation: \(allowsDefaultTighteningForTruncation)
+                        numberFormatter: \(numberFormatter != nil ? "\(numberFormatter!)" : "nil")
+                        onEditEnd: \(onEditEnd != nil)
+                        stringValidation: \(stringValidation)
+                    )
+                    """
+        #else
+                            """
+                            TextConfiguration(
+                                font: \(font)
+                                color: \(color)
+                                colorTransformer: \(colorTransformer?.id ?? "-")
+                                numberOfLines: \(numberOfLines)
+                                alignment: \(alignment)
+                                lineBreakMode: \(lineBreakMode)
+                                isSelectable: \(isSelectable)
+                                isEditable: \(isEditable)
+                                adjustsFontSizeToFitWidth: \(adjustsFontSizeToFitWidth)
+                                minimumScaleFactor: \(minimumScaleFactor)
+                                allowsDefaultTighteningForTruncation: \(allowsDefaultTighteningForTruncation)
+                                adjustsFontForContentSizeCategory: \(adjustsFontForContentSizeCategory)
+                                showsExpansionTextWhenTruncated: \(showsExpansionTextWhenTruncated)
+                                onEditEnd: \(onEditEnd != nil)
+                                stringValidation: \(stringValidation)
+                            )
+                            """
+        #endif
+    }
+    
+    public var debugDescription: String {
+        description
+    }
+}
+
 @available(macOS 11.0, iOS 15.0, tvOS 15.0, watchOS 6.0, *)
 extension TextConfiguration: Hashable {
     public static func == (lhs: TextConfiguration, rhs: TextConfiguration) -> Bool {
@@ -227,10 +320,20 @@ extension TextConfiguration: Hashable {
         hasher.combine(font)
         hasher.combine(numberOfLines)
         hasher.combine(alignment)
+        hasher.combine(lineBreakMode)
         hasher.combine(isEditable)
         hasher.combine(isSelectable)
         hasher.combine(color)
-        hasher.combine(colorTansform)
+        hasher.combine(colorTransformer)
+        hasher.combine(adjustsFontSizeToFitWidth)
+        hasher.combine(minimumScaleFactor)
+        hasher.combine(allowsDefaultTighteningForTruncation)
+        #if os(macOS)
+        hasher.combine(numberFormatter)
+        #else
+        hasher.combine(adjustsFontForContentSizeCategory)
+        hasher.combine(showsExpansionTextWhenTruncated)
+        #endif
     }
 }
 

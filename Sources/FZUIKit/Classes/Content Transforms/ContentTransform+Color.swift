@@ -11,16 +11,14 @@
     import UIKit
 #endif
 
-/**
- A transformer that generates a modified output color from an input color.
- */
+/// A transformer that generates a modified output color from an input color.
 public struct ColorTransformer: ContentTransform {
-    /// The transform closure of the color transformer.
+    /// The block that transforms a color.
     public let transform: (NSUIColor) -> NSUIColor
     /// The identifier of the transformer.
     public let id: String
 
-    /// Creates a color transformer with the specified identifier and closure.
+    /// Creates a color transformer with the specified identifier and block that transforms a color.
     public init(_ identifier: String, _ transform: @escaping (NSUIColor) -> NSUIColor) {
         self.transform = {
             #if os(macOS) || os(iOS)
