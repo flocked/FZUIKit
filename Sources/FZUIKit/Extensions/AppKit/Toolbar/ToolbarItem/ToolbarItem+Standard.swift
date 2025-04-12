@@ -22,7 +22,7 @@ public extension ToolbarItem {
     /**
      A toolbar item that toggles a sidebar.
      
-     The item sends `toggleSidebar` to the first responder.
+     The item sends `toggleSidebar(_:)` to the first responder.
      */
     static func toggleSidebar() -> ToolbarItem {
         ToolbarItem(.toggleSidebar)
@@ -41,7 +41,7 @@ public extension ToolbarItem {
     /**
      A toolbar item that toggles a inspector pane.
      
-     The item sends `toggleInspector` to the first responder.
+     The item sends `toggleInspector(_:)` to the first responder.
      */
     @available(macOS 14.0, *)
     static func toggleInspector() -> ToolbarItem {
@@ -58,7 +58,11 @@ public extension ToolbarItem {
         ToolbarItem(.inspectorTrackingSeparator)
     }
     
-    /// A toolbar item that tells your app to print the current document.
+    /**
+     A toolbar item that tells your app to print the current document.
+     
+     The item sends `printDocument(_:)` to the first responder.
+     */
     static func print() -> ToolbarItem {
         ToolbarItem(.print)
     }
@@ -81,11 +85,11 @@ public extension ToolbarItem {
     /**
      A toolbar item that shows writing tools.
      
-     The item sends `showWritingTools` to the first responder.     
+     The item sends `showWritingTools(_:)` to the first responder.
      */
     @available(macOS 15.2, *)
     static func writingTools() -> ToolbarItem {
-        ToolbarItem(.init("NSToolbarWritingToolsItem"))
+        ToolbarItem("NSToolbarWritingToolsItem")
     }
 }
 
