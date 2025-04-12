@@ -13,6 +13,7 @@ import AVKit
 
 /// A view for trimming content (like `AVPlayerItem`).
 @IBDesignable
+@available(macOS 12.0, *)
 open class TrimView: NSControl {
     
     private let trimBorderView = NSImageView(frame: .zero).imageScaling(.scaleAxesIndependently)
@@ -183,36 +184,37 @@ open class TrimView: NSControl {
         markerWidth = width
         return self
     }
-        
-    /// The player item to trim.
-    open var item: AVPlayerItem? {
+    
+    /// The asset to trim.
+    open var asset: AVAsset? {
         didSet {
-            guard oldValue !== item else { return }
+            guard oldValue !== asset else { return }
             itemIsReady = false
-            guard let asset = item?.asset else { return }
-            asset.loadValuesAsynchronously(forKeys: ["duration", "tracks"]) {
-                var error: NSError? = nil
-                let durationStatus = asset.statusOfValue(forKey: "duration", error: &error)
-                let tracksStatus = asset.statusOfValue(forKey: "tracks", error: &error)
-                if durationStatus == .loaded, tracksStatus == .loaded, let videoTrack = asset.tracks(withMediaType: .video).first {
-                    DispatchQueue.main.async {
-                        let size = videoTrack.naturalSize.applying(videoTrack.preferredTransform)
-                        self.itemIsReady = true
-                        self.itemPresentationSize = CGSize(width: abs(size.width), height: abs(size.height))
-                        self.range = 0.0...asset.duration.seconds
-                        self.trimmedRange = self.range
-                        self.markerValue = 0.0
-                        self.updateThumbnails()
-                    }
+            DispatchQueue.global(qos: .background).async {
+                guard let track = (try? self.asset?.load(.tracks))?.first else { return }
+                DispatchQueue.main.async {
+                    self.itemIsReady = true
+                    self.itemPresentationSize = track.naturalSize.applying(track.preferredTransform)
+                    self.range = 0.0...track.timeRange.duration.seconds
+                    self.trimmedRange = self.range
+                    self.markerValue = 0.0
+                    self.updateThumbnails()
                 }
             }
         }
     }
     
+    /// Sets the asset to trim.
+    @discardableResult
+    open func asset(_ asset: AVAsset?) -> Self {
+        self.asset = asset
+        return self
+    }
+    
     /// Sets the player item to trim.
     @discardableResult
     open func item(_ item: AVPlayerItem?) -> Self {
-        self.item = item
+        self.asset = item?.asset
         return self
     }
     
@@ -268,7 +270,7 @@ open class TrimView: NSControl {
     }
 
     private func updateThumbnails() {
-        guard let item = item, itemIsReady else { return }
+        guard let asset = asset, itemIsReady else { return }
         let thumbnailSize = itemPresentationSize.scaled(toHeight: contentView.bounds.height)
         let thumbnailCount = Int(ceil(contentView.bounds.width / thumbnailSize.width))
         guard thumbnailCount > 1 else { return }
@@ -301,7 +303,7 @@ open class TrimView: NSControl {
             }
         }
         
-        AVAssetImageGenerator(asset: item.asset).generateCGImagesAsynchronously(forTimes: times) { requestTime, image, actualTime, result, error in
+        AVAssetImageGenerator(asset: asset).generateCGImagesAsynchronously(forTimes: times) { requestTime, image, actualTime, result, error in
             if let image = image, let index = times.firstIndex(where: {$0.seconds == requestTime.seconds}) {
                 DispatchQueue.main.async {
                     self.imageViews[safe: index]?.image = image.nsImage
@@ -446,22 +448,33 @@ open class TrimView: NSControl {
     @IBInspectable
     open override var isContinuous: Bool { didSet { } }
     
+    /// Creates a trim view for trimming the specified player item.
     public init(item: AVPlayerItem) {
         super.init(frame: CGRect(.zero, CGSize(300, 38)))
         sharedInit()
-        self.item = item
+        defer { asset = item.asset }
     }
     
+    /// Creates a trim view for trimming the specified asset.
+    public init(asset: AVAsset) {
+        super.init(frame: CGRect(.zero, CGSize(300, 38)))
+        sharedInit()
+        defer { self.asset = asset }
+    }
+    
+    /// Creates a trim view.
     public init() {
         super.init(frame: CGRect(.zero, CGSize(300, 38)))
         sharedInit()
     }
 
+    /// Creates a trim view with the specified frame.
     public override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         sharedInit()
     }
 
+    /// Creates a trim view.
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
         sharedInit()
@@ -469,6 +482,9 @@ open class TrimView: NSControl {
         range = coder.decodeDouble(forKey: "rangeLowerBound")...coder.decodeDouble(forKey: "rangeUpperBound")
         trimmedRange = coder.decodeDouble(forKey: "trimmedRangeLowerBound")...coder.decodeDouble(forKey: "trimmedRangeUpperBound")
         displaysMarker = coder.decodeBool(forKey: "displaysMarker")
+        if let url: URL = coder.decode(forKey: "assetURL") {
+            asset = AVURLAsset(url: url)
+        }
     }
     
     open override func encode(with coder: NSCoder) {
@@ -478,6 +494,7 @@ open class TrimView: NSControl {
         coder.encode(trimmedRange.lowerBound, forKey: "trimmedRangeLowerBound")
         coder.encode(trimmedRange.upperBound, forKey: "trimmedRangeUpperBound")
         coder.encode(displaysMarker, forKey: "displaysMarker")
+        coder.encode((asset as? AVURLAsset)?.url, forKey: "assetURL")
     }
     
     private func sharedInit() {
