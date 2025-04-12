@@ -34,11 +34,6 @@ open class TrimView: NSControl {
     
     /// The content view.
     public let contentView = NSView(frame: .zero).cornerRadius(6.0)
-    
-    public struct Range {
-        public var lowerBound: CGFloat = 0.0
-        public var upperBound: CGFloat = 0.0
-    }
 
     /// The range that can be trimmed.
     open var range: ClosedRange<CGFloat> = 0...1.0 {
