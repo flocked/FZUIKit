@@ -81,10 +81,9 @@ public extension ToolbarItem {
     /**
      A toolbar item that shows writing tools.
      
-     The item sends `showWritingTools` to the first responder.
-     
-     - Note: The item is only available on `macOS 15.2` and later.
+     The item sends `showWritingTools` to the first responder.     
      */
+    @available(macOS 15.2, *)
     static func writingTools() -> ToolbarItem {
         ToolbarItem(.init("NSToolbarWritingToolsItem"))
     }
