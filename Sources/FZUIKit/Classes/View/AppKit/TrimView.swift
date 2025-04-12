@@ -17,7 +17,7 @@ import AVKit
 open class TrimView: NSControl {
     
     private let trimBorderView = NSImageView(frame: .zero).imageScaling(.scaleAxesIndependently)
-    private let markerView = NSView(frame: .zero).size(CGSize(1)).backgroundColor(.systemRed)
+    private let markerView = NSImageView(frame: .zero).imageScaling(.scaleAxesIndependently).image(TrimView.trimIndicatorImage)
     private var imageViews: [ImageView] = []
     private var overlayViews = [NSView().backgroundColor(.black.withAlphaComponent(0.5)).cornerRadius(6).roundedCorners(.leftCorners), NSView().backgroundColor(.black.withAlphaComponent(0.5)).cornerRadius(6).roundedCorners(.rightCorners)
     ]
@@ -103,7 +103,7 @@ open class TrimView: NSControl {
     
     private var clampedMarkerValue: CGFloat {
         let total = range.upperBound-range.lowerBound
-        let offset = (trimHandleWidth+(markerView.bounds.width/2.0)) / bounds.width * total
+        let offset = (trimHandleWidth+(markerView.bounds.width/4.0)) / bounds.width * total
         let lowerBound = trimmedRange.lowerBound+offset
         let trimmedRange = lowerBound...(trimmedRange.upperBound-offset).clamped(min: lowerBound)
         return markerValue.clamped(to: trimmedRange)
@@ -317,7 +317,7 @@ open class TrimView: NSControl {
         }
         
         let markerX = (clampedMarkerValue - range.lowerBound) / total * bounds.width
-        markerView.frame = CGRect(x: markerX - (markerWidth/2.0), y: 0, width: markerWidth, height: contentView.bounds.height)
+        markerView.frame = CGRect(x: markerX - (markerView.bounds.width/2.0), y: 0, width: markerView.bounds.width, height: contentView.bounds.height)
         markerView.center.y = bounds.center.y
         
         overlayViews.forEach({ $0.frame.size.height = contentView.bounds.height })
@@ -606,6 +606,7 @@ open class TrimView: NSControl {
         addSubview(contentView)
         addSubview(markerView)
         overlayViews.forEach({ addSubview($0) })
+        markerView.frame.size.width = 3
         addSubview(trimBorderView)
         markerIndicatorView.addSubview(markerIndicatorTextField)
     }
@@ -618,6 +619,11 @@ open class TrimView: NSControl {
     /// A large-sized image that can be used for trim selection.
     public static var largeTrimSelectionImage: NSImage? {
         Bundle(for: AVPlayerView.self).image(forResource: "TrimViewSelectionLarge")
+    }
+    
+    /// An image that can be used as trim indicator.
+    public static var trimIndicatorImage: NSImage? {
+        Bundle(for: AVPlayerView.self).image(forResource: "TrimViewIndicator")
     }
 }
 
