@@ -470,7 +470,13 @@ open class TrimView: NSControl {
                 markerTextField.stringValue = numberFormatter.string(for: markerValue) ?? "\(markerValue)"
             }
             markerTextField.sizeToFit()
-            markerPopover.contentSize = markerContentView.fittingSize
+            markerTextField.wraps = false
+            var rect = CGRect(.zero, markerTextField.bounds.size)
+            rect.size.width += 6
+            rect.size.height += 6
+            markerContentView.frame = rect
+            markerTextField.center = markerContentView.bounds.center
+            markerPopover.contentSize = markerContentView.bounds.size
             markerPopover.show(relativeTo: markerView.bounds, of: markerView, preferredEdge: .top)
         } else {
             markerPopover.close()
@@ -607,7 +613,7 @@ open class TrimView: NSControl {
         addSubview(markerView)
         overlayViews.forEach({ addSubview($0) })
         addSubview(trimBorderView)
-        markerContentView.addSubview(withConstraint: markerTextField).constant(NSEdgeInsets(4))
+        markerContentView.addSubview(markerTextField)
     }
 }
 
