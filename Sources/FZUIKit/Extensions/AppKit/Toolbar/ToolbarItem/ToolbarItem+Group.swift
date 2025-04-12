@@ -131,9 +131,8 @@ extension ToolbarItem {
             - items: The subitems.
          */
         public convenience init(
-            _ identifier: NSToolbarItem.Identifier? = nil, selectionMode: SelectionMode = .momentary, view: NSView? = nil, @Toolbar.Builder items: () -> [ToolbarItem]) {
+            _ identifier: NSToolbarItem.Identifier? = nil, selectionMode: SelectionMode = .momentary, @Toolbar.Builder items: () -> [ToolbarItem]) {
                 self.init(identifier, selectionMode: selectionMode, items: items())
-                self.item.view = view
         }
     }
 }
