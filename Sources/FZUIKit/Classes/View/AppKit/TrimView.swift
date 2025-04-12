@@ -29,6 +29,10 @@ open class TrimView: NSControl {
     private let trimHandleWidth: CGFloat = 13.0
     private var offset: CGFloat = 0
     
+    private let markerTextField = NSTextField.wrapping("000:00,00").font(.caption).alignment(.center)
+    private let markerContentView = NSView()
+    private lazy var markerPopover = NSPopover(view: markerContentView)
+    
     /// The content view.
     public let contentView = NSView(frame: .zero).cornerRadius(6.0)
     
@@ -222,6 +226,77 @@ open class TrimView: NSControl {
     @objc dynamic open var trimmedContentBounds: CGRect {
         trimBorderView.frame.offsetBy(dx: trimHandleWidth)
     }
+    
+    /// A Boolean value indicating whether a indicator of the current `markerValue` is displayed while the user changes it's value.
+    open var displaysMarkerIndicator: Bool = true
+    
+    /// Sets the Boolean value indicating whether a indicator of the current `markerValue` is displayed while the user changes it's value.
+    @discardableResult
+    open func displaysMarkerIndicator(_ displays: Bool) -> Self {
+        self.displaysMarkerIndicator = displays
+        return self
+    }
+    
+    /**
+     The style of the marker indcator text that is displayed while the user changes the `markerValue` value.
+     
+     To enable displaying the ``markerValue`` while the user changes the `markerValue` value, set ``displaysMarkerIndicator`` to `true`.
+     */
+    open var markerIndicatorStyle: MarkerIndicatorStyle = .automatic
+    
+    /**
+     Sets the style of the marker indcator text that is displayed while the user changes the `markerValue` value.
+     
+     To enable displaying the ``markerValue`` while the user changes the `markerValue` value, set ``displaysMarkerIndicator`` to `true`.
+     */
+    @discardableResult
+    open func markerIndicatorStyle(_ style: MarkerIndicatorStyle) -> Self {
+        self.markerIndicatorStyle = style
+        return self
+    }
+    
+    /// The style of the trim view's marker indcator text that is displayed while the user changes the `markerValue` value.
+    public enum MarkerIndicatorStyle: Hashable {
+        /**
+         Automatic formatting.
+         
+         The value is formatted as time (`XX:XX,XX`), if ``TrimView/asset`` isn't `nil`.
+         */
+        case automatic
+        /// Value.
+        case value
+        /// The value is formatted as time (`XX:XX,XX`).
+        case time
+        /// The value is formatted using the specified number formatter.
+        case numberFormatter(NumberFormatter)
+        
+        init(_ rawValue: Int, _ numberFormatter: NumberFormatter?) {
+            switch rawValue {
+            case 0: self = .automatic
+            case 1: self = .value
+            case 2: self = .time
+            default: self = numberFormatter != nil ? .numberFormatter(numberFormatter!) : .automatic
+            }
+        }
+        
+        var rawValue: Int {
+            switch self {
+            case .automatic: return 0
+            case .value: return 1
+            case .time: return 2
+            case .numberFormatter: return 3
+            }
+        }
+        
+        var numberFormatter: NumberFormatter? {
+            switch self {
+            case .numberFormatter(let numberFormatter):
+                return numberFormatter
+            default: return nil
+            }
+        }
+    }
+    
 
     open override func layout() {
         super.layout()
@@ -349,7 +424,7 @@ open class TrimView: NSControl {
             trimmedRange = trimmedRange.lowerBound...max(valueAtX, trimmedRange.lowerBound)
         }
         markerValue = valueAtX
-        
+        displayMarkerIndicator()
         if isContinuous {
             performAction()
         }
@@ -369,14 +444,38 @@ open class TrimView: NSControl {
             trimmedRange = trimmedRange.lowerBound...(valueAtX+offset).clamped(min: trimmedRange.lowerBound)
         }
         markerValue = valueAtX
+        displayMarkerIndicator()
         if isContinuous {
             performAction()
         }
     }
     
     open override func mouseUp(with event: NSEvent) {
-        guard !isContinuous else { return }
-        performAction()
+        if !isContinuous {
+            performAction()
+        }
+        displayMarkerIndicator(shouldDisplay: false)
+    }
+    
+    private func displayMarkerIndicator(shouldDisplay: Bool = true) {
+        if displaysMarkerIndicator, shouldDisplay {
+            switch markerIndicatorStyle {
+            case .automatic:
+                markerTextField.stringValue = asset != nil ? markerValue.timeString : "\(markerValue)"
+            case .value:
+                markerTextField.stringValue = "\(markerValue)"
+            case .time:
+                markerTextField.stringValue =  markerValue.timeString
+            case .numberFormatter(let numberFormatter):
+                markerTextField.stringValue = numberFormatter.string(for: markerValue) ?? "\(markerValue)"
+            }
+            markerTextField.sizeToFit()
+            markerPopover.contentSize = markerContentView.fittingSize
+            markerPopover.show(relativeTo: markerView.bounds, of: markerView, preferredEdge: .top)
+        } else {
+            markerPopover.close()
+        }
+        // Swift.print(markerValue, markerValue.timeString)
     }
     
     open override var intrinsicContentSize: NSSize {
@@ -484,6 +583,7 @@ open class TrimView: NSControl {
         range = coder.decodeDouble(forKey: "rangeLowerBound")...coder.decodeDouble(forKey: "rangeUpperBound")
         trimmedRange = coder.decodeDouble(forKey: "trimmedRangeLowerBound")...coder.decodeDouble(forKey: "trimmedRangeUpperBound")
         displaysMarker = coder.decodeBool(forKey: "displaysMarker")
+        markerIndicatorStyle = .init(coder.decodeInteger(forKey: "markerIndicatorStyle"), coder.decode(forKey: "markerIndicatorStyleNumberFormatter"))
         if let url: URL = coder.decode(forKey: "assetURL") {
             asset = AVURLAsset(url: url)
         }
@@ -497,6 +597,8 @@ open class TrimView: NSControl {
         coder.encode(trimmedRange.upperBound, forKey: "trimmedRangeUpperBound")
         coder.encode(displaysMarker, forKey: "displaysMarker")
         coder.encode((asset as? AVURLAsset)?.url, forKey: "assetURL")
+        coder.encode(markerIndicatorStyle.rawValue, forKey: "markerIndicatorStyle")
+        coder.encode(markerIndicatorStyle.numberFormatter, forKey: "markerIndicatorStyleNumberFormatter")
     }
     
     private func sharedInit() {
@@ -505,6 +607,25 @@ open class TrimView: NSControl {
         addSubview(markerView)
         overlayViews.forEach({ addSubview($0) })
         addSubview(trimBorderView)
+        markerContentView.addSubview(withConstraint: markerTextField).constant(NSEdgeInsets(4))
+    }
+}
+
+fileprivate extension CGFloat {
+    var timeString: String {
+        let totalSeconds = Int(self)
+        let minutes = totalSeconds / 60
+        let seconds = totalSeconds % 60
+        let hundredths = Int((self.truncatingRemainder(dividingBy: 1)) * 100)
+        let minuteFormat: String
+        if minutes >= 1000 {
+            minuteFormat = "%04d:%02d,%02d"
+        } else if minutes >= 100 {
+            minuteFormat = "%03d:%02d,%02d"
+        } else {
+            minuteFormat = "%02d:%02d,%02d"
+        }
+        return String(format: minuteFormat, minutes, seconds, hundredths)
     }
 }
 #endif
