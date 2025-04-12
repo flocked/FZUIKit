@@ -20,9 +20,8 @@ open class TrimView: NSControl {
     private var imageViews: [ImageView] = []
     private var overlayViews = [NSView().backgroundColor(.black.withAlphaComponent(0.5)).cornerRadius(6).roundedCorners(.leftCorners), NSView().backgroundColor(.black.withAlphaComponent(0.5)).cornerRadius(6).roundedCorners(.rightCorners)
     ]
-    // private var overlayViews = Array(generate: {NSView(frame: .zero).backgroundColor(.black.withAlphaComponent(0.9))}, count: 2)
     private var previousBounds: CGRect = .zero
-    private let player = AVPlayer()
+    private var itemPresentationSize: CGSize = .zero
     private var itemIsReady = false
     private var isDraggingMin = false
     private var isDraggingMax = false
@@ -184,21 +183,28 @@ open class TrimView: NSControl {
         markerWidth = width
         return self
     }
-    
+        
     /// The player item to trim.
-    open weak var item: AVPlayerItem? {
+    open var item: AVPlayerItem? {
         didSet {
             guard oldValue !== item else { return }
-            oldValue?.statusHandler = nil
             itemIsReady = false
-            player.replaceCurrentItem(with: item)
-            item?.statusHandler = { [weak self] status in
-                guard let self = self, status == .readyToPlay, let item = self.item else { return }
-                self.itemIsReady = true
-                self.range = 0.0...item.duration.seconds
-                self.trimmedRange = self.range
-                self.markerValue = 0.0
-                self.updateThumbnails()
+            guard let asset = item?.asset else { return }
+            asset.loadValuesAsynchronously(forKeys: ["duration", "tracks"]) {
+                var error: NSError? = nil
+                let durationStatus = asset.statusOfValue(forKey: "duration", error: &error)
+                let tracksStatus = asset.statusOfValue(forKey: "tracks", error: &error)
+                if durationStatus == .loaded, tracksStatus == .loaded, let videoTrack = asset.tracks(withMediaType: .video).first {
+                    DispatchQueue.main.async {
+                        let size = videoTrack.naturalSize.applying(videoTrack.preferredTransform)
+                        self.itemIsReady = true
+                        self.itemPresentationSize = CGSize(width: abs(size.width), height: abs(size.height))
+                        self.range = 0.0...asset.duration.seconds
+                        self.trimmedRange = self.range
+                        self.markerValue = 0.0
+                        self.updateThumbnails()
+                    }
+                }
             }
         }
     }
@@ -263,7 +269,7 @@ open class TrimView: NSControl {
 
     private func updateThumbnails() {
         guard let item = item, itemIsReady else { return }
-        let thumbnailSize = item.presentationSize.scaled(toHeight: contentView.bounds.height)
+        let thumbnailSize = itemPresentationSize.scaled(toHeight: contentView.bounds.height)
         let thumbnailCount = Int(ceil(contentView.bounds.width / thumbnailSize.width))
         guard thumbnailCount > 1 else { return }
         if imageViews.count > thumbnailCount {
@@ -305,37 +311,37 @@ open class TrimView: NSControl {
     }
 
     open override func mouseDown(with event: NSEvent) {
-        guard isEnabled else { return }
         isDraggingMin = false
         isDraggingMax = false
 
-        let location = event.location(in: self)
-        let x = location.x
-        let width = bounds.width
         let total = range.upperBound - range.lowerBound
-
         guard total != 0 else { return }
 
-        let valueAtX = range.lowerBound + (x / width) * total
+        let location = event.location(in: self)
+        let valueAtX = range.lowerBound + (location.x / bounds.width) * total
         
-        let trimStartX = ((trimmedRange.lowerBound - range.lowerBound) / total * width)
-        let trimEndX = ((trimmedRange.upperBound - range.lowerBound) / total * width)
+        let trimStartX = ((trimmedRange.lowerBound - range.lowerBound) / total * bounds.width)
+        let trimEndX = ((trimmedRange.upperBound - range.lowerBound) / total * bounds.width)
         let trimFrame = CGRect(x: trimStartX, y: 0, width: trimEndX - trimStartX, height: bounds.height)
         if trimFrame.contains(location) {
-            let localX = x - trimFrame.origin.x
+            guard isEnabled else { return }
+            let localX = location.x - trimFrame.origin.x
             if localX <= trimHandleWidth {
                 offset = (localX/bounds.width) * total
                 isDraggingMin = true
+                
                 trimmedRange = (valueAtX-offset).clamped(max: trimmedRange.upperBound)...trimmedRange.upperBound
             } else if localX >= trimFrame.width - trimHandleWidth {
-                offset = ((trimFrame.width - localX) / width) * total
+                offset = ((trimFrame.width - localX) / bounds.width) * total
                 isDraggingMax = true
                 trimmedRange = trimmedRange.lowerBound...(valueAtX+offset).clamped(min: trimmedRange.lowerBound)
             }
-        } else if x < trimFrame.minX {
+        } else if location.x < trimFrame.minX {
+            guard isEnabled else { return }
             isDraggingMin = true
             trimmedRange = min(valueAtX, trimmedRange.upperBound)...trimmedRange.upperBound
-        } else if x > trimFrame.maxX {
+        } else if location.x > trimFrame.maxX {
+            guard isEnabled else { return }
             isDraggingMax = true
             trimmedRange = trimmedRange.lowerBound...max(valueAtX, trimmedRange.lowerBound)
         }
@@ -347,15 +353,12 @@ open class TrimView: NSControl {
     }
 
     open override func mouseDragged(with event: NSEvent) {
-        guard isEnabled else { return }
         let location = event.location(in: self)
-        let x = location.x
-        let width = bounds.width
         let total = range.upperBound - range.lowerBound
 
         guard total != 0 else { return }
 
-        let valueAtX = range.lowerBound + (x / width) * total
+        let valueAtX = range.lowerBound + (location.x / bounds.width) * total
 
         if isDraggingMin {
             trimmedRange = (valueAtX-offset).clamped(max: trimmedRange.upperBound)...trimmedRange.upperBound
@@ -369,7 +372,7 @@ open class TrimView: NSControl {
     }
     
     open override func mouseUp(with event: NSEvent) {
-        guard isEnabled, !isContinuous else { return }
+        guard !isContinuous else { return }
         performAction()
     }
     
@@ -434,7 +437,11 @@ open class TrimView: NSControl {
     }
     
     @IBInspectable
-    public override var isEnabled: Bool { didSet { } }
+    public override var isEnabled: Bool {
+        didSet {
+            trimBorderView.alphaValue = isEnabled ? 1.0 : 0.5
+        }
+    }
     
     @IBInspectable
     open override var isContinuous: Bool { didSet { } }

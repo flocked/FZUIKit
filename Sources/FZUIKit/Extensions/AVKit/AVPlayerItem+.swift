@@ -88,4 +88,9 @@ public extension AVPlayerItem {
             seek(to: time, completionHandler: completionHandler)
         }
     }
+    
+    /// The player of the item.
+    var player: AVPlayer? {
+        value(forKeySafely: "_player") as? AVPlayer
+    }
 }
