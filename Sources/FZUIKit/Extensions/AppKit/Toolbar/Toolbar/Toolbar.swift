@@ -16,7 +16,7 @@ import FZSwiftUtils
         /// The identifier of the toolbar.
         public let identifier: NSToolbar.Identifier
         
-        private var delegate: Delegate!
+        var delegate: Delegate!
         var toolbar: MangedToolbar!
         
         /**
@@ -65,10 +65,19 @@ import FZSwiftUtils
         public var attachedWindow: NSWindow? {
             didSet {
                 guard oldValue != attachedWindow else { return }
-                oldValue?.toolbar = nil
+                toolbarObservation = attachedWindow?.observeChanges(for: \.toolbar) { [weak self] old, new in
+                    guard let self = self, new !== self.toolbar else { return }
+                    self.attachedWindow = nil
+                    self.toolbarObservation = nil
+                }
+                if oldValue?.toolbar === toolbar {
+                    oldValue?.toolbar = nil
+                }
                 attachedWindow?.toolbar = toolbar
             }
         }
+        
+        var toolbarObservation: KeyValueObservation?
 
         /// Sets the window of the toolbar.
         @discardableResult
@@ -311,7 +320,7 @@ import FZSwiftUtils
             public var didRemove: ((_ item: ToolbarItem) -> Void)?
         }
         
-        private class Delegate: NSObject, NSToolbarDelegate {
+        class Delegate: NSObject, NSToolbarDelegate {
             weak var toolbar: Toolbar?
             
             var items: [ToolbarItem] {
@@ -396,7 +405,7 @@ extension Toolbar {
 extension NSWindow {
     /// Returns the ``Toolbar`` representation of the window’s toolbar if it is managed by it.
     public var managedToolbar: Toolbar? {
-        (toolbar?.delegate as? Toolbar.MangedToolbar)?.toolbar
+        (toolbar?.delegate as? Toolbar.Delegate)?.toolbar
     }
 }
 
