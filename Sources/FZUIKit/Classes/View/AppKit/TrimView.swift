@@ -508,9 +508,9 @@ open class TrimView: NSControl {
         didSet {
             guard oldValue != controlSize else { return }
             if #available(macOS 11.0, *) {
-                trimBorderView.image = Bundle(for: AVPlayerView.self).image(forResource: controlSize == .large ? "TrimViewSelectionLarge" : "TrimViewSelectionSmall")
+                trimBorderView.image = controlSize == .large ? Self.largeTrimSelectionImage : Self.trimSelectionImage
             } else {
-                trimBorderView.image = Bundle(for: AVPlayerView.self).image(forResource: "TrimViewSelectionSmall")
+                trimBorderView.image = Self.trimSelectionImage
             }
         }
     }
@@ -602,12 +602,22 @@ open class TrimView: NSControl {
     }
     
     private func sharedInit() {
-        trimBorderView.image = Bundle(for: AVPlayerView.self).image(forResource: "TrimViewSelectionSmall")
+        trimBorderView.image = Self.trimSelectionImage
         addSubview(contentView)
         addSubview(markerView)
         overlayViews.forEach({ addSubview($0) })
         addSubview(trimBorderView)
         markerIndicatorView.addSubview(markerIndicatorTextField)
+    }
+    
+    /// An image that can be used for trim selection.
+    public static var trimSelectionImage: NSImage? {
+        Bundle(for: AVPlayerView.self).image(forResource: "TrimViewSelectionSmall")
+    }
+    
+    /// A large-sized image that can be used for trim selection.
+    public static var largeTrimSelectionImage: NSImage? {
+        Bundle(for: AVPlayerView.self).image(forResource: "TrimViewSelectionLarge")
     }
 }
 
