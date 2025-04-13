@@ -5,87 +5,6 @@
 //  Created by Florian Zand on 23.02.23.
 //
 
-/*
-#if os(macOS) || os(iOS)
-import FZSwiftUtils
-import WebKit
-
-/**
- An extended `WKWebView`.
- 
- A WKWebView with properties for current url request & current cookies and handlers for didFinishLoading & cookies.
-
- */
-@available(macOS 11.3, iOS 14.5, *)
-open class FZWebView: WKWebView {
-    lazy var delegate = Delegate(self)
-    
-    @objc dynamic public var cookies: [HTTPCookie] = []
-    
-    @objc dynamic public var response: HTTPURLResponse? = nil
-    
-    public init() {
-        super.init(frame: .zero, configuration: .init())
-        sharedInit()
-    }
-    
-    public override init(frame: CGRect, configuration: WKWebViewConfiguration) {
-        super.init(frame: frame, configuration: configuration)
-        sharedInit()
-    }
-    
-    public required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        sharedInit()
-    }
-    
-    func sharedInit() {
-        navigationDelegate = delegate
-    }
-    
-    open override func load(_ request: URLRequest) -> WKNavigation? {
-        response = nil
-        return super.load(request)
-    }
-    
-    class Delegate: NSObject, WKNavigationDelegate, WKHTTPCookieStoreObserver {
-        weak var fzWebView: FZWebView?
-        
-        init(_ fzWebView: FZWebView) {
-            self.fzWebView = fzWebView
-            super.init()
-            fzWebView.configuration.websiteDataStore.httpCookieStore.add(self)
-        }
-        
-        func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
-            fzWebView?.response = navigationResponse.response as? HTTPURLResponse
-            decisionHandler(.allow)
-        }
-        
-        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
-            decisionHandler(.allow)
-        }
-                
-        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            webView.configuration.websiteDataStore.httpCookieStore.getAllCookies({
-                cookies in
-            })
-
-        }
-        
-        func cookiesDidChange(in cookieStore: WKHTTPCookieStore) {
-            cookieStore.getAllCookies { [weak self] cookies in
-                guard let self = self else { return }
-                self.fzWebView?.cookies = cookies
-            }
-        }
-    }
-}
-
-#endif
-*/
-
-/*
 #if os(macOS) || os(iOS)
     import FZSwiftUtils
     import WebKit
@@ -93,11 +12,25 @@ open class FZWebView: WKWebView {
     /**
      An extended `WKWebView`.
      
-     A WKWebView with properties for current url request & current cookies and handlers for didFinishLoading & cookies.
-
+     A `WKWebView` with handlers for request, response, cookies, etc.
      */
     @available(macOS 11.3, iOS 14.5, *)
     open class FZWebView: WKWebView {
+        
+        /// The handlers of a web view.
+        public struct Handlers {
+            /// The handler that returns the current url request when the web view finishes loading a website.
+            public var request: ((_ request: URLRequest?) -> Void)?
+            
+            /// The handler that returns the current url response when the web view finishes loading a website.
+            public var response: ((_ response: URLResponse?) -> Void)?
+            
+            /// The handler that returns the current HTTP cookies when the web view finishes loading a website.
+            public var cookies: ((_ cookies: [HTTPCookie]) -> Void)?
+            
+            /// The handler that gets called when the webview did finish loading a url.
+            public var didFinish: ((_ url: URL?)->())?
+        }
         
         /// The handlers for downloading files.
         public struct DownloadHandlers {
@@ -124,6 +57,9 @@ open class FZWebView: WKWebView {
             /// Resume downloading a file if it exists at the suggested download location.
             case resume
         }
+        
+        /// The handlers of the web view.
+        open var handlers = Handlers()
 
         /// The handlers for downloading files.
         open var downloadHandlers = DownloadHandlers()
@@ -137,23 +73,11 @@ open class FZWebView: WKWebView {
         /// The current downloads.
         public let downloads = SynchronizedArray<WKDownload>()
 
-        /// The handler that returns the current url request when the web view finishes loading a website.
-        open var requestHandler: ((URLRequest?) -> Void)?
-        
-        /// The handler that returns the current url response when the web view finishes loading a website.
-        open var responseHandler: ((URLResponse?) -> Void)?
-
-        /// The handlers that get called when the webview requests a specific url.
-        open var urlHandlers = SynchronizedDictionary<URL, () -> Void>()
-
-        /// The handler that returns the current HTTP cookies when the web view finishes loading a website.
-        open var cookiesHandler: (([HTTPCookie]) -> Void)?
-
         /// The current url request.
         @objc dynamic open var currentRequest: URLRequest? {
             didSet {
                 guard oldValue != currentRequest else { return }
-                requestHandler?(currentRequest)
+                handlers.request?(currentRequest)
             }
         }
         
@@ -161,17 +85,17 @@ open class FZWebView: WKWebView {
         @objc dynamic open var currentResponse: URLResponse? {
             didSet {
                 guard oldValue != currentResponse else { return }
-                responseHandler?(currentResponse)
+                handlers.response?(currentResponse)
             }
         }
 
-        /// All HTTP cookies of the current url request.
+        /// The current HTTP cookies.
         @objc dynamic open fileprivate(set) var currentHTTPCookies: [HTTPCookie] {
             get { _currentHTTPCookies.synchronized }
-            set { 
-                guard newValue != currentHTTPCookies else { return }
+            set {
+                guard Set(currentHTTPCookies.map({ CookieWrapper($0) })) != Set(newValue.map({ CookieWrapper($0) })) else { return }
                 _currentHTTPCookies.synchronized = newValue
-                cookiesHandler?(newValue)
+                handlers.cookies?(newValue)
             }
         }
 
@@ -186,22 +110,30 @@ open class FZWebView: WKWebView {
         
         public init(frame: CGRect) {
             super.init(frame: frame, configuration: .init())
-            delegate = Delegate(webview: self)
+            sharedInit()
         }
 
         public init() {
             super.init(frame: .zero, configuration: .init())
-            delegate = Delegate(webview: self)
+            sharedInit()
         }
 
         override public init(frame: CGRect, configuration: WKWebViewConfiguration) {
             super.init(frame: frame, configuration: configuration)
-            delegate = Delegate(webview: self)
+            sharedInit()
         }
 
         public required init?(coder: NSCoder) {
             super.init(coder: coder)
+            sharedInit()
+        }
+        
+        private func sharedInit() {
             delegate = Delegate(webview: self)
+            configuration.websiteDataStore.httpCookieStore.getAllCookies { cookies in
+                self.currentHTTPCookies = cookies
+            }
+            swizzle()
         }
 
         override open func load(_ request: URLRequest) -> WKNavigation? {
@@ -248,52 +180,6 @@ open class FZWebView: WKWebView {
                 completionHandler(download)
             })
         }
-        
-        override open func startDownload(using request: URLRequest, completionHandler: @escaping (WKDownload) -> Void) {
-            if sequentialOperationQueue.maxConcurrentOperationCount == 0 {
-                awaitingDownloadRequests.append(request)
-                sequentialOperationQueue.addOperation {
-                    if let first = self.awaitingDownloadRequests.first {
-                        self.awaitingDownloadRequests.remove(at: 0)
-                        DispatchQueue.main.async {
-                            self.startDownload(using: first, completionHandler: { download in
-                                self.delegate.setupDownload(download)
-                                completionHandler(download)
-                            })
-                        }
-                    }
-                }
-            } else {
-                sequentialOperationQueue.maxConcurrentOperationCount = 0
-                super.startDownload(using: request, completionHandler: { download in
-                    self.delegate.setupDownload(download)
-                    completionHandler(download)
-                })
-            }
-        }
-
-        override open func resumeDownload(fromResumeData resumeData: Data, completionHandler: @escaping (WKDownload) -> Void) {
-            if sequentialOperationQueue.maxConcurrentOperationCount == 0 {
-                awaitingResumeDatas.append(resumeData)
-                sequentialOperationQueue.addOperation {
-                    if let first = self.awaitingResumeDatas.first {
-                        self.awaitingResumeDatas.remove(at: 0)
-                        DispatchQueue.main.async {
-                            self.resumeDownload(fromResumeData: first) { download in
-                                self.delegate.setupDownload(download)
-                                completionHandler(download)
-                            }
-                        }
-                    }
-                }
-            } else {
-                sequentialOperationQueue.maxConcurrentOperationCount = 0
-                super.resumeDownload(fromResumeData: resumeData) { download in
-                    self.delegate.setupDownload(download)
-                    completionHandler(download)
-                }
-            }
-        }
     }
 
     @available(macOS 11.3, iOS 14.5, *)
@@ -315,6 +201,20 @@ open class FZWebView: WKWebView {
                 webview.downloadHandlers.didStart?(download)
                 webview.sequentialOperationQueue.maxConcurrentOperationCount = 1
             }
+            
+            func updateCookies() {
+                webview.configuration.websiteDataStore.httpCookieStore.getAllCookies { cookies in
+                    /*
+                    guard var domain = self.webview.currentRequest?.url?.host else { return }
+                    var components = domain.components(separatedBy: ".")
+                    if components.count > 2 {
+                        domain = [components.removeLast(), components.removeLast()].reversed().joined(separator: ".")
+                    }
+                    let cookies = cookies.filter { $0.domain.contains(domain) }
+                     */
+                    self.webview.currentHTTPCookies = cookies
+                }
+            }
         }
     }
 
@@ -324,34 +224,25 @@ open class FZWebView: WKWebView {
             // Swift.debugPrint("navigationResponse didBecome", download.originalRequest?.url ?? "")
             setupDownload(download)
         }
+        
+        func webView(_: WKWebView, didFinish navigation: WKNavigation!) {
+            webview.handlers.didFinish?(webview.url)
+            updateCookies()
+        }
 
         func webView(_: WKWebView, navigationResponse _: WKNavigationResponse, didBecome download: WKDownload) {
             // Swift.debugPrint("navigationResponse didBecome", download.originalRequest?.url ?? "")
             setupDownload(download)
         }
         
-        func webView(_ webView: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+        func webView(_: WKWebView, decidePolicyFor navigationResponse: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
             webview.currentResponse = navigationResponse.response
             decisionHandler(.allow)
         }
 
-        func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        func webView(_: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             webview.currentRequest = navigationAction.request
-            let store = webView.configuration.websiteDataStore
-            store.httpCookieStore.getAllCookies { cookies in
-                guard var domain = self.webview.currentRequest?.url?.host else { return }
-                var components = domain.components(separatedBy: ".")
-                if components.count > 2 {
-                    domain = [components.removeLast(), components.removeLast()].reversed().joined(separator: ".")
-                }
-                let cookies = cookies.filter { $0.domain.contains(domain) }
-                self.webview.currentHTTPCookies = cookies
-            }
-
-            if let url = navigationAction.request.url, let handler = webview.urlHandlers[url] {
-                handler()
-            }
-
+            updateCookies()
             if webview.downloadHandlers.shouldDownload?(navigationAction.request) ?? false {
                 decisionHandler(.download)
             } else {
@@ -363,7 +254,6 @@ open class FZWebView: WKWebView {
 
     @available(macOS 11.3, iOS 14.5, *)
     extension FZWebView.Delegate: WKDownloadDelegate {
-        
         func download(_ download: WKDownload, decideDestinationUsing response: URLResponse, suggestedFilename: String, completionHandler: @escaping (URL?) -> Void) {
             // Swift.debugPrint("[FZWebView] download suggestedFilename", suggestedFilename, response.expectedContentLength)
             var downloadLocation: URL?
@@ -466,7 +356,7 @@ open class FZWebView: WKWebView {
 
     @available(macOS 11.3, iOS 14.5, *)
     public extension FZWebView {
-        class DownloadProgress: MutableProgress {
+        class DownloadProgress: MutableProgress, @unchecked Sendable {
             /// The downloading progresses.
             public var downloading: [Progress] {
                 children.filter { $0.isFinished == false }
@@ -498,5 +388,116 @@ open class FZWebView: WKWebView {
         }
     }
 
+struct CookieWrapper: Hashable {
+    let cookie: HTTPCookie
+    
+    init(_ cookie: HTTPCookie) {
+        self.cookie = cookie
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(cookie.name)
+        hasher.combine(cookie.value)
+        hasher.combine(cookie.domain)
+        hasher.combine(cookie.path)
+        hasher.combine(cookie.expiresDate)
+        hasher.combine(cookie.isSecure)
+        hasher.combine(cookie.isHTTPOnly)
+        hasher.combine(cookie.comment)
+        hasher.combine(cookie.commentURL)
+        hasher.combine(cookie.version)
+        hasher.combine(cookie.portList)
+    }
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.cookie.name == rhs.cookie.name &&
+               lhs.cookie.value == rhs.cookie.value &&
+               lhs.cookie.domain == rhs.cookie.domain &&
+               lhs.cookie.path == rhs.cookie.path &&
+               lhs.cookie.expiresDate == rhs.cookie.expiresDate &&
+               lhs.cookie.isSecure == rhs.cookie.isSecure &&
+               lhs.cookie.isHTTPOnly == rhs.cookie.isHTTPOnly &&
+               lhs.cookie.comment == rhs.cookie.comment &&
+               lhs.cookie.commentURL == rhs.cookie.commentURL &&
+               lhs.cookie.version == rhs.cookie.version &&
+               lhs.cookie.portList == rhs.cookie.portList
+    }
+}
+
+@available(macOS 11.3, iOS 14.5, *)
+extension FZWebView {
+    // workaround because overwriting `startDownload(:)` and `resumeDownload(:)` directly causes errors for Swift `6.0`.
+    func swizzle() {
+        do {
+           try replaceMethod(
+            #selector(WKWebView.startDownload(using:completionHandler:)),
+           methodSignature: (@convention(c)  (AnyObject, Selector, URLRequest, ((WKDownload) -> Void)) -> ()).self,
+            hookSignature: (@convention(block)  (AnyObject, URLRequest, @escaping ((WKDownload) -> Void)) -> ()).self) { store in {
+                object, request, completionHandler in
+                if let view = object as? FZWebView {
+                    if view.sequentialOperationQueue.maxConcurrentOperationCount == 0 {
+                        view.awaitingDownloadRequests.append(request)
+                        view.sequentialOperationQueue.addOperation {
+                            if let first = view.awaitingDownloadRequests.first {
+                                view.awaitingDownloadRequests.remove(at: 0)
+                                DispatchQueue.main.async {
+                                    view.startDownload(using: first, completionHandler: { download in
+                                        view.delegate.setupDownload(download)
+                                        completionHandler(download)
+                                    })
+                                }
+                            }
+                        }
+                    } else {
+                        view.sequentialOperationQueue.maxConcurrentOperationCount = 0
+                        let handler: ((WKDownload) -> Void) = { download in
+                            view.delegate.setupDownload(download)
+                            completionHandler(download)
+                        }
+                        store.original(object, #selector(WKWebView.startDownload(using:completionHandler:)), request, handler)
+                    }
+                } else {
+                    store.original(object, #selector(WKWebView.startDownload(using:completionHandler:)), request, completionHandler)
+                }
+            }
+           }
+            try replaceMethod(
+             #selector(WKWebView.resumeDownload(fromResumeData:completionHandler:)),
+            methodSignature: (@convention(c)  (AnyObject, Selector, Data, ((WKDownload) -> Void)) -> ()).self,
+             hookSignature: (@convention(block)  (AnyObject, Data, @escaping ((WKDownload) -> Void)) -> ()).self) { store in {
+                 object, resumeData, completionHandler in
+                 if let view = object as? FZWebView {
+                     if view.sequentialOperationQueue.maxConcurrentOperationCount == 0 {
+                         view.awaitingResumeDatas.append(resumeData)
+                         view.sequentialOperationQueue.addOperation {
+                             if let first = view.awaitingResumeDatas.first {
+                                 view.awaitingResumeDatas.remove(at: 0)
+                                 DispatchQueue.main.async {
+                                     self.resumeDownload(fromResumeData: first) { download in
+                                         view.delegate.setupDownload(download)
+                                         completionHandler(download)
+                                     }
+                                 }
+                             }
+                         }
+                     } else {
+                         view.sequentialOperationQueue.maxConcurrentOperationCount = 0
+                         let handler: ((WKDownload) -> Void) = { download in
+                             view.delegate.setupDownload(download)
+                             completionHandler(download)
+                         }
+                         store.original(object, #selector(WKWebView.resumeDownload(fromResumeData:completionHandler:)), resumeData, handler)
+                     }
+                 } else {
+                     store.original(object, #selector(WKWebView.resumeDownload(fromResumeData:completionHandler:)), resumeData, completionHandler)
+                 }
+             }
+            }
+        } catch {
+           debugPrint(error)
+        }
+    }
+}
+
 #endif
-*/
+
