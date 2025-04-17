@@ -264,11 +264,11 @@
          - Note: For views of type `UITextField` or `UITextView`, auto layout has to be enabled, or `nil` is returned.
          */
         public var firstBaselineOffsetFromTop: CGFloat? {
-            if let view = self as? UITextField {
+            if self is UITextField {
                 return value(forKeySafely: "_firstBaselineOffsetFromTop") as? CGFloat
-            } else if let view = self as? UITextView {
+            } else if self is UITextView {
                 return value(forKeySafely: "_firstBaselineOffsetFromTop") as? CGFloat
-            } else if let view = self as? UILabel {
+            } else if self is UILabel {
                 return value(forKeySafely: "_firstBaselineOffsetFromTop") as? CGFloat
             }
             return nil
@@ -280,11 +280,11 @@
          For views of type `UITextField` or `UITextView`, auto layout has to be enabled, or `nil` is returned.
          */
         public var lastBaselineOffsetFromBottom: CGFloat? {
-            if let view = self as? UITextField {
+            if self is UITextField {
                 return value(forKeySafely: "_lastBaselineOffsetFromBottom") as? CGFloat
-            } else if let view = self as? UITextView {
+            } else if self is UITextView {
                 return value(forKeySafely: "_lastBaselineOffsetFromBottom") as? CGFloat
-            } else if let view = self as? UILabel {
+            } else if self is UILabel {
                 return value(forKeySafely: "_baselineOffsetFromBottom") as? CGFloat
             }
             return nil
