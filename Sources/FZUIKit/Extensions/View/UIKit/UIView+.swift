@@ -17,7 +17,7 @@
         /**
          The rotation of the view as euler angles in degrees.
 
-         Changes to this property can be animated. The default value is is `zero`, which results in a view with no rotation.
+         The property can be animated. The default value is is `zero`, which results in a view with no rotation.
          */
         public var rotation: Rotation {
             get { self.transform3D.eulerAnglesDegrees.rotation }
@@ -27,7 +27,7 @@
         /**
          The rotation of the view as euler angles in radians.
 
-         Changes to this property can be animated. The default value is is `zero`, which results in a view with no rotation.
+         The property can be animated. The default value is is `zero`, which results in a view with no rotation.
          */
         public var rotationInRadians: Rotation {
             get { self.transform3D.eulerAngles.rotation }
@@ -37,7 +37,7 @@
         /**
          The scale transform of the view.
 
-         Changes to this property can be animated. The default value is is `none`, which results in a view displayed at it's original scale.
+         The property can be animated. The default value is is `none`, which results in a view displayed at it's original scale.
          */
         public var scale: Scale {
             get { self.layer.scale }
@@ -47,7 +47,7 @@
         /**
          The translation of the view's transform.
 
-         Changes to this property can be animated. The default value is `zero`, which results in a view with no transformed translation.
+         The property can be animated. The default value is `zero`, which results in a view with no transformed translation.
          */
         public var translation: Translation {
             get { transform3D.translation }
@@ -57,7 +57,7 @@
         /**
          The perspective of the view's transform
 
-         Changes to this property can be animated. The default value is `zero`, which results in a view with no transformed perspective.
+         The property can be animated. The default value is `zero`, which results in a view with no transformed perspective.
          */
         public var perspective: Perspective {
             get { self.transform3D.perspective }
@@ -67,7 +67,7 @@
         /**
          The shearing of the view's transform.
 
-         Changes to this property can be animated. The default value is `zero`, which results in a view with no transformed shearing.
+         The property can be animated. The default value is `zero`, which results in a view with no transformed shearing.
          */
         public var skew: Skew {
             get { transform3D.skew }
@@ -93,7 +93,7 @@
         /**
          The border of the view.
 
-         Changes to this property can be animated. The default value is `none()`, which results in a view with no border.
+         The property can be animated. The default value is `none()`, which results in a view with no border.
          */
         public var border: BorderConfiguration {
             get { dashedBorderView?.configuration ?? _border }
@@ -150,7 +150,7 @@
         /**
          The corner radius of the view.
 
-         Changes to this property can be animated. The default value is `0.0`, which results in a view with no rounded corners.
+         The property can be animated. The default value is `0.0`, which results in a view with no rounded corners.
          */
         @objc public var cornerRadius: CGFloat {
             get { layer.cornerRadius }
@@ -168,7 +168,7 @@
 
          In contrast to ``mask`` transparent pixels allow the underlying content to show, while opaque pixels block the content.
 
-         Changes to this property can be animated. The default value is `nil`, which results in a view with no inverse mask.
+         The property can be animated. The default value is `nil`, which results in a view with no inverse mask.
          */
         @objc public var inverseMask: NSUIView? {
             get { (layer.mask as? InverseMaskLayer)?.maskLayer?.parentView }
@@ -180,7 +180,7 @@
          
          If the shadow is visible, `clipsToBounds` is set to `false`.
 
-         Changes to this property can be animated. The default value is `none()`, which results in a view with no shadow.
+         The property can be animated. The default value is `none()`, which results in a view with no shadow.
          */
         public var shadow: ShadowConfiguration {
             get { ShadowConfiguration(color: shadowColor, colorTransformer: shadowColorTransformer, opacity: CGFloat(layer.shadowOpacity), radius: layer.shadowRadius, offset: layer.shadowOffset.point) }
@@ -217,7 +217,7 @@
         /**
          The inner shadow of the view.
 
-         Changes to this property can be animated. The default value is `none()`, which results in a view with no inner shadow.
+         The property can be animated. The default value is `none()`, which results in a view with no inner shadow.
          */
         public var innerShadow: ShadowConfiguration {
             get { layer.innerShadowLayer?.configuration ?? .none() }
@@ -239,7 +239,7 @@
         /**
          The inner shadow of the view.
 
-         Changes to this property can be animated. The default value is `nil`, which results in a view with no shadow path.
+         The property can be animated. The default value is `nil`, which results in a view with no shadow path.
          */
         @objc public var shadowPath: NSUIBezierPath? {
             get { layer.shadowPath?.bezierPath }
