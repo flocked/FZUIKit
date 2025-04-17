@@ -55,7 +55,7 @@ class HTMLStringLoadingTask: NSObject {
             guard let self = self, self.state == .running else { return }
             if !newValue {
                 self.state = .finished
-                self.webview.htmlString(completion: handler)
+                self.webview.html.string(completion: handler)
             }
         }
         webview.load(request)

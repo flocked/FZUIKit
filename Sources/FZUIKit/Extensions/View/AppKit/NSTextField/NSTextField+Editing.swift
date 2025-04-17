@@ -576,14 +576,14 @@ extension NSSearchField {
     class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
         weak var delegate: NSSearchFieldDelegate?
         weak var searchField: NSSearchField?
-        var delegateObservation: KeyValueObservation?
+        var observation: KeyValueObservation?
         
         init(for searchField: NSSearchField) {
             self.searchField = searchField
             self.delegate = searchField.delegate
             super.init()
             searchField.delegate = self
-            delegateObservation = searchField.observeChanges(for: \.delegate) { [weak self] old, new in
+            observation = searchField.observeChanges(for: \.delegate) { [weak self] old, new in
                 guard let self = self, new !== self else { return }
                 self.delegate = new
                 self.searchField?.delegate = self
@@ -685,6 +685,7 @@ extension NSSearchField {
         }
         
         deinit {
+            observation = nil
             searchField?.delegate = delegate
         }
     }

@@ -65,14 +65,14 @@ extension NSSharingServicePickerToolbarItem {
     private class Delegate: NSObject, NSSharingServicePickerToolbarItemDelegate, NSSharingServiceDelegate {
         weak var item: NSSharingServicePickerToolbarItem?
         weak var delegate: NSSharingServicePickerToolbarItemDelegate?
-        var delegateObservation: KeyValueObservation?
+        var observation: KeyValueObservation?
         
         init(for item: NSSharingServicePickerToolbarItem) {
             self.item = item
             super.init()
             delegate = item.delegate
             item.delegate = self
-            delegateObservation = item.observeChanges(for: \.delegate) { [weak self] old, new in
+            observation = item.observeChanges(for: \.delegate) { [weak self] old, new in
                 guard let self = self, new !== self else { return }
                 self.delegate = new
                 self.item?.delegate = new
@@ -109,6 +109,7 @@ extension NSSharingServicePickerToolbarItem {
         }
         
         deinit {
+            observation = nil
             item?.delegate = delegate
         }
     }
