@@ -101,7 +101,7 @@ extension WKWebView {
         public var willPerformHTTPRedirection: ((_ download: WKDownload, _ response: HTTPURLResponse, _ rewRequest: URLRequest) -> (WKDownload.RedirectPolicy))?
         
         /// The handler that determines whether a placeholder file should be created before downloading begins.
-        @available(macOS 10.15, iOS 18.2, *)
+        @available(macOS 11.3, iOS 18.2, *)
         public var decidePlaceholderPolicy: ((_ download: WKDownload) -> (WKDownload.PlaceholderPolicy, URL?))? {
             get { _decidePlaceholderPolicy as? ((_ download: WKDownload) -> (WKDownload.PlaceholderPolicy, URL?)) }
             set { _decidePlaceholderPolicy = newValue }
@@ -109,7 +109,7 @@ extension WKWebView {
         var _decidePlaceholderPolicy: Any?
         
         /// The handler that is called when the final URL of  a download is received.
-        @available(macOS 10.15, iOS 18.2, *)
+        @available(macOS 11.3, iOS 18.2, *)
         public var didReceiveFinalURL: ((_ download: WKDownload, _ finalURL: URL) -> ())? {
             get { _didReceiveFinalURL as? ((_ download: WKDownload, _ finalURL: URL) -> ()) }
             set { _didReceiveFinalURL = newValue }
@@ -118,12 +118,13 @@ extension WKWebView {
 
         
         /// The handler that is called when a placeholder file URL is received before the actual download starts.
-        @available(macOS 10.15, iOS 18.2, *)
+        @available(macOS 11.3, iOS 18.2, *)
         public var didReceivePlaceholderURL: ((_ download: WKDownload, _ placeholderURL: URL, _ completionHandler: @escaping () -> Void) -> ())? {
             get { _didReceivePlaceholderURL as? ((_ download: WKDownload, _ placeholderURL: URL, _ completionHandler: @escaping () -> Void) -> ()) }
             set { _didReceivePlaceholderURL = newValue }
         }
         var _didReceivePlaceholderURL: Any?
+        
         
         /// The handler that is called when the current downloads change.
         public var downloads: ((_ downloads: [WKDownload]) -> ())?
@@ -361,7 +362,7 @@ extension WKWebView.Delegate: WKDownloadDelegate {
         }
     }
     
-    @available(macOS 10.15, iOS 18.2, *)
+    @available(macOS 11.3, iOS 18.2, *)
     func download(_ download: WKDownload, decidePlaceholderPolicy completionHandler: @escaping @MainActor (WKDownload.PlaceholderPolicy, URL?) -> Void) {
         if let downloadDelegate = downloadDelegate, downloadDelegate.responds(to: #selector(WKDownloadDelegate.download(_:decidePlaceholderPolicy:))) {
             downloadDelegate.download?(download, decidePlaceholderPolicy: completionHandler)
@@ -382,7 +383,7 @@ extension WKWebView.Delegate: WKDownloadDelegate {
         }
     }
     
-    @available(macOS 10.15, iOS 18.2, *)
+    @available(macOS 11.3, iOS 18.2, *)
     func download(_ download: WKDownload, didReceivePlaceholderURL url: URL, completionHandler: @escaping @MainActor () -> Void) {
         webview.downloadHanders.didReceivePlaceholderURL?(download, url, completionHandler)
         downloadDelegate?.download?(download, didReceivePlaceholderURL: url, completionHandler: completionHandler)
@@ -394,7 +395,7 @@ extension WKWebView.Delegate: WKDownloadDelegate {
         downloadDelegate?.downloadDidFinish?(download)
     }
         
-    @available(macOS 10.15, iOS 18.2, *)
+    @available(macOS 11.3, iOS 18.2, *)
     func download(_ download: WKDownload, didReceiveFinalURL url: URL) {
         webview.downloadHanders.didReceiveFinalURL?(download, url)
         downloadDelegate?.download?(download, didReceiveFinalURL: url)
