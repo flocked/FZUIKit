@@ -303,7 +303,7 @@
         }
         
         /// Handlers for the view.
-        public struct Handlers {
+        public struct ViewHandlers {
             /// The handler that gets called when the trait collection changes.
             public var trait: ((UITraitCollection)->())?
             
@@ -319,8 +319,8 @@
         }
         
         /// The handlers for the view.
-        public var handlers: Handlers {
-            get { getAssociatedValue("handlers", initialValue: Handlers()) }
+        public var viewHandlers: ViewHandlers {
+            get { getAssociatedValue("handlers") ?? ViewHandlers() }
             set {
                 setAssociatedValue(newValue, key: "handlers")
                 setupTraitObservation()
@@ -328,7 +328,7 @@
         }
         
         func setupTraitObservation() {
-            if !handlers.needsTraitObservation && dynamicColors._border == nil && dynamicColors._shadow == nil {
+            if !viewHandlers.needsTraitObservation && dynamicColors._border == nil && dynamicColors._shadow == nil {
                 traitObserverView?.removeFromSuperview()
                 traitObserverView = nil
             } else if traitObserverView == nil {
@@ -358,13 +358,13 @@
             override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
                 guard let superview = superview, let previous = previousTraitCollection ?? self.previousTraitCollection else { return }
                 self.previousTraitCollection = previousTraitCollection ?? self.previousTraitCollection
-                superview.handlers.trait?(traitCollection)
+                superview.viewHandlers.trait?(traitCollection)
                 if previous.activeAppearance != traitCollection.activeAppearance {
-                    superview.handlers.activeAppearance?(traitCollection.activeAppearance)
+                    superview.viewHandlers.activeAppearance?(traitCollection.activeAppearance)
                 }
                 if previous.userInterfaceStyle != traitCollection.userInterfaceStyle {
                     superview.dynamicColors.update()
-                    superview.handlers.userInterfaceStyle?(traitCollection.userInterfaceStyle)
+                    superview.viewHandlers.userInterfaceStyle?(traitCollection.userInterfaceStyle)
                 }
             }
         }

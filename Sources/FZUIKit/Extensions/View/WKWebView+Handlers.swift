@@ -68,7 +68,7 @@ extension WKWebView {
         var _responseDidBecomeDownload: Any?
         
         /// The handler that decides whether to go to a back-forward list item, based on instant back usage.
-        @available(macOS 15.4, *)
+        @available(macOS 15.4, iOS 18.4, *)
         public var shouldGoToBackForwardListItem: ((_ item: WKBackForwardListItem, _ willUseInstantBack: Bool) -> Bool)? {
             get { _shouldGoToBackForwardListItem as? ((WKBackForwardListItem, Bool) -> Bool) }
             set { _shouldGoToBackForwardListItem = newValue }
@@ -101,19 +101,35 @@ extension WKWebView {
         public var willPerformHTTPRedirection: ((_ download: WKDownload, _ response: HTTPURLResponse, _ rewRequest: URLRequest) -> (WKDownload.RedirectPolicy))?
         
         /// The handler that determines whether a placeholder file should be created before downloading begins.
-        public var decidePlaceholderPolicy: ((_ download: WKDownload) -> (WKDownload.PlaceholderPolicy, URL?))?
+        @available(macOS 10.15, iOS 18.2, *)
+        public var decidePlaceholderPolicy: ((_ download: WKDownload) -> (WKDownload.PlaceholderPolicy, URL?))? {
+            get { _decidePlaceholderPolicy as? ((_ download: WKDownload) -> (WKDownload.PlaceholderPolicy, URL?)) }
+            set { _decidePlaceholderPolicy = newValue }
+        }
+        var _decidePlaceholderPolicy: Any?
         
         /// The handler that is called when the final URL of  a download is received.
-        public var didReceiveFinalURL: ((_ download: WKDownload, _ finalURL: URL) -> ())?
+        @available(macOS 10.15, iOS 18.2, *)
+        public var didReceiveFinalURL: ((_ download: WKDownload, _ finalURL: URL) -> ())? {
+            get { _didReceiveFinalURL as? ((_ download: WKDownload, _ finalURL: URL) -> ()) }
+            set { _didReceiveFinalURL = newValue }
+        }
+        var _didReceiveFinalURL: Any?
+
         
         /// The handler that is called when a placeholder file URL is received before the actual download starts.
-        public var didReceivePlaceholderURL: ((_ download: WKDownload, _ placeholderURL: URL, _ completionHandler: @escaping () -> Void) -> ())?
+        @available(macOS 10.15, iOS 18.2, *)
+        public var didReceivePlaceholderURL: ((_ download: WKDownload, _ placeholderURL: URL, _ completionHandler: @escaping () -> Void) -> ())? {
+            get { _didReceivePlaceholderURL as? ((_ download: WKDownload, _ placeholderURL: URL, _ completionHandler: @escaping () -> Void) -> ()) }
+            set { _didReceivePlaceholderURL = newValue }
+        }
+        var _didReceivePlaceholderURL: Any?
         
         /// The handler that is called when the current downloads change.
         public var downloads: ((_ downloads: [WKDownload]) -> ())?
         
         var needsDelegate: Bool {
-            destination != nil || didFinish != nil || didFail != nil || challenge != nil || willPerformHTTPRedirection != nil || decidePlaceholderPolicy != nil || didReceiveFinalURL != nil || didReceivePlaceholderURL != nil
+            destination != nil || didFinish != nil || didFail != nil || challenge != nil || willPerformHTTPRedirection != nil || _decidePlaceholderPolicy != nil || _didReceiveFinalURL != nil || _didReceivePlaceholderURL != nil
         }
     }
     
@@ -156,7 +172,7 @@ extension WKWebView {
     @available(macOS 11.3, iOS 14.5, *)
     public var defaultDownloadLocation: URL {
         get {
-            if #available(macOS 13.0, *) {
+            if #available(macOS 13.0, iOS 16.0, *) {
                 return getAssociatedValue("downloadLocation") ?? .downloadsDirectory
             }
             return getAssociatedValue("downloadLocation") ?? FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first!
@@ -165,7 +181,7 @@ extension WKWebView {
     }
     
     private func setupDelegate() {
-        if #available(macOS 11.3, *) {
+        if #available(macOS 11.3, iOS 14.5, *) {
             if !(handlers.needsDelegate && downloadHanders.needsDelegate) {
                 _delegate = nil
             } else if _delegate == nil {
@@ -319,7 +335,7 @@ extension WKWebView {
             delegate?.webView?(webView, navigationResponse: navigationResponse, didBecome: download)
         }
         
-        @available(macOS 15.4, *)
+        @available(macOS 15.4, iOS 18.4, *)
         func webView(_ webView: WKWebView, shouldGoTo backForwardListItem: WKBackForwardListItem, willUseInstantBack: Bool, completionHandler: @escaping (Bool) -> Void) {
             if let delegate = delegate, delegate.responds(to: #selector(WKNavigationDelegate.webView(_:shouldGoTo:willUseInstantBack:completionHandler:))) {
                 delegate.webView?(webView, shouldGoTo: backForwardListItem, willUseInstantBack: willUseInstantBack, completionHandler: completionHandler)
@@ -345,6 +361,7 @@ extension WKWebView.Delegate: WKDownloadDelegate {
         }
     }
     
+    @available(macOS 10.15, iOS 18.2, *)
     func download(_ download: WKDownload, decidePlaceholderPolicy completionHandler: @escaping @MainActor (WKDownload.PlaceholderPolicy, URL?) -> Void) {
         if let downloadDelegate = downloadDelegate, downloadDelegate.responds(to: #selector(WKDownloadDelegate.download(_:decidePlaceholderPolicy:))) {
             downloadDelegate.download?(download, decidePlaceholderPolicy: completionHandler)
@@ -365,6 +382,7 @@ extension WKWebView.Delegate: WKDownloadDelegate {
         }
     }
     
+    @available(macOS 10.15, iOS 18.2, *)
     func download(_ download: WKDownload, didReceivePlaceholderURL url: URL, completionHandler: @escaping @MainActor () -> Void) {
         webview.downloadHanders.didReceivePlaceholderURL?(download, url, completionHandler)
         downloadDelegate?.download?(download, didReceivePlaceholderURL: url, completionHandler: completionHandler)
@@ -376,6 +394,7 @@ extension WKWebView.Delegate: WKDownloadDelegate {
         downloadDelegate?.downloadDidFinish?(download)
     }
         
+    @available(macOS 10.15, iOS 18.2, *)
     func download(_ download: WKDownload, didReceiveFinalURL url: URL) {
         webview.downloadHanders.didReceiveFinalURL?(download, url)
         downloadDelegate?.download?(download, didReceiveFinalURL: url)
