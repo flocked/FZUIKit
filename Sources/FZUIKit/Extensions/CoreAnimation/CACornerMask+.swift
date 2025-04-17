@@ -13,6 +13,10 @@
         static var all: CACornerMask = [.bottomLeft, .bottomRight, .topLeft, .topRight]
         /// No ocrners.
         static var none: CACornerMask = []
+                
+        internal var toAll: CACornerMask {
+            self == .none ? .all : self
+        }
 
         #if os(macOS)
             /// The bottom-left corner.

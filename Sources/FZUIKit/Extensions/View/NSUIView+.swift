@@ -290,35 +290,25 @@ import FZSwiftUtils
              Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
              */
             @objc open var gradient: Gradient? {
-                get { self.optionalLayer?._gradientLayer?.gradient }
+                get { optionalLayer?.gradient }
                 set {
                     NSUIView.swizzleAnimationForKey()
                     let newGradient = newValue ?? .init(stops: [])
-                    var didSetupNewGradientLayer = false
-                    if newValue?.stops.isEmpty == false {
+                    if !newGradient.stops.isEmpty {
                         backgroundColor = nil
-                        didSetupNewGradientLayer = true
                         self.wantsLayer = true
-                        if self.optionalLayer?._gradientLayer == nil {
-                            let gradientLayer = GradientLayer()
-                            self.optionalLayer?.addSublayer(withConstraint: gradientLayer)
-                            gradientLayer.sendToBack()
-                            gradientLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude)
-
-                            gradientLayer.locations = newGradient.stops.compactMap { NSNumber($0.location) }
-                            gradientLayer.startPoint = newGradient.startPoint.point
-                            gradientLayer.endPoint = newGradient.endPoint.point
-                            gradientLayer.colors = newGradient.stops.compactMap { $0.color.withAlphaComponent(0.0).cgColor }
+                        if optionalLayer?._gradientLayer == nil {
+                            var newGradient = newGradient
+                            newGradient.stops = newGradient.stops.map({
+                                $0.transparent })
+                            optionalLayer?.gradient = newGradient
                         }
-                        self.layer?.backgroundColor = nil
                     }
-                    if didSetupNewGradientLayer == false {
-                        self.gradientLocations = newGradient.stops.compactMap(\.location)
-                        self.gradientStartPoint = newGradient.startPoint.point
-                        self.gradientEndPoint = newGradient.endPoint.point
-                    }
-                    self._gradientColors = newGradient.stops.compactMap(\.color.cgColor)
-                    self.optionalLayer?._gradientLayer?.type = newGradient.type.gradientLayerType
+                    gradientLocations = newGradient.stops.compactMap(\.location)
+                    gradientStartPoint = newGradient.startPoint.point
+                    gradientEndPoint = newGradient.endPoint.point
+                    _gradientColors = newGradient.stops.compactMap(\.color.cgColor)
+                    optionalLayer?._gradientLayer?.type = newGradient.type.gradientLayerType
                 }
             }
         
@@ -329,13 +319,8 @@ import FZSwiftUtils
              Applying a gradient sets the view's `backgroundColor` to `nil`.
              */
             @objc open var gradient: Gradient? {
-                get { optionalLayer?._gradientLayer?.gradient }
-                set { 
-                    configurate(using: newValue ?? .init(stops: []))
-                    if newValue?.stops.isEmpty == false {
-                        backgroundColor = nil
-                    }
-                }
+                get { optionalLayer?.gradient }
+                set { optionalLayer?.gradient = newValue }
             }
         #endif
         

@@ -106,11 +106,7 @@ public struct BorderConfiguration: Hashable {
     }
     
     /// Creates a border configuration.
-    public init(color: NSUIColor? = nil,
-                colorTransformer: ColorTransformer? = nil,
-                width: CGFloat = 0.0,
-                dash: Dash = Dash(),
-                insets: NSDirectionalEdgeInsets = .init(0)) {
+    public init(color: NSUIColor? = nil, colorTransformer: ColorTransformer? = nil, width: CGFloat = 0.0, dash: Dash = Dash(), insets: NSDirectionalEdgeInsets = .init(0)) {
         self.color = color
         self.width = width
         self.dash = dash

@@ -352,11 +352,11 @@
          
          Using this property turns the view into a layer-backed view.
          
-         The default value is `[]`, which results in a view with all corners rounded when ``cornerRadius`` isn't `0`.
+         The default value is `all`, which results in a view with all corners rounded to the value specified at ``cornerRadius``.
          */
         @objc public var roundedCorners: CACornerMask {
-            get { layer?.maskedCorners ?? .none }
-            set { 
+            get { layer?.maskedCorners.toAll ?? .all }
+            set {
                 optionalLayer?.maskedCorners = newValue
                 dashedBorderView?.update()
                 visualEffectBackgroundView?.roundedCorners = newValue

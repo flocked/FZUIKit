@@ -55,12 +55,7 @@ public struct ShadowConfiguration: Hashable {
         
     #if os(macOS)
     /// Creates a shadow configuration.
-    public init(color: NSUIColor? = .black,
-                colorTransformer: ColorTransformer? = nil,
-                opacity: CGFloat = 0.4,
-                radius: CGFloat = 2.0,
-                offset: CGPoint = CGPoint(x: 1.0, y: -1.5))
-    {
+    public init(color: NSUIColor? = .black, colorTransformer: ColorTransformer? = nil, opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) {
         self.color = color
         self.colorTransformer = colorTransformer
         self.opacity = opacity
@@ -69,12 +64,7 @@ public struct ShadowConfiguration: Hashable {
     }
     #else
     /// Creates a shadow configuration.
-    public init(color: NSUIColor? = .black,
-                colorTransformer: ColorTransformer? = nil,
-                opacity: CGFloat = 0.4,
-                radius: CGFloat = 2.0,
-                offset: CGPoint = CGPoint(x: -1.0, y: 1.5))
-    {
+    public init(color: NSUIColor? = .black, colorTransformer: ColorTransformer? = nil, opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: -1.0, y: 1.5)) {
         self.color = color
         self.colorTransformer = colorTransformer
         self.opacity = opacity

@@ -137,10 +137,10 @@
         /**
          The rounded corners of the view.
 
-         The default value is `[]`, which results in a view with all corners rounded when ``cornerRadius`` isn't `0`.
+         The default value is `all`, which results in a view with all corners rounded to the value specified at ``cornerRadius``.
          */
         @objc public var roundedCorners: CACornerMask {
-            get { layer.maskedCorners }
+            get { layer.maskedCorners.toAll }
             set { 
                 layer.maskedCorners = newValue
                 dashedBorderView?.update()
@@ -150,7 +150,7 @@
         /**
          The corner radius of the view.
 
-         The property can be animated. The default value is `0.0`, which results in a view with no rounded corners.
+         The property can be animated. The default value is `0.0`, which results in a view with no corner radius.
          */
         @objc public var cornerRadius: CGFloat {
             get { layer.cornerRadius }

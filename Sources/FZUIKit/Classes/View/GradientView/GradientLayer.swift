@@ -39,23 +39,4 @@
         }
     }
 
-    public extension CAGradientLayer {
-        var gradient: Gradient {
-            get {
-                let colors = (colors as? [CGColor])?.compactMap(\.nsUIColor) ?? []
-                let locations = locations?.compactMap { CGFloat($0.floatValue) } ?? []
-                let stops = colors.enumerated().compactMap { Gradient.Stop(color: $0.element, location: locations[$0.offset]) }
-                return Gradient(stops: stops, startPoint: .init(startPoint), endPoint: .init(endPoint), type: .init(type))
-            }
-            set {
-                masksToBounds = true
-                colors = newValue.stops.compactMap(\.color.cgColor)
-                locations = newValue.stops.compactMap { NSNumber($0.location) }
-                startPoint = newValue.startPoint.point
-                endPoint = newValue.endPoint.point
-                type = newValue.type.gradientLayerType
-            }
-        }
-    }
-
 #endif
