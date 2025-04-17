@@ -153,8 +153,22 @@ extension WKWebView {
         }
     }
     
+    private func setupDelegate() {
+        if #available(macOS 11.3, iOS 14.5, *) {
+            if !(handlers.needsDelegate && downloadHanders.needsDelegate) {
+                _delegate = nil
+            } else if _delegate == nil {
+                _delegate = Delegate(for: self)
+            }
+        } else if !handlers.needsDelegate {
+            _delegate = nil
+        } else if _delegate == nil {
+            _delegate = Delegate(for: self)
+        }
+    }
+    
     @available(macOS 11.3, iOS 14.5, *)
-    var downloads: [WKDownload] {
+    private var downloads: [WKDownload] {
         get { downloadsQueue.sync { getAssociatedValue("downloads") ?? [] } }
         set {
             downloadsQueue.async(flags: .barrier) {
@@ -165,7 +179,7 @@ extension WKWebView {
         }
     }
     
-    var downloadsQueue: DispatchQueue {
+    private var downloadsQueue: DispatchQueue {
         getAssociatedValue("downloadsQueue", initialValue: DispatchQueue(label: "com.WKWebView.downloadsQueue", attributes: .concurrent))
     }
     
@@ -181,20 +195,6 @@ extension WKWebView {
         set { setAssociatedValue(newValue, key: "downloadLocation") }
     }
     
-    private func setupDelegate() {
-        if #available(macOS 11.3, iOS 14.5, *) {
-            if !(handlers.needsDelegate && downloadHanders.needsDelegate) {
-                _delegate = nil
-            } else if _delegate == nil {
-                _delegate = Delegate(for: self)
-            }
-        } else if !handlers.needsDelegate {
-            _delegate = nil
-        } else if _delegate == nil {
-            _delegate = Delegate(for: self)
-        }
-    }
-    
     private var currentCookies: [HTTPCookie] {
         get { cookiesQueue.sync { getAssociatedValue("currentCookies") ?? [] } }
         set {
@@ -206,7 +206,7 @@ extension WKWebView {
         }
     }
     
-    var cookiesQueue: DispatchQueue {
+    private var cookiesQueue: DispatchQueue {
         getAssociatedValue("cookiesQueue", initialValue: DispatchQueue(label: "com.WKWebView.cookiesQueue", attributes: .concurrent))
     }
     
