@@ -399,7 +399,7 @@
         }
 
         internal func index(forTag tag: Int) -> Int? {
-             (0 ..< segmentCount).first(where: {self.tag(forSegment: $0) == tag})
+            (0 ..< segmentCount).first(where: { self.tag(forSegment: $0) == tag })
         }
         
         internal var toolbarItem: ToolbarItem.Segmented? {

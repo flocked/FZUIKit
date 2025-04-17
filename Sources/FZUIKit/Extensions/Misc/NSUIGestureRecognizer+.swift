@@ -55,8 +55,7 @@ extension NSUIGestureRecognizer {
                         let task = DispatchWorkItem { [weak self] in
                             guard let self = self else { return }
                             old.addGestureRecognizer(self)
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: task)
+                        }.perform(after: 0.5)
                     }
                 }
             } else {
