@@ -57,9 +57,7 @@
         /**
          The perspective of the view's transform
 
-         The property can be animated by changing it via `animator().perspective`.
-
-         The default value is `zero`, which results in a view with no transformed perspective.
+         Changes to this property can be animated. The default value is `zero`, which results in a view with no transformed perspective.
          */
         public var perspective: Perspective {
             get { self.transform3D.perspective }
@@ -69,9 +67,7 @@
         /**
          The shearing of the view's transform.
 
-         The property can be animated by changing it via `animator().skew`.
-
-         The default value is `zero`, which results in a view with no transformed shearing.
+         Changes to this property can be animated. The default value is `zero`, which results in a view with no transformed shearing.
          */
         public var skew: Skew {
             get { transform3D.skew }
