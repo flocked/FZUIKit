@@ -337,11 +337,11 @@ import FZSwiftUtils
                 let currentLocations = optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? []
                 let diff = newValue.count - currentLocations.count
                 if diff < 0 {
-                    for i in newValue.count - (diff * -1) ..< newValue.count {
+                    for i in (newValue.count + diff)..<newValue.count {
                         newValue[i] = 0.0
                     }
                 } else if diff > 0 {
-                    newValue.append(contentsOf: Array(repeating: .zero, count: diff))
+                    newValue += Array(repeating: .zero, count: diff)
                 }
                 gradientLocationsAnimatable = newValue
             }
