@@ -297,9 +297,9 @@ public extension Gradient {
 }
 
 public extension CALayer {
-    var _gradient: Gradient? {
+    /// The gradient of the layer.
+    var gradient: Gradient? {
         get {
-            
             if let gradient: Gradient = getAssociatedValue("gradient") {
                 return gradient
             } else if let layer = self as? CAGradientLayer {
@@ -337,14 +337,6 @@ public extension CALayer {
                     _gradientLayer?.removeFromSuperlayer()
                 }
             }
-        }
-    }
-    
-    /// The gradient of the layer.
-    var gradient: Gradient? {
-        get { _gradient
-        }
-        set { _gradient = newValue
         }
     }
     
