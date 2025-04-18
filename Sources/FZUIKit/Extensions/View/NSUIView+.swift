@@ -307,7 +307,7 @@ import FZSwiftUtils
                     gradientLocations = newGradient.stops.compactMap(\.location)
                     gradientStartPoint = newGradient.startPoint.point
                     gradientEndPoint = newGradient.endPoint.point
-                    _gradientColors = newGradient.stops.compactMap(\.color.cgColor)
+                    gradientColors = newGradient.stops.compactMap(\.color.cgColor)
                     optionalLayer?._gradientLayer?.type = newGradient.type.gradientLayerType
                 }
             }
@@ -330,7 +330,7 @@ import FZSwiftUtils
             return self
         }
 
-        var gradientLocations: [CGFloat] {
+        @objc var gradientLocations: [CGFloat] {
             get { optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? [] }
             set {
                 var newValue = newValue
@@ -343,13 +343,7 @@ import FZSwiftUtils
                 } else if diff > 0 {
                     newValue.append(contentsOf: Array(repeating: .zero, count: diff))
                 }
-                gradientLocationsAnimatable = newValue
-            }
-        }
-
-        @objc var gradientLocationsAnimatable: [CGFloat] {
-            get { optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? [] }
-            set { optionalLayer?._gradientLayer?.locations = newValue.compactMap { NSNumber($0) }
+                optionalLayer?._gradientLayer?.locations = newValue.compactMap { NSNumber($0) }
             }
         }
 
@@ -363,7 +357,7 @@ import FZSwiftUtils
             set { optionalLayer?._gradientLayer?.endPoint = newValue }
         }
 
-        var _gradientColors: [CGColor] {
+        @objc var gradientColors: [CGColor] {
             get { optionalLayer?._gradientLayer?.colors as? [CGColor] ?? [] }
             set {
                 var newValue = newValue
@@ -376,13 +370,8 @@ import FZSwiftUtils
                 } else if diff > 0 {
                     newValue.append(contentsOf: Array(repeating: .clear, count: diff))
                 }
-                gradientColors = newValue
+                optionalLayer?._gradientLayer?.colors = newValue
             }
-        }
-
-        @objc var gradientColors: [CGColor] {
-            get { optionalLayer?._gradientLayer?.colors as? [CGColor] ?? [] }
-            set { optionalLayer?._gradientLayer?.colors = newValue }
         }
         
         
