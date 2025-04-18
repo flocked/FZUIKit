@@ -51,6 +51,18 @@ public struct Gradient: Hashable {
         Self(stops: stops.map({ $0.opacity(opacity) }), startPoint: startPoint, endPoint: endPoint, type: type)
     }
     
+    /// Returns the gradient with the specified opacity range.
+    @discardableResult
+    func opacity(_ range: ClosedRange<CGFloat>) -> Self {
+        Self(stops: stops.opacity(range), startPoint: startPoint, endPoint: endPoint, type: type)
+    }
+    
+    /// Returns the gradient with the specified opacity range.
+    @discardableResult
+    func opacity(_ range: Range<CGFloat>) -> Self {
+        Self(stops: stops.opacity(range), startPoint: startPoint, endPoint: endPoint, type: type)
+    }
+    
     /// Returns the gradient with the specified start point.
     @discardableResult
     public func startPoint(_ startPoint: Point) -> Self {
@@ -360,6 +372,20 @@ fileprivate extension [NSUIColor] {
             }
         }
         return stops
+    }
+}
+
+fileprivate extension [Gradient.ColorStop] {
+    func opacity(_ range: ClosedRange<CGFloat>) -> Self {
+        guard !isEmpty else { return [] }
+        let step = count > 1 ? (range.upperBound - range.lowerBound) / CGFloat(count - 1) : 0
+        return (0..<count).map { self[$0].location(range.lowerBound + (CGFloat($0) * step)) }
+    }
+    
+    func opacity(_ range: Range<CGFloat>) -> Self {
+        guard !isEmpty else { return [] }
+        let step = (range.upperBound - range.lowerBound) / CGFloat(count)
+        return (0..<count).map { self[$0].location(range.lowerBound + (CGFloat($0) * step)) }
     }
 }
 
