@@ -370,11 +370,11 @@ import FZSwiftUtils
                 let currentColors = optionalLayer?._gradientLayer?.colors ?? []
                 let diff = newValue.count - currentColors.count
                 if diff < 0 {
-                    for i in newValue.count - (diff * -1) ..< newValue.count {
+                    for i in (newValue.count + diff)..<newValue.count {
                         newValue[safe: i] = newValue[i].nsUIColor?.withAlphaComponent(0.0).cgColor
                     }
                 } else if diff > 0 {
-                    newValue.append(contentsOf: Array(repeating: .clear, count: diff))
+                    newValue += Array(repeating: .clear, count: diff)
                 }
                 gradientColors = newValue
             }
