@@ -132,6 +132,13 @@ extension AVPlayerView {
         get { getAssociatedValue("videoBoundsObservation") }
         set { setAssociatedValue(newValue, key: "videoBoundsObservation") }
     }
+    
+    /// Cancels trimming.
+    public func cancelTrimming() {
+        subviews(type: NSButton.self, depth: .max).first(where: {
+            $0.action == NSSelectorFromString("cancel:") && ($0.target as? NSObject)?.className == "AVInlineTrimControlsViewController"
+        })?.performAction()
+    }
 }
 
 #endif

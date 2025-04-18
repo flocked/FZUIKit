@@ -208,6 +208,7 @@ fileprivate class DropView: NSView, NSSpringLoadingDestination {
         handlers.springLoading.highlightChanged?(draggingInfo.springLoadingHighlight)
     }
     
+    /*
     override func updateDraggingItemsForDrag(_ sender: NSDraggingInfo?) {
         guard let draggingInfo = sender, let updateDropItemImages = handlers.updateDropItemImages else {
             super.updateDraggingItemsForDrag(sender)
@@ -215,6 +216,7 @@ fileprivate class DropView: NSView, NSSpringLoadingDestination {
         }
         updateDropItemImages(draggingInfo.dropInfo(for: self))
     }
+     */
     
     func dropOperation(for info: NSDraggingInfo) -> NSDragOperation? {
         guard var operation = dropOperation else { return nil }

@@ -905,7 +905,7 @@ public extension NSButton {
     }
      */
     
-    internal static func button(_ title: String? = nil, image: NSImage? = nil, style: BezelStyle? = nil) -> Self {
+    internal static func button(_ title: String? = nil, image: NSImage? = nil, style: BezelStyle? = nil, action: ActionBlock? = nil) -> Self {
         let button = Self.init(title: title ?? "", target: nil, action: nil)
         button.image = image
         button.updateImagePosition()
@@ -916,11 +916,12 @@ public extension NSButton {
             button.isBordered = false
         }
         button.sizeToFit(imageToTitleSpacing: 4.0)
+        button.actionBlock = action
         return button
     }
     
     @available(macOS 11.0, *)
-    internal static func button(_ title: String? = nil, symbolName: String, style: BezelStyle? = nil) -> Self {
+    internal static func button(_ title: String? = nil, symbolName: String, style: BezelStyle? = nil, action: ActionBlock? = nil) -> Self {
         let button = Self.init(title: title ?? "", target: nil, action: nil)
         button.image = NSImage(systemSymbolName: symbolName)
         button.updateImagePosition()
@@ -931,6 +932,7 @@ public extension NSButton {
             button.isBordered = false
         }
         button.sizeToFit(imageToTitleSpacing: 4.0)
+        button.actionBlock = action
         return button
     }
     
