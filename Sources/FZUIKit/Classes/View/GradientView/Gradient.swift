@@ -45,6 +45,12 @@ public struct Gradient: Hashable {
         Self(colors: colors, startPoint: startPoint, endPoint: endPoint, type: type)
     }
     
+    /// Returns the gradient with the specified opacity.
+    @discardableResult
+    public func opacity(_ opacity: CGFloat) -> Self {
+        Self(stops: stops.map({ $0.opacity(opacity) }), startPoint: startPoint, endPoint: endPoint, type: type)
+    }
+    
     /// Returns the gradient with the specified start point.
     @discardableResult
     public func startPoint(_ startPoint: Point) -> Self {
@@ -195,7 +201,7 @@ public extension Gradient {
         }
     }
     
-    /// A color stop in the gradient.
+    /// Color stop in a gradient.
     struct ColorStop: Hashable, CustomStringConvertible {
         /// The color for the stop.
         public var color: NSUIColor
@@ -204,6 +210,21 @@ public extension Gradient {
         
         public var description: String {
             "[color: \(color), location: \(location)]"
+        }
+        
+        /// Returns the color stop with the specified color.
+        public func color(_ color: NSUIColor) -> Self {
+            Self(color: color, location: location)
+        }
+        
+        /// Returns the color stop with the specified color opacity.
+        public func opacity(_ opacity: CGFloat) -> Self {
+            Self(color: color.withAlphaComponent(opacity), location: location)
+        }
+        
+        /// Returns the color stop with the specified parametric location.
+        public func location(_ location: CGFloat) -> Self {
+            Self(color: color, location: location)
         }
         
         var transparent: Self {
@@ -217,7 +238,7 @@ public extension Gradient {
         }
     }
     
-    /// A point in the gradient.
+    /// Point in a gradient.
     struct Point: Hashable, CustomStringConvertible {
         /// X.
         public var x: CGFloat
