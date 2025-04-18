@@ -304,11 +304,14 @@ import FZSwiftUtils
                             optionalLayer?.gradient = newGradient
                         }
                     }
-                    gradientLocations = newGradient.stops.compactMap(\.location)
+                    let padded = Gradient.ColorStop.padded(from: optionalLayer?.gradient?.stops ?? [], to: newValue?.stops ?? [])
+                    
                     gradientStartPoint = newGradient.startPoint.point
                     gradientEndPoint = newGradient.endPoint.point
-                    _gradientColors = newGradient.stops.compactMap(\.color.cgColor)
                     optionalLayer?._gradientLayer?.type = newGradient.type.gradientLayerType
+                    
+                    gradientLocations = newGradient.stops.compactMap(\.location)
+                    _gradientColors = newGradient.stops.compactMap(\.color.cgColor)
                 }
             }
         
@@ -362,6 +365,8 @@ import FZSwiftUtils
             get { optionalLayer?._gradientLayer?.endPoint ?? .zero }
             set { optionalLayer?._gradientLayer?.endPoint = newValue }
         }
+        
+      
 
         var _gradientColors: [CGColor] {
             get { optionalLayer?._gradientLayer?.colors as? [CGColor] ?? [] }
@@ -657,6 +662,23 @@ extension NSUIView {
                 resetMethod(NSSelectorFromString("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:"))
             }
         }
+    }
+}
+extension Gradient.ColorStop {
+    static func padded(from: [Self], to: [Self]) -> (from: [Self], to: [Self]) {
+        var paddedFrom = from
+        var paddedTo = to
+        if from.count < to.count {
+            for i in from.count..<to.count {
+                paddedFrom +=  to[i].transparent
+            }
+        } else if from.count > to.count {
+            for i in to.count..<from.count {
+                paddedTo += from[i].transparent
+            }
+        }
+
+        return (paddedFrom, paddedTo)
     }
 }
 
