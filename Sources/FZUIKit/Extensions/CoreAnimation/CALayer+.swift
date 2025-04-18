@@ -269,6 +269,53 @@ import FZSwiftUtils
             return borderConfiguration
         }
         
+        /// The gradient of the layer.
+        public var gradient: Gradient? {
+            get {
+                if let gradient: Gradient = getAssociatedValue("gradient") {
+                    return gradient
+                } else if let layer = self as? CAGradientLayer {
+                    let colors = (layer.colors as? [CGColor])?.compactMap(\.nsUIColor) ?? []
+                    let locations = layer.locations?.compactMap { CGFloat($0.floatValue) } ?? []
+                    let stops = zip(colors, locations).map({ Gradient.ColorStop(color: $0.0, location: $0.1) })
+                    let gradient = Gradient(stops: stops, startPoint: .init(layer.startPoint), endPoint: .init(layer.endPoint), type: .init(layer.type))
+                    setAssociatedValue(gradient, key: "gradient")
+                    return gradient
+                }
+                return nil
+            }
+            set {
+                setAssociatedValue(newValue, key: "gradient")
+                if let newValue = newValue, !newValue.stops.isEmpty {
+                    if let layer = self as? CAGradientLayer {
+                        layer.colors = newValue.stops.compactMap(\.color.cgColor)
+                        layer.locations = newValue.stops.compactMap { NSNumber($0.location) }
+                        layer.startPoint = newValue.startPoint.point
+                        layer.endPoint = newValue.endPoint.point
+                        layer.type = newValue.type.gradientLayerType
+                    } else {
+                        if _gradientLayer == nil {
+                            let gradientLayer = GradientLayer()
+                            addSublayer(withConstraint: gradientLayer)
+                            gradientLayer.sendToBack()
+                            gradientLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude)
+                        }
+                        _gradientLayer?.gradient = newValue
+                    }
+                } else {
+                    if let layer = self as? CAGradientLayer {
+                        layer.colors = nil
+                    } else {
+                        _gradientLayer?.removeFromSuperlayer()
+                    }
+                }
+            }
+        }
+        
+        var _gradientLayer: GradientLayer? {
+            firstSublayer(type: GradientLayer.self)
+        }
+        
         /// Sends the layer to the front of it's superlayer.
         @objc open func sendToFront() {
             guard let superlayer = superlayer else { return }
