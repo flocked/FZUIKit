@@ -1088,9 +1088,11 @@ open class ImageView: NSControl {
     }
      */
     
+    /*
     open override func hitTest(_ point: NSPoint) -> NSView? {
         return bounds.contains(point) ? self : nil
     }
+     */
     
     open override var acceptsFirstResponder: Bool { isSelectable != .off }
         
