@@ -966,7 +966,7 @@ open class ImageView: NSControl {
         }
         return true
     }
-    
+    /*
     open override func mouseDown(with event: NSEvent) {
         if isSelectable == .byView, !isFirstResponder {
             makeFirstResponder()
@@ -980,6 +980,7 @@ open class ImageView: NSControl {
         }
         super.mouseDown(with: event)
     }
+     */
     
     func updateDisplayingImage() {
         if !ignoreTransition, let transition = transitionAnimation.transition(transitionDuration) {
