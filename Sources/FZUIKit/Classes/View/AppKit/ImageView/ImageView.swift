@@ -42,6 +42,10 @@ open class ImageView: NSControl {
         }
     }
     
+    open override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        return false
+    }
+        
     /// Sets the image displayed in the image view.
     @discardableResult
     open func image(_ image: NSImage?) -> Self {
@@ -98,6 +102,7 @@ open class ImageView: NSControl {
     }
     
     func imagesUpdated() {
+        
         containerView.isHidden = imagesCount == 0
         overlayContentView.isHidden = containerView.isHidden
         stopAnimating()
@@ -872,13 +877,7 @@ open class ImageView: NSControl {
         
         overlayContentView.frame = bounds
         containerView.addSubview(overlayContentView)
-        /*
-        imageView.actionBlock = { [weak self] _ in
-            guard let self = self else { return }
-            self.performAction()
-        }
-         */
-        cell = imageView.cell
+        cell = imageView.cell        
     }
     
     open override func layout() {
@@ -968,6 +967,7 @@ open class ImageView: NSControl {
         }
         return true
     }
+    
     /*
     open override func mouseDown(with event: NSEvent) {
         if isSelectable == .byView, !isFirstResponder {
@@ -1091,13 +1091,23 @@ open class ImageView: NSControl {
     }
      */
     
-    /*
     open override func hitTest(_ point: NSPoint) -> NSView? {
-        return bounds.contains(point) ? self : nil
+        let view = super.hitTest(point)
+        if isSelectable == .byView {
+            return view
+        } else if isSelectable == .byImage && overlayContentView.frame.contains(point) {
+            return view
+        } else if animationPlayback == .onMouseClick, overlayContentView.frame.contains(point) {
+            return view
+        }
+        return nil
     }
-     */
     
-    open override var acceptsFirstResponder: Bool { isSelectable != .off }
+    open override var canBecomeKeyView: Bool {
+        false
+    }
+    
+    open override var acceptsFirstResponder: Bool { false }
         
     open override func drawFocusRingMask() {
         NSBezierPath(roundedRect: focusRingMaskBounds, cornerRadius: isSelectable == .byImage ?  imageCornerRadius : cornerRadius).fill()
