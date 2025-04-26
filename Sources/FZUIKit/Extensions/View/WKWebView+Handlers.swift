@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 17.04.25.
 //
 
+/*
 #if os(macOS) || os(iOS)
 import FZSwiftUtils
 import WebKit
@@ -483,3 +484,4 @@ extension WKDownload {
     }
 }
 #endif
+*/
