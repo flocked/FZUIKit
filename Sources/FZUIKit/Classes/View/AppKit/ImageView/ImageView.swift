@@ -872,10 +872,12 @@ open class ImageView: NSControl {
         
         overlayContentView.frame = bounds
         containerView.addSubview(overlayContentView)
+        /*
         imageView.actionBlock = { [weak self] _ in
             guard let self = self else { return }
             self.performAction()
         }
+         */
         cell = imageView.cell
     }
     
