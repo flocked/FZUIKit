@@ -189,7 +189,7 @@
                         stopAnimating()
                         return
                     }
-                    timer = DisplayLinkTimer(timeInterval: .seconds(timerInterval), repeating: true) {  [weak self] timer in
+                    timer = DisplayLinkTimer(timeInterval: .seconds(timerInterval), repeats: true) {  [weak self] timer in
                         guard let self = self else { return }
                         self.setImageFrame(to: .nextLooped)
                         if self.animationRepeatCount != 0, self.currentImageIndex == 0 {

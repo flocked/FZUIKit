@@ -234,7 +234,7 @@ extension NSCursor {
             guard !frames.isEmpty else { return }
             index = 0
             guard timer == nil else { return }
-            timer = .init(timeInterval: .seconds(frames[index].duration ?? 0.12), repeating: true) { [weak self] _ in
+            timer = .init(timeInterval: .seconds(frames[index].duration ?? 0.12), repeats: true) { [weak self] _ in
                 guard let self = self else { return }
                 self.advanceImage()
             }

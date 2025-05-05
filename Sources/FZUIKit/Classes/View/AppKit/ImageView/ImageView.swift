@@ -350,7 +350,7 @@ open class ImageView: NSControl {
         guard isAnimatable, !isAnimating else { return }
         currentRepeatCount = 0
         
-        timer = DisplayLinkTimer(timeInterval: .seconds(timerInterval), repeating: true) { [weak self] timer in
+        timer = DisplayLinkTimer(timeInterval: .seconds(timerInterval), repeats: true) { [weak self] timer in
             guard let self = self else { return }
             self.ignoreTransition = true
             self.setImageFrame(to: .nextLooped)
