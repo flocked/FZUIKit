@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "FZUIKit",
-    platforms: [.macOS("10.15.1"), .iOS(.v14), .tvOS(.v14), .macCatalyst(.v14), .watchOS(.v6)],
+    platforms: [.macOS(.v10_15), .iOS(.v14), .tvOS(.v14), .macCatalyst(.v14), .watchOS(.v6)],
     products: [
         .library(
             name: "FZUIKit",
