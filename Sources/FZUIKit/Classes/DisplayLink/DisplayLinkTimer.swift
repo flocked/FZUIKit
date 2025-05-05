@@ -24,7 +24,7 @@
         public var timeInterval: TimeDuration = .seconds(0.0)
 
         /// If true, the timer will repeatedly reschedule itself until stopped. If false, the timer will be stopped after it fires.
-        public var repeating = true
+        public var repeats = true
 
         /// The handler to be called whenever the timer fires.
         public let action: Action
@@ -35,42 +35,42 @@
         var lastFireDate: Date?
 
         /**
-         Returns a repeating timer object with the specified time interval.
+         Returns a repeats timer object with the specified time interval.
 
          - Parameters:
             - timeInterval: The number of seconds between firings of the timer.
             - shouldFire: If true, the timer will fire after Initialization.
 
-         - Returns: A new repeating Timer object, configured according to the specified parameters.
+         - Returns: A new repeats Timer object, configured according to the specified parameters.
          */
-        public static func repeating(timeInterval: TimeDuration, shouldFire: Bool = true, action: @escaping Action) -> DisplayLinkTimer {
-            DisplayLinkTimer(timeInterval: timeInterval, repeating: true, shouldFire: shouldFire, action: action)
+        public static func repeats(timeInterval: TimeDuration, shouldFire: Bool = true, action: @escaping Action) -> DisplayLinkTimer {
+            DisplayLinkTimer(timeInterval: timeInterval, repeats: true, shouldFire: shouldFire, action: action)
         }
 
         /**
-         Returns a repeating timer object with the specified time interval.
+         Returns a repeats timer object with the specified time interval.
 
          - Parameters:
             - timeInterval: The number of seconds between firings of the timer.
             - shouldFire: If true, the timer will fire after Initialization.
 
-         - Returns: A new repeating Timer object, configured according to the specified parameters.
+         - Returns: A new repeats Timer object, configured according to the specified parameters.
          */
-        public static func scheduledTimer(repeating: TimeDuration, action: @escaping Action) -> DisplayLinkTimer {
-            DisplayLinkTimer(timeInterval: repeating, repeating: true, shouldFire: true, action: action)
+        public static func scheduledTimer(repeats: TimeDuration, action: @escaping Action) -> DisplayLinkTimer {
+            DisplayLinkTimer(timeInterval: repeats, repeats: true, shouldFire: true, action: action)
         }
 
         /**
-         Returns a repeating timer object with the specified time interval.
+         Returns a repeats timer object with the specified time interval.
 
          - Parameters:
             - timeInterval: The number of seconds between firings of the timer.
             - shouldFire: If true, the timer will fire after Initialization.
 
-         - Returns: A new repeating Timer object, configured according to the specified parameters.
+         - Returns: A new repeats Timer object, configured according to the specified parameters.
          */
         public static func scheduledTimer(action: @escaping Action) -> DisplayLinkTimer {
-            DisplayLinkTimer(timeInterval: .seconds(1.0), repeating: false, shouldFire: true, action: action)
+            DisplayLinkTimer(timeInterval: .seconds(1.0), repeats: false, shouldFire: true, action: action)
         }
 
         /**
@@ -78,14 +78,14 @@
 
          - Parameters:
             - timeInterval: The duration between firings of the timer.
-            - repeating: If true, the timer will repeatedly reschedule itself until stopped. If false, the timer will be stopped after it fires.
+            - repeats: If true, the timer will repeatedly reschedule itself until stopped. If false, the timer will be stopped after it fires.
             - shouldFire: If true, the timer will fire after Initialization.
 
          - Returns: A new Timer object, configured according to the specified parameters.
          */
-        public init(timeInterval: TimeDuration, repeating: Bool, shouldFire: Bool = true, action: @escaping Action) {
+        public init(timeInterval: TimeDuration, repeats: Bool, shouldFire: Bool = true, action: @escaping Action) {
             self.timeInterval = timeInterval
-            self.repeating = repeating
+            self.repeats = repeats
             self.action = action
             if shouldFire {
                 fire()
@@ -124,7 +124,7 @@
                             self.timeIntervalSinceLastFire = 0.0
                             self.lastFireDate = Date()
                             self.action(self)
-                            if self.repeating == false {
+                            if !self.repeats {
                                 self.stop()
                             }
                         }
