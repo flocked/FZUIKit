@@ -74,7 +74,6 @@
             set { hostingController.sizingOptions = newValue }
         }
         
-        #if os(macOS) || os(iOS)
         /// A Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
         open var ignoresSafeArea: Bool {
             get { hostingController.ignoresSafeArea }
@@ -87,7 +86,6 @@
             ignoresSafeArea = ignores
             return self
         }
-        #endif
 
         // MARK: - Private Properties
         

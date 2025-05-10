@@ -581,58 +581,8 @@ import FZSwiftUtils
             return self
         }
         #endif
-        
-        #if os(macOS) || os(iOS)
-        /**
-         A Boolean value indicating whether the view is always at the front of it's superview (e.g. for an overlay view).
-         
-         If set to `true`, the view is always set to tjhe front of it's superview, even if new views are added to superview.
-         */
-        @objc public var isAlwaysAtFront: Bool {
-            get { isAlwaysAtFrontObservation != nil }
-            set {
-                guard newValue != isAlwaysAtFront else { return }
-                if newValue {
-                    sendToFront()
-                    superview?.observeNewSubviews()
-                    isAlwaysAtFrontObservation = observeChanges(for: \.superview) { [weak self] old, new in
-                        guard self != nil else { return }
-                        old?.observeNewSubviews(shouldObserve: false)
-                        new?.observeNewSubviews()
-                    }
-                } else {
-                    superview?.observeNewSubviews(shouldObserve: false)
-                    isAlwaysAtFrontObservation = nil
-                }
-            }
-        }
-        
-        private var isAlwaysAtFrontObservation: KeyValueObservation? {
-            get { getAssociatedValue("isAlwaysAtFrontObservation") }
-            set { setAssociatedValue(newValue, key: "isAlwaysAtFrontObservation") }
-        }
-        
-        private func observeNewSubviews(shouldObserve: Bool = true) {
-            if shouldObserve {
-                guard !isMethodHooked(#selector(NSUIView.didAddSubview(_:))) else { return }
-                do {
-                    try hook(#selector(NSUIView.didAddSubview(_:)), closure: { original, object, sel, view in
-                        (object as? NSUIView)?.subviews.filter({ $0.isAlwaysAtFront }).forEach({ $0.sendToFront() })
-                        original(object, sel, view)
-                    } as @convention(block) (
-                        (AnyObject, Selector, NSUIView) -> Void,
-                        AnyObject, Selector, NSUIView) -> Void)
-                } catch {
-                    debugPrint(error)
-                }
-            } else if !subviews.contains(where: { $0.isAlwaysAtFront }) {
-                revertHooks(for: #selector(NSUIView.didAddSubview(_:)))
-            }
-        }
-        #endif
     }
 
-#if os(macOS) || os(iOS)
 extension NSUIView {
     static var debugAutoLayoutProblems: Bool {
         get { isMethodHooked(NSSelectorFromString("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:")) }
@@ -640,6 +590,7 @@ extension NSUIView {
             guard newValue != debugAutoLayoutProblems else { return }
             if newValue {
                 do {
+                    #if os(macOS) || os(iOS)
                     try hook("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:", closure: { original, object, sel, engine, constraint, constraints in
                         Swift.print()
                         Swift.print("Autolayout Error:")
@@ -651,6 +602,21 @@ extension NSUIView {
                     } as @convention(block) (
                         (AnyObject, Selector, NSObject, NSLayoutConstraint, [NSLayoutConstraint]) -> Void,
                         AnyObject, Selector, NSObject, NSLayoutConstraint, [NSLayoutConstraint]) -> Void)
+                    #else
+                    try hook(NSSelectorFromString("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:"),
+                    methodSignature: (@convention(c)  (AnyObject, Selector, NSObject, NSLayoutConstraint, [NSLayoutConstraint]) -> ()).self,
+                    hookSignature: (@convention(block)  (AnyObject, NSObject, NSLayoutConstraint, [NSLayoutConstraint]) -> ()).self) { store in {
+                        object, engine, constraint, constraints in
+                        Swift.print()
+                        Swift.print("Autolayout Error:")
+                        Swift.print("- willBreak:", constraint)
+                        Swift.print("- dueToMutuallyExclusive:", constraints)
+                        Swift.print(engine)
+                        Swift.print()
+                        store.original(object, store.selector, engine, constraint, constraints)
+                        }
+                    }
+                    #endif
                 } catch {
                     debugPrint(error)
                 }
@@ -660,7 +626,7 @@ extension NSUIView {
         }
     }
 }
-#endif
+
 extension Gradient.ColorStop {
     static func padded(from: [Self], to: [Self]) -> (from: [Self], to: [Self]) {
         var paddedFrom = from
