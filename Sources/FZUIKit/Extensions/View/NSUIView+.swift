@@ -582,6 +582,7 @@ import FZSwiftUtils
         }
         #endif
         
+        #if os(macOS) || os(iOS)
         /**
          A Boolean value indicating whether the view is always at the front of it's superview (e.g. for an overlay view).
          
@@ -628,8 +629,10 @@ import FZSwiftUtils
                 revertHooks(for: #selector(NSUIView.didAddSubview(_:)))
             }
         }
+        #endif
     }
 
+#if os(macOS) || os(iOS)
 extension NSUIView {
     static var debugAutoLayoutProblems: Bool {
         get { isMethodHooked(NSSelectorFromString("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:")) }
@@ -657,6 +660,7 @@ extension NSUIView {
         }
     }
 }
+#endif
 extension Gradient.ColorStop {
     static func padded(from: [Self], to: [Self]) -> (from: [Self], to: [Self]) {
         var paddedFrom = from

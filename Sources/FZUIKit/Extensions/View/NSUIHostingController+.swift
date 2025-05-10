@@ -25,6 +25,7 @@
             self.init(rootView: content())
         }
         
+        #if os(macOS) || os(iOS)
         /// A Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
         var ignoresSafeArea: Bool {
             get { view.isMethodHooked(#selector(getter: NSUIView.safeAreaInsets)) }
@@ -37,6 +38,7 @@
             ignoresSafeArea = ignores
             return self
         }
+        #endif
         
         /// The minimum size of the view that satisfies the constraints it holds.
         var fittingSize: CGSize {
@@ -60,6 +62,7 @@ extension NSUIHostingController {
         set { setAssociatedValue(newValue, key: "heightAnchor") }
     }
     
+    #if os(macOS) || os(iOS)
     var autoAdjustsHeight: Bool {
         get { getAssociatedValue("autoAdjustsHeight", initialValue: false) }
         set {
@@ -98,8 +101,10 @@ extension NSUIHostingController {
             }
         }
     }
+    #endif
 }
 
+#if os(macOS) || os(iOS)
 fileprivate extension NSUIView {
     @available(macOS 11.0, iOS 11.0, tvOS 11.0, *)
     func setSafeAreaInsets(_ newSafeAreaInsets: NSUIEdgeInsets?) {
@@ -117,6 +122,8 @@ fileprivate extension NSUIView {
         }
     }
 }
+#endif
+
     #if canImport(AppKit)
         public extension NSHostingView {
             /**
