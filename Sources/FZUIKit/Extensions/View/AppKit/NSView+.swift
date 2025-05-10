@@ -827,19 +827,16 @@
         public func setTag(_ tag: Int?) throws {
             if let tag = tag {
                 do {
-                    try replaceMethod(
-                        #selector(getter: NSView.tag),
-                        methodSignature: (@convention(c)  (AnyObject, Selector) -> (Int)).self,
-                        hookSignature: (@convention(block)  (AnyObject) -> (Int)).self) { store in {
-                            object in
-                            return tag
-                        }
-                        }
+                    try hook(#selector(getter: NSView.tag), closure: { original, object, sel in
+                        return tag
+                    } as @convention(block) (
+                        (AnyObject, Selector) -> Int,
+                        AnyObject, Selector) -> Int)
                 } catch {
                     throw error
                 }
             } else {
-                resetMethod(#selector(getter: NSView.tag))
+                revertHooks(for: #selector(getter: NSView.tag))
             }
         }
         

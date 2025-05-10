@@ -310,93 +310,79 @@ extension NSView {
     
     /// A Boolean value that indicates whether the property `inLiveResize` is KVO observable.
     public static var isLiveResizingObservable: Bool {
-        get { isMethodReplaced(#selector(NSView.viewWillStartLiveResize)) }
+        get { isMethodHooked(#selector(NSView.viewWillStartLiveResize)) }
         set {
             guard newValue != isLiveResizingObservable else { return }
             if newValue {
                 do {
-                   try replaceMethod(
-                   #selector(NSView.viewWillStartLiveResize),
-                   methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
-                   hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
-                       object in
-                       if let view = object as? NSView {
-                           view.willChangeValue(for: \.inLiveResize)
-                           view._inLiveResize = true
-                           view.didChangeValue(for: \.inLiveResize)
-                           view._inLiveResize = nil
-                       }
-                       store.original(object, #selector(NSView.viewWillStartLiveResize))
-                       }
-                   }
-                    try replaceMethod(
-                    #selector(NSView.viewDidEndLiveResize),
-                    methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
-                    hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
-                        object in
+                    try hook(#selector(NSView.viewWillStartLiveResize), closure: { original, object, sel in
+                        if let view = object as? NSView {
+                            view.willChangeValue(for: \.inLiveResize)
+                            view._inLiveResize = true
+                            view.didChangeValue(for: \.inLiveResize)
+                            view._inLiveResize = nil
+                        }
+                        original(object, sel)
+                    } as @convention(block) (
+                        (AnyObject, Selector) -> Void,
+                        AnyObject, Selector) -> Void)
+                    
+                    try hook(#selector(NSView.viewDidEndLiveResize), closure: { original, object, sel in
                         if let view = object as? NSView {
                             view._inLiveResize = true
                             view.willChangeValue(for: \.inLiveResize)
                             view._inLiveResize = nil
                             view.didChangeValue(for: \.inLiveResize)
                         }
-                        store.original(object, #selector(NSView.viewDidEndLiveResize))
-                        }
-                    }
-                    try replaceMethod(
-                        #selector(getter: NSView.inLiveResize),
-                    methodSignature: (@convention(c)  (AnyObject, Selector) -> (Bool)).self,
-                    hookSignature: (@convention(block)  (AnyObject) -> (Bool)).self) { store in {
-                        object in
-                        (object as? NSView)?._inLiveResize ?? store.original(object,#selector(getter: NSView.inLiveResize))
-                        }
-                    }
+                        original(object, sel)
+                    } as @convention(block) (
+                        (AnyObject, Selector) -> Void,
+                        AnyObject, Selector) -> Void)
+                    
+                    try hook(#selector(getter: NSView.inLiveResize), closure: { original, object, sel in
+                        (object as? NSView)?._inLiveResize ?? original(object, sel)
+                    } as @convention(block) (
+                        (AnyObject, Selector) -> Bool,
+                        AnyObject, Selector) -> Bool)
                 } catch {
                    debugPrint(error)
                 }
             } else {
-                resetMethod(#selector(NSView.viewWillStartLiveResize))
-                resetMethod(#selector(NSView.viewDidEndLiveResize))
-                resetMethod(#selector(getter: NSView.inLiveResize))
+                revertHooks(for: #selector(NSView.viewWillStartLiveResize))
+                revertHooks(for: #selector(NSView.viewDidEndLiveResize))
+                revertHooks(for: #selector(getter: NSView.inLiveResize))
             }
         }
     }
     
     static func setupLiveResizingObservation() {
-        guard !isMethodReplaced(#selector(NSView.viewWillStartLiveResize)) else { return  }
+        guard !isMethodHooked(#selector(NSView.viewWillStartLiveResize)) else { return  }
         do {
-           try replaceMethod(
-           #selector(NSView.viewWillStartLiveResize),
-           methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
-           hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
-               object in
-               (object as? NSView)?.willChangeValue(for: \.inLiveResize)
-               (object as? NSView)?._inLiveResize = true
-               (object as? NSView)?.didChangeValue(for: \.inLiveResize)
-               (object as? NSView)?._inLiveResize = nil
-               store.original(object, #selector(NSView.viewWillStartLiveResize))
-               }
-           }
-            try replaceMethod(
-            #selector(NSView.viewDidEndLiveResize),
-            methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
-            hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
-                object in
+            try hook(#selector(NSView.viewWillStartLiveResize), closure: { original, object, sel in
+                (object as? NSView)?.willChangeValue(for: \.inLiveResize)
+                (object as? NSView)?._inLiveResize = true
+                (object as? NSView)?.didChangeValue(for: \.inLiveResize)
+                (object as? NSView)?._inLiveResize = nil
+                original(object, sel)
+            } as @convention(block) (
+                (AnyObject, Selector) -> Void,
+                AnyObject, Selector) -> Void)
+            
+            try hook(#selector(NSView.viewDidEndLiveResize), closure: { original, object, sel in
                 (object as? NSView)?._inLiveResize = true
                 (object as? NSView)?.willChangeValue(for: \.inLiveResize)
                 (object as? NSView)?._inLiveResize = nil
                 (object as? NSView)?.didChangeValue(for: \.inLiveResize)
-                store.original(object, #selector(NSView.viewDidEndLiveResize))
-                }
-            }
-            try replaceMethod(
-                #selector(getter: NSView.inLiveResize),
-            methodSignature: (@convention(c)  (AnyObject, Selector) -> (Bool)).self,
-            hookSignature: (@convention(block)  (AnyObject) -> (Bool)).self) { store in {
-                object in
-                (object as? NSView)?._inLiveResize ?? store.original(object,#selector(getter: NSView.inLiveResize))
-                }
-            }
+                original(object, sel)
+            } as @convention(block) (
+                (AnyObject, Selector) -> Void,
+                AnyObject, Selector) -> Void)
+            
+            try hook(#selector(getter: NSView.inLiveResize), closure: { original, object, sel in
+                (object as? NSView)?._inLiveResize ?? original(object, sel)
+            } as @convention(block) (
+                (AnyObject, Selector) -> Bool,
+                AnyObject, Selector) -> Bool)
         } catch {
            // handle error
            debugPrint(error)

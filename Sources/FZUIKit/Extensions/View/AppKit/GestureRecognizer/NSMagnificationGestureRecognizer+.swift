@@ -46,17 +46,14 @@ extension NSMagnificationGestureRecognizer: VelocityGestureRecognizer {
 
 extension NSGestureRecognizer {
     func swizzleGestureState() {
-        guard !isMethodReplaced(#selector(setter: NSGestureRecognizer.state)) else { return }
+        guard !isMethodHooked(#selector(setter: NSGestureRecognizer.state)) else { return }
         do {
-            try replaceMethod(
-                #selector(setter: NSGestureRecognizer.state),
-                methodSignature: (@convention(c)  (AnyObject, Selector, State) -> ()).self,
-                hookSignature: (@convention(block)  (AnyObject, State) -> ()).self) { store in {
-                   object, state in
-                    (object as? VelocityGestureRecognizer)?.updateVelocity()
-                   store.original(object, #selector(setter: NSGestureRecognizer.state), state)
-                }
-           }
+            try hook(#selector(setter: NSGestureRecognizer.state), closure: { original, object, sel, state in
+                (object as? VelocityGestureRecognizer)?.updateVelocity()
+                original(object, sel, state)
+            } as @convention(block) (
+                (AnyObject, Selector, State) -> Void,
+                AnyObject, Selector, State) -> Void)
             (self as? VelocityGestureRecognizer)?.updateVelocity()
         } catch {
             Swift.debugPrint(error)

@@ -196,17 +196,14 @@ extension NSCursor {
         self.init(image: frames.first?.image ?? NSCursor.current.image, hotSpot: !frames.isEmpty ? hotSpot : NSCursor.current.hotSpot)
         guard frames.count > 1 else { return }
         do {
-            try replaceMethod(
-                #selector(NSCursor.set),
-                methodSignature: (@convention(c) (AnyObject, Selector) -> Void).self,
-                hookSignature: (@convention(block) (AnyObject) -> Void).self
-            ) { store in { object in
-                store.original(object, #selector(NSCursor.set))
+            try hook(#selector(NSCursor.set), closure: { original, object, sel in
+                original(object, sel)
                 NSCursorAnimator.shared.frames = frames
                 NSCursorAnimator.shared.hotSpot = hotSpot
                 NSCursorAnimator.shared.start()
-            }
-            }
+            } as @convention(block) (
+                (AnyObject, Selector) -> Void,
+                AnyObject, Selector) -> Void)
         } catch {
             Swift.debugPrint(error)
         }

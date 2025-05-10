@@ -613,53 +613,46 @@ import FZSwiftUtils
         
         private func observeNewSubviews(shouldObserve: Bool = true) {
             if shouldObserve {
-                guard !isMethodReplaced(#selector(NSUIView.didAddSubview(_:))) else { return }
+                guard !isMethodHooked(#selector(NSUIView.didAddSubview(_:))) else { return }
                 do {
-                    try replaceMethod(
-                        #selector(NSUIView.didAddSubview(_:)),
-                        methodSignature: (@convention(c)  (AnyObject, Selector, NSUIView) -> ()).self,
-                        hookSignature: (@convention(block)  (AnyObject, NSUIView) -> ()).self) { store in {
-                            object, view in
-                            (object as? NSUIView)?.subviews.filter({ $0.isAlwaysAtFront }).forEach({ $0.sendToFront() })
-                            store.original(object, #selector(NSUIView.didAddSubview(_:)), view)
-                        }
-                        }
+                    try hook(#selector(NSUIView.didAddSubview(_:)), closure: { original, object, sel, view in
+                        (object as? NSUIView)?.subviews.filter({ $0.isAlwaysAtFront }).forEach({ $0.sendToFront() })
+                        original(object, sel, view)
+                    } as @convention(block) (
+                        (AnyObject, Selector, NSUIView) -> Void,
+                        AnyObject, Selector, NSUIView) -> Void)
                 } catch {
                     debugPrint(error)
                 }
             } else if !subviews.contains(where: { $0.isAlwaysAtFront }) {
-                resetMethod(#selector(NSUIView.didAddSubview(_:)))
+                revertHooks(for: #selector(NSUIView.didAddSubview(_:)))
             }
         }
     }
 
 extension NSUIView {
     static var debugAutoLayoutProblems: Bool {
-        get { isMethodReplaced(NSSelectorFromString("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:")) }
+        get { isMethodHooked(NSSelectorFromString("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:")) }
         set {
             guard newValue != debugAutoLayoutProblems else { return }
             if newValue {
                 do {
-                    try replaceMethod(
-                        NSSelectorFromString("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:"),
-                        methodSignature: (@convention(c)  (AnyObject, Selector, NSObject, NSLayoutConstraint, [NSLayoutConstraint]) -> ()).self,
-                        hookSignature: (@convention(block)  (AnyObject, NSObject, NSLayoutConstraint, [NSLayoutConstraint]) -> ()).self) { store in {
-                            object, engine, constraint, constraints in
-                            // handle replaced `mouseDown`
-                            Swift.print()
-                            Swift.print("Autolayout Error:")
-                            Swift.print("- willBreak:", constraint)
-                            Swift.print("- dueToMutuallyExclusive:", constraints)
-                            Swift.print(engine)
-                            Swift.print()
-                            store.original(object, NSSelectorFromString("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:"), engine, constraint, constraints)
-                        }
-                        }
+                    try hook("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:", closure: { original, object, sel, engine, constraint, constraints in
+                        Swift.print()
+                        Swift.print("Autolayout Error:")
+                        Swift.print("- willBreak:", constraint)
+                        Swift.print("- dueToMutuallyExclusive:", constraints)
+                        Swift.print(engine)
+                        Swift.print()
+                        original(object, sel, engine, constraint, constraints)
+                    } as @convention(block) (
+                        (AnyObject, Selector, NSObject, NSLayoutConstraint, [NSLayoutConstraint]) -> Void,
+                        AnyObject, Selector, NSObject, NSLayoutConstraint, [NSLayoutConstraint]) -> Void)
                 } catch {
                     debugPrint(error)
                 }
             } else {
-                resetMethod(NSSelectorFromString("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:"))
+                revertHooks(for: NSSelectorFromString("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:"))
             }
         }
     }

@@ -12,6 +12,7 @@
         import UIKit
     #endif
 
+    @available(macOS 10.15.1, iOS 13.0, tvOS 13.0, *)
     public extension NSDiffableDataSourceSnapshot {
         /**
          Creates a snapshot with the sections and items of the specified dictionary.

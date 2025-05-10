@@ -32,20 +32,17 @@ extension UIAlertAction {
     typealias AlertHandler = @convention(block) (UIAlertAction) -> Void
     
     var isSuppressable: Bool {
-        get { !isMethodReplaced(NSSelectorFromString("setHandler:")) }
+        get { !isMethodHooked(NSSelectorFromString("setHandler:")) }
         set {
             guard newValue != isSuppressable else { return }
             if newValue {
                 do {
-                    try replaceMethod(
-                     NSSelectorFromString("setHandler:"),
-                    methodSignature: (@convention(c)  (AnyObject, Selector, Any?) -> ()).self,
-                    hookSignature: (@convention(block)  (AnyObject, Any?) -> ()).self) { store in {
-                        object, action in
+                    try hook(NSSelectorFromString("setHandler:"), closure: { original, object, sel, action in
                         Swift.print("set", action ?? "nil")
-                        store.original(object, NSSelectorFromString("setHandler:"), action)
-                        }
-                    }
+                        original(object, sel, action)
+                    } as @convention(block) (
+                        (AnyObject, Selector, Any?) -> Void,
+                        AnyObject, Selector, Any?) -> Void)
                 } catch {
                     Swift.debugPrint(error)
                 }

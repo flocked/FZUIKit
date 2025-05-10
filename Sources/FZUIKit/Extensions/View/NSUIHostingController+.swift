@@ -27,7 +27,7 @@
         
         /// A Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
         var ignoresSafeArea: Bool {
-            get { view.isMethodReplaced(#selector(getter: NSUIView.safeAreaInsets)) }
+            get { view.isMethodHooked(#selector(getter: NSUIView.safeAreaInsets)) }
             set { view.setSafeAreaInsets(newValue ? .zero : nil) }
         }
         
@@ -72,32 +72,29 @@ extension NSUIHostingController {
             let selector = #selector(Self.viewDidLayoutSubviews)
             #endif
             if newValue {
-                guard !isMethodReplaced(selector) else { return }
+                guard !isMethodHooked(selector) else { return }
                 do {
-                   try replaceMethod(
-                    selector,
-                   methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
-                   hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
-                       object in
-                       if let controller = object as? Self {
-                           if controller.view.frame.size.width != controller._previousWidth {
-                               controller._previousWidth = controller.view.frame.size.width
-                               let fittingSize = controller.sizeThatFits(in: CGSize(width: controller._previousWidth, height: 40000))
-                               controller._heightAnchor.constant = fittingSize.height
-                           }
-                       }
-                       // handle replaced `mouseDown`
-                
-                       // calls `super.mouseDown`
-                       store.original(object, selector)
-                       }
-                   }
+                    try hook(selector, closure: { original, object, sel in
+                        if let controller = object as? Self {
+                            if controller.view.frame.size.width != controller._previousWidth {
+                                controller._previousWidth = controller.view.frame.size.width
+                                let fittingSize = controller.sizeThatFits(in: CGSize(width: controller._previousWidth, height: 40000))
+                                controller._heightAnchor.constant = fittingSize.height
+                            }
+                        }
+                        // handle replaced `mouseDown`
+                 
+                        // calls `super.mouseDown`
+                        original(object, selector)
+                    } as @convention(block) (
+                        (AnyObject, Selector) -> Void,
+                        AnyObject, Selector) -> Void)
                 } catch {
                    // handle error
                    debugPrint(error)
                 }
             } else {
-                resetMethod(selector)
+                revertHooks(for: selector)
             }
         }
     }
@@ -106,17 +103,14 @@ extension NSUIHostingController {
 fileprivate extension NSUIView {
     @available(macOS 11.0, iOS 11.0, tvOS 11.0, *)
     func setSafeAreaInsets(_ newSafeAreaInsets: NSUIEdgeInsets?) {
-        resetMethod(#selector(getter: NSUIView.safeAreaInsets))
+        revertHooks(for: #selector(getter: NSUIView.safeAreaInsets))
         if let newSafeAreaInsets = newSafeAreaInsets {
             do {
-                try replaceMethod(
-                    #selector(getter: NSUIView.safeAreaInsets),
-                    methodSignature: (@convention(c)  (AnyObject, Selector) -> (NSUIEdgeInsets)).self,
-                    hookSignature: (@convention(block)  (AnyObject) -> (NSUIEdgeInsets)).self) { store in {
-                       object in
-                       return newSafeAreaInsets
-                    }
-               }
+                try hook(#selector(getter: NSUIView.safeAreaInsets), closure: { original, object, sel in
+                    return newSafeAreaInsets
+                } as @convention(block) (
+                    (AnyObject, Selector) -> NSUIEdgeInsets,
+                    AnyObject, Selector) -> NSUIEdgeInsets)
             } catch {
                 Swift.debugPrint(error)
             }
@@ -139,7 +133,7 @@ fileprivate extension NSUIView {
             /// A Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
             @available(macOS 11.0, *)
             var ignoresSafeArea: Bool {
-                get { isMethodReplaced(#selector(getter: NSUIView.safeAreaInsets)) }
+                get { isMethodHooked(#selector(getter: NSUIView.safeAreaInsets)) }
                 set { setSafeAreaInsets(newValue ? .zero : nil) }
             }
             

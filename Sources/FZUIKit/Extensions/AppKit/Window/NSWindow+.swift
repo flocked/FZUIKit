@@ -729,48 +729,43 @@ extension NSWindow {
     
     /// A Boolean value that indicates whether the property `isKeyWindow` is KVO observable.
     public static var isKeyWindowObservable: Bool {
-        get { isMethodReplaced(#selector(getter: NSWindow.isKeyWindow)) }
+        get { isMethodHooked(#selector(getter: NSWindow.isKeyWindow)) }
         set {
             guard newValue != isKeyWindowObservable else { return }
             if newValue {
                 do {
-                    try replaceMethod(
-                        #selector(getter: NSWindow.isKeyWindow),
-                        methodSignature: (@convention(c)  (AnyObject, Selector) -> (Bool)).self,
-                        hookSignature: (@convention(block)  (AnyObject) -> (Bool)).self) { store in {
-                            object in
-                            return (object as? NSWindow)?._isKeyWindow ?? store.original(object, #selector(getter: NSWindow.isKeyWindow))
-                        }
-                        }
-                    try replaceMethod(#selector(NSWindow.becomeKey),
-                                      methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
-                                      hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
-                        object in
+                    try hook(#selector(getter: NSWindow.isKeyWindow), closure: { original, object, sel in
+                        return (object as? NSWindow)?._isKeyWindow ?? original(object, sel)
+                    } as @convention(block) (
+                        (AnyObject, Selector) -> Bool,
+                        AnyObject, Selector) -> Bool)
+                    
+                    try hook(#selector(NSWindow.becomeKey), closure: { original, object, sel in
                         guard let window = object as? NSWindow else {
-                            store.original(object, #selector(NSWindow.becomeKey))
+                            original(object, sel)
                             return
                         }
                         window.willChangeValue(for: \.isKeyWindow)
-                        store.original(object, #selector(NSWindow.becomeKey))
+                        original(object, sel)
                         window.didChangeValue(for: \.isKeyWindow)
-                    }
-                    }
-                    try replaceMethod(#selector(NSWindow.resignKey),
-                                      methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
-                                      hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
-                        object in
-                        store.original(object, #selector(NSWindow.resignKey))
+                    } as @convention(block) (
+                        (AnyObject, Selector) -> Void,
+                        AnyObject, Selector) -> Void)
+                    
+                    try hook(#selector(NSWindow.resignKey), closure: { original, object, sel in
+                        original(object, sel)
                         guard let window = object as? NSWindow else { return }
                         window._isKeyWindow = true
-                    }
-                    }
+                    } as @convention(block) (
+                        (AnyObject, Selector) -> Void,
+                        AnyObject, Selector) -> Void)
                 } catch {
                     Swift.debugPrint(error)
                 }
             } else {
-                resetMethod(#selector(NSWindow.becomeKey))
-                resetMethod(#selector(NSWindow.resignKey))
-                resetMethod(#selector(getter: NSWindow.isKeyWindow))
+                revertHooks(for: #selector(NSWindow.becomeKey))
+                revertHooks(for: #selector(NSWindow.resignKey))
+                revertHooks(for: #selector(getter: NSWindow.isKeyWindow))
             }
         }
     }
@@ -787,74 +782,66 @@ extension NSWindow {
     
     /// A Boolean value that indicates whether the property `isMainWindow` is KVO observable.
     public static var isMainWindowObservable: Bool {
-        get { isMethodReplaced(#selector(getter: NSWindow.isMainWindow)) }
+        get { isMethodHooked(#selector(getter: NSWindow.isMainWindow)) }
         set {
             guard newValue != isMainWindowObservable else { return }
             if newValue {
                 do {
-                    try replaceMethod(
-                        #selector(getter: NSWindow.isMainWindow),
-                        methodSignature: (@convention(c)  (AnyObject, Selector) -> (Bool)).self,
-                        hookSignature: (@convention(block)  (AnyObject) -> (Bool)).self) { store in {
-                            object in
-                            return (object as? NSWindow)?._isMainWindow ?? store.original(object, #selector(getter: NSWindow.isMainWindow))
-                        }
-                        }
-                    try replaceMethod(#selector(NSWindow.becomeMain),
-                                      methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
-                                      hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
-                        object in
+                    try hook(#selector(getter: NSWindow.isMainWindow), closure: { original, object, sel in
+                        return (object as? NSWindow)?._isMainWindow ?? original(object, sel)
+                    } as @convention(block) (
+                        (AnyObject, Selector) -> Bool,
+                        AnyObject, Selector) -> Bool)
+                    
+                    try hook(#selector(NSWindow.becomeMain), closure: { original, object, sel in
                         guard let window = object as? NSWindow else {
-                            store.original(object, #selector(NSWindow.becomeMain))
+                            original(object, sel)
                             return
                         }
                         window.willChangeValue(for: \.isMainWindow)
-                        store.original(object, #selector(NSWindow.becomeMain))
+                        original(object, sel)
                         window.didChangeValue(for: \.isMainWindow)
-                    }
-                    }
-                    try replaceMethod(#selector(NSWindow.resignMain),
-                                      methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
-                                      hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
-                        object in
-                        store.original(object, #selector(NSWindow.resignMain))
+                    } as @convention(block) (
+                        (AnyObject, Selector) -> Void,
+                        AnyObject, Selector) -> Void)
+                    
+                    try hook(#selector(NSWindow.resignMain), closure: { original, object, sel in
+                        original(object, sel)
                         guard let window = object as? NSWindow else { return }
                         window._isMainWindow = true
-                    }
-                    }
+                    } as @convention(block) (
+                        (AnyObject, Selector) -> Void,
+                        AnyObject, Selector) -> Void)
                 } catch {
                     Swift.debugPrint(error)
                 }
             } else {
-                resetMethod(#selector(NSWindow.becomeMain))
-                resetMethod(#selector(NSWindow.resignMain))
-                resetMethod(#selector(getter: NSWindow.isMainWindow))
+                revertHooks(for: #selector(NSWindow.becomeMain))
+                revertHooks(for: #selector(NSWindow.resignMain))
+                revertHooks(for: #selector(getter: NSWindow.isMainWindow))
             }
         }
     }
     
     /// A Boolean value that indicates whether the property `inLiveResize` is KVO observable.
     public static var isLiveResizeObservable: Bool {
-        get { isMethodReplaced(#selector(getter: NSWindow.inLiveResize)) }
+        get { isMethodHooked(#selector(getter: NSWindow.inLiveResize)) }
         set {
             guard newValue != isLiveResizeObservable else { return }
             if newValue {
-                guard !isMethodReplaced(#selector(getter: NSWindow.inLiveResize)) else { return }
+                guard !isMethodHooked(#selector(getter: NSWindow.inLiveResize)) else { return }
                 do {
-                    try replaceMethod(
-                        #selector(getter: NSWindow.inLiveResize),
-                        methodSignature: (@convention(c)  (AnyObject, Selector) -> (Bool)).self,
-                        hookSignature: (@convention(block)  (AnyObject) -> (Bool)).self) { store in {
-                            object in
-                            (object as? NSWindow)?.setupLiveResizeObservation()
-                            return (object as? NSWindow)?._inLiveResize ?? store.original(object, #selector(getter: NSWindow.inLiveResize))
-                        }
-                        }
+                    try hook(#selector(getter: NSWindow.inLiveResize), closure: { original, object, sel in
+                        (object as? NSWindow)?.setupLiveResizeObservation()
+                        return (object as? NSWindow)?._inLiveResize ?? original(object, sel)
+                    } as @convention(block) (
+                        (AnyObject, Selector) -> Bool,
+                        AnyObject, Selector) -> Bool)
                 } catch {
                     debugPrint(error)
                 }
             } else {
-                resetMethod(#selector(getter: NSWindow.inLiveResize))
+                revertHooks(for: #selector(getter: NSWindow.inLiveResize))
             }
         }
     }

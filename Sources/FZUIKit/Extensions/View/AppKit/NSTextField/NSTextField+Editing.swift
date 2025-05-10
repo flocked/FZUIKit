@@ -352,66 +352,64 @@
         
         func swizzleDoCommandBy() {
             if editingActionOnEscapeKeyDown != .none || editingActionOnEnterKeyDown != .none {
-                if isMethodReplaced(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) == false {
+                if isMethodHooked(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) == false {
                     textFieldObserver = nil
                     do {
-                        try replaceMethod(
-                            #selector(NSTextViewDelegate.textView(_:doCommandBy:)),
-                            methodSignature: (@convention(c) (AnyObject, Selector, NSTextView, Selector) -> (Bool)).self,
-                            hookSignature: (@convention(block) (AnyObject, NSTextView, Selector) -> (Bool)).self
-                        ) { store in { object, textView, selector in
-                            if let textField = object as? NSTextField {
-                                switch selector {
-                                case #selector(NSControl.cancelOperation(_:)):
-                                    switch textField.editingActionOnEscapeKeyDown {
-                                    case .endEditingAndReset:
-                                        textField.stringValue = textField.editStartString
-                                        textField.adjustFontSize()
+                        try hook(#selector(NSTextViewDelegate.textView(_:doCommandBy:)), closure: { original, object, sel, textView, selector in
+                            guard let textField = object as? NSTextField else {
+                                return original(object, sel, textView, selector)
+                            }
+                            switch selector {
+                            case #selector(NSControl.cancelOperation(_:)):
+                                switch textField.editingActionOnEscapeKeyDown {
+                                case .endEditingAndReset:
+                                    textField.stringValue = textField.editStartString
+                                    textField.adjustFontSize()
+                                    textView.resignFirstResponding()
+                                    return true
+                                case .endEditing:
+                                    if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
+                                        return false
+                                    } else {
                                         textView.resignFirstResponding()
                                         return true
-                                    case .endEditing:
-                                        if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
-                                            return false
-                                        } else {
-                                            textView.resignFirstResponding()
-                                            return true
-                                        }
-                                    case .delete:
-                                        textField.stringValue = ""
-                                        textField.adjustFontSize()
-                                        return false
-                                    case .reset:
-                                        textField.stringValue = textField.editStartString
-                                        textField.adjustFontSize()
-                                        return false
-                                    case .none:
-                                        break
                                     }
-                                case #selector(NSControl.insertNewline(_:)):
-                                    switch textField.editingActionOnEnterKeyDown {
-                                    case .endEditing:
-                                        if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
-                                            return false
-                                        } else {
-                                            textView.resignFirstResponding()
-                                            return true
-                                        }
-                                    case .none: break
-                                    }
-                                default: break
+                                case .delete:
+                                    textField.stringValue = ""
+                                    textField.adjustFontSize()
+                                    return false
+                                case .reset:
+                                    textField.stringValue = textField.editStartString
+                                    textField.adjustFontSize()
+                                    return false
+                                case .none:
+                                    break
                                 }
+                            case #selector(NSControl.insertNewline(_:)):
+                                switch textField.editingActionOnEnterKeyDown {
+                                case .endEditing:
+                                    if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
+                                        return false
+                                    } else {
+                                        textView.resignFirstResponding()
+                                        return true
+                                    }
+                                case .none: break
+                                }
+                            default: break
                             }
-                            return store.original(object, #selector(NSTextViewDelegate.textView(_:doCommandBy:)), textView, selector)
-                        }
-                        }
+                            return original(object, sel, textView, selector)
+                        } as @convention(block) (
+                            (AnyObject, Selector, NSTextView, Selector) -> Bool,
+                            AnyObject, Selector, NSTextView, Selector) -> Bool)
                        setupTextFieldObserver()
                     } catch {
                         Swift.debugPrint(error)
                     }
                 }
-            } else if isMethodReplaced(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) {
+            } else if isMethodHooked(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) {
                 textFieldObserver = nil
-                resetMethod(#selector(NSTextViewDelegate.textView(_:doCommandBy:)))
+                revertHooks(for: #selector(NSTextViewDelegate.textView(_:doCommandBy:)))
                 setupTextFieldObserver()
             }
         }

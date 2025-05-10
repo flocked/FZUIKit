@@ -148,15 +148,12 @@ extension NSDraggingSource where Self: NSObject {
         didSwizzleDraggingSourceWillBegin = true
         if responds(to: #selector(NSDraggingSource.draggingSession(_:willBeginAt:))) {
             do {
-               try replaceMethod(
-                #selector(NSDraggingSource.draggingSession(_:willBeginAt:)),
-               methodSignature: (@convention(c)  (AnyObject, Selector, NSDraggingSession, NSPoint) -> ()).self,
-               hookSignature: (@convention(block)  (AnyObject, NSDraggingSession, NSPoint) -> ()).self) { store in {
-                   object, session, screenLocation in
-                   (object as? NSDraggingSource & NSObject)?.draggingSourceHandlers.willBegin?(session, screenLocation)
-                   store.original(object,  #selector(NSDraggingSource.draggingSession(_:willBeginAt:)), session, screenLocation)
-                   }
-               }
+                try hook(#selector(NSDraggingSource.draggingSession(_:willBeginAt:)), closure: { original, object, sel, session, screenLocation in
+                    (object as? NSDraggingSource & NSObject)?.draggingSourceHandlers.willBegin?(session, screenLocation)
+                    original(object, sel, session, screenLocation)
+                } as @convention(block) (
+                    (AnyObject, Selector, NSDraggingSession, NSPoint) -> Void,
+                    AnyObject, Selector, NSDraggingSession, NSPoint) -> Void)
             } catch {
                debugPrint(error)
             }
@@ -176,15 +173,12 @@ extension NSDraggingSource where Self: NSObject {
         didSwizzleDraggingSourceDidUpdate = true
         if responds(to: #selector(NSDraggingSource.draggingSession(_:movedTo:))) {
             do {
-               try replaceMethod(
-                #selector(NSDraggingSource.draggingSession(_:movedTo:)),
-               methodSignature: (@convention(c)  (AnyObject, Selector, NSDraggingSession, NSPoint) -> ()).self,
-               hookSignature: (@convention(block)  (AnyObject, NSDraggingSession, NSPoint) -> ()).self) { store in {
-                   object, session, screenLocation in
-                   (object as? NSDraggingSource & NSObject)?.draggingSourceHandlers.didUpdate?(session, screenLocation)
-                   store.original(object, #selector(NSDraggingSource.draggingSession(_:movedTo:)), session, screenLocation)
-                   }
-               }
+                try hook(#selector(NSDraggingSource.draggingSession(_:movedTo:)), closure: { original, object, sel, session, screenLocation in
+                    (object as? NSDraggingSource & NSObject)?.draggingSourceHandlers.didUpdate?(session, screenLocation)
+                    original(object, sel, session, screenLocation)
+                } as @convention(block) (
+                    (AnyObject, Selector, NSDraggingSession, NSPoint) -> Void,
+                    AnyObject, Selector, NSDraggingSession, NSPoint) -> Void)
             } catch {
                debugPrint(error)
             }
@@ -205,15 +199,12 @@ extension NSDraggingSource where Self: NSObject {
         didSwizzleDraggingSourceDidEnd = true
         if responds(to: #selector(NSDraggingSource.draggingSession(_:endedAt:operation:))) {
             do {
-               try replaceMethod(
-                #selector(NSDraggingSource.draggingSession(_:endedAt:operation:)),
-               methodSignature: (@convention(c)  (AnyObject, Selector, NSDraggingSession, NSPoint, NSDragOperation) -> ()).self,
-               hookSignature: (@convention(block)  (AnyObject, NSDraggingSession, NSPoint, NSDragOperation) -> ()).self) { store in {
-                   object, session, screenLocation, operation in
-                   (object as? NSDraggingSource & NSObject)?.draggingSourceHandlers.didEnd?(session, screenLocation, operation)
-                   store.original(object, #selector(NSDraggingSource.draggingSession(_:endedAt:operation:)), session, screenLocation, operation)
-                   }
-               }
+                try hook(#selector(NSDraggingSource.draggingSession(_:endedAt:operation:)), closure: { original, object, sel, session, screenLocation, operation in
+                    (object as? NSDraggingSource & NSObject)?.draggingSourceHandlers.didEnd?(session, screenLocation, operation)
+                    original(object, sel, session, screenLocation, operation)
+                } as @convention(block) (
+                    (AnyObject, Selector, NSDraggingSession, NSPoint, NSDragOperation) -> Void,
+                    AnyObject, Selector, NSDraggingSession, NSPoint, NSDragOperation) -> Void)
             } catch {
                debugPrint(error)
             }

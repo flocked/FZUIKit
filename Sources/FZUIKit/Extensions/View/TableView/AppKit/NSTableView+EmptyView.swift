@@ -74,22 +74,19 @@ extension NSTableView {
     }
         
     var didSwizzleNumberOfRows: Bool {
-        isMethodReplaced(#selector(getter: NSTableView.numberOfRows))
+        isMethodHooked(#selector(getter: NSTableView.numberOfRows))
     }
     
     func swizzleNumberOfRows() {
-        guard !isMethodReplaced(#selector(getter: NSTableView.numberOfRows)) else { return }
+        guard !isMethodHooked(#selector(getter: NSTableView.numberOfRows)) else { return }
         do {
-           try replaceMethod(
-            #selector(getter: NSTableView.numberOfRows),
-           methodSignature: (@convention(c)  (AnyObject, Selector) -> (Int)).self,
-           hookSignature: (@convention(block)  (AnyObject) -> (Int)).self) { store in {
-               object in
-               let numberOfRows = store.original(object, #selector(getter: NSTableView.numberOfRows))
-               (object as? NSTableView)?.isEmpty = numberOfRows <= 0
-               return numberOfRows
-               }
-           }
+            try hook(#selector(getter: NSTableView.numberOfRows), closure: { original, object, sel in
+                let numberOfRows = original(object, sel)
+                (object as? NSTableView)?.isEmpty = numberOfRows <= 0
+                return numberOfRows
+            } as @convention(block) (
+                (AnyObject, Selector) -> Int,
+                AnyObject, Selector) -> Int)
         } catch {
            debugPrint(error)
         }
@@ -98,22 +95,19 @@ extension NSTableView {
 
 extension NSOutlineView {
     var didSwizzleNumberOfRowsOutline: Bool {
-        isMethodReplaced(#selector(getter: NSTableView.numberOfRows))
+        isMethodHooked(#selector(getter: NSTableView.numberOfRows))
     }
     
     func swizzleNumberOfRowsOutline() {
-        guard !isMethodReplaced(#selector(getter: NSTableView.numberOfRows)) else { return }
+        guard !isMethodHooked(#selector(getter: NSTableView.numberOfRows)) else { return }
         do {
-           try replaceMethod(
-            #selector(getter: NSTableView.numberOfRows),
-           methodSignature: (@convention(c)  (AnyObject, Selector) -> (Int)).self,
-           hookSignature: (@convention(block)  (AnyObject) -> (Int)).self) { store in {
-               object in
-               let numberOfRows = store.original(object, #selector(getter: NSTableView.numberOfRows))
-               (object as? NSOutlineView)?.isEmpty = numberOfRows <= 0
-               return numberOfRows
-               }
-           }
+            try hook(#selector(getter: NSTableView.numberOfRows), closure: { original, object, sel in
+                let numberOfRows = original(object, sel)
+                (object as? NSOutlineView)?.isEmpty = numberOfRows <= 0
+                return numberOfRows
+            } as @convention(block) (
+                (AnyObject, Selector) -> Int,
+                AnyObject, Selector) -> Int)
         } catch {
            debugPrint(error)
         }

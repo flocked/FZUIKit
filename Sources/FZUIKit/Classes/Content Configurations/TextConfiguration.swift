@@ -279,7 +279,7 @@ extension TextConfiguration: ReferenceConvertible {
                         allowsDefaultTighteningForTruncation: \(allowsDefaultTighteningForTruncation)
                         numberFormatter: \(numberFormatter != nil ? "\(numberFormatter!)" : "nil")
                         onEditEnd: \(onEditEnd != nil)
-                        stringValidation: \(stringValidation)
+                        stringValidation: \(stringValidation != nil)
                     )
                     """
         #else

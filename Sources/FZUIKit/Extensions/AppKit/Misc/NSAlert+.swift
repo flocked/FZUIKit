@@ -218,35 +218,28 @@ extension NSAlert {
     }
     
     func swizzleRunModal() {
-        guard !isMethodReplaced(#selector(self.runModal)) else { return }
+        guard !isMethodHooked(#selector(self.runModal)) else { return }
         do {
-            try replaceMethod(
-                #selector(self.runModal),
-                methodSignature: (@convention(c) (AnyObject, Selector) -> (NSApplication.ModalResponse)).self,
-                hookSignature: (@convention(block) (AnyObject) -> (NSApplication.ModalResponse)).self
-            ) { store in { object in
+            try hook(#selector(self.runModal), closure: { original, object, sel in
                 guard let alert = object as? NSAlert, let suppressionKey = alert.suppressionKey else {
-                    return store.original(object, #selector(self.runModal))
+                    return original(object, sel)
                 }
                 if let supressionKeys: [String] = Defaults.shared["AlertSupressions"], supressionKeys.contains(suppressionKey) {
                     return .suppress
                 }
                 alert.showsSuppressionButton = true
-                let runModal = store.original(object, #selector(self.runModal))
+                let runModal = original(object, sel)
                 if alert.suppressionButton?.state == .on {
                     NSAlert.supressionKeys.insert(suppressionKey)
                 }
                 return runModal
-            }
-            }
+            } as @convention(block) (
+                (AnyObject, Selector) -> NSApplication.ModalResponse,
+                AnyObject, Selector) -> NSApplication.ModalResponse)
             
-            try replaceMethod(
-                #selector(self.beginSheetModal(for:completionHandler:)),
-                methodSignature: (@convention(c) (AnyObject, Selector, NSWindow, ((NSApplication.ModalResponse) -> Void)?) -> ()).self,
-                hookSignature: (@convention(block) (AnyObject, NSWindow, ((NSApplication.ModalResponse) -> Void)?) -> ()).self
-            ) { store in { object, window, handler in
+            try hook(#selector(self.beginSheetModal(for:completionHandler:)), closure: { original, object, sel, window, handler in
                 guard let alert = object as? NSAlert, let suppressionKey = alert.suppressionKey else {
-                    store.original(object, #selector(self.beginSheetModal(for:completionHandler:)), window, handler)
+                    original(object, sel, window, handler)
                     return
                 }
                 if let supressionKeys: [String] = Defaults.shared["AlertSupressions"], supressionKeys.contains(suppressionKey) {
@@ -259,10 +252,11 @@ extension NSAlert {
                         }
                         handler?(response)
                     }
-                    store.original(object, #selector(self.beginSheetModal(for:completionHandler:)), window, wrappedHandler)
+                    original(object, sel, window, wrappedHandler)
                 }
-            }
-            }
+            } as @convention(block) (
+                (AnyObject, Selector, NSWindow, ((NSApplication.ModalResponse) -> Void)?) -> Void,
+                AnyObject, Selector, NSWindow, ((NSApplication.ModalResponse) -> Void)?) -> Void)
         } catch {
             Swift.debugPrint()
         }

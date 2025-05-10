@@ -44,52 +44,49 @@ extension NSCollectionView {
     
     func swizzleDropIndicatorView() {
         if dropTargetGapIndicatorColor != nil || !centeredDropTargetGapIndicator {
-            guard !isMethodReplaced(#selector(NSCollectionView.draggingUpdated(_:))) else { return }
+            guard !isMethodHooked(#selector(NSCollectionView.draggingUpdated(_:))) else { return }
             do {
-               try replaceMethod(#selector(NSCollectionView.draggingUpdated(_:)),
-               methodSignature: (@convention(c)  (AnyObject, Selector, any NSDraggingInfo) -> (NSDragOperation)).self,
-               hookSignature: (@convention(block)  (AnyObject, any NSDraggingInfo) -> (NSDragOperation)).self) { store in {
-                   object, info in
-                   if let collectionView = object as? NSCollectionView {
-                       if let dropView = collectionView._dropTargetGapIndicatorView {
-                           if collectionView.dragIndicatorView.superview == nil {
-                               collectionView.addSubview(collectionView.dragIndicatorView, positioned: .above, relativeTo: dropView)
-                           }
-                           if collectionView.dragIndicatorView.bounds.size != dropView.bounds.size || collectionView.dragIndicatorView.updateImage {
-                               collectionView.dragIndicatorView.updateImage = false
-                               collectionView.dragIndicatorView.frame.size = dropView.bounds.size
-                               var image = dropView.renderedImage
-                               if collectionView.dropTargetGapIndicatorColor != nil {
-                                   image = image.grayscaled() ?? image
-                               }
-                               collectionView.dragIndicatorView.image = image
-                           }
-                           collectionView.dragIndicatorView.frame = dropView.frame
-                           if !collectionView.centeredDropTargetGapIndicator {
-                               collectionView.dragIndicatorView.frame.x -= dropView.bounds.width / 2.0
-                           }
-                           dropView.isHidden = true
-                       } else {
-                           collectionView.dragIndicatorView.removeFromSuperview()
-                       }
-                   }
-                   return store.original(object, #selector(NSCollectionView.draggingUpdated(_:)), info)
-                   }
-               }
-                try replaceMethod(#selector(NSCollectionView.draggingEnded(_:)),
-                methodSignature: (@convention(c)  (AnyObject, Selector, any NSDraggingInfo) -> ()).self,
-                hookSignature: (@convention(block)  (AnyObject, any NSDraggingInfo) -> ()).self) { store in {
-                    object, info in
-                    store.original(object, #selector(NSCollectionView.draggingEnded(_:)), info)
-                    (object as? NSCollectionView)?.dragIndicatorView.removeFromSuperview()
+                try hook(#selector(NSCollectionView.draggingUpdated(_:)), closure: { original, object, sel, info in
+                    if let collectionView = object as? NSCollectionView {
+                        if let dropView = collectionView._dropTargetGapIndicatorView {
+                            if collectionView.dragIndicatorView.superview == nil {
+                                collectionView.addSubview(collectionView.dragIndicatorView, positioned: .above, relativeTo: dropView)
+                            }
+                            if collectionView.dragIndicatorView.bounds.size != dropView.bounds.size || collectionView.dragIndicatorView.updateImage {
+                                collectionView.dragIndicatorView.updateImage = false
+                                collectionView.dragIndicatorView.frame.size = dropView.bounds.size
+                                var image = dropView.renderedImage
+                                if collectionView.dropTargetGapIndicatorColor != nil {
+                                    image = image.grayscaled() ?? image
+                                }
+                                collectionView.dragIndicatorView.image = image
+                            }
+                            collectionView.dragIndicatorView.frame = dropView.frame
+                            if !collectionView.centeredDropTargetGapIndicator {
+                                collectionView.dragIndicatorView.frame.x -= dropView.bounds.width / 2.0
+                            }
+                            dropView.isHidden = true
+                        } else {
+                            collectionView.dragIndicatorView.removeFromSuperview()
+                        }
                     }
-                }
+                    return original(object, sel, info)
+                } as @convention(block) (
+                    (AnyObject, Selector, any NSDraggingInfo) -> NSDragOperation,
+                    AnyObject, Selector, any NSDraggingInfo) -> NSDragOperation)
+                
+                try hook(#selector(NSCollectionView.draggingEnded(_:)), closure: { original, object, sel, info in
+                    original(object, sel, info)
+                    (object as? NSCollectionView)?.dragIndicatorView.removeFromSuperview()
+                } as @convention(block) (
+                    (AnyObject, Selector, any NSDraggingInfo) -> Void,
+                    AnyObject, Selector, any NSDraggingInfo) -> Void)
             } catch {
                debugPrint(error)
             }
-        } else if isMethodReplaced(#selector(NSCollectionView.draggingUpdated(_:))) {
-            resetMethod(#selector(NSCollectionView.draggingUpdated(_:)))
-            resetMethod(#selector(NSCollectionView.draggingEnded(_:)))
+        } else if isMethodHooked(#selector(NSCollectionView.draggingUpdated(_:))) {
+            revertHooks(for: #selector(NSCollectionView.draggingUpdated(_:)))
+            revertHooks(for: #selector(NSCollectionView.draggingEnded(_:)))
             _dropTargetGapIndicatorView?.isHidden = false
             dragIndicatorView.removeFromSuperview()
         }
@@ -198,7 +195,7 @@ extension NSCollectionViewLayout {
     }
     
     func swizzleInterItemGap() {
-        let isReplaced = isMethodReplaced(#selector(NSCollectionViewLayout.layoutAttributesForInterItemGap(before:)))
+        let isReplaced = isMethodHooked(#selector(NSCollectionViewLayout.layoutAttributesForInterItemGap(before:)))
         if !centeredInterItemDropTargetGapIndicator || interItemDropTargetGapIndicatorColor != nil {
             guard !isReplaced else { return }
             do {
@@ -227,7 +224,7 @@ extension NSCollectionViewLayout {
                 debugPrint(error)
             }
         } else if isReplaced {
-            resetMethod(#selector(NSCollectionViewLayout.layoutAttributesForInterItemGap(before:)))
+            revertHooks(for: #selector(NSCollectionViewLayout.layoutAttributesForInterItemGap(before:)))
         }
     }
 }

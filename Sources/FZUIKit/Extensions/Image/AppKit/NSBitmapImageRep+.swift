@@ -94,23 +94,20 @@ public extension NSBitmapImageRep {
     
     ///Changing the frame duration of a bitmap representation is normally not saved, which prevents changing the animation duration. This fixes it.
     private func swizzleFrameDurationUpdate() {
-        guard !isMethodReplaced(#selector(self.setProperty(_:withValue:))) else { return }
+        guard !isMethodHooked(#selector(self.setProperty(_:withValue:))) else { return }
         let _currentFrame = currentFrame
         do {
-            try replaceMethod(
-                #selector(self.setProperty(_:withValue:)),
-                methodSignature: (@convention(c)  (AnyObject, Selector, NSBitmapImageRep.PropertyKey, Any?) -> ()).self,
-                hookSignature: (@convention(block)  (AnyObject, NSBitmapImageRep.PropertyKey, Any?) -> ()).self) { store in {
-                    object, property, value in
-                    store.original(object, #selector(self.setProperty(_:withValue:)), property, value)
-                    guard let object = object as? NSBitmapImageRep else { return }
-                    if property == .currentFrameDuration, let value = value as? TimeInterval {
-                        object._currentFrameDuration = value
-                    } else if property == .currentFrame {
-                        store.original(object, #selector(self.setProperty(_:withValue:)), .currentFrameDuration, object._currentFrameDuration)
-                    }
+            try hook(#selector(self.setProperty(_:withValue:)), closure: { original, object, sel, property, value in
+                original(object, sel, property, value)
+                guard let object = object as? NSBitmapImageRep else { return }
+                if property == .currentFrameDuration, let value = value as? TimeInterval {
+                    object._currentFrameDuration = value
+                } else if property == .currentFrame {
+                    original(object, sel, .currentFrameDuration, object._currentFrameDuration)
                 }
-                }
+            } as @convention(block) (
+                (AnyObject, Selector, NSBitmapImageRep.PropertyKey, Any?) -> Void,
+                AnyObject, Selector, NSBitmapImageRep.PropertyKey, Any?) -> Void)
             currentFrame = 0
             _currentFrameDuration = currentFrameDuration
             currentFrame = _currentFrame

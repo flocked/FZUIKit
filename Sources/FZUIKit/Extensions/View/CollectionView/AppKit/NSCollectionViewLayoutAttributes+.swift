@@ -74,44 +74,39 @@ extension NSCollectionLayoutVisibleItem {
 extension NSCollectionViewItem {
     /// A Boolean value that indicates whether the item view's transform can be changed via layout attributes.
     static var isTransformableByLayoutAttributes: Bool {
-        get {NSCollectionViewItem.isMethodReplaced(#selector(NSCollectionViewItem.apply)) }
+        get {NSCollectionViewItem.isMethodHooked(#selector(NSCollectionViewItem.apply)) }
         set {
             guard newValue != isTransformableByLayoutAttributes else { return }
             if newValue {
                 do {
-                    try NSCollectionViewItem.replaceMethod(
-                        #selector(NSCollectionViewItem.apply),
-                        methodSignature: (@convention(c)  (AnyObject, Selector, NSCollectionViewLayoutAttributes) -> ()).self,
-                        hookSignature: (@convention(block)  (AnyObject, NSCollectionViewLayoutAttributes) -> ()).self) { store in {
-                            object, attributes in
-                            store.original(object, #selector(NSCollectionViewItem.apply), attributes)
-                            guard let view = (object as? NSCollectionViewItem)?.view else { return }
-                            if attributes.transform != view.transform {
-                                view.transform = attributes.transform
-                            }
-                            if attributes.transform3D != view.transform3D {
-                                view.transform3D = attributes.transform3D
-                            }
+                    try NSCollectionViewItem.hook(#selector(NSCollectionViewItem.apply), closure: { original, object, sel, attributes in
+                        original(object, sel, attributes)
+                        guard let view = (object as? NSCollectionViewItem)?.view else { return }
+                        if attributes.transform != view.transform {
+                            view.transform = attributes.transform
                         }
+                        if attributes.transform3D != view.transform3D {
+                            view.transform3D = attributes.transform3D
                         }
-                    try NSCollectionViewItem.replaceMethod(
-                        #selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)),
-                        methodSignature: (@convention(c)  (AnyObject, Selector, NSCollectionViewLayoutAttributes) -> (NSCollectionViewLayoutAttributes)).self,
-                        hookSignature: (@convention(block)  (AnyObject, NSCollectionViewLayoutAttributes) -> (NSCollectionViewLayoutAttributes)).self) { store in {
-                            object, attributes in
-                            if let view = (object as? NSCollectionViewItem)?.view {
-                                attributes.transform = view.transform
-                                attributes.transform3D = view.transform3D
-                            }
-                            return store.original(object, #selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)), attributes)
+                    } as @convention(block) (
+                        (AnyObject, Selector, NSCollectionViewLayoutAttributes) -> Void,
+                        AnyObject, Selector, NSCollectionViewLayoutAttributes) -> Void)
+                    
+                    try NSCollectionViewItem.hook(#selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)), closure: { original, object, sel, attributes in
+                        if let view = (object as? NSCollectionViewItem)?.view {
+                            attributes.transform = view.transform
+                            attributes.transform3D = view.transform3D
                         }
-                        }
+                        return original(object, sel, attributes)
+                    } as @convention(block) (
+                        (AnyObject, Selector, NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes,
+                        AnyObject, Selector, NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes)
                 } catch {
                     Swift.print(error)
                 }
             } else {
-                NSCollectionViewItem.resetMethod(#selector(NSCollectionViewItem.apply))
-                NSCollectionViewItem.resetMethod(#selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)))
+                NSCollectionViewItem.revertHooks(for: #selector(NSCollectionViewItem.apply))
+                NSCollectionViewItem.revertHooks(for: #selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)))
 
             }
         }

@@ -139,37 +139,33 @@
 
         func setupFontAdjustment() {
             if needsFontAdjustments {
-                guard isMethodReplaced(#selector(setter: font)) == false else { return }                
+                guard isMethodHooked(#selector(setter: font)) == false else { return }                
                 textFieldObserver = nil
                 _font = font
                 do {
-                    try replaceMethod(#selector(setter: font),
-                        methodSignature: (@convention(c) (AnyObject, Selector, NSFont?) -> Void).self,
-                        hookSignature: (@convention(block) (AnyObject, NSFont?) -> Void).self
-                    ) { store in { object, font in
+                    try hook(#selector(setter: font), closure: { original, object, sel, font in
                         guard let textField = (object as? NSTextField), textField._font != font else { return }
                         textField._font = font
-                        store.original(object, #selector(setter: NSTextField.font), font)
-                        textField.adjustFontSize()                        
-                    }
-                    }
+                        original(object, sel, font)
+                        textField.adjustFontSize()
+                    } as @convention(block) (
+                        (AnyObject, Selector, NSFont?) -> Void,
+                        AnyObject, Selector, NSFont?) -> Void)
                     
-                    try replaceMethod(#selector(getter: font),
-                        methodSignature: (@convention(c) (AnyObject, Selector) -> NSFont?).self,
-                        hookSignature: (@convention(block) (AnyObject) -> NSFont?).self
-                    ) { _ in { object in
-                        return (object as? NSTextField)?._font ?? nil
-                    }
-                    }
+                    try hook(#selector(getter: font), closure: { original, object, sel in
+                        (object as? NSTextField)?._font ?? original(object, sel)
+                    } as @convention(block) (
+                        (AnyObject, Selector) -> NSFont?,
+                        AnyObject, Selector) -> NSFont?)
                 } catch {
                     Swift.debugPrint(error)
                 }
                 setupTextFieldObserver()
                 observeEditing()
-            } else if isMethodReplaced(#selector(setter: font)) {
+            } else if isMethodHooked(#selector(setter: font)) {
                 textFieldObserver = nil
-                resetMethod(#selector(setter: font))
-                resetMethod(#selector(getter: font))
+                revertHooks(for: #selector(setter: font))
+                revertHooks(for: #selector(getter: font))
                 setupTextFieldObserver()
                 observeEditing()
                 font = _font ?? font

@@ -128,28 +128,25 @@ extension NSTextField {
 
     func swizzleIntrinsicContentSize() {
         if automaticallyResizesToFit || preferredMinLayoutWidth != 0.0 {
-            guard !isMethodReplaced(#selector(getter: NSTextField.intrinsicContentSize)) else { return }
+            guard !isMethodHooked(#selector(getter: NSTextField.intrinsicContentSize)) else { return }
             textFieldObserver = nil
             do {
-                try replaceMethod(
-                    #selector(getter: NSTextField.intrinsicContentSize),
-                    methodSignature: (@convention(c)  (AnyObject, Selector) -> (CGSize)).self,
-                    hookSignature: (@convention(block)  (AnyObject) -> (CGSize)).self) { store in {
-                        object in
-                        if let textField = object as? NSTextField, (textField.automaticallyResizesToFit || textField.preferredMinLayoutWidth != .zero) {
-                            let newSize = textField.calculatedFittingSize
-                            return newSize
-                        }
-                        return store.original(object, #selector(getter: NSTextField.intrinsicContentSize))
+                try hook(#selector(getter: NSTextField.intrinsicContentSize), closure: { original, object, sel in
+                    if let textField = object as? NSTextField, (textField.automaticallyResizesToFit || textField.preferredMinLayoutWidth != .zero) {
+                        let newSize = textField.calculatedFittingSize
+                        return newSize
                     }
-                    }
+                    return original(object, sel)
+                } as @convention(block) (
+                    (AnyObject, Selector) -> CGSize,
+                    AnyObject, Selector) -> CGSize)
                 setupTextFieldObserver()
             } catch {
                 Swift.debugPrint(error)
             }
-        } else if isMethodReplaced(#selector(getter: NSTextField.intrinsicContentSize)) {
+        } else if isMethodHooked(#selector(getter: NSTextField.intrinsicContentSize)) {
             textFieldObserver = nil
-            resetMethod(#selector(getter: NSTextField.intrinsicContentSize))
+            revertHooks(for: #selector(getter: NSTextField.intrinsicContentSize))
             setupTextFieldObserver()
         }
     }

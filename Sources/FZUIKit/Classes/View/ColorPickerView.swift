@@ -11,7 +11,8 @@
     import AppKit
 
 /// A color picker view.
-    open class ColorPickerView: NSView {
+@available(macOS 10.15.1, *)
+open class ColorPickerView: NSView {
         enum ColorSection: Hashable {
             case main
         }
@@ -285,6 +286,7 @@
         }
     }
 
+@available(macOS 10.15.1, *)
 extension ColorPickerView {
     class ColorCollectionItem: NSCollectionViewItem {
         

@@ -122,23 +122,20 @@ public extension NSSegmentedControl {
     
     /// A Boolean value indicating whether to select a segment exclusively on right click.
     var selectsExclusivelyOnRightClick: Bool {
-        get { isMethodReplaced(#selector(NSView.rightMouseDown(with:))) }
+        get { isMethodHooked(#selector(NSView.rightMouseDown(with:))) }
         set {
             guard newValue != selectsExclusivelyOnRightClick else { return }
             do {
-                try replaceMethod(
-                    #selector(NSView.rightMouseDown(with:)),
-                    methodSignature: (@convention(c)  (AnyObject, Selector, NSEvent) -> ()).self,
-                    hookSignature: (@convention(block)  (AnyObject, NSEvent) -> ()).self) { store in {
-                        object, event in
-                        if let view = object as? NSSegmentedControl, view.trackingMode == .selectAny, let index = view.indexOfSegment(at: event.location(in: view)) {
-                            (0..<view.segmentCount).forEach({ view.setSelected(index == $0, forSegment: $0) })
-                            view.performAction()
-                        } else {
-                            store.original(object, #selector(NSView.rightMouseDown(with:)), event)
-                        }
+                try hook(#selector(NSView.rightMouseDown(with:)), closure: { original, object, sel, event in
+                    if let view = object as? NSSegmentedControl, view.trackingMode == .selectAny, let index = view.indexOfSegment(at: event.location(in: view)) {
+                        (0..<view.segmentCount).forEach({ view.setSelected(index == $0, forSegment: $0) })
+                        view.performAction()
+                    } else {
+                        original(object, sel, event)
                     }
-                    }
+                } as @convention(block) (
+                    (AnyObject, Selector, NSEvent) -> Void,
+                    AnyObject, Selector, NSEvent) -> Void)
             } catch {
                 debugPrint(error)
             }

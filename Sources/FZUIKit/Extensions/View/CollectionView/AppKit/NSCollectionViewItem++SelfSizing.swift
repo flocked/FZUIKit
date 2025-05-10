@@ -69,30 +69,27 @@ extension NSCollectionViewFlowLayout {
 
 extension NSCollectionViewItem {
     static func swizzlePreferredLayoutAttributesFitting() {
-        guard !isMethodReplaced(#selector(Self.preferredLayoutAttributesFitting(_:))) else { return }
+        guard !isMethodHooked(#selector(Self.preferredLayoutAttributesFitting(_:))) else { return }
         do {
-           try replaceMethod(
-            #selector(Self.preferredLayoutAttributesFitting(_:)),
-           methodSignature: (@convention(c)  (AnyObject, Selector, NSCollectionViewLayoutAttributes) -> (NSCollectionViewLayoutAttributes)).self,
-           hookSignature: (@convention(block)  (AnyObject, NSCollectionViewLayoutAttributes) -> (NSCollectionViewLayoutAttributes)).self) { store in {
-               object, attributes in
-               let preferred = store.original(object, #selector(Self.preferredLayoutAttributesFitting(_:)), attributes)
-               guard let item = object as? Self else { return preferred }
-               if preferred.frame.size == NSCollectionViewFlowLayout.automaticSize {
-                   
-               }
-               guard attributes.size != preferred.size, let attributes = attributes as? SelfSizingCollectionViewLayoutAttributes else { return preferred }
-               
-               if attributes.shouldVerticallySelfSize && attributes.shouldHorizontallySelfSize {
-                   preferred.size = item.view.systemLayoutSizeFitting(attributes.size, withHorizontalFittingPriority: .fittingSizeCompression, verticalFittingPriority: .fittingSizeCompression)
-               } else if attributes.shouldVerticallySelfSize {
-                   preferred.size = item.view.systemLayoutSizeFitting(attributes.size, withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeCompression)
-               } else if attributes.shouldHorizontallySelfSize {
-                   preferred.size = item.view.systemLayoutSizeFitting(attributes.size, withHorizontalFittingPriority: .fittingSizeCompression, verticalFittingPriority: .required)
-               }
-               return preferred
-               }
-           }
+            try hook(#selector(Self.preferredLayoutAttributesFitting(_:)), closure: { original, object, sel, attributes in
+                let preferred = original(object, sel, attributes)
+                guard let item = object as? Self else { return preferred }
+                if preferred.frame.size == NSCollectionViewFlowLayout.automaticSize {
+                    
+                }
+                guard attributes.size != preferred.size, let attributes = attributes as? SelfSizingCollectionViewLayoutAttributes else { return preferred }
+                
+                if attributes.shouldVerticallySelfSize && attributes.shouldHorizontallySelfSize {
+                    preferred.size = item.view.systemLayoutSizeFitting(attributes.size, withHorizontalFittingPriority: .fittingSizeCompression, verticalFittingPriority: .fittingSizeCompression)
+                } else if attributes.shouldVerticallySelfSize {
+                    preferred.size = item.view.systemLayoutSizeFitting(attributes.size, withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeCompression)
+                } else if attributes.shouldHorizontallySelfSize {
+                    preferred.size = item.view.systemLayoutSizeFitting(attributes.size, withHorizontalFittingPriority: .fittingSizeCompression, verticalFittingPriority: .required)
+                }
+                return preferred
+            } as @convention(block) (
+                (AnyObject, Selector, NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes,
+                AnyObject, Selector, NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes)
         } catch {
            // handle error
            debugPrint(error)

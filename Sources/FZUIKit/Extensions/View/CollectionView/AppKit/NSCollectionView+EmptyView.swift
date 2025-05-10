@@ -103,58 +103,52 @@ extension NSCollectionViewDataSource {
     
     func swizzleNumberOfItems(_ shouldSwizzle: Bool = true) {
         guard let dataSource = self as? NSObject else { return }
-        let isMethodReplaced = dataSource.isMethodReplaced(#selector(NSCollectionViewDataSource.collectionView(_:numberOfItemsInSection:)))
-        if shouldSwizzle, !isMethodReplaced {
+        let isMethodHooked = dataSource.isMethodHooked(#selector(NSCollectionViewDataSource.collectionView(_:numberOfItemsInSection:)))
+        if shouldSwizzle, !isMethodHooked {
             do {
-                try dataSource.replaceMethod(
-                    #selector(NSCollectionViewDataSource.collectionView(_:numberOfItemsInSection:)),
-                    methodSignature: (@convention(c)  (AnyObject, Selector, NSCollectionView, Int) -> (Int)).self,
-                    hookSignature: (@convention(block)  (AnyObject, NSCollectionView, Int) -> (Int)).self) { store in {
-                        object, collectionView, section in
-                        let numberOfItems = store.original(object, #selector(NSCollectionViewDataSource.collectionView(_:numberOfItemsInSection:)), collectionView, section)
-                        collectionView.isEmpty = numberOfItems <= 0
-                        return numberOfItems
-                    }
-                    }
+                try dataSource.hook(#selector(NSCollectionViewDataSource.collectionView(_:numberOfItemsInSection:)), closure: { original, object, sel, collectionView, section in
+                    let numberOfItems = original(object, sel, collectionView, section)
+                    collectionView.isEmpty = numberOfItems <= 0
+                    return numberOfItems
+                } as @convention(block) (
+                    (AnyObject, Selector, NSCollectionView, Int) -> Int,
+                    AnyObject, Selector, NSCollectionView, Int) -> Int)
             } catch {
                 debugPrint(error)
             }
-        } else if !shouldSwizzle, isMethodReplaced {
-            dataSource.resetMethod(#selector(NSCollectionViewDataSource.collectionView(_:numberOfItemsInSection:)))
+        } else if !shouldSwizzle, isMethodHooked {
+            dataSource.revertHooks(for: #selector(NSCollectionViewDataSource.collectionView(_:numberOfItemsInSection:)))
         }
     }
     
     func swizzleNumberOfSections(_ shouldSwizzle: Bool = true) {
         guard let dataSource = self as? NSObject else { return }
-        let isMethodReplaced = dataSource.isMethodReplaced(#selector(NSCollectionViewDataSource.numberOfSections(in:)))
-        if shouldSwizzle, !isMethodReplaced {
+        let isMethodHooked = dataSource.isMethodHooked(#selector(NSCollectionViewDataSource.numberOfSections(in:)))
+        if shouldSwizzle, !isMethodHooked {
             do {
-                try dataSource.replaceMethod(
-                    #selector(NSCollectionViewDataSource.numberOfSections(in:)),
-                    methodSignature: (@convention(c)  (AnyObject, Selector, NSCollectionView) -> (Int)).self,
-                    hookSignature: (@convention(block)  (AnyObject, NSCollectionView) -> (Int)).self) { store in {
-                        object, collectionView in
-                        let numberOfSections = store.original(object, #selector(NSCollectionViewDataSource.numberOfSections(in:)), collectionView)
-                        if numberOfSections <= 0 {
-                            collectionView.isEmpty = true
-                        } else if let dataSource = object as? NSCollectionViewDataSource {
-                            var isEmpty = true
-                            for section in 0..<numberOfSections {
-                                if dataSource.collectionView(collectionView, numberOfItemsInSection: section) > 0 {
-                                    isEmpty = false
-                                    break
-                                }
+                try dataSource.hook(#selector(NSCollectionViewDataSource.numberOfSections(in:)), closure: { original, object, sel, collectionView in
+                    let numberOfSections = original(object, sel, collectionView)
+                    if numberOfSections <= 0 {
+                        collectionView.isEmpty = true
+                    } else if let dataSource = object as? NSCollectionViewDataSource {
+                        var isEmpty = true
+                        for section in 0..<numberOfSections {
+                            if dataSource.collectionView(collectionView, numberOfItemsInSection: section) > 0 {
+                                isEmpty = false
+                                break
                             }
-                            collectionView.isEmpty = isEmpty
                         }
-                        return numberOfSections
+                        collectionView.isEmpty = isEmpty
                     }
-                    }
+                    return numberOfSections
+                } as @convention(block) (
+                    (AnyObject, Selector, NSCollectionView) -> Int,
+                    AnyObject, Selector, NSCollectionView) -> Int)
             } catch {
                 debugPrint(error)
             }
-        } else if !shouldSwizzle, isMethodReplaced {
-            dataSource.resetMethod(#selector(NSCollectionViewDataSource.numberOfSections(in:)))
+        } else if !shouldSwizzle, isMethodHooked {
+            dataSource.revertHooks(for: #selector(NSCollectionViewDataSource.numberOfSections(in:)))
         }
     }
 }

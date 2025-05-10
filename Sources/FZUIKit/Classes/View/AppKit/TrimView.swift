@@ -8,7 +8,6 @@
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
-import FZUIKit
 import AVKit
 
 /// A view for trimming content (like `AVPlayerItem`).
@@ -479,26 +478,15 @@ open class TrimView: NSControl {
     }
     
     open override var intrinsicContentSize: NSSize {
-        if #available(macOS 11.0, *) {
-            CGSize(NSView.noIntrinsicMetric, controlSize == .large ? 50 : 38)
-        } else {
-            CGSize(NSView.noIntrinsicMetric, 38)
-        }
+        CGSize(NSView.noIntrinsicMetric, controlSize == .large ? 50 : 38)
     }
     
     open override func sizeToFit() {
-        if #available(macOS 11.0, *) {
-            frame.size.height = controlSize == .large ? 50 : 38
-        } else {
-            frame.size.height = 38
-        }
+        frame.size.height = controlSize == .large ? 50 : 38
     }
     
     open override var fittingSize: NSSize {
-        var size = CGSize(40, 38)
-        if #available(macOS 11.0, *) {
-            size = CGSize(40, controlSize == .large ? 50 : 38)
-        }
+        var size = CGSize(40, controlSize == .large ? 50 : 38)
         size.width += asssetPresentationSize.scaled(toHeight: size.height).width*2.0
         return size
     }
@@ -507,11 +495,7 @@ open class TrimView: NSControl {
     open override var controlSize: NSControl.ControlSize {
         didSet {
             guard oldValue != controlSize else { return }
-            if #available(macOS 11.0, *) {
-                trimBorderView.image = controlSize == .large ? Self.largeTrimSelectionImage : Self.trimSelectionImage
-            } else {
-                trimBorderView.image = Self.trimSelectionImage
-            }
+            trimBorderView.image = controlSize == .large ? Self.largeTrimSelectionImage : Self.trimSelectionImage
         }
     }
     

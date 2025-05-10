@@ -12,6 +12,7 @@ import AppKit
 import UIKit
 #endif
 
+@available(macOS 10.15.1, iOS 13.0, tvOS 13.0, *)
 extension NSUICollectionViewDiffableDataSource {
     /// Returns an empty snapshot.
     public func emptySnapshot() -> NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType> {
