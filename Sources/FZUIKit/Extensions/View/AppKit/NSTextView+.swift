@@ -636,8 +636,8 @@ import FZSwiftUtils
         }
         
         class TextViewDelegate: NSObject, NSTextViewDelegate {
-            var string: String
-            var previousString = ""
+            var editingStartString: String
+            var editingPreviousString = ""
             weak var delegate: NSTextViewDelegate?
             weak var textView: NSTextView!
             var delegateObservation: KeyValueObservation!
@@ -659,7 +659,7 @@ import FZSwiftUtils
                 case #selector(NSControl.cancelOperation(_:)):
                     switch textView.actionOnEscapeKeyDown {
                     case .endEditingAndReset:
-                        textView.string = string
+                        textView.string = editingStartString
                         textView.resignFirstResponding()
                         return true
                     case .endEditing:
@@ -679,8 +679,8 @@ import FZSwiftUtils
             }
             
             func textDidBeginEditing(_ notification: Notification) {
-                string = (notification.object as? NSText)?.string ?? textView.string
-                previousString = string
+                editingStartString = (notification.object as? NSText)?.string ?? textView.string
+                editingPreviousString = editingStartString
                 editingRange = textView.selectedRange
                 delegate?.textDidBeginEditing?(notification)
                 textView?.editingHandlers.didBegin?()
@@ -701,34 +701,34 @@ import FZSwiftUtils
             func updateString() {
                 let newString = textView.allowedCharacters.trimString(textView.string)
                 if let maxCharCount = textView.maximumNumberOfCharacters, newString.count > maxCharCount {
-                    if previousString.count <= maxCharCount {
-                        textView.string = previousString
+                    if editingPreviousString.count <= maxCharCount {
+                        textView.string = editingPreviousString
                         textView.selectedRange = editingRange
                     } else {
                         textView.string = String(newString.prefix(maxCharCount))
                     }
                 } else if let minCharCount = textView.minimumNumberOfCharacters, newString.count < minCharCount {
-                    if previousString.count >= minCharCount {
-                        textView.string = previousString
+                    if editingPreviousString.count >= minCharCount {
+                        textView.string = editingPreviousString
                         textView.selectedRange = editingRange
                     }
                 } else if textView.editingHandlers.shouldEdit?(textView.string) == false {
-                    textView.string = previousString
+                    textView.string = editingPreviousString
                     textView.selectedRange = editingRange
                 } else {
                     textView.string = newString
-                    if previousString == newString {
+                    if editingPreviousString == newString {
                         textView.selectedRange = editingRange
                     }
                 }
-                previousString = textView.string
+                editingPreviousString = textView.string
                 editingRange = textView.selectedRange
                 textView.editingHandlers.didEdit?()
             }
             
             init(_ textView: NSTextView) {
                 delegate = textView.delegate
-                self.string = textView.string
+                self.editingStartString = textView.string
                 self.textView = textView
                 super.init()
                 textView.delegate = self

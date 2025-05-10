@@ -143,16 +143,7 @@
             set {
                 guard editingActionOnEnterKeyDown != newValue else { return }
                 setAssociatedValue(newValue, key: "actionOnEnterKeyDown")
-                if let searchField = self as? NSSearchField {
-                    if editingActionOnEnterKeyDown == .none && editingActionOnEscapeKeyDown == .none {
-                        guard searchField.searchFieldDelegate != nil else { return }
-                        searchField.searchFieldDelegate = nil
-                    } else if searchField.searchFieldDelegate == nil {
-                        searchField.searchFieldDelegate = .init(for: searchField)
-                    }
-                } else {
-                    swizzleDoCommandBy()
-                }
+                swizzleDoCommandBy()
             }
         }
         
@@ -169,16 +160,7 @@
             set {
                 guard editingActionOnEscapeKeyDown != newValue else { return }
                 setAssociatedValue(newValue, key: "actionOnEscapeKeyDown")
-                if let searchField = self as? NSSearchField {
-                    if editingActionOnEnterKeyDown == .none && editingActionOnEscapeKeyDown == .none {
-                        guard searchField.searchFieldDelegate != nil else { return }
-                        searchField.searchFieldDelegate = nil
-                    } else if searchField.searchFieldDelegate == nil {
-                        searchField.searchFieldDelegate = .init(for: searchField)
-                    }
-                } else {
-                    swizzleDoCommandBy()
-                }
+                swizzleDoCommandBy()
                 observeEditing()
             }
         }
@@ -564,128 +546,4 @@
             }
         }
     }
-
-extension NSSearchField {
-    var searchFieldDelegate: SearchFieldDelegate? {
-        get { getAssociatedValue("searchFieldDelegate") }
-        set { setAssociatedValue(newValue, key: "searchFieldDelegate") }
-    }
-    
-    class SearchFieldDelegate: NSObject, NSSearchFieldDelegate {
-        weak var delegate: NSSearchFieldDelegate?
-        weak var searchField: NSSearchField?
-        var observation: KeyValueObservation?
-        
-        init(for searchField: NSSearchField) {
-            self.searchField = searchField
-            self.delegate = searchField.delegate
-            super.init()
-            searchField.delegate = self
-            observation = searchField.observeChanges(for: \.delegate) { [weak self] old, new in
-                guard let self = self, new !== self else { return }
-                self.delegate = new
-                self.searchField?.delegate = self
-            }
-        }
-        
-        func searchFieldDidStartSearching(_ sender: NSSearchField) {
-            delegate?.searchFieldDidStartSearching?(sender)
-        }
-        
-        func searchFieldDidEndSearching(_ sender: NSSearchField) {
-            delegate?.searchFieldDidEndSearching?(sender)
-        }
-        
-        func textField(_ textField: NSTextField, textView: NSTextView, shouldSelectCandidateAt index: Int) -> Bool {
-            delegate?.textField?(textField, textView: textView, shouldSelectCandidateAt: index) ?? true
-        }
-        
-        func textField(_ textField: NSTextField, textView: NSTextView, candidatesForSelectedRange selectedRange: NSRange) -> [Any]? {
-            delegate?.textField?(textField, textView: textView, candidatesForSelectedRange: selectedRange)
-        }
-        
-        func textField(_ textField: NSTextField, textView: NSTextView, candidates: [NSTextCheckingResult], forSelectedRange selectedRange: NSRange) -> [NSTextCheckingResult] {
-            delegate?.textField?(textField, textView: textView, candidates: candidates, forSelectedRange: selectedRange) ?? []
-        }
-        
-        func control(_ control: NSControl, isValidObject obj: Any?) -> Bool {
-            delegate?.control?(control, isValidObject: obj) ?? true
-        }
-        
-        func controlTextDidBeginEditing(_ obj: Notification) {
-            delegate?.controlTextDidBeginEditing?(obj)
-        }
-        
-        func controlTextDidChange(_ obj: Notification) {
-            delegate?.controlTextDidChange?(obj)
-        }
-        
-        func controlTextDidEndEditing(_ obj: Notification) {
-            delegate?.controlTextDidEndEditing?(obj)
-        }
-        
-        func control(_ control: NSControl, textShouldEndEditing fieldEditor: NSText) -> Bool {
-            delegate?.control?(control, textShouldEndEditing: fieldEditor) ?? true
-        }
-        
-        func control(_ control: NSControl, textShouldBeginEditing fieldEditor: NSText) -> Bool {
-            delegate?.control?(control, textShouldBeginEditing: fieldEditor) ?? true
-        }
-        
-        func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
-            guard let textField = searchField else { return true}
-            if commandSelector == #selector(NSControl.cancelOperation(_:)), textField.editingActionOnEscapeKeyDown != .none {
-                switch textField.editingActionOnEscapeKeyDown {
-                case .endEditingAndReset:
-                    textField.stringValue = textField.editStartString
-                    textField.adjustFontSize()
-                    textView.resignFirstResponding()
-                    return true
-                case .endEditing:
-                    if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
-                        return false
-                    } else {
-                        textView.resignFirstResponding()
-                        return true
-                    }
-                case .delete:
-                    textField.stringValue = ""
-                    textField.adjustFontSize()
-                    return false
-                case .reset:
-                    textField.stringValue = textField.editStartString
-                    textField.adjustFontSize()
-                    return false
-                case .none:
-                    break
-                }
-            } else if commandSelector == #selector(NSControl.insertNewline(_:)), textField.editingActionOnEnterKeyDown != .none {
-                if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
-                    return false
-                } else {
-                    textView.resignFirstResponding()
-                    return true
-                }
-            }
-            return delegate?.control?(control, textView: textView, doCommandBy: commandSelector) ?? true
-        }
-        
-        func control(_ control: NSControl, didFailToFormatString string: String, errorDescription error: String?) -> Bool {
-            delegate?.control?(control, didFailToFormatString: string, errorDescription: error) ?? true
-        }
-        
-        func control(_ control: NSControl, didFailToValidatePartialString string: String, errorDescription error: String?) {
-            delegate?.control?(control, didFailToValidatePartialString: string, errorDescription: error)
-        }
-        
-        func control(_ control: NSControl, textView: NSTextView, completions words: [String], forPartialWordRange charRange: NSRange, indexOfSelectedItem index: UnsafeMutablePointer<Int>) -> [String] {
-            delegate?.control?(control, textView: textView, completions: words, forPartialWordRange: charRange, indexOfSelectedItem: index) ?? []
-        }
-        
-        deinit {
-            observation = nil
-            searchField?.delegate = delegate
-        }
-    }
-}
 #endif
