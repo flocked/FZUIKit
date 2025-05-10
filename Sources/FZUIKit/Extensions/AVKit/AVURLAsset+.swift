@@ -9,7 +9,7 @@ import Foundation
 import AVFoundation
 import UniformTypeIdentifiers
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
+@available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
 extension AVURLAsset {
     /// A Boolean value indicating whether `AVURLAsset` supports files with the specified path extension.
     public static func supports(filenameExtension: String) -> Bool {
