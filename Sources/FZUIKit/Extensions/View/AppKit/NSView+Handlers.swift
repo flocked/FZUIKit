@@ -686,9 +686,8 @@ extension NSView {
             super.init(frame: .zero)
             allowedTouchTypes = .indirect
             wantsRestingTouches = view.wantsRestingTouches
-            zPosition = 100000
+            zPosition = .greatestFiniteMagnitude-1000
             view.addSubview(withConstraint: self)
-            isAlwaysAtFront = true
             observation = view.observeChanges(for: \.wantsRestingTouches) { [weak self] old, new in
                 guard let self = self else { return }
                 self.wantsRestingTouches = new
