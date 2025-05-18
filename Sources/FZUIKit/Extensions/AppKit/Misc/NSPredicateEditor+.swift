@@ -9,6 +9,11 @@
 import AppKit
 
 extension NSPredicateEditor {
+    /// Generates a formatting dictionary string including all row template formats that can be used for localization.
+    public func generateFormattingDictionaryString() -> String? {
+        perform(NSSelectorFromString("_generateFormattingDictionaryString")).takeUnretainedValue() as? String
+    }
+    
     /**
      Creates a predicate editor with the specified row templates.
      

@@ -326,4 +326,15 @@ open class SeparatorPredicateEditorRowTemplate: NSPredicateEditorRowTemplate {
     }
 }
 
+extension NSPredicateEditorRowTemplate {
+    /**
+     Initializes and returns a row template suitable for displaying compound predicates.
+     
+     `NSPredicateEditor` contains such a template by default.
+     */
+    public convenience init(compoundTypes: [NSCompoundPredicate.LogicalType]) {
+        self.init(compoundTypes: compoundTypes.map({ NSNumber(value: $0.rawValue) }) )
+    }
+}
+
 #endif
