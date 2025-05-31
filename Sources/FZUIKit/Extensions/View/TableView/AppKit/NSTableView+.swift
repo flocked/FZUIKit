@@ -449,4 +449,31 @@ extension NSTableView {
     }
 }
 
+extension NSTableView {
+    /// The handler that gets called when the table view is double clicked.
+    public var doubleClickHandler: ((_ row: Int?)->())? {
+        get { getAssociatedValue("doubleClickHandler") }
+        set {
+            setAssociatedValue(newValue, key: "doubleClickHandler")
+            if newValue != nil, doubleClickGesture == nil {
+                doubleClickGesture = .init(target: self, action: #selector(NSTableView.didDoubleClick(_:)))
+                doubleClickGesture?.numberOfClicksRequired = 2
+                addGestureRecognizer(doubleClickGesture!)
+            } else if newValue == nil, let gesture = doubleClickGesture {
+                removeGestureRecognizer(gesture)
+                doubleClickGesture = nil
+            }
+        }
+    }
+    
+   @objc private func didDoubleClick(_ gesture: NSClickGestureRecognizer) {
+        doubleClickHandler?(selectedRow != -1 ? selectedRow : nil)
+    }
+    
+    private var doubleClickGesture: NSClickGestureRecognizer? {
+        get { getAssociatedValue("doubleClickGesture") }
+        set { setAssociatedValue(newValue, key: "doubleClickGesture") }
+    }
+}
+
 #endif

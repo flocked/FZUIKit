@@ -377,4 +377,31 @@
         }
     }
 
+extension NSCollectionView {
+    /// The handler that gets called when the collection view is double clicked.
+    public var doubleClickHandler: ((_ indexPath: IndexPath?)->())? {
+        get { getAssociatedValue("doubleClickHandler") }
+        set {
+            setAssociatedValue(newValue, key: "doubleClickHandler")
+            if newValue != nil, doubleClickGesture == nil {
+                doubleClickGesture = .init(target: self, action: #selector(NSCollectionView.didDoubleClick(_:)))
+                doubleClickGesture?.numberOfClicksRequired = 2
+                addGestureRecognizer(doubleClickGesture!)
+            } else if newValue == nil, let gesture = doubleClickGesture {
+                removeGestureRecognizer(gesture)
+                doubleClickGesture = nil
+            }
+        }
+    }
+    
+    @objc func didDoubleClick(_ gesture: NSClickGestureRecognizer) {
+        doubleClickHandler?(indexPathForItem(at: gesture.location(in: self)))
+    }
+    
+    var doubleClickGesture: NSClickGestureRecognizer? {
+        get { getAssociatedValue("doubleClickGesture") }
+        set { setAssociatedValue(newValue, key: "doubleClickGesture") }
+    }
+}
+
 #endif
