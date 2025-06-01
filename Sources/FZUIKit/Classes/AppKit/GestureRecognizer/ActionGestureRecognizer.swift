@@ -11,18 +11,22 @@ import AppKit
 /// A gesture recognizer that performs actions.
 open class ActionGestureRecognizer: NSGestureRecognizer {
     
-    /// An object that observes a specific action of a gesture recognizer.
-    open class GestureActionObservation {
+    /**
+     An object that observes events for a specific event type of a ``ActionGestureRecognizer``.
+     
+     When the object is deinited or invalidated, it will stop observing.
+     */
+    open class GestureRecognizerEventObservation {
         /// The type of the  observered action.
         public let type: NSEvent.EventType
         
         ///  A Boolean value indicating whether the observation is active.
-        public var isObserving: Bool {
+        open var isObserving: Bool {
             get { gestureRecognizer?.actionObservations[type, default: []].contains(where: {$0.id == id}) == true }
             set {
                 guard newValue != isObserving else { return }
                 if newValue {
-                    gestureRecognizer?.actionObservations[type, default: []].append(self)
+                    gestureRecognizer?.actionObservations[type, default: []].append((id, handler))
                 } else {
                     gestureRecognizer?.actionObservations[type, default: []].removeFirst(where: {$0.id == id})
                 }
@@ -30,13 +34,13 @@ open class ActionGestureRecognizer: NSGestureRecognizer {
         }
         
         /// Invalidates the observation.
-        public func invalidate() {
+        open func invalidate() {
             isObserving = false
         }
         
-        let id = UUID()
-        let handler: (NSEvent)->()
-        weak var gestureRecognizer: ActionGestureRecognizer?
+        private let id = UUID()
+        private let handler: (NSEvent)->()
+        private weak var gestureRecognizer: ActionGestureRecognizer?
         
         init(type: NSEvent.EventType, gestureRecognizer: ActionGestureRecognizer, handler: @escaping (NSEvent)->()) {
             self.type = type
@@ -51,30 +55,33 @@ open class ActionGestureRecognizer: NSGestureRecognizer {
     }
     
     /**
-     Observes calls for the specified event type and calls a handler.
+     Observes events for the specified event type.
      
+     When the returned ``GestureRecognizerEventObservation`` is deinited or invalidated, it will stop observing.
+
      Example usage:
      
      ```swift
-     
-     let leftMouseDownObservation = gestureRecognizer.observe(.leftMouseDown) { event in
+     let gestureRecognizer = ActionGestureRecognizer()
+     let leftMouseDownObservation = gestureRecognizer.observe(.leftMouseDown) {
+        event in
         // handle the left mouse down event
      }
      ```
      
      - Parameters:
-        - type: The type of the event to observe.
-        - handler: A closure that will be called when the event of the specified type is called.
+        - type: The event type to observe.
+        - handler: The handler that is called for events of the specified type.
      
-     - Returns: A `GestureActionObservation` object representing the observation.
+     - Returns: A ``GestureRecognizerEventObservation`` object representing the observation.
      */
-    public func observe(_ type: NSEvent.EventType, handler: @escaping (NSEvent)->()) -> GestureActionObservation {
-        GestureActionObservation(type: type, gestureRecognizer: self, handler: handler)
+    open func observe(_ type: NSEvent.EventType, handler: @escaping (_ event: NSEvent)->()) -> GestureRecognizerEventObservation {
+        .init(type: type, gestureRecognizer: self, handler: handler)
     }
     
-    var actionObservations: [NSEvent.EventType: [GestureActionObservation]] = [:]
+    var actionObservations: [NSEvent.EventType: [(id: UUID, handler: (NSEvent)->())]] = [:]
     
-    func callHandlers(for type: NSEvent.EventType, event: NSEvent) {
+    private func callHandlers(for type: NSEvent.EventType, event: NSEvent) {
         actionObservations[type, default: []].forEach({ $0.handler(event) })
     }
     
