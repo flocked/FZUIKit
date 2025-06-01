@@ -20,10 +20,6 @@ extension NSGestureRecognizer {
         public static var other = ButtonMask(rawValue: 1 << 2)
         /// Left, right and other mouse button.
         public static let all: ButtonMask = [.left, .right, .other]
-        /// Mouse button at the specified index.
-        public static func button(at index: Int) -> ButtonMask {
-            ButtonMask(rawValue: 1 << index.clamped(min: 0))
-        }
 
         /// Creates a structure that represents the mouse button (or buttons) required to recognize a gesture.
         public init(rawValue: Int) {
