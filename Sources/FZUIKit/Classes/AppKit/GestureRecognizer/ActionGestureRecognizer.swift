@@ -18,13 +18,19 @@ open class ActionGestureRecognizer: NSGestureRecognizer {
         
         ///  A Boolean value indicating whether the observation is active.
         public var isObserving: Bool {
-            get { gestureRecognizer?.actionObservations[id] != nil }
-            set { gestureRecognizer?.actionObservations[id] = newValue ? self : nil }
+            get { gestureRecognizer?.actionObservations[type, default: []].contains(where: {$0.id == id}) == true }
+            set {
+                if newValue {
+                    gestureRecognizer?.actionObservations[type, default: []].append(self)
+                } else {
+                    gestureRecognizer?.actionObservations[type, default: []].removeFirst(where: {$0.id == id})
+                }
+            }
         }
         
         /// Invalidates the observation.
         public func invalidate() {
-            gestureRecognizer?.actionObservations[id] = nil
+            isObserving = false
         }
         
         let id = UUID()
@@ -35,7 +41,7 @@ open class ActionGestureRecognizer: NSGestureRecognizer {
             self.type = type
             self.gestureRecognizer = gestureRecognizer
             self.handler = handler
-            gestureRecognizer.actionObservations[id] = self
+            self.isObserving = true
         }
         
         deinit {
@@ -59,96 +65,96 @@ open class ActionGestureRecognizer: NSGestureRecognizer {
         - type: The type of the event to observe.
         - handler: A closure that will be called when the event of the specified type is called.
      
-     - Returns: An `GestureActionObservation` object representing the observation.
+     - Returns: A `GestureActionObservation` object representing the observation.
      */
     public func observe(_ type: NSEvent.EventType, handler: @escaping (NSEvent)->()) -> GestureActionObservation {
         GestureActionObservation(type: type, gestureRecognizer: self, handler: handler)
     }
     
-    var actionObservations: [UUID: GestureActionObservation] = [:]
+    var actionObservations: [NSEvent.EventType: [GestureActionObservation]] = [:]
     
-    func handlers(for type: NSEvent.EventType) -> [(NSEvent)->()] {
-        actionObservations.values.filter({$0.type == type}).compactMap({$0.handler})
+    func callHandlers(for type: NSEvent.EventType, event: NSEvent) {
+        actionObservations[type, default: []].forEach({ $0.handler(event) })
     }
     
     open override func mouseDown(with event: NSEvent) {
         super.mouseDown(with: event)
-        handlers(for: .leftMouseDown).forEach({ $0(event)})
+        callHandlers(for: .leftMouseDown, event: event)
     }
     
     open override func mouseUp(with event: NSEvent) {
         super.mouseUp(with: event)
-        handlers(for: .leftMouseUp).forEach({ $0(event)})
+        callHandlers(for: .leftMouseUp, event: event)
     }
     
     open override func mouseDragged(with event: NSEvent) {
         super.mouseDragged(with: event)
-        handlers(for: .leftMouseDragged).forEach({ $0(event)})
+        callHandlers(for: .leftMouseDragged, event: event)
     }
     
     open override func rightMouseDown(with event: NSEvent) {
         super.rightMouseDown(with: event)
-        handlers(for: .rightMouseDown).forEach({ $0(event)})
+        callHandlers(for: .rightMouseDown, event: event)
     }
     
     open override func rightMouseUp(with event: NSEvent) {
         super.rightMouseUp(with: event)
-        handlers(for: .rightMouseUp).forEach({ $0(event)})
+        callHandlers(for: .rightMouseUp, event: event)
     }
     
     open override func rightMouseDragged(with event: NSEvent) {
         super.rightMouseDragged(with: event)
-        handlers(for: .rightMouseDragged).forEach({ $0(event)})
+        callHandlers(for: .rightMouseDragged, event: event)
     }
     
     open override func otherMouseDown(with event: NSEvent) {
         super.otherMouseDown(with: event)
-        handlers(for: .otherMouseDown).forEach({ $0(event)})
+        callHandlers(for: .otherMouseDown, event: event)
     }
     
     open override func otherMouseUp(with event: NSEvent) {
         super.otherMouseUp(with: event)
-        handlers(for: .otherMouseUp).forEach({ $0(event)})
+        callHandlers(for: .otherMouseUp, event: event)
     }
     
     open override func otherMouseDragged(with event: NSEvent) {
         super.otherMouseDragged(with: event)
-        handlers(for: .otherMouseDragged).forEach({ $0(event)})
+        callHandlers(for: .otherMouseDragged, event: event)
     }
     
     open override func rotate(with event: NSEvent) {
         super.rotate(with: event)
-        handlers(for: .rotate).forEach({ $0(event)})
+        callHandlers(for: .rotate, event: event)
     }
     
     open override func magnify(with event: NSEvent) {
         super.magnify(with: event)
-        handlers(for: .magnify).forEach({ $0(event)})
+        callHandlers(for: .pressure, event: event)
     }
     
     open override func pressureChange(with event: NSEvent) {
         super.pressureChange(with: event)
-        handlers(for: .pressure).forEach({ $0(event)})
+        callHandlers(for: .pressure, event: event)
     }
     
     open override func keyDown(with event: NSEvent) {
         super.keyDown(with: event)
-        handlers(for: .keyDown).forEach({ $0(event)})
+        callHandlers(for: .keyDown, event: event)
     }
     
     open override func keyUp(with event: NSEvent) {
         super.keyUp(with: event)
-        handlers(for: .keyUp).forEach({ $0(event)})
+        callHandlers(for: .keyUp, event: event)
     }
     
     open override func flagsChanged(with event: NSEvent) {
         super.flagsChanged(with: event)
-        handlers(for: .flagsChanged).forEach({ $0(event)})
+        callHandlers(for: .flagsChanged, event: event)
     }
     
     open override func tabletPoint(with event: NSEvent) {
         super.tabletPoint(with: event)
-        handlers(for: .tabletPoint).forEach({ $0(event)})
+        callHandlers(for: .tabletPoint, event: event)
     }
 }
 
