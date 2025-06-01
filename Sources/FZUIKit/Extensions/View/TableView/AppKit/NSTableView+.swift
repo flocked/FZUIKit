@@ -455,13 +455,13 @@ extension NSTableView {
         get { getAssociatedValue("doubleClickHandler") }
         set {
             setAssociatedValue(newValue, key: "doubleClickHandler")
-            if newValue != nil, doubleClickGesture == nil {
-                doubleClickGesture = .init(target: self, action: #selector(NSTableView.didDoubleClick(_:)))
-                doubleClickGesture?.numberOfClicksRequired = 2
-                addGestureRecognizer(doubleClickGesture!)
-            } else if newValue == nil, let gesture = doubleClickGesture {
-                removeGestureRecognizer(gesture)
-                doubleClickGesture = nil
+            doubleClickGesture?.removeFromView()
+            doubleClickGesture = nil
+            if let newValue = newValue {
+                doubleClickGesture = .init { [weak self] _ in
+                    guard let self = self else { return }
+                    newValue(self.selectedRow != -1 ? self.selectedRow : nil)
+                }
             }
         }
     }
@@ -470,7 +470,7 @@ extension NSTableView {
         doubleClickHandler?(selectedRow != -1 ? selectedRow : nil)
     }
     
-    private var doubleClickGesture: NSClickGestureRecognizer? {
+    private var doubleClickGesture: DoubleClickGestureRecognizer? {
         get { getAssociatedValue("doubleClickGesture") }
         set { setAssociatedValue(newValue, key: "doubleClickGesture") }
     }

@@ -383,13 +383,13 @@ extension NSCollectionView {
         get { getAssociatedValue("doubleClickHandler") }
         set {
             setAssociatedValue(newValue, key: "doubleClickHandler")
-            if newValue != nil, doubleClickGesture == nil {
-                doubleClickGesture = .init(target: self, action: #selector(NSCollectionView.didDoubleClick(_:)))
-                doubleClickGesture?.numberOfClicksRequired = 2
-                addGestureRecognizer(doubleClickGesture!)
-            } else if newValue == nil, let gesture = doubleClickGesture {
-                removeGestureRecognizer(gesture)
-                doubleClickGesture = nil
+            doubleClickGesture?.removeFromView()
+            doubleClickGesture = nil
+            if let newValue = newValue {
+                doubleClickGesture = .init { [weak self] gesture in
+                    guard let self = self else { return }
+                    newValue(self.indexPathForItem(at: gesture.location(in: self)))
+                }
             }
         }
     }
@@ -398,7 +398,7 @@ extension NSCollectionView {
         doubleClickHandler?(indexPathForItem(at: gesture.location(in: self)))
     }
     
-    var doubleClickGesture: NSClickGestureRecognizer? {
+    var doubleClickGesture: DoubleClickGestureRecognizer? {
         get { getAssociatedValue("doubleClickGesture") }
         set { setAssociatedValue(newValue, key: "doubleClickGesture") }
     }
