@@ -390,6 +390,7 @@ extension NSCollectionView {
                     guard let self = self else { return }
                     newValue(self.indexPathForItem(at: gesture.location(in: self)))
                 }
+                addGestureRecognizer(doubleClickGesture!)
             }
         }
     }

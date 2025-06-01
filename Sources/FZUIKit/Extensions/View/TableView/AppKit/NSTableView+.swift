@@ -462,6 +462,7 @@ extension NSTableView {
                     guard let self = self else { return }
                     newValue(self.selectedRow != -1 ? self.selectedRow : nil)
                 }
+                addGestureRecognizer(doubleClickGesture!)
             }
         }
     }
