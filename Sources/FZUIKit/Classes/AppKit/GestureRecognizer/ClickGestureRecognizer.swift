@@ -23,15 +23,9 @@ open class ClickGestureRecognizer: NSGestureRecognizer {
         numberOfClicksRequired = clicks
         return self
     }
-    
-    /// A bit mask of the button (or buttons) required to recognize this click.
-    open var buttonMask = 1
-    
+
     /// The mouse button (or buttons) required to recognize this click.
-    public var requiredButtons: ButtonMask {
-        get { ButtonMask(rawValue: buttonMask) }
-        set { buttonMask = newValue.rawValue }
-    }
+    open var requiredButtons: ButtonMask = .left
     
     /// Sets the mouse button (or buttons) required to recognize this click.
     @discardableResult
