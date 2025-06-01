@@ -20,6 +20,7 @@ open class ActionGestureRecognizer: NSGestureRecognizer {
         public var isObserving: Bool {
             get { gestureRecognizer?.actionObservations[type, default: []].contains(where: {$0.id == id}) == true }
             set {
+                guard newValue != isObserving else { return }
                 if newValue {
                     gestureRecognizer?.actionObservations[type, default: []].append(self)
                 } else {
