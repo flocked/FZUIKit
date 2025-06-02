@@ -12,6 +12,13 @@
 import FZSwiftUtils
 
     public extension NSApplication {
+        internal var holdcmdQMonitor: NSEvent.Monitor? {
+            get { getAssociatedValue("") }
+            set { setAssociatedValue(newValue, key: "") }
+        }
+        
+        
+        
         /// The app’s activation policy that control whether and how an app may be activated.
         var activationPolicy: NSApplication.ActivationPolicy {
             get { activationPolicy() }

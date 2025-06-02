@@ -99,6 +99,7 @@ extension NSView {
             setAssociatedValue(newValue, key: "windowHandlers")
             setupObservation()
             setupWindowObservation()
+            setupWillMoveToWindow()
         }
     }
     
@@ -130,6 +131,7 @@ extension NSView {
             guard !(self is ObserverView) else { return }
             setupObservation()
             setupObserverView()
+            setupWillMoveToSuperview()
         }
     }
     
@@ -308,6 +310,42 @@ extension NSView {
         }
     }
     
+    func setupWillMoveToWindow() {
+        willMoveToWindowHook = nil
+        if let handler = windowHandlers.willMoveToWindow {
+            do {
+                willMoveToWindowHook = try hookBefore(#selector(NSView.viewWillMove(toWindow:)), closure: { object, selector, newWindow in
+                    handler(newWindow)
+                } as @convention(block) (AnyObject, Selector, NSWindow?) -> ())
+            } catch {
+                Swift.print(error)
+            }
+        }
+    }
+    
+    var willMoveToWindowHook: Hook? {
+        get { getAssociatedValue("willMoveToWindowHook") }
+        set { setAssociatedValue(newValue, key: "willMoveToWindowHook") }
+    }
+    
+    func setupWillMoveToSuperview() {
+        willMoveToSuperviewHook = nil
+        if let handler = viewHandlers.willMoveToSuperview {
+            do {
+                willMoveToSuperviewHook = try hookBefore(#selector(NSView.viewWillMove(toSuperview:)), closure: { object, selector, superview in
+                    handler(superview)
+                } as @convention(block) (AnyObject, Selector, NSView?) -> ())
+            } catch {
+                Swift.print(error)
+            }
+        }
+    }
+    
+    var willMoveToSuperviewHook: Hook? {
+        get { getAssociatedValue("willMoveToSuperviewHook") }
+        set { setAssociatedValue(newValue, key: "willMoveToSuperviewHook") }
+    }
+    
     /// A Boolean value that indicates whether the property `inLiveResize` is KVO observable.
     public static var isLiveResizingObservable: Bool {
         get { isMethodHooked(#selector(NSView.viewWillStartLiveResize)) }
@@ -431,6 +469,9 @@ extension NSView {
     
     /// The handlers for the window state.
     public struct WindowHandlers {
+        /// The handler that gets called before the window of the view changes.
+        public var willMoveToWindow: ((NSWindow?) -> Void)?
+        
         /// The handler that gets called when the window of the view changes.
         public var window: ((NSWindow?) -> Void)?
         
@@ -456,6 +497,8 @@ extension NSView {
     
     /// The handlers for the view.
     public struct ViewHandlers {
+        /// The handler that gets called before the superview changed.
+        public var willMoveToSuperview: ((NSView?) -> Void)?
         /// The handler that gets called when the superview changed.
         public var superview: ((NSView?) -> Void)?
         /// The handler that gets called when the bounds rectangle changed.
