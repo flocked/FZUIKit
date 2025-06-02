@@ -10,12 +10,17 @@
 
     public extension NSAnimatablePropertyContainer {
         /**
-         Returns either a proxy object for the receiver for animation or the receiver.
+         Returns either the animation proxy object for the receiver or the receiver itself.
 
          - Parameter animated: A Boolean value that indicates whether to return the animator proxy object or the receiver.
          */
         func animator(_ animate: Bool) -> Self {
             animate ? animator() : self
+        }
+        
+        /// Returns either the animation proxy object for the receiver or the receiver itself, depending if called within an active `NSAnimationContext` group with a positive duration.
+        func animatorIfNeeded() -> Self {
+            NSAnimationContext.hasActiveGrouping && NSAnimationContext.current.duration > 0.0  ? animator() : self
         }
     }
 
