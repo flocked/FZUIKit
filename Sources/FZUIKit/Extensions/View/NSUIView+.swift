@@ -214,8 +214,10 @@ import FZSwiftUtils
 
         /**
          An array of all subviews upto the maximum depth.
+         
+         A depth of `0` returns the subviews of the view, a value of `1` returns the subviews of the view and all their subviews, etc. To return all subviews use `max`.
 
-         - Parameter depth: The maximum depth. As example a value of `0` returns the subviews of receiver and a value of `1` returns the subviews of the receiver and all their subviews. To return all subviews use `max`.
+         - Parameter depth: The maximum depth.
          */
         @objc open func subviews(depth: Int) -> [NSUIView] {
             if depth > 0 {

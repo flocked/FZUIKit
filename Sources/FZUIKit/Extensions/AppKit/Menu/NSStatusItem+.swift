@@ -273,7 +273,7 @@ import SwiftUI
                             }
                         }
                         if let leftClickMenu = self.leftClickMenu {
-                            perform(NSSelectorFromString("popUpMenu"), with: leftClickMenu)
+                            perform(NSSelectorFromString("popUpStatusItemMenu:"), with: leftClickMenu)
                         }
                     case .rightMouseDown:
                         self.onRightMouseHold?(.isPressed)
@@ -291,7 +291,7 @@ import SwiftUI
                             }
                         }
                         if let rightClickMenu = self.rightClickMenu {
-                            perform(NSSelectorFromString("popUpMenu"), with: rightClickMenu)
+                            perform(NSSelectorFromString("popUpStatusItemMenu:"), with: rightClickMenu)
                         }
                     default: break
                     }
