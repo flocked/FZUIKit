@@ -2,6 +2,8 @@
 
 A framework with Swift AppKit and UIKit extensions, classes & utilities.
 
+**Always use the main branch, as else the package might not compile probably.**
+
 **For a full documentation take a look at the included documentation located at */Documentation*. Opening the file launches Xcode's documentation browser.**
 
 ## Notable Extensions & Classes
