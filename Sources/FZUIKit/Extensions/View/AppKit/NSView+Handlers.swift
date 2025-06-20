@@ -62,9 +62,13 @@ extension NSView {
             if let providedMenu = providedMenu {
                 providedMenu.delegate?.menuNeedsUpdate?(providedMenu)
             }
-            let items = providedMenu?.items ?? []
+            menu.items = providedMenu?.items ?? []
             providedMenu?.items = []
-            menu.items = items
+        }
+        
+        func menu(_ menu: NSMenu, update item: NSMenuItem, at index: Int, shouldCancel: Bool) -> Bool {
+            item.updateHandler?(item)
+            return true
         }
         
         func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {
@@ -79,10 +83,9 @@ extension NSView {
         }
         
         func menuDidClose(_ menu: NSMenu) {
-            let items = menu.items
+            providedMenu?.items = menu.items
             menu.items = []
             guard let providedMenu = providedMenu else { return }
-            providedMenu.items = items
             providedMenu.delegate?.menuDidClose?(providedMenu)
             self.providedMenu = nil
         }

@@ -219,7 +219,7 @@ extension NSMenu {
     }
     
     func setupDelegateProxy(itemProviderView: NSView? = nil) {
-        if itemProviderView != nil ||  items.contains(where: { $0.visiblity != .normal }) || handlers.needsDelegate {
+        if itemProviderView != nil || handlers.needsDelegate || items.contains(where: { $0.visiblity != .normal || $0.updateHandler != nil }) {
             if delegateProxy == nil {
                 delegateProxy = Delegate(self)
             }
@@ -303,7 +303,8 @@ extension NSMenu {
         }
         
         func menu(_ menu: NSMenu, update item: NSMenuItem, at index: Int, shouldCancel: Bool) -> Bool {
-            delegate?.menu?(menu, update: item, at: index, shouldCancel: shouldCancel) ?? true
+            item.updateHandler?(item)
+            return delegate?.menu?(menu, update: item, at: index, shouldCancel: shouldCancel) ?? true
         }
         
         func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {

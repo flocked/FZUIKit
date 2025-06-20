@@ -487,14 +487,7 @@ public extension NSMenuItem {
         get { getAssociatedValue("visiblity", initialValue: .normal) }
         set {
             setAssociatedValue(newValue, key: "visiblity")
-            if newValue == .normal {
-                menuObservation = nil
-            } else if menuObservation == nil {
-                menu?.setupDelegateProxy()
-                menuObservation = observeChanges(for: \.menu) { old, new in
-                    new?.setupDelegateProxy()
-                }
-            }
+            setupMenuDelegateProxy()
         }
     }
     
@@ -503,6 +496,34 @@ public extension NSMenuItem {
     func visiblity(_ visiblity: Visiblity) -> Self {
         self.visiblity = visiblity
         return self
+    }
+    
+    /// The handler that gets called to update the item before it gets called.
+    var updateHandler: ((_ item: NSMenuItem)->())? {
+        get { getAssociatedValue("updateHandler") }
+        set {
+            setAssociatedValue(newValue, key: "updateHandler")
+            setupMenuDelegateProxy()
+        }
+    }
+    
+    /// Sets the handler that gets called to update the item before it gets called.
+    @discardableResult
+    func updateHandler(_ handler: ((_ item: NSMenuItem)->())?) -> Self {
+        self.updateHandler = updateHandler
+        return self
+    }
+    
+    func setupMenuDelegateProxy() {
+        menu?.setupDelegateProxy()
+        if visiblity == .normal && updateHandler == nil {
+            menuObservation = nil
+        } else {
+            menuObservation = observeChanges(for: \.menu) { old, new in
+                old?.setupDelegateProxy()
+                new?.setupDelegateProxy()
+            }
+        }
     }
     
     internal var menuObservation: KeyValueObservation? {
