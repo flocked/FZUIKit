@@ -26,7 +26,7 @@ public extension NSEvent {
     var screenLocation: CGPoint? {
         window?.convertToScreen(CGRect(locationInWindow, .zero)).origin
     }
-    
+
     /// The last event that the app retrieved from the event queue.
     static var current: NSEvent? {
         NSApplication.shared.currentEvent

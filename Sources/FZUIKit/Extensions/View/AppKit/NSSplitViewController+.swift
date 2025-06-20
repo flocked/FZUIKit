@@ -8,6 +8,7 @@
 #if os(macOS)
     import AppKit
 import FZSwiftUtils
+import _ObjectProxy
 
     extension NSSplitViewController {
         /**
@@ -24,7 +25,11 @@ import FZSwiftUtils
             }
             set {
                 guard splitViewItems.count > 1, let sidebarItem = splitViewItems.first, newValue != !sidebarItem.isCollapsed else { return }
-                toggleSidebar(nil)
+                if isProxy() {
+                    toggleSidebar(nil)
+                } else {
+                    sidebarItem.isCollapsed = newValue
+                }
             }
         }
         
@@ -39,13 +44,33 @@ import FZSwiftUtils
          */
         @discardableResult
         @objc open func isSidebarVisible(_ isVisible: Bool, animated: Bool = true) -> Self {
+            guard splitViewItems.count > 1, let sidebarItem = splitViewItems.first, isVisible != !sidebarItem.isCollapsed else { return self }
             if animated {
                 self.isSidebarVisible = isVisible
-            } else if splitViewItems.count > 1, let sidebarItem = splitViewItems.first {
+            } else {
                 sidebarItem.isCollapsed = !isVisible
             }
             return self
         }
     }
+
+extension NSSplitViewController: NSAnimatablePropertyContainer {
+    public func animator() -> Self {
+        _objectProxy()!
+    }
+    
+    public var animations: [NSAnimatablePropertyKey : Any] {
+        get { [:] }
+        set { }
+    }
+    
+    public func animation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        nil
+    }
+    
+    public static func defaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        nil
+    }
+}
 
 #endif

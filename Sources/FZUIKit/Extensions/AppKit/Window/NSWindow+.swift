@@ -10,6 +10,16 @@ import AppKit
 import FZSwiftUtils
 
 extension NSWindow {
+    /// Repositions the window above the other specified window.
+    @objc open func order(above window: NSWindow) {
+        order(.above, relativeTo: window.windowNumber)
+    }
+    
+    /// Repositions the window below the other specified window.
+    @objc open func order(below window: NSWindow) {
+        order(.below, relativeTo: window.windowNumber)
+    }
+    
     /// Observes the main state of the window.
     @objc open func observeIsMain(handler: @escaping (_ isMain: Bool)->()) -> NotificationToken {
         [NotificationCenter.default.observe(NSWindow.didBecomeMainNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignMainNotification, object: self) { _ in handler(false) }].combinedNotificationToken!
