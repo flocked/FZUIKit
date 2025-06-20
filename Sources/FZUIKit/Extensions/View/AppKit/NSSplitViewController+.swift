@@ -60,16 +60,18 @@ extension NSSplitViewController: NSAnimatablePropertyContainer {
     }
     
     public var animations: [NSAnimatablePropertyKey : Any] {
-        get { [:] }
-        set { }
+        get { getAssociatedValue("animations", initialValue: [:]) }
+        set { setAssociatedValue(newValue, key: "animations") }
     }
     
     public func animation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        nil
+        Swift.print("animation", key)
+        return CABasicAnimation()
     }
     
     public static func defaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        nil
+        Swift.print("defaultAnimation", key)
+        return CABasicAnimation()
     }
 }
 
