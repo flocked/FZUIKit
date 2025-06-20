@@ -182,12 +182,15 @@ extension NSMenu {
         public var willHighlight: ((NSMenuItem?)->())?
         /// The handler that gets called when the appearance changes.
         public var effectiveAppearance: ((NSAppearance)->())?
+        /// The handler that gets called before the menu is displayed to update it.
+        public var update: ((NSMenu)->())?
 
         var needsDelegate: Bool {
             willOpen != nil ||
             didClose != nil ||
             willHighlight != nil ||
-            effectiveAppearance != nil
+            effectiveAppearance != nil ||
+            update != nil
         }
     }
     
@@ -287,7 +290,9 @@ extension NSMenu {
         }
         
         func menuNeedsUpdate(_ menu: NSMenu) {
+            menu.handlers.update?(menu)
             delegate?.menuNeedsUpdate?(menu)
+            menu.items.forEach({ $0.updateHandler?($0) })
         }
         
         func menuHasKeyEquivalent(_ menu: NSMenu, for event: NSEvent, target: AutoreleasingUnsafeMutablePointer<AnyObject?>, action: UnsafeMutablePointer<Selector?>) -> Bool {
@@ -303,8 +308,7 @@ extension NSMenu {
         }
         
         func menu(_ menu: NSMenu, update item: NSMenuItem, at index: Int, shouldCancel: Bool) -> Bool {
-            item.updateHandler?(item)
-            return delegate?.menu?(menu, update: item, at: index, shouldCancel: shouldCancel) ?? true
+            delegate?.menu?(menu, update: item, at: index, shouldCancel: shouldCancel) ?? true
         }
         
         func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {
