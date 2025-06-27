@@ -510,7 +510,7 @@ public extension NSMenuItem {
         return self
     }
     
-    /// The handler that gets called to update the item before it gets called.
+    /// The handler that gets called to update the item before it gets displayed.
     var updateHandler: ((_ item: NSMenuItem)->())? {
         get { getAssociatedValue("updateHandler") }
         set {
@@ -519,10 +519,10 @@ public extension NSMenuItem {
         }
     }
     
-    /// Sets the handler that gets called to update the item before it gets called.
+    /// Sets the handler that gets called to update the item before it gets displayed.
     @discardableResult
     func updateHandler(_ handler: ((_ item: NSMenuItem)->())?) -> Self {
-        self.updateHandler = updateHandler
+        self.updateHandler = handler
         return self
     }
     
@@ -541,6 +541,11 @@ public extension NSMenuItem {
             setAssociatedValue(newValue, key: "alternateItem")
             setupMenuDelegateProxy()
         }
+    }
+    
+    /// Removes the item from it's menu.
+    func removeFromMenu() {
+        menu?.removeItem(self)
     }
     
     /// Sets the alternate menu item displayed when the option key is hold.

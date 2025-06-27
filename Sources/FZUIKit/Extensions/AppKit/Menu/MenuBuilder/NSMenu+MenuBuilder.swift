@@ -66,28 +66,19 @@
         /// Create a new menu with the given title and items.
         convenience init(_ title: String, @MenuBuilder _ items: () -> [NSMenuItem]) {
             self.init(title: title)
-            replaceItems(with: items)
+            self.items(items)
         }
 
         /// Create a new menu with the given title and items.
         convenience init(title: String, @MenuBuilder _ items: () -> [NSMenuItem]) {
             self.init(title: title)
-            replaceItems(with: items)
+            self.items(items)
         }
 
         /// Create a new menu with the given items.
         convenience init(@MenuBuilder _ items: () -> [NSMenuItem]) {
             self.init()
-            replaceItems(with: items)
-        }
-
-        /// Remove all items in the menu and replace them with the provided list of menu items.
-        func replaceItems(@MenuBuilder with items: () -> [NSMenuItem]) {
-            removeAllItems()
-            for item in items() {
-                addItem(item)
-            }
-            update()
+            self.items(items)
         }
     }
 #endif

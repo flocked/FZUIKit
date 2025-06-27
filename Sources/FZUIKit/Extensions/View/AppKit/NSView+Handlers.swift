@@ -44,52 +44,19 @@ extension NSView {
         }
     }
     
-    class ViewMenuProviderMenu: NSMenu, NSMenuDelegate {
+    class ViewMenuProviderMenu: NSMenu {
         weak var view: NSView?
         var handler: ((_ location: CGPoint)->(NSMenu?)) = { _ in return nil }
-        var providedMenu: NSMenu?
         
         init(for view: NSView) {
             self.view = view
             super.init(title: "")
-            delegate = self
+            self.setupDelegateProxy()
         }
         
-        func menuNeedsUpdate(_ menu: NSMenu) {
-            menu.items = []
-            guard let view = view, let location = NSApp.currentEvent?.location(in: view) else { return }
-            providedMenu = handler(location)
-            if let providedMenu = providedMenu {
-                providedMenu.delegate?.menuNeedsUpdate?(providedMenu)
-            }
-            let items = providedMenu?.items ?? []
-            providedMenu?.items = []
-            menu.items = items
-        }
-        
-        func menu(_ menu: NSMenu, update item: NSMenuItem, at index: Int, shouldCancel: Bool) -> Bool {
-            item.updateHandler?(item)
-            return true
-        }
-        
-        func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {
-            menu.items.forEach({($0.view as? NSMenuItemView)?.isHighlighted = $0 === item })
-            guard let providedMenu = providedMenu else { return }
-            providedMenu.delegate?.menu?(providedMenu, willHighlight: item)
-        }
-        
-        func menuWillOpen(_ menu: NSMenu) {
-            guard let providedMenu = providedMenu else { return }
-            providedMenu.delegate?.menuWillOpen?(providedMenu)
-        }
-        
-        func menuDidClose(_ menu: NSMenu) {
-            let items = menu.items
-            menu.items = []
-            providedMenu?.items = items
-            guard let providedMenu = providedMenu else { return }
-            providedMenu.delegate?.menuDidClose?(providedMenu)
-            self.providedMenu = nil
+        func getMenu() -> NSMenu? {
+            guard let view = view, let location = NSApp.currentEvent?.location(in: view) else { return nil }
+            return handler(location)
         }
         
         required init(coder: NSCoder) {
