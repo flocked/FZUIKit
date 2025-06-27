@@ -472,29 +472,41 @@ public extension NSMenuItem {
         return self
     }
     
-    /// The visibilty of an item when it is visible in it's menu.
-    enum Visiblity: Int {
-        /// The default option that uses the menu item's `isHidden` property.^
-        case normal
-        /// The item is visible while the option key is hold.
-        case optionHold
-        /// The item is visible if the option key is pressed while the menu opens.
-        case optionHoldOnMenuOpen
+    /// The visibility of a menu item.
+    enum Visibility: Int {
+        /// The item is always visible.
+        case always
+        /// The item is visible only while the Option key is held down.
+        case whileHoldingOption
+        /// The item is visible only if the Option key is pressed at the moment the menu is opened.
+        case onMenuOpenHoldingOption
     }
     
-    /// The visibilty of the item.
-    var visiblity: Visiblity {
-        get { getAssociatedValue("visiblity", initialValue: .normal) }
+    /**
+     The visibility of the menu item.
+     
+     Set this property to restrict the visibility of a menu item depending on whether the Option key is held during interaction.
+     
+     - Note: This property is evaluated in addition to the menu item's `isHidden` property, which must be `false` for the item to be shown.
+     */
+    var visibility: Visibility {
+        get { getAssociatedValue("visibility") ?? .always }
         set {
-            setAssociatedValue(newValue, key: "visiblity")
+            setAssociatedValue(newValue, key: "visibility")
             setupMenuDelegateProxy()
         }
     }
     
-    /// Sets the visibilty of the item when it is visible in it's menu.
+    /**
+     Sets the visibility of the item.
+     
+     Use this method to restrict the visibility of a menu item depending on whether the Option key is held during interaction.
+     
+     - Note: This property is evaluated in addition to the menu item's `isHidden` property, which must be `false` for the item to be shown.
+     */
     @discardableResult
-    func visiblity(_ visiblity: Visiblity) -> Self {
-        self.visiblity = visiblity
+    func visibility(_ visibility: Visibility) -> Self {
+        self.visibility = visibility
         return self
     }
     
@@ -514,9 +526,33 @@ public extension NSMenuItem {
         return self
     }
     
-    func setupMenuDelegateProxy() {
+    /**
+     The alternate menu item displayed when the option key is held.
+     
+     To change the modifier flag required to hold, use the alternate item's `keyEquivalentModifierMask` property.
+     */
+    var alternateItem: NSMenuItem? {
+        get { getAssociatedValue("alternateItem") }
+        set {
+            guard newValue != alternateItem else { return }
+            alternateItem?.isAlternate = false
+            newValue?.isAlternate = true
+            newValue?.keyEquivalentModifierMask = [.option]
+            setAssociatedValue(newValue, key: "alternateItem")
+            setupMenuDelegateProxy()
+        }
+    }
+    
+    /// Sets the alternate menu item displayed when the option key is hold.
+    @discardableResult
+    func alternateItem(_ item: NSMenuItem?) -> Self {
+        self.alternateItem = item
+        return self
+    }
+    
+    internal func setupMenuDelegateProxy() {
         menu?.setupDelegateProxy()
-        if visiblity == .normal && updateHandler == nil {
+        if !needsDelegateProxy {
             menuObservation = nil
         } else {
             menuObservation = observeChanges(for: \.menu) { old, new in
@@ -526,9 +562,19 @@ public extension NSMenuItem {
         }
     }
     
+    internal var needsDelegateProxy: Bool {
+        alternateItem != nil || updateHandler != nil || visibility != .always
+    }
+    
     internal var menuObservation: KeyValueObservation? {
         get { getAssociatedValue("menuObservation") }
         set { setAssociatedValue(newValue, key: "menuObservation") }
+    }
+    
+    /// The width of the item.
+    internal var width: CGFloat? {
+        guard let menu = menu else { return nil }
+        return (title as NSString).size(withAttributes: [.font:menu.font]).width
     }
 }
 

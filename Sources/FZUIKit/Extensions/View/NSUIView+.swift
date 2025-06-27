@@ -157,7 +157,7 @@ import FZSwiftUtils
             - indexes: The indexes of the subviews to move.
             - toIndex: The index where the subviews should be moved to.
          */
-        @objc open func moveSubviews(at indexes: IndexSet, to toIndex: Int, reorder: Bool = false) {   
+        @objc open func moveSubviews(at indexes: IndexSet, to toIndex: Int, reorder: Bool = false) {
             guard !subviews.isEmpty, toIndex >= 0, toIndex < subviews.count else { return }
             let subviewsCount = subviews.count
             let indexes = indexes.filter { $0 >= 0 && $0 < subviewsCount }
@@ -247,6 +247,24 @@ import FZSwiftUtils
           */
         @objc open func subviews(where predicate: (NSUIView) -> (Bool), depth: Int = 0) -> [NSUIView] {
             subviews(depth: depth).filter { predicate($0) == true }
+        }
+        
+        open func firstSubview<V: NSUIView>(type _: V.Type, depth: Int = 0) -> V? {
+            firstSubview(where: { $0 is V }, depth: depth) as? V
+        }
+        
+        open func firstSubview(where predicate: (NSUIView) -> (Bool), depth: Int = 0) -> NSUIView? {
+            if let subview = subviews.first(where: predicate) {
+                return subview
+            }
+            if depth > 0 {
+                for subview in subviews {
+                    if let subview = subview.firstSubview(where: predicate, depth: depth - 1) {
+                        return subview
+                    }
+                }
+            }
+            return nil
         }
         
         /// Positions the view above the specified view.

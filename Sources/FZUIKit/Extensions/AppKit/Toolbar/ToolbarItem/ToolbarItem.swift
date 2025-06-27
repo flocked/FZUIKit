@@ -107,8 +107,7 @@
         open var isVisible: Bool { item.isVisible }
 
         /// The toolbar that currently includes the item.
-        public var toolbar: Toolbar? { item.toolbar?.delegate as? Toolbar }
-        
+        public var toolbar: Toolbar? { (item.toolbar?.delegate as? Toolbar.Delegate)?.toolbar }
 
         /// The label that appears for this item in the toolbar.
         open var label: String {

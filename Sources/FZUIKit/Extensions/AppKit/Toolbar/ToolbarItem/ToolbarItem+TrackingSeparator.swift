@@ -19,6 +19,8 @@ extension ToolbarItem {
      The ``splitView`` must be in the same window as the toolbar containing this item before showing the toolbar.
      */
     open class TrackingSeparator: ToolbarItem {
+        var autodetectsSplitView = false
+        var isEmptySplitView = true
         let separatorItem: NSTrackingSeparatorToolbarItem
         override var item: NSToolbarItem {
             separatorItem
@@ -29,9 +31,29 @@ extension ToolbarItem {
          
          The `splitView` must be in the same window as the toolbar containing the item before showing the toolbar.
          */
-        open var splitView: NSSplitView {
-            get { separatorItem.splitView }
-            set { separatorItem.splitView = newValue }
+        open var splitView: NSSplitView? {
+            get { isEmptySplitView ? nil : separatorItem.splitView }
+            set {
+                guard newValue != splitView else { return }
+                separatorItem.splitView = newValue ?? NSSplitView()
+                autodetectsSplitView = newValue == nil
+                isEmptySplitView = newValue == nil
+                updateAutodetectSplitView()
+            }
+        }
+        
+        func updateAutodetectSplitView(toolbar: Toolbar? = nil) {
+            Swift.print("updateAutodetectSplitView", toolbar != nil, toolbar?.attachedWindow != nil, toolbar?.attachedWindow?.contentView != nil, toolbar?.attachedWindow?.contentView?.firstSuperview(for: NSSplitView.self) != nil, toolbar?.attachedWindow?.contentView is NSSplitView)
+            (toolbar?.attachedWindow?.contentView?.subviews(depth: .max) ?? []).forEach({Swift.print($0)})
+
+            guard autodetectsSplitView else { return }
+            if let splitView = (toolbar ?? self.toolbar)?.attachedWindow?.contentView?.subviews(type: NSSplitView.self, depth: .max).first {
+                separatorItem.splitView = splitView
+                isEmptySplitView = false
+            } else if !isEmptySplitView {
+                separatorItem.splitView = NSSplitView()
+                isEmptySplitView = true
+            }
         }
         
         /**
@@ -59,7 +81,22 @@ extension ToolbarItem {
         }
         
         /**
-         Creates a tracking sseperator toolbar item.
+         Creates a tracking seperator toolbar item that automatically detects the split view used inside the toolbar's window.
+         
+         - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `TrackingSeparator` toolbar items.
+         
+         - Parameters:
+            - identifier: The item identifier.
+            - dividerIndex: The index of the divider.
+         */
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, dividerIndex: Int) {
+            self.autodetectsSplitView = true
+            self.separatorItem = .init(identifier: identifier ?? Toolbar.automaticIdentifier(for: "TrackingSeparator"), splitView: NSSplitView(), dividerIndex: dividerIndex)
+            super.init(separatorItem.itemIdentifier)
+        }
+        
+        /**
+         Creates a tracking seperator toolbar item for the specified split view and divider index.
          
          - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `TrackingSeparator` toolbar items.
          

@@ -42,21 +42,6 @@
             return self
         }
         
-        /**
-         Adds a menu item and it's alternative to the end of the menu.
-         
-         The anternate item is displayed, when the specified modifier mask is pressed by the user.
-         
-         - Parameters:
-            - item: The menu item to add to the menu.
-            - alternative: The alternative menu item to add to the menu.
-            - modifierMask: The modifier mask for displaying the alternate menu item. The default value is `option.`
-         */
-        func addItem(_ item: NSMenuItem, alternate: NSMenuItem, modifierMask: NSEvent.ModifierFlags = [.option]) {
-            addItem(item)
-            addItem(alternate.isAlternate(true).keyEquivalentModifierMask(modifierMask))
-        }
-        
         /// The menu items in the menu.
         @discardableResult
         func items(@MenuBuilder _ items: () -> [NSMenuItem]) -> Self {
@@ -182,7 +167,7 @@ extension NSMenu {
         public var willHighlight: ((NSMenuItem?)->())?
         /// The handler that gets called when the appearance changes.
         public var effectiveAppearance: ((NSAppearance)->())?
-        /// The handler that gets called before the menu is displayed to update it.
+        /// The handler that gets called before the menu is displayed to be able to update it.
         public var update: ((NSMenu)->())?
 
         var needsDelegate: Bool {
@@ -222,7 +207,7 @@ extension NSMenu {
     }
     
     func setupDelegateProxy(itemProviderView: NSView? = nil) {
-        if itemProviderView != nil || handlers.needsDelegate || items.contains(where: { $0.visiblity != .normal || $0.updateHandler != nil }) {
+        if itemProviderView != nil || handlers.needsDelegate || items.contains(where: { $0.needsDelegateProxy }) {
             if delegateProxy == nil {
                 delegateProxy = Delegate(self)
             }
@@ -254,19 +239,11 @@ extension NSMenu {
         func menuWillOpen(_ menu: NSMenu) {
             guard menu.delegate === self else { return }
             menu.handlers.willOpen?()
-            let optionPressed = NSEvent.current?.modifierFlags.contains([.option]) == true
-            menu.items.filter({ $0.visiblity != .normal }).forEach({ $0.isHidden = !optionPressed })
             delegate?.menuWillOpen?(menu)
-            let hiddenOptionItems = menu.items.filter({ $0.visiblity == .optionHold })
-            if !hiddenOptionItems.isEmpty, eventObserver == nil {
-                eventObserver = CFRunLoopObserverCreateWithHandler(nil, CFRunLoopActivity.beforeWaiting.rawValue, true, 0, { (observer, activity) in
-                    self.menuRecievedEvents(menu: menu)
-                })
-                CFRunLoopAddObserver(CFRunLoopGetCurrent(), eventObserver, CFRunLoopMode.commonModes)
-            }
         }
         
         func menuDidClose(_ menu: NSMenu) {
+            menu.items = menu.items.removeAlternates()
             guard menu.delegate === self else { return }
             menu.handlers.didClose?()
             delegate?.menuDidClose?(menu)
@@ -281,8 +258,8 @@ extension NSMenu {
         }
         
         func menuRecievedEvents(menu: NSMenu) {
-            let optionKeyIsPressed = CGEvent(source: nil)?.flags.contains(.maskAlternate) == true
-            menu.items.filter({ $0.visiblity == .optionHold }).forEach({$0.isHidden = !optionKeyIsPressed})
+            let optionKeyIsPressed = NSEvent.modifierFlags.contains(.option)
+            menu.items.filter({ $0.visibility == .whileHoldingOption }).forEach({$0.isHidden = !optionKeyIsPressed})
         }
         
         func numberOfItems(in menu: NSMenu) -> Int {
@@ -290,9 +267,20 @@ extension NSMenu {
         }
         
         func menuNeedsUpdate(_ menu: NSMenu) {
+            guard menu.delegate === self else { return }
             menu.handlers.update?(menu)
             delegate?.menuNeedsUpdate?(menu)
             menu.items.forEach({ $0.updateHandler?($0) })
+            let optionPressed = NSEvent.modifierFlags.contains([.option])
+            menu.items.filter({ $0.visibility != .always }).forEach({ $0.isHidden = !optionPressed })
+            if eventObserver == nil, menu.items.contains(where: { $0.visibility == .whileHoldingOption }) {
+                eventObserver = CFRunLoopObserverCreateWithHandler(nil, CFRunLoopActivity.beforeWaiting.rawValue, true, 0, { (observer, activity) in
+                    let optionKeyIsPressed = NSEvent.modifierFlags.contains(.option)
+                    menu.items.filter({ $0.visibility == .whileHoldingOption }).forEach({$0.isHidden = !optionKeyIsPressed})
+                })
+                CFRunLoopAddObserver(CFRunLoopGetCurrent(), eventObserver, CFRunLoopMode.commonModes)
+            }
+            menu.items = menu.items.addAlternates()
         }
         
         func menuHasKeyEquivalent(_ menu: NSMenu, for event: NSEvent, target: AutoreleasingUnsafeMutablePointer<AnyObject?>, action: UnsafeMutablePointer<Selector?>) -> Bool {
@@ -318,6 +306,23 @@ extension NSMenu {
             }
             delegate?.menu?(menu, willHighlight: item)
         }
+    }
+}
+
+fileprivate extension Array where Element: NSMenuItem {
+    func addAlternates() -> [NSMenuItem] {
+        flatMap { if let alternate = $0.alternateItem { return [$0, alternate] } else { return [$0] } }
+    }
+    
+    func removeAlternates() -> [Element] {
+        let alternateSet = Set(compactMap { $0.alternateItem?.objectID })
+        return compactMap { alternateSet.contains($0.objectID) ? nil : $0 }
+    }
+}
+
+fileprivate extension NSMenuItem {
+    var objectID: ObjectIdentifier {
+        ObjectIdentifier(self)
     }
 }
 

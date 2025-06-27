@@ -25,17 +25,17 @@
 
         /// A move-in transition with the specified duration and direction.
         static func moveIn(duration: CGFloat = 0.1, direction: CATransitionSubtype? = .fromLeft) -> CATransition {
-            return CATransition(.moveIn, subtype: direction, duration: duration)
+            CATransition(.moveIn, subtype: direction, duration: duration)
         }
 
         /// A push transition with the specified duration and direction.
         static func push(duration: CGFloat = 0.1, direction: CATransitionSubtype? = .fromLeft) -> CATransition {
-            return CATransition(.push, subtype: direction, duration: duration)
+            CATransition(.push, subtype: direction, duration: duration)
         }
 
         /// A reveal transition with the specified duration and direction.
         static func reveal(duration: CGFloat = 0.1, direction: CATransitionSubtype? = .fromLeft) -> CATransition {
-            return CATransition(.reveal, subtype: direction, duration: duration)
+            CATransition(.reveal, subtype: direction, duration: duration)
         }
     }
 #endif

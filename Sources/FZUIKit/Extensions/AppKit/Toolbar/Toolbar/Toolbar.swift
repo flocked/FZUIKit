@@ -65,6 +65,9 @@ import FZSwiftUtils
         public var attachedWindow: NSWindow? {
             didSet {
                 guard oldValue != attachedWindow else { return }
+                if #available(macOS 11.0, *) {
+                items.compactMap({ $0 as? ToolbarItem.TrackingSeparator }).forEach({ $0.updateAutodetectSplitView(toolbar: self) })
+                }
                 toolbarObservation = attachedWindow?.observeChanges(for: \.toolbar) { [weak self] old, new in
                     guard let self = self, new !== self.toolbar else { return }
                     self.attachedWindow = nil
@@ -237,10 +240,7 @@ import FZSwiftUtils
          This property is key-value observable (KVO).
          */
         @objc dynamic open var selectedItem: ToolbarItem? {
-            get {
-                guard let selectedID = toolbar.selectedItemIdentifier else { return nil }
-                return items.first(where: { $0.identifier == selectedID })
-            }
+            get { items.first(where: { $0.identifier == toolbar.selectedItemIdentifier ?? "_none" }) }
             set {
                 guard newValue != selectedItem else { return }
                 if newValue == nil {
