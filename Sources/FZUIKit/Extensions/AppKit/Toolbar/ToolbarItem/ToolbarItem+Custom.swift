@@ -10,10 +10,14 @@ import AppKit
 import FZSwiftUtils
 
 extension Toolbar {
-    /// A custom toolbar item.
-    open class Custom<Item: NSToolbarItem>: ToolbarItem {
+    /**
+     A custom toolbar item.
+     
+     Use ``toolbarItem`` to access the underlying `NSToolbarItem` that represents the item.
+     */
+    open class CustomItem: ToolbarItem {
         /// The `NSToolbarItem` that represents the item.
-        public let toolbarItem: Item
+        public let toolbarItem: NSToolbarItem
         
         override var item: NSToolbarItem {
             toolbarItem.validateSwizzled(item: self)
@@ -24,15 +28,25 @@ extension Toolbar {
                   
          - Parameter item: The toolbar item.
          */
-        public init(item: Item) {
+        public init(item: NSToolbarItem) {
             self.toolbarItem = item
             super.init(item.itemIdentifier)
+        }
+        
+        /**
+         Creates a toolbar item with the specified item identifier.
+                  
+         - Parameter identifier: The toolbar item identifier.
+         */
+        public override init(_ identifier: NSToolbarItem.Identifier? = nil) {
+            self.toolbarItem = NSToolbarItem(itemIdentifier: identifier ?? Toolbar.automaticIdentifier(for: "\(type(of: self))"))
+            super.init(toolbarItem.itemIdentifier)
         }
     }
 }
 
 extension NSToolbarItem {
-    func validateSwizzled<Item: NSToolbarItem>(item: Toolbar.Custom<Item>) -> Self {
+    func validateSwizzled(item: Toolbar.CustomItem) -> Self {
         swizzleValidate(item: item)
         return self
     }
@@ -42,7 +56,7 @@ extension NSToolbarItem {
         set { setAssociatedValue(newValue, key: "didSwizzleValidate") }
     }
     
-    private func swizzleValidate<Item: NSToolbarItem>(item: Toolbar.Custom<Item>) {
+    private func swizzleValidate(item: Toolbar.CustomItem) {
         guard !didSwizzleValidate else { return }
         didSwizzleValidate = true
         do {
