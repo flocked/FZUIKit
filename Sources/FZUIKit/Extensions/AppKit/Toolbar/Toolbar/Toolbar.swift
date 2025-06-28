@@ -483,4 +483,38 @@ extension NSWindow {
     }
 }
 
+extension Toolbar {
+    public struct State: ExpressibleByStringLiteral {
+        /// The name of the state.
+        public let name: String
+        /// The displaying toolbar items..
+        public var displayingItems: [ToolbarItem] = [] {
+            didSet {
+                items = items + displayingItems.uniqued().filter({ !items.contains($0) })
+            }
+        }
+        /// The centered toolbar items.
+        public var centeredItems: Set<ToolbarItem> = []
+        /// The selected toolbar item.
+        public var selectedItem: ToolbarItem? = nil
+        var items: [ToolbarItem] = []
+        
+        public init(name: String, displayingItems: [ToolbarItem] = []) {
+            self.name = name
+            self.displayingItems = displayingItems
+            self.items = displayingItems
+        }
+        
+        public init(_ name: String, displayingItems: [ToolbarItem] = []) {
+            self = Self(name: name, displayingItems: displayingItems)
+        }
+        
+        public init(stringLiteral value: String) {
+            self = Self(name: value, displayingItems: [])
+        }
+        
+        public static let `default` = Self("default")
+    }
+}
+
 #endif
