@@ -8,7 +8,7 @@
 #if os(macOS)
 import AppKit
 
-extension ToolbarItem {
+extension Toolbar {
     /// A toolbar item that contains a popup button.
     open class PopUpButton: ToolbarItem {
         fileprivate lazy var rootItem = ValidateToolbarItem(for: self)
@@ -22,7 +22,7 @@ extension ToolbarItem {
         
         /// Sets the handler that gets called when the user clicks the pop up button.
         @discardableResult
-        open func onAction(_ action: ((_ item: ToolbarItem.PopUpButton)->())?) -> Self {
+        open func onAction(_ action: ((_ item: Toolbar.PopUpButton)->())?) -> Self {
             if let action = action {
                 button.actionBlock = { [weak self] _ in
                     guard let self = self else { return }

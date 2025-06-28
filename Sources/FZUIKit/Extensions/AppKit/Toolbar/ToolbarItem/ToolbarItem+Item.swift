@@ -8,7 +8,7 @@
 #if os(macOS)
 import AppKit
 
-extension ToolbarItem {
+extension Toolbar {
     /// A toolbar item.
     open class Item: ToolbarItem {
         fileprivate lazy var rootItem = ValidateToolbarItem(for: self)

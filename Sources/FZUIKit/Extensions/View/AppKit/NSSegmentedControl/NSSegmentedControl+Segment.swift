@@ -12,7 +12,7 @@
     /// A segment of a `NSSegmentedControl`.
     public class NSSegment: NSObject, ExpressibleByStringLiteral {
         weak var segmentedControl: NSSegmentedControl?
-        weak var toolbarItem: ToolbarItem.Segmented?
+        weak var toolbarItem: Toolbar.SegmentedControl?
 
         /// The title of the segment.
         public var title: String? {
@@ -402,7 +402,7 @@
             (0 ..< segmentCount).first(where: { self.tag(forSegment: $0) == tag })
         }
         
-        internal var toolbarItem: ToolbarItem.Segmented? {
+        internal var toolbarItem: Toolbar.SegmentedControl? {
             get { getAssociatedValue("toolbarItem") }
             set { setAssociatedValue(weak: newValue, key: "toolbarItem")}
         }

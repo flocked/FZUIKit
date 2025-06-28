@@ -8,7 +8,7 @@
 #if os(macOS)
 import AppKit
 
-extension ToolbarItem {
+extension Toolbar {
     /// A toolbar item that displys a popover.
     open class Popover: ToolbarItem {
         fileprivate lazy var rootItem = ValidateToolbarItem(for: self)
@@ -172,7 +172,7 @@ extension ToolbarItem {
         }
         
         /// The handler that gets called when the user clicks the popover button.
-        open var actionBlock: ((_ item: ToolbarItem.Popover)->())? = nil {
+        open var actionBlock: ((_ item: Toolbar.Popover)->())? = nil {
             didSet {
                 button.actionBlock = { [weak self] _ in
                     guard let self = self else { return }
@@ -185,7 +185,7 @@ extension ToolbarItem {
         
         /// Sets the handler that gets called when the user clicks the popover button.
         @discardableResult
-        open func onAction(_ action: ((_ item: ToolbarItem.Popover)->())?) -> Self {
+        open func onAction(_ action: ((_ item: Toolbar.Popover)->())?) -> Self {
             actionBlock = action
             return self
         }

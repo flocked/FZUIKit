@@ -9,7 +9,7 @@
 import AppKit
 import FZSwiftUtils
 
-extension ToolbarItem {
+extension Toolbar {
     /// A custom toolbar item.
     open class Custom<Item: NSToolbarItem>: ToolbarItem {
         /// The `NSToolbarItem` that represents the item.
@@ -32,7 +32,7 @@ extension ToolbarItem {
 }
 
 extension NSToolbarItem {
-    func validateSwizzled<Item: NSToolbarItem>(item: ToolbarItem.Custom<Item>) -> Self {
+    func validateSwizzled<Item: NSToolbarItem>(item: Toolbar.Custom<Item>) -> Self {
         swizzleValidate(item: item)
         return self
     }
@@ -42,7 +42,7 @@ extension NSToolbarItem {
         set { setAssociatedValue(newValue, key: "didSwizzleValidate") }
     }
     
-    private func swizzleValidate<Item: NSToolbarItem>(item: ToolbarItem.Custom<Item>) {
+    private func swizzleValidate<Item: NSToolbarItem>(item: Toolbar.Custom<Item>) {
         guard !didSwizzleValidate else { return }
         didSwizzleValidate = true
         do {

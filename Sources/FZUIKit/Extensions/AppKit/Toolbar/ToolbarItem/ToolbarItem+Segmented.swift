@@ -9,9 +9,9 @@
 import AppKit
 import FZSwiftUtils
 
-extension ToolbarItem {
+extension Toolbar {
     /// A toolbar item that contains a segmented control.
-    open class Segmented: ToolbarItem {
+    open class SegmentedControl: ToolbarItem {
         
         lazy var groupItem: ValidateSegmentedToolbarItem = {
             let item = ValidateSegmentedToolbarItem(for: self)
@@ -137,7 +137,7 @@ extension ToolbarItem {
         }
         
         /// The handler that gets called when the user clicks the segmented control.
-        open var actionBlock: ((_ item: ToolbarItem.Segmented)->())? {
+        open var actionBlock: ((_ item: Toolbar.SegmentedControl)->())? {
             didSet {
                 if let actionBlock = actionBlock {
                     segmentedControl.actionBlock = { [weak self] _ in
@@ -152,7 +152,7 @@ extension ToolbarItem {
         
         /// Sets the handler that gets called when the user clicks the segmented control.
         @discardableResult
-        open func onAction(_ handler: ((_ item: ToolbarItem.Segmented)->())?) -> Self {
+        open func onAction(_ handler: ((_ item: Toolbar.SegmentedControl)->())?) -> Self {
             actionBlock = handler
             return self
         }
@@ -200,7 +200,7 @@ extension ToolbarItem {
 }
 
 fileprivate extension NSSegment {
-    func toolbarItem(for groupItem: ToolbarItem.Segmented) -> NSToolbarItem {
+    func toolbarItem(for groupItem: Toolbar.SegmentedControl) -> NSToolbarItem {
         let item = NSToolbarItem(itemIdentifier: .init(title ?? .random()))
         item.label = title ?? ""
         item.autovalidates = false
@@ -239,9 +239,9 @@ fileprivate extension NSSegment {
 }
 
 class ValidateSegmentedToolbarItem: NSToolbarItemGroup {
-    weak var item: ToolbarItem.Segmented?
+    weak var item: Toolbar.SegmentedControl?
     
-    init(for item: ToolbarItem.Segmented) {
+    init(for item: Toolbar.SegmentedControl) {
         super.init(itemIdentifier: item.identifier)
         self.item = item
     }

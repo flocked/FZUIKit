@@ -8,7 +8,7 @@
 #if os(macOS)
 import AppKit
 
-extension ToolbarItem {
+extension Toolbar {
     /// A toolbar item that contains a button.
     open class Button: ToolbarItem {
         fileprivate lazy var rootItem = ValidateToolbarItem(for: self)
@@ -150,7 +150,7 @@ extension ToolbarItem {
         
         /// Sets the handler that gets called when the user clicks the button.
         @discardableResult
-        public func onAction(_ action: ((_ item: ToolbarItem.Button)->())?) -> Self {
+        public func onAction(_ action: ((_ item: Toolbar.Button)->())?) -> Self {
             if let action = action {
                 button.actionBlock = { [weak self] _ in
                     guard let self = self else { return }
@@ -172,7 +172,7 @@ extension ToolbarItem {
             - title: The title of the button.
             - action: The handler that gets called when the user clicks the button.
          */
-        public init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, action: ((_ item: ToolbarItem.Button)->())? = nil) {
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, action: ((_ item: Toolbar.Button)->())? = nil) {
             self.button = NSButton.toolbar(title).translatesAutoresizingMaskIntoConstraints(false)
             super.init(identifier)
             sharedInit(action)
@@ -189,7 +189,7 @@ extension ToolbarItem {
             - image: The image of the button.
             - action: The handler that gets called when the user clicks the button.
          */
-        public init(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, image: NSImage, action: ((_ item: ToolbarItem.Button)->())? = nil) {
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, image: NSImage, action: ((_ item: Toolbar.Button)->())? = nil) {
             self.button = NSButton.toolbar(title ?? "", image: image).translatesAutoresizingMaskIntoConstraints(false)
             super.init(identifier)
             sharedInit(action)
@@ -207,7 +207,7 @@ extension ToolbarItem {
             - action: The handler that gets called when the user clicks the button.
          */
         @available(macOS 11.0, *)
-        public init?(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, symbolName: String, action: ((_ item: ToolbarItem.Button)->())? = nil) {
+        public init?(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, symbolName: String, action: ((_ item: Toolbar.Button)->())? = nil) {
             guard let image = NSImage(systemSymbolName: symbolName) else { return nil }
             self.button = NSButton.toolbar("", image: image).translatesAutoresizingMaskIntoConstraints(false)
             super.init(identifier)
@@ -224,13 +224,13 @@ extension ToolbarItem {
             - button: The button.
             - action: The handler that gets called when the user clicks the button.
          */
-        public init(_ identifier: NSToolbarItem.Identifier? = nil, button: NSButton, action: ((_ item: ToolbarItem.Button)->())? = nil) {
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, button: NSButton, action: ((_ item: Toolbar.Button)->())? = nil) {
             self.button = button
             super.init(identifier)
             sharedInit(action)
         }
         
-        private func sharedInit(_ action: ((_ item: ToolbarItem.Button)->())? = nil) {
+        private func sharedInit(_ action: ((_ item: Toolbar.Button)->())? = nil) {
             button.invalidateIntrinsicContentSize()
             button.translatesAutoresizingMaskIntoConstraints = false
             item.view = button

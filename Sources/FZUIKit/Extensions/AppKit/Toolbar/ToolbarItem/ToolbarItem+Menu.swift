@@ -8,7 +8,7 @@
 #if os(macOS)
 import AppKit
 
-extension ToolbarItem {
+extension Toolbar {
     /**
      A toolbar item that presents a menu.
      
@@ -18,7 +18,7 @@ extension ToolbarItem {
      */
     open class Menu: ToolbarItem {
         
-        lazy var menuItem = ValidateMenuToolbarItem(for: self)
+        fileprivate lazy var menuItem = ValidateMenuToolbarItem(for: self)
         override var item: NSToolbarItem {
             menuItem
         }
@@ -90,7 +90,7 @@ extension ToolbarItem {
         
         /// Sets the handler that gets called when the user clicks the item.
         @discardableResult
-        open func onAction(_ action: ((_ item: ToolbarItem.Menu)->())?) -> Self {
+        open func onAction(_ action: ((_ item: Toolbar.Menu)->())?) -> Self {
             if let action = action {
                 item.actionBlock = { _ in
                     action(self)
@@ -216,10 +216,10 @@ extension ToolbarItem {
     }
 }
 
-class ValidateMenuToolbarItem: NSMenuToolbarItem {
-    weak var item: ToolbarItem.Menu?
+fileprivate class ValidateMenuToolbarItem: NSMenuToolbarItem {
+    weak var item: Toolbar.Menu?
     
-    init(for item: ToolbarItem.Menu) {
+    init(for item: Toolbar.Menu) {
         super.init(itemIdentifier: item.identifier)
         self.item = item
     }

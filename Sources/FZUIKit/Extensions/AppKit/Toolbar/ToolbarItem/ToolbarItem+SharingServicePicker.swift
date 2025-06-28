@@ -9,7 +9,7 @@
 import AppKit
 import SwiftUI
 
-extension ToolbarItem {
+extension Toolbar {
     /**
      A toolbar item that displays the macOS share sheet.
      
@@ -23,7 +23,7 @@ extension ToolbarItem {
             servicePickerItem
         }
         
-        var _delegate: Delegate!
+        fileprivate var _delegate: SharingServiceDelegate!
         
         /// The handlers for the sharing service picker item.
         public struct Handlers {
@@ -103,7 +103,7 @@ extension ToolbarItem {
          */
         public init(_ identifier: NSToolbarItem.Identifier? = nil, itemsProvider: (() -> ([Any]))? = nil) {
             super.init(identifier)
-            _delegate = Delegate(for: self)
+            _delegate = .init(for: self)
             handlers.items = itemsProvider
         }
         
@@ -118,13 +118,13 @@ extension ToolbarItem {
          */
         public init(_ identifier: NSToolbarItem.Identifier? = nil, delegate: NSSharingServicePickerToolbarItemDelegate) {
             super.init(identifier)
-            _delegate = Delegate(for: self)
+            _delegate = .init(for: self)
             _delegate.delegate = delegate
         }
     }
     
-    class Delegate: NSObject, NSSharingServicePickerToolbarItemDelegate, NSSharingServiceDelegate {
-        weak var pickerItem: ToolbarItem.SharingServicePicker!
+    fileprivate class SharingServiceDelegate: NSObject, NSSharingServicePickerToolbarItemDelegate, NSSharingServiceDelegate {
+        weak var pickerItem: Toolbar.SharingServicePicker!
         weak var delegate: NSSharingServicePickerToolbarItemDelegate?
         
         public func items(for item: NSSharingServicePickerToolbarItem) -> [Any] {
@@ -156,7 +156,7 @@ extension ToolbarItem {
             pickerItem.handlers.didFailToShare?(items, sharingService, error)
         }
         
-        init(for item: ToolbarItem.SharingServicePicker) {
+        init(for item: Toolbar.SharingServicePicker) {
             pickerItem = item
             super.init()
             pickerItem.servicePickerItem.delegate = self
@@ -165,9 +165,9 @@ extension ToolbarItem {
 }
 
 class ValidateServicePickerToolbarItem: NSSharingServicePickerToolbarItem {
-    weak var item: ToolbarItem.SharingServicePicker?
+    weak var item: Toolbar.SharingServicePicker?
     
-    init(for item: ToolbarItem.SharingServicePicker) {
+    init(for item: Toolbar.SharingServicePicker) {
         super.init(itemIdentifier: item.identifier)
         self.item = item
     }

@@ -9,7 +9,7 @@
 import AppKit
 
 @available(macOS 11.0, *)
-extension ToolbarItem {
+extension Toolbar {
     /**
      A toolbar item that contains a search field optimized for performing text-based searches.
      
@@ -220,7 +220,7 @@ extension ToolbarItem {
 
 @available(macOS 11.0, *)
 fileprivate class ValidateSearchToolbarItem: NSSearchToolbarItem, NSSearchFieldDelegate{
-    weak var item: ToolbarItem.Search?
+    weak var item: Toolbar.Search?
     var startingString: String?
     
     func controlTextDidBeginEditing(_ obj: Notification) {
@@ -262,7 +262,7 @@ fileprivate class ValidateSearchToolbarItem: NSSearchToolbarItem, NSSearchFieldD
         didSet { searchField.delegate = self }
     }
     
-    init(for item: ToolbarItem.Search) {
+    init(for item: Toolbar.Search) {
         super.init(itemIdentifier: item.identifier)
         self.item = item
         searchField.delegate = self

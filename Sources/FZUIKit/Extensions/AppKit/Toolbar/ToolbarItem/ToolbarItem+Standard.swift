@@ -8,7 +8,7 @@
 #if os(macOS)
 import AppKit
 
-public extension ToolbarItem {
+public extension Toolbar {
     /// A toolbar item that displays an empty space with a flexible width.
     static func flexibleSpace() -> ToolbarItem {
         ToolbarItem(.flexibleSpace)

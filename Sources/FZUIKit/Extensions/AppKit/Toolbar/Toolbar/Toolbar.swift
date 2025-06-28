@@ -66,7 +66,7 @@ import FZSwiftUtils
             didSet {
                 guard oldValue != attachedWindow else { return }
                 if #available(macOS 11.0, *) {
-                items.compactMap({ $0 as? ToolbarItem.TrackingSeparator }).forEach({ $0.updateAutodetectSplitView(toolbar: self) })
+                items.compactMap({ $0 as? Toolbar.TrackingSeparator }).forEach({ $0.updateAutodetectSplitView(toolbar: self) })
                 }
                 toolbarObservation = attachedWindow?.observeChanges(for: \.toolbar) { [weak self] old, new in
                     guard let self = self, new !== self.toolbar else { return }

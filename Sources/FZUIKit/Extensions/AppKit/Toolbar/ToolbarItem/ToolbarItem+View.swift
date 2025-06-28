@@ -9,7 +9,7 @@
 import AppKit
 import SwiftUI
 
-extension ToolbarItem {
+extension Toolbar {
     /// A toolbar item that displays a view.
     open class View: ToolbarItem {
         fileprivate lazy var rootItem = ValidateToolbarItem(for: self)

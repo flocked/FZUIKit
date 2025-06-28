@@ -122,7 +122,7 @@ open class ToolbarItem: NSObject {
         set {
             guard newValue != label else { return }
             item.label = newValue
-            if newValue == "", let item = self as? ToolbarItem.Segmented, !item.groupItem.subitems.isEmpty {
+            if newValue == "", let item = self as? Toolbar.SegmentedControl, !item.groupItem.subitems.isEmpty {
                 item.updateSegments()
             }
         }

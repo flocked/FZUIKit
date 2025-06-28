@@ -9,7 +9,7 @@
 import AppKit
 import FZSwiftUtils
 
-extension ToolbarItem {
+extension Toolbar {
     /**
      A group of subitems in a toolbar item.
      
@@ -209,9 +209,9 @@ extension ToolbarItem {
 }
 
 class ValidateToolbarItemGroup: NSToolbarItemGroup {
-    weak var item: ToolbarItem.Group?
+    weak var item: Toolbar.Group?
     
-    init(for item: ToolbarItem.Group) {
+    init(for item: Toolbar.Group) {
         super.init(itemIdentifier: item.identifier)
         self.item = item
     }
