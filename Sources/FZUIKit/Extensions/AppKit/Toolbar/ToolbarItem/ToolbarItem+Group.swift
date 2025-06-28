@@ -7,6 +7,7 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
 extension ToolbarItem {
     /**
@@ -40,6 +41,7 @@ extension ToolbarItem {
         /// Sets the subitems of the grouped toolbar item.
         @discardableResult
         open func subitems(_ items: [ToolbarItem]) -> Self {
+            items[0].isSelectable
             subitems = items
             return self
         }
@@ -77,29 +79,96 @@ extension ToolbarItem {
             return self
         }
         
-        /// The index value for the most recently selected subitem.
-        open var selectedIndex: Int {
-            get { groupItem.selectedIndex }
-            set { groupItem.selectedIndex = newValue }
+        /// The index for the most recently selected subitem.
+        open var lastSelectedIndex: Int? {
+            groupItem.selectedIndex >= 0 && groupItem.selectedIndex < subitems.count ? groupItem.selectedIndex : nil
         }
         
-        /// Selects the subitem at the specified index.
-        @discardableResult
-        open func selectItem(at index: Int) -> Self {
-            selectedIndex = index
-            return self
+        /// The most recently selected subitem.
+        open var lastSelectedItem: ToolbarItem? {
+            get { subitems[safe: lastSelectedIndex ?? -1] }
         }
         
         /// The index values of the selected items in the group.
         open var selectedIndexes: [Int] {
             get { groupItem.selectedIndexes }
-            set { groupItem.selectedIndexes = newValue }
+            set { groupItem.selectedIndexes = newValue.uniqued().sorted().clamped(to: 0...subitems.count-1) }
         }
         
-        /// Selects the subitems at the specified indexes.
+        /// Sets the index values of the selected items in the group.
+        @discardableResult
+        open func selectedIndexes(_ indexes: [Int]) -> Self {
+            selectedIndexes = indexes
+            return self
+        }
+        
+        /// The selected subitems of the group item.
+        open var selectedItems: [ToolbarItem] {
+            get {
+                let indexes = selectedIndexes
+                return subitems.indexed().compactMap({ indexes.contains($0.index) ? $0.element : nil })
+            }
+            set { selectedIndexes = subitems.indexed().compactMap({ newValue.contains($0.element) ? $0.index : nil }) }
+        }
+        
+        /// Sets the selected subitems of the group item.
+        @discardableResult
+        open func selectedItems(_ items: [ToolbarItem]) -> Self {
+            selectedItems = items
+            return self
+        }
+        
+        /**
+         Selects the subitem at the specified index by extending the selection.
+         
+         To only select a item at a specific index, use ``selectedIndexes(_:)``.
+         
+         - Parameter index: The index of the item to select.
+         */
+        @discardableResult
+        open func selectItem(at index: Int) -> Self {
+            groupItem.setSelected(true, at: index)
+            return self
+        }
+        
+        /**
+         Selects the subitems at the specified indexes.
+         
+         To only select items at specific indexes, use ``selectedIndexes(_:)``.
+         
+         - Parameter indexes: The indexes of the items to select.
+         */
         @discardableResult
         open func selectItems(at indexes: [Int]) -> Self {
-            self.selectedIndexes = indexes
+            indexes.clamped(to: 0...subitems.count-1).forEach({ selectItem(at: $0) })
+            return self
+        }
+        
+        /**
+         The handler that gets called when the user clicks the item.
+         
+         If a subitem of the group has an action set on it, the group uses that action instead of its own when the user clicks or taps on that item. The system prefers the subitem’s action if it exists, otherwise it uses the ``actionBlock``.
+         */
+        open var actionBlock: ((_ item: Group)->())? {
+            didSet {
+                if let actionBlock = actionBlock {
+                    groupItem.actionBlock = { _ in
+                        actionBlock(self)
+                    }
+                } else {
+                    groupItem.actionBlock = nil
+                }
+            }
+        }
+        
+        /**
+         Sets the handler that gets called when the user clicks the item.
+         
+         If a subitem of the group has an action set on it, the group uses that action instead of its own when the user clicks or taps on that item. The system prefers the subitem’s action if it exists, otherwise it uses the ``actionBlock``.
+         */
+        @discardableResult
+        open func onAction(_ action: ((_ item: Group)->())?) -> Self {
+            actionBlock = action
             return self
         }
         

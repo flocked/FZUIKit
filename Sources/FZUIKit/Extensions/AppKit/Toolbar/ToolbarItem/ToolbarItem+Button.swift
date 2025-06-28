@@ -80,7 +80,7 @@ public extension ToolbarItem {
         /// Sets the symbol image of the button.
         @available(macOS 11.0, *)
         @discardableResult
-        public func image(symbolName: String) -> Self {
+        public func symbolImage(_ symbolName: String) -> Self {
             button.image = NSImage(systemSymbolName: symbolName) ?? button.image
             return self
         }

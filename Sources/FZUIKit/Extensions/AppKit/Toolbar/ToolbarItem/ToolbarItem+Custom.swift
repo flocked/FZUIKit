@@ -7,15 +7,16 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
 extension ToolbarItem {
     /// A custom toolbar item.
-    open class Custom: ToolbarItem {
+    open class Custom<Item: NSToolbarItem>: ToolbarItem {
         /// The `NSToolbarItem` that represents the item.
-        public let toolbarItem: NSToolbarItem
+        public let toolbarItem: Item
         
         override var item: NSToolbarItem {
-            toolbarItem
+            toolbarItem.validateSwizzled(item: self)
         }
         
         /**
@@ -23,9 +24,33 @@ extension ToolbarItem {
                   
          - Parameter item: The toolbar item.
          */
-        public init(item: NSToolbarItem) {
+        public init(item: Item) {
             self.toolbarItem = item
             super.init(item.itemIdentifier)
+        }
+    }
+}
+
+extension NSToolbarItem {
+    func validateSwizzled(item: ToolbarItem) -> Self {
+        swizzleValidate(item: item)
+        return self
+    }
+    
+    private var didSwizzleValidate: Bool {
+        get { getAssociatedValue("didSwizzleValidate") ?? false }
+        set { setAssociatedValue(newValue, key: "didSwizzleValidate") }
+    }
+    
+    private func swizzleValidate(item: ToolbarItem) {
+        guard !didSwizzleValidate else { return }
+        didSwizzleValidate = true
+        do {
+            try hookAfter(#selector(NSToolbarItem.validate)) {
+                item.validate()
+            }
+        } catch {
+            Swift.print(error)
         }
     }
 }

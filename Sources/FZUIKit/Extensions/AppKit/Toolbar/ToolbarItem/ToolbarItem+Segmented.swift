@@ -129,8 +129,8 @@ extension ToolbarItem {
                 }
                 groupItem.subitems = []
                 segmentedControl.segments = segments
-                if _label != "" {
-                    groupItem.label = _label
+                if label != "" {
+                    groupItem.label = label
                 }
             }
             segmentedControl.sizeToFit()

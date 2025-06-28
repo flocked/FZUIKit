@@ -41,7 +41,7 @@ extension ToolbarItem {
         /// Sets the image with the specified symbol name.
         @available(macOS 11.0, *)
         @discardableResult
-        open func image(symbolName: String) -> Self {
+        open func symbolImage(_ symbolName: String) -> Self {
             item.image = NSImage(systemSymbolName: symbolName)
             return self
         }

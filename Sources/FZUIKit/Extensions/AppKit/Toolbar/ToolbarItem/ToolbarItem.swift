@@ -66,12 +66,8 @@
         
         private var _isCentered = false {
             didSet {
-                guard #available(macOS 13.0, *), oldValue != isCentered, let toolbar = toolbar else { return }
-                if isCentered {
-                    toolbar.centeredItems.insert(self)
-                } else {
-                    toolbar.centeredItems.remove(self)
-                }
+                guard #available(macOS 13.0, *), oldValue != _isCentered else { return }
+                toolbar?.centeredItems[self] = isCentered
             }
         }
         
@@ -111,25 +107,21 @@
 
         /// The label that appears for this item in the toolbar.
         open var label: String {
-            get { _label }
-            set { _label = newValue }
+            get { item.label }
+            set {
+                guard newValue != label else { return }
+                item.label = newValue
+                if newValue == "", let item = self as? ToolbarItem.Segmented, !item.groupItem.subitems.isEmpty {
+                    item.updateSegments()
+                }
+            }
         }
         
         /// Sets the label that appears for this item in the toolbar.
         @discardableResult
         open func label(_ label: String?) -> Self {
-            _label = label ?? ""
+            self.label = label ?? ""
             return self
-        }
-        
-        var _label: String = "" {
-            didSet {
-                guard oldValue != _label else { return }
-                item.label = _label
-                if _label == "", let item = self as? ToolbarItem.Segmented, !item.groupItem.subitems.isEmpty {
-                    item.updateSegments()
-                }
-            }
         }
         
         /**
@@ -278,8 +270,23 @@
          
          If you disable automatic validation, toolbar items remain enabled and clickable, including when someone switches to another app or window. However, you can still call this method manually to validate the toolbar item.
          */
-        open func validate() {
+        @objc open func validate() {
             
+        }
+        
+        /// A Boolean value that indicates whether the item is hidden.
+        @available(macOS 15.0, *)
+        open var isHidden: Bool {
+            get { item.isHidden }
+            set { item.isHidden = newValue }
+        }
+        
+        /// Sets the Boolean value that indicates whether the item is hidden.
+        @available(macOS 15.0, *)
+        @discardableResult
+        open func isHidden(_ isHidden: Bool) -> Self {
+            self.isHidden = isHidden
+            return self
         }
         
         init(_ identifier: NSToolbarItem.Identifier? = nil) {
