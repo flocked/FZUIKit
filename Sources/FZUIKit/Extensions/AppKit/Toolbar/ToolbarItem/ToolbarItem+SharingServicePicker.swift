@@ -15,7 +15,7 @@ extension Toolbar {
      
      When someone clicks the item, it displays the macOS share sheet. Use this item to share the selected or focal content from the current window. For example, you might share the photo someone is viewing, the currently selected text, or the window’s associated document.
      
-     Provide the items to share using either provide them using ``handlers-swift.property`` or the ``delegate``.
+     Provide the items to share using either ``handlers-swift.property`` or the ``delegate``.
      */
     open class SharingServicePicker: ToolbarItem {
         lazy var servicePickerItem = ValidateServicePickerToolbarItem(for: self)
