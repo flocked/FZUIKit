@@ -21,7 +21,7 @@ extension ToolbarItem {
     open class TrackingSeparator: ToolbarItem {
         var autodetectsSplitView = false
         var isEmptySplitView = true
-        let separatorItem: NSTrackingSeparatorToolbarItem
+        fileprivate let separatorItem: ValidationTrackingSeparatorToolbarItem
         override var item: NSToolbarItem {
             separatorItem
         }
@@ -93,6 +93,7 @@ extension ToolbarItem {
             self.autodetectsSplitView = true
             self.separatorItem = .init(identifier: identifier ?? Toolbar.automaticIdentifier(for: "TrackingSeparator"), splitView: NSSplitView(), dividerIndex: dividerIndex)
             super.init(separatorItem.itemIdentifier)
+            self.separatorItem.item = self
         }
         
         /**
@@ -108,7 +109,20 @@ extension ToolbarItem {
         public init(_ identifier: NSToolbarItem.Identifier? = nil, splitView: NSSplitView, dividerIndex: Int) {
             self.separatorItem = .init(identifier: identifier ?? Toolbar.automaticIdentifier(for: "TrackingSeparator"), splitView: splitView, dividerIndex: dividerIndex)
             super.init(separatorItem.itemIdentifier)
+            self.separatorItem.item = self
         }
+    }
+}
+
+@available(macOS 11.0, *)
+fileprivate class ValidationTrackingSeparatorToolbarItem: NSTrackingSeparatorToolbarItem {
+    weak var item: ToolbarItem.TrackingSeparator?
+    
+    override func validate() {
+        super.validate()
+        guard let item = item else { return }
+        item.validate()
+        item.validateHandler?(item)
     }
 }
 

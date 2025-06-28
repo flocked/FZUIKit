@@ -13,8 +13,8 @@ extension ToolbarItem {
     /// A toolbar item that contains a segmented control.
     open class Segmented: ToolbarItem {
         
-        lazy var groupItem: ValidateToolbarItemGroup = {
-            let item = ValidateToolbarItemGroup(for: self)
+        lazy var groupItem: ValidateSegmentedToolbarItem = {
+            let item = ValidateSegmentedToolbarItem(for: self)
             item.view = segmentedControl
             return item
         }()
@@ -167,10 +167,10 @@ extension ToolbarItem {
             - selectionMode: The segmented control selection mode.
             - segments: The segments of the segmented control.
          */
-        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil,
-                                selectionMode: SelectionMode = .selectOne,
-                                @NSSegmentedControl.Builder segments: () -> [NSSegment]) {
-            self.init(identifier, segmentedControl: NSSegmentedControl())
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, selectionMode: SelectionMode = .selectOne, @NSSegmentedControl.Builder segments: () -> [NSSegment]) {
+            self.segmentedControl = NSSegmentedControl()
+            super.init(identifier)
+            sharedInit()
             self.selectionMode = selectionMode
             self.segments = segments()
         }
@@ -184,10 +184,13 @@ extension ToolbarItem {
             - identifier: The item identifier.
             - segmentedControl: The segmented control of the item.
          */
-        public init(_ identifier: NSToolbarItem.Identifier? = nil,
-                    segmentedControl: NSSegmentedControl) {
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, segmentedControl: NSSegmentedControl) {
             self.segmentedControl = segmentedControl
             super.init(identifier)
+            sharedInit()
+        }
+        
+        private func sharedInit() {
             segmentedControl.toolbarItem = self
             segmentedControl.translatesAutoresizingMaskIntoConstraints = false
             segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
@@ -232,6 +235,22 @@ fileprivate extension NSSegment {
         segment.index = index
         segment.segmentedControl = segmentedControl
         return segment
+    }
+}
+
+class ValidateSegmentedToolbarItem: NSToolbarItemGroup {
+    weak var item: ToolbarItem.Segmented?
+    
+    init(for item: ToolbarItem.Segmented) {
+        super.init(itemIdentifier: item.identifier)
+        self.item = item
+    }
+    
+    override func validate() {
+        super.validate()
+        guard let item = item else { return }
+        item.validate()
+        item.validateHandler?(item)
     }
 }
 #endif

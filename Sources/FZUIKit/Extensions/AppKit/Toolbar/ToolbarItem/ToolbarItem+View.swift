@@ -12,6 +12,12 @@ import SwiftUI
 extension ToolbarItem {
     /// A toolbar item that displays a view.
     open class View: ToolbarItem {
+        fileprivate lazy var rootItem = ValidateToolbarItem(for: self)
+        
+        override var item: NSToolbarItem {
+            rootItem
+        }
+        
         /// The view of the toolbar item.
         open var view: NSView {
             get { item.view! }
@@ -55,8 +61,9 @@ extension ToolbarItem {
             - identifier: The item identifier.
             - view: The `SwiftUI` view of the item.
          */
-        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, view: some SwiftUI.View) {
-            self.init(identifier, view: NSHostingView(rootView: view))
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, view: some SwiftUI.View) {
+            super.init(identifier)
+            self.view = NSHostingView(rootView: view)
         }
     }
 }

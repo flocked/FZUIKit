@@ -175,8 +175,10 @@ extension ToolbarItem {
             - title: The title of the item.
             - items: The items of the menu.
          */
-        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, @MenuBuilder _ items: () -> [NSMenuItem]) {
-            self.init(identifier, title: title, menu: NSMenu(items: items()))
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, @MenuBuilder _ items: () -> [NSMenuItem]) {
+            super.init(identifier)
+            menuItem.menu = NSMenu(items: items())
+            self.title = title
         }
         
         /**
@@ -189,8 +191,10 @@ extension ToolbarItem {
             - image: The image of the item.
             - items: The items of the menu.
          */
-        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, image: NSImage, @MenuBuilder _ items: () -> [NSMenuItem]) {
-            self.init(identifier, image: image, menu: NSMenu(items: items()))
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, image: NSImage, @MenuBuilder _ items: () -> [NSMenuItem]) {
+            super.init(identifier)
+            menuItem.menu = NSMenu(items: items())
+            self.image = image
         }
         
         /**
@@ -204,23 +208,27 @@ extension ToolbarItem {
             - items: The items of the menu.
          */
         @available(macOS 11.0, *)
-        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, symbolName: String, @MenuBuilder _ items: () -> [NSMenuItem]) {
-            self.init(identifier, symbolName: symbolName, menu: NSMenu(items: items()))
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, symbolName: String, @MenuBuilder _ items: () -> [NSMenuItem]) {
+            super.init(identifier)
+            menuItem.menu = NSMenu(items: items())
+            image = NSImage(systemSymbolName: symbolName)
         }
     }
 }
 
 class ValidateMenuToolbarItem: NSMenuToolbarItem {
-    weak var item: ToolbarItem?
+    weak var item: ToolbarItem.Menu?
     
-    init(for item: ToolbarItem) {
+    init(for item: ToolbarItem.Menu) {
         super.init(itemIdentifier: item.identifier)
         self.item = item
     }
     
     override func validate() {
         super.validate()
-        item?.validate()
+        guard let item = item else { return }
+        item.validate()
+        item.validateHandler?(item)
     }
 }
 

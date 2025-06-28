@@ -32,7 +32,7 @@ extension ToolbarItem {
 }
 
 extension NSToolbarItem {
-    func validateSwizzled(item: ToolbarItem) -> Self {
+    func validateSwizzled<Item: NSToolbarItem>(item: ToolbarItem.Custom<Item>) -> Self {
         swizzleValidate(item: item)
         return self
     }
@@ -42,12 +42,13 @@ extension NSToolbarItem {
         set { setAssociatedValue(newValue, key: "didSwizzleValidate") }
     }
     
-    private func swizzleValidate(item: ToolbarItem) {
+    private func swizzleValidate<Item: NSToolbarItem>(item: ToolbarItem.Custom<Item>) {
         guard !didSwizzleValidate else { return }
         didSwizzleValidate = true
         do {
             try hookAfter(#selector(NSToolbarItem.validate)) {
                 item.validate()
+                item.validateHandler?(item)
             }
         } catch {
             Swift.print(error)

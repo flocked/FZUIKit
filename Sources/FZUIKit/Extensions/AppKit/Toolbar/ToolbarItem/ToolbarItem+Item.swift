@@ -11,6 +11,11 @@ import AppKit
 extension ToolbarItem {
     /// A toolbar item.
     open class Item: ToolbarItem {
+        fileprivate lazy var rootItem = ValidateToolbarItem(for: self)
+        
+        override var item: NSToolbarItem {
+            rootItem
+        }
         
         /// The title of the item.
         open var title: String {

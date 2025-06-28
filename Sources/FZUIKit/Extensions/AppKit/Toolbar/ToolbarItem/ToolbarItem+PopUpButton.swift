@@ -11,6 +11,12 @@ import AppKit
 extension ToolbarItem {
     /// A toolbar item that contains a popup button.
     open class PopUpButton: ToolbarItem {
+        fileprivate lazy var rootItem = ValidateToolbarItem(for: self)
+        
+        override var item: NSToolbarItem {
+            rootItem
+        }
+        
         /// The popup button.
         public let button: NSPopUpButton
         
@@ -118,14 +124,16 @@ extension ToolbarItem {
             - identifier: The item identifier.
             - items: The menu items of the popup button.
          */
-        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil, @MenuBuilder _ items: () -> [NSMenuItem]) {
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, @MenuBuilder _ items: () -> [NSMenuItem]) {
             let button = NSPopUpButton(frame: .zero, pullsDown: true)
             button.bezelStyle = .texturedRounded
             button.imagePosition = .imageOnly
             button.imageScaling = .scaleProportionallyDown
             button.arrowPosition = .arrowAtBottom
             button.menu = NSMenu(title: "", items: items())
-            self.init(identifier, popUpButton: button)
+            self.button = button
+            super.init(identifier)
+            item.view = button
         }
         
         /**

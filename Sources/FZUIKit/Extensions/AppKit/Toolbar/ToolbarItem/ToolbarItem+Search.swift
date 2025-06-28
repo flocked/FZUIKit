@@ -270,7 +270,9 @@ fileprivate class ValidateSearchToolbarItem: NSSearchToolbarItem, NSSearchFieldD
     
     override func validate() {
         super.validate()
-        item?.validate()
+        guard let item = item else { return }
+        item.validate()
+        item.validateHandler?(item)
     }
 }
 

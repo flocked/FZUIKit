@@ -165,16 +165,18 @@ extension ToolbarItem {
 }
 
 class ValidateServicePickerToolbarItem: NSSharingServicePickerToolbarItem {
-    weak var item: ToolbarItem?
+    weak var item: ToolbarItem.SharingServicePicker?
     
-    init(for item: ToolbarItem) {
+    init(for item: ToolbarItem.SharingServicePicker) {
         super.init(itemIdentifier: item.identifier)
         self.item = item
     }
     
     override func validate() {
         super.validate()
-        item?.validate()
+        guard let item = item else { return }
+        item.validate()
+        item.validateHandler?(item)
     }
 }
 

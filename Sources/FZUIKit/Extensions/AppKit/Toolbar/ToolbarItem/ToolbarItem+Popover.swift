@@ -11,6 +11,12 @@ import AppKit
 extension ToolbarItem {
     /// A toolbar item that displys a popover.
     open class Popover: ToolbarItem {
+        fileprivate lazy var rootItem = ValidateToolbarItem(for: self)
+        
+        override var item: NSToolbarItem {
+            rootItem
+        }
+        
         /// The button of the toolbar item that opens the popover.
         public let button: NSButton
         
@@ -206,11 +212,14 @@ extension ToolbarItem {
             - image: The image of the button.
             - popoverViewController: The view controller that manages the content of the popover.
          */
-        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil,
+        public init(_ identifier: NSToolbarItem.Identifier? = nil,
                                 title: String? = nil,
                                 image: NSImage? = nil,
                                 popoverViewController: NSViewController) {
-            self.init(identifier, button: NSButton.toolbar(title ?? "", image: image), popoverViewController: popoverViewController)
+            self.button = NSButton.toolbar(title ?? "", image: image).translatesAutoresizingMaskIntoConstraints(false)
+            self.popover = .init(viewController: popoverViewController)
+            super.init(identifier)
+            sharedInit()
         }
         
         /**
@@ -224,10 +233,13 @@ extension ToolbarItem {
             - popoverViewController: The view controller that manages the content of the popover.
          */
         @available(macOS 11.0, *)
-        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil,
+        public init(_ identifier: NSToolbarItem.Identifier? = nil,
                                 symbolName: String,
                                 popoverViewController: NSViewController) {
-            self.init(identifier, button: NSButton.toolbar("", image: NSImage(systemSymbolName: symbolName)), popoverViewController: popoverViewController)
+            self.button = NSButton.toolbar("", image: NSImage(systemSymbolName: symbolName)).translatesAutoresizingMaskIntoConstraints(false)
+            self.popover = .init(viewController: popoverViewController)
+            super.init(identifier)
+            sharedInit()
         }
         
         /**
@@ -241,12 +253,14 @@ extension ToolbarItem {
             - image: The image of the button.
             - popoverView: The view of the popover.
          */
-        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil,
+        public init(_ identifier: NSToolbarItem.Identifier? = nil,
                                 title: String? = nil,
                                 image: NSImage? = nil,
                                 popoverView: NSView) {
-            self.init(identifier, button: NSButton.toolbar(title ?? "", image: image), popoverView: popoverView)
-            updateImagePosition()
+            self.button = NSButton.toolbar(title ?? "", image: image).translatesAutoresizingMaskIntoConstraints(false)
+            self.popover = .init(view: popoverView)
+            super.init(identifier)
+            sharedInit()
         }
         
         /**
@@ -260,11 +274,13 @@ extension ToolbarItem {
             - popoverView: The view of the popover.
          */
         @available(macOS 11.0, *)
-        public convenience init(_ identifier: NSToolbarItem.Identifier? = nil,
+        public init(_ identifier: NSToolbarItem.Identifier? = nil,
                                 symbolName: String,
                                 popoverView: NSView) {
-            self.init(identifier, button: NSButton.toolbar("", image: NSImage(systemSymbolName: symbolName)), popoverView: popoverView)
-            updateImagePosition()
+            self.button = NSButton.toolbar("", image: NSImage(systemSymbolName: symbolName)).translatesAutoresizingMaskIntoConstraints(false)
+            self.popover = .init(view: popoverView)
+            super.init(identifier)
+            sharedInit()
         }
         
         /**
@@ -282,11 +298,7 @@ extension ToolbarItem {
             self.button = button
             self.popover = .init(viewController: popoverViewController)
             super.init(identifier)
-            item.view = button
-            button.actionBlock = { [weak self] _ in
-                guard let self = self else { return }
-                self.showPopover()
-            }
+            sharedInit()
         }
         
         /**
@@ -304,11 +316,16 @@ extension ToolbarItem {
             self.button = button
             self.popover = .init(view: popoverView)
             super.init(identifier)
+            sharedInit()
+        }
+        
+        private func sharedInit() {
             item.view = button
             button.actionBlock = { [weak self] _ in
                 guard let self = self else { return }
                 self.showPopover()
             }
+            updateImagePosition()
         }
     }
 }

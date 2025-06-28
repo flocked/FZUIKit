@@ -199,24 +199,28 @@ extension ToolbarItem {
             - selectionMode: The selection mode of the item. The default value is `momentary`.
             - items: The subitems.
          */
-        public convenience init(
-            _ identifier: NSToolbarItem.Identifier? = nil, selectionMode: SelectionMode = .momentary, @Toolbar.Builder items: () -> [ToolbarItem]) {
-                self.init(identifier, selectionMode: selectionMode, items: items())
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, selectionMode: SelectionMode = .momentary, @Toolbar.Builder items: () -> [ToolbarItem]) {
+                super.init(identifier)
+                subitems = items()
+                groupItem.subitems = subitems.compactMap({ $0.item })
+                groupItem.selectionMode = selectionMode
         }
     }
 }
 
 class ValidateToolbarItemGroup: NSToolbarItemGroup {
-    weak var item: ToolbarItem?
+    weak var item: ToolbarItem.Group?
     
-    init(for item: ToolbarItem) {
+    init(for item: ToolbarItem.Group) {
         super.init(itemIdentifier: item.identifier)
         self.item = item
     }
     
     override func validate() {
         super.validate()
-        item?.validate()
+        guard let item = item else { return }
+        item.validate()
+        item.validateHandler?(item)
     }
 }
 #endif
