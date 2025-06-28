@@ -208,13 +208,13 @@ open class Toolbar: NSObject {
      
      It includes all items, regardless if they are currently displayed.
      
-     To update the displayed items, use ``displayedItems``.
+     To update the displayed items, use ``displayingItems``.
      */
     open var items: [ToolbarItem] = [] {
         didSet {
             items = items.uniqued()
             items.difference(to: oldValue).removed.forEach({
-                if let index = displayedItems.firstIndex(of: $0) {
+                if let index = displayingItems.firstIndex(of: $0) {
                     toolbar.removeItem(at: index)
                 }
             })
@@ -224,13 +224,13 @@ open class Toolbar: NSObject {
     }
     
     /// The currenlty displayed items in the toolbar, in order.
-    open var displayedItems: [ToolbarItem] {
+    open var displayingItems: [ToolbarItem] {
         get {
             items.filter({ item in toolbar.items.contains(where: {$0.itemIdentifier == item.identifier}) })
         }
         set {
             let newValue = newValue.uniqued()
-            let diff = newValue.difference(from: displayedItems)
+            let diff = newValue.difference(from: displayingItems)
             items = items + newValue.filter({ !items.contains($0) })
             for val in diff {
                 switch val {
@@ -245,15 +245,15 @@ open class Toolbar: NSObject {
     
     /// Sets the displayed items in the toolbar.
     @discardableResult
-    open func displayedItems(_ items: [ToolbarItem]) -> Self {
-        displayedItems = items
+    open func displayingItems(_ items: [ToolbarItem]) -> Self {
+        displayingItems = items
         return self
     }
     
     /// Sets the displayed items in the toolbar.
     @discardableResult
-    open func displayedItems(@Builder items: () -> [ToolbarItem]) -> Self {
-        displayedItems = items()
+    open func displayingItems(@Builder items: () -> [ToolbarItem]) -> Self {
+        displayingItems = items()
         return self
     }
     
@@ -273,7 +273,7 @@ open class Toolbar: NSObject {
             guard newValue != selectedItem else { return }
             if newValue == nil {
                 toolbar.selectedItemIdentifier = nil
-            } else if let newValue = newValue, displayedItems.contains(newValue) {
+            } else if let newValue = newValue, displayingItems.contains(newValue) {
                 toolbar.selectedItemIdentifier = newValue.identifier
             }
         }
