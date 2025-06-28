@@ -356,7 +356,7 @@ extension ToolbarItemValidation {
     }
 }
 
-/// A toolbar item that can be validated.
+/// A toolbar item that that calls an action method when the user clicks the item.
 public protocol ToolbarItemActionProvider: ToolbarItem {
     /// The handler that gets called when the user clicks the toolbar item.
     var actionBlock: ((_ item: Self)->())? { get set }
