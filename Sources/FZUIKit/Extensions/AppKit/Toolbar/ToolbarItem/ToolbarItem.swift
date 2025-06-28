@@ -272,17 +272,6 @@ open class ToolbarItem: NSObject {
         return self
     }
     
-    /**
-     Validates the toolbar item.
-     
-     Typically, you don’t call this method directly. When ``autovalidates`` is enabled, the toolbar calls this method to validate the item.
-     
-     For standard toolbar items — that is, items without a custom view — the validation process checks whether the item can perform its associated action successfully and enables or disables the item accordingly. The process also validates the associated menu item. When someone switches to another app or window, the automatic validation process disables the item automatically.
-     
-     If the toolbar item has a custom view, subclass ``ToolbarItem`` and override this method to perform the validation yourself. After you validate your custom toolbar item, update the ``isEnabled`` property. You don’t need to call super in your implementation.
-     
-     If you disable ``autovalidates``, toolbar items remain enabled and clickable, including when someone switches to another app or window. However, you can still call this method manually to validate the toolbar item.
-     */
     @objc open func validate() {
         
     }
@@ -326,11 +315,29 @@ public extension Sequence where Element == ToolbarItem {
 
 /// A toolbar item that can be validated.
 public protocol ToolbarItemValidation: ToolbarItem {
-    /// The handler that gets called to validate the toolbar item.
+    /**
+     The handler that gets called to validate the toolbar item.
+     
+     The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
+     */
     var validateHandler: ((Self)->())? { get set }
-    /// Sets the handler that gets called to validate the toolbar item.
+    
+    /**
+     Sets the handler that gets called to validate the toolbar item.
+     
+     The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
+     */
     func validateHandler(_ validation: ((Self)->())?) -> Self
-    /// Validates the toolbar item.
+    
+    /**
+     Validates the toolbar item.
+          
+     Typically, you don’t call this method directly. When ``ToolbarItem/autovalidates`` is enabled, the toolbar calls this method to validate the item. The method is e.g. called when the toolbar's visibilty or window key state changes.
+     
+     If you disable ``ToolbarItem/autovalidates``, toolbar items remain enabled and clickable, including when someone switches to another app or window. However, you can still call this method manually to validate the toolbar item.
+     
+     You can alternative implement ``validateHandler-10ojy``.
+    */
     func validate()
 }
 
@@ -353,8 +360,8 @@ class ValidateToolbarItem<Item: ToolbarItem>: NSToolbarItem {
     weak var item: Item?
     
     init(for item: Item) {
-        self.item = item
         super.init(itemIdentifier: item.identifier)
+        self.item = item
     }
     
     override func validate() {
