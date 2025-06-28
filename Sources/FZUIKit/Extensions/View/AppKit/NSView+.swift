@@ -180,7 +180,7 @@
             get { layer?.zPosition ?? 0.0 }
             set {
                 NSView.swizzleAnimationForKey()
-                optionalLayer?.zPosition = newValue
+                optionalLayer?.zPosition = newValue.clamped(to: -CGFloat(Int.max)...CGFloat(Int.max))
             }
         }
 
