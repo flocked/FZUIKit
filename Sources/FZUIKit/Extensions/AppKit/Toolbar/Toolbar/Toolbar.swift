@@ -387,12 +387,10 @@ open class Toolbar: NSObject {
             }
         }
     }
-}
 
-public extension Toolbar {
     /// A function builder type that produces an array of toolbar items.
     @resultBuilder
-    enum Builder {
+    public enum Builder {
         public static func buildBlock(_ block: [ToolbarItem]...) -> [ToolbarItem] {
             block.flatMap { $0 }
         }
