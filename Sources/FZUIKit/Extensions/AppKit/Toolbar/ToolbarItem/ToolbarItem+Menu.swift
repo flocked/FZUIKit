@@ -51,7 +51,7 @@ extension ToolbarItem {
         
         /// Sets the image of the item.
         @available(macOS 11.0, *)
-        open func image(symbolName: String) -> Self {
+        open func symbolImage(_ symbolName: String) -> Self {
             menuItem.image = NSImage(systemSymbolName: symbolName)
             return self
         }

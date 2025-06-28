@@ -97,7 +97,7 @@ extension ToolbarItem {
         /// Sets the symbol image of the button with the symbol name.
         @available(macOS 11.0, *)
         @discardableResult
-        open func image(symbolName: String) -> Self {
+        open func symbolImage(_ symbolName: String) -> Self {
             image(NSImage(systemSymbolName: symbolName))
         }
         
