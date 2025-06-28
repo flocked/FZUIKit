@@ -6,126 +6,93 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 import FZSwiftUtils
+import _ObjectProxy
 
-    extension NSSplitViewController {
-        /**
-         A Boolean value that indicates whether the sidebar is visible.
-         
-         If the split view doesn't contain a sidebar, it returns `false`.
-         
-         Changing this property animates the sidebar. If you don't want to animate the sidebar, use ``isSidebarVisible(_:animated:)``.
-         */
-       @objc public dynamic var isSidebarVisible: Bool {
-            get {
-                guard splitViewItems.count > 1, let sidebarItem = splitViewItems.first else { return false }
-                return !sidebarItem.isCollapsed
-            }
-            set {
-                guard splitViewItems.count > 1, let sidebarItem = splitViewItems.first, newValue != !sidebarItem.isCollapsed else { return }
-                toggleSidebar(nil)
-            }
+extension NSSplitViewController {
+    /**
+     A Boolean value that indicates whether the sidebar is visible.
+     
+     If the split view doesn't contain a sidebar, it returns `false`.
+     
+     Changing the property is animatable by using `animator().isSidebarVisible`.
+     */
+    @objc public dynamic var isSidebarVisible: Bool {
+        get {
+            guard let item = splitViewItems.first(where: { $0.behavior == .sidebar }) else { return false }
+            return !item.isCollapsed
         }
-        
-        /**
-         Collapses or expands the sidebar.
-         
-         If the split view controller doesn’t contain a sidebar, calling this method does nothing.
-         
-         - Parameters:
-            - isVisible: A Boolean value that indicates whether the sidebar is visible.
-            - animated: A Boolean value that indicates whether the collapsing/expanding of the sidebar should be animated.
-         */
-        @discardableResult
-        @objc open func isSidebarVisible(_ isVisible: Bool, animated: Bool = true) -> Self {
-            if animated {
-                self.isSidebarVisible = isVisible
-            } else if splitViewItems.count > 1, let sidebarItem = splitViewItems.first {
-                sidebarItem.isCollapsed = !isVisible
+        set {
+            guard let item = splitViewItems.first(where: { $0.behavior == .sidebar }), newValue != !item.isCollapsed else { return }
+            if isAnimatingItem {
+                isAnimatingItem = false
+                toggleSidebar(nil)
+            } else {
+                item.isCollapsed = !newValue
             }
-            return self
         }
     }
+    
+    /**
+     A Boolean value indicating whether the inspector is visible.
+     
+     If the split view doesn't contain a inspector, it returns `false`.
+     
+     Changing the property is animatable by using `animator().isInspectorVisible`.
+     */
+    @available(macOS 11.0, *)
+    @objc public dynamic var isInspectorVisible: Bool {
+        get {
+            guard let item = splitViewItems.first(where: { $0.behavior == .inspector }) else { return false }
+            return !item.isCollapsed
+        }
+        set {
+            guard let item = splitViewItems.first(where: { $0.behavior == .inspector }), newValue != !item.isCollapsed else { return }
+            if isAnimatingItem {
+                isAnimatingItem = false
+                if #available(macOS 14.0, *) {
+                    toggleInspector(nil)
+                } else {
+                    item.animator().isCollapsed = !newValue
+                }
+            } else {
+                item.isCollapsed = !newValue
+            }
+        }
+    }
+    
+    var isAnimatingItem: Bool {
+        get { getAssociatedValue("isAnimatingItem") ?? false }
+        set { setAssociatedValue(newValue, key: "isAnimatingItem") }
+    }
+}
+
+extension NSSplitViewController: NSAnimatablePropertyContainer {
+    public func animator() -> Self {
+        return _objectProxy { [weak self] invocation in
+            guard let invocation = invocation else { return }
+            if #available(macOS 11.0, *) {
+                self?.isAnimatingItem = invocation.selector == #selector(setter: NSSplitViewController.isSidebarVisible) || invocation.selector == #selector(setter: NSSplitViewController.isInspectorVisible)
+            } else {
+                self?.isAnimatingItem = invocation.selector == #selector(setter: NSSplitViewController.isSidebarVisible)
+            }
+            invocation.invoke()
+        }
+    }
+    
+    public var animations: [NSAnimatablePropertyKey : Any] {
+        get { [:] }
+        set { }
+    }
+    
+    public func animation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        nil
+    }
+    
+    public static func defaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        nil
+    }
+}
 
 #endif
-
-/*
- //
- //  NSSplitViewController+.swift
- //
- //
- //  Created by Florian Zand on 07.11.23.
- //
-
- #if os(macOS)
-     import AppKit
- import FZSwiftUtils
- import _ObjectProxy
-
-     extension NSSplitViewController {
-         /**
-          A Boolean value that indicates whether the sidebar is visible.
-          
-          If the split view doesn't contain a sidebar, it returns `false`.
-          
-          Changing this property animates the sidebar. If you don't want to animate the sidebar, use ``isSidebarVisible(_:animated:)``.
-          */
-        @objc public dynamic var isSidebarVisible: Bool {
-             get {
-                 guard splitViewItems.count > 1, let sidebarItem = splitViewItems.first else { return false }
-                 return !sidebarItem.isCollapsed
-             }
-             set {
-                 guard splitViewItems.count > 1, let sidebarItem = splitViewItems.first, newValue != !sidebarItem.isCollapsed else { return }
-                 if isProxy() {
-                     toggleSidebar(nil)
-                 } else {
-                     sidebarItem.isCollapsed = newValue
-                 }
-             }
-         }
-         
-         /**
-          Collapses or expands the sidebar.
-          
-          If the split view controller doesn’t contain a sidebar, calling this method does nothing.
-          
-          - Parameters:
-             - isVisible: A Boolean value that indicates whether the sidebar is visible.
-             - animated: A Boolean value that indicates whether the collapsing/expanding of the sidebar should be animated.
-          */
-         @discardableResult
-         @objc open func isSidebarVisible(_ isVisible: Bool, animated: Bool = true) -> Self {
-             guard splitViewItems.count > 1, let sidebarItem = splitViewItems.first, isVisible != !sidebarItem.isCollapsed else { return self }
-             if animated {
-                 self.isSidebarVisible = isVisible
-             } else {
-                 sidebarItem.isCollapsed = !isVisible
-             }
-             return self
-         }
-     }
-
- extension NSSplitViewController: NSAnimatablePropertyContainer {
-     public func animator() -> Self {
-         _objectProxy()!
-     }
-     
-     public var animations: [NSAnimatablePropertyKey : Any] {
-         get { getAssociatedValue("animations", initialValue: [:]) }
-         set { setAssociatedValue(newValue, key: "animations") }
-     }
-     
-     public func animation(forKey key: NSAnimatablePropertyKey) -> Any? {
-         CABasicAnimation()
-     }
-     
-     public static func defaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-         CABasicAnimation()
-     }
- }
-
- #endif
-
- */

@@ -21,25 +21,21 @@ extension NSWindow {
     }
     
     /// Observes the main state of the window.
-    @objc open func observeIsMain(handler: @escaping (_ isMain: Bool)->()) -> NotificationToken {
+    func observeIsMain(handler: @escaping (_ isMain: Bool)->()) -> NotificationToken {
         [NotificationCenter.default.observe(NSWindow.didBecomeMainNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignMainNotification, object: self) { _ in handler(false) }].combinedNotificationToken!
     }
     
     /// Observes the key state of the window.
-    @objc open func observeIsKey(handler: @escaping (_ isKey: Bool)->()) -> NotificationToken {
+    func observeIsKey(handler: @escaping (_ isKey: Bool)->()) -> NotificationToken {
         [NotificationCenter.default.observe(NSWindow.didBecomeKeyNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignKeyNotification, object: self) { _ in handler(false) }].combinedNotificationToken!
     }
     
     /// Observes the resizing of the window by the user.
-    @objc open func observeLiveResize(handler: @escaping (_ isKey: Bool)->()) -> NotificationToken {
+    func observeLiveResize(handler: @escaping (_ isKey: Bool)->()) -> NotificationToken {
         [NotificationCenter.default.observe(NSWindow.willStartLiveResizeNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didEndLiveResizeNotification, object: self) { _ in handler(false) }].combinedNotificationToken!
     }
     
-    /**
-     Resizes and positions the window’s origin with an offset from the specified frame.
-     
-     - Parameter frame: The frame.
-     */
+    /// Repositions the window’s origin with an offset from the specified frame.
     @objc open func cascade(from frame: CGRect) {
         let spacing = 10.0
         setFrame(frame, display: false)
@@ -52,6 +48,11 @@ extension NSWindow {
             offsetFrame.origin.y = screen.visibleFrame.maxY-frame.height -  spacing
         }
         setFrame(offsetFrame, display: false)
+    }
+    
+    /// Repositions the window’s origin with an offset from the specified window.
+    func cascade(from window: NSWindow) {
+        cascade(from: window.frame)
     }
     
     /**
@@ -681,29 +682,43 @@ extension NSWindow {
     /**
      A Boolean value that indicates whether the sidebar is visible.
      
-     If the window's content view controller isn't a split view controller or the split view doesn't contain a sidebar, it returns `false`.
+     If the window's content view controller isn't a split view controlller with a sidebar item, it returns `false`.
      */
     @objc open var isSidebarVisible: Bool {
         get { (contentViewController as? NSSplitViewController)?.isSidebarVisible ?? false }
-        set { (contentViewController as? NSSplitViewController)?.isSidebarVisible = newValue }
+        set {
+            Self.swizzleAnimationForKey()
+            (contentViewController as? NSSplitViewController)?.isAnimatingItem = Self.isAnimatingSplitViewItem
+            Self.isAnimatingSplitViewItem = false
+            (contentViewController as? NSSplitViewController)?.isSidebarVisible = newValue
+        }
     }
     
     /**
-     Collapses or expands the sidebar.
-          
-     If the window's content view controller isn't a split view controller or the split view doesn't contain a sidebar, calling this method does nothing.
+     A Boolean value indicating whether the inspector split view item is visible.
      
-     - Parameters:
-        - isVisible: A Boolean value that indicates whether the sidebar is visible.
-        - animated: A Boolean value that indicates whether the collapsing/expanding of the sidebar should be animated.
+     If the window's content view controller isn't a split view controlller with a inspector item, it returns `false`.
+
+     Changing the property is animatable by using `animator().isInspectorVisible`.
      */
-    @discardableResult
-    @objc open func isSidebarVisible(_ isVisible: Bool, animated: Bool = true) -> Self {
-        (contentViewController as? NSSplitViewController)?.isSidebarVisible(isVisible, animated: animated)
-        return self
+    @available(macOS 11.0, *)
+    @objc open var isInspectorVisible: Bool {
+        get { (contentViewController as? NSSplitViewController)?.isInspectorVisible ?? false }
+        set {
+            Self.swizzleAnimationForKey()
+            (contentViewController as? NSSplitViewController)?.isAnimatingItem = Self.isAnimatingSplitViewItem
+            Self.isAnimatingSplitViewItem = false
+            (contentViewController as? NSSplitViewController)?.isInspectorVisible = newValue
+        }
+    }
+    
+    static var isAnimatingSplitViewItem: Bool {
+        get { getAssociatedValue("isAnimatingSplitViewItem") ?? false }
+        set { setAssociatedValue(newValue, key: "isAnimatingSplitViewItem")}
     }
     
     @objc class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        isAnimatingSplitViewItem = key == "isSidebarVisible" || key == "isInspectorVisible"
         if let animation = swizzledDefaultAnimation(forKey: key) {
             if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.springAnimation {
                 return springAnimation
