@@ -311,17 +311,13 @@ public extension NSEvent {
     }
 }
 
-extension NSEvent.EventType: Hashable, Codable { }
-extension NSEvent.EventTypeMask: Hashable, Codable { }
-extension NSEvent.ModifierFlags: Hashable, Codable { }
-
 extension NSEvent.EventType {
-    static func == (lhs: Self, rhs: NSEvent.EventTypeMask) -> Bool {
+    public static func == (lhs: Self, rhs: NSEvent.EventTypeMask) -> Bool {
         rhs.intersects(lhs)
     }
 }
 
-extension NSEvent.EventSubtype: CustomStringConvertible {
+extension NSEvent.EventSubtype: CustomStringConvertible, Hashable, Codable {
     public var description: String {
         switch self {
         case .applicationActivated: return "applicationActivated"
@@ -337,7 +333,21 @@ extension NSEvent.EventSubtype: CustomStringConvertible {
     }
 }
 
-extension NSEvent.EventType: CustomStringConvertible {
+extension NSEvent.Phase: CustomStringConvertible, Hashable, Codable {
+    public var description: String {
+        switch self {
+        case .changed: return "changed"
+        case .cancelled: return "cancelled"
+        case .ended: return "ended"
+        case .began: return "began"
+        case .mayBegin: return "mayBegin"
+        case .stationary: return "stationary"
+        default: return "\(rawValue)"
+        }
+    }
+}
+
+extension NSEvent.EventType: CustomStringConvertible, Hashable, Codable {
     public var description: String {
         switch self {
         case .leftMouseDown: return "leftMouseDown"
@@ -379,7 +389,124 @@ extension NSEvent.EventType: CustomStringConvertible {
     }
 }
 
-extension NSEvent.EventTypeMask: CustomStringConvertible {
+extension NSEvent.PressureBehavior: CustomStringConvertible, Hashable, Codable {
+    public var description: String {
+        switch self {
+        case .unknown: return "unknown"
+        case .primaryDefault: return "primaryDefault"
+        case .primaryClick: return "primaryClick"
+        case .primaryGeneric: return "primaryGeneric"
+        case .primaryAccelerator: return "primaryAccelerator"
+        case .primaryDeepClick: return "primaryDeepClick"
+        case .primaryDeepDrag: return "primaryDeepDrag"
+        default: return "\(rawValue)"
+        }
+    }
+}
+
+extension NSEvent.PointingDeviceType: CustomStringConvertible, Hashable, Codable {
+    public var description: String {
+        switch self {
+        case .unknown: return "unknown"
+        case .pen: return "pen"
+        case .cursor: return "cursor"
+        case .eraser: return "eraser"
+        default: return "\(rawValue)"
+        }
+    }
+}
+
+extension NSEvent.SpecialKey: CustomStringConvertible, Hashable, Codable {
+    public var description: String {
+        switch self {
+        case .backTab: return "backTab"
+        case .backspace: return "backspace"
+        case .begin: return "begin"
+        case .break: return "break"
+        case .carriageReturn: return "carriageReturn"
+        case .clearDisplay: return "clearDisplay"
+        case .clearLine: return "clearLine"
+        case .delete: return "delete"
+        case .deleteCharacter: return "deleteCharacter"
+        case .deleteForward: return "deleteForward"
+        case .deleteLine: return "deleteLine"
+        case .downArrow: return "downArrow"
+        case .end: return "end"
+        case .enter: return "enter"
+        case .execute: return "execute"
+        case .f1: return "f1"
+        case .f2: return "f2"
+        case .f3: return "f3"
+        case .f4: return "f4"
+        case .f5: return "f5"
+        case .f6: return "f6"
+        case .f7: return "f7"
+        case .f8: return "f8"
+        case .f9: return "f9"
+        case .f10: return "f10"
+        case .f11: return "f11"
+        case .f12: return "f12"
+        case .f13: return "f13"
+        case .f14: return "f14"
+        case .f15: return "f15"
+        case .f16: return "f16"
+        case .f17: return "f17"
+        case .f18: return "f18"
+        case .f19: return "f19"
+        case .f20: return "f20"
+        case .f21: return "f21"
+        case .f22: return "f22"
+        case .f23: return "f23"
+        case .f24: return "f24"
+        case .f25: return "f25"
+        case .f26: return "f26"
+        case .f27: return "f27"
+        case .f28: return "f28"
+        case .f29: return "f29"
+        case .f30: return "f30"
+        case .f31: return "f31"
+        case .f32: return "f32"
+        case .f33: return "f33"
+        case .f34: return "f34"
+        case .f35: return "f35"
+        case .find: return "find"
+        case .formFeed: return "formFeed"
+        case .help: return "help"
+        case .home: return "home"
+        case .insert: return "insert"
+        case .insertCharacter: return "insertCharacter"
+        case .insertLine: return "insertLine"
+        case .leftArrow: return "leftArrow"
+        case .lineSeparator: return "lineSeparator"
+        case .menu: return "menu"
+        case .modeSwitch: return "modeSwitch"
+        case .newline: return "newline"
+        case .next: return "next"
+        case .pageDown: return "pageDown"
+        case .pageUp: return "pageUp"
+        case .paragraphSeparator: return "paragraphSeparator"
+        case .pause: return "pause"
+        case .prev: return "prev"
+        case .print: return "print"
+        case .printScreen: return "printScreen"
+        case .redo: return "redo"
+        case .reset: return "reset"
+        case .rightArrow: return "rightArrow"
+        case .scrollLock: return "scrollLock"
+        case .select: return "select"
+        case .stop: return "stop"
+        case .sysReq: return "sysReq"
+        case .system: return "system"
+        case .tab: return "tab"
+        case .undo: return "undo"
+        case .upArrow: return "upArrow"
+        case .user: return "user"
+        default: return "\(rawValue)"
+        }
+    }
+}
+
+extension NSEvent.EventTypeMask: CustomStringConvertible, Hashable, Codable {
     /// A Boolean value that indicates whether the specified event intersects with the mask.
     public func intersects(_ event: NSEvent?) -> Bool {
         guard let event = event else { return false }
@@ -490,9 +617,9 @@ extension NSEvent.EventTypeMask: CustomStringConvertible {
     }
 }
 
-public extension NSEvent.ModifierFlags {
+extension NSEvent.ModifierFlags: CustomStringConvertible, CustomDebugStringConvertible, Hashable, Codable {
     /// A `CGEventFlags` representation of the modifier flags.
-    var cgEventFlags: CGEventFlags {
+    public var cgEventFlags: CGEventFlags {
         var flags: CGEventFlags = []
         if contains(.shift) { flags.insert(.maskShift) }
         if contains(.control) { flags.insert(.maskControl) }
@@ -504,12 +631,43 @@ public extension NSEvent.ModifierFlags {
         if contains(.capsLock) { flags.insert(.maskAlphaShift) }
         return flags
     }
+    
+    public var description: String {
+        var components: [String] = []
+        if contains(.control)    { components.append(".control") }
+        if contains(.option)     { components.append(".option") }
+        if contains(.shift)      { components.append(".shift") }
+        if contains(.command)    { components.append(".command") }
+        if contains(.capsLock)   { components.append(".capsLock") }
+        if contains(.function)   { components.append(".function") }
+        if contains(.numericPad) { components.append(".numericPad") }
+        if contains(.help)   { components.append(".help") }
+        return "[\(components.joined(separator: ", "))]"
+    }
+    
+    public var debugDescription: String {
+        var components: [String] = []
+        if contains(.control)    { components.append("⌃") }
+        if contains(.option)     { components.append("⌥") }
+        if contains(.shift)      { components.append("⇧") }
+        if contains(.command)    { components.append("⌘") }
+        if contains(.capsLock)   { components.append("⇪") }
+        if contains(.function)   { components.append("Fn") }
+        if contains(.numericPad) { components.append("NumericPad") }
+        if contains(.help) { components.append("❓") }
+        return "[\(components.joined(separator: ", "))]"
+    }
 }
 
 extension CGEvent {
     /// The location of the mouse pointer.
     public static var mouseLocation: CGPoint? {
         CGEvent(source: nil)?.location
+    }
+    
+    /// `NSEvent` representation of the event.
+    public var nsEvent: NSEvent? {
+        NSEvent(cgEvent: self)
     }
 }
 #endif

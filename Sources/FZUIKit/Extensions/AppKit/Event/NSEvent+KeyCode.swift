@@ -624,34 +624,6 @@
         }
     }
 
-extension NSEvent.ModifierFlags: CustomStringConvertible, CustomDebugStringConvertible {
-    public var description: String {
-        var components: [String] = []
-        if contains(.control)    { components.append(".control") }
-        if contains(.option)     { components.append(".option") }
-        if contains(.shift)      { components.append(".shift") }
-        if contains(.command)    { components.append(".command") }
-        if contains(.capsLock)   { components.append(".capsLock") }
-        if contains(.function)   { components.append(".function") }
-        if contains(.numericPad) { components.append(".numericPad") }
-        if contains(.help)   { components.append(".help") }
-        return "[\(components.joined(separator: ", "))]"
-    }
-    
-    public var debugDescription: String {
-        var components: [String] = []
-        if contains(.control)    { components.append("⌃") }
-        if contains(.option)     { components.append("⌥") }
-        if contains(.shift)      { components.append("⇧") }
-        if contains(.command)    { components.append("⌘") }
-        if contains(.capsLock)   { components.append("⇪") }
-        if contains(.function)   { components.append("Fn") }
-        if contains(.numericPad) { components.append("NumericPad") }
-        if contains(.help) { components.append("❓") }
-        return "[\(components.joined(separator: ", "))]"
-    }
-}
-
 extension NSEvent {
     static func characters(for keyCode: UInt16, modifierFlags: NSEvent.ModifierFlags = []) -> String? {
         let maxNameLength = 4
