@@ -136,27 +136,6 @@ extension Toolbar {
             segmentedControl.sizeToFit()
         }
         
-        /// The handler that gets called when the user clicks the segmented control.
-        open var actionBlock: ((_ item: Toolbar.SegmentedControl)->())? {
-            didSet {
-                if let actionBlock = actionBlock {
-                    segmentedControl.actionBlock = { [weak self] _ in
-                        guard let self = self else { return }
-                        actionBlock(self)
-                    }
-                } else {
-                    segmentedControl.actionBlock = nil
-                }
-            }
-        }
-        
-        /// Sets the handler that gets called when the user clicks the segmented control.
-        @discardableResult
-        open func onAction(_ handler: ((_ item: Toolbar.SegmentedControl)->())?) -> Self {
-            actionBlock = handler
-            return self
-        }
-        
         /**
          Creates a segmented control toolbar item.
          

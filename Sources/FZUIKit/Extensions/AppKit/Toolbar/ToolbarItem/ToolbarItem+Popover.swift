@@ -171,25 +171,6 @@ extension Toolbar {
             return self
         }
         
-        /// The handler that gets called when the user clicks the popover button.
-        open var actionBlock: ((_ item: Toolbar.Popover)->())? = nil {
-            didSet {
-                button.actionBlock = { [weak self] _ in
-                    guard let self = self else { return }
-                    self.showPopover()
-                    self.actionBlock?(self)
-                }
-            }
-            
-        }
-        
-        /// Sets the handler that gets called when the user clicks the popover button.
-        @discardableResult
-        open func onAction(_ action: ((_ item: Toolbar.Popover)->())?) -> Self {
-            actionBlock = action
-            return self
-        }
-        
         func showPopover() {
             guard popover.isShown == false else { return }
             popover.behavior = .transient
