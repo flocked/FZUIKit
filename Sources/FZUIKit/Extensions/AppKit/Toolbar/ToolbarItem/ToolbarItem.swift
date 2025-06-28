@@ -14,7 +14,7 @@ open class ToolbarItem: NSObject {
     /// The identifier of the toolbar item.
     public let identifier: NSToolbarItem.Identifier
     
-    fileprivate lazy var rootItem = ValidateToolbarItem(for: self)
+    fileprivate lazy var rootItem = NSToolbarItem(identifier).swizzleValidate(for: self)
     var item: NSToolbarItem {
         rootItem
     }
@@ -437,19 +437,28 @@ extension Toolbar.SharingServicePicker: ToolbarItemActionProvider { }
 extension Toolbar.SegmentedControl: ToolbarItemActionProvider { }
 extension Toolbar.View: ToolbarItemActionProvider { }
 
-class ValidateToolbarItem<Item: ToolbarItem>: NSToolbarItem {
-    weak var item: Item?
-    
-    init(for item: Item) {
-        super.init(itemIdentifier: item.identifier)
-        self.item = item
+extension NSToolbarItem {
+    func swizzleValidate<Item: ToolbarItemValidation>(for item: Item) -> Self {
+        swizzleValidate(item: item)
+        return self
     }
     
-    override func validate() {
-        super.validate()
-        guard let item = item else { return }
-        item.validate()
-        item.validateHandler?(item)
+    private var didSwizzleValidate: Bool {
+        get { getAssociatedValue("didSwizzleValidate") ?? false }
+        set { setAssociatedValue(newValue, key: "didSwizzleValidate") }
+    }
+    
+    private func swizzleValidate<Item: ToolbarItemValidation>(item: Item) {
+        guard !didSwizzleValidate else { return }
+        didSwizzleValidate = true
+        do {
+            try hookAfter(#selector(NSToolbarItem.validate)) {
+                item.validate()
+                item.validateHandler?(item)
+            }
+        } catch {
+            Swift.print(error)
+        }
     }
 }
 

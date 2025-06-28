@@ -18,7 +18,7 @@ extension Toolbar {
      Provide the items to share using either ``handlers-swift.property`` or the ``delegate``.
      */
     open class SharingServicePicker: ToolbarItem {
-        lazy var servicePickerItem = ValidateServicePickerToolbarItem(for: self)
+        lazy var servicePickerItem = NSSharingServicePickerToolbarItem(identifier).swizzleValidate(for: self)
         override var item: NSToolbarItem {
             servicePickerItem
         }
@@ -161,22 +161,6 @@ extension Toolbar {
             super.init()
             pickerItem.servicePickerItem.delegate = self
         }
-    }
-}
-
-class ValidateServicePickerToolbarItem: NSSharingServicePickerToolbarItem {
-    weak var item: Toolbar.SharingServicePicker?
-    
-    init(for item: Toolbar.SharingServicePicker) {
-        super.init(itemIdentifier: item.identifier)
-        self.item = item
-    }
-    
-    override func validate() {
-        super.validate()
-        guard let item = item else { return }
-        item.validate()
-        item.validateHandler?(item)
     }
 }
 

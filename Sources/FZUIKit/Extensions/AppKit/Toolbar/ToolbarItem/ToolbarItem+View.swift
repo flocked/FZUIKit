@@ -12,7 +12,7 @@ import SwiftUI
 extension Toolbar {
     /// A toolbar item that displays a view.
     open class View: ToolbarItem {
-        fileprivate lazy var rootItem = ValidateToolbarItem(for: self)
+        fileprivate lazy var rootItem = NSToolbarItem(identifier).swizzleValidate(for: self)
         
         override var item: NSToolbarItem {
             rootItem

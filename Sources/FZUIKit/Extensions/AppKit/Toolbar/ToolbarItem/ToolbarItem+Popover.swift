@@ -11,7 +11,7 @@ import AppKit
 extension Toolbar {
     /// A toolbar item that displys a popover.
     open class Popover: ToolbarItem {
-        fileprivate lazy var rootItem = ValidateToolbarItem(for: self)
+        fileprivate lazy var rootItem = NSToolbarItem(identifier).swizzleValidate(for: self)
         
         override var item: NSToolbarItem {
             rootItem

@@ -25,7 +25,8 @@ extension Toolbar {
         /// A value that represents how a toolbar displays a group item.
         public typealias ControlRepresentation = NSToolbarItemGroup.ControlRepresentation
         
-        lazy var groupItem = ValidateToolbarItemGroup(for: self)
+        lazy var groupItem = NSToolbarItemGroup(identifier).swizzleValidate(for: self)
+        
         override var item: NSToolbarItem {
             groupItem
         }
@@ -205,22 +206,6 @@ extension Toolbar {
                 groupItem.subitems = subitems.compactMap({ $0.item })
                 groupItem.selectionMode = selectionMode
         }
-    }
-}
-
-class ValidateToolbarItemGroup: NSToolbarItemGroup {
-    weak var item: Toolbar.Group?
-    
-    init(for item: Toolbar.Group) {
-        super.init(itemIdentifier: item.identifier)
-        self.item = item
-    }
-    
-    override func validate() {
-        super.validate()
-        guard let item = item else { return }
-        item.validate()
-        item.validateHandler?(item)
     }
 }
 #endif
