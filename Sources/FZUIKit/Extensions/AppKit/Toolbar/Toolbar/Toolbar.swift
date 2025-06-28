@@ -18,7 +18,9 @@ open class Toolbar: NSObject {
     
     private var delegate: Delegate!
     private var toolbar: MangedToolbar!
-    
+    private var toolbarObservation: KeyValueObservation?
+    private var toolbarStyle: Style = .window
+
     /**
      Creates a newly toolbar with the specified identifier.
      
@@ -63,8 +65,16 @@ open class Toolbar: NSObject {
     
     /// The window of the toolbar.
     public var attachedWindow: NSWindow? {
+        get { _attachedWindow }
+        set { _attachedWindow = newValue }
+    }
+    
+    private weak var _attachedWindow: NSWindow? {
         didSet {
             guard oldValue != attachedWindow else { return }
+            if #available(macOS 11.0, *), let window = attachedWindow {
+                window.toolbarStyle = style.style ?? window.toolbarStyle
+            }
             if #available(macOS 11.0, *) {
                 items.compactMap({ $0 as? Toolbar.TrackingSeparator }).forEach({ $0.updateAutodetectSplitView(toolbar: self) })
             }
@@ -79,9 +89,7 @@ open class Toolbar: NSObject {
             attachedWindow?.toolbar = toolbar
         }
     }
-    
-    var toolbarObservation: KeyValueObservation?
-    
+        
     /// Sets the window of the toolbar.
     @discardableResult
     open func attachedWindow(_ window: NSWindow?) -> Self {
@@ -101,28 +109,47 @@ open class Toolbar: NSObject {
         self.isVisible = isVisible
         return self
     }
-    
-    var toolbarStyle: Any?
-    
-    /// The style that determines the appearance and location of the toolbar in relation to the title bar.
-    @available(macOS 11.0, *)
-    open var style: NSWindow.ToolbarStyle? {
-        get { attachedWindow?.toolbarStyle }
-        set {
-            if let newValue = newValue {
-                attachedWindow?.toolbarStyle = newValue
-            }
+        
+    /// The appearance and location of a toolbar in relation to the attached window's title bar.
+    public enum Style: Int, Hashable, Codable {
+        /// A style indicating that the system determines the toolbar’s appearance and location.
+        case automatic
+        /// A style indicating that the toolbar appears below the window title.
+        case expanded
+        /// A style indicating that the toolbar appears below the window title with toolbar items centered in the toolbar.
+        case preference
+        /// A style indicating that the toolbar appears next to the window title.
+        case unified
+        /// A style indicating that the toolbar appears next to the window title and with reduced margins to allow more focus on the window’s contents.
+        case unifiedCompact
+        /// The style specified by the attached window's `toolbarStyle`.
+        case window = -100
+        
+        @available(macOS 11.0, *)
+        var style: NSWindow.ToolbarStyle? {
+            .init(rawValue: rawValue)
         }
     }
     
-    /// Sets the style that determines the appearance and location of the toolbar in relation to the title bar.
+    /// The style that determines the appearance and location of the toolbar in relation to the attached window's title bar.
+    @available(macOS 11.0, *)
+    open var style: Style {
+        get { toolbarStyle }
+        set {
+            toolbarStyle = newValue
+            guard let window = attachedWindow else { return }
+            window.toolbarStyle = newValue.style ?? window.toolbarStyle
+        }
+    }
+    
+    /// Sets the style that determines the appearance and location of the toolbar in relation to the attached window's title bar.
     @available(macOS 11.0, *)
     @discardableResult
-    open func style(_ style: NSWindow.ToolbarStyle) -> Self {
+    open func style(_ style: Style) -> Self {
         self.style = style
         return self
     }
-    
+        
     /// A value that indicates whether the toolbar displays items using a name, icon, or combination of elements.
     open var displayMode: NSToolbar.DisplayMode {
         get { toolbar.displayMode }
