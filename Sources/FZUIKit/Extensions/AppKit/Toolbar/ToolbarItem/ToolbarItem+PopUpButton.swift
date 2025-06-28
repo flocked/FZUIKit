@@ -116,7 +116,7 @@ extension Toolbar {
         }
         
         /**
-         Creates a popup button toolbar item.
+         Creates a popup button toolbar item with the specified popup button menu items.
          
          - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `PopUpButton` toolbar items.
          
@@ -125,19 +125,28 @@ extension Toolbar {
             - items: The menu items of the popup button.
          */
         public init(_ identifier: NSToolbarItem.Identifier? = nil, @MenuBuilder _ items: () -> [NSMenuItem]) {
-            let button = NSPopUpButton(frame: .zero, pullsDown: true)
-            button.bezelStyle = .texturedRounded
-            button.imagePosition = .imageOnly
-            button.imageScaling = .scaleProportionallyDown
-            button.arrowPosition = .arrowAtBottom
-            button.menu = NSMenu(title: "", items: items())
-            self.button = button
+            self.button = Self.popUpButton().menu(NSMenu(title: "", items: items()))
             super.init(identifier)
             item.view = button
         }
         
         /**
-         Creates a popup button toolbar item.
+         Creates a popup button toolbar item with the specified popup button menu.
+         
+         - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `PopUpButton` toolbar items.
+         
+         - Parameters:
+            - identifier: The item identifier.
+            - menu: The menu of the popup button.
+         */
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, menu: NSMenu) {
+            self.button = Self.popUpButton().menu(menu)
+            super.init(identifier)
+            item.view = button
+        }
+        
+        /**
+         Creates a popup button toolbar item with the specified popup button.
          
          - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `PopUpButton` toolbar items.
          
@@ -150,6 +159,13 @@ extension Toolbar {
             button = popUpButton
             super.init(identifier)
             item.view = button
+        }
+        
+        private static func popUpButton() -> NSPopUpButton {
+            let button = NSPopUpButton(frame: .zero, pullsDown: true)
+            button.bezelStyle = .texturedRounded
+            button.imageScaling = .scaleProportionallyDown
+            return button
         }
     }
 }
