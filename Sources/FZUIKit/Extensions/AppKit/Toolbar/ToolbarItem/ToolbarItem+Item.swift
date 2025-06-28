@@ -11,7 +11,7 @@ import AppKit
 extension Toolbar {
     /// A toolbar item.
     open class Item: ToolbarItem {
-        fileprivate lazy var rootItem = NSToolbarItem(identifier).swizzleValidate(for: self)
+        fileprivate lazy var rootItem = ValidateToolbarItem(for: self)
         
         override var item: NSToolbarItem {
             rootItem

@@ -17,8 +17,8 @@ extension Toolbar {
      If you don’t set an action, a simple click invokes the menu, and the indicator is purely decorative.
      */
     open class Menu: ToolbarItem {
-        fileprivate lazy var menuItem = NSMenuToolbarItem(identifier).swizzleValidate(for: self)
         
+        fileprivate lazy var menuItem = ValidateMenuToolbarItem(for: self)
         override var item: NSToolbarItem {
             menuItem
         }
@@ -215,4 +215,21 @@ extension Toolbar {
         }
     }
 }
+
+fileprivate class ValidateMenuToolbarItem: NSMenuToolbarItem {
+    weak var item: Toolbar.Menu?
+    
+    init(for item: Toolbar.Menu) {
+        super.init(itemIdentifier: item.identifier)
+        self.item = item
+    }
+    
+    override func validate() {
+        super.validate()
+        guard let item = item else { return }
+        item.validate()
+        item.validateHandler?(item)
+    }
+}
+
 #endif
