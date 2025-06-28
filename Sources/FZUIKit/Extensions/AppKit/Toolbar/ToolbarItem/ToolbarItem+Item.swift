@@ -99,6 +99,32 @@ extension Toolbar {
             return self
         }
         
+        /// The action method to call when someone clicks on the toolbar item.
+        open var action: Selector? {
+            get { item.actionBlock == nil ? item.action : nil }
+            set { item.action = newValue }
+        }
+        
+        /// Sets the action method to call when someone clicks on the toolbar item.
+        @discardableResult
+        open func action(_ action: Selector?) -> Self {
+            self.action = action
+            return self
+        }
+        
+        /// The object that defines the action method the toolbar item calls when clicked.
+        open var target: AnyObject? {
+            get { item.actionBlock == nil ? item.target : nil }
+            set { item.target = newValue }
+        }
+        
+        /// Sets the object that defines the action method the toolbar item calls when clicked.
+        @discardableResult
+        open func target(_ target: AnyObject?) -> Self {
+            self.target = target
+            return self
+        }
+        
         /**
          Creates a toolbar item.
          
