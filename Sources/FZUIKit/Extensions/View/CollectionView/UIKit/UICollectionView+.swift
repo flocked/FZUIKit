@@ -10,6 +10,11 @@
     import UIKit
 
     extension UICollectionView {
+        /// The currently selected collection view cells.
+        public var selectedCells: [UICollectionViewCell] {
+            (indexPathsForSelectedItems ?? []).compactMap { cellForItem(at: $0) }
+        }
+        
         /// Returns the index paths of the currently displayed cells. Unlike `indexPathsForVisibleItems()`  it only returns the cells with visible frame.
         public func displayingIndexPaths() -> [IndexPath] {
             (displayingCells().compactMap { self.indexPath(for: $0) }).sorted()

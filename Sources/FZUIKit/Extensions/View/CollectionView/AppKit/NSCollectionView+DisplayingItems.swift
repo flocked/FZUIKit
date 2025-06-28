@@ -12,6 +12,11 @@
     import FZSwiftUtils
 
     extension NSCollectionView {
+        /// The currently selected collection view items.
+        public var selectedItems: [NSCollectionViewItem] {
+            selectionIndexPaths.sorted().compactMap({ item(at: $0)})
+        }
+        
         /// Returns the index paths of the currently displayed items. Unlike `indexPathsForVisibleItems()`  it only returns the items with visible frame.
         public func displayingIndexPaths() -> [IndexPath] {
             displayingItems().compactMap { indexPath(for: $0) }

@@ -554,7 +554,7 @@ public extension NSMenuItem {
         self.alternateItem = item
         return self
     }
-    
+        
     internal func setupMenuDelegateProxy() {
         menu?.setupDelegateProxy()
         if !needsDelegateProxy {
