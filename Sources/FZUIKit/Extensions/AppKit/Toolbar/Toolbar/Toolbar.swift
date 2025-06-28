@@ -19,7 +19,7 @@ open class Toolbar: NSObject {
     private var delegate: Delegate!
     private var toolbar: MangedToolbar!
     private var toolbarObservation: KeyValueObservation?
-    private var toolbarStyle: Style = .window
+    private var toolbarStyle: Any?
 
     /**
      Creates a newly toolbar with the specified identifier.
@@ -111,6 +111,7 @@ open class Toolbar: NSObject {
     }
         
     /// The appearance and location of a toolbar in relation to the attached window's title bar.
+    @available(macOS 11.0, *)
     public enum Style: Int, Hashable, Codable {
         /// A style indicating that the system determines the toolbar’s appearance and location.
         case automatic
@@ -134,7 +135,7 @@ open class Toolbar: NSObject {
     /// The style that determines the appearance and location of the toolbar in relation to the attached window's title bar.
     @available(macOS 11.0, *)
     open var style: Style {
-        get { toolbarStyle }
+        get { toolbarStyle as? Style ?? .window }
         set {
             toolbarStyle = newValue
             guard let window = attachedWindow else { return }
