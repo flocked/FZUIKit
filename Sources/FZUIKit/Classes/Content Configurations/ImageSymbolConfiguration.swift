@@ -135,7 +135,7 @@ public struct ImageSymbolConfiguration: Hashable {
                 font = .size(pointSize, weight: configuration.weight)
             }
         }
-        if let mode = ImageSymbolConfiguration.ColorConfiguration.Mode(rawValue: configuration.renderingStyle) {
+        if let mode = ImageSymbolConfiguration.ColorConfiguration.Mode(rawValue: configuration.colorRenderMode.rawValue) {
             color = .init(mode)
         }
         if configuration.prefersMulticolor {
@@ -216,16 +216,16 @@ public struct ImageSymbolConfiguration: Hashable {
     public static let headline = Self.font(.headline)
     /// Creates a configuration with a subheadline font configuration.
     public static let subheadline = Self.font(.subheadline)
-    #if os(macOS) || os(iOS)
-        /// Creates a configuration with a large title font configuration.
-        public static let largeTitle = Self.font(.largeTitle)
-    #endif
     /// Creates a configuration with a first-level title font configuration.
     public static let title1 = Self.font(.title1)
     /// Creates a configuration with a second-level title font configuration.
     public static let title2 = Self.font(.title2)
     /// Creates a configuration with a third-level title font configuration.
     public static let title3 = Self.font(.title3)
+    #if os(macOS) || os(iOS)
+    /// Creates a configuration with a large title font configuration.
+    public static let largeTitle = Self.font(.largeTitle)
+    #endif
 
     /// The font of a symbol image.
     public enum FontConfiguration: Hashable {
