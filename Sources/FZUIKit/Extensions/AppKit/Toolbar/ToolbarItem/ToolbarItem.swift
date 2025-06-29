@@ -94,14 +94,11 @@ open class ToolbarItem: NSObject {
     
     /// A Boolean value that indicates whether the item is selected.
     var isSelected: Bool {
-        get { toolbar?.selectedItem == self }
+        get { toolbar?.selectedItem === self }
         set {
             guard isSelectable, let toolbar = toolbar, newValue != isSelected else { return }
-            if newValue {
-                toolbar.selectedItem = self
-            } else if toolbar.selectedItem === self {
-                toolbar.selectedItem = nil
-            }
+            let selectedItem = toolbar.selectedItem
+            toolbar.selectedItem = newValue ? self : selectedItem === self ? nil : selectedItem
         }
     }
     

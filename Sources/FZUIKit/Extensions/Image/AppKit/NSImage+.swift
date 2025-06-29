@@ -194,5 +194,20 @@ import UniformTypeIdentifiers
         func jpegData(compressionFactor factor: Double) -> Data? {
             bitmapImageRep?.jpegData(compressionFactor: factor)
         }
+        
+        
+        /**
+         Returns the image flipped.
+
+         - Parameter shouldFlip: A Boolean value indicating whether the image should be flipped.
+         - Returns: The flipped image.
+         */
+        func flipped(_ shouldFlip: Bool = true) -> NSImage {
+            let newImage = NSImage(size: size, flipped: shouldFlip) { rect in
+                self.draw(in: rect, from: .zero, operation: .sourceOver, fraction: 1.0, respectFlipped: false, hints: nil)
+                return true
+            }
+            return newImage
+        }
     }
 #endif

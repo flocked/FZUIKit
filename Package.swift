@@ -18,11 +18,12 @@ let package = Package(
     targets: [
         .target(
             name: "FZUIKit",
-            dependencies: ["FZSwiftUtils", "_DelegateProxy", "_ObjectProxy"],
+            dependencies: ["FZSwiftUtils", "_DelegateProxy", "_ObjectProxy", .target(name: "NSTokenAttachmentCell", condition: .when(platforms: [.macOS]))],
             resources: [
                 .process("Resources"),
             ]            
         ),
+        .target(name: "NSTokenAttachmentCell", path: "Sources/FZUIKit+ObjC/NSTokenAttachmentCell", publicHeadersPath: "include"),
         .target(name: "_DelegateProxy",
                 path: "Sources/FZUIKit+ObjC/DelegateProxy"),
         .target(name: "_ObjectProxy",

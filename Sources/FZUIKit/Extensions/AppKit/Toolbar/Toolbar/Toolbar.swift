@@ -20,7 +20,26 @@ open class Toolbar: NSObject {
     private var toolbar: MangedToolbar!
     private var toolbarObservation: KeyValueObservation?
     private var toolbarStyle: Any?
+    private var states: [String: State] = [:]
 
+    /// The state of the toolbar.
+    public var state: State = .default
+    
+    /// Sets the state of the toolbar.
+    @discardableResult
+    public func state(_ state: State) -> Self {
+        self.state = state
+        return self
+    }
+    
+    /// The state for the specified state name,
+    public subscript(name: String) -> State {
+        get { states[name, default: .init(name)] }
+        set {
+            states[name] = newValue
+        }
+    }
+    
     /**
      Creates a newly toolbar with the specified identifier.
      
@@ -265,6 +284,8 @@ open class Toolbar: NSObject {
     /**
      The toolbar’s currently selected item.
      
+     You can only select items  with``ToolbarItem/isSelectable`` set to `true`.
+     
      This property is key-value observable (KVO).
      */
     @objc dynamic open var selectedItem: ToolbarItem? {
@@ -273,7 +294,7 @@ open class Toolbar: NSObject {
             guard newValue != selectedItem else { return }
             if newValue == nil {
                 toolbar.selectedItemIdentifier = nil
-            } else if let newValue = newValue, displayingItems.contains(newValue) {
+            } else if let newValue = newValue, newValue.isSelectable, displayingItems.contains(newValue) {
                 toolbar.selectedItemIdentifier = newValue.identifier
             }
         }
