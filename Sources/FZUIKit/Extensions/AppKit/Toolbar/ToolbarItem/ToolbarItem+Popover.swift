@@ -378,6 +378,22 @@ extension Toolbar {
             }
             updateImagePosition()
         }
+        
+        fileprivate class ValidateToolbarItem: NSToolbarItem {
+            weak var item: Toolbar.Popover?
+            
+            init(for item: Toolbar.Popover) {
+                super.init(itemIdentifier: item.identifier)
+                self.item = item
+            }
+            
+            override func validate() {
+                super.validate()
+                guard let item = item else { return }
+                item.validate()
+                item.validateHandler?(item)
+            }
+        }
     }
 }
 #endif

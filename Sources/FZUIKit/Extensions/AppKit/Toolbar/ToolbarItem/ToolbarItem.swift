@@ -311,49 +311,6 @@ public extension Sequence where Element == ToolbarItem {
     }
 }
 
-/// A toolbar item that can be validated.
-public protocol ToolbarItemValidation: ToolbarItem {
-    /**
-     The handler that gets called to validate the toolbar item.
-     
-     The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
-     */
-    var validateHandler: ((Self)->())? { get set }
-    
-    /**
-     Sets the handler that gets called to validate the toolbar item.
-     
-     The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
-     */
-    func validateHandler(_ validation: ((Self)->())?) -> Self
-    
-    /**
-     Validates the toolbar item.
-          
-     Typically, you don’t call this method directly. When ``ToolbarItem/autovalidates`` is enabled, the toolbar calls this method to validate the item. The method is e.g. called when the toolbar's visibilty or window key state changes.
-     
-     If you disable ``ToolbarItem/autovalidates``, toolbar items remain enabled and clickable, including when someone switches to another app or window. However, you can still call this method manually to validate the toolbar item.
-     
-     You can alternative implement ``validateHandler-10ojy``.
-    */
-    func validate()
-}
-
-extension Toolbar.Button: ToolbarItemValidation { }
-extension Toolbar.CustomItem: ToolbarItemValidation { }
-extension Toolbar.Group: ToolbarItemValidation { }
-extension Toolbar.Item: ToolbarItemValidation { }
-extension Toolbar.Menu: ToolbarItemValidation { }
-extension Toolbar.Popover: ToolbarItemValidation { }
-extension Toolbar.PopUpButton: ToolbarItemValidation { }
-@available(macOS 11.0, *)
-extension Toolbar.Search: ToolbarItemValidation { }
-extension Toolbar.SegmentedControl: ToolbarItemValidation { }
-extension Toolbar.SharingServicePicker: ToolbarItemValidation { }
-@available(macOS 11.0, *)
-extension Toolbar.TrackingSeparator: ToolbarItemValidation { }
-extension Toolbar.View: ToolbarItemValidation { }
-
 class BasicValidateToolbarItem<Item: ToolbarItem>: NSToolbarItem {
     weak var item: Item?
     
@@ -366,22 +323,6 @@ class BasicValidateToolbarItem<Item: ToolbarItem>: NSToolbarItem {
         super.validate()
         guard let item = item else { return }
         item.validate()
-    }
-}
-
-class ValidateToolbarItem<Item: ToolbarItemValidation>: NSToolbarItem {
-    weak var item: Item?
-    
-    init(for item: Item) {
-        super.init(itemIdentifier: item.identifier)
-        self.item = item
-    }
-    
-    override func validate() {
-        super.validate()
-        guard let item = item else { return }
-        item.validate()
-        item.validateHandler?(item)
     }
 }
 

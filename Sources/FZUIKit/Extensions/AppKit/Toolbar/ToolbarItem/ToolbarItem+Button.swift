@@ -292,6 +292,22 @@ extension Toolbar {
             item.view = button
             onAction(action)
         }
+        
+        fileprivate class ValidateToolbarItem: NSToolbarItem {
+            weak var item: Toolbar.Button?
+            
+            init(for item: Toolbar.Button) {
+                super.init(itemIdentifier: item.identifier)
+                self.item = item
+            }
+            
+            override func validate() {
+                super.validate()
+                guard let item = item else { return }
+                item.validate()
+                item.validateHandler?(item)
+            }
+        }
     }
 }
 #endif

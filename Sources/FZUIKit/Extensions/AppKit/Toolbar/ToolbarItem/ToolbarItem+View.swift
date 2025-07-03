@@ -135,6 +135,22 @@ extension Toolbar {
             super.init(identifier)
             self.view = NSHostingView(rootView: view)
         }
+        
+        fileprivate class ValidateToolbarItem: NSToolbarItem {
+            weak var item: Toolbar.View?
+            
+            init(for item: Toolbar.View) {
+                super.init(itemIdentifier: item.identifier)
+                self.item = item
+            }
+            
+            override func validate() {
+                super.validate()
+                guard let item = item else { return }
+                item.validate()
+                item.validateHandler?(item)
+            }
+        }
     }
 }
 
