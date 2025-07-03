@@ -123,6 +123,14 @@
          The value can be animated via `animator()`.
          */
         @objc var contentOffset: CGPoint {
+            get { _contentOffset }
+            set {
+                NSView.swizzleAnimationForKey()
+                _contentOffset = newValue
+            }
+        }
+        
+        @objc internal var _contentOffset: CGPoint {
             get { enclosingScrollView?.contentOffset ?? .zero }
             set { enclosingScrollView?.contentOffset = newValue }
         }
@@ -145,7 +153,15 @@
 
          The value can be animated via `animator()`.
          */
-        @objc var documentSize: CGSize {
+        var documentSize: CGSize {
+            get { _documentSize }
+            set {
+                NSView.swizzleAnimationForKey()
+                _documentSize = newValue
+            }
+        }
+        
+        @objc internal var _documentSize: CGSize {
             get { enclosingScrollView?.documentSize ?? .zero }
             set { enclosingScrollView?.documentSize = newValue }
         }

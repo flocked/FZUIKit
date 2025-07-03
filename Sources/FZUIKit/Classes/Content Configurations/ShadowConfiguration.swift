@@ -29,10 +29,11 @@ public struct ShadowConfiguration: Hashable {
     
     /// Generates the resolved shadow color, using the shadow color, color transformer and optionally the opacity.
     public func resolvedColor(withOpacity: Bool = false) -> NSUIColor? {
-        if let color = withOpacity == true ? color?.withAlphaComponent(opacity) : color {
-            return colorTransformer?(color) ?? color
+        guard var color = color else { return nil }
+        if withOpacity {
+            color = ColorTransformer.opacity(opacity)(color)
         }
-        return nil
+        return colorTransformer?(color) ?? color
     }
     
     /// The opacity of the shadow.

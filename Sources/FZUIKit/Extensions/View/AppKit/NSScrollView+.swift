@@ -27,6 +27,77 @@
             return self
         }
         
+        /// The Autoscroll speed (pixel per second) of the scroll view, or `nil` for no autoscrolling.
+        @available(macOS 14.0, *)
+        public var autoScrollSpeed: CGFloat? {
+            get { getAssociatedValue("autoScrollSpeed") }
+            set {
+                var newValue = newValue?.clamped(min: 0.0)
+                newValue = newValue == 0.0 ? nil : newValue
+                guard newValue != autoScrollSpeed else { return }
+                setAssociatedValue(newValue, key: "autoScrollSpeed")
+                if let newValue = newValue {
+                    autoScrollDisplaylink = DisplayLink(view: self) { [weak self] frame in
+                        guard let self = self, let displayLink = self.autoScrollDisplaylink, let documentView = self.documentView else { return }
+                        let currentOrigin = self.contentView.bounds.origin
+                        let maxScrollY = documentView.bounds.height - self.contentSize.height
+                        var newY = max(0, min(currentOrigin.y + newValue / displayLink.framesPerSecond, documentView.bounds.height - self.contentSize.height))
+                        if self.loopsAutoScroll && newY >= maxScrollY {
+                               newY = 0
+                           } else {
+                               newY = max(0, min(newY, maxScrollY))
+                           }
+                        let newOrigin = NSPoint(x: currentOrigin.x, y: newY)
+                        self.contentView.scroll(to: newOrigin)
+                        self.reflectScrolledClipView(contentView)
+                    }
+                    autoScrollDisplaylink?.isPaused = documentView == nil
+                    autoScrollDocumentViewObservation = observeChanges(for: \.documentView) { [weak self] old, new in
+                        self?.autoScrollDisplaylink?.isPaused = new == nil
+                    }
+                } else {
+                    autoScrollDisplaylink = nil
+                    autoScrollDocumentViewObservation = nil
+                }
+            }
+        }
+        
+        /// Sets the Autoscroll speed (pixel per second) of the scroll view, or `nil` for no autoscrolling.
+        @discardableResult
+        @available(macOS 14.0, *)
+        public func autoScrollSpeed(_ speed: CGFloat?) -> Self {
+            autoScrollSpeed = speed
+            return self
+        }
+        
+        /// A Boolean value indicating whether the autoscrolling should loop when the scroll view reached the bottom.
+        @available(macOS 14.0, *)
+        public var loopsAutoScroll: Bool {
+            get { getAssociatedValue("loopsAutoScroll") ?? false }
+            set { setAssociatedValue(newValue, key: "loopsAutoScroll") }
+        }
+        
+        /// Sets the Boolean value indicating whether the autoscrolling should loop when the scroll view reached the bottom.
+        @discardableResult
+        @available(macOS 14.0, *)
+        public func loopsAutoScroll(_ loops: Bool) -> Self {
+            loopsAutoScroll = loops
+            return self
+        }
+        
+        @available(macOS 14.0, *)
+        var autoScrollDisplaylink: DisplayLink? {
+            get { getAssociatedValue("autoScrollDisplaylink") }
+            set { setAssociatedValue(newValue, key: "autoScrollDisplaylink") }
+        }
+        
+        @available(macOS 14.0, *)
+        var autoScrollDocumentViewObservation: KeyValueObservation? {
+            get { getAssociatedValue("autoScrollDocumentViewObservation") }
+            set { setAssociatedValue(newValue, key: "autoScrollDocumentViewObservation") }
+        }
+        
+        
         /// Sets the value that specifies the appearance of the scroll view’s border.
         @discardableResult
         public func borderType(_ type: NSBorderType) -> Self {
@@ -319,7 +390,15 @@
 
          The value can be animated via `animator()`.
          */
-        @objc dynamic open var contentOffset: CGPoint {
+        public var contentOffset: CGPoint {
+            get { _contentOffset }
+            set {
+                NSView.swizzleAnimationForKey()
+                _contentOffset = newValue
+            }
+        }
+        
+        @objc var _contentOffset: CGPoint {
             get { isChangingContentOffset ? previousContentOffset : documentVisibleRect.origin }
             set {
                 guard newValue.x.isFinite, newValue.y.isFinite else { return }
@@ -336,7 +415,15 @@
 
          The value can be animated via `animator()`.
          */
-        @objc open var contentOffsetFractional: CGPoint {
+        public var contentOffsetFractional: CGPoint {
+            get { _contentOffsetFractional }
+            set {
+                NSView.swizzleAnimationForKey()
+                _contentOffsetFractional = newValue
+            }
+        }
+        
+        @objc var _contentOffsetFractional: CGPoint {
             get {
                 guard let maxOffset = maxContentOffset else { return .zero }
                 return CGPoint(contentOffset.x / maxOffset.x, contentOffset.y / maxOffset.y)
@@ -374,15 +461,23 @@
 
          The value can be animated via `animator()`.
          */
-        @objc open var documentSize: CGSize {
+        public var documentSize: CGSize {
+            get { _documentSize }
+            set {
+                NSView.swizzleAnimationForKey()
+                _documentSize = newValue
+            }
+        }
+        
+        @objc var _documentSize: CGSize {
             get { (documentView?.bounds.size ?? .zero) * magnification }
             set {
                 guard newValue != documentSize else { return }
-                NSView.swizzleAnimationForKey()
                 let documentSize = (documentView?.bounds.size ?? .zero)
                 magnification = max(newValue.width/documentSize.width, newValue.height/documentSize.height)
             }
         }
+        
         
         func zoom(toSize size: CGSize) {
             magnification = max(contentSize.width/size.width, contentSize.height/size.height)

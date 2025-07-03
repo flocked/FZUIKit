@@ -33,7 +33,16 @@ extension NSView {
         /**
          The handler that determines whether the user can drag content outside the view.
          
-         You can return `String`, `URL`, `NSImage`, `NSColor` and `NSSound` values.
+         You can return an array of:
+         
+         - [String](https://developer.apple.com/documentation/swift/String)
+         - [AttributedString](https://developer.apple.com/documentation/foundation/AttributedString) and [NSAttributedString](https://developer.apple.com/documentation/foundation/NSAttributedString)
+         - [URL](https://developer.apple.com/documentation/foundation/URL)
+         - [NSImage](https://developer.apple.com/documentation/appkit/NSImage)
+         - [NSColor](https://developer.apple.com/documentation/appkit/NSColor)
+         - [NSSound](https://developer.apple.com/documentation/appkit/NSSound)
+         - [NSFilePromiseProvider](https://developer.apple.com/documentation/appkit/NSFilePromiseProvider)
+         - [NSPasteboardItem](https://developer.apple.com/documentation/appkit/NSPasteboardItem)
                   
          - Parameter location. The mouse location inside the view.
          - Returns: The content that can be dragged outside the view, or `nil` if the view doesn't provide any draggable content.

@@ -104,17 +104,17 @@ extension NSUIImage.SymbolConfiguration {
     }
     
     #if os(macOS)
-    /// Returns the symbol configuration with the specified color render mode.
-    public func colorRenderMode(_ mode: ColorRenderMode) -> NSUIImage.SymbolConfiguration {
+    /// Returns the symbol configuration with the specified color render style.
+    public func colorRenderStyle(_ style: ColorRenderStyle) -> NSUIImage.SymbolConfiguration {
         let copy = copied()
-        copy.colorRenderMode = mode
+        copy.colorRenderStyle = style
         return copy
     }
     
-    /// Returns the symbol configuration with the specified color render mode.
-    public func colorRenderMode(_ mode: ColorRenderMode, prefersMulticolor: Bool) -> NSUIImage.SymbolConfiguration {
+    /// Returns the symbol configuration with the specified color render style.
+    public func colorRenderStyle(_ style: ColorRenderStyle, prefersMulticolor: Bool) -> NSUIImage.SymbolConfiguration {
         let copy = copied()
-        copy.colorRenderMode = mode
+        copy.colorRenderStyle = style
         copy.prefersMulticolor = prefersMulticolor
         return copy
     }
@@ -406,7 +406,7 @@ extension NSUIImage.SymbolConfiguration {
     
     #if os(macOS)
     /// Color rendering mode.
-    public enum ColorRenderMode: Int {
+    public enum ColorRenderStyle: Int {
         /// Automatic.
         case automatic
         /// Monochrome.
@@ -417,7 +417,19 @@ extension NSUIImage.SymbolConfiguration {
         case palette
     }
     
-    var colorRenderMode: ColorRenderMode {
+    enum ColorVariableMode: Int {
+        case automatic
+        case color
+        case draw
+    }
+    
+    enum ColorRenderingMode: Int {
+        case automatic
+        case flat
+        case gradient
+    }
+    
+    var colorRenderStyle: ColorRenderStyle {
         get {
             guard responds(to: NSSelectorFromString("renderingStyle")) else { return .automatic }
             return .init(rawValue: value(forKeySafely: "renderingStyle") as? Int ?? 0)!

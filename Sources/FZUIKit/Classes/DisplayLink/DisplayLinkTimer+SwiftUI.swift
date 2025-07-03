@@ -7,14 +7,14 @@
 
 #if os(macOS) || os(iOS) || os(tvOS)
 
-    import Combine
-    import SwiftUI
+import Combine
+import SwiftUI
 
-    public extension SwiftUI.View {
-        func onTimer(isActive: Bool = true, interval _: CGFloat, _ action: @escaping (Date) -> Void) -> some View {
-            let publisher = (isActive == false) ? DisplayLinkTimer.publish(every: 1).eraseToAnyPublisher() : Empty<Date, Never>().eraseToAnyPublisher()
-            return SubscriptionView(content: self, publisher: publisher, action: action)
-        }
+public extension SwiftUI.View {
+    func onTimer(isActive: Bool = true, interval _: CGFloat, _ action: @escaping (Date) -> Void) -> some View {
+        let publisher = (isActive == false) ? DisplayLinkTimer.publish(every: 1).eraseToAnyPublisher() : Empty<Date, Never>().eraseToAnyPublisher()
+        return SubscriptionView(content: self, publisher: publisher, action: action)
     }
+}
 
 #endif

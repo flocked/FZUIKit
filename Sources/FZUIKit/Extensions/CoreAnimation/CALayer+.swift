@@ -17,6 +17,25 @@ import FZSwiftUtils
 #if os(macOS) || os(iOS) || os(tvOS)
     extension CALayer {
         /**
+         A Boolean value indicating whether the layer is a sublayer of the specified layer.
+         
+         The method returns `true` if the layer is either an immediate or distant sublayer of `layer`.
+         
+         - Parameter layer: The layer to test for sublayer relationship within the layer hierarchy.
+         - Returns: `true` if the layer is a sublayer, or distant sublayer, of the specified layer.
+         */
+        func isDescendant(of layer: CALayer) -> Bool {
+            var current: CALayer? = self
+            while let currentLayer = current {
+                if currentLayer === layer {
+                    return true
+                }
+                current = currentLayer.superlayer
+            }
+            return false
+        }
+        
+        /**
          The center point of the layer's frame rectangle.
 
          Setting this property updates the origin of the rectangle in the frame property appropriately.
@@ -30,8 +49,11 @@ import FZSwiftUtils
         
         /// The shadow of the layer.
         @objc open var shadow: ShadowConfiguration {
-            get { updatedShadowConfiguration() }
+            get {
+                updatedShadowConfiguration()
+            }
             set {
+                // parentView?.dynamicLayerColors[\.shadowColor] = newValue.resolvedColor()
                 shadowConfiguration = shadowConfiguration
                 shadowColor = resolvedColor(for: newValue.resolvedColor())
                 shadowOpacity = Float(newValue.opacity)
@@ -488,9 +510,51 @@ import FZSwiftUtils
             return []
         }
 
-        /// Returns the first sublayer of a specific type.
-        public func firstSublayer<V: CALayer>(type _: V.Type) -> V? {
-            sublayers?.first(where: { $0 is V }) as? V
+        /**
+         The first sublayer that matches the specificed layer type.
+
+         - Parameters:
+            - type: The type of layer to match.
+            - depth: The maximum depth. As example a value of `0` returns the first sublayer matching of the receiver's sublayers and a value of `1` returns the first sublayer matching of the receiver's sublayers or any of their sublayers. To return the first sublayer matching of all sublayers use `max`.
+         - Returns: The first sublayer that matches the layer type or `nil` if no sublayer matches.
+         */
+        public func firstSublayer<V: CALayer>(type _: V.Type, depth: Int = 0) -> V? {
+            firstSublayer(where: { $0 is V }, depth: depth) as? V
+        }
+        
+        /**
+         The first sublayer that matches the specificed layer type.
+
+         - Parameters:
+            - type: The type of layer to match.
+            - depth: The maximum depth. As example a value of `0` returns the first sublayer matching of the receiver's sublayers and a value of `1` returns the first sublayer matching of the receiver's sublayers or any of their sublayers. To return the first sublayer matching of all sublayers use `max`.
+         - Returns: The first sublayer that matches the layer type or `nil` if no sublayer matches.
+         */
+        public func firstSublayer(type: String, depth: Int = 0) -> CALayer? {
+            firstSublayer(where: { NSStringFromClass(Swift.type(of: $0)) == type }, depth: depth)
+        }
+        
+        /**
+         The first sublayer that matches the specificed predicate.
+         
+         - Parameters:
+            - predicate: TThe closure to match.
+            - depth: The maximum depth. As example a value of `0` returns the first sublayer matching of the receiver's sublayers and a value of `1` returns the first sublayer matching of the receiver's sublayers or any of their sublayers. To return the first sublayer matching of all sublayers use `max`.
+
+         - Returns: The first sublayer that is matching the predicate or `nil` if no sublayer is matching.
+         */
+        @objc open func firstSublayer(where predicate: (CALayer) -> (Bool), depth: Int = 0) -> CALayer? {
+            if let sublayer = (sublayers ?? []).first(where: predicate) {
+                return sublayer
+            }
+            if depth > 0 {
+                for sublayer in sublayers ?? [] {
+                    if let sublayer = sublayer.firstSublayer(where: predicate, depth: depth - 1) {
+                        return sublayer
+                    }
+                }
+            }
+            return nil
         }
 
         /**
@@ -516,6 +580,17 @@ import FZSwiftUtils
           */
         public func sublayers<V: CALayer>(type _: V.Type, depth: Int = 0) -> [V] {
             sublayers(depth: depth).compactMap { $0 as? V }
+        }
+        
+        /**
+         An array of all sublayers matching the specified layer type.
+
+          - Parameters:
+             - type: The type of sublayers.
+             - depth: The maximum depth. As example a value of `0` returns the sublayers of the current layer and a value of `1` returns the sublayers of the current layer and all of their sublayers. To return all sublayers use `max`.
+          */
+        public func sublayers(type: String, depth: Int = 0) -> [CALayer] {
+            sublayers(where: { NSStringFromClass(Swift.type(of: $0)) == type }, depth: depth)
         }
 
         /**

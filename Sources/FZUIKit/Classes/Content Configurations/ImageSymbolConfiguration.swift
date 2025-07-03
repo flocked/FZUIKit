@@ -135,7 +135,7 @@ public struct ImageSymbolConfiguration: Hashable {
                 font = .size(pointSize, weight: configuration.weight)
             }
         }
-        if let mode = ImageSymbolConfiguration.ColorConfiguration.Mode(rawValue: configuration.colorRenderMode.rawValue) {
+        if let mode = ImageSymbolConfiguration.ColorConfiguration.Mode(rawValue: configuration.colorRenderStyle.rawValue) {
             color = .init(mode)
         }
         if configuration.prefersMulticolor {

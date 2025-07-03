@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// Text line.
+/// A representation of a text line.
 public struct TextLine {
     /// The frame of the text line.
     public let frame: CGRect

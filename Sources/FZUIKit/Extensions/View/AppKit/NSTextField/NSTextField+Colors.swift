@@ -11,7 +11,15 @@ import FZSwiftUtils
 
 extension NSTextField {
     /// The color for selected text.
-    @objc public var selectionColor: NSColor? {
+    public var selectionColor: NSColor? {
+        get { _electionColor }
+        set {
+            NSView.swizzleAnimationForKey()
+            _electionColor = newValue
+        }
+    }
+    
+    @objc var _electionColor: NSColor? {
         get { getAssociatedValue("selectionColor") }
         set {
             guard newValue != selectionColor else { return }
@@ -28,7 +36,15 @@ extension NSTextField {
     }
     
     /// The text color for selected text.
-    @objc public var selectionTextColor: NSColor? {
+    public var selectionTextColor: NSColor? {
+        get { _selectionTextColor }
+        set {
+            NSView.swizzleAnimationForKey()
+            _selectionTextColor = newValue
+        }
+    }
+    
+    @objc var _selectionTextColor: NSColor? {
         get { getAssociatedValue("selectionTextColor") }
         set {
             guard newValue != selectionTextColor else { return }
@@ -45,7 +61,15 @@ extension NSTextField {
     }
     
     /// The text color of the placeholder text.
-    @objc public var placeholderTextColor: NSColor? {
+    public var placeholderTextColor: NSColor? {
+        get { _placeholderTextColor }
+        set {
+            NSView.swizzleAnimationForKey()
+            _placeholderTextColor = newValue
+        }
+    }
+    
+    @objc var _placeholderTextColor: NSColor? {
         get { getAssociatedValue("placeholderTextColor") }
         set {
             guard newValue != placeholderTextColor else { return }
@@ -67,6 +91,7 @@ extension NSTextField {
             }
         }
     }
+    
     
     /// Sets the text color of the placeholder text.
     @discardableResult

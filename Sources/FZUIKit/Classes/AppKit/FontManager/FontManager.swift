@@ -104,7 +104,7 @@ public class FontManager: NSObject {
      
      ``selectedFont`` reflects the font of the target. If the target changes it's font, ``selectedFont`` is updated, and viceversa.
      
-     The target has to be either `NSTextView`, `NSTextField` or any `NSControl`.
+     The target has to be either [NSTextView](https://developer.apple.com/documentation/appkit/NSTextView), [NSTextField](https://developer.apple.com/documentation/appkit/NSTextField) or any [NSControl](https://developer.apple.com/documentation/appkit/NSControl).
      */
     public var target: AnyObject? {
         didSet {

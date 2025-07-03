@@ -521,14 +521,14 @@ extension NSWindow {
      
      The value can be animated via `animator()`.
      */
-    @objc open var centerPoint: CGPoint {
+    public var centerPoint: CGPoint {
         get { frameAnimatable.center }
         set { frameAnimatable.center = newValue }
     }
     
     /// Sets the center point of the window's frame rectangle.
     @discardableResult
-    @objc open func centerPoint(_ centerPoint: CGPoint) -> Self {
+    public func centerPoint(_ centerPoint: CGPoint) -> Self {
         self.centerPoint = centerPoint
         return self
     }
@@ -538,12 +538,17 @@ extension NSWindow {
      
      The value can be animated via `animator()`.
      */
-    @objc public var frameAnimatable: CGRect {
+    public var frameAnimatable: CGRect {
         get { frame }
         set {
             NSWindow.swizzleAnimationForKey()
-            setFrame(newValue, display: false)
+            _frameAnimatable = newValue
         }
+    }
+    
+    @objc var _frameAnimatable: CGRect {
+        get { frame }
+        set { setFrame(newValue, display: false) }
     }
     
     /// Resizes the window to match it's screen aspect ratio and dimensions.
@@ -683,15 +688,12 @@ extension NSWindow {
      A Boolean value that indicates whether the sidebar is visible.
      
      If the window's content view controller isn't a split view controlller with a sidebar item, it returns `false`.
+     
+     Changing the property is animatable by using `window.animator().isSidebarVisible`.
      */
-    @objc open var isSidebarVisible: Bool {
+    public var isSidebarVisible: Bool {
         get { (contentViewController as? NSSplitViewController)?.isSidebarVisible ?? false }
-        set {
-            Self.swizzleAnimationForKey()
-            (contentViewController as? NSSplitViewController)?.isAnimatingItem = Self.isAnimatingSplitViewItem
-            Self.isAnimatingSplitViewItem = false
-            (contentViewController as? NSSplitViewController)?.isSidebarVisible = newValue
-        }
+        set { (contentViewController as? NSSplitViewController)?.animator(isProxy()).isSidebarVisible = newValue }
     }
     
     /**
@@ -699,26 +701,15 @@ extension NSWindow {
      
      If the window's content view controller isn't a split view controlller with a inspector item, it returns `false`.
 
-     Changing the property is animatable by using `animator().isInspectorVisible`.
+     Changing the property is animatable by using `window.animator().isInspectorVisible`.
      */
     @available(macOS 11.0, *)
-    @objc open var isInspectorVisible: Bool {
+    public var isInspectorVisible: Bool {
         get { (contentViewController as? NSSplitViewController)?.isInspectorVisible ?? false }
-        set {
-            Self.swizzleAnimationForKey()
-            (contentViewController as? NSSplitViewController)?.isAnimatingItem = Self.isAnimatingSplitViewItem
-            Self.isAnimatingSplitViewItem = false
-            (contentViewController as? NSSplitViewController)?.isInspectorVisible = newValue
-        }
-    }
-    
-    static var isAnimatingSplitViewItem: Bool {
-        get { getAssociatedValue("isAnimatingSplitViewItem") ?? false }
-        set { setAssociatedValue(newValue, key: "isAnimatingSplitViewItem")}
+        set { (contentViewController as? NSSplitViewController)?.animator(isProxy()).isInspectorVisible = newValue }
     }
     
     @objc class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        isAnimatingSplitViewItem = key == "isSidebarVisible" || key == "isInspectorVisible"
         if let animation = swizzledDefaultAnimation(forKey: key) {
             if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.springAnimation {
                 return springAnimation
@@ -938,5 +929,5 @@ extension NSWindow {
     }
 }
 
-private let NSWindowAnimationKeys = ["frameAnimatable", "centerPoint"]
+private let NSWindowAnimationKeys = ["_frameAnimatable"]
 #endif

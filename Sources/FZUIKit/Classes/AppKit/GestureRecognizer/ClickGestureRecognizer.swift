@@ -10,8 +10,8 @@ import AppKit
 
 /**
  A discrete gesture recognizer that tracks a specified number of mouse clicks.
- 
- Compared to `NSClickGestureRecognizer` this gesture recognizer always forwards mouse clicks to it's view.
+  
+ Compared to [NSClickGestureRecognizer](https://developer.apple.com/documentation/appkit/NSClickGestureRecognizer) this gesture recognizer always forwards mouse clicks to it's view.
  */
 open class ClickGestureRecognizer: NSGestureRecognizer {
     /// The number of clicks required to match.

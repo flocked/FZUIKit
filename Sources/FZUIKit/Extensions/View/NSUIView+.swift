@@ -237,6 +237,17 @@ import FZSwiftUtils
         public func subviews<V: NSUIView>(type _: V.Type, depth: Int = 0) -> [V] {
             subviews(depth: depth).compactMap { $0 as? V }
         }
+        
+        /**
+         An array of all subviews matching the specified view type.
+
+          - Parameters:
+             - type: The type of subviews.
+             - depth: The maximum depth. As example a value of `0` returns the subviews of receiver and a value of `1` returns the subviews of the receiver and all their subviews. To return all subviews use `max`.
+          */
+        @objc open func subviews(type: String, depth: Int = 0) -> [NSUIView] {
+            subviews(where: { NSStringFromClass(Swift.type(of: $0)) == type }, depth: depth)
+        }
 
         /**
          An array of all subviews matching the specified predicte.
@@ -262,13 +273,25 @@ import FZSwiftUtils
         }
         
         /**
-         The first superview that matches the specificed predicate.
+         The first subview that matches the specificed view type.
+
+         - Parameters:
+            - type: The type of view to match.
+            - depth: The maximum depth. As example a value of `0` returns the first subview matching of the receiver's subviews and a value of `1` returns the first subview matching of the receiver's subviews or any of their subviews. To return the first subview matching of all subviews use `max`.
+         - Returns: The first subview that matches the view type or `nil` if no subview matches.
+         */
+        @objc open func firstSubview(type: String, depth: Int = 0) -> NSUIView? {
+            firstSubview(where: { NSStringFromClass(Swift.type(of: $0)) == type }, depth: depth)
+        }
+        
+        /**
+         The first subview that matches the specificed predicate.
          
          - Parameters:
             - predicate: TThe closure to match.
             - depth: The maximum depth. As example a value of `0` returns the first subview matching of the receiver's subviews and a value of `1` returns the first subview matching of the receiver's subviews or any of their subviews. To return the first subview matching of all subviews use `max`.
 
-         - Returns: The first parent view that is matching the predicate or `nil` if none match or there isn't a matching parent.
+         - Returns: The first subview that is matching the predicate or `nil` if no subview is matching.
          */
         @objc open func firstSubview(where predicate: (NSUIView) -> (Bool), depth: Int = 0) -> NSUIView? {
             if let subview = subviews.first(where: predicate) {

@@ -273,11 +273,12 @@ open class ToolbarItem: NSObject {
         
     }
     
+    
     /// A Boolean value that indicates whether the item is hidden.
     @available(macOS 15.0, *)
     open var isHidden: Bool {
-        get { item.isHidden }
-        set { item.isHidden = newValue }
+        get { item._isHidden }
+        set { item._isHidden = newValue }
     }
     
     /// Sets the Boolean value that indicates whether the item is hidden.
@@ -447,6 +448,21 @@ class ValidateToolbarItem<Item: ToolbarItem>: NSToolbarItem {
         guard let item = item else { return }
         item.validate()
         item.validateHandler?(item)
+    }
+}
+
+extension NSToolbarItem {
+    var _isHidden: Bool {
+        get { value(forKey: "isHidden") ?? false }
+        set {
+            guard newValue != _isHidden else { return }
+            let selector = NSSelectorFromString("setHidden:")
+            guard let meth = class_getInstanceMethod(object_getClass(self), selector) else { return }
+            let imp = method_getImplementation(meth)
+            typealias ClosureType = @convention(c) (NSToolbarItem, Selector, Bool) -> Void
+            let method: ClosureType = unsafeBitCast(imp, to: ClosureType.self)
+            method(self, selector, newValue)
+        }
     }
 }
 

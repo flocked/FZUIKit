@@ -19,24 +19,6 @@
         }
         
         /**
-         The frame rectangle, which describes the view’s location and size in its window’s coordinate system.
-
-         This rectangle defines the size and position of the view in its window’s coordinate system. If the view isn't installed in a window, it will return zero.
-         */
-        @objc public var frameInWindow: CGRect {
-            convert(bounds, to: nil)
-        }
-
-        /**
-         The frame rectangle, which describes the view’s location and size in its screen’s coordinate system.
-
-         This rectangle defines the size and position of the view in its screen’s coordinate system.
-         */
-        public var frameOnScreen: CGRect? {
-            window?.convertToScreen(frameInWindow)
-        }
-        
-        /**
          The coordinate of the baseline for the topmost line of text in the view.
          
          For views with multiple lines of text, this represents the baseline of the top row of text.
@@ -100,10 +82,17 @@
 
          The default value is `nil`, which results in a view with no mask.
          */
-        @objc public var mask: NSView? {
-            get { (layer?.mask as? InverseMaskLayer)?.maskLayer?.parentView ?? layer?.mask?.parentView }
+        public var mask: NSView? {
+            get { _mask }
             set {
                 NSView.swizzleAnimationForKey()
+                _mask = newValue
+            }
+        }
+        
+        @objc var _mask: NSView? {
+            get { (layer?.mask as? InverseMaskLayer)?.maskLayer?.parentView ?? layer?.mask?.parentView }
+            set {
                 newValue?.removeFromSuperview()
                 optionalLayer?.mask = newValue?.optionalLayer
             }
@@ -128,9 +117,16 @@
          The default value is `nil`, which results in a view with no inverse mask.
          */
         @objc public var inverseMask: NSView? {
-            get { mask }
+            get { _inverseMask }
             set {
                 NSView.swizzleAnimationForKey()
+                _inverseMask = newValue
+            }
+        }
+        
+        @objc var _inverseMask: NSView? {
+            get { mask }
+            set {
                 newValue?.removeFromSuperview()
                 optionalLayer?.mask = newValue?.optionalLayer?.inverseMask
             }
@@ -162,11 +158,16 @@
          Changes to this property can be animated via `animator().center`.
          */
         public var center: CGPoint {
-            get { frame.center }
+            get { _center }
             set {
                 NSView.swizzleAnimationForKey()
-                frame.center = newValue
+                _center = newValue
             }
+        }
+        
+        @objc var _center: CGPoint {
+            get { frame.center }
+            set { frame.center = newValue }
         }
         
         /**
@@ -176,12 +177,17 @@
          
          Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
          */
-        @objc public var zPosition: CGFloat {
-            get { layer?.zPosition ?? 0.0 }
+        public var zPosition: CGFloat {
+            get { _zPosition }
             set {
                 NSView.swizzleAnimationForKey()
-                optionalLayer?.zPosition = newValue.clamped(to: -CGFloat(Int.max)...CGFloat(Int.max))
+                _zPosition = newValue
             }
+        }
+        
+        @objc var _zPosition: CGFloat {
+            get { layer?.zPosition ?? 0.0 }
+            set { optionalLayer?.zPosition = newValue.clamped(to: -CGFloat(Int.max)...CGFloat(Int.max)) }
         }
 
         /**
@@ -193,12 +199,17 @@
 
          The default value is `CGAffineTransformIdentity`, which results in a view with no transformation.
          */
-        @objc public var transform: CGAffineTransform {
-            get { layer?.affineTransform() ?? CGAffineTransformIdentity }
+        public var transform: CGAffineTransform {
+            get { _transform }
             set {
                 NSView.swizzleAnimationForKey()
-                optionalLayer?.setAffineTransform(newValue)
+                _transform = newValue
             }
+        }
+        
+        @objc var _transform: CGAffineTransform {
+            get { layer?.affineTransform() ?? CGAffineTransformIdentity }
+            set { optionalLayer?.setAffineTransform(newValue) }
         }
 
         /**
@@ -208,12 +219,17 @@
 
          The default value is `CATransform3DIdentity`, which results in a view with no transformation.
          */
-        @objc public var transform3D: CATransform3D {
-            get { layer?.transform ?? CATransform3DIdentity }
+        public var transform3D: CATransform3D {
+            get { _transform3D }
             set {
                 NSView.swizzleAnimationForKey()
-                optionalLayer?.transform = newValue
+                _transform3D = newValue
             }
+        }
+        
+        @objc var _transform3D: CATransform3D {
+            get { layer?.transform ?? CATransform3DIdentity }
+            set { optionalLayer?.transform = newValue }
         }
 
         /**
@@ -300,15 +316,20 @@
 
          The default value is `zero`.
          */
-        @objc public var anchorPoint: FractionalPoint {
+        public var anchorPoint: FractionalPoint {
+            get { _anchorPoint }
+            set {
+                NSView.swizzleAnimationForKey()
+                _anchorPoint = newValue
+            }
+        }
+        
+        @objc var _anchorPoint: FractionalPoint {
             get {
                 let anchorPoint = layer?.anchorPoint ?? .zero
                 return FractionalPoint(anchorPoint.x, anchorPoint.y)
             }
-            set {
-                NSView.swizzleAnimationForKey()
-                setAnchorPoint(CGPoint(newValue.x, newValue.y))
-            }
+            set { setAnchorPoint(CGPoint(newValue.x, newValue.y)) }
         }
 
         /**
@@ -320,11 +341,18 @@
          
          Setting the corner radius to value other than `0.0`, sets the ``cornerShape`` to `normal`.
          */
-        @objc public var cornerRadius: CGFloat {
+        public var cornerRadius: CGFloat {
+            get { __cornerRadius }
+            set {
+                NSView.swizzleAnimationForKey()
+                __cornerRadius = newValue
+            }
+        }
+        
+        @objc var __cornerRadius: CGFloat {
             get { layer?.cornerRadius ?? 0.0 }
             set {
                 let clipsToBounds = clipsToBounds
-                NSView.swizzleAnimationForKey()
                 optionalLayer?.cornerRadius = newValue
                 if newValue != 0.0 {
                     // cornerShape = .normal
@@ -339,12 +367,17 @@
 
          Using this property turns the view into a layer-backed view. The value can be animated via `animator().cornerCurve`.
          */
-        @objc public var cornerCurve: CALayerCornerCurve {
-            get { layer?.cornerCurve ?? .circular }
+        public var cornerCurve: CALayerCornerCurve {
+            get { _cornerCurve }
             set {
                 NSView.swizzleAnimationForKey()
-                optionalLayer?.cornerCurve = newValue
+                _cornerCurve = newValue
             }
+        }
+        
+        @objc var _cornerCurve: CALayerCornerCurve {
+            get { layer?.cornerCurve ?? .circular }
+            set { optionalLayer?.cornerCurve = newValue }
         }
 
         /**
@@ -499,14 +532,8 @@
             get { dynamicColors.shadow ?? layer?.shadowColor?.nsUIColor }
             set {
                 realSelf.dynamicColors.shadow = newValue
-                var animatableColor = newValue?.resolvedColor(for: self)
-                if animatableColor == nil, isProxy() {
-                    animatableColor = .clear
-                }
-                if optionalLayer?.shadowColor?.isVisible == false || optionalLayer?.shadowColor == nil {
-                    optionalLayer?.shadowColor = animatableColor?.withAlphaComponent(0.0).cgColor ?? .clear
-                }
-                optionalLayer?.shadowColor = animatableColor?.cgColor
+                let newValue = updatedColor(newValue, optionalLayer, \.shadowColor)
+                optionalLayer?.shadowColor = newValue?.cgColor
             }
         }
 
@@ -532,12 +559,17 @@
          
          The default value is `nil`, which results in a view with no shadow path.
          */
-        @objc public var shadowPath: NSBezierPath? {
-            get { layer?.shadowPath?.bezierPath }
+        public var shadowPath: NSBezierPath? {
+            get { _shadowPath }
             set {
                 NSView.swizzleAnimationForKey()
-                optionalLayer?.shadowPath = newValue?.cgPath
+                _shadowPath = newValue
             }
+        }
+        
+        @objc var _shadowPath: NSBezierPath? {
+            get { layer?.shadowPath?.bezierPath }
+            set { optionalLayer?.shadowPath = newValue?.cgPath }
         }
         
         /// The shape of the shadow.
@@ -618,7 +650,6 @@
                     innerShadowLayer.sendToBack()
                 }
                 guard let innerShadowLayer = innerShadowLayer else { return }
-
                 var newColor: NSUIColor? = newValue.resolvedColor()?.resolvedColor(for: self)
                 if newColor == nil, isProxy() {
                     newColor = .clear
@@ -636,7 +667,10 @@
 
         @objc var innerShadowColor: NSColor? {
             get { innerShadowLayer?.shadowColor?.nsUIColor }
-            set { innerShadowLayer?.shadowColor = newValue?.cgColor }
+            set {
+                let newValue = updatedColor(newValue, innerShadowLayer, \.shadowColor)
+                innerShadowLayer?.shadowColor = newValue?.cgColor
+            }
         }
 
         @objc var innerShadowOpacity: CGFloat {
@@ -887,13 +921,33 @@
         }
         
         /// The view’s frame rectangle, which defines its position and size in its screen’s coordinate system.
-        public var screenFrame: CGRect {
+        public var frameOnScreen: CGRect {
+            get { _frameOnScreen }
+            set {
+                NSView.swizzleAnimationForKey()
+                _frameOnScreen = newValue
+            }
+        }
+        
+        @objc var _frameOnScreen: CGRect {
             get { convertToScreen(frame) }
             set { frame = convertFromScreen(newValue) }
         }
         
-        /// The view’s frame rectangle, which defines its position and size in its window’s coordinate system.
-        public var windowFrame: CGRect {
+        /**
+         The view’s frame rectangle, which defines its position and size in its window’s coordinate system.
+         
+         If the view isn't added to a window, it returns `zero`.
+         */
+        public var frameInWindow: CGRect {
+            get { _frameInWindow }
+            set {
+                NSView.swizzleAnimationForKey()
+                _frameInWindow = newValue
+            }
+        }
+        
+        @objc var _frameInWindow: CGRect {
             get { convertToWindow(frame) }
             set { frame = convertFromWindow(newValue) }
         }
@@ -989,6 +1043,18 @@
             return nil
         }
          */
+        
+        func updatedColor<Layer: CALayer>(_ color: NSColor?, _ layer: Layer?, _ keyPath: ReferenceWritableKeyPath<Layer, CGColor?>) -> NSColor? {
+            var color = color?.resolvedColor(for: self)
+            let layerColor = layer?[keyPath: keyPath]
+            if layerColor?.isVisible == false || layerColor == nil {
+                layer?[keyPath: keyPath] = color?.withAlphaComponent(0.0).cgColor
+            }
+            if color == nil, isProxy() {
+                return .clear
+            }
+            return color
+        }
     }
 
     public extension NSView.AutoresizingMask {
@@ -1021,6 +1087,6 @@
     }
 
 /// The `NSView` properties keys that can be animated.
-fileprivate let NSViewAnimationKeys = ["transform", "transform3D", "anchorPoint", "cornerRadius", "roundedCorners", "_borderWidth", "_borderColor", "borderWidth", "borderColor", "mask", "inverseMask", "backgroundColorAnimatable", "center", "windowFrame", "screenFrame", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "shadowPath", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "fontSize", "gradientStartPoint", "gradientEndPoint", "gradientLocations", "gradientColors", "contentOffset", "contentOffsetFractional", "documentSize", "zPosition", "textColor", "selectionColor", "selectionTextColor", "placeholderTextColor"]
+fileprivate let NSViewAnimationKeys: Set<String> = ["_anchorPoint", "_borderColor", "_borderWidth", "_center", "_contentOffset", "_contentOffsetFractional", "_cornerRadius", "_documentSize",  "_fontSize", "_inverseMask", "_mask", "_placeholderTextColor", "_roundedCorners", "_screenFrame", "_selectionColor", "_selectionTextColor", "_shadowPath", "_transform", "_transform3D", "_windowFrame", "_zPosition", "__cornerRadius", "backgroundColor", "backgroundColorAnimatable", "bezelColor", "borderColor", "borderWidth", "contentTintColor", "cornerRadius", "fillColor", "gradientColors", "gradientEndPoint", "gradientLocations", "gradientStartPoint", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "textColor"]
 
 #endif

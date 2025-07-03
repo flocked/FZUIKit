@@ -384,7 +384,8 @@ extension NSPopover {
     }
     
     private func edge(for view: NSView, preferredEdge: NSRectEdge, spacing: CGFloat = 0.0, centered: Bool = false) -> NSRectEdge {
-        guard let contentView = contentView, let screen = view.window?.screen, let frameOnScreen = view.frameOnScreen else { return preferredEdge }
+        guard let contentView = contentView, let screen = view.window?.screen else { return preferredEdge }
+        let frameOnScreen = view.frameOnScreen
         var edgeFrames: [NSRectEdge: CGRect] = [:]
         edgeFrames[.minX] = CGRect(CGPoint(x: frameOnScreen.x - contentView.frame.width - spacing,
                                            y: frameOnScreen.y + (view.frame.height / 2.0) - (contentView.frame.height / 2.0)), contentView.frame.size)

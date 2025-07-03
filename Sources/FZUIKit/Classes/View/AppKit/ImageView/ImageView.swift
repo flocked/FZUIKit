@@ -1187,14 +1187,14 @@ open class ImageView: NSControl {
             }
         }
         
-        public override var cornerRadius: CGFloat {
+        override var __cornerRadius: CGFloat {
             didSet {
                 containerView.cornerRadius = cornerRadius
                 clipsToBounds = false
             }
         }
         
-        public override var cornerCurve: CALayerCornerCurve {
+        override var _cornerCurve: CALayerCornerCurve {
             didSet { containerView.cornerCurve = cornerCurve }
         }
         

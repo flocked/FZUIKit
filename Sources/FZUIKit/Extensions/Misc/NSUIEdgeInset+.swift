@@ -115,6 +115,29 @@ extension NSUIEdgeInsets: Codable {
                      right: try values.decode(CGFloat.self, forKey: .right))
     }
 }
+
+
+extension NSUIEdgeInsets {
+    /// Clamps the insets to the specified minimum value.
+    func clamped(min: NSUIEdgeInsets) -> NSUIEdgeInsets {
+        NSUIEdgeInsets(top: top.clamped(min: min.top), left: left.clamped(min: min.left), bottom: bottom.clamped(min: min.bottom), right: right.clamped(min: min.right))
+    }
+    
+    /// Clamps the insets to the specified maximum value.
+    func clamped(max: NSUIEdgeInsets) -> NSUIEdgeInsets {
+        NSUIEdgeInsets(top: top.clamped(max: max.top), left: left.clamped(max: max.left), bottom: bottom.clamped(max: max.bottom), right: right.clamped(max: max.right))
+    }
+    
+    /// Clamps the insets to the specified minimum value.
+    mutating func clamp(min: NSUIEdgeInsets) {
+        self = clamped(min: min)
+    }
+    
+    /// Clamps the insets to the specified maximum value.
+    mutating func clamp(max: NSUIEdgeInsets) {
+        self = clamped(max: max)
+    }
+}
 #endif
 
 public extension NSDirectionalEdgeInsets {
@@ -178,6 +201,26 @@ public extension NSDirectionalEdgeInsets {
             .init(top: top, left: leading, bottom: bottom, right: trailing)
         }
     #endif
+    
+    /// Clamps the insets to the specified minimum value.
+    func clamped(min: NSDirectionalEdgeInsets) -> NSDirectionalEdgeInsets {
+        NSDirectionalEdgeInsets(top: top.clamped(min: min.top), leading: leading.clamped(min: min.leading), bottom: bottom.clamped(min: min.bottom), trailing: trailing.clamped(min: min.trailing))
+    }
+    
+    /// Clamps the insets to the specified maximum value.
+    func clamped(max: NSDirectionalEdgeInsets) -> NSDirectionalEdgeInsets {
+        NSDirectionalEdgeInsets(top: top.clamped(max: max.top), leading: leading.clamped(max: max.leading), bottom: bottom.clamped(max: max.bottom), trailing: trailing.clamped(max: max.trailing))
+    }
+    
+    /// Clamps the insets to the specified minimum value.
+    mutating func clamp(min: NSDirectionalEdgeInsets) {
+        self = clamped(min: min)
+    }
+    
+    /// Clamps the insets to the specified maximum value.
+    mutating func clamp(max: NSDirectionalEdgeInsets) {
+        self = clamped(max: max)
+    }
 }
 
 extension NSDirectionalEdgeInsets: Hashable {
@@ -301,6 +344,26 @@ extension EdgeInsets: Hashable {
         hasher.combine(bottom)
         hasher.combine(leading)
         hasher.combine(trailing)
+    }
+    
+    /// Clamps the insets to the specified minimum value.
+    func clamped(min: EdgeInsets) -> EdgeInsets {
+        EdgeInsets(top: top.clamped(min: min.top), leading: leading.clamped(min: min.leading), bottom: bottom.clamped(min: min.bottom), trailing: trailing.clamped(min: min.trailing))
+    }
+    
+    /// Clamps the insets to the specified maximum value.
+    func clamped(max: EdgeInsets) -> EdgeInsets {
+        EdgeInsets(top: top.clamped(max: max.top), leading: leading.clamped(max: max.leading), bottom: bottom.clamped(max: max.bottom), trailing: trailing.clamped(max: max.trailing))
+    }
+    
+    /// Clamps the insets to the specified minimum value.
+    mutating func clamp(min: EdgeInsets) {
+        self = clamped(min: min)
+    }
+    
+    /// Clamps the insets to the specified maximum value.
+    mutating func clamp(max: EdgeInsets) {
+        self = clamped(max: max)
     }
 }
 

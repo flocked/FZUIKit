@@ -99,10 +99,36 @@ import FZSwiftUtils
             return scrollView
         }
         
+        /// The maximum number of lines that the text view can display.
+        public var maximumNumberOfLines: Int {
+            get { textContainer?.maximumNumberOfLines ?? 0 }
+            set { textContainer?.maximumNumberOfLines = newValue }
+        }
+        
+        /// Sets the maximum number of lines that the text view can display.
+        @discardableResult
+        public func maximumNumberOfLines(_ maximumNumberOfLines: Int) -> Self {
+            self.maximumNumberOfLines = maximumNumberOfLines
+            return self
+        }
+        
+        /// The behavior of the last line inside the text view.
+        public var lineBreakMode: NSLineBreakMode {
+            get { textContainer?.lineBreakMode ?? .byWordWrapping }
+            set { textContainer?.lineBreakMode = newValue }
+        }
+        
+        /// Sets the behavior of the last line inside the text view.
+        @discardableResult
+        public func lineBreakMode(_ lineBreakMode: NSLineBreakMode) -> Self {
+            self.lineBreakMode = lineBreakMode
+            return self
+        }
+        
         /// The minimum numbers of characters needed when the user edits the string value.
         public var minimumNumberOfCharacters: Int? {
             get { getAssociatedValue("minimumNumberOfCharacters") }
-            set { 
+            set {
                 guard newValue != minimumNumberOfCharacters else { return }
                 setAssociatedValue(newValue, key: "minimumNumberOfCharacters")
                 setupTextViewDelegate()

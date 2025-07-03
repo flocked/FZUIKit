@@ -39,8 +39,6 @@
          The text view needs to have a layout manager, text container and text storage, or else an empty array is returned.
          */
         var textLines: [TextLine] {
-            
-            
             getTextLines()
         }
         
@@ -144,12 +142,18 @@
 
              The value can be animated via `animator()`.
              */
-            @objc var fontSize: CGFloat {
-                get { font?.pointSize ?? 0.0 }
-                set { NSView.swizzleAnimationForKey()
-                    font = font?.withSize(newValue)
+            var fontSize: CGFloat {
+                get { _fontSize }
+                set {
+                    NSView.swizzleAnimationForKey()
+                    _fontSize = newValue
                 }
             }
+        
+        internal var _fontSize: CGFloat {
+            get { font?.pointSize ?? 0.0 }
+            set { font = font?.withSize(newValue) }
+        }
 
         #elseif canImport(UIKit)
             /// The font size of the text.

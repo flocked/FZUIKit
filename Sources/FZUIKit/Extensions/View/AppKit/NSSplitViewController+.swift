@@ -18,19 +18,14 @@ extension NSSplitViewController {
      
      Changing the property is animatable by using `animator().isSidebarVisible`.
      */
-    @objc public dynamic var isSidebarVisible: Bool {
+    public var isSidebarVisible: Bool {
         get {
             guard let item = splitViewItems.first(where: { $0.behavior == .sidebar }) else { return false }
             return !item.isCollapsed
         }
         set {
             guard let item = splitViewItems.first(where: { $0.behavior == .sidebar }), newValue != !item.isCollapsed else { return }
-            if isAnimatingItem {
-                isAnimatingItem = false
-                toggleSidebar(nil)
-            } else {
-                item.isCollapsed = !newValue
-            }
+            item.animator(isProxy()).isCollapsed = !newValue
         }
     }
     
@@ -42,43 +37,21 @@ extension NSSplitViewController {
      Changing the property is animatable by using `animator().isInspectorVisible`.
      */
     @available(macOS 11.0, *)
-    @objc public dynamic var isInspectorVisible: Bool {
+    public var isInspectorVisible: Bool {
         get {
-            guard let item = splitViewItems.first(where: { $0.behavior == .inspector }) else { return false }
+            guard let item = splitViewItems.last(where: { $0.behavior == .inspector }) else { return false }
             return !item.isCollapsed
         }
         set {
             guard let item = splitViewItems.first(where: { $0.behavior == .inspector }), newValue != !item.isCollapsed else { return }
-            if isAnimatingItem {
-                isAnimatingItem = false
-                if #available(macOS 14.0, *) {
-                    toggleInspector(nil)
-                } else {
-                    item.animator().isCollapsed = !newValue
-                }
-            } else {
-                item.isCollapsed = !newValue
-            }
+            item.animator(isProxy()).isCollapsed = !newValue
         }
-    }
-    
-    var isAnimatingItem: Bool {
-        get { getAssociatedValue("isAnimatingItem") ?? false }
-        set { setAssociatedValue(newValue, key: "isAnimatingItem") }
     }
 }
 
 extension NSSplitViewController: NSAnimatablePropertyContainer {
     public func animator() -> Self {
-        return _objectProxy { [weak self] invocation in
-            guard let invocation = invocation else { return }
-            if #available(macOS 11.0, *) {
-                self?.isAnimatingItem = invocation.selector == #selector(setter: NSSplitViewController.isSidebarVisible) || invocation.selector == #selector(setter: NSSplitViewController.isInspectorVisible)
-            } else {
-                self?.isAnimatingItem = invocation.selector == #selector(setter: NSSplitViewController.isSidebarVisible)
-            }
-            invocation.invoke()
-        }
+        _objectProxy()
     }
     
     public var animations: [NSAnimatablePropertyKey : Any] {

@@ -13,18 +13,12 @@ import FZSwiftUtils
 public extension NSSegmentedControl {
     /// Selects all segments.
     func selectAll() {
-        let count = segmentCount - 1
-        for index in 0 ... count {
-            setSelected(true, forSegment: index)
-        }
+        (0..<segmentCount).forEach({ setSelected(true, forSegment: $0) })
     }
     
     /// Deselects all segments.
     func deselectAll() {
-        let count = segmentCount - 1
-        for index in 0 ... count {
-            setSelected(false, forSegment: index)
-        }
+        (0..<segmentCount).forEach({ setSelected(false, forSegment: $0) })
     }
     
     /// Sets the type of tracking behavior the control exhibits.
@@ -112,34 +106,67 @@ public extension NSSegmentedControl {
         segmentViews[safe: segment]?.frame
     }
     
+    /// Returns the index of the segment at the specified location.
     func indexOfSegment(at location: CGPoint) -> Int? {
         segmentViews.firstIndex(where: { $0.frame.contains(location) })
     }
     
-    internal var segmentViews: [NSView] {
-        subviews.filter({ NSStringFromClass(type(of: $0)) == "NSSegmentItemView" })
-    }
-    
-    /// A Boolean value indicating whether to select a segment exclusively on right click.
-    var selectsExclusivelyOnRightClick: Bool {
-        get { isMethodHooked(#selector(NSView.rightMouseDown(with:))) }
-        set {
-            guard newValue != selectsExclusivelyOnRightClick else { return }
-            do {
-                try hook(#selector(NSView.rightMouseDown(with:)), closure: { original, object, sel, event in
-                    if let view = object as? NSSegmentedControl, view.trackingMode == .selectAny, let index = view.indexOfSegment(at: event.location(in: view)) {
-                        (0..<view.segmentCount).forEach({ view.setSelected(index == $0, forSegment: $0) })
-                        view.performAction()
-                    } else {
-                        original(object, sel, event)
-                    }
-                } as @convention(block) (
-                    (AnyObject, Selector, NSEvent) -> Void,
-                    AnyObject, Selector, NSEvent) -> Void)
-            } catch {
-                debugPrint(error)
+    /**
+     Sets the selection state of the specified segment.
+     
+     - Parameters:
+        - select: `true` if you want to select the segment; otherwise, `false`.
+        - segment: The index of the segment whose selection state you want to set.
+        - exclusive: If `true`, all other segments will be deselected/selected.
+     */
+    func setSelected(_ selected: Bool, forSegment segment: Int, exclusive: Bool) {
+        guard segment >= 0 && segment < segmentCount else { return }
+        for index in 0..<segmentCount {
+            if index == segment {
+                setSelected(selected, forSegment: index)
+            } else if exclusive {
+                setSelected(!selected, forSegment: index)
             }
         }
+    }
+    /**
+     A Boolean value indicating whether to select a segment exclusively on right click.
+     
+     If set to `true`, right clicking a segment deselects all other segments. The default value is `false`.
+     */
+    var selectsExclusivelyOnRightClick: Bool {
+        get { selectsExclusivelyOnRightClickHook != nil }
+        set {
+            guard newValue != selectsExclusivelyOnRightClick else { return }
+            if selectsExclusivelyOnRightClick {
+                do {
+                    selectsExclusivelyOnRightClickHook = try hook(#selector(NSView.rightMouseDown(with:)), closure: { original, object, sel, event in
+                        if let view = object as? NSSegmentedControl, view.trackingMode == .selectAny, let index = view.indexOfSegment(at: event.location(in: view)) {
+                            view.setSelected(true, forSegment: index, exclusive: true)
+                            view.performAction()
+                        } else {
+                            original(object, sel, event)
+                        }
+                    } as @convention(block) (
+                        (AnyObject, Selector, NSEvent) -> Void,
+                        AnyObject, Selector, NSEvent) -> Void)
+                } catch {
+                    debugPrint(error)
+                }
+            } else {
+                selectsExclusivelyOnRightClickHook?.isActive = false
+                selectsExclusivelyOnRightClickHook = nil
+            }
+        }
+    }
+    
+    internal var segmentViews: [NSView] {
+        subviews(type: "NSSegmentItemView")
+    }
+    
+    internal var selectsExclusivelyOnRightClickHook: Hook? {
+        get { getAssociatedValue("selectsExclusivelyOnRightClickHook") }
+        set { setAssociatedValue(newValue, key: "selectsExclusivelyOnRightClickHook") }
     }
 }
 #endif
