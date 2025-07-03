@@ -14,7 +14,7 @@ open class ToolbarItem: NSObject {
     /// The identifier of the toolbar item.
     public let identifier: NSToolbarItem.Identifier
     
-    fileprivate lazy var rootItem = ValidateToolbarItem(for: self)
+    fileprivate lazy var rootItem = BasicValidateToolbarItem(for: self)
     var item: NSToolbarItem {
         rootItem
     }
@@ -339,103 +339,37 @@ public protocol ToolbarItemValidation: ToolbarItem {
     func validate()
 }
 
-extension ToolbarItem: ToolbarItemValidation { }
+extension Toolbar.Button: ToolbarItemValidation { }
+extension Toolbar.CustomItem: ToolbarItemValidation { }
+extension Toolbar.Group: ToolbarItemValidation { }
+extension Toolbar.Item: ToolbarItemValidation { }
+extension Toolbar.Menu: ToolbarItemValidation { }
+extension Toolbar.Popover: ToolbarItemValidation { }
+extension Toolbar.PopUpButton: ToolbarItemValidation { }
+@available(macOS 11.0, *)
+extension Toolbar.Search: ToolbarItemValidation { }
+extension Toolbar.SegmentedControl: ToolbarItemValidation { }
+extension Toolbar.SharingServicePicker: ToolbarItemValidation { }
+@available(macOS 11.0, *)
+extension Toolbar.TrackingSeparator: ToolbarItemValidation { }
+extension Toolbar.View: ToolbarItemValidation { }
 
-extension ToolbarItemValidation {
-    public var validateHandler: ((Self)->())? {
-        get { getAssociatedValue("validateHandler") }
-        set { setAssociatedValue(newValue, key: "validateHandler") }
+class BasicValidateToolbarItem<Item: ToolbarItem>: NSToolbarItem {
+    weak var item: Item?
+    
+    init(for item: Item) {
+        super.init(itemIdentifier: item.identifier)
+        self.item = item
     }
     
-    @discardableResult
-    public func validateHandler(_ validation: ((Self)->())?) -> Self {
-        self.validateHandler = validation
-        return self
+    override func validate() {
+        super.validate()
+        guard let item = item else { return }
+        item.validate()
     }
 }
 
-/// A toolbar item that that calls an action method when the user clicks the item.
-public protocol ToolbarItemActionProvider: ToolbarItem {
-    /// The handler that gets called when the user clicks the toolbar item.
-    var actionBlock: ((_ item: Self)->())? { get set }
-    
-    /// Sets the handler that gets called when the user clicks the toolbar item.
-    func onAction(_ action: ((_ item: Self)->())?) -> Self
-    
-    /// The action method to call when someone clicks on the toolbar item.
-    var action: Selector? { get set }
-    
-    /// Sets the action method to call when someone clicks on the toolbar item.
-    func action(_ action: Selector?) -> Self
-    
-    /// The object that defines the action method the toolbar item calls when clicked.
-    var target: AnyObject? { get set }
-    
-    /// Sets the object that defines the action method the toolbar item calls when clicked.
-    func target(_ target: AnyObject?) -> Self
-}
-
-extension ToolbarItemActionProvider {
-    public var actionBlock: ((_ item: Self)->())? {
-        get { getAssociatedValue("actionBlock") }
-        set {
-            setAssociatedValue(newValue, key: "actionBlock")
-            if let actionBlock = newValue {
-                item.actionBlock = { _ in
-                    actionBlock(self)
-                }
-            } else {
-                item.actionBlock = nil
-            }
-        }
-    }
-    
-    @discardableResult
-    public func onAction(_ action: ((_ item: Self)->())?) -> Self {
-        actionBlock = action
-        return self
-    }
-    
-    public var action: Selector? {
-        get { item.actionBlock == nil ? item.action : nil }
-        set {
-            actionBlock = nil
-            item.action = newValue
-        }
-    }
-    
-    @discardableResult
-    public func action(_ action: Selector?) -> Self {
-        self.action = action
-        return self
-    }
-    
-    public var target: AnyObject? {
-        get { item.actionBlock == nil ? item.target : nil }
-        set {
-            actionBlock = nil
-            item.target = newValue
-        }
-    }
-    
-    @discardableResult
-    public func target(_ target: AnyObject?) -> Self {
-        self.target = target
-        return self
-    }
-}
-
-extension Toolbar.Button: ToolbarItemActionProvider { }
-extension Toolbar.Group: ToolbarItemActionProvider { }
-extension Toolbar.Item: ToolbarItemActionProvider { }
-extension Toolbar.Menu: ToolbarItemActionProvider { }
-extension Toolbar.PopUpButton: ToolbarItemActionProvider { }
-extension Toolbar.Popover: ToolbarItemActionProvider { }
-extension Toolbar.SharingServicePicker: ToolbarItemActionProvider { }
-extension Toolbar.SegmentedControl: ToolbarItemActionProvider { }
-extension Toolbar.View: ToolbarItemActionProvider { }
-
-class ValidateToolbarItem<Item: ToolbarItem>: NSToolbarItem {
+class ValidateToolbarItem<Item: ToolbarItemValidation>: NSToolbarItem {
     weak var item: Item?
     
     init(for item: Item) {

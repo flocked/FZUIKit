@@ -81,6 +81,24 @@ extension Toolbar {
         }
         
         /**
+         The handler that gets called to validate the toolbar item.
+         
+         The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
+         */
+        public var validateHandler: ((Toolbar.TrackingSeparator)->())?
+        
+        /**
+         Sets the handler that gets called to validate the toolbar item.
+         
+         The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
+         */
+        @discardableResult
+        public func validateHandler(_ validation: ((Toolbar.TrackingSeparator)->())?) -> Self {
+            self.validateHandler = validation
+            return self
+        }
+        
+        /**
          Creates a tracking seperator toolbar item that automatically detects the split view used inside the toolbar's window.
          
          - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `TrackingSeparator` toolbar items.

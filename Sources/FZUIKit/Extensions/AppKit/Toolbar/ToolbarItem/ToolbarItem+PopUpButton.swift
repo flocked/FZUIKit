@@ -20,19 +20,6 @@ extension Toolbar {
         /// The popup button.
         public let button: NSPopUpButton
         
-        /// Sets the handler that gets called when the user clicks the pop up button.
-        @discardableResult
-        open func onAction(_ action: ((_ item: Toolbar.PopUpButton)->())?) -> Self {
-            if let action = action {
-                button.actionBlock = { [weak self] _ in
-                    guard let self = self else { return }
-                    action(self)
-                }
-            } else {
-                button.actionBlock = nil
-            }
-            return self
-        }
         
         /// The menu of the popup button.
         open var menu: NSMenu? {
@@ -112,6 +99,76 @@ extension Toolbar {
         @discardableResult
         open func select(_ item: NSMenuItem) -> Self {
             button.select(item)
+            return self
+        }
+        
+        /**
+         The handler that gets called to validate the toolbar item.
+         
+         The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
+         */
+        public var validateHandler: ((Toolbar.PopUpButton)->())?
+        
+        /**
+         Sets the handler that gets called to validate the toolbar item.
+         
+         The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
+         */
+        @discardableResult
+        public func validateHandler(_ validation: ((Toolbar.PopUpButton)->())?) -> Self {
+            self.validateHandler = validation
+            return self
+        }
+        
+        /// The handler that gets called when the user clicks the toolbar item.
+        public var actionBlock: ((_ item: Toolbar.PopUpButton)->())? {
+            didSet {
+                if let actionBlock = actionBlock {
+                    item.actionBlock = { _ in
+                        actionBlock(self)
+                    }
+                } else {
+                    item.actionBlock = nil
+                }
+            }
+        }
+        
+        /// Sets the handler that gets called when the user clicks the toolbar item.
+        @discardableResult
+        public func onAction(_ action: ((_ item: Toolbar.PopUpButton)->())?) -> Self {
+            actionBlock = action
+            return self
+        }
+        
+        /// The action method to call when someone clicks on the toolbar item.
+        public var action: Selector? {
+            get { item.actionBlock == nil ? item.action : nil }
+            set {
+                actionBlock = nil
+                item.action = newValue
+            }
+        }
+        
+        /// Sets the action method to call when someone clicks on the toolbar item.
+        @discardableResult
+        public func action(_ action: Selector?) -> Self {
+            self.action = action
+            return self
+        }
+        
+        /// The object that defines the action method the toolbar item calls when clicked.
+        public var target: AnyObject? {
+            get { item.actionBlock == nil ? item.target : nil }
+            set {
+                actionBlock = nil
+                item.target = newValue
+            }
+        }
+        
+        /// Sets the object that defines the action method the toolbar item calls when clicked.
+        @discardableResult
+        public func target(_ target: AnyObject?) -> Self {
+            self.target = target
             return self
         }
         

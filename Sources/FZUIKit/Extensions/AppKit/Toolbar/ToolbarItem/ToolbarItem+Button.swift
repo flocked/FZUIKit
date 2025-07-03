@@ -148,17 +148,73 @@ extension Toolbar {
             return self
         }
         
-        /// Sets the handler that gets called when the user clicks the button.
+        /**
+         The handler that gets called to validate the toolbar item.
+         
+         The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
+         */
+        public var validateHandler: ((Toolbar.Button)->())?
+        
+        /**
+         Sets the handler that gets called to validate the toolbar item.
+         
+         The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
+         */
+        @discardableResult
+        public func validateHandler(_ validation: ((Toolbar.Button)->())?) -> Self {
+            self.validateHandler = validation
+            return self
+        }
+        
+        /// The handler that gets called when the user clicks the toolbar item.
+        public var actionBlock: ((_ item: Toolbar.Button)->())? {
+            didSet {
+                if let actionBlock = actionBlock {
+                    item.actionBlock = { _ in
+                        actionBlock(self)
+                    }
+                } else {
+                    item.actionBlock = nil
+                }
+            }
+        }
+        
+        /// Sets the handler that gets called when the user clicks the toolbar item.
         @discardableResult
         public func onAction(_ action: ((_ item: Toolbar.Button)->())?) -> Self {
-            if let action = action {
-                button.actionBlock = { [weak self] _ in
-                    guard let self = self else { return }
-                    action(self)
-                }
-            } else {
-                button.actionBlock = nil
+            actionBlock = action
+            return self
+        }
+        
+        /// The action method to call when someone clicks on the toolbar item.
+        public var action: Selector? {
+            get { item.actionBlock == nil ? item.action : nil }
+            set {
+                actionBlock = nil
+                item.action = newValue
             }
+        }
+        
+        /// Sets the action method to call when someone clicks on the toolbar item.
+        @discardableResult
+        public func action(_ action: Selector?) -> Self {
+            self.action = action
+            return self
+        }
+        
+        /// The object that defines the action method the toolbar item calls when clicked.
+        public var target: AnyObject? {
+            get { item.actionBlock == nil ? item.target : nil }
+            set {
+                actionBlock = nil
+                item.target = newValue
+            }
+        }
+        
+        /// Sets the object that defines the action method the toolbar item calls when clicked.
+        @discardableResult
+        public func target(_ target: AnyObject?) -> Self {
+            self.target = target
             return self
         }
         

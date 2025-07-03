@@ -145,30 +145,72 @@ extension Toolbar {
         }
         
         /**
-         The handler that gets called when the user clicks the item.
+         The handler that gets called to validate the toolbar item.
          
-         If a subitem of the group has an action set on it, the group uses that action instead of its own when the user clicks or taps on that item. The system prefers the subitem’s action if it exists, otherwise it uses the ``actionBlock``.
+         The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
          */
-        open var actionBlock: ((_ item: Group)->())? {
+        public var validateHandler: ((Toolbar.Group)->())?
+        
+        /**
+         Sets the handler that gets called to validate the toolbar item.
+         
+         The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
+         */
+        @discardableResult
+        public func validateHandler(_ validation: ((Toolbar.Group)->())?) -> Self {
+            self.validateHandler = validation
+            return self
+        }
+        
+        /// The handler that gets called when the user clicks the toolbar item.
+        public var actionBlock: ((_ item: Toolbar.Group)->())? {
             didSet {
                 if let actionBlock = actionBlock {
-                    groupItem.actionBlock = { _ in
+                    item.actionBlock = { _ in
                         actionBlock(self)
                     }
                 } else {
-                    groupItem.actionBlock = nil
+                    item.actionBlock = nil
                 }
             }
         }
         
-        /**
-         Sets the handler that gets called when the user clicks the item.
-         
-         If a subitem of the group has an action set on it, the group uses that action instead of its own when the user clicks or taps on that item. The system prefers the subitem’s action if it exists, otherwise it uses the ``actionBlock``.
-         */
+        /// Sets the handler that gets called when the user clicks the toolbar item.
         @discardableResult
-        open func onAction(_ action: ((_ item: Group)->())?) -> Self {
+        public func onAction(_ action: ((_ item: Toolbar.Group)->())?) -> Self {
             actionBlock = action
+            return self
+        }
+        
+        /// The action method to call when someone clicks on the toolbar item.
+        public var action: Selector? {
+            get { item.actionBlock == nil ? item.action : nil }
+            set {
+                actionBlock = nil
+                item.action = newValue
+            }
+        }
+        
+        /// Sets the action method to call when someone clicks on the toolbar item.
+        @discardableResult
+        public func action(_ action: Selector?) -> Self {
+            self.action = action
+            return self
+        }
+        
+        /// The object that defines the action method the toolbar item calls when clicked.
+        public var target: AnyObject? {
+            get { item.actionBlock == nil ? item.target : nil }
+            set {
+                actionBlock = nil
+                item.target = newValue
+            }
+        }
+        
+        /// Sets the object that defines the action method the toolbar item calls when clicked.
+        @discardableResult
+        public func target(_ target: AnyObject?) -> Self {
+            self.target = target
             return self
         }
         
