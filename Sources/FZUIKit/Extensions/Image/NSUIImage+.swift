@@ -51,18 +51,9 @@ public extension NSUIImage {
     @available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
     var symbolName: String? {
         #if os(macOS)
-        return value(forKeySafely: "_symbolDescription") as? String
+        getAssociatedValue("symbolName", initialValue: String(describing: self).matches(between: "symbol = ", and: ">").first?.string)
         #else
-        return getAssociatedValue("symbolName", initialValue: _symbolName)
-        #endif
-    }
-
-    internal var _symbolName: String? {
-        #if os(macOS)
-        return String(describing: self).matches(between: "symbol = ", and: ">").first?.string
-        #else
-        guard isSymbolImage else { return nil }
-        return String(describing: self).matches(between: "system: ", and: ") {").first?.string
+        getAssociatedValue("symbolName", initialValue: String(describing: self).matches(between: "system: ", and: ") {").first?.string)
         #endif
     }
 
