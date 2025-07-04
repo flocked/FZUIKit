@@ -709,7 +709,7 @@ extension NSWindow {
         set { (contentViewController as? NSSplitViewController)?.animator(isProxy()).isInspectorVisible = newValue }
     }
     
-    @objc class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+    @objc private class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
         if let animation = swizzledDefaultAnimation(forKey: key) {
             if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.springAnimation {
                 return springAnimation
@@ -722,8 +722,8 @@ extension NSWindow {
     }
     
     /// A Boolean value that indicates whether windows are swizzled to support additional properties for animating.
-    static var didSwizzleAnimationForKey: Bool {
-        get { getAssociatedValue("didSwizzleAnimationForKey", initialValue: false) }
+    private static var didSwizzleAnimationForKey: Bool {
+        get { getAssociatedValue("didSwizzleAnimationForKey") ?? false }
         set {
             setAssociatedValue(newValue, key: "didSwizzleAnimationForKey")
         }
@@ -731,7 +731,7 @@ extension NSWindow {
     
     /// Swizzles windows to support additional properties for animating.
     static func swizzleAnimationForKey() {
-        if didSwizzleAnimationForKey == false {
+        if !didSwizzleAnimationForKey {
             didSwizzleAnimationForKey = true
             do {
                 try Swizzle(NSWindow.self) {
@@ -929,5 +929,5 @@ extension NSWindow {
     }
 }
 
-private let NSWindowAnimationKeys = ["_frameAnimatable"]
+fileprivate let NSWindowAnimationKeys = ["_frameAnimatable"]
 #endif

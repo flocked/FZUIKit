@@ -973,7 +973,7 @@
         }
         
         static func swizzleAnimationForKey() {
-            guard didSwizzleAnimationForKey == false else { return }
+            guard !didSwizzleAnimationForKey else { return }
             didSwizzleAnimationForKey = true
             do {
                 _ = try Swizzle(NSView.self) {
@@ -985,7 +985,7 @@
             }
         }
         
-        @objc class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        @objc private class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
             if let animation = swizzledDefaultAnimation(forKey: key) {
                 if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.springAnimation {
                     return springAnimation
@@ -997,8 +997,8 @@
             return nil
         }
 
-        static var didSwizzleAnimationForKey: Bool {
-            get { getAssociatedValue("didSwizzleAnimationForKey", initialValue: false) }
+        private static var didSwizzleAnimationForKey: Bool {
+            get { getAssociatedValue("didSwizzleAnimationForKey") ?? false }
             set { setAssociatedValue(newValue, key: "didSwizzleAnimationForKey") }
         }
         
