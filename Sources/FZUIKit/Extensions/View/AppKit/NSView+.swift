@@ -1002,48 +1002,6 @@
             set { setAssociatedValue(newValue, key: "didSwizzleAnimationForKey") }
         }
         
-        /*
-        static var animatingViews: [Weak<NSView>] {
-            get { getAssociatedValue("animatingViews", initialValue: []) }
-            set { setAssociatedValue(newValue, key: "animatingViews") }
-        }
-        
-        var currentAnimations: [NSAnimatablePropertyKey : Weak<CAAnimation>] {
-            get { getAssociatedValue("currentAnimations", initialValue: [:]) }
-            set { setAssociatedValue(newValue, key: "currentAnimations") }
-        }
-        
-        public func stopAllAnimations(for context: NSAnimationContext) {
-            let contextID = ObjectIdentifier(context)
-            let animations = currentAnimations.filter({$0.value.object?.contextID == contextID})
-            for animation in animations {
-                animation.value.object
-            }
-        }
-        
-        @objc func swizzled_Animation(forKey key: NSAnimatablePropertyKey) -> Any? {
-            if let animation = swizzled_Animation(forKey: key) as? CAAnimation {
-                Swift.print("swizzled_Animation", animation)
-                if !Self.animatingViews.contains(where: {$0.object == self }) {
-                    Self.animatingViews.append(.init(self))
-                }
-                if NSAnimationContext.hasActiveGrouping {
-                    animation.contextID = ObjectIdentifier(NSAnimationContext.current)
-                }
-                animation.onStop = { [weak self] in
-                    guard let self = self else { return }
-                    self.currentAnimations[key] = nil
-                    if self.currentAnimations.isEmpty {
-                        Self.animatingViews.removeFirst(where: {$0.object == self})
-                    }
-                }
-                currentAnimations[key] = .init(animation)
-                return animation
-            }
-            return nil
-        }
-         */
-        
         func updatedColor<Layer: CALayer>(_ color: NSColor?, _ layer: Layer?, _ keyPath: ReferenceWritableKeyPath<Layer, CGColor?>) -> NSColor? {
             var color = color?.resolvedColor(for: self)
             let layerColor = layer?[keyPath: keyPath]
@@ -1064,26 +1022,6 @@
         static let flexibleSize: NSView.AutoresizingMask = [.height, .width]
         /// An autoresizing mask with flexible size and fixed margins.
         static let all: NSView.AutoresizingMask = [.height, .width, .minYMargin, .minXMargin, .maxXMargin, .maxYMargin]
-    }
-
-    extension CALayerContentsGravity {
-        var viewLayerContentsPlacement: NSView.LayerContentsPlacement {
-            switch self {
-            case .topLeft: return .topLeft
-            case .top: return .top
-            case .topRight: return .topRight
-            case .center: return .center
-            case .bottomLeft: return .bottomLeft
-            case .bottom: return .bottom
-            case .bottomRight: return .bottomRight
-            case .resize: return .scaleAxesIndependently
-            case .resizeAspectFill: return .scaleProportionallyToFill
-            case .resizeAspect: return .scaleProportionallyToFit
-            case .left: return .left
-            case .right: return .right
-            default: return .scaleProportionallyToFill
-            }
-        }
     }
 
 /// The `NSView` properties keys that can be animated.
