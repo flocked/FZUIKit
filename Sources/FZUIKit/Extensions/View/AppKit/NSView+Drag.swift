@@ -33,7 +33,10 @@ extension NSView {
         /**
          The handler that determines whether the user can drag content outside the view.
          
-         You can return an array of:
+         - Parameter location. The mouse location inside the view.
+         - Returns: The content that can be dragged outside the view, or `nil` if the view doesn't provide any draggable content.
+         
+         You can return an array with any values of:
          
          - [String](https://developer.apple.com/documentation/swift/String)
          - [AttributedString](https://developer.apple.com/documentation/foundation/AttributedString) and [NSAttributedString](https://developer.apple.com/documentation/foundation/NSAttributedString)
@@ -43,13 +46,10 @@ extension NSView {
          - [NSSound](https://developer.apple.com/documentation/appkit/NSSound)
          - [NSFilePromiseProvider](https://developer.apple.com/documentation/appkit/NSFilePromiseProvider)
          - [NSPasteboardItem](https://developer.apple.com/documentation/appkit/NSPasteboardItem)
-                  
-         - Parameter location. The mouse location inside the view.
-         - Returns: The content that can be dragged outside the view, or `nil` if the view doesn't provide any draggable content.
          */
-        public var canDrag: ((_ location: CGPoint) -> ([PasteboardWriting]?))?
+        public var canDrag: ((_ mouseLocation: CGPoint) -> ([PasteboardWriting]?))?
         /// An optional image used for dragging. If `nil`, a rendered image of the view is used.
-        public var dragImage: ((_ location: CGPoint, _ content: PasteboardWriting) -> ((image: NSImage, imageFrame: CGRect?)))?
+        public var dragImage: ((_ screenLocation: CGPoint, _ content: PasteboardWriting) -> ((image: NSImage, imageFrame: CGRect?)))?
         /// The handler that gets called when the user did drag the content to a supported destination.
         public var didDrag: ((_ screenLocation: CGPoint, _ items: [PasteboardWriting]) -> ())?
         
