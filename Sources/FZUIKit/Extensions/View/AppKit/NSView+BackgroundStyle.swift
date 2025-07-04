@@ -10,9 +10,6 @@ import AppKit
 import FZSwiftUtils
 import SwiftUI
 
-protocol _NSHostingView: NSView {}
-extension NSHostingView: _NSHostingView {}
-
 public extension NSControl {
     /**
      The background style of the control.
@@ -56,7 +53,7 @@ extension NSView {
 }
 
 @available(macOS 12.0, *)
-extension NSImageView {
+fileprivate extension NSImageView {
     func updateSymbolConfiguration() {
         configurationObservation = nil
         if backgroundStyle == .emphasized {
@@ -86,25 +83,6 @@ extension NSImageView {
     var previousConfiguration: NSImage.SymbolConfiguration? {
         get { getAssociatedValue("previousConfiguration") }
         set { setAssociatedValue(newValue, key: "previousConfiguration") }
-    }
-}
-
-class BackgroundStyleObserverView: NSControl {
-    override class var cellClass: AnyClass? {
-        get { Cell.self }
-        set { }
-    }
-    
-    class Cell: NSCell {
-        override var backgroundStyle: NSView.BackgroundStyle {
-            get { super.backgroundStyle }
-            set {
-                let backgroundStyleChanged = backgroundStyle != newValue
-                super.backgroundStyle = newValue
-                guard backgroundStyleChanged else { return }
-                controlView?.superview?.viewHandlers.backgroundStyle?(newValue)
-            }
-        }
     }
 }
 

@@ -26,12 +26,11 @@
          Animate changes to one or more layers using the specified duration, timing function, and completion handler.
 
          - Parameters:
-            - duration: The duration of the animations, measured in seconds.  If you specify a value of `0`, the changes are made without animating them.
-            - timingFunction: An optional timing function for the animations.
-            - disableActions: A Boolean value that indicates whether actions triggered as a result of property changes are suppressed.
-            - animations: A block containing the changes to commit animated to the layers.
-            - completionHandler: An optional completion block that is called when the animations have completed.
-
+            - duration: The duration of the animations (in seconds).  If you specify a negative value or `0`, the changes are made without animating them.
+            - timingFunction: A timing function for the animations.
+            - disableActions: A Boolean value indicating whether actions triggered as a result of property changes are suppressed.
+            - animations: The block containing the changes to commit animated to the layers.
+            - completionHandler: A completion block to be executed when the animations have completed.
          */
         static func perform(duration: CGFloat = 0.25, timingFunction: CAMediaTimingFunction? = nil, disableActions: Bool = false, animations: () -> Void, completionHandler: (() -> Void)? = nil) {
             CATransaction.begin()

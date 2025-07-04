@@ -201,7 +201,7 @@ extension NSView {
         set { setAssociatedValue(newValue, key: "mainWindowObservation") }
     }
     
-    var backgroundStyleObserverView: BackgroundStyleObserverView? {
+    fileprivate var backgroundStyleObserverView: BackgroundStyleObserverView? {
         get { getAssociatedValue("backgroundStyleObserverView") }
         set { setAssociatedValue(newValue, key: "backgroundStyleObserverView") }
     }
@@ -743,6 +743,25 @@ extension NSView {
         
         override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
             return false
+        }
+    }
+}
+
+fileprivate class BackgroundStyleObserverView: NSControl {
+    override class var cellClass: AnyClass? {
+        get { Cell.self }
+        set { }
+    }
+    
+    class Cell: NSCell {
+        override var backgroundStyle: NSView.BackgroundStyle {
+            get { super.backgroundStyle }
+            set {
+                let backgroundStyleChanged = backgroundStyle != newValue
+                super.backgroundStyle = newValue
+                guard backgroundStyleChanged else { return }
+                controlView?.superview?.viewHandlers.backgroundStyle?(newValue)
+            }
         }
     }
 }

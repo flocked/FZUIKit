@@ -15,7 +15,7 @@ extension NSView {
      
      This method returns a size value for the view that optimally satisfies the view's current constraints and is as close to the value in the `targetSize` parameter as possible. This method does not actually change the size of the view.
      
-     - Parameter targetSize: The size that you prefer for the view. To obtain a view that is as small as possible, specify the constant ``layoutFittingCompressedSize``. To obtain a view that is as large as possible, specify the constant ``layoutFittingExpandedSize``.
+     - Parameter targetSize: The size that you prefer for the view. To obtain a view that is as small as possible, specify the constant ``AppKit/NSView/layoutFittingCompressedSize``. To obtain a view that is as large as possible, specify the constant ``AppKit/NSView/layoutFittingExpandedSize``.
      
      - Returns: The optimal size for the view.
      */
@@ -29,9 +29,10 @@ extension NSView {
      Use this method when you want to prioritize the view's constraints when determining the best possible size of the view. This method does not actually change the size of the view.
      
      - Parameters:
-        - targetSize: The size that you prefer for the view. To obtain a view that is as small as possible, specify the constant ``layoutFittingCompressedSize``. To obtain a view that is as large as possible, specify the constant ``layoutFittingExpandedSize``.
-        - horizontalFittingPriority: The priority for horizontal constraints. Specify `fittingSizeCompression` to get a width that is as close as possible to the width value of `targetSize`.
-        - verticalFittingPriority: The priority for vertical constraints. Specify `fittingSizeCompression` to get a height that is as close as possible to the height value of `targetSize`.
+        - targetSize: The size that you prefer for the view. To obtain a view that is as small as possible, specify the constant ``AppKit/NSView/layoutFittingCompressedSize``. To obtain a view that is as large as possible, specify the constant ``AppKit/NSView/layoutFittingExpandedSize``.
+     
+        - horizontalFittingPriority: The priority for horizontal constraints. Specify [fittingsizecompression](https://developer.apple.com/documentation/appkit/nslayoutconstraint/priority-swift.struct/fittingsizecompression) to get a width that is as close as possible to the width value of `targetSize`.
+        - verticalFittingPriority: The priority for vertical constraints. Specify [fittingsizecompression](https://developer.apple.com/documentation/appkit/nslayoutconstraint/priority-swift.struct/fittingsizecompression) to get a height that is as close as possible to the height value of `targetSize`.
      - Returns: The optimal size for the view based on the provided constraint priorities.
 
      */

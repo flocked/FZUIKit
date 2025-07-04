@@ -33,19 +33,6 @@
             open var trackingRect: CGRect? {
                 didSet { update() }
             }
-
-            /**
-             Creates a tracking area.
-
-             - Parameters:
-              - view: The view to add tracking to.
-              - rect: The area inside the view to track. The default value is `nil` which uses the view's bounds.
-             */
-            public init(for view: NSView, rect: CGRect? = nil) {
-                self.view = view
-                trackingRect = rect
-                self.options = []
-            }
             
             /**
              Creates a tracking area.
@@ -55,7 +42,7 @@
               - rect: The area inside the view to track. The default value is `nil` which uses the view's bounds.
               - options: The options for tracking.
              */
-            public init(for view: NSView, rect: CGRect? = nil, options: NSTrackingArea.Options) {
+            public init(for view: NSView, rect: CGRect? = nil, options: NSTrackingArea.Options = []) {
                 self.view = view
                 trackingRect = rect
                 self.options = options
@@ -63,8 +50,8 @@
 
             /**
              Updates the tracking area.
-
-             - Note: This should be called in the view's `updateTrackingAreas()` method.
+             
+             This should be called inside  the view's [updateTrackingAreas()](https://developer.apple.com/documentation/appkit/nsview/updatetrackingareas()).
              */
             open func update() {
                 if let trackingArea = trackingArea {
