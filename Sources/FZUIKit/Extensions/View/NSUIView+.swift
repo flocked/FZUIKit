@@ -641,6 +641,70 @@ import FZSwiftUtils
             return self
         }
         #endif
+        
+        /**
+         Prints the hierarchy of the view and its subviews to the console.
+
+         - Parameters:
+           - depth: The maximum depth of the view hierarchy to print. A value of `.max` prints the entire hierarchy. Defaults to `.max`.
+           - includeDetails: If `true` prints the full description of each view; otherwise prints only the type.
+         */
+        public func printHierarchy(depth: Int = .max, includeDetails: Bool = false) {
+            guard depth >= 0 else { return }
+            printHierarchy(level: 0, depth: depth, includeDetails: false)
+        }
+        
+        private func printHierarchy(level: Int, depth: Int, includeDetails: Bool) {
+            let string = includeDetails ? "\(self)" : "\(type(of: self))"
+            Swift.print("\(Array(repeating: " ", count: level).joined(separator: ""))\(string)")
+            guard level+1 <= depth else { return }
+            for subview in subviews {
+                subview.printHierarchy(level: level+1, depth: depth, includeDetails: includeDetails)
+            }
+        }
+        
+        /**
+         Prints the hierarchy of views of a specific type starting from this view.
+
+         - Parameters:
+            - type: The view type to match (e.g., `NSTextField.self`). Only subtrees containing at least one view of this type will be printed.
+            - depth: The maximum depth of the view hierarchy to print. A value of `.max` prints the entire hierarchy. Defaults to `.max`.
+            - includeDetails: If `true` prints the full description of each view; otherwise prints only the type.
+         */
+        public func printHierarchy<V: NSUIView>(type _: V.Type, depth: Int = .max, includeDetails: Bool = false) {
+            printHierarchy(predicate: {$0 is V}, depth: depth, includeDetails: includeDetails)
+        }
+        
+        /**
+         Prints the hierarchy of views that match a given predicate starting from this view.
+
+         - Parameters:
+            - predicate: A closure that determines whether a view should be included in the printed hierarchy. Entire subtrees are printed only if at least one view in the subtree matches the predicate.
+            - depth: The maximum depth of the view hierarchy to print. A value of `.max` prints the entire hierarchy. Defaults to `.max`.
+            - includeDetails: If `true` prints the full description of each view; otherwise prints only the type.
+         */
+        public func printHierarchy(predicate: (NSUIView) -> Bool, depth: Int = .max, includeDetails: Bool = false) {
+            guard depth >= 0 else { return }
+            printHierarchy(level: 0, depth: depth, predicate: predicate, includeDetails: includeDetails)
+        }
+
+        private func printHierarchy(level: Int, depth: Int, predicate: (NSUIView) -> Bool, includeDetails: Bool) {
+            let string = includeDetails ? "\(self)" : "\(type(of: self))"
+            Swift.print("\(Array(repeating: " ", count: level).joined(separator: ""))\(string)")
+            guard level+1 <= depth else { return }
+            for subview in subviews {
+                guard subview.matchesPredicateRecursively(predicate, level: level+1, depth: depth) else { continue }
+                subview.printHierarchy(level: level+1, depth: depth, predicate: predicate, includeDetails: includeDetails)
+            }
+        }
+
+        private func matchesPredicateRecursively(_ predicate: (NSUIView) -> Bool, level: Int, depth: Int) -> Bool {
+            if predicate(self) {
+                return true
+            }
+            guard level+1 <= depth else { return false }
+            return subviews.contains { $0.matchesPredicateRecursively(predicate, level: level+1, depth: depth) }
+        }
     }
 
 extension NSUIView {

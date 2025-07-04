@@ -57,6 +57,20 @@ public class PasteboardContent {
         value(for: NSURL.self, filesOnly: true)
     }
     
+    public lazy var fileURLsFiltered: [URL] = {
+        if !fileURLFilters.isEmpty {
+            var urls = fileURLs
+            var matching: [URL] = []
+            for fileURLFilter in fileURLFilters {
+                matching += urls.removeAllAndReturn(where: fileURLFilter)
+            }
+            return matching
+        }
+        return fileURLs
+    }()
+    
+    var fileURLFilters: [(URL)->(Bool)] = []
+        
     /// The colors on the pasteboard.
     public var colors: [NSColor] {
         value(for: NSColor.self)

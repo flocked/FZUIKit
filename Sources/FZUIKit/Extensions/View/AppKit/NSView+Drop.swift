@@ -64,6 +64,9 @@ extension NSView {
          The handler gets called repeatedly on every mouse drag on the view’s bounds rectangle.
          */
         public var canDrop: ((_ info: DropInfo) -> NSDragOperation)?
+        
+        /// The handler that gets called when the user did drop the content from the pasteboard to your view.
+        public var willDrop: (( _ willDrop: Bool) -> Void)?
 
         /// The handler that gets called when the user did drop the content from the pasteboard to your view.
         public var didDrop: ((_ info: DropInfo) -> Void)?
@@ -122,6 +125,20 @@ extension NSView {
             var isValid: Bool {
                 !extensions.isEmpty || !fileTypes.isEmpty || _contentTypes != nil
             }
+            
+            var filters: [(URL)->Bool] {
+                var filters: [(URL)->Bool] = []
+                if !extensions.isEmpty {
+                    filters += { extensions.contains($0.pathExtension.lowercased())  }
+                }
+                if !fileTypes.isEmpty {
+                    filters += { if let fileType = $0.fileType { return fileTypes.contains(fileType) } else { return false } }
+                }
+                if #available(macOS 11.0, *), !contentTypes.isEmpty {
+                    filters += { $0.contentType?.conforms(toAny: contentTypes) == true }
+                }
+                return filters
+            }
         }
         
         /// The files that can be dropped to the view.
@@ -139,7 +156,7 @@ extension NSView {
         }
 
         var isActive: Bool {
-            (canDrop != nil || allowedFiles.isValid) && didDrop != nil
+            (allowedFiles.isValid || canDrop != nil) && didDrop != nil
         }
     }
     
@@ -149,39 +166,43 @@ extension NSView {
     }
 }
 
-fileprivate class DropView: NSView, NSSpringLoadingDestination {
+// NSSpringLoadingDestination
+class DropView: NSView {
     var handlers = DropHandlers()
     var draggingInfo: NSDraggingInfo?
     var canDropFiles = false
     var dropOperation: NSDragOperation?
+    var finalDropOperation: NSDragOperation {
+        canDropFiles ? (dropOperation ?? []) + .copy : (dropOperation ?? [])
+    }
+    var willDrop: Bool {
+        get { _willDrop }
+        set {
+            guard newValue != _willDrop, handlers.isActive else { return }
+            _willDrop = newValue
+            handlers.willDrop?(newValue)
+        }
+    }
+    var _willDrop = false
     
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
-        guard  handlers.isActive else { return [] }
-        draggingInfo = sender
-        if let operation = dropOperation(for: sender) {
-            return operation
-        } else if let operation = handlers.canDrop?(sender.dropInfo(for: self)) {
-            canDropFiles = canDropFiles(for: sender)
-            dropOperation = operation
-            return dropOperation(for: sender)!
-        }
-        return []
+        return dropOperation(for: sender)
     }
     
     override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
-        guard handlers.isActive, let operation = dropOperation(for: sender) else { return [] }
-        draggingInfo = sender
-        return operation
+        dropOperation(for: sender, isUpdate: true)
     }
     
     override func draggingExited(_ sender: NSDraggingInfo?) {
         guard let info = sender ?? draggingInfo else { return }
+        willDrop = false
         handlers.dropExited?(info.dropInfo(for: self))
     }
     
     override func draggingEnded(_ sender: NSDraggingInfo) {
         draggingInfo = nil
         handlers.dropEnded?(sender.dropInfo(for: self))
+        willDrop = false
     }
     
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
@@ -190,6 +211,7 @@ fileprivate class DropView: NSView, NSSpringLoadingDestination {
         return true
     }
     
+    /*
     func springLoadingEntered(_ draggingInfo: NSDraggingInfo) -> NSSpringLoadingOptions {
         guard let dropOperation = dropOperation(for: draggingInfo), dropOperation != [] else { return .disabled }
         return handlers.springLoading.options?(draggingInfo.dropInfo(for: self)) ?? .disabled
@@ -207,6 +229,7 @@ fileprivate class DropView: NSView, NSSpringLoadingDestination {
     func springLoadingHighlightChanged(_ draggingInfo: NSDraggingInfo) {
         handlers.springLoading.highlightChanged?(draggingInfo.springLoadingHighlight)
     }
+    */
     
     /*
     override func updateDraggingItemsForDrag(_ sender: NSDraggingInfo?) {
@@ -218,30 +241,41 @@ fileprivate class DropView: NSView, NSSpringLoadingDestination {
     }
      */
     
-    func dropOperation(for info: NSDraggingInfo) -> NSDragOperation? {
-        guard var operation = dropOperation else { return nil }
-        if canDropFiles {
-            operation.insert(.copy)
+    func dropOperation(for info: NSDraggingInfo, isUpdate: Bool = false) -> NSDragOperation {
+        guard handlers.isActive else { return [] }
+        let dropInfo = info.dropInfo(for: self)
+        if dropOperation == nil {
+            dropOperation = handlers.canDrop?(dropInfo) ?? []
+            canDropFiles = canDropFiles(for: info)
+            handlers.dropEntered?(dropInfo)
         }
+        if isUpdate, let operation = handlers.dropUpdated?(dropInfo) {
+            dropOperation = operation
+        }
+        var operation = dropOperation ?? []
+        if canDropFiles {
+            operation += .copy
+        }
+        willDrop = operation != []
+        draggingInfo = info
         return operation
     }
     
     func canDropFiles(for info: NSDraggingInfo) -> Bool {
         guard handlers.allowedFiles.isValid else { return false }
-        let fileURLs = info.pasteboardContent.fileURLs
+        var fileURLs = info.pasteboardContent.fileURLs
         var filtered: [URL] = []
         if !handlers.allowedFiles.extensions.isEmpty {
-            filtered = fileURLs.filter({ handlers.allowedFiles.extensions.contains($0.pathExtension.lowercased())  })
+            filtered = fileURLs.removeAllAndReturn(where: { handlers.allowedFiles.extensions.contains($0.pathExtension.lowercased())  })
         }
         if !handlers.allowedFiles.fileTypes.isEmpty {
-            filtered += fileURLs.filter({ if let fileType = $0.fileType { return handlers.allowedFiles.fileTypes.contains(fileType) } else { return false } })
+            filtered += fileURLs.removeAllAndReturn(where: { if let fileType = $0.fileType { return handlers.allowedFiles.fileTypes.contains(fileType) } else { return false } })
         }
         if #available(macOS 11.0, *) {
             if !handlers.allowedFiles.contentTypes.isEmpty {
-                filtered += fileURLs.filter({ $0.contentType?.conforms(toAny: handlers.allowedFiles.contentTypes) == true })
+                filtered += fileURLs.removeAllAndReturn(where:  { $0.contentType?.conforms(toAny: handlers.allowedFiles.contentTypes) == true })
             }
         }
-        filtered = filtered.uniqued()
         return handlers.allowedFiles.allowsMultipleFiles ? !filtered.isEmpty : filtered.count == 1
     }
     
@@ -279,5 +313,6 @@ extension NSDragOperation {
     }
 }
  */
+
 
 #endif
