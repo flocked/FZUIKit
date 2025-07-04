@@ -11,8 +11,8 @@ import FZSwiftUtils
 
 public extension NSViewProtocol where Self: NSView {
     /**
-     A Boolean value that indicates whether the view is the first responder.
-     
+     A Boolean value indicating whether view controller is the first responder of the it's window.
+
      The system dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
      */
     var isFirstResponder: Bool {
@@ -22,22 +22,10 @@ public extension NSViewProtocol where Self: NSView {
         return window?.firstResponder == self
      }
     
-    /// A Boolean value that indicates whether the view or any of it's subviews is the first responder.
-    var isDescendantFirstResponder: Bool {
-        if let view = window?.firstResponder as? NSView {
-            return view.isDescendant(of: self)
-        } else if let view = (window?.firstResponder as? NSText)?.delegate as? NSView {
-            return view.isDescendant(of: self)
-        }
-        return false
-    }
-    
     /**
-     Attempts to make the view the first responder in its window.
-     
-     Call this method when you want the v toiew be the first responder.
-     
-     - Returns: `true` if the view is now the first responder; otherwise, `false`.
+     Attempts to make the view the first responder in it's window.
+          
+     - Returns: `true` if the view is now the first responder of it's window; otherwise, `false`.
      */
     @discardableResult
     func makeFirstResponder() -> Bool {
@@ -51,11 +39,9 @@ public extension NSViewProtocol where Self: NSView {
     }
     
     /**
-     Attempts to resign the view as first responder in its window.
-     
-     Call this method when you want the view to resign the first responder.
-     
-     - Returns: `true` if the view isn't the first responder; otherwise, `false`.
+     Attempts to resign the view as first responder in it's window.
+          
+     - Returns: `true` if the view isn't the first responder of it's windw; otherwise, `false`.
      */
     @discardableResult
     func resignAsFirstResponder() -> Bool {
@@ -63,6 +49,16 @@ public extension NSViewProtocol where Self: NSView {
             window?.makeFirstResponder(nil)
         }
         return !isFirstResponder
+    }
+    
+    /// A Boolean value indicating whether the view or any of it's subviews is first responder of the view's window.
+    var isDescendantFirstResponder: Bool {
+        if let view = window?.firstResponder as? NSView {
+            return view.isDescendant(of: self)
+        } else if let view = (window?.firstResponder as? NSText)?.delegate as? NSView {
+            return view.isDescendant(of: self)
+        }
+        return false
     }
 }
 
