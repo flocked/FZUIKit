@@ -41,7 +41,7 @@ public extension NSViewController {
      - Returns: `true` if the view controller's window isn't the first responder; otherwise, `false`.
      */
     @discardableResult
-    func resignFirstResponding() -> Bool {
+    func resignAsFirstResponder() -> Bool {
         if isFirstResponder {
             view.window?.makeFirstResponder(nil)
         }

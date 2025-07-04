@@ -259,17 +259,17 @@ fileprivate class ValidateSearchToolbarItem: NSSearchToolbarItem, NSSearchFieldD
             if searchField.editingActionOnEscapeKeyDown == .endEditingAndReset {
                 searchField.stringValue = startingString ?? searchField.stringValue
                 startingString = nil
-                searchField.resignFirstResponding()
+                searchField.resignAsFirstResponder()
                 return true
             } else if searchField.editingActionOnEscapeKeyDown == .endEditing {
                 startingString = nil
-                searchField.resignFirstResponding()
+                searchField.resignAsFirstResponder()
                 return true
             }
         } else if commandSelector == #selector(NSControl.insertNewline(_:)) {
             if searchField.editingActionOnEnterKeyDown == .endEditing {
                 startingString = nil
-                searchField.resignFirstResponding()
+                searchField.resignAsFirstResponder()
                 return true
             }
         }

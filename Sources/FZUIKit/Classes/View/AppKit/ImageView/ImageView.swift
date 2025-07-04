@@ -614,7 +614,7 @@ open class ImageView: NSControl {
         didSet {
             guard isSelectable != oldValue else { return }
             if isSelectable == .off {
-                resignFirstResponding()
+                resignAsFirstResponder()
             }
         }
     }

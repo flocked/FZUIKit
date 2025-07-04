@@ -260,7 +260,7 @@ public class FontManager: NSObject {
                 textField.makeFirstResponder()
             }
         } else {
-            fontSizeTextField.resignFirstResponding()
+            fontSizeTextField.resignAsFirstResponder()
         }
     }
     

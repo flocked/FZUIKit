@@ -58,7 +58,7 @@ public extension NSViewProtocol where Self: NSView {
      - Returns: `true` if the view isn't the first responder; otherwise, `false`.
      */
     @discardableResult
-    func resignFirstResponding() -> Bool {
+    func resignAsFirstResponder() -> Bool {
         if isFirstResponder {
             window?.makeFirstResponder(nil)
         }
@@ -97,7 +97,7 @@ extension NSView {
                 guard let self = self else { return event }
                 let location = event.location(in: self)
                 if self.isFirstResponder, !self.bounds.contains(location), event.clickCount >= self.firstResponderResignClickCount {
-                    self.resignFirstResponding()
+                    self.resignAsFirstResponder()
                 }
                 return event
             }

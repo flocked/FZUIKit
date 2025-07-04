@@ -347,13 +347,13 @@
                                 case .endEditingAndReset:
                                     textField.stringValue = textField.editStartString
                                     textField.adjustFontSize()
-                                    textView.resignFirstResponding()
+                                    textView.resignAsFirstResponder()
                                     return true
                                 case .endEditing:
                                     if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
                                         return false
                                     } else {
-                                        textView.resignFirstResponding()
+                                        textView.resignAsFirstResponder()
                                         return true
                                     }
                                 case .delete:
@@ -373,7 +373,7 @@
                                     if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
                                         return false
                                     } else {
-                                        textView.resignFirstResponding()
+                                        textView.resignAsFirstResponder()
                                         return true
                                     }
                                 case .none: break
