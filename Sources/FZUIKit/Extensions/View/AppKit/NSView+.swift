@@ -750,16 +750,29 @@
         }
 
         /**
-         A Boolean value that indicates whether the view is visible.
+         A Boolean value indicating whether the view is effectively visible within its window.
 
-         Returns `true` if :
-            - `window` isn't `nil`,
-            - `isHidden` is `false`
-            - `alphaValue` isn't `0.0`
-            - `visibleRect` isn't `zero`.
+         This property does not check if the window itself is visible or onscreen. It only determines whether the view is visible within the window.
+
+         The visibility determination considers the following factors:
+         - The view must be associated with a `window`.
+         - The view's `isHidden` must be `false`.
+         - The view's `alphaValue` must be larger than `0.0`.
+         - The view's `visibleRect` must not be empty.
+         - If the view has a layer, the layer's `isHidden` must be `false` and `opacity` must be larger than `0.0`.
+         - All of the view's superviews in the hierarchy must also be effectively visible.
          */
         @objc open var isVisible: Bool {
-            window != nil && alphaValue != 0.0 && visibleRect != .zero && isHidden == false
+            window != nil && isVisibleInHierarchy
+        }
+        
+        private var isVisibleInHierarchy: Bool {
+            !isHidden && alphaValue > 0.0 && !bounds.isEmpty && layer?.isVisible ?? true && isVisibleInSuperview
+        }
+
+        private var isVisibleInSuperview: Bool {
+            guard let superview = superview else { return true }
+            return !frame.intersection(superview.bounds).isEmpty && superview.isVisibleInHierarchy
         }
 
         /**
@@ -855,22 +868,19 @@
          
          - Parameter tag: The tag for the view, or `nil` to use the view's original tag.
          
-         - Throws: An error if the tag couldn't be set.
-         
+         - Throws: An error, if the tag couldn't be set.
          */
         public func setTag(_ tag: Int?) throws {
-            if let tag = tag {
-                do {
-                    try hook(#selector(getter: NSView.tag), closure: { original, object, sel in
-                        return tag
-                    } as @convention(block) (
-                        (AnyObject, Selector) -> Int,
-                        AnyObject, Selector) -> Int)
-                } catch {
-                    throw error
-                }
-            } else {
-                revertHooks(for: #selector(getter: NSView.tag))
+            revertHooks(for: #selector(getter: NSView.tag))
+            guard let tag = tag else { return }
+            do {
+                try hook(#selector(getter: NSView.tag), closure: { original, object, sel in
+                    return tag
+                } as @convention(block) (
+                    (NSView, Selector) -> Int,
+                    NSView, Selector) -> Int)
+            } catch {
+                throw error
             }
         }
         
@@ -1026,5 +1036,11 @@
 
 /// The `NSView` properties keys that can be animated.
 fileprivate let NSViewAnimationKeys: Set<String> = ["_anchorPoint", "_borderColor", "_borderWidth", "_center", "_contentOffset", "_contentOffsetFractional", "_cornerRadius", "_documentSize",  "_fontSize", "_inverseMask", "_mask", "_placeholderTextColor", "_roundedCorners", "_screenFrame", "_selectionColor", "_selectionTextColor", "_shadowPath", "_transform", "_transform3D", "_windowFrame", "_zPosition", "__cornerRadius", "backgroundColor", "backgroundColorAnimatable", "bezelColor", "borderColor", "borderWidth", "contentTintColor", "cornerRadius", "fillColor", "gradientColors", "gradientEndPoint", "gradientLocations", "gradientStartPoint", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "textColor"]
+
+fileprivate extension CALayer {
+    var isVisible: Bool {
+        !isHidden && opacity > 0.0
+    }
+}
 
 #endif
