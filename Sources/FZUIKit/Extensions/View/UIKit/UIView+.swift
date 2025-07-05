@@ -13,6 +13,18 @@
         public var parentController: UIViewController? {
             next as? UIViewController ?? (next as? UIView)?.parentController
         }
+        
+        /**
+         The anchor point for the view’s position along the z axis.
+         
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().anchorPointZ`.
+
+         The default value is `0.0`.
+         */
+        public var anchorPointZ: CGFloat {
+            get { layer.anchorPointZ }
+            set { layer.anchorPointZ = newValue }
+        }
 
         /**
          The rotation of the view as euler angles in degrees.

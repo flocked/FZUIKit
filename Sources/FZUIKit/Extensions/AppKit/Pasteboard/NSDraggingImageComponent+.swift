@@ -29,6 +29,11 @@ extension NSDraggingImageComponent {
         contents = view.renderedImage
         frame = CGRect(.zero, view.bounds.size)
     }
+    
+    /// The image of the component.
+    public var image: NSImage? {
+        contents as? NSImage ?? CGImage(contents)?.nsImage
+    }
 }
 
 #endif

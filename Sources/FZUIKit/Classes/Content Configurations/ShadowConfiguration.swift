@@ -37,17 +37,21 @@ public struct ShadowConfiguration: Hashable {
     }
     
     /// The opacity of the shadow.
-    public var opacity: CGFloat = 0.4
+    public var opacity: CGFloat = 0.4 {
+        didSet { opacity = opacity.clamped(min: 0.0) }
+    }
     
     /// The blur radius of the shadow.
-    public var radius: CGFloat = 2.0
+    public var radius: CGFloat = 2.0 {
+        didSet { radius = radius.clamped(min: 0.0) }
+    }
     
     #if os(macOS)
     /// The offset of the shadow.
     public var offset: CGPoint = .init(x: 1.0, y: -1.5)
     #else
     /// The offset of the shadow.
-    public var offset: CGPoint = .init(x: -1.0, y: 1.5)
+    public var offset: CGPoint = .init(x: 1.0, y: 1.5)
     #endif
     
     var isInvisible: Bool {
@@ -55,21 +59,39 @@ public struct ShadowConfiguration: Hashable {
     }
         
     #if os(macOS)
-    /// Creates a shadow configuration.
+    /**
+     Creates a shadow configuration.
+     
+     - Parameters:
+        - color: The color of the shadow. The default value is `nil`.
+        - colorTransformer: The color transformer for resolving the shadow color. The default value is `nil`.
+        - opacity:The opacity of the shadow. The default value is `0.4`.
+        - radius: The blur radius of the shadow. The default value is `2.0`.
+        - offset: The offset of the shadow. The default value is `[1.0, -1.5]`.
+     */
     public init(color: NSUIColor? = .black, colorTransformer: ColorTransformer? = nil, opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) {
         self.color = color
         self.colorTransformer = colorTransformer
-        self.opacity = opacity
-        self.radius = radius
+        self.opacity = opacity.clamped(min: 0.0)
+        self.radius = radius.clamped(min: 0.0)
         self.offset = offset
     }
     #else
-    /// Creates a shadow configuration.
-    public init(color: NSUIColor? = .black, colorTransformer: ColorTransformer? = nil, opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: -1.0, y: 1.5)) {
+    /**
+     Creates a shadow configuration.
+     
+     - Parameters:
+        - color: The color of the shadow. The default value is `nil`.
+        - colorTransformer: The color transformer for resolving the shadow color. The default value is `nil`.
+        - opacity:The opacity of the shadow. The default value is `0.4`.
+        - radius: The blur radius of the shadow. The default value is `2.0`.
+        - offset: The offset of the shadow. The default value is `[1.0, 1.5]`.
+     */
+    public init(color: NSUIColor? = .black, colorTransformer: ColorTransformer? = nil, opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: 1.5)) {
         self.color = color
         self.colorTransformer = colorTransformer
-        self.opacity = opacity
-        self.radius = radius
+        self.opacity = opacity.clamped(min: 0.0)
+        self.radius = radius.clamped(min: 0.0)
         self.offset = offset
     }
     #endif
@@ -78,35 +100,93 @@ public struct ShadowConfiguration: Hashable {
     public static func none() -> Self { Self(color: nil, opacity: 0.0) }
     
     #if os(macOS)
-    /// A configuration for a black shadow.
+    /**
+     A configuration for a black shadow.
+     
+     - Parameters:
+        - opacity:The opacity of the shadow. The default value is `0.4`.
+        - radius: The blur radius of the shadow. The default value is `2.0`.
+        - offset: The offset of the shadow. The default value is `[1.0, -1.5]`.
+     */
     public static func black(opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self { Self(color: .black, opacity: opacity, radius: radius, offset: offset) }
     
-    /// A configuration for a white shadow.
+    /**
+     A configuration for a white shadow.
+     
+     - Parameters:
+        - opacity:The opacity of the shadow. The default value is `0.4`.
+        - radius: The blur radius of the shadow. The default value is `2.0`.
+        - offset: The offset of the shadow. The default value is `[1.0, -1.5]`.
+     */
     public static func white(opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: 1.5)) -> Self { Self(color: .white, opacity: opacity, radius: radius, offset: offset) }
     
-    /// A configuration for a shadow with the specified color.
+    /**
+     A configuration for a shadow with the specified color.
+     
+     - Parameters:
+        - color:The color of the shadow.
+        - opacity:The opacity of the shadow. The default value is `0.4`.
+        - radius: The blur radius of the shadow. The default value is `2.0`.
+        - offset: The offset of the shadow. The default value is `[1.0, -1.5]`.
+     */
     public static func color(_ color: NSUIColor, opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self {
         Self(color: color, opacity: opacity, radius: radius, offset: offset)
     }
     
-    /// A configuration for a accent color shadow.
+    /**
+     A configuration for a accent color shadow.
+     
+     - Parameters:
+        - opacity:The opacity of the shadow. The default value is `0.4`.
+        - radius: The blur radius of the shadow. The default value is `2.0`.
+        - offset: The offset of the shadow. The default value is `[1.0, -1.5]`.
+     */
     public static func accentColor(opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) -> Self { Self(color: .controlAccentColor, opacity: opacity, radius: radius, offset: offset) }
     
     #else
-    /// A configuration for a black shadow.
-    public static func black(opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: -1.0, y: 1.5)) -> Self { Self(color: .black, opacity: opacity, radius: radius, offset: offset) }
+    /**
+     A configuration for a black shadow.
+     
+     - Parameters:
+        - opacity:The opacity of the shadow. The default value is `0.4`.
+        - radius: The blur radius of the shadow. The default value is `2.0`.
+        - offset: The offset of the shadow. The default value is `[1.0, 1.5]`.
+     */
+    public static func black(opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: 1.5)) -> Self { Self(color: .black, opacity: opacity, radius: radius, offset: offset) }
     
-    /// A configuration for a white shadow.
-    public static func white(opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: -1.0, y: 1.5)) -> Self { Self(color: .white, opacity: opacity, radius: radius, offset: offset) }
+    /**
+     A configuration for a white shadow.
+     
+     - Parameters:
+        - opacity:The opacity of the shadow. The default value is `0.4`.
+        - radius: The blur radius of the shadow. The default value is `2.0`.
+        - offset: The offset of the shadow. The default value is `[1.0, 1.5]`.
+     */
+    public static func white(opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: 1.5)) -> Self { Self(color: .white, opacity: opacity, radius: radius, offset: offset) }
     
-    /// A configuration for a shadow with the specified color.
-    public static func color(_ color: NSUIColor, opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: -1.0, y: 1.5)) -> Self {
+    /**
+     A configuration for a shadow with the specified color.
+     
+     - Parameters:
+        - color:The color of the shadow.
+        - opacity:The opacity of the shadow. The default value is `0.4`.
+        - radius: The blur radius of the shadow. The default value is `2.0`.
+        - offset: The offset of the shadow. The default value is `[1.0, 1.5]`.
+     */
+    public static func color(_ color: NSUIColor, opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: 1.5)) -> Self {
         Self(color: color, opacity: opacity, radius: radius, offset: offset)
     }
     
-    /// A configuration for a tint color shadow.
+    /**
+     A configuration for a tint color shadow.
+     
+     - Parameters:
+        - opacity:The opacity of the shadow. The default value is `0.4`.
+        - radius: The blur radius of the shadow. The default value is `2.0`.
+        - offset: The offset of the shadow. The default value is `[1.0, 1.5]`.
+     */
     @available(iOS 15.0, tvOS 15.0, *)
-    public static func tintColor(opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: -1.0, y: 1.5)) -> Self { Self(color: .tintColor, opacity: opacity, radius: radius, offset: offset) }
+    public static func tintColor(opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: 1.5)) -> Self { Self(color: .tintColor, opacity: opacity, radius: radius, offset: offset) }
     #endif
     
     var nsShadow: NSShadow {
@@ -288,6 +368,13 @@ public extension NSShadow {
             shadowOffset = newValue.offset.size
             shadowBlurRadius = newValue.radius
         }
+    }
+}
+
+public extension CGContext {
+    /// Enables shadowing with color a graphics context.
+    func setShadow(_ configuration: ShadowConfiguration) {
+        setShadow(offset: configuration.offset.size, blur: configuration.opacity, color: configuration.resolvedColor()?.cgColor)
     }
 }
 

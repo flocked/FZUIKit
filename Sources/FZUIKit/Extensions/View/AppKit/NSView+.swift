@@ -306,8 +306,10 @@
         }
 
         /**
-         The anchor point of the view’s bounds rectangle.
-
+         The anchor point for the view’s position along the z axis.
+         
+         
+         
          You specify the value for this property using the unit coordinate space, where (0, 0) is the bottom-left corner of the view’s bounds rectangle, and (1, 1) is the top-right corner.
 
          All geometric manipulations to the view occur about the specified point. For example, applying a rotation transform to a view with the default anchor point causes the view to rotate around its center. Changing the anchor point to a different location causes the view to rotate around that new point.
@@ -331,6 +333,28 @@
             }
             set { setAnchorPoint(CGPoint(newValue.x, newValue.y)) }
         }
+        
+        /**
+         The anchor point for the view’s position along the z axis.
+         
+         Using this property turns the view into a layer-backed view. The value can be animated via `animator().anchorPointZ`.
+
+         The default value is `0.0`.
+         */
+        public var anchorPointZ: CGFloat {
+            get { _anchorPointZ }
+            set {
+                NSView.swizzleAnimationForKey()
+                _anchorPointZ = newValue
+            }
+        }
+        
+        @objc var _anchorPointZ: CGFloat {
+            get { layer?.anchorPointZ ?? .zero }
+            set { optionalLayer?.anchorPointZ = newValue }
+        }
+        
+        
 
         /**
          The corner radius of the view.
@@ -1039,7 +1063,7 @@
     }
 
 /// The `NSView` properties keys that can be animated.
-fileprivate let NSViewAnimationKeys: Set<String> = ["_anchorPoint", "_borderColor", "_borderWidth", "_center", "_contentOffset", "_contentOffsetFractional", "_cornerRadius", "_documentSize",  "_fontSize", "_inverseMask", "_mask", "_placeholderTextColor", "_roundedCorners", "_screenFrame", "_selectionColor", "_selectionTextColor", "_shadowPath", "_transform", "_transform3D", "_windowFrame", "_zPosition", "__cornerRadius", "backgroundColor", "backgroundColorAnimatable", "bezelColor", "borderColor", "borderWidth", "contentTintColor", "cornerRadius", "fillColor", "gradientColors", "gradientEndPoint", "gradientLocations", "gradientStartPoint", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "textColor"]
+fileprivate let NSViewAnimationKeys: Set<String> = ["_anchorPoint", "_anchorPointZ", "_borderColor", "_borderWidth", "_center", "_contentOffset", "_contentOffsetFractional", "_cornerRadius", "_documentSize",  "_fontSize", "_inverseMask", "_mask", "_placeholderTextColor", "_roundedCorners", "_screenFrame", "_selectionColor", "_selectionTextColor", "_shadowPath", "_transform", "_transform3D", "_windowFrame", "_zPosition", "__cornerRadius", "backgroundColor", "backgroundColorAnimatable", "bezelColor", "borderColor", "borderWidth", "contentTintColor", "cornerRadius", "fillColor", "gradientColors", "gradientEndPoint", "gradientLocations", "gradientStartPoint", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "textColor"]
 
 fileprivate extension CALayer {
     var isVisible: Bool {
