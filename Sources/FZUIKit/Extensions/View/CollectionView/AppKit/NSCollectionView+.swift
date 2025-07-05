@@ -299,7 +299,15 @@
             set { setAssociatedValue(newValue, key: "dragSelectionGestureRecognizer") }
         }
         
+        var toggleDelayTime: CGFloat {
+            get { toggleSelectionGestureRecognizer?.toggleDelayTime ?? 0.0 }
+            set { toggleSelectionGestureRecognizer?.toggleDelayTime = newValue }
+        }
+        
         internal class ToggleSelectionGestureRecognizer: NSGestureRecognizer {
+            private var delayedToggle: DispatchWorkItem?
+            var toggleDelayTime: CGFloat = 0.05
+
             init() {
                 super.init(target: nil, action: nil)
                 delaysPrimaryMouseButtonEvents = true
@@ -309,14 +317,30 @@
             required init?(coder: NSCoder) {
                 fatalError("init(coder:) has not been implemented")
             }
-            
+                        
             override func mouseDown(with event: NSEvent) {
                 state = .began
                 if let collectionView = view as? NSUICollectionView, collectionView.isSelectable, let indexPath = collectionView.indexPathForItem(at: event.location(in: collectionView)) {
-                    if collectionView.selectionIndexPaths.contains(indexPath) {
-                        collectionView.deselectItemsUsingDelegate(Set([indexPath]))
+                    let shouldDeselect = collectionView.selectionIndexPaths.contains(indexPath)
+                    func toggle() {
+                        if shouldDeselect {
+                            collectionView.deselectItemsUsingDelegate(Set([indexPath]))
+                        } else {
+                            collectionView.selectItemsUsingDelegate(Set([indexPath]))
+                        }
+                    }
+                    if collectionView.doubleClickGesture != nil {
+                        if event.clickCount == 1 {
+                            collectionView.selectItemsUsingDelegate(Set([indexPath]))
+                            delayedToggle = DispatchWorkItem {
+                                toggle()
+                            }.perform(after: toggleDelayTime)
+                        } else {
+                            delayedToggle?.cancel()
+                            delayedToggle = nil
+                        }
                     } else {
-                        collectionView.selectItemsUsingDelegate(Set([indexPath]))
+                        toggle()
                     }
                     state = .ended
                 } else {
@@ -325,7 +349,6 @@
             }
             
             override func shouldRequireFailure(of otherGestureRecognizer: NSGestureRecognizer) -> Bool {
-                Swift.print("shouldRequireFailure", otherGestureRecognizer)
                 return otherGestureRecognizer is DoubleClickGestureRecognizer
             }
             
