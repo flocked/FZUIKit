@@ -429,7 +429,7 @@ extension NSCollectionView {
     class CollectionDoubleClickGestureRecognizer: NSGestureRecognizer {
         override func mouseDown(with event: NSEvent) {
             state = event.clickCount == 2 ? .recognized : .failed
-            guard let collectionView = view as? NSCollectionView, let gestureRecognizer =  collectionView.toggleSelectionGestureRecognizer, gestureRecognizer.didDeSelect else { return }
+            guard event.clickCount >= 2, let collectionView = view as? NSCollectionView, let gestureRecognizer =  collectionView.toggleSelectionGestureRecognizer, gestureRecognizer.didDeSelect else { return }
             collectionView.selectItemsUsingDelegate(Set([gestureRecognizer.deselectedIndexPath]))
         }
     }
