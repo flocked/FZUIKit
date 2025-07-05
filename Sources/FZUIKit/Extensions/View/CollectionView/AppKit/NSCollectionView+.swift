@@ -318,12 +318,13 @@
                 fatalError("init(coder:) has not been implemented")
             }
                         
+            var startTime = CFAbsoluteTimeGetCurrent()
             override func mouseDown(with event: NSEvent) {
+                
                 state = .began
                 if let collectionView = view as? NSUICollectionView, collectionView.isSelectable, let indexPath = collectionView.indexPathForItem(at: event.location(in: collectionView)) {
-                    let shouldDeselect = collectionView.selectionIndexPaths.contains(indexPath)
                     func toggle() {
-                        if shouldDeselect {
+                        if collectionView.selectionIndexPaths.contains(indexPath) {
                             collectionView.deselectItemsUsingDelegate(Set([indexPath]))
                         } else {
                             collectionView.selectItemsUsingDelegate(Set([indexPath]))
@@ -331,11 +332,18 @@
                     }
                     if collectionView.doubleClickGesture != nil {
                         if event.clickCount == 1 {
-                            collectionView.selectItemsUsingDelegate(Set([indexPath]))
+                            startTime = CFAbsoluteTimeGetCurrent()
                             delayedToggle = DispatchWorkItem {
                                 toggle()
                             }.perform(after: toggleDelayTime)
                         } else {
+                            if event.clickCount == 2 {
+                                let timeElapsed = CFAbsoluteTimeGetCurrent() - startTime
+                                if CFAbsoluteTimeGetCurrent() - startTime < toggleDelayTime {
+                                    Swift.print("timeElapsed: \(TimeDuration(timeElapsed).string())", timeElapsed, toggleDelayTime)
+                                    collectionView.selectItemsUsingDelegate(Set([indexPath]))
+                                }
+                            }
                             delayedToggle?.cancel()
                             delayedToggle = nil
                         }
