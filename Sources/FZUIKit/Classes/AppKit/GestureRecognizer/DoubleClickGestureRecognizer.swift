@@ -7,6 +7,7 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
 /// A gesture recognizer that tracks double mouse clicks.
 open class DoubleClickGestureRecognizer: NSGestureRecognizer {

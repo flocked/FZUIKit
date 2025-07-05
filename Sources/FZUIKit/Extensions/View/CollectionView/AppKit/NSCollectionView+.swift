@@ -253,7 +253,7 @@
         /**
          A Boolean value indicating whether the selection of an item is toggled when the user clicks it.
          
-         The default value is `false`.
+         The default value is `false` where clicking an item selects it exclusively unless the `Command` key is held, in which case it toggles selection.
          */
         var togglesSelection: Bool {
             get { toggleSelectionGestureRecognizer != nil }
@@ -375,10 +375,9 @@
             if let shouldSelect = delegate?.collectionView(_:shouldSelectItemsAt:) {
                 indexPaths = shouldSelect(self, indexPaths)
             }
-            if !indexPaths.isEmpty {
-                selectItems(at: indexPaths, scrollPosition: [])
-                delegate?.collectionView?(self, didSelectItemsAt: indexPaths)
-            }
+            guard !indexPaths.isEmpty else { return }
+            selectItems(at: indexPaths, scrollPosition: [])
+            delegate?.collectionView?(self, didSelectItemsAt: indexPaths)
         }
         
         internal func deselectItemsUsingDelegate(_ indexPaths: Set<IndexPath>) {
@@ -386,10 +385,9 @@
             if let shouldDeselect = delegate?.collectionView(_:shouldDeselectItemsAt:) {
                 indexPaths = shouldDeselect(self, indexPaths)
             }
-            if !indexPaths.isEmpty {
-                deselectItems(at: indexPaths)
-                delegate?.collectionView?(self, didDeselectItemsAt: indexPaths)
-            }
+            guard !indexPaths.isEmpty else { return }
+            deselectItems(at: indexPaths)
+            delegate?.collectionView?(self, didDeselectItemsAt: indexPaths)
         }
     }
 
@@ -407,6 +405,7 @@ extension NSCollectionView {
                     newValue(self.indexPathForItem(at: gesture.location(in: self)))
                 }
                 addGestureRecognizer(doubleClickGesture!)
+              //  doubleClickGesture?.shouldBeRequiredToFail(by: <#T##NSGestureRecognizer#>)
             }
         }
     }

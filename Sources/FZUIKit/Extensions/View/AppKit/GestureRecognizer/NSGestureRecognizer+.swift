@@ -90,7 +90,7 @@ extension NSGestureRecognizer {
         public var shouldBegin: (()->(Bool))?
         
         /// The handler that determines whether the gesture recognizer should process an event.
-        public var shouldProcessEvent: ((NSEvent)->(Bool))?
+        public var shouldAttemptToRecognizeEvent: ((NSEvent)->(Bool))?
         
         /// The handler that determines whether the gesture recognizer should receive a touchbar touch.
         public var shouldReceiveTouch: ((NSTouch)->(Bool))?
@@ -105,7 +105,7 @@ extension NSGestureRecognizer {
         public var shouldRecognizeSimultaneously: ((NSGestureRecognizer)->(Bool))?
         
         var needsDelegate: Bool {
-            shouldProcessEvent != nil || shouldBegin != nil || shouldReceiveTouch != nil || shouldRequireFailure != nil || shouldBeRequiredToFail != nil || shouldRecognizeSimultaneously != nil
+            shouldAttemptToRecognizeEvent != nil || shouldBegin != nil || shouldReceiveTouch != nil || shouldRequireFailure != nil || shouldBeRequiredToFail != nil || shouldRecognizeSimultaneously != nil
         }
     }
     
@@ -114,52 +114,96 @@ extension NSGestureRecognizer {
         get { getAssociatedValue("handlers", initialValue: Handlers()) }
         set {
             setAssociatedValue(newValue, key: "handlers")
-            if !newValue.needsDelegate {
-                if delegate === delegateProxy {
-                    delegate = nil
-                }
-                delegateProxy = nil
-            } else {
-                if delegateProxy == nil {
-                    delegateProxy = .init()
-                    delegate = delegateProxy!
-                }
-                delegateProxy?.handlers = newValue
-            }
+            setupDelegate()
+        }
+    }
+    
+    /// The gesture recognizers that require failure of this gesture recognizer before they recognize their gestures.
+    public var recognizersThatRequireFail: Set<NSGestureRecognizer> {
+        get {  Set(_recognizersThatRequireFail.nonNil)  }
+        set {
+            _recognizersThatRequireFail = Set(newValue.map({ Weak($0) }))
+            setupDelegate()
+        }
+    }
+
+    
+    /// The gesture recogniters that must fail before this gesture recognizer begins recognizing its gesture.
+    public var recognizersThatNeedToFail: Set<NSGestureRecognizer> {
+        get {  Set(_recognizersThatNeedToFail.nonNil)  }
+        set {
+            _recognizersThatNeedToFail = Set(newValue.map({ Weak($0) }))
+            setupDelegate()
+        }
+    }
+    
+    private func setupDelegate() {
+        if !handlers.needsDelegate && recognizersThatRequireFail.isEmpty && recognizersThatNeedToFail.isEmpty {
+            guard delegateProxy != nil else { return }
+            delegateProxy?.delegateObservation = nil
+            delegate = delegateProxy?.delegate
+            delegateProxy = nil
+        } else if delegateProxy == nil {
+            delegateProxy = Delegate(for: self)
         }
     }
     
     private var delegateProxy: Delegate? {
-        get { getAssociatedValue("delegate") }
-        set { setAssociatedValue(newValue, key: "delegate") }
+        get { getAssociatedValue("delegateProxy") }
+        set { setAssociatedValue(newValue, key: "delegateProxy") }
     }
     
     private class Delegate: NSObject, NSGestureRecognizerDelegate {
         var handlers = Handlers()
+        weak var gestureRecognizer: NSGestureRecognizer?
+        weak var delegate: NSGestureRecognizerDelegate?
+        var delegateObservation: KeyValueObservation?
         
-        func gestureRecognizerShouldBegin(_ gestureRecognizer: NSGestureRecognizer) -> Bool {
-            handlers.shouldBegin?() ?? true
-        }
-        
-        func gestureRecognizer(_ gestureRecognizer: NSGestureRecognizer, shouldReceive touch: NSTouch) -> Bool {
-            handlers.shouldReceiveTouch?(touch) ?? true
+        init(for gestureRecognizer: NSGestureRecognizer) {
+            super.init()
+            delegate = gestureRecognizer.delegate
+            self.gestureRecognizer = gestureRecognizer
+            gestureRecognizer.delegate = self
+            delegateObservation = gestureRecognizer.observeChanges(for: \.delegate) { [weak self] old, new in
+                guard let self = self, let gestureRecognizer = self.gestureRecognizer, new !== self else { return }
+                self.delegate = new
+                gestureRecognizer.delegate = self
+            }
         }
         
         func gestureRecognizer(_ gestureRecognizer: NSGestureRecognizer, shouldRequireFailureOf otherGestureRecognizer: NSGestureRecognizer) -> Bool {
-            handlers.shouldRequireFailure?(otherGestureRecognizer) ?? false
+            delegate?.gestureRecognizer?(gestureRecognizer, shouldRequireFailureOf: otherGestureRecognizer) ?? handlers.shouldRequireFailure?(otherGestureRecognizer) ??  gestureRecognizer.recognizersThatNeedToFail.contains(otherGestureRecognizer)
         }
         
         func gestureRecognizer(_ gestureRecognizer: NSGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: NSGestureRecognizer) -> Bool {
-            handlers.shouldBeRequiredToFail?(otherGestureRecognizer) ?? false
-        }
-        
-        func gestureRecognizer(_ gestureRecognizer: NSGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: NSGestureRecognizer) -> Bool {
-            handlers.shouldRecognizeSimultaneously?(otherGestureRecognizer) ?? false
+            delegate?.gestureRecognizer?(gestureRecognizer, shouldBeRequiredToFailBy: otherGestureRecognizer) ?? handlers.shouldBeRequiredToFail?(otherGestureRecognizer) ??  gestureRecognizer.recognizersThatRequireFail.contains(otherGestureRecognizer)
         }
         
         func gestureRecognizer(_ gestureRecognizer: NSGestureRecognizer, shouldAttemptToRecognizeWith event: NSEvent) -> Bool {
-            handlers.shouldProcessEvent?(event) ?? true
+            delegate?.gestureRecognizer?(gestureRecognizer, shouldAttemptToRecognizeWith: event) ?? handlers.shouldAttemptToRecognizeEvent?(event) ?? true
         }
+        
+        func gestureRecognizerShouldBegin(_ gestureRecognizer: NSGestureRecognizer) -> Bool {
+            delegate?.gestureRecognizerShouldBegin?(gestureRecognizer) ?? handlers.shouldBegin?() ?? true
+        }
+        
+        func gestureRecognizer(_ gestureRecognizer: NSGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: NSGestureRecognizer) -> Bool {
+            delegate?.gestureRecognizer?(gestureRecognizer, shouldRecognizeSimultaneouslyWith: otherGestureRecognizer) ?? handlers.shouldRecognizeSimultaneously?(otherGestureRecognizer) ?? false
+        }
+        
+        func gestureRecognizer(_ gestureRecognizer: NSGestureRecognizer, shouldReceive touch: NSTouch) -> Bool {
+            delegate?.gestureRecognizer?(gestureRecognizer, shouldReceive: touch) ?? handlers.shouldReceiveTouch?(touch) ?? true
+        }
+    }
+    
+    private var _recognizersThatNeedToFail: Set<Weak<NSGestureRecognizer>> {
+        get { getAssociatedValue("recognizersThatNeedToFail") ?? [] }
+        set { setAssociatedValue(newValue, key: "recognizersThatNeedToFail") }
+    }
+    
+    private var _recognizersThatRequireFail: Set<Weak<NSGestureRecognizer>> {
+        get { getAssociatedValue("_recognizersThatRequireFail") ?? [] }
+        set { setAssociatedValue(newValue, key: "_recognizersThatRequireFail") }
     }
 }
 

@@ -23,7 +23,7 @@
          */
         public var anchorPointZ: CGFloat {
             get { layer.anchorPointZ }
-            set { layer.anchorPointZ = newValue }
+            set { layer.anchorPointZ = newValue     }
         }
 
         /**
