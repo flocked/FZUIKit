@@ -324,6 +324,11 @@
                 }
             }
             
+            override func shouldRequireFailure(of otherGestureRecognizer: NSGestureRecognizer) -> Bool {
+                Swift.print("shouldRequireFailure", otherGestureRecognizer)
+                return otherGestureRecognizer is DoubleClickGestureRecognizer
+            }
+            
             override func mouseUp(with event: NSEvent) {
                 state = .began
                 state = .failed
@@ -406,9 +411,7 @@ extension NSCollectionView {
                     newValue(self.indexPathForItem(at: gesture.location(in: self)))
                 }
                 addGestureRecognizer(doubleClickGesture!)
-                if let toggleGestureRecognizer = toggleSelectionGestureRecognizer {
-                    doubleClickGesture?.recognizersThatRequireFail.insert(toggleGestureRecognizer)
-                }
+                doubleClickGesture?.recognizersThatRequireFail += toggleSelectionGestureRecognizer
             }
         }
     }
