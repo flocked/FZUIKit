@@ -259,12 +259,13 @@
             get { toggleSelectionGestureRecognizer != nil }
             set {
                 guard newValue != togglesSelection else { return }
-                if newValue {
-                    toggleSelectionGestureRecognizer = .init()
-                    addGestureRecognizer(toggleSelectionGestureRecognizer!)
-                } else {
+                if !newValue {
                     toggleSelectionGestureRecognizer?.removeFromView()
                     toggleSelectionGestureRecognizer = nil
+                } else if toggleSelectionGestureRecognizer == nil {
+                    toggleSelectionGestureRecognizer = .init()
+                    addGestureRecognizer(toggleSelectionGestureRecognizer!)
+                    doubleClickGesture?.recognizersThatRequireFail.insert(toggleSelectionGestureRecognizer!)
                 }
             }
         }
@@ -278,12 +279,12 @@
             get { dragSelectionGestureRecognizer != nil }
             set {
                 guard newValue != selectsWhileDragging else { return }
-                if newValue {
-                    dragSelectionGestureRecognizer = .init()
-                    addGestureRecognizer(dragSelectionGestureRecognizer!)
-                } else {
+                if !newValue {
                     dragSelectionGestureRecognizer?.removeFromView()
                     dragSelectionGestureRecognizer = nil
+                } else if dragSelectionGestureRecognizer == nil {
+                    dragSelectionGestureRecognizer = .init()
+                    addGestureRecognizer(dragSelectionGestureRecognizer!)
                 }
             }
         }
@@ -405,7 +406,9 @@ extension NSCollectionView {
                     newValue(self.indexPathForItem(at: gesture.location(in: self)))
                 }
                 addGestureRecognizer(doubleClickGesture!)
-              //  doubleClickGesture?.shouldBeRequiredToFail(by: <#T##NSGestureRecognizer#>)
+                if let toggleGestureRecognizer = toggleSelectionGestureRecognizer {
+                    doubleClickGesture?.recognizersThatRequireFail.insert(toggleGestureRecognizer)
+                }
             }
         }
     }
