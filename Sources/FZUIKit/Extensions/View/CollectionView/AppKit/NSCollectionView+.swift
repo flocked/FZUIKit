@@ -265,7 +265,7 @@
                 } else if toggleSelectionGestureRecognizer == nil {
                     toggleSelectionGestureRecognizer = .init()
                     addGestureRecognizer(toggleSelectionGestureRecognizer!)
-                    doubleClickGesture?.recognizersThatRequireFail.insert(toggleSelectionGestureRecognizer!)
+                    doubleClickGesture?.moveToBack()
                 }
             }
         }
@@ -285,6 +285,7 @@
                 } else if dragSelectionGestureRecognizer == nil {
                     dragSelectionGestureRecognizer = .init()
                     addGestureRecognizer(dragSelectionGestureRecognizer!)
+                    doubleClickGesture?.moveToBack()
                 }
             }
         }
@@ -299,15 +300,7 @@
             set { setAssociatedValue(newValue, key: "dragSelectionGestureRecognizer") }
         }
         
-        var toggleDelayTime: CGFloat {
-            get { toggleSelectionGestureRecognizer?.toggleDelayTime ?? 0.0 }
-            set { toggleSelectionGestureRecognizer?.toggleDelayTime = newValue }
-        }
-        
         internal class ToggleSelectionGestureRecognizer: NSGestureRecognizer {
-            private var delayedToggle: DispatchWorkItem?
-            var toggleDelayTime: CGFloat = 0.05
-
             init() {
                 super.init(target: nil, action: nil)
                 delaysPrimaryMouseButtonEvents = true
@@ -317,47 +310,24 @@
             required init?(coder: NSCoder) {
                 fatalError("init(coder:) has not been implemented")
             }
-                        
-            var startTime = CFAbsoluteTimeGetCurrent()
+            
+            var didDeSelect = false
+            var deselectedIndexPath = IndexPath(item: 0, section: 0)
             override func mouseDown(with event: NSEvent) {
-                
                 state = .began
                 if let collectionView = view as? NSUICollectionView, collectionView.isSelectable, let indexPath = collectionView.indexPathForItem(at: event.location(in: collectionView)) {
-                    func toggle() {
-                        if collectionView.selectionIndexPaths.contains(indexPath) {
-                            collectionView.deselectItemsUsingDelegate(Set([indexPath]))
-                        } else {
-                            collectionView.selectItemsUsingDelegate(Set([indexPath]))
-                        }
-                    }
-                    if collectionView.doubleClickGesture != nil {
-                        if event.clickCount == 1 {
-                            startTime = CFAbsoluteTimeGetCurrent()
-                            delayedToggle = DispatchWorkItem {
-                                toggle()
-                            }.perform(after: toggleDelayTime)
-                        } else {
-                            if event.clickCount == 2 {
-                                let timeElapsed = CFAbsoluteTimeGetCurrent() - startTime
-                                if CFAbsoluteTimeGetCurrent() - startTime < toggleDelayTime {
-                                    Swift.print("timeElapsed: \(TimeDuration(timeElapsed).string())", timeElapsed, toggleDelayTime)
-                                    collectionView.selectItemsUsingDelegate(Set([indexPath]))
-                                }
-                            }
-                            delayedToggle?.cancel()
-                            delayedToggle = nil
-                        }
+                    let shouldDeselect = collectionView.selectionIndexPaths.contains(indexPath)
+                    didDeSelect = shouldDeselect
+                    deselectedIndexPath = indexPath
+                    if shouldDeselect {
+                        collectionView.deselectItemsUsingDelegate(Set([indexPath]))
                     } else {
-                        toggle()
+                        collectionView.selectItemsUsingDelegate(Set([indexPath]))
                     }
                     state = .ended
                 } else {
                     state = .failed
                 }
-            }
-            
-            override func shouldRequireFailure(of otherGestureRecognizer: NSGestureRecognizer) -> Bool {
-                return otherGestureRecognizer is DoubleClickGestureRecognizer
             }
             
             override func mouseUp(with event: NSEvent) {
@@ -442,7 +412,6 @@ extension NSCollectionView {
                     newValue(self.indexPathForItem(at: gesture.location(in: self)))
                 }
                 addGestureRecognizer(doubleClickGesture!)
-                doubleClickGesture?.recognizersThatRequireFail += toggleSelectionGestureRecognizer
             }
         }
     }
@@ -451,9 +420,18 @@ extension NSCollectionView {
         doubleClickHandler?(indexPathForItem(at: gesture.location(in: self)))
     }
     
-    var doubleClickGesture: DoubleClickGestureRecognizer? {
+    var doubleClickGesture: CollectionDoubleClickGestureRecognizer? {
         get { getAssociatedValue("doubleClickGesture") }
         set { setAssociatedValue(newValue, key: "doubleClickGesture") }
+    }
+    
+    /// A gesture recognizer that tracks double mouse clicks.
+    class CollectionDoubleClickGestureRecognizer: NSGestureRecognizer {
+        override func mouseDown(with event: NSEvent) {
+            state = event.clickCount == 2 ? .recognized : .failed
+            guard let collectionView = view as? NSCollectionView, let gestureRecognizer =  collectionView.toggleSelectionGestureRecognizer, gestureRecognizer.didDeSelect else { return }
+            collectionView.selectItemsUsingDelegate(Set([gestureRecognizer.deselectedIndexPath]))
+        }
     }
 }
 
