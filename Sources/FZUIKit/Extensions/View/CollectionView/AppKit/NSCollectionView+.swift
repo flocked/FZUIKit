@@ -311,15 +311,10 @@
                 fatalError("init(coder:) has not been implemented")
             }
             
-            var didDeSelect = false
-            var deselectedIndexPath = IndexPath(item: 0, section: 0)
             override func mouseDown(with event: NSEvent) {
                 state = .began
                 if let collectionView = view as? NSUICollectionView, collectionView.isSelectable, let indexPath = collectionView.indexPathForItem(at: event.location(in: collectionView)) {
-                    let shouldDeselect = collectionView.selectionIndexPaths.contains(indexPath)
-                    didDeSelect = shouldDeselect
-                    deselectedIndexPath = indexPath
-                    if shouldDeselect {
+                    if collectionView.selectionIndexPaths.contains(indexPath) {
                         collectionView.deselectItemsUsingDelegate(Set([indexPath]))
                     } else {
                         collectionView.selectItemsUsingDelegate(Set([indexPath]))
@@ -420,18 +415,9 @@ extension NSCollectionView {
         doubleClickHandler?(indexPathForItem(at: gesture.location(in: self)))
     }
     
-    var doubleClickGesture: CollectionDoubleClickGestureRecognizer? {
+    var doubleClickGesture: DoubleClickGestureRecognizer? {
         get { getAssociatedValue("doubleClickGesture") }
         set { setAssociatedValue(newValue, key: "doubleClickGesture") }
-    }
-    
-    /// A gesture recognizer that tracks double mouse clicks.
-    class CollectionDoubleClickGestureRecognizer: NSGestureRecognizer {
-        override func mouseDown(with event: NSEvent) {
-            state = event.clickCount == 2 ? .recognized : .failed
-            guard event.clickCount >= 2, let collectionView = view as? NSCollectionView, let gestureRecognizer =  collectionView.toggleSelectionGestureRecognizer, gestureRecognizer.didDeSelect else { return }
-            collectionView.selectItemsUsingDelegate(Set([gestureRecognizer.deselectedIndexPath]))
-        }
     }
 }
 
