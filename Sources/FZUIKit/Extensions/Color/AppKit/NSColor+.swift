@@ -15,18 +15,12 @@ public extension NSColor {
      
      - Parameters:
         - name: The name of the color.
-        - light: The light color.
-        - dark: The dark color.
+        - lightColor: The light color.
+        - darkColor: The dark color.
      */
-    convenience init(name: NSColor.Name? = nil,
-                     light lightModeColor: @escaping @autoclosure () -> NSColor,
-                     dark darkModeColor: @escaping @autoclosure () -> NSColor) {
+    convenience init(name: NSColor.Name? = nil, light lightColor: @escaping @autoclosure () -> NSColor, dark darkColor: @escaping @autoclosure () -> NSColor) {
         self.init(name: name, dynamicProvider: { appereance in
-            if appereance.isLight {
-                return lightModeColor()
-            } else {
-                return darkModeColor()
-            }
+            appereance.isLight ? lightColor() : darkColor()
         })
     }
     
@@ -94,11 +88,10 @@ public extension NSColor {
     
     /// Creates a new color object with a supported color space.
     func withSupportedColorSpace() -> NSColor? {
-        if type == .componentBased || type == .catalog {
-            for supportedColorSpace in Self.supportedColorSpaces {
-                if let supportedColor = usingColorSpace(supportedColorSpace) {
-                    return supportedColor
-                }
+        guard type == .componentBased || type == .catalog else { return nil }
+        for supportedColorSpace in Self.supportedColorSpaces {
+            if let supportedColor = usingColorSpace(supportedColorSpace) {
+                return supportedColor
             }
         }
         return nil

@@ -303,6 +303,11 @@ class DropView: NSView {
         return operation
     }
     
+    override func shouldDelayWindowOrdering(for event: NSEvent) -> Bool {
+        // Swift.print("shouldDelayWindowOrdering", event)
+        return super.shouldDelayWindowOrdering(for: event)
+    }
+    
     func canDropFiles(for info: NSDraggingInfo) -> Bool {
         guard handlers.allowedFiles.isValid else { return false }
         var fileURLs = info.pasteboardContent.fileURLs

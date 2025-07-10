@@ -49,7 +49,7 @@ extension NSView {
          */
         public var canDrag: ((_ mouseLocation: CGPoint) -> ([PasteboardWriting]?))?
         /// An optional image used for dragging. If `nil`, a rendered image of the view is used.
-        public var dragImage: ((_ screenLocation: CGPoint, _ content: PasteboardWriting) -> ((image: NSImage, imageFrame: CGRect?)))?
+        public var dragImage: ((_ screenLocation: CGPoint, _ content: PasteboardWriting) -> ((image: NSImage?, imageFrame: CGRect?)))?
         /// The handler that gets called when the user did drag the content to a supported destination.
         public var didDrag: ((_ dragSession: DraggingSession, _ dragOperation: NSDragOperation) -> ())?
         
@@ -93,7 +93,7 @@ fileprivate class DraggingGestureRecognizer: NSGestureRecognizer, NSDraggingSour
     struct DragItem {
         let item: NSDraggingItem
         let content: PasteboardWriting
-        var imageData: (image: NSImage, imageFrame: CGRect?)?
+        var imageData: (image: NSImage?, imageFrame: CGRect?)?
         init(_ content: PasteboardWriting) {
             self.item = .init(content)
             self.content = content
@@ -102,7 +102,7 @@ fileprivate class DraggingGestureRecognizer: NSGestureRecognizer, NSDraggingSour
     
     init() {
         super.init(target: nil, action: nil)
-        delaysPrimaryMouseButtonEvents = true
+      //  delaysPrimaryMouseButtonEvents = true
         reattachesAutomatically = true
     }
     
@@ -111,22 +111,25 @@ fileprivate class DraggingGestureRecognizer: NSGestureRecognizer, NSDraggingSour
     }
     
     override func mouseDown(with event: NSEvent) {
-        state = .began
-        state = .failed
+     //   state = .began
+     //   state = .failed
         if let view = view {
             mouseDownLocation = event.location(in: view)
         }
     }
     
     override func mouseUp(with event: NSEvent) {
-        state = .began
-        state = .failed
+        Swift.print("mouseUp")
+     //   state = .began
+     //   state = .failed
     }
     
     override func mouseDragged(with event: NSEvent) {
-        state = .began
+        Swift.print("mouseDragged")
+
+     //   state = .began
         setupDraggingSession(for: event)
-        state = .failed
+      //  state = .failed
     }
     
     func setupDraggingSession(for event: NSEvent) {
@@ -139,11 +142,11 @@ fileprivate class DraggingGestureRecognizer: NSGestureRecognizer, NSDraggingSour
             draggingItems.editEach({
                 let dragImageData = handler(screenLocation, $0.content)
                 $0.imageData = dragImageData
-                $0.item.setDraggingFrame(dragImageData.imageFrame ?? CGRect(.zero, dragImageData.image.size), contents: dragImageData.image)
+                $0.item.setDraggingFrame(dragImageData.imageFrame ?? CGRect(.zero, dragImageData.image?.size ?? view.bounds.size), contents: dragImageData.image)
             })
         } else {
-            let image = view.renderedImage
-            draggingItems.forEach({ $0.item.setDraggingFrame(view.bounds, contents: image) })
+            draggingItems.forEach({ $0.item.setDraggingFrame(view.bounds, contents: nil) })
+            draggingItems.first?.item.setDraggingFrame(view.bounds, contents: view.renderedImage)
         }
         let session = view.beginDraggingSession(with: draggingItems.compactMap({$0.item}), event: event, source: self)
         session.draggingFormation = view.dragHandlers.draggingFormation
@@ -180,7 +183,7 @@ fileprivate class DraggingGestureRecognizer: NSGestureRecognizer, NSDraggingSour
             let dragImageData = handler(screenPoint, $0.content)
             if $0.imageData?.image != dragImageData.image || $0.imageData?.imageFrame != dragImageData.imageFrame {
                 $0.imageData = dragImageData
-                $0.item.setDraggingFrame(dragImageData.imageFrame ?? CGRect(.zero, dragImageData.image.size), contents: dragImageData.image)
+                $0.item.setDraggingFrame(dragImageData.imageFrame ?? CGRect(.zero, dragImageData.image?.size ?? view?.bounds.size ?? .zero), contents: dragImageData.image)
             }
         })
     }

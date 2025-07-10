@@ -14,16 +14,16 @@
              Creates a dynamic catalog color with the specified light and dark color.
 
              - Parameters:
-                - light: The light color.
-                - dark: The dark color.
+                - lightColor: The light color.
+                - darkColor: The dark color.
              */
             convenience init(
-                light lightModeColor: @escaping @autoclosure () -> UIColor,
-                dark darkModeColor: @escaping @autoclosure () -> UIColor) {
+                light lightColor: @escaping @autoclosure () -> UIColor,
+                dark darkColor: @escaping @autoclosure () -> UIColor) {
                 self.init { traitCollection in
                     switch traitCollection.userInterfaceStyle {
-                    case .dark: return darkModeColor()
-                    default: return lightModeColor()
+                    case .dark: return darkColor()
+                    default: return lightColor()
                     }
                 }
             }

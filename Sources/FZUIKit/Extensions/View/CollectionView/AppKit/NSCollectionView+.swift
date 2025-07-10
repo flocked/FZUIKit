@@ -411,10 +411,6 @@ extension NSCollectionView {
         }
     }
     
-    @objc func didDoubleClick(_ gesture: NSClickGestureRecognizer) {
-        doubleClickHandler?(indexPathForItem(at: gesture.location(in: self)))
-    }
-    
     var doubleClickGesture: DoubleClickGestureRecognizer? {
         get { getAssociatedValue("doubleClickGesture") }
         set { setAssociatedValue(newValue, key: "doubleClickGesture") }
