@@ -50,26 +50,6 @@
             itemI = itemI.filter({$0.1?.intersects(rect) == true})
             return itemI.compactMap({$0.0})
         }
-
-        /// Scrolls the collection view to the top.
-        func scrollToTop(animationDuration: TimeInterval? = nil) {
-            enclosingScrollView?.scrollToTop(animationDuration: animationDuration)
-        }
-
-        /// Scrolls the collection view to the bottom.
-        func scrollToBottom(animationDuration: TimeInterval? = nil) {
-            enclosingScrollView?.scrollToBottom(animationDuration: animationDuration)
-        }
-        
-        /// Scrolls the collection view to the left.
-        func scrollToLeft(animationDuration: TimeInterval? = nil) {
-            enclosingScrollView?.scrollToLeft(animationDuration: animationDuration)
-        }
-        
-        /// Scrolls the collection view to the right.
-        func scrollToRight(animationDuration: TimeInterval? = nil) {
-            enclosingScrollView?.scrollToRight(animationDuration: animationDuration)
-        }
         
         /**
          Changes the collection view layout.

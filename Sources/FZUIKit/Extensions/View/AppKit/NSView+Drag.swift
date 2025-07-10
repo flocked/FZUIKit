@@ -17,7 +17,6 @@ extension NSView {
         set {
             setAssociatedValue(newValue, key: "dragHandlers")
             setupObserverView()
-            setupEventMonitors()
             if newValue.canDrag == nil {
                 draggingGestureRecognizer?.removeFromView()
                 draggingGestureRecognizer = nil

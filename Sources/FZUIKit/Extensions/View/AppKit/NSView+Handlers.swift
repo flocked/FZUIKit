@@ -81,18 +81,158 @@ extension NSView {
         set {
             setAssociatedValue(newValue, key: "mouseHandlers")
             guard !(self is ObserverView) else { return }
-            setupEventMonitors()
             setupObserverView()
+            
+            keyHooks.values.forEach({ try? $0.revert() })
+            keyHooks = [:]
+            if let handler = mouseHandlers.leftDown {
+                do {
+                    mouseHooks["leftDown"] = try hookAfter(#selector(NSView.mouseDown(with:)), closure: { view, selector, event in
+                        handler(event)
+                    } as @convention(block) (NSView, Selector, NSEvent) -> Void)
+                } catch {
+                    Swift.print(error)
+                }
+            }
+            if let handler = mouseHandlers.leftUp {
+                do {
+                    mouseHooks["leftUp"] = try hookAfter(#selector(NSView.mouseUp(with:)), closure: { view, selector, event in
+                        handler(event)
+                    } as @convention(block) (NSView, Selector, NSEvent) -> Void)
+                } catch {
+                    Swift.print(error)
+                }
+            }
+            if let handler = mouseHandlers.leftDragged {
+                do {
+                    mouseHooks["leftDragged"] = try hookAfter(#selector(NSView.mouseDragged(with:)), closure: { view, selector, event in
+                        handler(event)
+                    } as @convention(block) (NSView, Selector, NSEvent) -> Void)
+                } catch {
+                    Swift.print(error)
+                }
+            }
+            if let handler = mouseHandlers.rightDown {
+                do {
+                    mouseHooks["rightDown"] = try hookAfter(#selector(NSView.rightMouseDown(with:)), closure: { view, selector, event in
+                        handler(event)
+                    } as @convention(block) (NSView, Selector, NSEvent) -> Void)
+                } catch {
+                    Swift.print(error)
+                }
+            }
+            if let handler = mouseHandlers.rightUp {
+                do {
+                    mouseHooks["rightUp"] = try hookAfter(#selector(NSView.rightMouseUp(with:)), closure: { view, selector, event in
+                        handler(event)
+                    } as @convention(block) (NSView, Selector, NSEvent) -> Void)
+                } catch {
+                    Swift.print(error)
+                }
+            }
+            if let handler = mouseHandlers.rightDragged {
+                do {
+                    mouseHooks["rightDragged"] = try hookAfter(#selector(NSView.rightMouseDragged(with:)), closure: { view, selector, event in
+                        handler(event)
+                    } as @convention(block) (NSView, Selector, NSEvent) -> Void)
+                } catch {
+                    Swift.print(error)
+                }
+            }
+            if let handler = mouseHandlers.otherDown {
+                do {
+                    mouseHooks["otherDown"] = try hookAfter(#selector(NSView.otherMouseDown(with:)), closure: { view, selector, event in
+                        handler(event)
+                    } as @convention(block) (NSView, Selector, NSEvent) -> Void)
+                } catch {
+                    Swift.print(error)
+                }
+            }
+            if let handler = mouseHandlers.otherUp {
+                do {
+                    mouseHooks["otherUp"] = try hookAfter(#selector(NSView.otherMouseUp(with:)), closure: { view, selector, event in
+                        handler(event)
+                    } as @convention(block) (NSView, Selector, NSEvent) -> Void)
+                } catch {
+                    Swift.print(error)
+                }
+            }
+            if let handler = mouseHandlers.otherDragged {
+                do {
+                    mouseHooks["otherDragged"] = try hookAfter(#selector(NSView.otherMouseDragged(with:)), closure: { view, selector, event in
+                        handler(event)
+                    } as @convention(block) (NSView, Selector, NSEvent) -> Void)
+                } catch {
+                    Swift.print(error)
+                }
+            }
+            if let handler = mouseHandlers.rotate {
+                do {
+                    mouseHooks["rotate"] = try hookAfter(#selector(NSView.rotate(with:)), closure: { view, selector, event in
+                        handler(event)
+                    } as @convention(block) (NSView, Selector, NSEvent) -> Void)
+                } catch {
+                    Swift.print(error)
+                }
+            }
+            if let handler = mouseHandlers.magnify {
+                do {
+                    mouseHooks["magnify"] = try hookAfter(#selector(NSView.magnify(with:)), closure: { view, selector, event in
+                        handler(event)
+                    } as @convention(block) (NSView, Selector, NSEvent) -> Void)
+                } catch {
+                    Swift.print(error)
+                }
+            }
         }
+    }
+    
+    fileprivate var mouseHooks: [String: Hook] {
+        get { getAssociatedValue("mouseHooks") ?? [:] }
+        set { setAssociatedValue(newValue, key: "mouseHooks") }
     }
     
     /// The handlers for mouse events.
     public var keyHandlers: KeyHandlers {
         get { getAssociatedValue("keyHandlers", initialValue: KeyHandlers()) }
         set {
+            keyHooks.values.forEach({ try? $0.revert() })
+            keyHooks = [:]
+            if let keyDown = newValue.keyDown {
+                do {
+                    keyHooks["keyDown"] = try hookAfter(#selector(NSView.keyDown(with:)), closure: { view, selector, event in
+                        keyDown(event)
+                    } as @convention(block) (NSView, Selector, NSEvent) -> Void)
+                } catch {
+                    Swift.print(error)
+                }
+            }
+            
+            if let keyUp = newValue.keyUp {
+                do {
+                    keyHooks["keyUp"] = try hookAfter(#selector(NSView.keyUp(with:)), closure: { view, selector, event in
+                        keyUp(event)
+                    } as @convention(block) (NSView, Selector, NSEvent) -> Void)
+                } catch {
+                    Swift.print(error)
+                }
+            }
+            if let flagsChanged = newValue.flagsChanged {
+                do {
+                    keyHooks["flagsChanged"] = try hookAfter(#selector(NSView.flagsChanged(with:)), closure: { view, selector, event in
+                       flagsChanged(event)
+                    } as @convention(block) (NSView, Selector, NSEvent) -> Void)
+                } catch {
+                    Swift.print(error)
+                }
+            }
             setAssociatedValue(newValue, key: "keyHandlers")
-            setupEventMonitors()
         }
+    }
+    
+    fileprivate var keyHooks: [String: Hook] {
+        get { getAssociatedValue("keyHooks") ?? [:] }
+        set { setAssociatedValue(newValue, key: "keyHooks") }
     }
     
     /// The handlers for the view state.
@@ -173,14 +313,10 @@ extension NSView {
         get { getAssociatedValue("touchRecognizerView") }
         set { setAssociatedValue(newValue, key: "touchRecognizerView") }
     }
-        
-    private var observerGestureRecognizer: ObserverGestureRecognizer? {
-        get { getAssociatedValue("observerGestureRecognizer") }
-        set { setAssociatedValue(newValue, key: "observerGestureRecognizer") }
-    }
     
+    /*
     func setupEventMonitors() {
-        if mouseHandlers.needsGestureObserving || keyHandlers.needsObserving {
+        if mouseHandlers.needsGestureObserving {
             if let observerGestureRecognizer = observerGestureRecognizer, gestureRecognizers.contains(observerGestureRecognizer) == false {
                 addGestureRecognizer(observerGestureRecognizer)
             } else if observerGestureRecognizer == nil {
@@ -192,6 +328,7 @@ extension NSView {
             observerGestureRecognizer = nil
         }
     }
+    */
     
     fileprivate var keyWindowObservation: NotificationToken? {
         get { getAssociatedValue("keyWindowObservation") }
@@ -494,7 +631,7 @@ extension NSView {
         /// The handler that gets called when the background style changed.
         public var backgroundStyle: ((BackgroundStyle)->())?
         /// The handler that gets called when the subviews changed.
-        public var subviews: (([NSView])->())?
+        public var subviews: ((_ subviews: [NSView])->())?
         
         var needsObserverView: Bool {
             isLiveResizing != nil
@@ -509,12 +646,6 @@ extension NSView {
         public var keyUp: ((NSEvent) -> ())?
         /// The handler that gets called when the user pressed or released a modifier key (Shift, Control, and so on).
         public var flagsChanged: ((NSEvent) -> ())?
-        
-        var needsObserving: Bool {
-            keyDown != nil ||
-            keyUp != nil ||
-            flagsChanged != nil
-        }
     }
     
     /// The handlers for mouse events.

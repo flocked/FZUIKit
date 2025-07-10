@@ -831,48 +831,6 @@
                 center = superview.bounds.center
             }
         }
-
-        /**
-         Scrolls the view’s closest ancestor `NSClipView` object animated so a point in the view lies at the origin of the clip view's bounds rectangle.
-
-         - Parameters:
-            - point: The point in the view to scroll to.
-            - animationDuration: The animation duration of the scolling.
-         */
-        func scroll(_ point: CGPoint, animationDuration: CGFloat) {
-            if animationDuration > 0.0 {
-                NSAnimationContext.runAnimationGroup {
-                    context in
-                    context.duration = animationDuration
-                    if let enclosingScrollView = self.enclosingScrollView {
-                        enclosingScrollView.contentView.animator().setBoundsOrigin(point)
-                        enclosingScrollView.reflectScrolledClipView(enclosingScrollView.contentView)
-                    }
-                }
-            } else {
-                scroll(point)
-            }
-        }
-
-        /**
-         Scrolls the view’s closest ancestor `NSClipView` object  the minimum distance needed animated so a specified region of the view becomes visible in the clip view.
-
-         - Parameters:
-            - rect: The rectangle to be made visible in the clip view.
-            - animationDuration: The animation duration of the scolling.
-         */
-        func scrollToVisible(_ rect: CGRect, animationDuration: CGFloat) {
-            if animationDuration > 0.0 {
-                NSAnimationContext.runAnimationGroup {
-                    context in
-                    context.duration = animationDuration
-                    self.scrollToVisible(rect)
-                }
-
-            } else {
-                scrollToVisible(rect)
-            }
-        }
         
         /// Sets the text for the view’s tooltip.
         @discardableResult
@@ -1062,6 +1020,28 @@ fileprivate let NSViewAnimationKeys: Set<String> = ["_anchorPoint", "_anchorPoin
 fileprivate extension CALayer {
     var isVisible: Bool {
         !isHidden && opacity > 0.0
+    }
+}
+
+extension NSViewProtocol {
+    /// Scrolls the enclosing scroll view to the top.
+    public func scrollToTop() {
+        enclosingScrollView?.animator(isProxy()).scrollToTop()
+    }
+
+    /// Scrolls the enclosing scroll view to the bottom.
+    public func scrollToBottom() {
+        enclosingScrollView?.animator(isProxy()).scrollToBottom()
+    }
+    
+    /// Scrolls the enclosing scroll view to the left.
+    public func scrollToLeft() {
+        enclosingScrollView?.animator(isProxy()).scrollToLeft()
+    }
+    
+    /// Scrolls the enclosing scroll view to the right.
+    public func scrollToRight() {
+        enclosingScrollView?.animator(isProxy()).scrollToRight()
     }
 }
 

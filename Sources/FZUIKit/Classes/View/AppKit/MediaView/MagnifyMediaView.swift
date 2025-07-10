@@ -566,27 +566,16 @@
             mouseClickZoomFactor = zoomFactor
             return self
         }
-
         
-        open func scroll(to point: CGPoint) {
-            scrollView.contentView.setBoundsOrigin(point)
-            scrollView.scroll(scrollView.contentView, to: point)
-        }
-
-        open func scroll(to point: CGPoint, animationDuration: TimeInterval) {
-            scrollView.scroll(point, animationDuration: animationDuration)
-        }
-
         /**
          Zooms in the image by the specified factor.
          
          - Parameters:
             - factor: The amount by which to zoom in the image.
             - point: The point on which to center magnification.
-            - animationDuration: The animation duration of the zoom, or `nil` if the zoom shouldn't be animated.
          */
-        open func zoomIn(factor: CGFloat = 0.5, centeredAt: CGPoint? = nil, animationDuration: TimeInterval? = nil) {
-            zoom(factor: factor, centeredAt: centeredAt, animationDuration: animationDuration)
+        public func zoomIn(factor: CGFloat = 0.5, centeredAt: CGPoint? = nil) {
+            scrollView.animator(isProxy()).zoomIn(factor: factor, centeredAt: centeredAt)
         }
 
         /**
@@ -595,26 +584,9 @@
          - Parameters:
             - factor: The amount by which to zoom out the image.
             - point: The point on which to center magnification.
-            - animationDuration: The animation duration of the zoom, or `nil` if the zoom shouldn't be animated.
          */
-        open func zoomOut(factor: CGFloat = 0.5, centeredAt: CGPoint? = nil, animationDuration: TimeInterval? = nil) {
-            scrollView.zoom()
-            zoom(factor: -factor, centeredAt: centeredAt, animationDuration: animationDuration)
-        }
-
-        func zoom(factor: CGFloat = 0.5, centeredAt: CGPoint? = nil, animationDuration: TimeInterval? = nil) {
-            if allowsMagnification {
-                let range = maxMagnification - minMagnification
-                if range > 0.0 {
-                    let factor = factor.clamped(to: -1.0 ... 1.0)
-                    let newMag = (magnification + (range * factor)).clamped(to: minMagnification ... maxMagnification)
-                    setMagnification(newMag, centeredAt: centeredAt, animationDuration: animationDuration)
-                    var point = CGPoint.zero
-                    point.x = bounds.size.width / 2.0
-                    point.y = bounds.size.height / 2.0
-                    scrollView.contentOffset = point
-                }
-            }
+        public func zoomOut(factor: CGFloat = 0.5, centeredAt: CGPoint? = nil) {
+            scrollView.animator(isProxy()).zoomOut(factor: factor, centeredAt: centeredAt)
         }
 
         /**
@@ -623,10 +595,13 @@
          - Parameters:
             - magnification: The amount by which to magnify the content.
             - point: The point (in content view space) on which to center magnification, or `nil` if the magnification shouldn't be centered.
-            - animationDuration: The animation duration of the magnification, or `nil` if the magnification shouldn't be animated.
          */
-        open func setMagnification(_ magnification: CGFloat, centeredAt: CGPoint? = nil, animationDuration: TimeInterval? = nil) {
-            scrollView.setMagnification(magnification, centeredAt: centeredAt, animationDuration: animationDuration)
+        public func setMagnification(_ magnification: CGFloat, centeredAt: CGPoint? = nil) {
+            if let centeredAt = centeredAt {
+                scrollView.animator(isProxy()).setMagnification(magnification, centeredAt: centeredAt)
+            } else {
+                scrollView.animator(isProxy()).magnification = magnification
+            }
             if magnification == 1.0 {
                 scrollElasticity = .none
                 hasScrollers = false

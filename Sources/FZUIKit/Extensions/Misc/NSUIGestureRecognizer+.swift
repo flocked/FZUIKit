@@ -33,6 +33,9 @@ extension NSUIGestureRecognizer {
     /// Moves the gesture recognizer to the front of its view’s gesture recognizers, making it the first to receive event handling.
     func moveToFront() {
         guard let view = view else { return }
+        let reattaches = reattachesAutomatically
+        reattachesAutomatically = false
+        defer { reattachesAutomatically = reattaches }
         #if os(macOS)
         var gestureRecognizers = view.gestureRecognizers
         #else
@@ -46,6 +49,9 @@ extension NSUIGestureRecognizer {
     /// Moves the gesture recognizer to the back of its view’s gesture recognizers, making it the last to receive event handling.
     func moveToBack() {
         guard let view = view else { return }
+        let reattaches = reattachesAutomatically
+        reattachesAutomatically = false
+        defer { reattachesAutomatically = reattaches }
         #if os(macOS)
         var gestureRecognizers = view.gestureRecognizers
         #else
@@ -61,12 +67,16 @@ extension NSUIGestureRecognizer {
     /**
      Initializes the gesture recognizer with the specified specfied reattching configuration.
      
-     - Parameter reattachesAutomatically: A Boolean value that indicates whether the gesture recognizer is automatically added again to it's view when it's removed.
+     - Parameters:
+        - reattachesAutomatically: A Boolean value that indicates whether the gesture recognizer is automatically added again to it's view when it's removed.
+        - action: The action handler.
      - Returns: The initialized gesture recognizer object.
      */
-    public convenience init(reattachesAutomatically: Bool) {
+    public convenience init(reattachesAutomatically: Bool, action: ActionBlock? = nil) {
         self.init(target: nil, action: nil)
+        actionBlock = action
         self.reattachesAutomatically = reattachesAutomatically
+        
     }
     
     /// A Boolean value that indicates whether the gesture recognizer is automatically added again to it's view when it's removed.
@@ -97,7 +107,7 @@ extension NSUIGestureRecognizer {
         return self
     }
     
-    var reattachViewObservation: KeyValueObservation? {
+    fileprivate var reattachViewObservation: KeyValueObservation? {
         get { getAssociatedValue("reattachViewObservation") }
         set { setAssociatedValue(newValue, key: "reattachViewObservation") }
     }
