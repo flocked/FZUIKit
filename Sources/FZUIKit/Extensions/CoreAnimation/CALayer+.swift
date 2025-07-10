@@ -129,6 +129,7 @@ import FZSwiftUtils
                 } else if mask is PathShapeMaskLayer {
                     mask = nil
                 }
+                shadowShape = newValue
                 setupBoderLayer(for: border)
             }
         }

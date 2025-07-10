@@ -14,6 +14,13 @@
             next as? UIViewController ?? (next as? UIView)?.parentController
         }
         
+        /// Sets the background color of the view.
+        @discardableResult
+        public func backgroundColor(_ color: NSUIColor?) -> Self {
+            backgroundColor = color
+            return self
+        }
+        
         /**
          The anchor point for the view’s position along the z axis.
          

@@ -101,10 +101,7 @@
         /// The shape that is used for masking the view.
         public var maskShape: PathShape? {
             get { layer?.maskShape }
-            set {
-                optionalLayer?.maskShape = newValue
-                setupShadowShapeView()
-            }
+            set { optionalLayer?.maskShape = newValue  }
         }
 
         /**
@@ -599,10 +596,7 @@
         /// The shape of the shadow.
         public var shadowShape: PathShape? {
             get { layer?.shadowShape }
-            set {
-                optionalLayer?.shadowShape = newValue
-                setupShadowShapeView()
-            }
+            set { optionalLayer?.shadowShape = newValue }
         }
         
         func setupShadowShapeView() {
@@ -891,12 +885,11 @@
          Sets the view’s tag that you use to identify the view within your app.
          
          - Parameter tag: The tag for the view, or `nil` to use the view's original tag.
-         
-         - Throws: An error, if the tag couldn't be set.
          */
-        public func setTag(_ tag: Int?) throws {
+        @discardableResult
+        public func tag(_ tag: Int?) -> Self {
             revertHooks(for: #selector(getter: NSView.tag))
-            guard let tag = tag else { return }
+            guard let tag = tag else { return self }
             do {
                 try hook(#selector(getter: NSView.tag), closure: { original, object, sel in
                     return tag
@@ -904,8 +897,9 @@
                     (NSView, Selector) -> Int,
                     NSView, Selector) -> Int)
             } catch {
-                throw error
+                Swift.print(error)
             }
+            return self
         }
         
         /**

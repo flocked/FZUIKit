@@ -104,6 +104,7 @@ extension NSView {
             setupObservation()
             setupObserverView()
             setupWillMoveToSuperview()
+            setupSubviewObservation()
         }
     }
     
@@ -168,12 +169,12 @@ extension NSView {
         }
     }
     
-    var touchRecognizerView: TouchRecognizerView? {
+    private var touchRecognizerView: TouchRecognizerView? {
         get { getAssociatedValue("touchRecognizerView") }
         set { setAssociatedValue(newValue, key: "touchRecognizerView") }
     }
         
-    var observerGestureRecognizer: ObserverGestureRecognizer? {
+    private var observerGestureRecognizer: ObserverGestureRecognizer? {
         get { getAssociatedValue("observerGestureRecognizer") }
         set { setAssociatedValue(newValue, key: "observerGestureRecognizer") }
     }
@@ -192,11 +193,11 @@ extension NSView {
         }
     }
     
-    var keyWindowObservation: NotificationToken? {
+    fileprivate var keyWindowObservation: NotificationToken? {
         get { getAssociatedValue("keyWindowObservation") }
         set { setAssociatedValue(newValue, key: "keyWindowObservation") }
     }
-    var mainWindowObservation: NotificationToken? {
+    fileprivate var mainWindowObservation: NotificationToken? {
         get { getAssociatedValue("mainWindowObservation") }
         set { setAssociatedValue(newValue, key: "mainWindowObservation") }
     }
@@ -206,7 +207,7 @@ extension NSView {
         set { setAssociatedValue(newValue, key: "backgroundStyleObserverView") }
     }
     
-    func setupObservation() {
+    fileprivate func setupObservation() {
         func observe<Value: Equatable>(_ keyPath: KeyPath<NSView, Value>, handler: KeyPath<NSView, ((Value)->())?>) {
             if self[keyPath: handler] == nil {
                  viewObserver.remove(keyPath)
@@ -264,7 +265,7 @@ extension NSView {
         }
     }
     
-    func setupWindowObservation() {
+    fileprivate func setupWindowObservation() {
         if let window = window {
             if let handler = windowHandlers.isKey {
                 keyWindowObservation = window.observeIsKey(handler: handler)
@@ -295,12 +296,12 @@ extension NSView {
         }
     }
     
-    var willMoveToWindowHook: Hook? {
+    fileprivate var willMoveToWindowHook: Hook? {
         get { getAssociatedValue("willMoveToWindowHook") }
         set { setAssociatedValue(newValue, key: "willMoveToWindowHook") }
     }
     
-    func setupWillMoveToSuperview() {
+    fileprivate func setupWillMoveToSuperview() {
         willMoveToSuperviewHook = nil
         if let handler = viewHandlers.willMoveToSuperview {
             do {
@@ -313,7 +314,7 @@ extension NSView {
         }
     }
     
-    var willMoveToSuperviewHook: Hook? {
+    fileprivate var willMoveToSuperviewHook: Hook? {
         get { getAssociatedValue("willMoveToSuperviewHook") }
         set { setAssociatedValue(newValue, key: "willMoveToSuperviewHook") }
     }
@@ -365,7 +366,7 @@ extension NSView {
         }
     }
     
-    static func setupLiveResizingObservation() {
+    fileprivate static func setupLiveResizingObservation() {
         guard !isMethodHooked(#selector(NSView.viewWillStartLiveResize)) else { return  }
         do {
             try hook(#selector(NSView.viewWillStartLiveResize), closure: { original, object, sel in
@@ -399,17 +400,17 @@ extension NSView {
         }
     }
     
-    var __backgroundStyle: NSView.BackgroundStyle {
+    fileprivate var __backgroundStyle: NSView.BackgroundStyle {
         get { getAssociatedValue("__backgroundStyle") ?? .normal }
         set { setAssociatedValue(newValue, key: "__backgroundStyle") }
     }
     
-    var _inLiveResize: Bool? {
+    fileprivate var _inLiveResize: Bool? {
         get { getAssociatedValue("_inLiveResize") }
         set { setAssociatedValue(newValue, key: "_inLiveResize") }
     }
     
-    var _isFirstResponder: Bool {
+    fileprivate var _isFirstResponder: Bool {
         get { getAssociatedValue("_isFirstResponder", initialValue: isFirstResponder) }
         set { 
             guard newValue != _isFirstResponder else { return }
@@ -418,11 +419,11 @@ extension NSView {
         }
     }
     
-    var viewObserver: KeyValueObserver<NSView> {
+    fileprivate var viewObserver: KeyValueObserver<NSView> {
         get { getAssociatedValue("viewObserver", initialValue: KeyValueObserver(self)) }
     }
     
-    var observerView: ObserverView? {
+    fileprivate var observerView: ObserverView? {
         get { getAssociatedValue("observerView") }
         set { setAssociatedValue(newValue, key: "observerView") }
     }
@@ -489,6 +490,8 @@ extension NSView {
         public var isFirstResponder: ((Bool)->())?
         /// The handler that gets called when the background style changed.
         public var backgroundStyle: ((BackgroundStyle)->())?
+        /// The handler that gets called when the subviews changed.
+        public var subviews: (([NSView])->())?
         
         var needsObserverView: Bool {
             isLiveResizing != nil
@@ -694,7 +697,7 @@ extension NSView {
         */
     }
     
-    class TouchRecognizerView: NSView {
+    fileprivate class TouchRecognizerView: NSView {
         var observation: KeyValueObservation!
         
         init(for view: NSView) {
@@ -743,6 +746,47 @@ extension NSView {
         
         override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
             return false
+        }
+    }
+    
+    fileprivate var subviewIDs: [ObjectIdentifier] {
+        get { getAssociatedValue("subviewIDs") ?? [] }
+        set { setAssociatedValue(newValue, key: "subviewIDs") }
+    }
+    
+    fileprivate func setSubviewIDs(_ ids: [ObjectIdentifier]) {
+        guard subviewIDs != ids else { return }
+        subviewIDs = ids
+        viewHandlers.subviews?(subviews)
+    }
+    
+    fileprivate var subviewHooks: [Hook] {
+        get { getAssociatedValue("subviewHooks") ?? [] }
+        set { setAssociatedValue(newValue, key: "subviewHooks") }
+    }
+    
+    fileprivate func setupSubviewObservation() {
+        if viewHandlers.subviews == nil {
+            subviewHooks.forEach({ try? $0.revert() })
+            subviewHooks = []
+        } else if subviewHooks.isEmpty {
+            do {
+                subviewHooks += try hookAfter(#selector(setter: NSView.subviews)) { view, _ in
+                    view.setSubviewIDs(view.subviews.map({ ObjectIdentifier($0) }))
+                }
+                subviewHooks += try hookAfter(#selector(NSView.didAddSubview(_:))) { view, _ in
+                    view.setSubviewIDs(view.subviews.map({ ObjectIdentifier($0) }))
+                }
+                subviewHooks += try hookAfter(#selector(NSView.willRemoveSubview(_:)), closure: { view, _, removed in
+                    view.setSubviewIDs(view.subviews.filter({ $0 !== removed }).map({ ObjectIdentifier($0) }))
+                } as @convention(block) (NSView, Selector, NSView) -> Void )
+                subviewHooks += try hookAfter(#selector(NSView.addSubview(_:positioned:relativeTo:))) { view, _ in
+                    view.setSubviewIDs(view.subviews.map({ ObjectIdentifier($0) }))
+                }
+                subviewIDs = subviews.map({ ObjectIdentifier($0) })
+            } catch {
+                Swift.print(error)
+            }
         }
     }
 }

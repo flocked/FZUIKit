@@ -126,8 +126,9 @@ import FZSwiftUtils
          - Parameters:
             - subviews: The subviews to move.
             - toIndex: The index for moving.
+            - moveIndividually: A Boolean value indicating whether each subview should be moved one at a time (`true`) or as a group (`false`). Use `true` to preserve relative ordering when moving multiple subviews.
          */
-        @objc open func moveSubviews(_ subviews: [NSUIView], to toIndex: Int, reorder: Bool = false) {
+        @objc open func moveSubviews(_ subviews: [NSUIView], to toIndex: Int, moveIndividually: Bool = false) {
             var indexSet = IndexSet()
             for view in subviews {
                 if let index = subviews.firstIndex(of: view), indexSet.contains(index) == false {
@@ -135,7 +136,7 @@ import FZSwiftUtils
                 }
             }
             if indexSet.isEmpty == false {
-                moveSubviews(at: indexSet, to: toIndex, reorder: reorder)
+                moveSubviews(at: indexSet, to: toIndex, moveIndividually: moveIndividually)
             }
         }
 
@@ -156,30 +157,49 @@ import FZSwiftUtils
          - Parameters:
             - indexes: The indexes of the subviews to move.
             - toIndex: The index where the subviews should be moved to.
+            - moveIndividually: A Boolean value indicating whether each subview should be moved one at a time (`true`) or as a group (`false`). Use `true` to preserve relative ordering when moving multiple subviews.
          */
-        @objc open func moveSubviews(at indexes: IndexSet, to toIndex: Int, reorder: Bool = false) {
+        @objc open func moveSubviews(at indexes: IndexSet, to toIndex: Int, moveIndividually: Bool = false) {
             guard !subviews.isEmpty, toIndex >= 0, toIndex < subviews.count else { return }
             let subviewsCount = subviews.count
             let indexes = indexes.filter { $0 >= 0 && $0 < subviewsCount }
             #if os(macOS)
             var subviews = subviews
-            if reorder {
-                for index in indexes.reversed() {
-                    subviews.move(from: index, to: toIndex)
-                }
-            } else {
-                subviews.move(from: indexes, to: toIndex)
-            }
+            subviews.move(from: moveIndividually ? indexes.reversed() : indexes, to: toIndex)
             self.subviews = subviews
             #elseif canImport(UIKit)
-            var below = subviews[toIndex]
-            let subviewsToMove = reorder ? subviews[indexes].reversed() : subviews[indexes]
-            for subviewToMove in subviewsToMove {
-                insertSubview(subviewToMove, belowSubview: below)
-                below = reorder ? subviews[toIndex] : subviewToMove
+            let movingSubviews = (moveIndividually ? indexes.reversed() : indexes).map { subviews[$0] }
+            var belowSubview = subviews[toIndex]
+            for subview in movingSubviews {
+                insertSubview(subview, belowSubview: belowSubview)
+                belowSubview = moveIndividually ? subview : belowSubview
             }
             #endif
         }
+        
+        #if os(macOS)
+        /**
+         Inserts a view above another view in the view hierarchy.
+         
+         - Parameters:
+            - view: The view to insert. It’s removed from its superview if it’s not a sibling of siblingSubview.
+            - siblingSubview: The sibling view that will be above the inserted view.
+         */
+        @objc open func insertSubview(_ view: NSView, belowSubview siblingSubview: NSView) {
+            addSubview(view, positioned: .below, relativeTo: siblingSubview)
+        }
+        
+        /**
+         Inserts a view above another view in the view hierarchy.
+         
+         - Parameters:
+            - view: The view to insert. It’s removed from its superview if it’s not a sibling of siblingSubview.
+            - siblingSubview: The sibling view that will be behind the inserted view.
+         */
+        @objc open func insertSubview(_ view: NSView, aboveSubview siblingSubview: NSView) {
+            addSubview(view, positioned: .above, relativeTo: siblingSubview)
+        }
+        #endif
 
         /**
          The first superview that matches the specificed view type.
