@@ -102,7 +102,7 @@ fileprivate class DraggingGestureRecognizer: NSGestureRecognizer, NSDraggingSour
     
     init() {
         super.init(target: nil, action: nil)
-      //  delaysPrimaryMouseButtonEvents = true
+        delaysPrimaryMouseButtonEvents = true
         reattachesAutomatically = true
     }
     
@@ -111,25 +111,22 @@ fileprivate class DraggingGestureRecognizer: NSGestureRecognizer, NSDraggingSour
     }
     
     override func mouseDown(with event: NSEvent) {
-     //   state = .began
-     //   state = .failed
+        state = .began
+        state = .failed
         if let view = view {
             mouseDownLocation = event.location(in: view)
         }
     }
     
     override func mouseUp(with event: NSEvent) {
-        Swift.print("mouseUp")
-     //   state = .began
-     //   state = .failed
+        state = .began
+        state = .failed
     }
     
     override func mouseDragged(with event: NSEvent) {
-        Swift.print("mouseDragged")
-
-     //   state = .began
+        state = .began
         setupDraggingSession(for: event)
-      //  state = .failed
+        state = .failed
     }
     
     func setupDraggingSession(for event: NSEvent) {
