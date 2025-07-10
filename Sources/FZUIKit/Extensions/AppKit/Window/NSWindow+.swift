@@ -329,21 +329,63 @@ extension NSWindow {
         return self
     }
     
+    /**
+     The window’s frame size, including the title bar.
+          
+     The value can be animated via `animator().size`.
+     */
+    public var size: CGSize {
+        get { frame.size }
+        set { frameAnimatable.size = newValue }
+    }
+    
+    /**
+     Sets the window’s frame size, including the title bar.
+     
+     - Parameters:
+        - size: The window’s frame size, including the title bar.
+        - expandToBottom:A Boolean value indicating whether the window should expand it's size to the bottom.
+     */
+    @discardableResult
+    public func size(_ size: CGSize, expandToBottom: Bool = false) -> Self {
+        frameAnimatable = expandToBottom ? frame.size(size).offsetBy(dy: size.height - self.frame.height) : frame.size(size)
+        return self
+    }
+    
+    /**
+     The size of the window’s content view.
+     
+     The value can be animated via `animator().contentSize`.
+     */
+    public var contentSize: CGSize {
+        get { _contentSize }
+        set {
+            NSWindow.swizzleAnimationForKey()
+            _contentSize = newValue
+        }
+    }
+    
+    @objc var _contentSize: CGSize {
+        get { contentLayoutRect.size }
+        set { setContentSize(newValue) }
+    }
+    
+    
     /// Sets the size of the window.
     @discardableResult
-    @objc open func size(_ size: CGSize) -> Self {
-        self.setContentSize(size)
+    public func contentSize(_ size: CGSize) -> Self {
+        self.contentSize = size
         return self
     }
     
-    /// Sets the origin of the window.
+    /// Sets the origin of the window’s frame rectangle in screen coordinates.
     @discardableResult
-    @objc open func origin(_ origin: CGPoint) -> Self {
-        self.setFrameOrigin(origin)
+    public func origin(_ origin: CGPoint) -> Self {
+        self.frameAnimatable.origin = origin
         return self
     }
     
-    /// Sets the flags that describe the window’s current style, such as if it’s resizable or in full-screen mode.
+    /// Sets the window style, such as if it’s resizable or in full-screen mode.
     @discardableResult
     @objc open func styleMask(_ styleMask: StyleMask) -> Self {
         self.styleMask = styleMask
@@ -352,7 +394,7 @@ extension NSWindow {
     
     /// Sets the window’s alpha value.
     @discardableResult
-    @objc open func alphaValue(_ alphaValue: CGFloat) -> Self {
+    public func alphaValue(_ alphaValue: CGFloat) -> Self {
         self.alphaValue = alphaValue
         return self
     }
@@ -420,38 +462,6 @@ extension NSWindow {
         return self
     }
     
-    /**
-     Sets the size of the window’s frame rectangle according to a given size.
-     
-     - Parameters:
-     - size: The frame rectangle size for the window, including the title bar.
-     - expandToBottom:A Boolean value that indicates whether the window should expand it's size to the bottom.
-     - display: Specifies whether the window redraws the views that need to be displayed. When `true` the window sends a `displayIfNeeded()` message down its view hierarchy, thus redrawing all views.
-     */
-    @objc open func setSize(_ size: CGSize, expandToBottom: Bool, display: Bool) {
-        setSize(size, expandToBottom: expandToBottom, display: display, animate: false)
-    }
-    
-    /**
-     Sets the size of the window’s frame rectangle, with optional animation, according to a given size.
-     
-     - Parameters:
-     - size: The frame rectangle size for the window, including the title bar.
-     - expandToBottom:A Boolean value that indicates whether the window should expand it's size to the bottom.
-     - display: Specifies whether the window redraws the views that need to be displayed. When `true` the window sends a `displayIfNeeded()` message down its view hierarchy, thus redrawing all views.
-     - animate: Specifies whether the window performs a smooth resize. `true` to perform the animation, whose duration is specified by `animationResizeTime(_:)`.
-     */
-    @objc open func setSize(_ size: CGSize, expandToBottom: Bool, display: Bool, animate: Bool) {
-        var frame = frame
-        frame.size = size
-        if expandToBottom {
-            frame.origin.y -= (frame.height - self.frame.height)
-        }
-        setFrame(frame, display: display)
-        
-        setFrame(frame, display: display, animate: animate)
-    }
-    
     var windowObserver: KeyValueObserver<NSWindow> {
         get { getAssociatedValue("windowObserver", initialValue: KeyValueObserver(self)) }
     }
@@ -491,8 +501,8 @@ extension NSWindow {
      Positions the window’s frame rectangle at a given point on the screen.
      
      - Parameters:
-     - point: The new position of the window’s frame in screen coordinates.
-     - screen: The screen on which the window’s frame gets moved.
+        - point: The new position of the window’s frame in screen coordinates.
+        - screen: The screen on which the window’s frame gets moved.
      */
     @objc open func setFrameOrigin(_ point: CGPoint, on screen: NSScreen) {
         let screenFrame = screen.frame
@@ -536,7 +546,7 @@ extension NSWindow {
     /**
      The animatable window’s frame rectangle in screen coordinates.
      
-     The value can be animated via `animator()`.
+     The value can be animated via `animator().frameAnimatable`.
      */
     public var frameAnimatable: CGRect {
         get { frame }
@@ -605,9 +615,9 @@ extension NSWindow {
      Inserts the provided window as tab.
      
      - Parameters:
-     - window: The window to insert.
-     - position: The position to insert the window.
-     - select: A Boolean value that indicates whether to select the inserted tab.
+        - window: The window to insert.
+        - position: The position to insert the window.
+        - select: A Boolean value that indicates whether to select the inserted tab.
      */
     public func insertTabWindow(_ window: NSWindow, position: NSWindowTabGroup.TabPosition = .afterSelected, select: Bool = true) {
         tabGroup?.insertWindow(window, position: position, select: select)
@@ -929,5 +939,5 @@ extension NSWindow {
     }
 }
 
-fileprivate let NSWindowAnimationKeys = ["_frameAnimatable"]
+fileprivate let NSWindowAnimationKeys = ["_frameAnimatable", "_contentSize"]
 #endif
