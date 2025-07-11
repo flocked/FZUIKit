@@ -993,7 +993,7 @@
         }
         
         func updatedColor<Layer: CALayer>(_ color: NSColor?, _ layer: Layer?, _ keyPath: ReferenceWritableKeyPath<Layer, CGColor?>) -> NSColor? {
-            var color = color?.resolvedColor(for: self)
+            let color = color?.resolvedColor(for: self)
             let layerColor = layer?[keyPath: keyPath]
             if layerColor?.isVisible == false || layerColor == nil {
                 layer?[keyPath: keyPath] = color?.withAlphaComponent(0.0).cgColor

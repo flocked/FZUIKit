@@ -20,21 +20,6 @@ extension NSWindow {
         order(.below, relativeTo: window.windowNumber)
     }
     
-    /// Observes the main state of the window.
-    func observeIsMain(handler: @escaping (_ isMain: Bool)->()) -> NotificationToken {
-        [NotificationCenter.default.observe(NSWindow.didBecomeMainNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignMainNotification, object: self) { _ in handler(false) }].combinedNotificationToken!
-    }
-    
-    /// Observes the key state of the window.
-    func observeIsKey(handler: @escaping (_ isKey: Bool)->()) -> NotificationToken {
-        [NotificationCenter.default.observe(NSWindow.didBecomeKeyNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignKeyNotification, object: self) { _ in handler(false) }].combinedNotificationToken!
-    }
-    
-    /// Observes the resizing of the window by the user.
-    func observeLiveResize(handler: @escaping (_ isKey: Bool)->()) -> NotificationToken {
-        [NotificationCenter.default.observe(NSWindow.willStartLiveResizeNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didEndLiveResizeNotification, object: self) { _ in handler(false) }].combinedNotificationToken!
-    }
-    
     /// Repositions the window’s origin with an offset from the specified frame.
     @objc open func cascade(from frame: CGRect) {
         let spacing = 10.0
@@ -193,7 +178,6 @@ extension NSWindow {
         set {
             let needsSpaceUpdate = (handlers.isOnActiveSpace == nil && newValue.isOnActiveSpace != nil) || (handlers.isOnActiveSpace != nil && newValue.isOnActiveSpace == nil)
             setAssociatedValue(newValue, key: "windowHandlers")
-            setupLiveResizeObservation()
             
             if needsSpaceUpdate {
                 _isOnActiveSpace = isOnActiveSpace
@@ -257,31 +241,31 @@ extension NSWindow {
                     }
                 }
             }
-            
-            if let handler = newValue.isKey {
-                isKeyObservation = observeIsKey(handler: handler)
-            } else {
-                isKeyObservation = nil
-            }
-            
-            if let handler = newValue.isMain {
-                isMainObservation = observeIsMain(handler: handler)
-            } else {
-                isMainObservation = nil
-            }
-            
-            if let isMiniaturized = handlers.isMiniaturized {
-                tokens[NSWindow.didMiniaturizeNotification] = NotificationCenter.default.observe(NSWindow.didMiniaturizeNotification, object: self) { _ in
-                    isMiniaturized(true)
-                }
-                tokens[NSWindow.didDeminiaturizeNotification] = NotificationCenter.default.observe(NSWindow.didDeminiaturizeNotification, object: self) { _ in
-                    isMiniaturized(false)
-                }
-            } else {
-                tokens[NSWindow.didMiniaturizeNotification] = nil
-                tokens[NSWindow.didDeminiaturizeNotification] = nil
-            }
+            observations["key"] = observeIsKey(newValue.isKey)
+            observations["main"] = observeIsMain(newValue.isMain)
+            observations["resize"] = observeIsLiveResizing(newValue.isLiveResizing)
+            observations["miniaturize"] = observeMiniaturize(newValue.isMiniaturized)
         }
+    }
+    
+    func observeIsKey(_ handler: ((Bool)->())?) -> [NotificationToken] {
+        guard let handler = handler else { return [] }
+        return [NotificationCenter.default.observe(NSWindow.didBecomeKeyNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignKeyNotification, object: self) { _ in handler(false) }]
+    }
+    
+    func observeIsMain(_ handler: ((Bool)->())?) -> [NotificationToken] {
+        guard let handler = handler else { return [] }
+        return [NotificationCenter.default.observe(NSWindow.didBecomeMainNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignMainNotification, object: self) { _ in handler(false) }]
+    }
+    
+    func observeIsLiveResizing(_ handler: ((Bool)->())?) -> [NotificationToken] {
+        guard let handler = handler else { return [] }
+        return [NotificationCenter.default.observe(NSWindow.willStartLiveResizeNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didEndLiveResizeNotification, object: self) { _ in handler(false) }]
+    }
+    
+    func observeMiniaturize(_ handler: ((Bool)->())?) -> [NotificationToken] {
+        guard let handler = handler else { return [] }
+        return [NotificationCenter.default.observe(NSWindow.didMiniaturizeNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didDeminiaturizeNotification, object: self) { _ in handler(false) }]
     }
     
     var _isOnActiveSpace: Bool {
@@ -308,11 +292,6 @@ extension NSWindow {
    static var activeSpaceObservation: NotificationToken? {
         get { getAssociatedValue("activeSpaceObservation") }
         set { setAssociatedValue(newValue, key: "activeSpaceObservation") }
-    }
-    
-    var tokens: [Notification.Name: NotificationToken] {
-        get { getAssociatedValue("tokens", initialValue: [:]) }
-        set { setAssociatedValue(newValue, key: "tokens") }
     }
     
     /// Sets the minimum size to which the window’s frame (including its title bar) can be sized.
@@ -462,18 +441,13 @@ extension NSWindow {
         return self
     }
     
-    var windowObserver: KeyValueObserver<NSWindow> {
+    fileprivate var windowObserver: KeyValueObserver<NSWindow> {
         get { getAssociatedValue("windowObserver", initialValue: KeyValueObserver(self)) }
     }
     
-    var isKeyObservation: NotificationToken? {
-        get { getAssociatedValue("isKeyObservation") }
-        set { setAssociatedValue(newValue, key: "isKeyObservation") }
-    }
-    
-    var isMainObservation: NotificationToken? {
-        get { getAssociatedValue("isMainObservation") }
-        set { setAssociatedValue(newValue, key: "isMainObservation") }
+    fileprivate var observations: [String: [NotificationToken]] {
+        get { getAssociatedValue("observations") ?? [:] }
+        set { setAssociatedValue(newValue, key: "observations") }
     }
     
     /// A Boolean value that indicates whether the window is fullscreen.
@@ -744,54 +718,11 @@ extension NSWindow {
         if !didSwizzleAnimationForKey {
             didSwizzleAnimationForKey = true
             do {
-                try Swizzle(NSWindow.self) {
+                _ = try Swizzle(NSWindow.self) {
                     #selector(NSWindow.defaultAnimation(forKey:)) <~> #selector(NSWindow.swizzledDefaultAnimation(forKey:))
                 }
             } catch {
                 Swift.debugPrint(error)
-            }
-        }
-    }
-    
-    /// A Boolean value that indicates whether the property `isKeyWindow` is KVO observable.
-    public static var isKeyWindowObservable: Bool {
-        get { isMethodHooked(#selector(getter: NSWindow.isKeyWindow)) }
-        set {
-            guard newValue != isKeyWindowObservable else { return }
-            if newValue {
-                do {
-                    try hook(#selector(getter: NSWindow.isKeyWindow), closure: { original, object, sel in
-                        return (object as? NSWindow)?._isKeyWindow ?? original(object, sel)
-                    } as @convention(block) (
-                        (AnyObject, Selector) -> Bool,
-                        AnyObject, Selector) -> Bool)
-                    
-                    try hook(#selector(NSWindow.becomeKey), closure: { original, object, sel in
-                        guard let window = object as? NSWindow else {
-                            original(object, sel)
-                            return
-                        }
-                        window.willChangeValue(for: \.isKeyWindow)
-                        original(object, sel)
-                        window.didChangeValue(for: \.isKeyWindow)
-                    } as @convention(block) (
-                        (AnyObject, Selector) -> Void,
-                        AnyObject, Selector) -> Void)
-                    
-                    try hook(#selector(NSWindow.resignKey), closure: { original, object, sel in
-                        original(object, sel)
-                        guard let window = object as? NSWindow else { return }
-                        window._isKeyWindow = true
-                    } as @convention(block) (
-                        (AnyObject, Selector) -> Void,
-                        AnyObject, Selector) -> Void)
-                } catch {
-                    Swift.debugPrint(error)
-                }
-            } else {
-                revertHooks(for: #selector(NSWindow.becomeKey))
-                revertHooks(for: #selector(NSWindow.resignKey))
-                revertHooks(for: #selector(getter: NSWindow.isKeyWindow))
             }
         }
     }
@@ -806,136 +737,11 @@ extension NSWindow {
         set { setAssociatedValue(newValue, key: "keyWindowObservation") }
     }
     
-    /// A Boolean value that indicates whether the property `isMainWindow` is KVO observable.
-    public static var isMainWindowObservable: Bool {
-        get { isMethodHooked(#selector(getter: NSWindow.isMainWindow)) }
-        set {
-            guard newValue != isMainWindowObservable else { return }
-            if newValue {
-                do {
-                    try hook(#selector(getter: NSWindow.isMainWindow), closure: { original, object, sel in
-                        return (object as? NSWindow)?._isMainWindow ?? original(object, sel)
-                    } as @convention(block) (
-                        (AnyObject, Selector) -> Bool,
-                        AnyObject, Selector) -> Bool)
-                    
-                    try hook(#selector(NSWindow.becomeMain), closure: { original, object, sel in
-                        guard let window = object as? NSWindow else {
-                            original(object, sel)
-                            return
-                        }
-                        window.willChangeValue(for: \.isMainWindow)
-                        original(object, sel)
-                        window.didChangeValue(for: \.isMainWindow)
-                    } as @convention(block) (
-                        (AnyObject, Selector) -> Void,
-                        AnyObject, Selector) -> Void)
-                    
-                    try hook(#selector(NSWindow.resignMain), closure: { original, object, sel in
-                        original(object, sel)
-                        guard let window = object as? NSWindow else { return }
-                        window._isMainWindow = true
-                    } as @convention(block) (
-                        (AnyObject, Selector) -> Void,
-                        AnyObject, Selector) -> Void)
-                } catch {
-                    Swift.debugPrint(error)
-                }
-            } else {
-                revertHooks(for: #selector(NSWindow.becomeMain))
-                revertHooks(for: #selector(NSWindow.resignMain))
-                revertHooks(for: #selector(getter: NSWindow.isMainWindow))
-            }
-        }
-    }
-    
-    /// A Boolean value that indicates whether the property `inLiveResize` is KVO observable.
-    public static var isLiveResizeObservable: Bool {
-        get { isMethodHooked(#selector(getter: NSWindow.inLiveResize)) }
-        set {
-            guard newValue != isLiveResizeObservable else { return }
-            if newValue {
-                guard !isMethodHooked(#selector(getter: NSWindow.inLiveResize)) else { return }
-                do {
-                    try hook(#selector(getter: NSWindow.inLiveResize), closure: { original, object, sel in
-                        (object as? NSWindow)?.setupLiveResizeObservation()
-                        return (object as? NSWindow)?._inLiveResize ?? original(object, sel)
-                    } as @convention(block) (
-                        (AnyObject, Selector) -> Bool,
-                        AnyObject, Selector) -> Bool)
-                } catch {
-                    debugPrint(error)
-                }
-            } else {
-                revertHooks(for: #selector(getter: NSWindow.inLiveResize))
-            }
-        }
-    }
-    
-    var _inLiveResize: Bool? {
-        get { getAssociatedValue("_inLiveResize") }
-        set { 
-            setAssociatedValue(newValue, key: "_inLiveResize")
-            set(\.inLiveResize, \._inLiveResize, to: newValue)
-        }
-    }
-    
-    var _isMainWindow: Bool? {
-        get { getAssociatedValue("_isMainWindow") }
-        set {
-            setAssociatedValue(newValue, key: "_isMainWindow")
-            set(\.isMainWindow, \._isMainWindow, to: newValue)
-        }
-    }
-    
-    var _isKeyWindow: Bool? {
-        get { getAssociatedValue("_isKeyWindow") }
-        set {
-            setAssociatedValue(newValue, key: "_isKeyWindow")
-            set(\.isKeyWindow, \._isKeyWindow, to: newValue)
-        }
-    }
-    
     func set(_ keyPath: KeyPath<NSWindow, Bool>, _ writable: ReferenceWritableKeyPath<NSWindow, Bool?>, to value: Bool?) {
         guard value != nil else { return }
         willChangeValue(for: keyPath)
         self[keyPath: writable] = nil
         didChangeValue(for: keyPath)
-    }
-    
-    var liveResizeTokens: [NotificationToken] {
-        get { getAssociatedValue("liveResizeTokens", initialValue: []) }
-        set { setAssociatedValue(newValue, key: "liveResizeTokens") }
-    }
-    
-    var needsLiveResizeObservation: Bool {
-        NSWindow.isLiveResizeObservable || handlers.isLiveResizing != nil
-    }
-    
-    func setupLiveResizeObservation() {
-        if needsLiveResizeObservation {
-            guard liveResizeTokens.isEmpty else { return }
-            liveResizeTokens.append(NotificationCenter.default.observe(NSWindow.willStartLiveResizeNotification, object: self) { [weak self] _ in
-                guard let self = self else { return }
-                guard self.needsLiveResizeObservation else {
-                    self.liveResizeTokens.removeAll()
-                    return
-                }
-                self.handlers.isLiveResizing?(true)
-                self._inLiveResize = false
-            })
-            liveResizeTokens.append(NotificationCenter.default.observe(NSWindow.didEndLiveResizeNotification, object: self) { [weak self] _ in
-                guard let self = self else { return }
-                guard self.needsLiveResizeObservation else {
-                    self.liveResizeTokens.removeAll()
-                    return
-                }
-                self.handlers.isLiveResizing?(false)
-                self._inLiveResize = true
-            })
-        } else {
-            liveResizeTokens.removeAll()
-        }
     }
 }
 

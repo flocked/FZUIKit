@@ -1,8 +1,8 @@
 //
 //  NSObject+.swift
+//  FZUIKit
 //
-//
-//  Created by Florian Zand on 22.04.24.
+//  Created by Florian Zand on 11.07.25.
 //
 
 import Foundation

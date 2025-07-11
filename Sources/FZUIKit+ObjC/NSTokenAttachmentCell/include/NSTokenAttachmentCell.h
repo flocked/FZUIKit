@@ -26,38 +26,26 @@ FOUNDATION_EXPORT const unsigned char NSTokenAttachmentCellVersionString[];
 }
 
 + (void)initialize;
-- (id)initTextCell:(id)fp8;
-- (id)init;
-- (void)dealloc;
-- (id)representedObject;
-- (void)setRepresentedObject:(id)fp8;
-- (int)interiorBackgroundStyle;
+- (nonnull instancetype)init;
 - (BOOL)_hasMenu;
-- (NSColor *)tokenForegroundColor;
-- (NSColor *)tokenBackgroundColor;
-- (NSColor *)textColor;
-- (void)setTextColor:(NSColor *)textColor;
-- (NSImage *)pullDownImage;
+- (nonnull NSColor *)tokenForegroundColor;
+- (nonnull NSColor *)tokenBackgroundColor;
+- (nullable NSColor *)textColor;
+- (void)setTextColor:(nullable NSColor *)textColor;
+- (nonnull NSImage *)pullDownImage;
 - (nullable NSMenu *)menu;
 - (NSSize)cellSizeForBounds:(NSRect)bounds;
 - (NSSize)cellSize;
-- (NSDictionary<NSAttributedStringKey, id> *)_textAttributes;
-- (unsigned long long)tokenStyle;
+- (nonnull NSDictionary<NSAttributedStringKey, id> *)_textAttributes;
+- (NSUInteger)tokenStyle;
 - (nullable NSColor *)tokenTintColor;
 - (NSRect)drawingRectForBounds:(NSRect)bounds;
 - (NSRect)titleRectForBounds:(NSRect)bounds;
-- (NSRect)cellFrameForTextContainer:(id)textContainer proposedLineFragment:(NSRect)fp12 glyphPosition:(NSPoint)glyphPosition characterIndex:(unsigned int)index;
+- (NSRect)cellFrameForTextContainer:(nullable NSTextContainer *)textContainer proposedLineFragment:(NSRect)fp12 glyphPosition:(NSPoint)glyphPosition characterIndex:(unsigned int)index;
 - (NSPoint)cellBaselineOffset;
 - (NSRect)pullDownRectForBounds:(NSRect)bounds;
-- (void)drawTokenWithFrame:(NSRect)frame inView:(NSView *)view;
-- (void)drawInteriorWithFrame:(NSRect)frame inView:(NSView *)view;
-- (void)drawWithFrame:(NSRect)frame inView:(NSView *)view;
-- (void)drawWithFrame:(NSRect)frame inView:(NSView *)view characterIndex:(unsigned int)index layoutManager:(id)fp32;
-- (void)encodeWithCoder:(id)coder;
-- (id)initWithCoder:(id)coder;
-- (BOOL)wantsToTrackMouseForEvent:(id)event inRect:(NSRect)fp12 ofView:(NSView *)view atCharacterIndex:(unsigned int)index;
-- (BOOL)trackMouse:(id)fp8 inRect:(NSRect)fp12 ofView:(NSView *)fp28 atCharacterIndex:(unsigned int)index untilMouseUp:(BOOL)untilMouseUp;
+- (void)drawTokenWithFrame:(NSRect)frame inView:(nonnull NSView *)view;
+- (void)drawInteriorWithFrame:(NSRect)frame inView:(nonnull NSView *)view;
 
 @end
-
 

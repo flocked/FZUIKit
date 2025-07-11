@@ -590,7 +590,7 @@ public class FontManager: NSObject {
     func sharedInit() {
         updateAvailableFontFamilies()
         // selectFont(Self.defaultFont)
-        availableFontsObservation = NotificationCenter.default.observe(NSFont.fontSetChangedNotification, object: nil) { [weak self] _ in
+        availableFontsObservation = NotificationCenter.default.observe(NSFont.fontSetChangedNotification) { [weak self] _ in
             guard let self = self else { return }
             self.updateAvailableFontFamilies()
         }

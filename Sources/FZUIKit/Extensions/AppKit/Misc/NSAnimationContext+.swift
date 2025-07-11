@@ -107,7 +107,7 @@ extension NSLayoutConstraint {
         if didSwizzleAnimationForKey == false {
             didSwizzleAnimationForKey = true
             do {
-                try Swizzle(NSLayoutConstraint.self) {
+                _ = try Swizzle(NSLayoutConstraint.self) {
                     #selector(NSLayoutConstraint.defaultAnimation(forKey:)) <~> #selector(NSLayoutConstraint.swizzledDefaultAnimation(forKey:))
                 }
             } catch {

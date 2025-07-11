@@ -52,7 +52,7 @@ extension UIAlertAction {
     
     func swizzle() {
         do {
-            try Swizzle(UIAlertAction.self) {
+            _ = try Swizzle(UIAlertAction.self) {
                 NSSelectorFromString("setHandler:") <-> #selector(setter: swizzled_handler)
                 NSSelectorFromString("handler") <-> #selector(getter: swizzled_handler)
             }
@@ -77,7 +77,7 @@ extension UIAlertAction {
     
     static func swizzle() {
         do {
-            try Swizzle(UIAlertAction.self) {
+            _ = try Swizzle(UIAlertAction.self) {
                 NSSelectorFromString("setHandler:") <-> #selector(setter: swizzled_handler)
                 NSSelectorFromString("handler") <-> #selector(getter: swizzled_handler)
 

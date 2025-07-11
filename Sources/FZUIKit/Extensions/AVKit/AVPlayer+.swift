@@ -257,7 +257,7 @@ public extension AVPlayer {
     
     internal func observeNotifications(for name: Notification.Name, handler: (()->())?) {
         if let handler = handler {
-            itemNotificationTokens[name] = NotificationCenter.default.observe(name, object: nil, queue: nil, using: { [weak self] notification in
+            itemNotificationTokens[name] = NotificationCenter.default.observe(name, object: self, queue: nil, using: { [weak self] notification in
                 guard let self = self, let playerItem = notification.object as? AVPlayerItem, playerItem == currentItem else { return }
                 handler()
             })

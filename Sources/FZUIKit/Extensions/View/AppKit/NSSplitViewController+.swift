@@ -8,7 +8,6 @@
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
-import _ObjectProxy
 
 extension NSSplitViewController {
     /**
@@ -51,7 +50,7 @@ extension NSSplitViewController {
 
 extension NSSplitViewController: NSAnimatablePropertyContainer {
     public func animator() -> Self {
-        _objectProxy()
+        proxy()
     }
     
     public var animations: [NSAnimatablePropertyKey : Any] {
