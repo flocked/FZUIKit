@@ -12,6 +12,11 @@ public extension NSUIBezierPath {
     var swiftUI: SwiftUI.Path {
         SwiftUI.Path(self)
     }
+    
+    /// Creates a bezier path with the specified rectangle and shape.
+    convenience init<S: Shape>(rect: CGRect, shape: S) {
+        self.init(cgPath: shape.path(in: rect).cgPath)
+    }
 }
 
 public extension SwiftUI.Path {

@@ -31,7 +31,7 @@ extension NSUIView {
             guard newValue != material else { return }
             if let newValue = newValue {
                 if materialView == nil {
-                    materialView = MaterialView(material: newValue)
+                    materialView = .init(material: newValue)
                     addSubview(withConstraint: materialView!)
                     materialView?.sendToBack()
                 }
@@ -43,19 +43,17 @@ extension NSUIView {
         }
     }
     
-    var materialView: MaterialView? {
+    fileprivate var materialView: MaterialView? {
         get { getAssociatedValue("materialView") }
         set { setAssociatedValue(newValue, key: "materialView") }
     }
 }
 
-/// A view that with a `SwiftUI` material as background.
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, *)
-class MaterialView: NSUIView {
+fileprivate class MaterialView: NSUIView {
     var hostingController: NSUIHostingController<MaterialView>!
     
-    /// The material of the background.
-    public var _material: Material = .thinMaterial {
+    var _material: Material = .thinMaterial {
         didSet {
             guard oldValue != _material else { return }
             hostingController.rootView = MaterialView(material: _material)
@@ -69,13 +67,8 @@ class MaterialView: NSUIView {
      */
     public init(material: Material = .thinMaterial) {
         super.init(frame: .zero)
-        _material = material
         sharedInit()
-    }
-    
-    public override init(frame frameRect: CGRect) {
-        super.init(frame: frameRect)
-        sharedInit()
+        defer { _material = material }
     }
     
     public required init?(coder: NSCoder) {

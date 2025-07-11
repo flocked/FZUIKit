@@ -55,7 +55,11 @@ import FZSwiftUtils
             set {
                 // parentView?.dynamicLayerColors[\.shadowColor] = newValue.resolvedColor()
                 shadowConfiguration = shadowConfiguration
+                #if os(macOS)
+                shadowColor = resolvedColor(for: newValue.resolvedColor(), \.shadowColor)
+                #else
                 shadowColor = resolvedColor(for: newValue.resolvedColor())
+                #endif
                 shadowOpacity = Float(newValue.opacity)
                 shadowRadius = newValue.radius
                 shadowOffset = newValue.offset.size
@@ -68,7 +72,9 @@ import FZSwiftUtils
         }
 
         func updatedShadowConfiguration() -> ShadowConfiguration {
-            resolvedColor(for: shadowConfiguration.resolvedColor()) == shadowColor ? shadowConfiguration.color : shadowColor?.nsUIColor
+            if parentView?.dynamicColors[\.shadowColor] == nil {
+                shadowConfiguration.color = shadowColor?.nsUIColor
+            }
             shadowConfiguration.radius = shadowRadius
             shadowConfiguration.offset = shadowOffset.point
             shadowConfiguration.opacity = CGFloat(shadowOpacity)
@@ -91,6 +97,11 @@ import FZSwiftUtils
                     innerShadowLayer?.configuration = newValue
                 }
             }
+        }
+        
+        var innerShadowColor: CGColor? {
+            get { innerShadowLayer?.shadowColor }
+            set { innerShadowLayer?.shadowColor = newValue }
         }
         
         var innerShadowConfiguration: ShadowConfiguration {
@@ -203,6 +214,14 @@ import FZSwiftUtils
             return color.resolvedColor(for: view).cgColor
         }
         
+        #if os(macOS)
+        func resolvedColor(for color: NSUIColor?, _ keyPath: WritableKeyPath<CALayer, CGColor?>) -> CGColor? {
+            guard let view = parentView else { return nil }
+            view.dynamicColors[keyPath] = color
+            return color?.resolvedColor(for: view).cgColor
+        }
+        #endif
+        
         var nsuiBackgroundColor: NSUIColor? {
             get {
                 if let color: NSUIColor = getAssociatedValue("nsuiBackgroundColor"), resolvedColor(for: color) != backgroundColor {
@@ -266,7 +285,34 @@ import FZSwiftUtils
                     layer.lineJoin = newValue.dash.lineJoin.shapeLayerLineJoin
                     layer.lineCap = newValue.dash.lineCap.shapeLayerLineCap
                 } else {
-                    setupBoderLayer(for: newValue)
+                    if (maskShape != nil && !newValue.isInvisible) || newValue.needsDashedBorder {
+                        if borderLayer == nil {
+                            borderLayer = BorderLayer(for: self)
+                        }
+                        borderLayer?.shape = maskShape
+                        borderLayer?.border = newValue
+                        borderWidth = 0.0
+                        borderColor = nil
+                    } else {
+                        borderLayer?.removeFromSuperlayer()
+                        borderLayer = nil
+                        borderColor = resolvedColor(for: newValue.resolvedColor())
+                        borderWidth = newValue.width
+                    }
+                }
+            }
+        }
+        
+        var _borderColor: CGColor? {
+            get { borderLayer?.strokeColor ?? (self as? CAShapeLayer)?.strokeColor ?? borderColor }
+            set {
+                if let borderLayer = borderLayer {
+                    borderLayer.strokeColor = newValue
+                    
+                } else if let self = self as? CAShapeLayer {
+                    self.strokeColor = newValue
+                } else {
+                    borderColor = newValue
                 }
             }
         }

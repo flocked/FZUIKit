@@ -215,10 +215,14 @@ extension PathShape {
     public static let rect = PathShape(.rect)
     
     /// A rectangular shape with rounded corners.
-    public static func rect(cornerSize: CGSize, style: RoundedCornerStyle = .continuous) -> PathShape { PathShape(.rect(cornerSize: cornerSize, style: style)) }
+    public static func rect(cornerSize: CGSize, style: RoundedCornerStyle = .continuous) -> PathShape {
+        PathShape(.rect(cornerSize: cornerSize, style: style))
+    }
     
     /// A rectangular shape with rounded corners.
-    public static func rect(cornerRadius: CGFloat, style: RoundedCornerStyle = .continuous) -> PathShape { PathShape(.rect(cornerRadius: cornerRadius, style: style)) }
+    public static func rect(cornerRadius: CGFloat, style: RoundedCornerStyle = .continuous) -> PathShape {
+        PathShape(.rect(cornerRadius: cornerRadius, style: style))
+    }
 
     /// A rectangular shape with rounded corners with different values.
     public static func rect(topLeadingRadius: CGFloat = 0, bottomLeadingRadius: CGFloat = 0, bottomTrailingRadius: CGFloat = 0, topTrailingRadius: CGFloat = 0, style: RoundedCornerStyle = .continuous) -> PathShape {
@@ -239,7 +243,9 @@ extension PathShape {
      
      The corner radius is defined as a fraction of the smaller dimension of the rectangle, ensuring proportional rounding regardless of the rectangle's size.
      */
-    public static func relativeRoundedRect(cornerRadius: CGFloat, style: RoundedCornerStyle = .continuous) -> PathShape { PathShape(.relativeRoundedRect(cornerRadius: cornerRadius, style: style)) }
+    public static func relativeRoundedRect(cornerRadius: CGFloat, style: RoundedCornerStyle = .continuous) -> PathShape {
+        PathShape(.relativeRoundedRect(cornerRadius: cornerRadius, style: style))
+    }
     
     /**
      A rectangular shape with rounded corners with different relative values.
@@ -252,7 +258,7 @@ extension PathShape {
     public static func relativeRoundedRect(topLeadingRadius: CGFloat = 0.0, bottomLeadingRadius: CGFloat = 0.0, bottomTrailingRadius: CGFloat = 0.0, topTrailingRadius: CGFloat = 0.0, style: RoundedCornerStyle = .continuous) -> PathShape { PathShape(.relativeRoundedRect(topLeadingRadius: topLeadingRadius, bottomLeadingRadius: bottomLeadingRadius, bottomTrailingRadius: bottomTrailingRadius, topTrailingRadius: topTrailingRadius, style: style)) }
 
     
-    /// A circle centered on the frame.
+    /// A circlular shape centered on the frame.
     public static let circle = PathShape(.circle)
     
     /// A capsule shape.
@@ -266,6 +272,52 @@ extension PathShape {
     
     /// A star shape.
     public static func star(points: Int = 5, cutout: Bool = false, rounded: Bool = false) -> PathShape { PathShape(Star(points: points, cutout: cutout, rounded: rounded)) }
+    
+    /**
+     A contact shadow shape.
+     
+     - Parameters:
+        - height: The height of the shape.
+        - distance: The vertical offset of the shape.
+     */
+    public static func contactShadow(height: CGFloat = 20.0, distance: CGFloat = 0.0) -> PathShape {
+        PathShape(.contactShadow(height: height, distance: distance))
+    }
+    
+    /**
+     A deep shadow shape.
+     
+     - Parameters:
+        - width: The width of the shape relative to the rectangle.
+        - height: The height of the shape relative to the rectangle.
+        - radius: The radius of the shape.
+        - offset: The horizontal offset of the shape.
+     */
+    public static func deepShadow(width: CGFloat = 1.2, height: CGFloat = 0.5, radius: CGFloat = 5.0, offset: CGFloat = -50) -> PathShape {
+        PathShape(.deepShadow(width: width, height: height, radius: radius, offset: offset))
+    }
+    
+    /**
+     A flat long shadow shape.
+     
+     - Parameters:
+        - offset: The horizontal offset of the shape.
+        - alternative: A Boolean value indicating whether to use an alternative shape style.
+     */
+    public static func flatLongShadow(offset: CGFloat = 2000.0, alternative: Bool = false) -> PathShape {
+        PathShape(.flatLongShadow(offset: offset, alternative: alternative))
+    }
+    
+    /**
+     A curved shadow shape.
+
+     - Parameters:
+        - radius: The radius of the shape.
+        - curveAmount: The curve amunt.
+     */
+    public static func curvedShadow(radius: CGFloat = 5.0, curveAmount: CGFloat = 20) -> PathShape {
+        PathShape(.curvedShadow(radius: radius, curveAmount: curveAmount))
+    }
 }
 
 #if os(macOS) || os(iOS) || os(tvOS)

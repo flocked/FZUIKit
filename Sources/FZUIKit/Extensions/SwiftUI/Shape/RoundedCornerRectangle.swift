@@ -10,9 +10,13 @@ import SwiftUI
 import FZSwiftUtils
 
 /// A rectangular shape with specific corners that are rounded, aligned inside the frame of the view containing it.
-public struct RoundedCornerRectangle: Shape {
-    private let radius: CGFloat
-    private let corners: NSUIRectCorner
+public struct RoundedCornerRectangle: Shape, InsettableShape {
+    /// The radius of the rounded corners.
+    public var cornerRadius: CGFloat
+    
+    /// The corners that are rounded.
+    public var corners: NSUIRectCorner
+    var inset: CGFloat = 0.0
 
     /**
      Creates a new rounded corner rectangle shape.
@@ -22,12 +26,22 @@ public struct RoundedCornerRectangle: Shape {
         - corners: The corners that are rounded.
      */
     public init(cornerRadius: CGFloat, corners: NSUIRectCorner) {
-        radius = cornerRadius
+        self.cornerRadius = cornerRadius
         self.corners = corners
     }
 
-    public func path(in rect: CGRect) -> SwiftUI.Path {
-        let bezierpath = NSUIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadius: radius)
-        return SwiftUI.Path(bezierpath)
+    public func path(in rect: CGRect) -> Path {
+        Path(NSUIBezierPath(roundedRect: rect.insetBy(dx: inset, dy: inset), byRoundingCorners: corners, cornerRadius: cornerRadius))
+    }
+    
+    public func inset(by amount: CGFloat) -> Self {
+        var shape = self
+        shape.inset += amount
+        return shape
+    }
+    
+    public var animatableData: CGFloat {
+        get { cornerRadius }
+        set { cornerRadius = newValue }
     }
 }

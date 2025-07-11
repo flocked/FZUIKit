@@ -44,16 +44,6 @@ public extension NSViewProtocol where Self: NSView {
     }
 }
 
-public extension NSViewProtocol where Self: NSTextField {
-    /// Sets the background color of the text field.
-    @discardableResult
-    func backgroundColor(_ color: NSUIColor?) -> Self {
-        backgroundColor = color
-        drawsBackground = color != nil
-        return self
-    }
-}
-
 extension NSView {
     @objc var backgroundColorAnimatable: NSColor? {
         get { layer?.backgroundColor?.nsColor }
@@ -61,32 +51,43 @@ extension NSView {
     }
 
     struct DynamicColors {
+        weak var view: NSView?
+        var colors: [KeyPath<CALayer, CGColor?>: NSUIColor] = [:]
+        
         var background: NSColor? {
-            mutating get { get(\._background, view?.layer?.backgroundColor) }
-            set { _background = newValue?.isDynamic == true ? newValue : nil }
+            mutating get { get(\.backgroundColor) }
+            set { colors[\.backgroundColor] = newValue?.isDynamic == true ? newValue : nil }
         }
         
         var border: NSColor? {
-            mutating get { get(\._border, view?.layer?.borderColor) }
-            set { _border = newValue?.isDynamic == true ? newValue : nil }
+            mutating get { get(\._borderColor) }
+            set { colors[\._borderColor] = newValue?.isDynamic == true ? newValue : nil }
         }
 
         var shadow: NSColor? {
-            mutating get { get(\._shadow, view?.layer?.shadowColor) }
-            set { _shadow = newValue?.isDynamic == true ? newValue : nil }
+            mutating get { get(\.shadowColor) }
+            set { colors[\.shadowColor] = newValue?.isDynamic == true ? newValue : nil }
         }
         
         var innerShadow: NSColor? {
-            mutating get { get(\._innerShadow, view?.innerShadowLayer?.shadowColor) }
-            set { _innerShadow = newValue?.isDynamic == true ? newValue : nil }
+            mutating get { get(\.innerShadowColor) }
+            set { colors[\.innerShadowColor] = newValue?.isDynamic == true ? newValue : nil }
+        }
+
+        subscript (keyPath: KeyPath<CALayer, CGColor?>) -> NSUIColor? {
+            mutating get { get(keyPath) }
+            set { colors[keyPath] = newValue?.isDynamic == true ? newValue : nil }
         }
         
-        var _background: NSColor?
-        var _border: NSColor?
-        var _shadow: NSColor?
-        var _innerShadow: NSColor?
-        weak var view: NSView?
-        
+        mutating func get(_ keyPath: KeyPath<CALayer, CGColor?>) -> NSColor? {
+            guard let dynamics = colors[keyPath]?.dynamicColors else { return nil }
+            let cgColor = view?.layer?[keyPath: keyPath]
+            if cgColor != dynamics.light.cgColor, cgColor != dynamics.dark.cgColor {
+                colors[keyPath] = nil
+            }
+            return colors[keyPath]
+        }
+                
         mutating func update() {
             guard let view = view, let layer = view.layer else { return }
             if let shadow = shadow?.resolvedColor(for: view).cgColor {
@@ -101,18 +102,6 @@ extension NSView {
             if let background = background?.resolvedColor(for: view).cgColor {
                 layer.backgroundColor = background
             }
-        }
-
-        mutating func get(_ keyPath: WritableKeyPath<Self, NSColor?>, _ cgColor: CGColor?) -> NSColor? {
-            guard let dynamics = self[keyPath: keyPath]?.dynamicColors else { return nil }
-            if cgColor != dynamics.light.cgColor, cgColor != dynamics.dark.cgColor {
-                self[keyPath: keyPath] = nil
-            }
-            return self[keyPath: keyPath]
-        }
-        
-        var needsObserver: Bool {
-            _background != nil || _border != nil || _shadow != nil || _innerShadow != nil
         }
     }
 
@@ -129,7 +118,7 @@ extension NSView {
     }
 
     func setupEffectiveAppearanceObserver() {
-        if !dynamicColors.needsObserver {
+        if dynamicColors.colors.isEmpty {
             effectiveAppearanceObservation = nil
         } else if effectiveAppearanceObservation == nil {
             effectiveAppearanceObservation = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in

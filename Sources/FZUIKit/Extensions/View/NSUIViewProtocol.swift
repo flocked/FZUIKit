@@ -20,6 +20,9 @@ public protocol NSViewProtocol: NSView {
     /// Returns the size that best fits the specified height.
     func sizeThatFits(height: CGFloat) -> CGSize
     
+    /// A Boolean value that indicates whether the view is enabled.
+    var isEnabled: Bool { get set }
+    
     /*
     /**
      The background color of the view.
@@ -37,5 +40,16 @@ public protocol NSViewProtocol: NSView {
 }
 
 extension NSUIView: NSViewProtocol { }
+
+#elseif os(iOS) || os(tvOS)
+import UIKit
+
+/// The group of methods that are fundamental to all `UIView` objects.
+public protocol UIViewProtocol: UIView {
+    /// A Boolean value that indicates whether the view is enabled.
+    var isEnabled: Bool { get set }
+}
+
+extension NSUIView: UIViewProtocol { }
 
 #endif

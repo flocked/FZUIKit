@@ -50,6 +50,7 @@ import SwiftUI
     public typealias NSUITableViewDiffableDataSource = NSTableViewDiffableDataSource
     public typealias NSUICollectionViewUpdateItem = NSCollectionViewUpdateItem
     public typealias NSUICollectionViewDelegateFlowLayout = NSCollectionViewDelegateFlowLayout
+    public typealias NSUIViewProtocol = NSViewProtocol
 #elseif canImport(UIKit)
     import UIKit
     public typealias NSUIBezierPath = UIBezierPath
@@ -69,6 +70,7 @@ import SwiftUI
     public typealias NSUICollectionViewLayoutAttributes = UICollectionViewLayoutAttributes
     public typealias NSUICollectionLayoutSectionOrthogonalScrollingBehavior = UICollectionLayoutSectionOrthogonalScrollingBehavior
     public typealias NSUIView = UIView
+    public typealias NSUIViewProtocol = UIViewProtocol
     public typealias NSUIStoryboard = UIStoryboard
     public typealias NSUINib = UINib
     public typealias NSUIViewController = UIViewController
