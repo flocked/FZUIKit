@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 11.07.25.
 //
 
+/*
 import Foundation
 import FZSwiftUtils
 import _NSObjectProxy
@@ -96,8 +97,8 @@ class DelegateProxy_<Object: NSObject, Delegate: NSObject>: NSObject {
                         invocation.invoke()
                     }
                 }
-            }) { [weak self] selector, responds in
-                responds || self?.delegate?.responds(to: selector) == true
+            }) { [weak self] selector in
+                self?.delegate?.responds(to: selector) == true
             }
         }
         setupProxy()
@@ -184,3 +185,4 @@ extension NSObjectProtocol where Self: NSObject {
         return false
     }
 }
+*/

@@ -290,11 +290,12 @@ extension PathShape {
      - Parameters:
         - width: The width of the shape relative to the rectangle.
         - height: The height of the shape relative to the rectangle.
-        - radius: The radius of the shape.
-        - offset: The horizontal offset of the shape.
+        - offset: The offset of the shape.
+        - shift: The horizontal shift of the shape.
+        - shiftIsRelative: A Boolean value indicating whether the shift is relative to the rectangle or absolute.
      */
-    public static func deepShadow(width: CGFloat = 1.2, height: CGFloat = 0.5, radius: CGFloat = 5.0, offset: CGFloat = -50) -> PathShape {
-        PathShape(.deepShadow(width: width, height: height, radius: radius, offset: offset))
+    public static func deepShadow(width: CGFloat = 1.2, height: CGFloat = 0.5, offset: CGPoint = CGPoint(5.0), shift: CGFloat = -0.15, shiftIsRelative: Bool = true) -> PathShape {
+        PathShape(.deepShadow(width: width, height: height, offset: offset, shift: shift, shiftIsRelative: shiftIsRelative))
     }
     
     /**

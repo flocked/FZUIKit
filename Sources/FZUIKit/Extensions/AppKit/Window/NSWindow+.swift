@@ -452,7 +452,10 @@ extension NSWindow {
     
     /// A Boolean value that indicates whether the window is fullscreen.
     @objc open var isFullscreen: Bool {
-        get { styleMask.contains(.fullScreen) }
+        get {
+            setupFullscreenObservation()
+            return styleMask.contains(.fullScreen)
+        }
         set {
             guard newValue != isFullscreen else { return }
             toggleFullScreen(nil)
@@ -464,6 +467,24 @@ extension NSWindow {
     @objc open func isFullscreen(_ isFullscreen: Bool) -> Self {
         self.isFullscreen = isFullscreen
         return self
+    }
+    
+    private func setupFullscreenObservation() {
+        guard fullscreenTokens.isEmpty else { return }
+        fullscreenTokens = [NotificationToken(NSWindow.willEnterFullScreenNotification, object: self, using: { [weak self] _ in
+            self?.willChangeValue(for: \.isFullscreen)
+        }), NotificationToken(NSWindow.willExitFullScreenNotification, object: self, using: { [weak self] _ in
+            self?.willChangeValue(for: \.isFullscreen)
+        }), NotificationToken(NSWindow.didExitFullScreenNotification, object: self, using: { [weak self] _ in
+            self?.didChangeValue(for: \.isFullscreen)
+        }), NotificationToken(NSWindow.didEnterFullScreenNotification, object: self, using: { [weak self] _ in
+            self?.didChangeValue(for: \.isFullscreen)
+        })]
+    }
+    
+    private var fullscreenTokens: [NotificationToken] {
+        get { getAssociatedValue("fullscreenTokens") ?? [] }
+        set { setAssociatedValue(newValue, key: "fullscreenTokens") }
     }
     
     /// The index of the window tab, or `nil` if the window isn't a tab.
@@ -537,7 +558,7 @@ extension NSWindow {
     
     /// Resizes the window to match it's screen aspect ratio and dimensions.
     @objc open func resizeToScreenAspectRatio() {
-        guard let aspectRatio = self.screen?.visibleFrame.size.aspectRatio else { return }
+        guard let aspectRatio = screen?.visibleFrame.size.aspectRatio else { return }
         let frame = frame.scaled(byFactor: aspectRatio).size(frame.size.clamped(to: minSize...maxSize))
         setFrame(frame, display: false)
     }

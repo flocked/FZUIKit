@@ -39,13 +39,37 @@ public struct NSViewConfigurationState: NSConfigurationState, Hashable {
 
     /// A Boolean value that indicates whether the view is in an editing state.
     public var isEditing: Bool = false
-
+    
+    /// The active state of the view.
+    public var activeState: ActiveState = .inactive
+    
+    /// The active state of an view.
+    public enum ActiveState: Int, Hashable, CustomStringConvertible {
+        /// Inactive. The window that displays the view isn't the key window.
+        case inactive
+        /// Active. The window that displays the view is the key window.
+        case active
+        /// Active and focused. The view or any of its subviews is focused (first responder).
+        case focused
+        
+        public var description: String {
+            switch self {
+            case .inactive: return "inactive"
+            case .active: return "active"
+            case .focused: return "focused"
+            }
+        }
+    }
+    
+    /// The appearance of the view.
+    public var appearance: NSAppearance?
+    
     /**
      A Boolean value that indicates whether the view is in an emphasized state.
 
      The value of this property is `true`, if it's window is key.
      */
-    public var isActive: Bool = false
+    var isActive: Bool = false
 
     /// A Boolean value that indicates whether the view is in a focused state.
     var isFocused: Bool = false
@@ -65,27 +89,31 @@ public struct NSViewConfigurationState: NSConfigurationState, Hashable {
                 isEnabled: Bool = true,
                 isHovered: Bool = false,
                 isEditing: Bool = false,
-                isActive: Bool = false)
+                activeState: ActiveState = .inactive,
+                appearance: NSAppearance? = nil)
     {
         self.isSelected = isSelected
         self.isEnabled = isEnabled
         self.isHovered = isHovered
         self.isEditing = isEditing
-        self.isActive = isActive
+        self.activeState = activeState
+        self.appearance = appearance
     }
 
     init(isSelected: Bool,
          isEnabled: Bool,
          isHovered: Bool,
          isEditing: Bool,
-         isActive: Bool,
+         activeState: ActiveState,
+         appearance: NSAppearance?,
          customStates: [NSConfigurationStateCustomKey: AnyHashable])
     {
         self.isSelected = isSelected
         self.isEnabled = isEnabled
         self.isHovered = isHovered
         self.isEditing = isEditing
-        self.isActive = isActive
+        self.activeState = activeState
+        self.appearance = appearance
         self.customStates = customStates
     }
 }
@@ -101,7 +129,8 @@ extension NSViewConfigurationState: ReferenceConvertible {
             isEnabled: \(isEnabled)
             isHovered: \(isHovered)
             isEditing: \(isEditing)
-            isActive: \(isActive)
+            activeState: \(activeState)
+            appearance: \(appearance?.name.rawValue ?? "-")
             customStates: \(customStates)
         )
         """

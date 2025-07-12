@@ -533,15 +533,7 @@ extension NSScrollView {
     /// A Boolean value that indicates whether the window is being scrolled by the user.
     @objc public private(set) var inLiveScroll: Bool {
         get {
-            if liveScrollNotificationTokens.isEmpty {
-                liveScrollNotificationTokens = [NotificationCenter.default.observe(NSScrollView.willStartLiveScrollNotification, object: self, using: { [weak self] _ in
-                    self?.inLiveScroll = true
-                }), NotificationCenter.default.observe(NSScrollView.didLiveScrollNotification, object: self, using: { [weak self] _ in
-                    self?.inLiveScroll = true
-                }), NotificationCenter.default.observe(NSScrollView.didEndLiveScrollNotification, object: self, using: { [weak self] _ in
-                    self?.inLiveScroll = false
-                })]
-            }
+            setupLiveResizeObservation()
             return getAssociatedValue("inLiveScroll") ?? false
         }
         set { setAssociatedValue(newValue, key: "inLiveScroll") }
@@ -550,13 +542,7 @@ extension NSScrollView {
     /// A Boolean value that indicates whether the scroll view is being magnified by the user.
     @objc public private(set) var inLiveMagnify: Bool {
         get {
-            if liveMagnifyNotificationTokens.isEmpty {
-                liveMagnifyNotificationTokens = [NotificationCenter.default.observe(NSScrollView.willStartLiveMagnifyNotification, object: self, using: { [weak self] _ in
-                    self?.inLiveMagnify = true
-                }), NotificationCenter.default.observe(NSScrollView.didEndLiveMagnifyNotification, object: self, using: { [weak self] _ in
-                    self?.inLiveMagnify = false
-                })]
-            }
+            setupLiveMagnifyObservation()
             return getAssociatedValue("inLiveMagnify") ?? false
         }
         set { setAssociatedValue(newValue, key: "inLiveMagnify") }
@@ -570,6 +556,26 @@ extension NSScrollView {
     private var liveMagnifyNotificationTokens: [NotificationToken] {
         get { getAssociatedValue("liveMagnifyNotificationTokens") ?? [] }
         set { setAssociatedValue(newValue, key: "liveMagnifyNotificationTokens") }
+    }
+    
+    private func setupLiveResizeObservation() {
+        guard liveScrollNotificationTokens.isEmpty else { return }
+        liveScrollNotificationTokens = [NotificationCenter.default.observe(NSScrollView.willStartLiveScrollNotification, object: self, using: { [weak self] _ in
+            self?.inLiveScroll = true
+        }), NotificationCenter.default.observe(NSScrollView.didLiveScrollNotification, object: self, using: { [weak self] _ in
+            self?.inLiveScroll = true
+        }), NotificationCenter.default.observe(NSScrollView.didEndLiveScrollNotification, object: self, using: { [weak self] _ in
+            self?.inLiveScroll = false
+        })]
+    }
+    
+    private func setupLiveMagnifyObservation() {
+        guard liveMagnifyNotificationTokens.isEmpty else { return }
+        liveMagnifyNotificationTokens = [NotificationCenter.default.observe(NSScrollView.willStartLiveMagnifyNotification, object: self, using: { [weak self] _ in
+            self?.inLiveMagnify = true
+        }), NotificationCenter.default.observe(NSScrollView.didEndLiveMagnifyNotification, object: self, using: { [weak self] _ in
+            self?.inLiveMagnify = false
+        })]
     }
     
     /*

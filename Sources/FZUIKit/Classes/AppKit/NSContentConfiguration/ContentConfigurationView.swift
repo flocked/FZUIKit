@@ -8,10 +8,16 @@
 #if os(macOS)
 
 import AppKit
+import FZSwiftUtils
 
 /// A view that displays a content configuration.
 open class ContentConfigurationView: NSView {
     
+    private var contentView: (NSView & NSContentView)?
+    private var trackingArea: TrackingArea?
+    private var firstResponderObservation: KeyValueObservation?
+    private var appearanceObservation: KeyValueObservation?
+
     /**
      Creates a content configuration view with the specified configuration.
      
@@ -19,7 +25,6 @@ open class ContentConfigurationView: NSView {
      */
     public init(configuration: NSContentConfiguration) {
         super.init(frame: .zero)
-        sharedInit()
         self.contentConfiguration = configuration
         setupConfiguration()
     }
@@ -27,7 +32,6 @@ open class ContentConfigurationView: NSView {
     /// Creates a content configuration view.
     public init() {
         super.init(frame: .zero)
-        sharedInit()
     }
     
     /// The current content configuration of the view.
@@ -42,7 +46,9 @@ open class ContentConfigurationView: NSView {
 
      If you override ``updateConfiguration(using:)`` to manually update and customize the content configuration, disable automatic updates by setting this property to `false`.
      */
-    open var automaticallyUpdatesContentConfiguration: Bool = true
+    open var automaticallyUpdatesContentConfiguration: Bool = false {
+        didSet { setupObservation() }
+    }
     
     /**
      The current configuration state of the view.
@@ -50,8 +56,7 @@ open class ContentConfigurationView: NSView {
      To add your own custom state, see `NSConfigurationStateCustomKey`.
      */
     open var configurationState: NSViewConfigurationState {
-        NSViewConfigurationState.init(isSelected: isSelected, isEnabled: isEnabled, isHovered: isHovered, isEditing: isEditing, isActive: isActive, customStates: [:])
-        // NSViewConfigurationState.init(isSelected: false, isEnabled: true, isHovered: isHovered, isEditing: false, isActive: isActive, customStates: [:])
+        .init(isSelected: isSelected, isEnabled: isEnabled, isHovered: isHovered, isEditing: isEditing, activeState: activeState, appearance: effectiveAppearance)
     }
     
     /**
@@ -108,29 +113,8 @@ open class ContentConfigurationView: NSView {
      */
     @objc open var configurationUpdateHandler: ConfigurationUpdateHandler? = nil {
         didSet {
+            setupObservation()
             setNeedsUpdateConfiguration()
-
-        }
-    }
-    
-    /**
-     The emphasized state of the view.
-
-     The value of this property is `true`, if it's window is key.
-     */
-    open var isActive: Bool {
-        window?.isKeyWindow ?? false
-    }
-    
-    /**
-     The hovering state of the view.
-
-     The value of this property is `true`, if the mouse is hovering the view.
-     */
-    open internal(set) var isHovered: Bool = false {
-        didSet {
-            guard oldValue != isHovered else { return }
-            setNeedsAutomaticUpdateConfiguration()
         }
     }
     
@@ -158,24 +142,41 @@ open class ContentConfigurationView: NSView {
         }
     }
     
-    /// The focusing state of the view.
-    open var isFocused: Bool = false {
-        didSet {
-            guard oldValue != isFocused else { return }
-            setNeedsAutomaticUpdateConfiguration()
+    /// The active state of the view.
+    private var activeState: NSViewConfigurationState.ActiveState {
+        if isObserving {
+            return isActive ? _isDescendantFirstResponder ? .focused : .active : .inactive
         }
+        return isActive ? isDescendantFirstResponder ? .focused : .active : .inactive
     }
+    
+    private var isActive: Bool {
+        window?.isKeyWindow ?? false
+    }
+    
+    private var _isDescendantFirstResponder = false
+    
+    /**
+     The hovering state of the view.
 
-    /// The expanding state of the view.
-    open var isExpanded: Bool = false {
-        didSet {
-            guard oldValue != isExpanded else { return }
+     The value of this property is `true`, if the mouse is hovering the view.
+     */
+    private var isHovered: Bool {
+        get { isObserving ? _isHovered : NSApp.isActive && bounds.contains(mouseLocationOutsideOfEventStream) }
+        set {
+            guard newValue != isHovered else { return }
+            _isHovered = newValue
             setNeedsAutomaticUpdateConfiguration()
         }
     }
     
-    func setupConfiguration() {
-        if let configuration = contentConfiguration {
+    private var _isHovered = false
+    
+    private func setupConfiguration() {
+        if var configuration = contentConfiguration {
+            if automaticallyUpdatesContentConfiguration {
+                configuration = configuration.updated(for: configurationState)
+            }
             if let contentView = contentView, contentView.supports(configuration) {
                 contentView.configuration = configuration
             } else {
@@ -188,10 +189,8 @@ open class ContentConfigurationView: NSView {
             contentView = nil
         }
     }
-    
-    var contentView: (NSView & NSContentView)?
-    
-    func setNeedsAutomaticUpdateConfiguration() {
+
+    private func setNeedsAutomaticUpdateConfiguration() {
         if automaticallyUpdatesContentConfiguration {
             setNeedsUpdateConfiguration()
         } else {
@@ -199,12 +198,36 @@ open class ContentConfigurationView: NSView {
         }
     }
     
-    func sharedInit() {
-        trackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeInActiveApp])
-        trackingArea?.update()
-        windowHandlers.isKey = { [weak self] isKey in
-            guard let self = self else { return }
-            self.setNeedsAutomaticUpdateConfiguration()
+    private var isObserving: Bool {
+        automaticallyUpdatesContentConfiguration == true || configurationUpdateHandler != nil
+    }
+    
+    private func setupObservation() {
+        if !isObserving {
+            trackingArea = nil
+            windowHandlers.isKey = nil
+            firstResponderObservation = nil
+            appearanceObservation = nil
+        } else if trackingArea == nil {
+            _isDescendantFirstResponder = isDescendantFirstResponder
+            _isHovered = NSApp.isActive && bounds.contains(mouseLocationOutsideOfEventStream)
+            trackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeInActiveApp])
+            trackingArea?.update()
+            windowHandlers.isKey = { [weak self] isKey in
+                guard let self = self else { return }
+                setNeedsAutomaticUpdateConfiguration()
+            }
+            firstResponderObservation = observeChanges(for: \.window?.firstResponder) { [weak self] oldValue, newValue in
+                guard let self = self else { return }
+                let isFirstResponder = self.isDescendantFirstResponder
+                guard self._isDescendantFirstResponder != isFirstResponder else { return }
+                self._isDescendantFirstResponder = isFirstResponder
+                guard self.isActive else { return }
+                setNeedsAutomaticUpdateConfiguration()
+            }
+            appearanceObservation = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
+                self?.setNeedsAutomaticUpdateConfiguration()
+            }
         }
     }
     
@@ -222,9 +245,7 @@ open class ContentConfigurationView: NSView {
         super.mouseExited(with: event)
         isHovered = false
     }
-    
-    var trackingArea: TrackingArea?
-    
+        
     required public init?(coder: NSCoder) {
         super.init(coder: coder)
     }

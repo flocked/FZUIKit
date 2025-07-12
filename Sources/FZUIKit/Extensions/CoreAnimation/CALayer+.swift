@@ -317,6 +317,50 @@ import FZSwiftUtils
             }
         }
         
+        var _borderConfiguration: BorderConfiguration {
+            if let layer = self as? CAShapeLayer {
+                var configuration = BorderConfiguration(color:  layer.strokeColor?.nsUIColor, width: layer.lineWidth)
+                configuration.dash.lineCap = layer.lineCap.cgLineCap
+                configuration.dash.lineJoin = layer.lineJoin.cgLineJoin
+                configuration.dash.pattern = layer.lineDashPattern?.map({ CGFloat($0.doubleValue) }) ?? []
+                configuration.dash.phase = layer.lineDashPhase
+                return configuration
+            }
+            return borderLayer?.border ?? BorderConfiguration(color: borderColor?.nsUIColor, width: borderWidth)
+        }
+        
+        var _shadowConfiguration: ShadowConfiguration {
+            ShadowConfiguration(color: shadowColor?.nsUIColor, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point)
+        }
+        
+        struct Configurations {
+            let layer: CALayer
+            
+            var innerShadow: ShadowConfiguration {
+                layer.innerShadowLayer?.configuration ?? .none()
+            }
+            
+            var border: BorderConfiguration {
+                if let layer = layer as? CAShapeLayer {
+                    var configuration = BorderConfiguration(color:  layer.strokeColor?.nsUIColor, width: layer.lineWidth)
+                    configuration.dash.lineCap = layer.lineCap.cgLineCap
+                    configuration.dash.lineJoin = layer.lineJoin.cgLineJoin
+                    configuration.dash.pattern = layer.lineDashPattern?.map({ CGFloat($0.doubleValue) }) ?? []
+                    configuration.dash.phase = layer.lineDashPhase
+                    return configuration
+                }
+                return layer.borderLayer?.border ?? BorderConfiguration(color: layer.borderColor?.nsUIColor, width: layer.borderWidth)
+            }
+            
+            var shadow: ShadowConfiguration {
+                ShadowConfiguration(color: layer.shadowColor?.nsUIColor, opacity: CGFloat(layer.shadowOpacity), radius: layer.shadowRadius, offset: layer.shadowOffset.point)
+            }
+            
+            init(layer: CALayer) {
+                self.layer = layer
+            }
+        }
+        
         var borderConfiguration: BorderConfiguration {
             get { getAssociatedValue("border", initialValue: BorderConfiguration(color: borderColor?.nsUIColor, width: borderWidth)) }
             set { setAssociatedValue(newValue, key: "border") }
