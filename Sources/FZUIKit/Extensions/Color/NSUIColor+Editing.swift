@@ -163,13 +163,13 @@ public extension NSUIColor {
     /// The mode of grayscaling a color.
     enum GrayscalingMode: String, Hashable {
         /// XYZ luminance
-        case luminance = "Luminance"
+        case luminance
         /// HSL lightness
-        case lightness = "Lightness"
+        case lightness
         /// RGB average
-        case average = "Average"
+        case average
         /// HSV value
-        case value = "Value"
+        case value
     }
 
     /**

@@ -42,9 +42,9 @@ public struct ColorTransformer: ContentTransform {
         Self("opacity: \(opacity)") { $0.withAlpha(opacity) }
     }
     
-    /// Creates a color transformer that generates a version of the color.mixed with fractions of the specificed color.
-    public static func mixed(withFraction fraction: CGFloat, of color: NSUIColor, using mode: NSUIColor.ColorBlendMode = .rgb) -> Self {
-        Self(id: "mixed(withFraction: \(fraction), of: \(color), using: \(mode.rawValue))") { $0.mixed(withFraction: fraction, of: color, using: mode) }
+    /// Creates a color transformer that generates a version of the color mixed with fractions of the specificed color.
+    public static func mixed(withFraction fraction: CGFloat, of color: NSUIColor, using colorSpace: NSUIColor.MixingColorSpace = .rgb) -> Self {
+        Self(id: "mixed(withFraction: \(fraction), of: \(color), using: \(colorSpace.rawValue))") { $0.mixed(withFraction: fraction, of: color, using: colorSpace) }
     }
 
     /// Creates a color transformer that generates a tinted version of the color.

@@ -54,15 +54,22 @@ extension Color {
      - Parameters:
         - color: The color to mix.
         - amount: The amount of the color to mix with the current color.
-     
+        - colorSpace: The color space mode to be used for mixing the two colors.
+
      - Returns: The new mixed color.
      */
-    public func mixed(with color: Color, by amount: CGFloat = 0.5) -> Color {
-        #if os(macOS)
-        nsUIColor.blended(withFraction: amount, of: color.nsUIColor)?.swiftUI ?? self
-        #else
-        nsUIColor.blended(withFraction: amount, of: color.nsUIColor).swiftUI
-        #endif
+    public func mixed(with color: Color, by amount: CGFloat = 0.5, using colorSpace: MixingColorSpace = .rgb) -> Color {
+        nsUIColor.mixed(withFraction: amount, of: color.nsUIColor, using: .init(rawValue: colorSpace.rawValue)!).swiftUI
+    }
+    
+    /// The color for mixing two colors.
+    public enum MixingColorSpace: String, Hashable {
+        /// RGB color space.
+        case rgb
+        /// HSL color space.
+        case hsl
+        /// HSB color space.
+        case hsb
     }
     
     /**
@@ -156,13 +163,13 @@ extension Color {
     /// The mode of grayscaling a color.
     public enum GrayscalingMode: String, Hashable {
         /// XYZ luminance
-        case luminance = "Luminance"
+        case luminance
         /// HSL lightness
-        case lightness = "Lightness"
+        case lightness
         /// RGB average
-        case average = "Average"
+        case average
         /// HSV value
-        case value = "Value"
+        case value
     }
     
     /**

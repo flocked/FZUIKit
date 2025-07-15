@@ -5,8 +5,6 @@
 //  Created by Florian Zand on 06.10.23.
 //
 
-import Foundation
-
 #if os(macOS)
 import AppKit
 #else
@@ -21,36 +19,36 @@ public extension NSUIColor {
      - Parameters:
         - fraction: The amount of the color to blend.
         - color: The color to blend.
-        - mode: The color space mode used mixing the colors.
+        - colorSpace: The color space mode to be used for mixing the two colors.
 
      - Returns: The mixed color.
      */
-    func mixed(withFraction fraction: CGFloat, of color: NSUIColor, using mode: ColorBlendMode = .rgb) -> NSUIColor {
+    func mixed(withFraction fraction: CGFloat, of color: NSUIColor, using colorSpace: MixingColorSpace = .rgb) -> NSUIColor {
         let fraction = fraction.clamped(to: 0.0...1.0)
         #if os(macOS) || os(iOS) || os(tvOS)
         let dynamic = dynamicColors
         if dynamic.light != dynamic.dark {
-            switch mode {
+            switch colorSpace {
             case .hsl: return NSUIColor(light: dynamic.light.mixedHSL(withColor: color, weight: fraction), dark: dynamic.dark.mixedHSL(withColor: color, weight: fraction))
             case .hsb: return NSUIColor(light: dynamic.light.mixedHSB(withColor: color, weight: fraction), dark: dynamic.dark.mixedHSB(withColor: color, weight: fraction))
             case .rgb: return NSUIColor(light: dynamic.light.mixedRGB(withColor: color, weight: fraction), dark: dynamic.dark.mixedRGB(withColor: color, weight: fraction))
             }
         }
         #endif
-        switch mode {
+        switch colorSpace {
         case .hsl: return mixedHSL(withColor: color, weight: fraction)
         case .hsb: return mixedHSB(withColor: color, weight: fraction)
         case .rgb: return mixedRGB(withColor: color, weight: fraction)
         }
     }
 
-    /// The mode for mixing two colors.
-    enum ColorBlendMode: String {
-        /// The RGB color space.
+    /// The color for mixing two colors.
+    enum MixingColorSpace: String, Hashable {
+        /// RGB color space.
         case rgb
-        /// The HSL color space.
+        /// HSL color space.
         case hsl
-        /// The HSB color space.
+        /// HSB color space.
         case hsb
     }
 
@@ -86,13 +84,12 @@ public extension NSUIColor {
         NSUIColor(rgbaComponents().blended(withFraction: weight, of: color.rgbaComponents()))
     }
 
-    internal static func mixedHue(source: CGFloat, target: CGFloat) -> CGFloat {
+    fileprivate static func mixedHue(source: CGFloat, target: CGFloat) -> CGFloat {
         if target > source, target - source > 180.0 {
             return target - source + 360.0
         } else if target < source, source - target > 180.0 {
             return target + 360.0 - source
         }
-
         return target - source
     }
 }
