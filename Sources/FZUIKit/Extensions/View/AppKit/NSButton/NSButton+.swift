@@ -603,7 +603,6 @@ public extension NSButton {
     @discardableResult
     func setContentTintColor(_ color: NSColor?, for state: StateValue) -> Self {
         stateContentTintColor[state] = color
-        stateContentTintColor[state] = color
         updateButtonStateObserver()
         if self.state == state, let color = color {
             contentTintColor = color
@@ -634,7 +633,6 @@ public extension NSButton {
     @discardableResult
     func setSymbolConfiguration(_ configuration: NSImage.SymbolConfiguration?, for state: StateValue) -> Self {
         stateSymbolConfiguration[state] = configuration
-        stateSymbolConfiguration[state] = configuration
         updateButtonStateObserver()
         if self.state == state, let configuration = configuration {
             symbolConfiguration = configuration
@@ -654,12 +652,7 @@ public extension NSButton {
     @available(macOS 12.0, *)
     @discardableResult
     func setSymbolConfiguration(_ configuration: ImageSymbolConfiguration, for state: StateValue) -> Self {
-        stateSymbolConfiguration[state] = configuration.nsUI()
-        updateButtonStateObserver()
-        if self.state == state {
-            symbolConfiguration = configuration.nsUI()
-        }
-        return self
+        setSymbolConfiguration(configuration.nsUI(), for: state)
     }
 
     /**

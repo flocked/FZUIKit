@@ -7,37 +7,44 @@
 
 import Foundation
 
-#if canImport(UIKit)
-    import UIKit
-#elseif os(macOS)
-    import AppKit
+#if os(macOS)
+import AppKit
+#else
+import UIKit
 #endif
 import FZSwiftUtils
 
 public extension NSUIColor {
     /**
-     Creates a new color object whose component values are a weighted sum of the current color object and the specified color object's.
+     Creates a new color mixing the color with the specified other color.
 
      - Parameters:
-        - fraction: The amount of the color to blend with the receiver's color. The method converts color and a copy of the receiver to RGB, and then sets each component of the returned color to fraction of color’s value plus 1 – fraction of the receiver’s.
-        - color: The color to blend with the receiver's color.
-        - mode: The color space mode used mixing the colors. The default uses the RBG color space.
+        - fraction: The amount of the color to blend.
+        - color: The color to blend.
+        - mode: The color space mode used mixing the colors.
 
-     - Returns: The resulting color object or `nil` if the colors can’t be converted.
+     - Returns: The mixed color.
      */
     func mixed(withFraction fraction: CGFloat, of color: NSUIColor, using mode: ColorBlendMode = .rgb) -> NSUIColor {
         let fraction = fraction.clamped(to: 0.0...1.0)
-
+        #if os(macOS) || os(iOS) || os(tvOS)
+        let dynamic = dynamicColors
+        if dynamic.light != dynamic.dark {
+            switch mode {
+            case .hsl: return NSUIColor(light: dynamic.light.mixedHSL(withColor: color, weight: fraction), dark: dynamic.dark.mixedHSL(withColor: color, weight: fraction))
+            case .hsb: return NSUIColor(light: dynamic.light.mixedHSB(withColor: color, weight: fraction), dark: dynamic.dark.mixedHSB(withColor: color, weight: fraction))
+            case .rgb: return NSUIColor(light: dynamic.light.mixedRGB(withColor: color, weight: fraction), dark: dynamic.dark.mixedRGB(withColor: color, weight: fraction))
+            }
+        }
+        #endif
         switch mode {
-        case .hsl:
-            return mixedHSL(withColor: color, weight: fraction)
-        case .hsb:
-            return mixedHSB(withColor: color, weight: fraction)
-        case .rgb:
-            return mixedRGB(withColor: color, weight: fraction)
+        case .hsl: return mixedHSL(withColor: color, weight: fraction)
+        case .hsb: return mixedHSB(withColor: color, weight: fraction)
+        case .rgb: return mixedRGB(withColor: color, weight: fraction)
         }
     }
 
+    /// The mode for mixing two colors.
     enum ColorBlendMode: String {
         /// The RGB color space.
         case rgb
@@ -47,7 +54,7 @@ public extension NSUIColor {
         case hsb
     }
 
-    internal func mixedHSL(withColor color: NSUIColor, weight: CGFloat) -> NSUIColor {
+    fileprivate func mixedHSL(withColor color: NSUIColor, weight: CGFloat) -> NSUIColor {
         let c1 = hslaComponents()
         let c2 = color.hslaComponents()
 
@@ -63,7 +70,7 @@ public extension NSUIColor {
         return NSUIColor(hue: h, saturation: s, lightness: l, alpha: alpha)
     }
 
-    internal func mixedHSB(withColor color: NSUIColor, weight: CGFloat) -> NSUIColor {
+    fileprivate func mixedHSB(withColor color: NSUIColor, weight: CGFloat) -> NSUIColor {
         let c1 = hsbaComponents()
         let c2 = color.hsbaComponents()
 
@@ -75,16 +82,8 @@ public extension NSUIColor {
         return NSUIColor(hue: h, saturation: s, brightness: b, alpha: alpha)
     }
 
-    internal func mixedRGB(withColor color: NSUIColor, weight: CGFloat) -> NSUIColor {
-        let c1 = rgbaComponents()
-        let c2 = color.rgbaComponents()
-
-        let red = c1.red + (weight * (c2.red - c1.red))
-        let green = c1.green + (weight * (c2.green - c1.green))
-        let blue = c1.blue + (weight * (c2.blue - c1.blue))
-        let alpha = alphaComponent + (weight * (color.alphaComponent - alphaComponent))
-
-        return NSUIColor(red: red, green: green, blue: blue, alpha: alpha)
+    fileprivate func mixedRGB(withColor color: NSUIColor, weight: CGFloat) -> NSUIColor {
+        NSUIColor(rgbaComponents().blended(withFraction: weight, of: color.rgbaComponents()))
     }
 
     internal static func mixedHue(source: CGFloat, target: CGFloat) -> CGFloat {

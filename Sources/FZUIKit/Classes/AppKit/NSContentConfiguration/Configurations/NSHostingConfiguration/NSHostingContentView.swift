@@ -56,6 +56,17 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
         }
     }
     
+    override var intrinsicContentSize: CGSize {
+        var size = super.intrinsicContentSize
+        if let minWidth = appliedConfiguration.minWidth {
+            size.width = size.width.clamped(min: minWidth)
+        }
+        if let minHeight = appliedConfiguration.minHeight {
+            size.height = size.height.clamped(min: minHeight)
+        }
+        return size
+    }
+    
     /*
     var didSetup = false
     override func viewWillMove(toSuperview newSuperview: NSView?) {

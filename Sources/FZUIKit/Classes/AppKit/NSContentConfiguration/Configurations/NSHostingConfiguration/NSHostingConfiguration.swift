@@ -12,7 +12,7 @@
     /**
      A content configuration suitable for hosting a hierarchy of SwiftUI views.
 
-     Use a value of this type, which conforms to the NSContentConfiguration protocol, with a NSCollectionViewItem or NSTableCellView to host a hierarchy of SwiftUI views in a collection or table view, respectively. For example, the following shows a stack with an image and text inside the cell:
+     Use a value of this type, which conforms to the ``NSContentConfiguration`` protocol, with a [NSCollectionViewItem](https://developer.apple.com/documentation/appkit/nscollectionviewitem) or [NSTableCellView](https://developer.apple.com/documentation/appkit/nstablecellview) to host a hierarchy of SwiftUI views in a collection or table view, respectively. For example, the following shows a stack with an image and text inside the cell:
 
      ```swift
      myItem.contentConfiguration = NSHostingConfiguration {
@@ -131,7 +131,7 @@
             - edges: The edges to apply the insets. Any edges not specified will use the system default values.
             - insets: The insets to apply.
          */
-        public func margins(_ edges: Edge.Set = .all, _ insets: EdgeInsets) -> NSHostingConfiguration<Content, Background> {
+        public func margins(_ edges: Edge.Set = .all, _ insets: EdgeInsets) -> Self {
             var configuration = self
             configuration.margins.top = edges.contains(.top) ? insets.top : 0
             configuration.margins.leading = edges.contains(.leading) ? insets.leading : 0
@@ -156,7 +156,7 @@
             - edges: The edges to apply the insets. Any edges not specified will use the system default values.
             - length: The amount to apply.
          */
-        public func margins(_ edges: Edge.Set = .all, _ length: CGFloat) -> NSHostingConfiguration<Content, Background> {
+        public func margins(_ edges: Edge.Set = .all, _ length: CGFloat) -> Self {
             margins(edges, EdgeInsets(length))
         }
 
@@ -173,10 +173,10 @@
          ```
 
          - Parameters:
-            - width: The value to use for the width dimension. A value of nil indicates that the system default should be used.
-            - height: The value to use for the height dimension. A value of nil indicates that the system default should be used.
+            - width: The value to use for the width dimension. A value of `nil` indicates that the system default should be used.
+            - height: The value to use for the height dimension. A value of `nil` indicates that the system default should be used.
          */
-        public func minSize(width: CGFloat? = nil, height: CGFloat? = nil) -> NSHostingConfiguration<Content, Background> {
+        public func minSize(width: CGFloat? = nil, height: CGFloat? = nil) -> Self {
             var configuration = self
             configuration.minWidth = width
             configuration.minHeight = height
@@ -192,7 +192,7 @@
         
         var _sizingOptions: Any? = nil
 
-        public func updated(for _: NSConfigurationState) -> NSHostingConfiguration {
+        public func updated(for state: NSConfigurationState) -> NSHostingConfiguration {
             self
         }
 

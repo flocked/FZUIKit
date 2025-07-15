@@ -31,8 +31,7 @@ extension Color {
         - dark: The dark color.
      */
     public init(light lightModeColor: @escaping @autoclosure () -> Color,
-                dark darkModeColor: @escaping @autoclosure () -> Color)
-    {
+                dark darkModeColor: @escaping @autoclosure () -> Color) {
         self.init(NSUIColor(
             light: NSUIColor(lightModeColor()),
             dark: NSUIColor(darkModeColor())

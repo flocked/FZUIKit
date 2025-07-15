@@ -31,6 +31,11 @@ public struct ColorTransformer: ContentTransform {
         }
         id = identifier
     }
+    
+    private init(id: String, _ transform: @escaping (NSUIColor) -> NSUIColor) {
+        self.transform = transform
+        self.id = id
+    }
 
     /// Creates a color transformer that generates a version of the color.with modified opacity.
     public static func opacity(_ opacity: CGFloat) -> Self {
@@ -39,67 +44,65 @@ public struct ColorTransformer: ContentTransform {
     
     /// Creates a color transformer that generates a version of the color.mixed with fractions of the specificed color.
     public static func mixed(withFraction fraction: CGFloat, of color: NSUIColor, using mode: NSUIColor.ColorBlendMode = .rgb) -> Self {
-        Self("mixed(withFraction: \(fraction), of: \(color), using: \(mode.rawValue))") { $0.mixed(withFraction: fraction, of: color, using: mode) }
+        Self(id: "mixed(withFraction: \(fraction), of: \(color), using: \(mode.rawValue))") { $0.mixed(withFraction: fraction, of: color, using: mode) }
     }
 
-    /// Creates a color transformer that generates a version of the color that is tinted by the specfied amount.
+    /// Creates a color transformer that generates a tinted version of the color.
     public static func tinted(by amount: CGFloat = 0.2) -> Self {
-        Self("tinted: \(amount)") { $0.tinted(by: amount) }
+        Self(id: "tinted: \(amount)") { $0.tinted(by: amount) }
     }
 
-    /// Creates a color transformer that generates a version of the color that is shaded by the specfied amount.
+    /// Creates a color transformer that generates a shaded version of the color.
     public static func shaded(by amount: CGFloat = 0.2) -> Self {
-        Self("shaded: \(amount)") { $0.shaded(by: amount) }
+        Self(id: "shaded: \(amount)") { $0.shaded(by: amount) }
     }
 
-    /// Creates a color transformer that generates a version of the color that is lightened by the specfied amount.
+    /// Creates a color transformer that generates a lightned version of the color.
     public static func lighter(by amount: CGFloat = 0.2) -> Self {
-        Self("lighter: \(amount)") { $0.lighter(by: amount) }
+        Self(id: "lighter: \(amount)") { $0.lighter(by: amount) }
     }
 
-    /// Creates a color transformer that generates a version of the color that is darkened by the specfied amount.
+    /// Creates a color transformer that generates a darkened version of the color.
     public static func darkened(by amount: CGFloat = 0.2) -> Self {
-        Self("darkened: \(amount)") { $0.darkened(by: amount) }
+        Self(id: "darkened: \(amount)") { $0.darkened(by: amount) }
     }
 
-    /// Creates a color transformer that generates a version of the color that is saturated by the specfied amount.
+    /// Creates a color transformer that generates a saturated version of the color.
     public static func saturated(by amount: CGFloat = 0.2) -> Self {
-        Self("saturated: \(amount)") { $0.saturated(by: amount) }
+        Self(id: "saturated: \(amount)") { $0.saturated(by: amount) }
     }
 
-    /// Creates a color transformer that generates a version of the color that is desaturated by the specfied amount.
+    /// Creates a color transformer that generates a desaturated version of the color.
     public static func desaturated(by amount: CGFloat = 0.2) -> Self {
-        Self("desaturated: \(amount)") { $0.desaturated(by: amount) }
+        Self(id: "desaturated: \(amount)") { $0.desaturated(by: amount) }
     }
 
     /// Creates a color transformer that returns the specified color.
     public static func color(_ color: NSUIColor) -> Self {
-        Self("color: \(String(describing: color))") { _ in color }
+        Self(id: "color: \(String(describing: color))") { _ in color }
     }
     
     /// Creates a color transformer that generates a complemented version of the color.
     public static func complemented() -> Self {
-        Self("complemented") { $0.complemented() }
+        Self(id: "complemented") { $0.complemented() }
     }
 
     #if os(macOS)
-        /// Creates a color transformer that generates a monochrome version of the color.
-        public static let monochrome: Self = .init("monochrome") { _ in .secondaryLabelColor }
+    /// Creates a color transformer that generates a monochrome version of the color.
+    public static let monochrome = Self("monochrome") { _ in .secondaryLabelColor }
 
-        /// A color transformer that returns the preferred system accent color.
-        public static let accentColor: Self = .init("accentColor") { _ in
-            .controlAccentColor
-        }
+    /// A color transformer that returns the preferred system accent color.
+    public static let accentColor = Self("accentColor") { _ in .controlAccentColor }
 
-        /// Creates a color transformer that generates a grayscale version of the color.
-        public static func grayscaled(mode: NSUIColor.GrayscalingMode = .lightness) -> Self {
-            Self("grayscaled: \(mode.rawValue)") { $0.grayscaled(mode: mode) }
-        }
+    /// Creates a color transformer that generates a grayscale version of the color.
+    public static func grayscaled(mode: NSUIColor.GrayscalingMode = .lightness) -> Self {
+        Self("grayscaled: \(mode.rawValue)") { $0.grayscaled(mode: mode) }
+    }
 
-        /// A color transformer that returns a color by system effect.
-        public static func systemEffect(_ systemEffect: NSColor.SystemEffect) -> Self {
-            Self("systemEffect: \(systemEffect.description)") { $0.withSystemEffect(systemEffect) }
-        }
+    /// A color transformer that returns the color by a system effect.
+    public static func systemEffect(_ systemEffect: NSColor.SystemEffect) -> Self {
+        Self("systemEffect: \(systemEffect.description)") { $0.withSystemEffect(systemEffect) }
+    }
     
     /// A color transformer that generates a highlighted version of the color.
     public static func highlight(_ amount: CGFloat = 0.2) -> Self {
@@ -107,16 +110,13 @@ public struct ColorTransformer: ContentTransform {
     }
 
     #elseif os(iOS) || os(tvOS)
-        public static var preferredTint: Self {
-            Self("preferredTint", UIConfigurationColorTransformer.preferredTint.transform)
-        }
-
-        public static var monochromeTint: Self {
-            Self("monochromeTint", UIConfigurationColorTransformer.monochromeTint.transform)
-        }
-
-        public static var grayscale: Self {
-            Self("grayscale", UIConfigurationColorTransformer.grayscale.transform)
-        }
+    /// A color transformer that returns the preferred system accent color.
+    public static let preferredTint = Self(id: "preferredTint", UIConfigurationColorTransformer.preferredTint.transform)
+    
+    /// A color transformer that returns the color with a monochrome tint.
+    public static let monochromeTint = Self(id: "monochromeTint", UIConfigurationColorTransformer.monochromeTint.transform)
+    
+    /// Creates a color transformer that generates a grayscale version of the color.
+    public static let grayscale = Self(id: "grayscale", UIConfigurationColorTransformer.grayscale.transform)
     #endif
 }

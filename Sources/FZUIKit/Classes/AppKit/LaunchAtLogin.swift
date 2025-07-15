@@ -28,7 +28,6 @@ public enum LaunchAtLogin {
 					if SMAppService.mainApp.status == .enabled {
 						try? SMAppService.mainApp.unregister()
 					}
-
 					try SMAppService.mainApp.register()
 				} else {
 					try SMAppService.mainApp.unregister()
@@ -42,7 +41,7 @@ public enum LaunchAtLogin {
 	/**
      A Boolean value that indicates whether the app was launchedx at login.
      
-     - Important: This property must only be checked in `NSApplicationDelegate#applicationDidFinishLaunching`.
+     - Important: This property must only be checked in [applicationDidFinishLaunching(_:)](https://developer.apple.com/documentation/AppKit/NSApplicationDelegate/applicationDidFinishLaunching(_:))
 	*/
 	public static var wasLaunchedAtLogin: Bool {
 		let event = NSAppleEventManager.shared().currentAppleEvent
