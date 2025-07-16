@@ -16,23 +16,26 @@ import FZSwiftUtils
 extension NSUIColor {
     /// Returns the HSBA (hue, saturation, brightness, alpha) components of the color.
     public func hsbaComponents() -> HSBAComponents {
-        var h: CGFloat = 0.0
-        var s: CGFloat = 0.0
-        var b: CGFloat = 0.0
+        var hsba: (h: CGFloat, s: CGFloat, b: CGFloat, a: CGFloat) = (0,0,0,0)
         #if os(macOS)
         if self == .black {
             return HSBAComponents(0.0, 0.0, 0.0, 1.0)
         } else if self == .white {
             return HSBAComponents(0.0, 0.0, 1.0, 1.0)
+        } else if self == .clear {
+            return HSBAComponents(0.0, 0.0, 0.0, 0.0)
         }
-        guard let color = withSupportedColorSpace() else {
+        if colorSpace.colorSpaceModel == .rgb {
+            getHue(&hsba.h, saturation: &hsba.s, brightness: &hsba.b, alpha: &hsba.a)
+        } else if let color = withSupportedColorSpace() {
+            color.getHue(&hsba.h, saturation: &hsba.s, brightness: &hsba.b, alpha: &hsba.a)
+        } else {
             fatalError("Could not convert color to HSBA.")
         }
-        color.getHue(&h, saturation: &s, brightness: &b, alpha: nil)
         #else
-        getHue(&h, saturation: &s, brightness: &b, alpha: nil)
+        getHue(&hsba.h, saturation: &hsba.s, brightness: &hsba.b, alpha: &hsba.a)
         #endif
-        return HSBAComponents(h, s, b, alphaComponent)
+        return HSBAComponents(hsba.h, hsba.s, hsba.b, hsba.a)
     }
 
     /// Creates a color using the HSBA components.
@@ -192,7 +195,7 @@ public struct HSBAComponents {
         self.alpha = alpha.clamped(to: 0.0...1.0)
     }
 
-    init(_ hue: CGFloat, _ saturation: CGFloat, _ brightness: CGFloat, _ alpha: CGFloat) {
+    init(_ hue: CGFloat, _ saturation: CGFloat, _ brightness: CGFloat, _ alpha: CGFloat = 1.0) {
         self.hue = hue.clamped(to: 0.0...1.0)
         self.saturation = saturation.clamped(to: 0.0...1.0)
         self.brightness = brightness.clamped(to: 0.0...1.0)

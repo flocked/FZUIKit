@@ -54,19 +54,19 @@
         /**
          A Boolean value that indicates whether the appearance is light.
 
-         The following appearances are light: `aqua`, `vibrantLight`, `accessibilityHighContrastAqua` and `accessibilityHighContrastVibrantLight`.
+         The following appearances are light: ``aqua``, ``vibrantLight``, ``accessibilityHighContrastAqua`` and ``accessibilityHighContrastVibrantLight``.
          */
         var isLight: Bool {
-            isDark == false
+            [.aqua, .vibrantLight, .accessibilityHighContrastAqua, .accessibilityHighContrastVibrantLight].contains(name)
         }
 
         /**
          A Boolean value that indicates whether the appearance is dark.
 
-         The following appearances are dark: `darkAqua`, `vibrantDark`, `accessibilityHighContrastDarkAqua` and `accessibilityHighContrastVibrantDark`.
+         The following appearances are dark: ``darkAqua``, ``vibrantDark``, ``accessibilityHighContrastDarkAqua`` and ``accessibilityHighContrastVibrantDark``.
          */
         var isDark: Bool {
-            [.vibrantDark, .darkAqua, .accessibilityHighContrastDarkAqua, .accessibilityHighContrastVibrantDark].contains(name)
+            !isLight
         }
     }
 
@@ -77,7 +77,23 @@ extension NSAppearance: Codable {
     }
 }
 
+extension Encoder {
+    /// Encodes the specified value in a single value container.
+    func encodeSingleValue<T: Encodable>(_ value: T) throws {
+        var container = singleValueContainer()
+        try container.encode(value)
+    }
+}
+
+extension Decoder {
+    /// Decodes a value of the given type from a sing
+    func decodeSingleValue<T: Decodable>(_ type: T.Type) throws -> T {
+        try singleValueContainer().decode(type)
+    }
+}
+
 extension Decodable where Self: NSAppearance {
+    /// Decodes a value of the given type from a sing
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         self = .init(named: try container.decode(NSAppearance.Name.self))!

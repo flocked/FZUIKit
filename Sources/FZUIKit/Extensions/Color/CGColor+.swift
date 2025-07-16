@@ -13,6 +13,23 @@
 import SwiftUI
 
 public extension CGColor {
+    /**
+     Creates a new color in a different color space that matches the provided color.
+     
+     - Parameters:
+        - colorSpaceName: The name of the color space.
+        - intent: The mechanism to use to match the color when the color is outside the gamut of the new color space.
+     - Returns: A new color in the destination color space that matches (or closely approximates) the source color.
+     */
+    func converted(to colorSpaceName: CGColorSpaceName, intent: CGColorRenderingIntent = .defaultIntent, options: CFDictionary? = nil) -> CGColor? {
+        guard let colorSpace = CGColorSpace(name: colorSpaceName) else { return nil }
+        return converted(to: colorSpace, intent: intent, options: options)
+    }
+    
+    func sdsds() {
+        converted(to: .deviceRGB)
+    }
+    
     /// Returns the RGBA (red, green, blue, alpha) components of the color.
     func rgbaComponents() -> RGBAComponents? {
         var color = self

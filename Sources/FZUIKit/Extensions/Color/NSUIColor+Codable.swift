@@ -13,20 +13,78 @@ import UIKit
 #endif
 
 extension NSUIColor: Codable {
+    public enum CodingKeys: String, CodingKey {
+        case light
+        case dark
+    }
+    
     public func encode(to encoder: Encoder) throws {
-        var r, g, b, a: CGFloat
-        (r, g, b, a) = (0, 0, 0, 0)
-        var container = encoder.singleValueContainer()
-        self.getRed(&r, green: &g, blue: &b, alpha: &a)
-        try container.encode([r,g,b,a])
+        let dynamicColors = dynamicColors
+
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(dynamicColors.light.values, forKey: .light)
+        if dynamicColors.light != dynamicColors.dark {
+            try container.encode(dynamicColors.dark.values, forKey: .dark)
+        }
+    }
+    
+    fileprivate var values: [CGFloat] {
+        var r, g, b, a, w: CGFloat
+        (r, g, b, a, w) = (0, 0, 0, 0, 0)
+        var values: [CGFloat] = [0.0, 0.0]
+        #if os(macOS)
+        if colorSpace.colorSpaceModel == .rgb {
+            getRed(&r, green: &g, blue: &b, alpha: &a)
+            values = [r, g, b, a]
+        } else if colorSpace.colorSpaceModel == .gray {
+            getWhite(&r, alpha: &a)
+            values = [r, a]
+        } else if colorSpace.colorSpaceModel == .cmyk {
+            getCyan(&r, magenta: &g, yellow: &b, black: &w, alpha: &a)
+            values = [r, g, b, w, a]
+        }  else if let color = withSupportedColorSpace() {
+            color.getRed(&r, green: &g, blue: &b, alpha: &a)
+            values = [r, g, b, a]
+        }
+        #else
+        if getRed(&r, green: &g, blue: &b, alpha: &a) {
+            values = [r, g, b, a]
+        } else if getWhite(&r, alpha: &a) {
+            values = [r, a]
+        } else if getHue(&r, saturation: &g, brightness: &b, alpha: &a) {
+            values = [r, g, b, a, 0.0]
+        }
+        #endif
+        return values
     }
 }
 
 extension Decodable where Self: NSUIColor {
     public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let components = try container.decode([CGFloat].self)
-        self = Self.init(red: components[0], green: components[1], blue: components[2], alpha: components[3])
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        let light = try values.decode([CGFloat].self, forKey: .light)
+        if let dark = try? values.decode([CGFloat].self, forKey: .dark) {
+            self = NSUIColor(light:  Self(light), dark: Self(dark)) as! Self
+        } else {
+            self = Self(light)
+        }
+    }
+    
+    fileprivate init(_ components: [CGFloat]) {
+        switch components.count {
+        case 2:
+            self = Self(white: components[0], alpha: components[1])
+        case 4:
+            self = Self(red: components[0], green: components[1], blue: components[2], alpha: components[3])
+        case 5:
+            #if os(macOS)
+            self = Self(deviceCyan: components[0], magenta: components[1], yellow: components[2], black: components[3], alpha: components[4])
+            #else
+            self = Self(hue: components[0], saturation: components[1], brightness: components[2], alpha: components[3])
+            #endif
+        default:
+            self = Self(white: 0.0, alpha: 0.0)
+        }
     }
 }
 

@@ -151,7 +151,7 @@ public struct HSLAComponents: Hashable {
         - lightness: The lightness value (between `0.0` to `1.0`).
         - alpha: The alpha value (between `0.0` to `1.0`).
      */
-    public init(hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat) {
+    public init(hue: CGFloat, saturation: CGFloat, lightness: CGFloat, alpha: CGFloat = 1.0) {
         self.hue = hue.fractionalRemainder(dividingBy: 360.0)
         self.saturation = saturation.clamped(to: 0.0...1.0)
         self.lightness = lightness.clamped(to: 0.0...1.0)

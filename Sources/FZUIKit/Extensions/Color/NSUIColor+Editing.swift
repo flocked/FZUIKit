@@ -156,6 +156,16 @@ public extension NSUIColor {
             l = (1.0 / 3.0) * (r + g + b)
         case .value:
             l = max(r, g, b)
+        case .default:
+            var white: CGFloat = 0.0
+            var alpha: CGFloat = 0.0
+            #if os(macOS)
+            guard let color = usingColorSpace(.deviceGray) else { return grayscaled(mode: .lightness) }
+            color.getWhite(&white, alpha: &alpha)
+            #else
+            getWhite(&white, alpha: &alpha)
+            #endif
+            return NSUIColor(white: white, alpha: alpha)
         }
         return NSUIColor(hue: 0.0, saturation: 0.0, lightness: l, alpha: a)
     }
@@ -170,6 +180,7 @@ public extension NSUIColor {
         case average
         /// HSV value
         case value
+        case `default`
     }
 
     /**

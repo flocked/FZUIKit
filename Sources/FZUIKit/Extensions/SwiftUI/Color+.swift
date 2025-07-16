@@ -14,7 +14,7 @@ import UIKit
 #endif
 
 public extension NSUIColor {
-    /// A `SwiftUI representation of the color.
+    /// A `SwiftUI` representation of the color.
     var swiftUI: Color {
         Color(self)
     }
@@ -24,18 +24,14 @@ public extension NSUIColor {
 @available(macOS 11.0, iOS 14.0, watchOS 7.0, *)
 extension Color {
     /**
-     Creates a color object that uses the specified block to generate its color data dynamically.
+     Creates a color that uses the specified block to generate its color data dynamically.
      
      - Parameters:
-        - light: The light color.
-        - dark: The dark color.
+        - lightColor: The light color.
+        - darkColor: The dark color.
      */
-    public init(light lightModeColor: @escaping @autoclosure () -> Color,
-                dark darkModeColor: @escaping @autoclosure () -> Color) {
-        self.init(NSUIColor(
-            light: NSUIColor(lightModeColor()),
-            dark: NSUIColor(darkModeColor())
-        ))
+    public init(light lightColor: @escaping @autoclosure () -> Color, dark darkColor: @escaping @autoclosure () -> Color) {
+        self.init(NSUIColor(light: lightColor().nsUIColor, dark: darkColor().nsUIColor))
     }
     
     /// A random color.
@@ -191,13 +187,44 @@ extension Color {
         nsUIColor.inverted().swiftUI
     }
     
-    /**
-     A Boolean value that indicates whether the color is light.
-     
-     It is useful when you need to know whether you should display the text in black or white.
-     */
+    /// A Boolean value indicating whether the color is light.
     public var isLight: Bool {
         nsUIColor.isLight
+    }
+    
+    /// Returns a new color with the specified red component (between `0.0` and `1.0`).
+    public func red(_ red: CGFloat) -> Color {
+        nsUIColor.withRed(red).swiftUI
+    }
+    
+    /// Returns a new color with the specified alpha component (between `0.0` and `1.0`).
+    public func green(_ green: CGFloat) -> Color {
+        nsUIColor.withGreen(green).swiftUI
+    }
+    
+    /// Returns a new color with the specified blue component (between `0.0` and `1.0`).
+    public func blue(_ blue: CGFloat) -> Color {
+        nsUIColor.withBlue(blue).swiftUI
+    }
+    
+    /// Returns a new color with the specified lightness value (between `0.0` and `1.0`).
+    public func lightness(_ lightness: CGFloat) -> Color {
+        nsUIColor.withLightness(lightness).swiftUI
+    }
+    
+    /// Returns a new color with the specified brightness value (between `0.0` and `1.0`).
+    public func brightness(_ brightness: CGFloat) -> Color {
+        nsUIColor.withBrightness(brightness).swiftUI
+    }
+    
+    /// Returns a new color with the specified hue value (between `0.0` and `1.0`).
+    public func hue(_ hue: CGFloat) -> Color {
+        nsUIColor.withHue(hue).swiftUI
+    }
+    
+    /// Returns a new color with the specified saturation value (between `0.0` and `1.0`).
+    public func saturation(_ saturation: CGFloat) -> Color {
+        nsUIColor.withSaturation(saturation).swiftUI
     }
 }
 #endif

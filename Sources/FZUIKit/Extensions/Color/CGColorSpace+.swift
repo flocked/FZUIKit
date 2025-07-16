@@ -36,6 +36,27 @@ extension CGColorSpace {
     public var extended: CGColorSpace? {
         CGColorSpaceCreateExtended(self)
     }
+    
+    /// Returns the available system color spaces for the specified model
+    public func availableColorSpaces(with model: CGColorSpaceModel) -> [CGColorSpace] {
+        var names: [String] = []
+        switch model {
+        case .monochrome:
+            names = ["kCGColorSpaceExtendedGray", "kCGColorSpaceExtendedLinearGray", "kCGColorSpaceGenericGrayGamma2_2", "kCGColorSpaceLinearGray", "kCGColorSpaceDeviceGray"]
+        case .rgb:
+            names = ["kCGColorSpaceACESCGLinear", "kCGColorSpaceAdobeRGB1998", "kCGColorSpaceCoreMedia709", "kCGColorSpaceDCIP3", "kCGColorSpaceDisplayP3", "kCGColorSpaceDisplayP3_HLG", "kCGColorSpaceDisplayP3_PQ", "kCGColorSpaceDisplayP3_PQ", "kCGColorSpaceExtendedDisplayP3", "kCGColorSpaceExtendedITUR_2020", "kCGColorSpaceExtendedLinearDisplayP3", "kCGColorSpaceExtendedLinearITUR_2020", "kCGColorSpaceExtendedLinearSRGB", "kCGColorSpaceExtendedSRGB", "kCGColorSpaceGenericRGBLinear", "kCGColorSpaceITUR_2020", "kCGColorSpaceITUR_2020_sRGBGamma", "kCGColorSpaceITUR_2100_HLG", "kCGColorSpaceITUR_2100_HLG", "kCGColorSpaceITUR_2100_PQ", "kCGColorSpaceITUR_2100_PQ", "kCGColorSpaceITUR_2100_PQ", "kCGColorSpaceITUR_709", "kCGColorSpaceITUR_709_HLG", "kCGColorSpaceITUR_709_PQ", "kCGColorSpaceLinearDisplayP3", "kCGColorSpaceLinearITUR_2020", "kCGColorSpaceLinearSRGB", "kCGColorSpaceROMMRGB", "kCGColorSpaceSRGB", "kCGColorSpaceDeviceRGB"]
+        case .cmyk:
+            names = ["kCGColorSpaceGenericCMYK", "kCGColorSpaceDeviceCMYK"]
+        case .lab:
+            names = ["kCGColorSpaceGenericLab"]
+        case .XYZ:
+            names = ["kCGColorSpaceGenericXYZ"]
+        case .pattern:
+            names = ["kCGColorSpaceColoredPattern"]
+        default: break
+        }
+        return names.map({ $0 as CFString }).compactMap({ CGColorSpace(name: $0) })
+    }
 }
 
 extension CGColorSpaceModel: CustomStringConvertible {
