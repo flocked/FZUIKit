@@ -967,7 +967,6 @@
             didSwizzleAnimationForKey = true
             do {
                 _ = try Swizzle(NSView.self) {
-                  //  #selector(NSView.animation(forKey:)) <-> #selector(swizzled_Animation(forKey:))
                     #selector(NSView.defaultAnimation(forKey:)) <~> #selector(NSView.swizzledDefaultAnimation(forKey:))
                 }
             } catch {

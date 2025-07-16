@@ -726,25 +726,21 @@ extension NSWindow {
         return nil
     }
     
-    /// A Boolean value that indicates whether windows are swizzled to support additional properties for animating.
     private static var didSwizzleAnimationForKey: Bool {
         get { getAssociatedValue("didSwizzleAnimationForKey") ?? false }
-        set {
-            setAssociatedValue(newValue, key: "didSwizzleAnimationForKey")
-        }
+        set { setAssociatedValue(newValue, key: "didSwizzleAnimationForKey") }
     }
     
     /// Swizzles windows to support additional properties for animating.
     static func swizzleAnimationForKey() {
-        if !didSwizzleAnimationForKey {
-            didSwizzleAnimationForKey = true
-            do {
-                _ = try Swizzle(NSWindow.self) {
-                    #selector(NSWindow.defaultAnimation(forKey:)) <~> #selector(NSWindow.swizzledDefaultAnimation(forKey:))
-                }
-            } catch {
-                Swift.debugPrint(error)
+        guard !didSwizzleAnimationForKey else { return }
+        didSwizzleAnimationForKey = true
+        do {
+            _ = try Swizzle(NSWindow.self) {
+                #selector(NSWindow.defaultAnimation(forKey:)) <~> #selector(NSWindow.swizzledDefaultAnimation(forKey:))
             }
+        } catch {
+            Swift.debugPrint(error)
         }
     }
     

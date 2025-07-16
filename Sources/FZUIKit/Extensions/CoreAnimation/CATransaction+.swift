@@ -9,13 +9,13 @@
     import QuartzCore
 
     public extension CATransaction {
-        /// Runs the changes of the specified block non-animated.
-        static func performNonAnimated(changes: () -> Void) {
-            perform(duration: 0.0, disableActions: true, animations: changes)
+        /// Runs the specified closure without any animations.
+        static func performNonAnimated(_ changes: () -> Void) {
+            perform(duration: 0.0, disableActions: true, changes: changes)
         }
         
-        /// Runs the changes of the specified block with disabled actions.
-        static func disabledActions(changes: () -> Void) {
+        /// Runs the specified closure with disabled actions.
+        static func disabledActions(_ changes: () -> Void) {
             CATransaction.begin()
             CATransaction.disableActions = true
             changes()
@@ -23,22 +23,22 @@
         }
 
         /**
-         Animate changes to one or more layers using the specified duration, timing function, and completion handler.
+         Animate changes to one or more layers.
 
          - Parameters:
             - duration: The duration of the animations (in seconds).  If you specify a negative value or `0`, the changes are made without animating them.
             - timingFunction: A timing function for the animations.
             - disableActions: A Boolean value indicating whether actions triggered as a result of property changes are suppressed.
-            - animations: The block containing the changes to commit animated to the layers.
-            - completionHandler: A completion block to be executed when the animations have completed.
+            - changes: The closure containing the changes to animate
+            - completion: A closure to execute after the animation completes.
          */
-        static func perform(duration: CGFloat = 0.25, timingFunction: CAMediaTimingFunction? = nil, disableActions: Bool = false, animations: () -> Void, completionHandler: (() -> Void)? = nil) {
+        static func perform(duration: CGFloat = 0.25, timingFunction: CAMediaTimingFunction? = nil, disableActions: Bool = false, changes: () -> Void, completion: (() -> Void)? = nil) {
             CATransaction.begin()
-            CATransaction.completionHandler = completionHandler
+            CATransaction.completionHandler = completion
             CATransaction.animationDuration = duration
             CATransaction.timingFunction = timingFunction
             CATransaction.disableActions = disableActions
-            animations()
+            changes()
             CATransaction.commit()
         }
 

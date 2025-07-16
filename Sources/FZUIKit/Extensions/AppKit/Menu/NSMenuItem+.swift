@@ -77,46 +77,47 @@ public extension NSMenuItem {
     /**
      Initializes and returns a menu item with the view.
      
+     If `showsHighlight` is set to `true`, a highlight background will be drawn behind the view whenever the menu item is highlighted (the mouse is hovering the item).
+     
      - Parameters:
-        - title: The title of the menu item.
         - view: The view of the menu item.
         - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
         - action: The action handler.
      
      - Returns: An instance of `NSMenuItem`.
      */
-    convenience init(_ title: String? = nil, view: NSView, showsHighlight: Bool = true, action: ActionBlock? = nil) {
-        self.init(title ?? "", action: action)
-        self.view(view, showsHighlight: showsHighlight)
-    }
-    
-    @available(macOS 13.0, *)
-    convenience init(_ title: String? = nil, view: NSView, sizingOptions: NSHostingSizingOptions, showsHighlight: Bool = true, action: ActionBlock? = nil) {
-        self.init(title ?? "", action: action)
+    convenience init(view: NSView, showsHighlight: Bool = true, action: ActionBlock? = nil) {
+        self.init("", action: action)
         self.view(view, showsHighlight: showsHighlight)
     }
     
     /**
      Initializes and returns a menu item with the `SwiftUI` view.
      
+     If `showsHighlight` is set to `true`, a highlight background will be drawn behind the view whenever the menu item is highlighted (the mouse is hovering the item).
+     
+     To observe the `isEnabled` and `highlight` state of the menu item inside the `SwiftUI` view, use ``SwiftUICore/EnvironmentValues/menuItemIsEnabled`` and ``SwiftUICore/EnvironmentValues/menuItemIsHighlighted``.
+          
      - Parameters:
-        - title: The title of the menu item.
         - view: The view of the menu item.
         - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
         - action: The action handler.
      
      - Returns: An instance of `NSMenuItem`.
      */
-    convenience init<V: View>(_ title: String? = nil, view: V, showsHighlight: Bool = true, action: ActionBlock? = nil) {
-        self.init(title ?? "", action: action)
+    convenience init<Content: View>(view: Content, showsHighlight: Bool = true, action: ActionBlock? = nil) {
+        self.init("", action: action)
         self.view(view, showsHighlight: showsHighlight)
     }
     
     /**
      Initializes and returns a menu item with the `SwiftUI` view.
+          
+     If `showsHighlight` is set to `true`, a highlight background will be drawn behind the view whenever the menu item is highlighted (the mouse is hovering the item).
+     
+     To observe the `isEnabled` and `highlight` state of the menu item inside the `SwiftUI` view, use ``SwiftUICore/EnvironmentValues/menuItemIsEnabled`` and ``SwiftUICore/EnvironmentValues/menuItemIsHighlighted``.
      
      - Parameters:
-        - title: The title of the menu item.
         - view: The view of the menu item.
         - sizingOptions: The options for how the view creates and updates constraints based on the size of `view`.
         - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
@@ -125,32 +126,39 @@ public extension NSMenuItem {
      - Returns: An instance of `NSMenuItem`.
      */
     @available(macOS 13.0, *)
-    convenience init<V: View>(_ title: String? = nil, view: V, sizingOptions: NSHostingSizingOptions, showsHighlight: Bool = true, action: ActionBlock? = nil) {
-        self.init(title ?? "", action: action)
+    convenience init<Content: View>(view: Content, sizingOptions: NSHostingSizingOptions, showsHighlight: Bool = true, action: ActionBlock? = nil) {
+        self.init("", action: action)
         self.view(view, sizingOptions: sizingOptions, showsHighlight: showsHighlight)
     }
     
     /**
      Initializes and returns a menu item with the `SwiftUI` view.
      
+     If `showsHighlight` is set to `true`, a highlight background will be drawn behind the view whenever the menu item is highlighted (the mouse is hovering the item).
+     
+     To observe the `isEnabled` and `highlight` state of the menu item inside the `SwiftUI` view, use ``SwiftUICore/EnvironmentValues/menuItemIsEnabled`` and ``SwiftUICore/EnvironmentValues/menuItemIsHighlighted``.
+     
      - Parameters:
-        - title: The title of the menu item.
         - view: The view of the menu item.
         - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
         - action: The action handler.
      
      - Returns: An instance of `NSMenuItem`.
      */
-    convenience init<V: View>(_ title: String? = nil, @ViewBuilder view: () -> V, showsHighlight: Bool = true, action: ActionBlock? = nil) {
-        self.init(title, view: view(), showsHighlight: showsHighlight, action: action)
+    convenience init<Content: View>(@ViewBuilder view: () -> Content, showsHighlight: Bool = true, action: ActionBlock? = nil) {
+        self.init("", action: action)
+        self.view(view, showsHighlight: showsHighlight)
     }
     
     /**
      Initializes and returns a menu item with the `SwiftUI` view.
      
+     If `showsHighlight` is set to `true`, a highlight background will be drawn behind the view whenever the menu item is highlighted (the mouse is hovering the item).
+     
+     To observe the `isEnabled` and `highlight` state of the menu item inside the `SwiftUI` view, use ``SwiftUICore/EnvironmentValues/menuItemIsEnabled`` and ``SwiftUICore/EnvironmentValues/menuItemIsHighlighted``.
+     
      - Parameters:
-        - title: The title of the menu item.
-        - view: The view of the menu item.
+        - content: The view of the menu item.
         - sizingOptions: The options for how the view creates and updates constraints based on the size of `rootView`.
         - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
         - action: The action handler.
@@ -158,8 +166,9 @@ public extension NSMenuItem {
      - Returns: An instance of `NSMenuItem`.
      */
     @available(macOS 13.0, *)
-    convenience init<V: View>(_ title: String? = nil, @ViewBuilder view: () -> V, sizingOptions: NSHostingSizingOptions, showsHighlight: Bool = true, action: ActionBlock? = nil) {
-        self.init(title, view: view(), sizingOptions: sizingOptions, showsHighlight: showsHighlight, action: action)
+    convenience init<Content: View>(@ViewBuilder view: () -> Content, sizingOptions: NSHostingSizingOptions, showsHighlight: Bool = true, action: ActionBlock? = nil) {
+        self.init("", action: action)
+        self.view(view, sizingOptions: sizingOptions, showsHighlight: showsHighlight)
     }
     
     /**
@@ -316,8 +325,8 @@ public extension NSMenuItem {
     /**
      Displays a content view instead of the title or attributed title.
      
-     By default, a highlight background will be drawn behind the view whenever the menu item is highlighted. You can disable this and handle highlighting yourself by passing `showsHighlight: false`
-     
+     If `showsHighlight` is set to `true`, a highlight background will be drawn behind the view whenever the menu item is highlighted (the mouse is hovering the item).
+
      - Parameters:
         - view: The  view of the menu item.
         - showsHighlight: A Boolean value that indicates whether to draw the highlight when the item is highlighted.
@@ -339,26 +348,10 @@ public extension NSMenuItem {
     /**
      Displays a SwiftUI `View` instead of the title or attributed title.
      
-     Any views inside a menu item can use the `menuItemIsHighlighted` environment value to alter their appearance when highlighted.
+     If `showsHighlight` is set to `true`, a highlight background will be drawn behind the view whenever the menu item is highlighted (the mouse is hovering the item).
      
-     By default, a highlight background will be drawn behind the view whenever `menuItemIsHighlighted` is `true`. You can disable this and handle highlighting yourself by passing `showsHighlight: false`
-     
-     - Parameters:
-        - content: The  SwiftUI `View`.
-        - showsHighlight: A Boolean value that indicates whether to draw the highlight when the item is highlighted.
-     */
-    @discardableResult
-    func view<Content: View>(@ViewBuilder _ content: () -> Content, showsHighlight: Bool = true) -> Self {
-        view(content(), showsHighlight: showsHighlight)
-    }
-    
-    /**
-     Displays a SwiftUI `View` instead of the title or attributed title.
-     
-     Any views inside a menu item can use the `menuItemIsHighlighted` environment value to alter their appearance when highlighted.
-     
-     By default, a highlight background will be drawn behind the view whenever `menuItemIsHighlighted` is `true`. You can disable this and handle highlighting yourself by passing `showsHighlight: false`
-     
+     To observe the `isEnabled` and `highlight` state of the menu item inside the `SwiftUI` view, use ``SwiftUICore/EnvironmentValues/menuItemIsEnabled`` and ``SwiftUICore/EnvironmentValues/menuItemIsHighlighted``.
+
      - Parameters:
         - view: The  SwiftUI `View`.
         - showsHighlight: A Boolean value that indicates whether to draw the highlight when the item is highlighted.
@@ -372,29 +365,26 @@ public extension NSMenuItem {
     /**
      Displays a SwiftUI `View` instead of the title or attributed title.
      
-     Any views inside a menu item can use the `menuItemIsHighlighted` environment value to alter their appearance when highlighted.
+     If `showsHighlight` is set to `true`, a highlight background will be drawn behind the view whenever the menu item is highlighted (the mouse is hovering the item).
      
-     By default, a highlight background will be drawn behind the view whenever `menuItemIsHighlighted` is `true`. You can disable this and handle highlighting yourself by passing `showsHighlight: false`
-     
+     To observe the `isEnabled` and `highlight` state of the menu item inside the `SwiftUI` view, use ``SwiftUICore/EnvironmentValues/menuItemIsEnabled`` and ``SwiftUICore/EnvironmentValues/menuItemIsHighlighted``.
+
      - Parameters:
-        - content: The  SwiftUI `View`.
-        - sizingOptions: The options for how the view creates and updates constraints based on the size of `SwiftUI` view.
+        - view: The  SwiftUI `View`.
         - showsHighlight: A Boolean value that indicates whether to draw the highlight when the item is highlighted.
      */
-    @available(macOS 13.0, *)
     @discardableResult
-    func view<Content: View>(@ViewBuilder _ content: () -> Content, sizingOptions: NSHostingSizingOptions, showsHighlight: Bool = true) -> Self {
-        view(content(), sizingOptions: sizingOptions, showsHighlight: showsHighlight)
-
+    func view<Content: View>(@ViewBuilder _ view: () -> Content, showsHighlight: Bool = true) -> Self {
+        self.view(view(), showsHighlight: showsHighlight)
     }
     
     /**
      Displays a SwiftUI `View` instead of the title or attributed title.
      
-     Any views inside a menu item can use the `menuItemIsHighlighted` environment value to alter their appearance when highlighted.
+     If `showsHighlight` is set to `true`, a highlight background will be drawn behind the view whenever the menu item is highlighted (the mouse is hovering the item).
      
-     By default, a highlight background will be drawn behind the view whenever `menuItemIsHighlighted` is `true`. You can disable this and handle highlighting yourself by passing `showsHighlight: false`
-     
+     To observe the `isEnabled` and `highlight` state of the menu item inside the `SwiftUI` view, use ``SwiftUICore/EnvironmentValues/menuItemIsEnabled`` and ``SwiftUICore/EnvironmentValues/menuItemIsHighlighted``.
+
      - Parameters:
         - view: The  SwiftUI `View`.
         - sizingOptions: The options for how the view creates and updates constraints based on the size of `view`.
@@ -405,6 +395,24 @@ public extension NSMenuItem {
     func view<V: View>(_ view: V, sizingOptions: NSHostingSizingOptions, showsHighlight: Bool = true) -> Self {
         self.view = NSMenuItemHostingView(rootView: view, showsHighlight: showsHighlight, sizingOptions: sizingOptions)
         return self
+    }
+    
+    /**
+     Displays a SwiftUI `View` instead of the title or attributed title.
+     
+     If `showsHighlight` is set to `true`, a highlight background will be drawn behind the view whenever the menu item is highlighted (the mouse is hovering the item).
+     
+     To observe the `isEnabled` and `highlight` state of the menu item inside the `SwiftUI` view, use ``SwiftUICore/EnvironmentValues/menuItemIsEnabled`` and ``SwiftUICore/EnvironmentValues/menuItemIsHighlighted``.
+          
+     - Parameters:
+        - view: The  SwiftUI `View`.
+        - sizingOptions: The options for how the view creates and updates constraints based on the size of `SwiftUI` view.
+        - showsHighlight: A Boolean value that indicates whether to draw the highlight when the item is highlighted.
+     */
+    @available(macOS 13.0, *)
+    @discardableResult
+    func view<Content: View>(@ViewBuilder _ view: () -> Content, sizingOptions: NSHostingSizingOptions, showsHighlight: Bool = true) -> Self {
+        self.view(view, sizingOptions: sizingOptions, showsHighlight: showsHighlight)
     }
     
     /// A help tag for the menu item.

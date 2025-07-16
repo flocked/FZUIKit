@@ -1,5 +1,5 @@
 //
-//  NSMenu+NSMenuItemHostingView.swift
+//  NSMenuItemHostingView.swift
 //
 //
 //  Created by Florian Zand on 09.04.23.
@@ -9,7 +9,31 @@
 import AppKit
 import SwiftUI
 
-/// A custom menu item view that manages highlight state and renders an appropriate backdrop behind the view when highlighted.
+/**
+ A menu item view that hosts a SwiftUI view hierarchy.
+ 
+ If ``NSMenuItemView/showsHighlight`` is enabled, the view renders an appropriate backdrop behind the view when the enclosing menu item is highlighed.
+  
+ To observe the `isEnabled` and `isHighlighted` state of the enclosing menu item inside the `SwiftUI` view, use ``SwiftUICore/EnvironmentValues/menuItemIsEnabled`` and ``SwiftUICore/EnvironmentValues/menuItemIsHighlighted``.
+ 
+ For example:
+ 
+ ```swift
+ struct MenuItemView: View {
+    @Environment(\.menuItemIsEnabled) var isEnabled
+    @Environment(\.menuItemIsHighlighted) var isHighlighted
+
+    var body: some View {
+        if !isHighlighted {
+            Text("Item is \(isEnabled ? "enabled" : "disabled").")
+        } else {
+            Text("Item is highlighted and \(isEnabled ? "enabled" : "disabled").")
+        }
+    }
+ }
+ let itemView = NSMenuItemHostingView(MenuItemView())
+ ```
+ */
 public class NSMenuItemHostingView<Content: View>: NSMenuItemView {
     private let hostingView: NSHostingView<ItemView>
     
@@ -64,7 +88,7 @@ public class NSMenuItemHostingView<Content: View>: NSMenuItemView {
      
      - Parameters:
         - rootView: The view of the item.
-        - showsHighlight: A Boolean value that indicates whether the menu item should show a highlight background color if it's highlighted by the user.
+        - showsHighlight: A Boolean value that indicates whether the view displays the highlight background view (``NSMenuItemView/highlightView``) when it's enclosing menu item is highlighted (the mouse is hovering the item).
      */
     public init(rootView: Content, showsHighlight: Bool = true) {
         hostingView = NSHostingView(rootView: ItemView(rootView))
@@ -78,7 +102,7 @@ public class NSMenuItemHostingView<Content: View>: NSMenuItemView {
      
      - Parameters:
         - content: The view of the item.
-        - showsHighlight: A Boolean value that indicates whether the menu item should show a highlight background color if it's highlighted by the user.
+        - showsHighlight: A Boolean value that indicates whether the view displays the highlight background view (``NSMenuItemView/highlightView``) when it's enclosing menu item is highlighted (the mouse is hovering the item).
      */
     public convenience init(@ViewBuilder _ content: () -> Content, showsHighlight: Bool = true) {
         self.init(rootView: content(), showsHighlight: showsHighlight)

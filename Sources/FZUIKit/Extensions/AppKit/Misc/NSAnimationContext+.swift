@@ -8,10 +8,20 @@
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
+import SwiftUI
 
-public extension NSAnimationContext {
-    /// Runs the changes of the specified block non-animated.
-    class func runNonAnimated(_ changes: () -> Void) {
+extension NSAnimationContext {
+    /**
+     A Boolean value that indicates whether the the current animation context has an active grouping.
+     
+     The property returns `true`, if it's called inside a [runAnimationGroup(_:)](https://developer.apple.com/documentation/appkit/nsanimationcontext/runanimationgroup(_:completionhandler:)) closure or between [beginGrouping()](https://developer.apple.com/documentation/appkit/nsanimationcontext/begingrouping()) and [endGrouping()](https://developer.apple.com/documentation/appkit/nsanimationcontext/endrouping()).
+     */
+    public class var hasActiveGrouping: Bool {
+        value(forKey: "_hasActiveGrouping") as? Bool ?? false
+    }
+    
+    /// Runs the changes of the closure non-animated.
+    public class func performWithoutAnimation(_ changes: () -> Void) {
         runAnimationGroup { context in
             context.springAnimation = nil
             context.duration = 0.0
@@ -21,16 +31,137 @@ public extension NSAnimationContext {
     }
     
     /**
-     Runs the animation group.
+     Runs the animation group with the specified duration.
      
      - Parameters:
-        - duration: The duration of the animations, measured in seconds. If you specify a value of `0`, the changes are made without animating them.
-        - timingFunction: An optional timing function for the animations.
-        - allowsImplicitAnimation: A Boolean value that indicates whether animations are enabled for animations that occur as a result of another property change.
-        - animations: A block containing the changes to animate.
-        - completion: An optional completion block that is called when the animations have completed.
+        - duration: The duration of the animations, measured in seconds. If you specify a negative value or `0`, the changes are made without animating.
+        - timingFunction: A timing function for the animations.
+        - allowsImplicitAnimation: A Boolean value indicating whether animations are enabled for animations that occur as a result of another property change.
+        - changes: The closure containing the changes to animate.
+        - completion: A closure to execute after the animation completes.
      */
-    class func run(duration: TimeInterval = 0.25, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, changes: () -> Void, completion: (() -> Void)? = nil) {
+    @discardableResult
+    public class func animate(duration: TimeInterval = 0.25, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimationContext {
+        .run { $0.animate(duration: duration, timingFunction: timingFunction, allowsImplicitAnimation: allowsImplicitAnimation, changes: changes, completion: completion) }
+    }
+    
+    /**
+     Runs the animation group after the previous with the specified duration.
+     
+     - Parameters:
+        - duration: The duration of the animations, measured in seconds. If you specify a negative value or `0`, the changes are made without animating.
+        - timingFunction: A timing function for the animations.
+        - allowsImplicitAnimation: A Boolean value indicating whether animations are enabled for animations that occur as a result of another property change.
+        - changes: The closure containing the changes to animate.
+        - completion: A closure to execute after the animation completes.
+     */
+    @discardableResult
+    public func animate(duration: TimeInterval = 0.25, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimationContext {
+        animationQueue +=  { nextAnimation in
+            Self.run(duration: duration, timingFunction: timingFunction, allowsImplicitAnimation: allowsImplicitAnimation, changes: changes) {
+                completion?()
+                nextAnimation()
+            }
+        }
+        return self
+    }
+    
+    /**
+     Runs the animation group using the specified spring animation.
+     
+     - Parameters:
+        - spring: The spring animation to use.
+        - allowsImplicitAnimation: A Boolean value indicating whether animations are enabled for animations that occur as a result of another property change.
+        - changes: The closure containing the changes to animate.
+        - completion: A closure to execute after the animation completes.
+     */
+    @discardableResult
+    public class func animate(withSpring spring: CASpringAnimation, allowsImplicitAnimation: Bool = false, changes: @escaping ()->(), completion: (()->())? = nil) -> NSAnimationContext {
+        .run { $0.animate(withSpring: spring, changes: changes, completion: completion) }
+    }
+    
+    /**
+     Runs the animation group after the previous using the specfied spring animation.
+     
+     - Parameters:
+        - spring: The spring animation to use.
+        - allowsImplicitAnimation: A Boolean value indicating whether animations are enabled for animations that occur as a result of another property change.
+        - changes: The closure containing the changes to animate.
+        - completion: A closure to execute after the animation completes.
+     */
+    @discardableResult
+    public func animate(withSpring spring: CASpringAnimation, allowsImplicitAnimation: Bool = false, changes: @escaping ()->(), completion: (()->())? = nil) -> NSAnimationContext {
+        NSView.swizzleAnimationForKey()
+        NSWindow.swizzleAnimationForKey()
+        NSLayoutConstraint.swizzleAnimationForKey()
+        NSPageController.swizzleAnimationForKey()
+        NSSplitViewItem.swizzleAnimationForKey()
+        animationQueue += { nextAnimation in
+            Self.run(spring: spring, allowsImplicitAnimation: allowsImplicitAnimation, changes: changes) {
+                if NSAnimationContext.current.springAnimation == spring {
+                    NSAnimationContext.current.springAnimation = nil
+                }
+                completion?()
+                nextAnimation()
+            }
+        }
+        return self
+    }
+    
+    /**
+     Runs the animation group using the specified `SwiftUI` animation.
+     
+     - Parameters:
+        - animation: The `SwiftUI` animation
+        - changes: The closure containing the changes to animate.
+        - completion: A closure to execute after the animation completes.
+     */
+    @available(macOS 15.0, *)
+    @discardableResult
+    public class func animate(_ animation: Animation, changes: @escaping ()->(), completion: (()->())? = nil) -> NSAnimationContext {
+        .run { $0.animate(animation, changes: changes, completion: completion) }
+    }
+    
+    /**
+     Runs the animation group after the previous using the specfied `SwiftUI` animation.
+
+     - Parameters:
+        - animation: The `SwiftUI` animation
+        - changes: The closure containing the changes to animate.
+        - completion: A closure to execute after the animation completes.
+     */
+    @discardableResult
+    @available(macOS 15.0, *)
+    public func animate(_ animation: Animation, changes: @escaping ()->(), completion: (()->())? = nil) -> NSAnimationContext {
+        animationQueue += { nextAnimation in
+            NSAnimationContext.animate(animation, changes: changes) {
+                completion?()
+                nextAnimation()
+            }
+        }
+        return self
+    }
+    
+    /// Runs the changes of the specified block non-animated.
+    @discardableResult
+    public func nonAnimate(_ changes: @escaping () -> Void) -> NSAnimationContext {
+        animationQueue += { nextAnimation in
+            NSAnimationContext.performWithoutAnimation {
+                changes()
+                nextAnimation()
+            }
+        }
+        return self
+    }
+        
+    @discardableResult
+    func repeating(_ repeatCount: Int) -> NSAnimationContext {
+        guard repeatCount > 1, let animation = animationQueue.removeLastSafetly() else { return self }
+        animationQueue += Array(repeating: animation, count: repeatCount)
+        return self
+    }
+    
+    fileprivate class func run(duration: TimeInterval = 0.25, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, changes: () -> Void, completion: (() -> Void)? = nil) {
         NSAnimationContext.runAnimationGroup ({ context in
             context.springAnimation = nil
             context.duration = duration
@@ -40,26 +171,12 @@ public extension NSAnimationContext {
         }, completionHandler: completion)
     }
     
-    /**
-     Animate changes to one or more views using the specified spring animation and completion handler.
-     
-     - Parameters:
-        - spring: The spring animation to use.
-        - allowsImplicitAnimation: The Boolean value that indicates if animations are enabled or not for animations that occur as a result of another property change.
-        - animations: The handler containing the changes to commit to the views. This is where you programmatically change any animatable properties of the views in your view hierarchy.
-        - completion: The handler to be executed when the animation sequence ends.
-     */
-    class func run(withSpring spring: CASpringAnimation, allowsImplicitAnimation: Bool = false, animations: ()->(), completion: (()->())? = nil) {
-        NSView.swizzleAnimationForKey()
-        NSWindow.swizzleAnimationForKey()
-        NSLayoutConstraint.swizzleAnimationForKey()
-        NSPageController.swizzleAnimationForKey()
+    fileprivate class func run(spring: CASpringAnimation, allowsImplicitAnimation: Bool = false, changes: ()->(), completion: (()->())? = nil) {
         NSAnimationContext.runAnimationGroup({ context in
             context.springAnimation = spring
             context.duration = spring.duration
-            // context.timingFunction = timingFunction
             context.allowsImplicitAnimation = allowsImplicitAnimation
-            animations()
+            changes()
         }, completionHandler: {
             if NSAnimationContext.current.springAnimation == spring {
                 NSAnimationContext.current.springAnimation = nil
@@ -68,122 +185,115 @@ public extension NSAnimationContext {
         })
     }
     
-    /**
-     A Boolean value that indicates whether the the current animation context has an active grouping.
-     
-     The property returns `true`, if it's called inside a `runAnimationGroup(_:)` closure or between `beginGrouping()` and `endGrouping()`.
-     */
-    class var hasActiveGrouping: Bool {
-        value(forKey: "_hasActiveGrouping") as? Bool ?? false
+    fileprivate class func run(_ animation: (_ context: NSAnimationContext)->()) ->  NSAnimationContext {
+        var context: NSAnimationContext = .current
+        NSAnimationContext.beginGrouping()
+        context = .current
+        context.duration = 0.0
+        animation(context)
+        context.completionHandler = {
+            context.runNextAnimation()
+        }
+        NSAnimationContext.endGrouping()
+        return context
     }
     
-    internal var springAnimation: CASpringAnimation? {
+    fileprivate func runNextAnimation() {
+        guard let animation = animationQueue.removeFirstSafetly() else { return }
+        animation { [weak self] in
+            self?.runNextAnimation()
+        }
+    }
+    
+    fileprivate var animationQueue: [(@escaping () -> Void) -> Void] {
+        get { getAssociatedValue("animationQueue") ?? [] }
+        set { setAssociatedValue(newValue, key: "animationQueue") }
+    }
+    
+    var springAnimation: CASpringAnimation? {
         get { getAssociatedValue("springAnimation") }
         set { setAssociatedValue(newValue, key: "springAnimation") }
     }
 }
 
-extension NSLayoutConstraint {
+fileprivate extension NSLayoutConstraint {
     @objc class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        if let animation = swizzledDefaultAnimation(forKey: key) {
-            if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.springAnimation {
-                return springAnimation
-            }
-            return animation
+        guard let animation = swizzledDefaultAnimation(forKey: key) else { return nil }
+        if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.springAnimation {
+            return springAnimation
         }
-        return nil
+        return animation
     }
     
-    /// A Boolean value that indicates whether windows are swizzled to support additional properties for animating.
-    static var didSwizzleAnimationForKey: Bool {
-        get { getAssociatedValue("didSwizzleAnimationForKey", initialValue: false) }
-        set {
-            setAssociatedValue(newValue, key: "didSwizzleAnimationForKey")
-        }
+    static var didSwizzleDefaultAnimation: Bool {
+        get { getAssociatedValue("didSwizzleDefaultAnimation", initialValue: false) }
+        set { setAssociatedValue(newValue, key: "didSwizzleDefaultAnimation") }
     }
     
-    /// Swizzles windows to support additional properties for animating.
     static func swizzleAnimationForKey() {
-        if didSwizzleAnimationForKey == false {
-            didSwizzleAnimationForKey = true
-            do {
-                _ = try Swizzle(NSLayoutConstraint.self) {
-                    #selector(NSLayoutConstraint.defaultAnimation(forKey:)) <~> #selector(NSLayoutConstraint.swizzledDefaultAnimation(forKey:))
-                }
-            } catch {
-                Swift.debugPrint(error)
+        guard !didSwizzleDefaultAnimation else { return }
+        didSwizzleDefaultAnimation = true
+        do {
+            _ = try Swizzle(NSLayoutConstraint.self) {
+                #selector(NSLayoutConstraint.defaultAnimation(forKey:)) <~> #selector(NSLayoutConstraint.swizzledDefaultAnimation(forKey:))
             }
+        } catch {
+            Swift.debugPrint(error)
         }
     }
 }
 
-extension NSPageController {
+fileprivate extension NSPageController {
     @objc class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        if let animation = swizzledDefaultAnimation(forKey: key) {
-            if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.springAnimation {
-                return springAnimation
-            }
-            return animation
+        guard let animation = swizzledDefaultAnimation(forKey: key) else { return nil }
+        if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.springAnimation {
+            return springAnimation
         }
-        return nil
+        return animation
     }
     
-    /// A Boolean value that indicates whether windows are swizzled to support additional properties for animating.
-    static var didSwizzleAnimationForKey: Bool {
-        get { getAssociatedValue("didSwizzleAnimationForKey", initialValue: false) }
-        set {
-            setAssociatedValue(newValue, key: "didSwizzleAnimationForKey")
-        }
+    static var didSwizzleDefaultAnimation: Bool {
+        get { getAssociatedValue("didSwizzleDefaultAnimation", initialValue: false) }
+        set { setAssociatedValue(newValue, key: "didSwizzleDefaultAnimation") }
     }
     
-    /// Swizzles windows to support additional properties for animating.
     static func swizzleAnimationForKey() {
-        if didSwizzleAnimationForKey == false {
-            didSwizzleAnimationForKey = true
-            do {
-                try Swizzle(NSPageController.self) {
-                    #selector(NSPageController.defaultAnimation(forKey:)) <~> #selector(NSPageController.swizzledDefaultAnimation(forKey:))
-                }
-            } catch {
-                Swift.debugPrint(error)
+        guard !didSwizzleDefaultAnimation else { return }
+        didSwizzleDefaultAnimation = true
+        do {
+            _ = try Swizzle(NSPageController.self) {
+                #selector(NSPageController.defaultAnimation(forKey:)) <~> #selector(NSPageController.swizzledDefaultAnimation(forKey:))
             }
+        } catch {
+            Swift.debugPrint(error)
         }
     }
 }
 
-/*
-public class CustomSpringAnimation: CASpringAnimation {
-    public override var toValue: Any? {
-        get { super.toValue }
-        set {
-            super.toValue = newValue
-            Swift.print("toValue", newValue ?? "nil")
+fileprivate extension NSSplitViewItem {
+    @objc class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        guard let animation = swizzledDefaultAnimation(forKey: key) else { return nil }
+        if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.springAnimation {
+            return springAnimation
         }
+        return animation
     }
     
-    public override var byValue: Any? {
-        get { super.byValue }
-        set {
-            super.byValue = newValue
-            Swift.print("byValue", newValue ?? "nil")
-        }
+    static var didSwizzleDefaultAnimation: Bool {
+        get { getAssociatedValue("didSwizzleDefaultAnimation", initialValue: false) }
+        set { setAssociatedValue(newValue, key: "didSwizzleDefaultAnimation") }
     }
     
-    public override var fromValue: Any? {
-        get { super.fromValue }
-        set {
-            super.fromValue = newValue
-            Swift.print("fromValue", newValue ?? "nil")
-        }
-    }
-    
-    public override var keyPath: String? {
-        get { super.keyPath }
-        set {
-            super.keyPath = newValue
-            Swift.print("keyPath", newValue ?? "nil")
+    static func swizzleAnimationForKey() {
+        guard !didSwizzleDefaultAnimation else { return }
+        didSwizzleDefaultAnimation = true
+        do {
+            _ = try Swizzle(NSSplitViewItem.self) {
+                #selector(NSPageController.defaultAnimation(forKey:)) <~> #selector(NSPageController.swizzledDefaultAnimation(forKey:))
+            }
+        } catch {
+            Swift.debugPrint(error)
         }
     }
 }
- */
 #endif

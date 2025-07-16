@@ -5,13 +5,14 @@
 //  Created by Florian Zand on 24.02.24.
 //
 
-/*
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
 
 /**
  A view that can be used as view of a `NSMenuItem` and displays a highlight background when the menu item is highlighted.
+ 
+ If ``showsHighlight`` is enabled, the view renders an appropriate backdrop behind the view when the enclosing menu item is highlighed.
 
  # Overview
  This view is designed to be used as the `view` property of an `NSMenuItem`. By default, the view is empty: you can design your own content and add it as a subview of a `NSMenuItemView` instance to automatically get menu-like behaviors such as selection, highlighting, and flashing animations when clicked.
@@ -35,7 +36,7 @@ import FZSwiftUtils
  - Note: Using this function will also turn off `translatesAutoresizingMaskIntoConstraints` for the menu item view and the passed view.
 
  ## Adding Content Manually
- If you'd like to add your subviews manually, you can invoke `addSubview` as any other `NSView` subclass. However, when setting up constraints, make sure to use the `layoutMarginsGuide` anchors.
+ If you'd like to add your subviews manually, you can add subviews to ``contentView`` using `addSubview()`.
 
  If you are not using AutoLayout, use the ``contentMargins`` or the ``highlightMargins`` to align your views correctly.
 
@@ -48,24 +49,10 @@ import FZSwiftUtils
  Supported subviews like `NSTextField` and `NSImageView` can react automatically to the enclosing menu item's highlighting state.
 
  If ``autoHighlightSubviews`` is set to `true` (default), supported views will automatically change their appearance to match the highlighted state.
-
- When a view is highlighted, it will be set to `NSColor.selectedMenuItemTextColor`, whereas when it is not highlighted, it will default to `NSColor.controlTextColor`. If the enclosing menu item is disabled, the appearance will be set to `NSColor.disabledControlTextColor`.
-
- This behavior is supported, at the moment, for `NSTextField` and (on macOS 10.14 and higher) `NSImageView` instances.
-
- - Note: You can implement support for additional views, such as your own custom views, by subclassing `NSMenuItemView` and overriding ``highlightIfNeeded(_:isHighlighted:isEnabled:)``.
-
- - warning: The automatic highlighting of subviews changes the appearance of views directly. If you don't want the view to change at all, make sure you set the property to `false` **before** the menu item is displayed. If the item is highlighted even once before the property is turned off, your custom colors will be overridden by the automatic highlighting.
-
- ## Click Animation
- When a menu item is selected with a click or tap, it blinks to confirm to the user that the action was triggered. This view replicates this behavior by means of a sequence of animations that quickly change the opacity of the ``highlightView``.
-
- Although it looks similar to what the `NSMenuItem` does by default, it is not exactly the same. If you would like to change it, you can assign a different animation (or group of animations) to the ``highlightAnimation`` property. You can also turn off the animation by setting this property to `nil`.
  */
 open class NSMenuItemView: NSTableCellView {
     private var highlightViewConstraits: [NSLayoutConstraint] = []
-    private var innerContentConstraits: [NSLayoutConstraint] = []
-    private lazy var innerContentGuide = NSLayoutGuide()
+    private var contentViewConstraits: [NSLayoutConstraint] = []
     
     // MARK: - Properties
     
@@ -78,12 +65,26 @@ open class NSMenuItemView: NSTableCellView {
         didSet { updateBackgroundStyle() }
     }
     
-    /// A Boolean value that indicates whether the view displays the highlight background view (``highlightView``) when it's enclosing menu item is highlighted.
+    /// Sets the Boolean value that indicates whether this menu item view should automatically change the appearance of subviews based on the highlight state.
+    @discardableResult
+    public func autoHighlightSubviews(_ autoHighlightSubviews: Bool) -> Self {
+        self.autoHighlightSubviews = autoHighlightSubviews
+        return self
+    }
+    
+    /// A Boolean value that indicates whether the view displays the highlight background view (``highlightView``) when it's enclosing menu item is highlighted (the mouse is hovering the item).
     public var showsHighlight: Bool = true {
         didSet {
             guard oldValue != showsHighlight else { return }
             updateHighlight()
         }
+    }
+    
+    /// Sets the Boolean value that indicates whether the view displays the highlight background view (``highlightView``) when it's enclosing menu item is highlighted (the mouse is hovering the item).
+    @discardableResult
+    public func showsHighlight(_ showsHighlight: Bool) -> Self {
+        self.showsHighlight = showsHighlight
+        return self
     }
     
     /// A Boolean value that indicates whether the enclosing menu item is enabled.
@@ -108,15 +109,27 @@ open class NSMenuItemView: NSTableCellView {
         didSet { highlightViewConstraits.constant(highlightMargins) }
     }
     
+    /// Sets the margins that are used to layout the ``highlightView``.
+    @discardableResult
+    public func highlightMargins(_ margins: NSEdgeInsets) -> Self {
+        self.highlightMargins = margins
+        return self
+    }
+    
     /**
-     The margins that should be used to layout any content inside the menu item view.
-     
-     The margins are used  for the ``layoutMarginsGuide``.
-     
+     The margins that are used to layout the ``contentView``.
+          
      Any view added using ``addSubview(_:layoutAutomatically:)`` and `layoutAutomatically` is `true`, gets constraint to the `layoutGuide` and it's margins.
      */
     public var contentMargins = NSEdgeInsets(top: 3, left: 8, bottom: 3, right: 8) {
-        didSet { innerContentConstraits.constant(highlightMargins) }
+        didSet { contentViewConstraits.constant(contentMargins) }
+    }
+    
+    /// Sets the margins that are used to layout the ``contentView``.
+    @discardableResult
+    public func contentMargins(_ margins: NSEdgeInsets) -> Self {
+        self.contentMargins = margins
+        return self
     }
     
     // MARK: - Views
@@ -124,27 +137,48 @@ open class NSMenuItemView: NSTableCellView {
     /**
      The view that is used to represent the highlight state of the menu item.
 
-     By default, this view is a `NSVisualEffectView` configured to match exactly the look of highlighted menu items, by using the `selection` material, the `active` state, and the `behindWindow` bending mode.
-
-     You can change the configuration of this view at any time.
+     This view is a `NSVisualEffectView` configured to match exactly the look of highlighted menu items, by using the `menu` and `selection` material depending if the item is highlighted.
+     
+     Use ``highlightMargins`` to specifies the margins of the highlight view.
      */
     public let highlightView = NSVisualEffectView().material(.menu).blendingMode(.behindWindow).state(.active).isEmphasized(true).cornerRadius(4.0)
     
     /**
+     The view that is used to add subviews to the menu item view.
+     
+     When you add subviews using ``addSubview(_:layoutAutomatically:)`` they are added to this view.
+     
+     Use ``contentMargins`` to specifies the margins of the content view.
+     */
+    public let contentView: NSView = ContentView(frame: .zero)
+    
+            
+    private class ContentView: NSView {
+        override var intrinsicContentSize: NSSize {
+            var contentSize = super.intrinsicContentSize
+            subviews.forEach({
+                $0.invalidateIntrinsicContentSize()
+                let size = $0.intrinsicContentSize
+                contentSize = CGSize(max(contentSize.width, size.width), max(contentSize.height, size.height))
+            })
+            return contentSize
+        }
+    }
+    
+    /**
      Add a subview to the menu item and automatically add constraints to make it fill the content area.
-
-     - Note: If you don't want the view to fill the whole space, use `addSubview`
-
+     
+     The subview is added to ``contentView``.
+     
      - parameters:
-         - view: The view to add.
-         - layoutAutomatically: If `true`, the view is constraint to ``layoutMarginsGuide``.
+         - view: The subview to add.
+         - layoutAutomatically: If `true`, the view is constraint to ``contentView``.
      */
     public func addSubview(_ view: NSView, layoutAutomatically: Bool) {
         if layoutAutomatically {
-            addSubview(view)
-            view.constraint(to: innerContentGuide)
+            contentView.addSubview(withConstraint: view)
         } else {
-            addSubview(view)
+            contentView.addSubview(view)
         }
     }
     
@@ -152,8 +186,20 @@ open class NSMenuItemView: NSTableCellView {
     
     open override func mouseUp(with event: NSEvent) {
         super.mouseUp(with: event)
-        guard let enclosingMenuItem, enclosingMenuItem.isEnabled, let menu = enclosingMenuItem.menu else { return }
-        animateHighlightAndPerformAction(ofItemAt: menu.index(of: enclosingMenuItem), in: menu)
+        performMenuItemAction()
+    }
+    
+    open func performMenuItemAction(animateHighlight: Bool = true) {
+        guard let item = enclosingMenuItem, item.isEnabled, let menu = item.menu else { return }
+        if !animateHighlight || !showsHighlight || !isHighlighted {
+            menu.performActionForItem(at: menu.index(of: item))
+            menu.cancelTracking()
+        } else {
+            _animateHighlight {
+                menu.performActionForItem(at: menu.index(of: item))
+                menu.cancelTracking()
+            }
+        }
     }
     
     /**
@@ -161,43 +207,50 @@ open class NSMenuItemView: NSTableCellView {
      
      If you overwrite this method for your custom animation, call ``performAction(ofItemAt:in:)`` to perform the action of the highlighted item.
      */
-    open func animateHighlightAndPerformAction(ofItemAt index: Int, in menu: NSMenu) {
+    func animateHighlightAndPerformAction(ofItemAt index: Int, in menu: NSMenu) {
         guard showsHighlight, isEnabled, isHighlighted else { return }
         _animateHighlight {
+            NSView.animate(withDuration: 0.05) {
+                self.highlightView.animator().alphaValue = 0.0
+            }
             self.performAction(ofItemAt: index, in: menu)
         }
     }
     
     /// Performs the action of the menu item at the specified index and menu.
-    public func performAction(ofItemAt index: Int, in menu: NSMenu) {
+    func performAction(ofItemAt index: Int, in menu: NSMenu) {
         menu.performActionForItem(at: index)
         menu.cancelTracking()
     }
     
+    
     func _animateHighlight(forward: Bool = true, completion: @escaping (() -> Void)) {
-        NSView.animate(withDuration: 0.05, {
-            highlightView.animator().alphaValue = forward ? 0.0 : 1.0
+        NSView.animate(withDuration: 0.05, changes: {
+            self.highlightView.animator().alphaValue = forward ? 0.0 : 1.0
         }, completion: forward ? { self._animateHighlight(forward: false, completion: completion) } : completion  )
     }
     
     // MARK: - Initializers
-    
+        
     /**
      Initialize and return a new menu item view with the specified content.
 
      - Note: You can achieve the same result by initializing with `init()` and invoking ``addSubview(_:layoutAutomatically:)``.
 
-     - Parameter content: A subview.
+     - Parameters:
+        - content: A subview.
+        - showsHighlight: A Boolean value that indicates whether the view displays the highlight background view (``highlightView``) when it's enclosing menu item is highlighted (the mouse is hovering the item).
      */
-    public convenience init(content: NSView) {
+    public convenience init(content: NSView, showsHighlight: Bool = true) {
         self.init()
         initialSetup()
         addSubview(content, layoutAutomatically: false)
         layoutSubtreeIfNeeded()
         invalidateIntrinsicContentSize()
+        self.showsHighlight = showsHighlight
     }
         
-    override init(frame frameRect: NSRect) {
+    public override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
         initialSetup()
     }
@@ -219,7 +272,7 @@ open class NSMenuItemView: NSTableCellView {
         coder.encode(showsHighlight, forKey: "showsHighlight")
         coder.encode(highlightMargins, forKey: "highlightMargins")
         coder.encode(contentMargins, forKey: "contentMargins")
-        coder.encode(subviews, forKey: "subviews")
+        coder.encode(contentView.subviews, forKey: "subviews")
         super.encode(with: coder)
     }
     
@@ -227,18 +280,15 @@ open class NSMenuItemView: NSTableCellView {
         translatesAutoresizingMaskIntoConstraints = false
         highlightViewConstraits = addSubview(withConstraint: highlightView)
         highlightViewConstraits.constant(highlightMargins)
-        innerContentConstraits = addLayoutGuide(withConstraint: innerContentGuide, insets: contentMargins)
+        contentViewConstraits = addSubview(withConstraint: contentView)
+        contentViewConstraits.constant(contentMargins)
     }
     
     // MARK: - Layout
 
     public override var allowsVibrancy: Bool { false }
     
-    public override var layoutMarginsGuide: NSLayoutGuide {
-        innerContentGuide
-    }
-    
-    public override var intrinsicContentSize: NSSize {
+    open override var intrinsicContentSize: NSSize {
         subviews.forEach({ $0.invalidateIntrinsicContentSize() })
         var intrinsicContentSize = subviews.map{ $0.intrinsicContentSize }.max(by: \.width) ?? .zero
         if intrinsicContentSize == CGSize(-1, -1) {
@@ -267,12 +317,15 @@ open class NSMenuItemView: NSTableCellView {
             if isEnabled {
                 subviews.forEach({ $0.alphaValue = 1.0 })
                 backgroundStyle = isHighlighted ? .emphasized : .normal
+              // setBackgroundStyle(isHighlighted ? .emphasized : .normal)
             } else {
                 subviews.forEach({ $0.alphaValue = 0.4 })
-                backgroundStyle = .lowered
+                backgroundStyle = .normal
+             //   setBackgroundStyle(.normal)
             }
         } else {
             backgroundStyle = .normal
+           // setBackgroundStyle(.normal)
         }
     }
      
@@ -280,7 +333,11 @@ open class NSMenuItemView: NSTableCellView {
         super.draw(dirtyRect)
         isHighlighted = enclosingMenuItem?.isHighlighted ?? isHighlighted
         updateBackgroundStyle()
+        
+        
+        if let menu = enclosingMenuItem?.menu, !(menu.delegate is NSMenu.Delegate) && !(menu.delegate is ViewMenuProviderMenu) {
+            menu.delegateProxy = NSMenu.Delegate(menu)
+        }
     }
 }
 #endif
-*/

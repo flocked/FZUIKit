@@ -16,6 +16,12 @@ public typealias Translation = CGVector3
 public typealias Perspective = CGVector4
 public typealias Skew = CGVector3
 
+extension CGVector3 {
+    var asPoint: CGPoint {
+        CGPoint(x: x, y: y)
+    }
+}
+
 // Perspective
 
 public extension CGVector4 {
