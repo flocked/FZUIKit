@@ -100,7 +100,7 @@ extension NSView {
     /// The shape that is used for masking the view.
     public var maskShape: PathShape? {
         get { layer?.maskShape }
-        set { optionalLayer?.maskShape = newValue  }
+        set { optionalLayer?.maskShape = newValue }
     }
 
     /**
@@ -427,58 +427,20 @@ extension NSView {
         get { layer?.configurations.border ?? .none }
         set {
             NSView.swizzleAnimationForKey()
-            _borderColor = animationColor(newValue.color, \.configurations.border.color, \.configurations.border.isInvisible)
+            var newValue = newValue
+            newValue.color = animationColor(newValue.color, \.configurations.border.color, \.configurations.border.isVisible)
             optionalLayer?.configurations.border.colorTransformer = newValue.colorTransformer
             optionalLayer?.configurations.border.dash.lineCap = newValue.dash.lineCap
             optionalLayer?.configurations.border.dash.lineJoin = newValue.dash.lineJoin
-            _borderWidth = newValue.width
-            _borderDashPhase = newValue.dash.phase
-            _borderDashPattern = newValue.dash.pattern
-            _borderInsets = [newValue.insets.top, newValue.insets.leading, newValue.insets.bottom, newValue.insets.trailing]
+            borderValues = newValue.values
         }
     }
-
-    @objc var _borderWidth: CGFloat {
-        get { (self as? NSBox)?.borderWidth ?? layer?.configurations.border.width ?? 0.0 }
-        set {
-            if let box = self as? NSBox {
-                box.borderWidth = newValue
-            } else {
-                optionalLayer?.configurations.border.width = newValue
-            }
-        }
+    
+    @objc fileprivate var borderValues: [Any] {
+        get { layer?.configurations.border.values ?? [] }
+        set { optionalLayer?.configurations.border.values = newValue }
     }
-
-    @objc var _borderInsets: [CGFloat] {
-        get {
-            guard let layer = layer else { return [] }
-            let insets = layer.configurations.border.insets
-            return [insets.top, insets.leading, insets.bottom, insets.trailing]
-        }
-        set { optionalLayer?.configurations.border.insets = .init(top: newValue[0], leading: newValue[1], bottom: newValue[2], trailing: newValue[3]) }
-    }
-
-    @objc var _borderDashPhase: CGFloat {
-        get { layer?.configurations.border.dash.phase ?? 0.0 }
-        set { optionalLayer?.configurations.border.dash.phase = newValue }
-    }
-
-    @objc var _borderDashPattern: [CGFloat] {
-        get { layer?.configurations.border.dash.pattern ?? [] }
-        set { optionalLayer?.configurations.border.dash.pattern = newValue }
-    }
-
-    @objc var _borderColor: NSColor? {
-        get { (self as? NSBox)?.borderColor ?? optionalLayer?.configurations.border.color }
-        set {
-            if let shapeLayer = layer as? CAShapeLayer {
-                shapeLayer.strokeColor = newValue?.cgColor
-            } else {
-                optionalLayer?.configurations.border.color = newValue
-            }
-        }
-    }
-
+    
     /**
      The outer shadow of the view.
 
@@ -495,37 +457,19 @@ extension NSView {
         }
         set {
             NSView.swizzleAnimationForKey()
-            var color = newValue.color
             optionalLayer?.configurations.shadow.colorTransformer = newValue.colorTransformer
-            shadowColor = animationColor(newValue.color, \.configurations.shadow.color, \.configurations.shadow.isInvisible)
-            shadowOffset = newValue.offset
-            shadowOpacity = newValue.opacity
-            shadowRadius = newValue.radius
-            setupShadowShapeView()
-            if !newValue.isInvisible {
+            var newValue = newValue
+            newValue.color = animationColor(newValue.color, \.configurations.shadow.color, \.configurations.shadow.isVisible)
+            shadowValues = newValue.values
+            if newValue.isVisible {
                 clipsToBounds = false
             }
         }
     }
-
-    @objc var shadowColor: NSColor? {
-        get { layer?.configurations.shadow.color }
-        set { optionalLayer?.configurations.shadow.color = newValue }
-    }
-
-    @objc var shadowOffset: CGPoint {
-        get { optionalLayer?.configurations.shadow.offset ?? .zero }
-        set { optionalLayer?.configurations.shadow.offset = newValue }
-    }
-
-    @objc var shadowRadius: CGFloat {
-        get { optionalLayer?.configurations.shadow.radius ?? 0.0 }
-        set { optionalLayer?.configurations.shadow.radius = newValue }
-    }
-
-    @objc var shadowOpacity: CGFloat {
-        get { optionalLayer?.configurations.shadow.opacity ?? 0.0 }
-        set { optionalLayer?.configurations.shadow.opacity = newValue }
+    
+    @objc fileprivate var shadowValues: [Any] {
+        get { layer?.configurations.shadow.values ?? [] }
+        set { optionalLayer?.configurations.shadow.values = newValue }
     }
 
     /**
@@ -555,7 +499,7 @@ extension NSView {
     }
 
     func setupShadowShapeView() {
-        if !(shadowShape != nil && maskShape != nil && !outerShadow.isInvisible) {
+        if shadowShape == nil || maskShape == nil || !outerShadow.isVisible {
             shadowShapeView?.removeFromSuperview()
             shadowShapeView = nil
         } else if shadowShapeView == nil {
@@ -570,11 +514,11 @@ extension NSView {
         set { setAssociatedValue(newValue, key: "shadowShapeView") }
     }
 
-    class ShadowShapeView: NSView {
-        var viewObservation: KeyValueObserver<NSView>?
-        weak var view: NSView?
+    class ShadowShapeView: NSUIView {
+        var viewObservation: KeyValueObserver<NSUIView>?
+        weak var view: NSUIView?
 
-        init(for view: NSView) {
+        init(for view: NSUIView) {
             super.init(frame: .zero)
             self.view = view
             viewObservation = KeyValueObserver(view)
@@ -605,6 +549,76 @@ extension NSView {
             fatalError("init(coder:) has not been implemented")
         }
     }
+    
+    func attach(to view: NSView, positionedBelow: Bool = true, includingAlpha: Bool = true) {
+        viewAttachment = ViewAttachment(for: self, target: view, below: positionedBelow, includeAloha: includingAlpha)
+    }
+    
+    func dettachFromView() {
+        viewAttachment = nil
+    }
+    
+    fileprivate var viewAttachment: ViewAttachment? {
+        get { getAssociatedValue("viewAttachment") }
+        set { setAssociatedValue(newValue, key: "viewAttachment") }
+    }
+    
+    fileprivate class ViewAttachment {
+        let viewObservation: KeyValueObserver<NSView>
+        var subviewsObservation: KeyValueObservation?
+        weak var view: NSView?
+        weak var target: NSView?
+        let mode: NSWindow.OrderingMode
+        
+        func setupSubviewsObservation() {
+            if let superview = view?.superview {
+                subviewsObservation = superview.observeChanges(for: \.subviews) { [weak self] old, new in
+                    guard let self = self else { return }
+                    self.setupPosition()
+                }
+            } else {
+                subviewsObservation = nil
+            }
+            setupPosition()
+        }
+        
+        func setupPosition() {
+            if let view = view, let superview = view.superview, let target = target, superview.subviews.contains(target) {
+                superview.addSubview(view, positioned: mode, relativeTo: target)
+            } else {
+                view?.removeFromSuperview()
+            }
+        }
+        
+        init(for view: NSView, target: NSView, below: Bool = true, includeAloha: Bool = true) {
+            self.view = view
+            self.target = target
+            self.mode = below ? .below : .above
+            self.viewObservation = KeyValueObserver(target)
+            view.frame = target.frame
+            view.isHidden = target.isHidden
+            
+            setupSubviewsObservation()
+            viewObservation.add(\.superview) { [weak self] old, new in
+                guard let self = self else { return }
+                self.setupSubviewsObservation()
+            }
+            viewObservation.add(\.isHidden) { [weak self] old, new in
+                guard let self = self else { return }
+                self.view?.isHidden = new
+            }
+            viewObservation.add(\.frame) { [weak self] old, new in
+                guard let self = self else { return }
+                self.view?.frame = new
+            }
+            guard includeAloha else { return }
+            view.alphaValue = target.alphaValue
+            viewObservation.add(\.alphaValue) { [weak self] old, new in
+                guard let self = self else { return }
+                self.view?.alphaValue = new
+            }
+        }
+    }
 
     /**
      The inner shadow of the view.
@@ -618,31 +632,15 @@ extension NSView {
         set {
             NSView.swizzleAnimationForKey()
             optionalLayer?.configurations.innerShadow.colorTransformer = newValue.colorTransformer
-            innerShadowColor = animationColor(newValue.color, \.configurations.innerShadow.color, \.configurations.innerShadow.isInvisible)
-            innerShadowOffset = newValue.offset
-            innerShadowRadius = newValue.radius
-            innerShadowOpacity = newValue.opacity
+            var newValue = newValue
+            newValue.color = animationColor(newValue.color, \.configurations.innerShadow.color, \.configurations.innerShadow.isVisible)
+            innerShadowValues = newValue.values
         }
     }
-
-    @objc var innerShadowColor: NSColor? {
-        get { optionalLayer?.configurations.innerShadow.color }
-        set { optionalLayer?.configurations.innerShadow.color = newValue }
-    }
-
-    @objc var innerShadowOpacity: CGFloat {
-        get { optionalLayer?.configurations.innerShadow.opacity ?? 0.0 }
-        set { optionalLayer?.configurations.innerShadow.opacity = newValue }
-    }
-
-    @objc var innerShadowRadius: CGFloat {
-        get { optionalLayer?.configurations.innerShadow.radius ?? 0.0 }
-        set { optionalLayer?.configurations.innerShadow.radius = newValue }
-    }
-
-    @objc var innerShadowOffset: CGPoint {
-        get { optionalLayer?.configurations.innerShadow.offset ?? .zero }
-        set { optionalLayer?.configurations.innerShadow.offset = newValue }
+    
+    @objc fileprivate var innerShadowValues: [Any] {
+        get { layer?.configurations.innerShadow.values ?? [] }
+        set { optionalLayer?.configurations.innerShadow.values = newValue }
     }
     
     func animationColor(_ color: NSUIColor?, _ keyPath: ReferenceWritableKeyPath<CALayer, CGColor?>) -> NSUIColor? {
@@ -663,7 +661,7 @@ extension NSView {
         if isProxy(), resolved == nil {
             return .clear
         } else if let layer = layer {
-            if layer[keyPath: validate], let resolved = resolved {
+            if !layer[keyPath: validate], let resolved = resolved {
                 layer[keyPath: keyPath] = resolved.withAlphaComponent(0.0)
             }
         }
@@ -978,7 +976,7 @@ public extension NSView.AutoresizingMask {
 }
 
 /// The `NSView` properties keys that can be animated.
-fileprivate let NSViewAnimationKeys: Set<String> = ["_anchorPoint", "_anchorPointZ", "_borderColor", "_borderWidth", "_borderDashPattern", "_borderDashPhase", "_borderInsets", "_center", "_contentOffset", "_contentOffsetFractional", "_cornerRadius", "_documentSize",  "_fontSize", "_inverseMask", "_mask", "_placeholderTextColor", "_roundedCorners", "_screenFrame", "_selectionColor", "_selectionTextColor", "_shadowPath", "_transform", "_transform3D", "_windowFrame", "_zPosition", "__cornerRadius", "backgroundColor", "backgroundColorAnimatable", "bezelColor", "borderColor", "borderWidth", "contentTintColor", "cornerRadius", "fillColor", "gradientColors", "gradientEndPoint", "gradientLocations", "gradientStartPoint", "innerShadowColor", "innerShadowOffset", "innerShadowOpacity", "innerShadowRadius", "shadowColor", "shadowOffset", "shadowOpacity", "shadowRadius", "textColor", "_animatableValues"]
+fileprivate let NSViewAnimationKeys: Set<String> = ["_anchorPoint", "_anchorPointZ", "_animatableValues", "_center", "_contentOffset", "_contentOffsetFractional", "_cornerRadius", "_documentSize", "_fontSize", "_inverseMask", "_mask", "_placeholderTextColor", "_roundedCorners", "_screenFrame", "_selectionColor", "_selectionTextColor", "_shadowPath", "_transform", "_transform3D", "_windowFrame", "_zPosition", "__cornerRadius", "backgroundColor", "backgroundColorAnimatable", "bezelColor", "borderColor", "borderValues", "borderWidth", "contentTintColor", "cornerRadius", "fillColor", "gradientColors", "gradientEndPoint", "gradientLocations", "gradientStartPoint", "innerShadowValues", "shadowColor", "shadowValues", "textColor"]
 
 fileprivate extension CALayer {
     var isVisible: Bool {
@@ -1005,6 +1003,31 @@ extension NSViewProtocol {
     /// Scrolls the enclosing scroll view to the right.
     public func scrollToRight() {
         enclosingScrollView?.animator(isProxy()).scrollToRight()
+    }
+}
+
+fileprivate extension BorderConfiguration {
+    var values: [Any] {
+        get { [width, color, dash.phase, dash.pattern, insets.top, insets.leading, insets.bottom, insets.trailing] }
+        set {
+            width = newValue[0] as! CGFloat
+            color = newValue[1] as? NSColor
+            dash.phase = newValue[2] as! CGFloat
+            dash.pattern = newValue[3] as! [CGFloat]
+            insets = .init(top: newValue[4] as! CGFloat, leading: newValue[5] as! CGFloat, bottom: newValue[6] as! CGFloat, trailing: newValue[7] as! CGFloat)
+        }
+    }
+}
+
+fileprivate extension ShadowConfiguration {
+    var values: [Any] {
+        get { [offset.x, offset.y, opacity, radius, color] }
+        set {
+            offset = .init(newValue[0] as! CGFloat, newValue[1] as! CGFloat)
+            opacity = newValue[2] as! CGFloat
+            radius = newValue[3] as! CGFloat
+            color = newValue[4] as? NSColor
+        }
     }
 }
 

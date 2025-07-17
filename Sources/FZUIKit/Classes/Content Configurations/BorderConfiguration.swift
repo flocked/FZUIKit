@@ -154,6 +154,15 @@ public struct BorderConfiguration: Hashable {
         width == 0.0 || resolvedColor() == nil || resolvedColor()?.cgColor.alpha ?? 1.0 <= 0.0
     }
     
+    /**
+     A Boolean value indicating whether the border is visible.
+     
+     The border is visible if the ``width`` is larger than `0` and the ``color`` isn't `nil` and has an alpha value larger than `0`.
+     */
+    var isVisible: Bool {
+        width > 0.0 && resolvedColor()?.alphaComponent ?? 0.0 > 0.0
+    }
+    
     var needsDashedBorder: Bool {
         (insets != .zero || dash.pattern.count > 1) && !isInvisible
     }

@@ -57,6 +57,15 @@ public struct ShadowConfiguration: Hashable {
     var isInvisible: Bool {
         opacity == 0.0 || resolvedColor() == nil || resolvedColor()?.alphaComponent ?? 1.0 <= 0.0
     }
+    
+    /**
+     A Boolean value indicating whether the shadow is visible.
+     
+     The shadow is visible if the ``opacity`` is larger than `0` and the ``color`` isn't `nil` and has an alpha value larger than `0`.
+     */
+    var isVisible: Bool {
+        opacity > 0.0 && resolvedColor()?.alphaComponent ?? 0.0 > 0.0
+    }
         
     #if os(macOS)
     /**

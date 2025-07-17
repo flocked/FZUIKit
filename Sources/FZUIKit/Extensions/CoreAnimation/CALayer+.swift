@@ -90,7 +90,12 @@ extension CALayer {
     /// The shadow of the layer.
     @objc open var shadow: ShadowConfiguration {
         get { configurations.shadow }
-        set { configurations.shadow = newValue }
+        set {
+            configurations.shadow = newValue
+            #if os(macOS)
+            parentView?.setupShadowShapeView()
+            #endif
+        }
     }
     
     class Configurations {
@@ -113,7 +118,7 @@ extension CALayer {
                 if !Self.hasActiveGrouping {
                     if layer.resolvedColor(for: newValue.resolvedColor()) == nil, _border.color?.isVisible == true {
                         newValue.color = .clear
-                    } else if _border.isInvisible, let color = newValue.resolvedColor() {
+                    } else if !_border.isVisible, let color = newValue.resolvedColor() {
                         if let parentView = layer.parentView {
                             _border.color = color.resolvedColor(for: parentView).withAlpha(0.0)
                         } else {
@@ -131,7 +136,7 @@ extension CALayer {
         
         func setupBorder() {
             guard let layer = layer else { return }
-            if (layer.maskShape != nil && !_border.isInvisible) || _border.needsDashedBorder {
+            if (layer.maskShape != nil && _border.isVisible) || _border.needsDashedBorder {
                 if layer.borderLayer == nil {
                     layer.borderLayer = BorderLayer(for: layer)
                 }
@@ -164,7 +169,7 @@ extension CALayer {
                 if !Self.hasActiveGrouping {
                     if layer.resolvedColor(for: newValue.resolvedColor()) == nil, _shadow.color?.isVisible == true {
                         newValue.color = .clear
-                    } else if _shadow.isInvisible, let color = newValue.resolvedColor() {
+                    } else if !_shadow.isVisible, let color = newValue.resolvedColor() {
                         CATransaction.performNonAnimated {
                             if let parentView = layer.parentView {
                                 layer.shadowColor = color.resolvedColor(for: parentView).withAlpha(0.0).cgColor
@@ -178,7 +183,7 @@ extension CALayer {
                 layer.shadowColor = layer.resolvedColor(for: newValue.resolvedColor())
                 layer.shadowRadius = newValue.radius
                 layer.shadowOffset = newValue.offset.size
-                layer.opacity = Float(newValue.opacity)
+                layer.shadowOpacity = Float(newValue.opacity)
             }
         }
         
@@ -187,7 +192,7 @@ extension CALayer {
             set {
                 guard let layer = layer else { return }
                 _innerShadow = newValue
-                if newValue.isInvisible {
+                if !newValue.isVisible {
                     layer.innerShadowLayer?.removeFromSuperlayer()
                     layer.innerShadowLayer = nil
                 } else if layer.innerShadowLayer == nil {
@@ -197,7 +202,7 @@ extension CALayer {
                 if !Self.hasActiveGrouping {
                     if layer.resolvedColor(for: newValue.resolvedColor()) == nil, _innerShadow.color?.isVisible == true {
                         newValue.color = .clear
-                    } else if _innerShadow.isInvisible, let color = newValue.resolvedColor() {
+                    } else if !_innerShadow.isVisible, let color = newValue.resolvedColor() {
                         CATransaction.performNonAnimated {
                             if let parentView = layer.parentView {
                                 layer.innerShadowLayer?.shadowColor  = color.resolvedColor(for: parentView).withAlpha(0.0).cgColor
@@ -330,6 +335,9 @@ extension CALayer {
             shadowShape = newValue
             innerShadowLayer?._maskShape = newValue
             configurations.setupBorder()
+            #if os(macOS)
+            parentView?.setupShadowShapeView()
+            #endif
         }
     }
     
@@ -347,6 +355,9 @@ extension CALayer {
             } else {
                 shadowShapeObservation = nil
             }
+            #if os(macOS)
+            parentView?.setupShadowShapeView()
+            #endif
         }
     }
     
