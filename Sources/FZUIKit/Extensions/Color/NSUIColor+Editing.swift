@@ -48,7 +48,7 @@ public extension NSUIColor {
         return _lighter(by: amount)
     }
     
-    fileprivate func _lighter(by amount: CGFloat = 0.2) -> NSUIColor {
+    fileprivate func _lighter(by amount: CGFloat) -> NSUIColor {
         let hsla = hslaComponents()
         return NSUIColor(hsla.lightness(hsla.lightness + amount))
     }
@@ -77,7 +77,7 @@ public extension NSUIColor {
         return _saturated(by: amount)
     }
     
-    fileprivate func _saturated(by amount: CGFloat = 0.2) -> NSUIColor {
+    fileprivate func _saturated(by amount: CGFloat) -> NSUIColor {
         let hsla = hslaComponents()
         return NSUIColor(hsla.saturation(hsla.saturation + amount))
     }
@@ -142,7 +142,7 @@ public extension NSUIColor {
         return _grayscaled(mode: mode)
     }
     
-    fileprivate func _grayscaled(mode: GrayscalingMode = .lightness) -> NSUIColor {
+    fileprivate func _grayscaled(mode: GrayscalingMode) -> NSUIColor {
         let rgba = rgbaComponents()
         let (r, g, b, a) = (rgba.red, rgba.green, rgba.blue, rgba.alpha)
 

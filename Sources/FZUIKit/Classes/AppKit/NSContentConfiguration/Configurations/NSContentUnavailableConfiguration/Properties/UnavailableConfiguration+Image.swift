@@ -42,7 +42,7 @@
             public var cornerRadius: CGFloat = 0.0
             
             /// The shadow of the image.
-            public var shadow: ShadowConfiguration = .none()
+            public var shadow: ShadowConfiguration = .none
 
             /// The symbol configuration of the image.
             public var symbolConfiguration: ImageSymbolConfiguration? = .font(.largeTitle)
@@ -68,7 +68,7 @@
             /// Creates image properties.
             public init(tintColor: NSColor? = .secondaryLabelColor,
                         cornerRadius: CGFloat = 0.0,
-                        shadow: ShadowConfiguration = .none(),
+                        shadow: ShadowConfiguration = .none,
                         symbolConfiguration: ImageSymbolConfiguration? = .font(.largeTitle),
                         scaling: Scaling = .scaleToFit,
                         maximumSize: CGSize = .zero)

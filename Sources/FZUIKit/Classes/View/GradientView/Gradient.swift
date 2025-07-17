@@ -177,9 +177,7 @@ public struct Gradient: Hashable {
     }
     
     /// An empty gradient.
-    public static func none() -> Gradient {
-        Gradient(stops: [])
-    }
+    public static let none = Gradient(stops: [])
 }
 
 public extension Gradient {

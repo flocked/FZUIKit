@@ -115,7 +115,7 @@ public struct BorderConfiguration: Hashable {
     }
     
     /// A configuration without a border.
-    public static func none() -> Self { Self() }
+    public static let none = Self()
     
     /// A configuration for a black border.
     public static func black(width: CGFloat = 2.0) -> Self {
@@ -151,11 +151,20 @@ public struct BorderConfiguration: Hashable {
     }
     
     var isInvisible: Bool {
-        width == 0.0 || resolvedColor() == nil || resolvedColor()?.alphaComponent == 0.0
+        width == 0.0 || resolvedColor() == nil || resolvedColor()?.cgColor.alpha ?? 1.0 <= 0.0
     }
     
     var needsDashedBorder: Bool {
         (insets != .zero || dash.pattern.count > 1) && !isInvisible
+    }
+}
+
+extension BorderConfiguration.Dash {
+    init(_ layer: CAShapeLayer) {
+        lineCap = layer.lineCap.cgLineCap
+        lineJoin = layer.lineJoin.cgLineJoin
+        phase = layer.lineDashPhase
+        pattern = layer.lineDashPattern?.compactMap({ CGFloat($0.doubleValue) }) ?? []
     }
 }
 

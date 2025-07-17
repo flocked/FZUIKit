@@ -35,7 +35,7 @@ class DashedBorderView: NSUIView {
         hostingController.rootView = ContentView(border: configuration, cornerRadius: view.cornerRadius, cornerCurve: view.cornerCurve, roundedCorners: view.roundedCorners)
     }
     
-    init(configuration: BorderConfiguration = .none()) {
+    init(configuration: BorderConfiguration = .none) {
         self.configuration = configuration
         super.init(frame: .zero)
         hostingController = NSUIHostingController(rootView: ContentView(border: configuration, cornerRadius: cornerRadius, cornerCurve: cornerCurve, roundedCorners: roundedCorners))

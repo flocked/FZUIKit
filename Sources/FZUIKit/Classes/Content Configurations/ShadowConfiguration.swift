@@ -55,7 +55,7 @@ public struct ShadowConfiguration: Hashable {
     #endif
     
     var isInvisible: Bool {
-        opacity == 0.0 || resolvedColor() == nil || resolvedColor()?.alphaComponent == 0.0
+        opacity == 0.0 || resolvedColor() == nil || resolvedColor()?.alphaComponent ?? 1.0 <= 0.0
     }
         
     #if os(macOS)
@@ -97,7 +97,7 @@ public struct ShadowConfiguration: Hashable {
     #endif
     
     /// A configuration without shadow.
-    public static func none() -> Self { Self(color: nil, opacity: 0.0) }
+    public static let none = Self(color: nil, opacity: 0.0)
     
     #if os(macOS)
     /**
@@ -216,13 +216,6 @@ extension ShadowConfiguration: Codable {
                      opacity: try values.decode(CGFloat.self, forKey: .opacity),
                      radius: try values.decode(CGFloat.self, forKey: .radius),
                      offset: try values.decode(CGPoint.self, forKey: .offset))
-    }
-}
-
-
-extension NSUIView {
-    var innerShadowLayer: InnerShadowLayer? {
-        optionalLayer?.firstSublayer(type: InnerShadowLayer.self)
     }
 }
 

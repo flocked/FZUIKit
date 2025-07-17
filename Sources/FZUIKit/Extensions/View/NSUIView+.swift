@@ -6,726 +6,691 @@
 //
 
 #if os(macOS) || os(iOS) || os(tvOS)
-    #if os(macOS)
-        import AppKit
-    #elseif canImport(UIKit)
-        import UIKit
-    #endif
+#if os(macOS)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 import FZSwiftUtils
 
-    extension NSUIView {
-        var optionalLayer: CALayer? {
-            #if os(macOS)
-                wantsLayer = true
-            #endif
-            return layer
-        }
-        
-        /// The level of the view from the most outer `superview`. A value of `0` indicates that there isn't a superview.
-        @objc open var viewLevel: Int {
-            var depth = 0
-            var aSuperview = superview
-            while aSuperview != nil {
-                depth += 1
-                aSuperview = aSuperview?.superview
-            }
-            return depth
-        }
-
-        /// Updates the anchor point of the view’s bounds rectangle while retaining the position.
-        func setAnchorPoint(_ anchorPoint: CGPoint) {
-            guard let layer = optionalLayer else { return }
-            guard layer.anchorPoint != anchorPoint else { return }
-            var newPoint = CGPoint(bounds.size.width * anchorPoint.x, bounds.size.height * anchorPoint.y)
-            var oldPoint = CGPoint(bounds.size.width * layer.anchorPoint.x, bounds.size.height * layer.anchorPoint.y)
-
-            newPoint = newPoint.applying(layer.affineTransform())
-            oldPoint = oldPoint.applying(layer.affineTransform())
-
-            var position = layer.position
-
-            position.x -= oldPoint.x
-            position.x += newPoint.x
-
-            position.y -= oldPoint.y
-            position.y += newPoint.y
-
-            layer.position = position
-            layer.anchorPoint = anchorPoint
-        }
-
-        /// Removes all constrants from the view.
-        @objc open func removeAllConstraints() {
-            var _superview = superview
-            while let superview = _superview {
-                for constraint in superview.constraints {
-                    if let first = constraint.firstItem as? NSUIView, first == self {
-                        superview.removeConstraint(constraint)
-                    }
-
-                    if let second = constraint.secondItem as? NSUIView, second == self {
-                        superview.removeConstraint(constraint)
-                    }
-                }
-
-                _superview = superview.superview
-            }
-            removeConstraints(constraints)
-        }
-
-        /// Sends the view to the front of it's superview.
-        @objc open func sendToFront() {
-            guard let superview = superview else { return }
-            #if os(macOS)
-                superview.addSubview(self)
-            #else
-                superview.bringSubviewToFront(self)
-            #endif
-        }
-
-        /// Sends the view to the back of it's superview.
-        @objc open func sendToBack() {
-            guard let superview = superview else { return }
-            #if os(macOS)
-                superview.addSubview(self, positioned: .below, relativeTo: nil)
-            #else
-                superview.sendSubviewToBack(self)
-            #endif
-        }
-
-        /**
-         Returns the enclosing rect for the specified subviews.
-         - Parameter subviews: The subviews for the rect.
-         - Returns: The rect enclosing all the specified subviews.
-         */
-        @objc open func enclosingRect(for subviews: [NSUIView]) -> CGRect {
-            var enlosingFrame = CGRect.zero
-            for subview in subviews {
-                let frame = convert(subview.bounds, from: subview)
-                enlosingFrame = enlosingFrame.union(frame)
-            }
-            return enlosingFrame
-        }
-
-        /**
-         Moves the specified subview to the index.
-
-         - Parameters:
-            - view: The view to move.
-            - index: The index for moving.
-         */
-        @objc open func moveSubview(_ subview: NSUIView, to toIndex: Int) {
-            if let index = subviews.firstIndex(of: subview) {
-                moveSubview(at: index, to: toIndex)
-            }
-        }
-
-        /**
-         Moves the specified subviews to the index.
-
-         - Parameters:
-            - subviews: The subviews to move.
-            - toIndex: The index for moving.
-            - moveIndividually: A Boolean value indicating whether each subview should be moved one at a time (`true`) or as a group (`false`). Use `true` to preserve relative ordering when moving multiple subviews.
-         */
-        @objc open func moveSubviews(_ subviews: [NSUIView], to toIndex: Int, moveIndividually: Bool = false) {
-            var indexSet = IndexSet()
-            for view in subviews {
-                if let index = subviews.firstIndex(of: view), indexSet.contains(index) == false {
-                    indexSet.insert(index)
-                }
-            }
-            if indexSet.isEmpty == false {
-                moveSubviews(at: indexSet, to: toIndex, moveIndividually: moveIndividually)
-            }
-        }
-
-        /**
-         Moves the subview at the specified index to another index.
-
-         - Parameters:
-            - index: The index of the subview to move.
-            - toIndex: The index to where the subview should be moved.
-         */
-        @objc open func moveSubview(at index: Int, to toIndex: Int) {
-            moveSubviews(at: IndexSet(integer: index), to: toIndex)
-        }
-
-        /**
-         Moves subviews at the specified indexes to another index.
-
-         - Parameters:
-            - indexes: The indexes of the subviews to move.
-            - toIndex: The index where the subviews should be moved to.
-            - moveIndividually: A Boolean value indicating whether each subview should be moved one at a time (`true`) or as a group (`false`). Use `true` to preserve relative ordering when moving multiple subviews.
-         */
-        @objc open func moveSubviews(at indexes: IndexSet, to toIndex: Int, moveIndividually: Bool = false) {
-            guard !subviews.isEmpty, toIndex >= 0, toIndex < subviews.count else { return }
-            let subviewsCount = subviews.count
-            let indexes = indexes.filter { $0 >= 0 && $0 < subviewsCount }
-            #if os(macOS)
-            var subviews = subviews
-            subviews.move(from: moveIndividually ? indexes.reversed() : indexes, to: toIndex)
-            self.subviews = subviews
-            #elseif canImport(UIKit)
-            let movingSubviews = (moveIndividually ? indexes.reversed() : indexes).map { subviews[$0] }
-            var belowSubview = subviews[toIndex]
-            for subview in movingSubviews {
-                insertSubview(subview, belowSubview: belowSubview)
-                belowSubview = moveIndividually ? subview : belowSubview
-            }
-            #endif
-        }
-        
+extension NSUIView {
+    var optionalLayer: CALayer? {
         #if os(macOS)
-        /**
-         Inserts a view above another view in the view hierarchy.
-         
-         - Parameters:
-            - view: The view to insert. It’s removed from its superview if it’s not a sibling of siblingSubview.
-            - siblingSubview: The sibling view that will be above the inserted view.
-         */
-        @objc open func insertSubview(_ view: NSView, belowSubview siblingSubview: NSView) {
-            addSubview(view, positioned: .below, relativeTo: siblingSubview)
-        }
-        
-        /**
-         Inserts a view above another view in the view hierarchy.
-         
-         - Parameters:
-            - view: The view to insert. It’s removed from its superview if it’s not a sibling of siblingSubview.
-            - siblingSubview: The sibling view that will be behind the inserted view.
-         */
-        @objc open func insertSubview(_ view: NSView, aboveSubview siblingSubview: NSView) {
-            addSubview(view, positioned: .above, relativeTo: siblingSubview)
-        }
+        wantsLayer = true
         #endif
+        return layer
+    }
 
-        /**
-         The first superview that matches the specificed view type.
-
-         - Parameter viewType: The type of view to match.
-         - Returns: The first parent view that matches the view type or `nil` if none match or there isn't a matching parent.
-         */
-        public func firstSuperview<V: NSUIView>(for _: V.Type) -> V? {
-            firstSuperview(where: { $0 is V }) as? V
+    /// The level of the view from the most outer `superview`. A value of `0` indicates that there isn't a superview.
+    @objc open var viewLevel: Int {
+        var depth = 0
+        var aSuperview = superview
+        while aSuperview != nil {
+            depth += 1
+            aSuperview = aSuperview?.superview
         }
+        return depth
+    }
 
-        /**
-         The first superview that matches the specificed predicate.
+    /// Updates the anchor point of the view’s bounds rectangle while retaining the position.
+    func setAnchorPoint(_ anchorPoint: CGPoint) {
+        guard let layer = optionalLayer else { return }
+        guard layer.anchorPoint != anchorPoint else { return }
+        var newPoint = CGPoint(bounds.size.width * anchorPoint.x, bounds.size.height * anchorPoint.y)
+        var oldPoint = CGPoint(bounds.size.width * layer.anchorPoint.x, bounds.size.height * layer.anchorPoint.y)
 
-         - Parameter predicate: The closure to match.
-         - Returns: The first parent view that is matching the predicate or `nil` if none match or there isn't a matching parent.
-         */
-        @objc open func firstSuperview(where predicate: (NSUIView) -> (Bool)) -> NSUIView? {
-            if let superview = superview {
-                return predicate(superview) ? superview : superview.firstSuperview(where: predicate)
-            }
-            return nil
-        }
-        
-        /// An array of all enclosing superviews.
-        @objc open func superviewChain() -> [NSUIView] {
-            if let superview = superview {
-                return [superview] + superview.superviewChain()
-            }
-            return []
-        }
+        newPoint = newPoint.applying(layer.affineTransform())
+        oldPoint = oldPoint.applying(layer.affineTransform())
 
-        /**
-         An array of all subviews upto the maximum depth.
-         
-         A depth of `0` returns the subviews of the view, a value of `1` returns the subviews of the view and all their subviews, etc. To return all subviews use `max`.
+        var position = layer.position
 
-         - Parameter depth: The maximum depth.
-         */
-        @objc open func subviews(depth: Int) -> [NSUIView] {
-            if depth > 0 {
-                return subviews + subviews.flatMap { $0.subviews(depth: depth - 1) }
-            } else {
-                return subviews
-            }
-        }
+        position.x -= oldPoint.x
+        position.x += newPoint.x
 
-        /**
-         An array of all subviews matching the specified view type.
+        position.y -= oldPoint.y
+        position.y += newPoint.y
 
-          - Parameters:
-             - type: The type of subviews.
-             - depth: The maximum depth. As example a value of `0` returns the subviews of receiver and a value of `1` returns the subviews of the receiver and all their subviews. To return all subviews use `max`.
-          */
-        public func subviews<V: NSUIView>(type _: V.Type, depth: Int = 0) -> [V] {
-            subviews(depth: depth).compactMap { $0 as? V }
-        }
-        
-        /**
-         An array of all subviews matching the specified view type.
+        layer.position = position
+        layer.anchorPoint = anchorPoint
+    }
 
-          - Parameters:
-             - type: The type of subviews.
-             - depth: The maximum depth. As example a value of `0` returns the subviews of receiver and a value of `1` returns the subviews of the receiver and all their subviews. To return all subviews use `max`.
-          */
-        @objc open func subviews(type: String, depth: Int = 0) -> [NSUIView] {
-            subviews(where: { NSStringFromClass(Swift.type(of: $0)) == type }, depth: depth)
-        }
+    /// Removes all constrants from the view.
+    @objc open func removeAllConstraints() {
+        var _superview = superview
+        while let superview = _superview {
+            for constraint in superview.constraints {
+                if let first = constraint.firstItem as? NSUIView, first == self {
+                    superview.removeConstraint(constraint)
+                }
 
-        /**
-         An array of all subviews matching the specified predicte.
-
-          - Parameters:
-             - predicate: The predicate to match.
-             - depth: The maximum depth. As example a value of `0` returns the subviews of receiver and a value of `1` returns the subviews of the receiver and all their subviews. To return all subviews use `max`.
-          */
-        @objc open func subviews(where predicate: (NSUIView) -> (Bool), depth: Int = 0) -> [NSUIView] {
-            subviews(depth: depth).filter { predicate($0) == true }
-        }
-        
-        /**
-         The first subview that matches the specificed view type.
-
-         - Parameters:
-            - type: The type of view to match.
-            - depth: The maximum depth. As example a value of `0` returns the first subview matching of the receiver's subviews and a value of `1` returns the first subview matching of the receiver's subviews or any of their subviews. To return the first subview matching of all subviews use `max`.
-         - Returns: The first subview that matches the view type or `nil` if no subview matches.
-         */
-        public func firstSubview<V: NSUIView>(type _: V.Type, depth: Int = 0) -> V? {
-            firstSubview(where: { $0 is V }, depth: depth) as? V
-        }
-        
-        /**
-         The first subview that matches the specificed view type.
-
-         - Parameters:
-            - type: The type of view to match.
-            - depth: The maximum depth. As example a value of `0` returns the first subview matching of the receiver's subviews and a value of `1` returns the first subview matching of the receiver's subviews or any of their subviews. To return the first subview matching of all subviews use `max`.
-         - Returns: The first subview that matches the view type or `nil` if no subview matches.
-         */
-        @objc open func firstSubview(type: String, depth: Int = 0) -> NSUIView? {
-            firstSubview(where: { NSStringFromClass(Swift.type(of: $0)) == type }, depth: depth)
-        }
-        
-        /**
-         The first subview that matches the specificed predicate.
-         
-         - Parameters:
-            - predicate: TThe closure to match.
-            - depth: The maximum depth. As example a value of `0` returns the first subview matching of the receiver's subviews and a value of `1` returns the first subview matching of the receiver's subviews or any of their subviews. To return the first subview matching of all subviews use `max`.
-
-         - Returns: The first subview that is matching the predicate or `nil` if no subview is matching.
-         */
-        @objc open func firstSubview(where predicate: (NSUIView) -> (Bool), depth: Int = 0) -> NSUIView? {
-            if let subview = subviews.first(where: predicate) {
-                return subview
-            }
-            if depth > 0 {
-                for subview in subviews {
-                    if let subview = subview.firstSubview(where: predicate, depth: depth - 1) {
-                        return subview
-                    }
+                if let second = constraint.secondItem as? NSUIView, second == self {
+                    superview.removeConstraint(constraint)
                 }
             }
-            return nil
-        }
-        
-        /// Positions the view above the specified view.
-        @objc open func position(above view: NSUIView) {
-            guard let superview = view.superview else { return }
-            #if os(macOS)
-            superview.addSubview(self, positioned: .above, relativeTo: view)
-            #else
-            superview.insertSubview(self, aboveSubview: view)
-            #endif
-        }
-        
-        /// Positions the view behind the specified view.
-        @objc open func postion(behind view: NSUIView) {
-            guard let superview = view.superview else { return }
-            #if os(macOS)
-            superview.addSubview(self, positioned: .below, relativeTo: view)
-            #else
-            superview.insertSubview(self, belowSubview: view)
-            #endif
-        }
-        
-        /// Animates a transition to changes made to the view after calling this.
-        @objc open func transition(_ transition: CATransition?) {
-            if let transition = transition {
-                optionalLayer?.add(transition, forKey: CATransitionType.fade.rawValue)
-            } else {
-                optionalLayer?.removeAnimation(forKey: CATransitionType.fade.rawValue)
-            }
-        }
 
-        /// Recursive description of the view useful for debugging.
-        @objc open var recursiveDescription: String {
-            value(forKeySafely: "recursiveDescription") as? String ?? ""
+            _superview = superview.superview
         }
+        removeConstraints(constraints)
+    }
 
+    /// Sends the view to the front of it's superview.
+    @objc open func sendToFront() {
+        guard let superview = superview else { return }
         #if os(macOS)
-            /**
-             The background gradient of the view. 
-             
-             Applying a gradient sets the view's `backgroundColor` to `nil`.
-
-             Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
-             */
-            @objc open var gradient: Gradient? {
-                get { optionalLayer?.gradient }
-                set {
-                    NSUIView.swizzleAnimationForKey()
-                    let newGradient = newValue ?? .init(stops: [])
-                    if !newGradient.stops.isEmpty {
-                        backgroundColor = nil
-                        self.wantsLayer = true
-                        if optionalLayer?._gradientLayer == nil {
-                            var newGradient = newGradient
-                            newGradient.stops = newGradient.stops.map({
-                                $0.transparent })
-                            optionalLayer?.gradient = newGradient
-                        }
-                    }
-                    let padded = Gradient.ColorStop.padded(from: optionalLayer?.gradient?.stops ?? [], to: newValue?.stops ?? [])
-                    
-                    gradientStartPoint = newGradient.startPoint.point
-                    gradientEndPoint = newGradient.endPoint.point
-                    optionalLayer?._gradientLayer?.type = newGradient.type.gradientLayerType
-                    
-                    gradientLocations = newGradient.stops.compactMap(\.location)
-                    _gradientColors = newGradient.stops.compactMap(\.color.cgColor)
-                }
-            }
-        
-        #elseif canImport(UIKit)
-            /**
-             The background gradient of the view.
-         
-             Applying a gradient sets the view's `backgroundColor` to `nil`.
-             */
-            @objc open var gradient: Gradient? {
-                get { optionalLayer?.gradient }
-                set { optionalLayer?.gradient = newValue }
-            }
-        #endif
-        
-        /// Sets the background gradient of the view.
-        @objc open func gradient( _ gradient: Gradient?) -> Self {
-            self.gradient = gradient
-            return self
-        }
-
-        var gradientLocations: [CGFloat] {
-            get { optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? [] }
-            set {
-                var newValue = newValue
-                let currentLocations = optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? []
-                let diff = newValue.count - currentLocations.count
-                if diff < 0 {
-                    for i in (newValue.count + diff)..<newValue.count {
-                        newValue[i] = 0.0
-                    }
-                } else if diff > 0 {
-                    newValue += Array(repeating: .zero, count: diff)
-                }
-                gradientLocationsAnimatable = newValue
-            }
-        }
-
-        @objc var gradientLocationsAnimatable: [CGFloat] {
-            get { optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? [] }
-            set { optionalLayer?._gradientLayer?.locations = newValue.compactMap { NSNumber($0) }
-            }
-        }
-
-        @objc var gradientStartPoint: CGPoint {
-            get { optionalLayer?._gradientLayer?.startPoint ?? .zero }
-            set { optionalLayer?._gradientLayer?.startPoint = newValue }
-        }
-
-        @objc var gradientEndPoint: CGPoint {
-            get { optionalLayer?._gradientLayer?.endPoint ?? .zero }
-            set { optionalLayer?._gradientLayer?.endPoint = newValue }
-        }
-        
-      
-
-        var _gradientColors: [CGColor] {
-            get { optionalLayer?._gradientLayer?.colors as? [CGColor] ?? [] }
-            set {
-                var newValue = newValue
-                let currentColors = optionalLayer?._gradientLayer?.colors ?? []
-                let diff = newValue.count - currentColors.count
-                if diff < 0 {
-                    for i in (newValue.count + diff)..<newValue.count {
-                        newValue[safe: i] = newValue[i].nsUIColor?.withAlphaComponent(0.0).cgColor
-                    }
-                } else if diff > 0 {
-                    newValue += Array(repeating: .clear, count: diff)
-                }
-                gradientColors = newValue
-            }
-        }
-
-        @objc var gradientColors: [CGColor] {
-            get { optionalLayer?._gradientLayer?.colors as? [CGColor] ?? [] }
-            set { optionalLayer?._gradientLayer?.colors = newValue }
-        }
-        
-        
-        /// Sets the Boolean value indicating whether the view is hidden.
-        @discardableResult
-        @objc open func isHidden(_ isHidden: Bool) -> Self {
-            self.isHidden = isHidden
-            return self
-        }
-        
-        /// Sets the corner radius of the view.
-        @discardableResult
-        @objc open func cornerRadius(_ radius: CGFloat) -> Self {
-            cornerRadius = radius
-            return self
-        }
-        
-        /// Sets the rounded corners of the view.
-        @discardableResult
-        @objc open func roundedCorners(_ corners: CACornerMask) -> Self {
-            roundedCorners = corners
-            return self
-        }
-        
-        /// Sets the border of the view.
-        @discardableResult
-        @objc open func border(_ border: BorderConfiguration) -> Self {
-            self.border = border
-            return self
-        }
-        
-        #if os(macOS)
-        /// Sets the outer shadow of the view.
-        @discardableResult
-        @objc open func outerShadow(_ shadow: ShadowConfiguration) -> Self {
-            #if os(macOS)
-            self.outerShadow = shadow
-            #else
-            self.shadow = shadow
-            #endif
-            return self
-        }
+        superview.addSubview(self)
         #else
-        /// Sets the outer shadow of the view.
-        @discardableResult
-        @objc open func shadow(_ shadow: ShadowConfiguration) -> Self {
-            #if os(macOS)
-            self.outerShadow = shadow
-            #else
-            self.shadow = shadow
-            #endif
-            return self
-        }
+        superview.bringSubviewToFront(self)
         #endif
-        
-        /// Sets the inner shadow of the view.
-        @discardableResult
-        @objc open func innerShadow(_ shadow: ShadowConfiguration) -> Self {
-            self.innerShadow = shadow
-            return self
-        }
-        
+    }
+
+    /// Sends the view to the back of it's superview.
+    @objc open func sendToBack() {
+        guard let superview = superview else { return }
         #if os(macOS)
-        /// Sets the anchor point of the view’s bounds rectangle.
-        @discardableResult
-        @objc open func anchorPoint(_ anchorPoint: FractionalPoint) -> Self {
-            self.anchorPoint = anchorPoint
-            return self
-        }
-        #elseif os(iOS) || os(tvOS)
-        
-        /// Sets the anchor point of the view’s bounds rectangle.
-        @discardableResult
-        @available(iOS 16.0, tvOS 16.0, *)
-        @objc open func anchorPoint(_ anchorPoint: CGPoint) -> Self {
-            self.anchorPoint = anchorPoint
-            return self
-        }
-        #endif
-        
-        /// Sets the scale transform of the view.
-        @discardableResult
-        @objc open func scale(_ scale: Scale) -> Self {
-            self.scale = scale
-            return self
-        }
-        
-        /// Sets the rotation of the view as euler angles in degrees.
-        @discardableResult
-        @objc open func rotation(_ rotation: Rotation) -> Self {
-            self.rotation = rotation
-            return self
-        }
-        
-        /// Sets the rotation of the view as euler angles in radians.
-        @discardableResult
-        @objc open func rotationInRadians(_ rotation: Rotation) -> Self {
-            self.rotationInRadians = rotation
-            return self
-        }
-        
-        /// Sets the Boolean value that indicates whether the view, and its subviews, confine their drawing areas to the bounds of the view.
-        @discardableResult
-        @objc open func clipsToBounds(_ clipsToBounds: Bool) -> Self {
-            self.clipsToBounds = clipsToBounds
-            return self
-        }
-        
-        /// Sets the view whose alpha channel is used to mask a view’s content.
-        @discardableResult
-        @objc open func mask(_ mask: NSUIView?) -> Self {
-            self.mask = mask
-            return self
-        }
-        
-        /// Sets the view’s bounds rectangle, which expresses its location and size in its own coordinate system.
-        @discardableResult
-        @objc open func bounds(_ bounds: CGRect) -> Self {
-            self.bounds = bounds
-            return self
-        }
-        
-        /// Sets the view’s frame rectangle, which defines its position and size in its superview’s coordinate system.
-        @discardableResult
-        @objc open func frame(_ frame: CGRect) -> Self {
-            self.frame = frame
-            return self
-        }
-        
-        /// Sets the view’s frame size.
-        @discardableResult
-        @objc open func size(_ size: CGSize) -> Self {
-            self.frame.size = size
-            return self
-        }
-        
-        /// Sets the view’s frame origin, which defines its position in its superview’s coordinate system.
-        @discardableResult
-        @objc open func origin(_ origin: CGPoint) -> Self {
-            self.frame.origin = origin
-            return self
-        }
-        
-        /// Sets the center point of the view’s frame rectangle.
-        @discardableResult
-        @objc open func center(_ center: CGPoint) -> Self {
-            self.center = center
-            return self
-        }
-        
-        /// Sets the view’s position on the z axis.
-        @discardableResult
-        @objc open func zPosition(_ zPosition: CGFloat) -> Self {
-            self.zPosition = zPosition
-            return self
-        }
-        
-        /// Sets the options that determine how the view is resized relative to its superview.
-        @discardableResult
-        @objc open func autoresizingMask(_ mask: AutoresizingMask) -> Self {
-            autoresizingMask = mask
-            return self
-        }
-        
-        #if os(macOS)
-        /// Sets the opacity of the view.
-        @discardableResult
-        @objc open func alphaValue(_ alphaValue: CGFloat) -> Self {
-            self.alphaValue = alphaValue
-            return self
-        }
+        superview.addSubview(self, positioned: .below, relativeTo: nil)
         #else
-        /// Sets the opacity of the view.
-        @discardableResult
-        @objc open func alpha(_ alpha: CGFloat) -> Self {
-            self.alpha = alpha
-            return self
-        }
-        
-        /// Sets the first nondefault tint color value in the view’s hierarchy, ascending from and starting with the view itself.
-        @discardableResult
-        @objc open func tintColor(_ color: UIColor!) -> Self {
-            tintColor = color
-            return self
-        }
-        
-        /// Sets the flag used to determine how a view lays out its content when its bounds change.x
-        @discardableResult
-        @objc open func contentMode(_ mode: UIView.ContentMode) -> Self {
-            contentMode = mode
-            return self
-        }
+        superview.sendSubviewToBack(self)
         #endif
-        
-        /**
-         Prints the hierarchy of the view and its subviews to the console.
+    }
 
-         - Parameters:
-           - depth: The maximum depth of the view hierarchy to print. A value of `.max` prints the entire hierarchy. Defaults to `.max`.
-           - includeDetails: If `true` prints the full description of each view; otherwise prints only the type.
-         */
-        public func printHierarchy(depth: Int = .max, includeDetails: Bool = false) {
-            guard depth >= 0 else { return }
-            printHierarchy(level: 0, depth: depth, includeDetails: false)
+    /**
+     Returns the enclosing rect for the specified subviews.
+     - Parameter subviews: The subviews for the rect.
+     - Returns: The rect enclosing all the specified subviews.
+     */
+    @objc open func enclosingRect(for subviews: [NSUIView]) -> CGRect {
+        var enlosingFrame = CGRect.zero
+        for subview in subviews {
+            let frame = convert(subview.bounds, from: subview)
+            enlosingFrame = enlosingFrame.union(frame)
         }
-        
-        private func printHierarchy(level: Int, depth: Int, includeDetails: Bool) {
-            let string = includeDetails ? "\(self)" : "\(type(of: self))"
-            Swift.print("\(Array(repeating: " ", count: level).joined(separator: ""))\(string)")
-            guard level+1 <= depth else { return }
-            for subview in subviews {
-                subview.printHierarchy(level: level+1, depth: depth, includeDetails: includeDetails)
-            }
-        }
-        
-        /**
-         Prints the hierarchy of views of a specific type starting from this view.
+        return enlosingFrame
+    }
 
-         - Parameters:
-            - type: The view type to match (e.g., `NSTextField.self`). Only subtrees containing at least one view of this type will be printed.
-            - depth: The maximum depth of the view hierarchy to print. A value of `.max` prints the entire hierarchy. Defaults to `.max`.
-            - includeDetails: If `true` prints the full description of each view; otherwise prints only the type.
-         */
-        public func printHierarchy<V: NSUIView>(type _: V.Type, depth: Int = .max, includeDetails: Bool = false) {
-            printHierarchy(predicate: {$0 is V}, depth: depth, includeDetails: includeDetails)
-        }
-        
-        /**
-         Prints the hierarchy of views that match a given predicate starting from this view.
+    /**
+     Moves the specified subview to the index.
 
-         - Parameters:
-            - predicate: A closure that determines whether a view should be included in the printed hierarchy. Entire subtrees are printed only if at least one view in the subtree matches the predicate.
-            - depth: The maximum depth of the view hierarchy to print. A value of `.max` prints the entire hierarchy. Defaults to `.max`.
-            - includeDetails: If `true` prints the full description of each view; otherwise prints only the type.
-         */
-        public func printHierarchy(predicate: (NSUIView) -> Bool, depth: Int = .max, includeDetails: Bool = false) {
-            guard depth >= 0 else { return }
-            printHierarchy(level: 0, depth: depth, predicate: predicate, includeDetails: includeDetails)
-        }
-
-        private func printHierarchy(level: Int, depth: Int, predicate: (NSUIView) -> Bool, includeDetails: Bool) {
-            let string = includeDetails ? "\(self)" : "\(type(of: self))"
-            Swift.print("\(Array(repeating: " ", count: level).joined(separator: ""))\(string)")
-            guard level+1 <= depth else { return }
-            for subview in subviews {
-                guard subview.matchesPredicateRecursively(predicate, level: level+1, depth: depth) else { continue }
-                subview.printHierarchy(level: level+1, depth: depth, predicate: predicate, includeDetails: includeDetails)
-            }
-        }
-
-        private func matchesPredicateRecursively(_ predicate: (NSUIView) -> Bool, level: Int, depth: Int) -> Bool {
-            if predicate(self) {
-                return true
-            }
-            guard level+1 <= depth else { return false }
-            return subviews.contains { $0.matchesPredicateRecursively(predicate, level: level+1, depth: depth) }
+     - Parameters:
+        - view: The view to move.
+        - index: The index for moving.
+     */
+    @objc open func moveSubview(_ subview: NSUIView, to toIndex: Int) {
+        if let index = subviews.firstIndex(of: subview) {
+            moveSubview(at: index, to: toIndex)
         }
     }
+
+    /**
+     Moves the specified subviews to the index.
+
+     - Parameters:
+        - subviews: The subviews to move.
+        - toIndex: The index for moving.
+        - moveIndividually: A Boolean value indicating whether each subview should be moved one at a time (`true`) or as a group (`false`). Use `true` to preserve relative ordering when moving multiple subviews.
+     */
+    @objc open func moveSubviews(_ subviews: [NSUIView], to toIndex: Int, moveIndividually: Bool = false) {
+        var indexSet = IndexSet()
+        for view in subviews {
+            if let index = subviews.firstIndex(of: view), indexSet.contains(index) == false {
+                indexSet.insert(index)
+            }
+        }
+        if indexSet.isEmpty == false {
+            moveSubviews(at: indexSet, to: toIndex, moveIndividually: moveIndividually)
+        }
+    }
+
+    /**
+     Moves the subview at the specified index to another index.
+
+     - Parameters:
+        - index: The index of the subview to move.
+        - toIndex: The index to where the subview should be moved.
+     */
+    @objc open func moveSubview(at index: Int, to toIndex: Int) {
+        moveSubviews(at: IndexSet(integer: index), to: toIndex)
+    }
+
+    /**
+     Moves subviews at the specified indexes to another index.
+
+     - Parameters:
+        - indexes: The indexes of the subviews to move.
+        - toIndex: The index where the subviews should be moved to.
+        - moveIndividually: A Boolean value indicating whether each subview should be moved one at a time (`true`) or as a group (`false`). Use `true` to preserve relative ordering when moving multiple subviews.
+     */
+    @objc open func moveSubviews(at indexes: IndexSet, to toIndex: Int, moveIndividually: Bool = false) {
+        guard !subviews.isEmpty, toIndex >= 0, toIndex < subviews.count else { return }
+        let subviewsCount = subviews.count
+        let indexes = indexes.filter { $0 >= 0 && $0 < subviewsCount }
+        #if os(macOS)
+        var subviews = subviews
+        subviews.move(from: moveIndividually ? indexes.reversed() : indexes, to: toIndex)
+        self.subviews = subviews
+        #elseif canImport(UIKit)
+        let movingSubviews = (moveIndividually ? indexes.reversed() : indexes).map { subviews[$0] }
+        var belowSubview = subviews[toIndex]
+        for subview in movingSubviews {
+            insertSubview(subview, belowSubview: belowSubview)
+            belowSubview = moveIndividually ? subview : belowSubview
+        }
+        #endif
+    }
+
+    #if os(macOS)
+    /**
+     Inserts a view above another view in the view hierarchy.
+
+     - Parameters:
+        - view: The view to insert. It’s removed from its superview if it’s not a sibling of siblingSubview.
+        - siblingSubview: The sibling view that will be above the inserted view.
+     */
+    @objc open func insertSubview(_ view: NSView, belowSubview siblingSubview: NSView) {
+        addSubview(view, positioned: .below, relativeTo: siblingSubview)
+    }
+
+    /**
+     Inserts a view above another view in the view hierarchy.
+
+     - Parameters:
+        - view: The view to insert. It’s removed from its superview if it’s not a sibling of siblingSubview.
+        - siblingSubview: The sibling view that will be behind the inserted view.
+     */
+    @objc open func insertSubview(_ view: NSView, aboveSubview siblingSubview: NSView) {
+        addSubview(view, positioned: .above, relativeTo: siblingSubview)
+    }
+    #endif
+
+    /**
+     The first superview that matches the specificed view type.
+
+     - Parameter viewType: The type of view to match.
+     - Returns: The first parent view that matches the view type or `nil` if none match or there isn't a matching parent.
+     */
+    public func firstSuperview<V: NSUIView>(for _: V.Type) -> V? {
+        firstSuperview(where: { $0 is V }) as? V
+    }
+
+    /**
+     The first superview that matches the specificed predicate.
+
+     - Parameter predicate: The closure to match.
+     - Returns: The first parent view that is matching the predicate or `nil` if none match or there isn't a matching parent.
+     */
+    @objc open func firstSuperview(where predicate: (NSUIView) -> (Bool)) -> NSUIView? {
+        if let superview = superview {
+            return predicate(superview) ? superview : superview.firstSuperview(where: predicate)
+        }
+        return nil
+    }
+
+    /// An array of all enclosing superviews.
+    @objc open func superviewChain() -> [NSUIView] {
+        if let superview = superview {
+            return [superview] + superview.superviewChain()
+        }
+        return []
+    }
+
+    /**
+     An array of all subviews upto the maximum depth.
+
+     A depth of `0` returns the subviews of the view, a value of `1` returns the subviews of the view and all their subviews, etc. To return all subviews use `max`.
+
+     - Parameter depth: The maximum depth.
+     */
+    @objc open func subviews(depth: Int) -> [NSUIView] {
+        if depth > 0 {
+            return subviews + subviews.flatMap { $0.subviews(depth: depth - 1) }
+        } else {
+            return subviews
+        }
+    }
+
+    /**
+     An array of all subviews matching the specified view type.
+
+      - Parameters:
+         - type: The type of subviews.
+         - depth: The maximum depth. As example a value of `0` returns the subviews of receiver and a value of `1` returns the subviews of the receiver and all their subviews. To return all subviews use `max`.
+      */
+    public func subviews<V: NSUIView>(type _: V.Type, depth: Int = 0) -> [V] {
+        subviews(depth: depth).compactMap { $0 as? V }
+    }
+
+    /**
+     An array of all subviews matching the specified view type.
+
+      - Parameters:
+         - type: The type of subviews.
+         - depth: The maximum depth. As example a value of `0` returns the subviews of receiver and a value of `1` returns the subviews of the receiver and all their subviews. To return all subviews use `max`.
+      */
+    @objc open func subviews(type: String, depth: Int = 0) -> [NSUIView] {
+        subviews(where: { NSStringFromClass(Swift.type(of: $0)) == type }, depth: depth)
+    }
+
+    /**
+     An array of all subviews matching the specified predicte.
+
+      - Parameters:
+         - predicate: The predicate to match.
+         - depth: The maximum depth. As example a value of `0` returns the subviews of receiver and a value of `1` returns the subviews of the receiver and all their subviews. To return all subviews use `max`.
+      */
+    @objc open func subviews(where predicate: (NSUIView) -> (Bool), depth: Int = 0) -> [NSUIView] {
+        subviews(depth: depth).filter { predicate($0) == true }
+    }
+
+    /**
+     The first subview that matches the specificed view type.
+
+     - Parameters:
+        - type: The type of view to match.
+        - depth: The maximum depth. As example a value of `0` returns the first subview matching of the receiver's subviews and a value of `1` returns the first subview matching of the receiver's subviews or any of their subviews. To return the first subview matching of all subviews use `max`.
+     - Returns: The first subview that matches the view type or `nil` if no subview matches.
+     */
+    public func firstSubview<V: NSUIView>(type _: V.Type, depth: Int = 0) -> V? {
+        firstSubview(where: { $0 is V }, depth: depth) as? V
+    }
+
+    /**
+     The first subview that matches the specificed view type.
+
+     - Parameters:
+        - type: The type of view to match.
+        - depth: The maximum depth. As example a value of `0` returns the first subview matching of the receiver's subviews and a value of `1` returns the first subview matching of the receiver's subviews or any of their subviews. To return the first subview matching of all subviews use `max`.
+     - Returns: The first subview that matches the view type or `nil` if no subview matches.
+     */
+    @objc open func firstSubview(type: String, depth: Int = 0) -> NSUIView? {
+        firstSubview(where: { NSStringFromClass(Swift.type(of: $0)) == type }, depth: depth)
+    }
+
+    /**
+     The first subview that matches the specificed predicate.
+
+     - Parameters:
+        - predicate: TThe closure to match.
+        - depth: The maximum depth. As example a value of `0` returns the first subview matching of the receiver's subviews and a value of `1` returns the first subview matching of the receiver's subviews or any of their subviews. To return the first subview matching of all subviews use `max`.
+
+     - Returns: The first subview that is matching the predicate or `nil` if no subview is matching.
+     */
+    @objc open func firstSubview(where predicate: (NSUIView) -> (Bool), depth: Int = 0) -> NSUIView? {
+        if let subview = subviews.first(where: predicate) {
+            return subview
+        }
+        if depth > 0 {
+            for subview in subviews {
+                if let subview = subview.firstSubview(where: predicate, depth: depth - 1) {
+                    return subview
+                }
+            }
+        }
+        return nil
+    }
+
+    /// Positions the view above the specified view.
+    @objc open func position(above view: NSUIView) {
+        guard let superview = view.superview else { return }
+        #if os(macOS)
+        superview.addSubview(self, positioned: .above, relativeTo: view)
+        #else
+        superview.insertSubview(self, aboveSubview: view)
+        #endif
+    }
+
+    /// Positions the view behind the specified view.
+    @objc open func postion(behind view: NSUIView) {
+        guard let superview = view.superview else { return }
+        #if os(macOS)
+        superview.addSubview(self, positioned: .below, relativeTo: view)
+        #else
+        superview.insertSubview(self, belowSubview: view)
+        #endif
+    }
+
+    /// Animates a transition to changes made to the view after calling this.
+    @objc open func transition(_ transition: CATransition?) {
+        if let transition = transition {
+            optionalLayer?.add(transition, forKey: CATransitionType.fade.rawValue)
+        } else {
+            optionalLayer?.removeAnimation(forKey: CATransitionType.fade.rawValue)
+        }
+    }
+
+    /// Recursive description of the view useful for debugging.
+    @objc open var recursiveDescription: String {
+        value(forKeySafely: "recursiveDescription") as? String ?? ""
+    }
+
+    #if os(macOS)
+    /**
+     The background gradient of the view.
+
+     Applying a gradient sets the view's `backgroundColor` to `nil`.
+
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
+    public var gradient: Gradient? {
+        get { optionalLayer?.gradient }
+        set {
+            NSUIView.swizzleAnimationForKey()
+            var newValue = newValue
+            let newGradient = newValue ?? .init(stops: [])
+            if !newGradient.stops.isEmpty {
+                backgroundColor = nil
+                self.wantsLayer = true
+                if optionalLayer?._gradientLayer == nil {
+                    var newGradient = newGradient
+                    newGradient.stops = newGradient.stops.map({
+                        $0.transparent })
+                    optionalLayer?.gradient = newGradient
+                }
+            }
+            if let stops = optionalLayer?.gradient?.stops {
+                let stops = stops.animatable(to: newValue?.stops ?? [])
+                optionalLayer?.gradient?.stops = stops.start
+                newValue?.stops = stops.end
+            }
+            gradientStartPoint = newGradient.startPoint.point
+            gradientEndPoint = newGradient.endPoint.point
+            optionalLayer?._gradientLayer?.type = newGradient.type.gradientLayerType
+            gradientLocations = newGradient.stops.compactMap(\.location)
+            gradientColors = newGradient.stops.compactMap(\.color.cgColor)
+        }
+    }
+
+    @objc var gradientLocations: [CGFloat] {
+        get { optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? [] }
+        set { optionalLayer?._gradientLayer?.locations = (newValue.adjusted(toMatch: (optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? []), withTransform: { _ in 0.0 }, orFillWith: 0.0)).map({ NSNumber($0) }) }
+    }
+
+    @objc var gradientStartPoint: CGPoint {
+        get { optionalLayer?._gradientLayer?.startPoint ?? .zero }
+        set { optionalLayer?._gradientLayer?.startPoint = newValue }
+    }
+
+    @objc var gradientEndPoint: CGPoint {
+        get { optionalLayer?._gradientLayer?.endPoint ?? .zero }
+        set { optionalLayer?._gradientLayer?.endPoint = newValue }
+    }
+
+    @objc var gradientColors: [CGColor] {
+        get { optionalLayer?._gradientLayer?.colors as? [CGColor] ?? [] }
+        set { optionalLayer?._gradientLayer?.colors = newValue.adjusted(toMatch: (optionalLayer?._gradientLayer?.colors ?? []).count, withTransform: { $0.copy(alpha: 0.0) ?? $0 }, orFillWith: .clear) }
+    }
+
+    #elseif canImport(UIKit)
+    /**
+     The background gradient of the view.
+
+     Applying a gradient sets the view's `backgroundColor` to `nil`.
+     */
+    public var gradient: Gradient? {
+        get { optionalLayer?.gradient }
+        set { optionalLayer?.gradient = newValue }
+    }
+    #endif
+
+    /// Sets the background gradient of the view.
+    public func gradient( _ gradient: Gradient?) -> Self {
+        self.gradient = gradient
+        return self
+    }
+
+    /// Sets the Boolean value indicating whether the view is hidden.
+    @discardableResult
+    @objc open func isHidden(_ isHidden: Bool) -> Self {
+        self.isHidden = isHidden
+        return self
+    }
+
+    /// Sets the corner radius of the view.
+    @discardableResult
+    @objc open func cornerRadius(_ radius: CGFloat) -> Self {
+        cornerRadius = radius
+        return self
+    }
+
+    /// Sets the rounded corners of the view.
+    @discardableResult
+    @objc open func roundedCorners(_ corners: CACornerMask) -> Self {
+        roundedCorners = corners
+        return self
+    }
+
+    /// Sets the border of the view.
+    @discardableResult
+    @objc open func border(_ border: BorderConfiguration) -> Self {
+        self.border = border
+        return self
+    }
+
+    #if os(macOS)
+    /// Sets the outer shadow of the view.
+    @discardableResult
+    @objc open func outerShadow(_ shadow: ShadowConfiguration) -> Self {
+        #if os(macOS)
+        self.outerShadow = shadow
+        #else
+        self.shadow = shadow
+        #endif
+        return self
+    }
+    #else
+    /// Sets the outer shadow of the view.
+    @discardableResult
+    @objc open func shadow(_ shadow: ShadowConfiguration) -> Self {
+        #if os(macOS)
+        self.outerShadow = shadow
+        #else
+        self.shadow = shadow
+        #endif
+        return self
+    }
+    #endif
+
+    /// Sets the inner shadow of the view.
+    @discardableResult
+    @objc open func innerShadow(_ shadow: ShadowConfiguration) -> Self {
+        self.innerShadow = shadow
+        return self
+    }
+
+    #if os(macOS)
+    /// Sets the anchor point of the view’s bounds rectangle.
+    @discardableResult
+    @objc open func anchorPoint(_ anchorPoint: FractionalPoint) -> Self {
+        self.anchorPoint = anchorPoint
+        return self
+    }
+    #elseif os(iOS) || os(tvOS)
+
+    /// Sets the anchor point of the view’s bounds rectangle.
+    @discardableResult
+    @available(iOS 16.0, tvOS 16.0, *)
+    @objc open func anchorPoint(_ anchorPoint: CGPoint) -> Self {
+        self.anchorPoint = anchorPoint
+        return self
+    }
+    #endif
+
+    /// Sets the scale transform of the view.
+    @discardableResult
+    @objc open func scale(_ scale: Scale) -> Self {
+        self.scale = scale
+        return self
+    }
+
+    /// Sets the rotation of the view as euler angles in degrees.
+    @discardableResult
+    @objc open func rotation(_ rotation: Rotation) -> Self {
+        self.rotation = rotation
+        return self
+    }
+
+    /// Sets the rotation of the view as euler angles in radians.
+    @discardableResult
+    @objc open func rotationInRadians(_ rotation: Rotation) -> Self {
+        self.rotationInRadians = rotation
+        return self
+    }
+
+    /// Sets the Boolean value that indicates whether the view, and its subviews, confine their drawing areas to the bounds of the view.
+    @discardableResult
+    @objc open func clipsToBounds(_ clipsToBounds: Bool) -> Self {
+        self.clipsToBounds = clipsToBounds
+        return self
+    }
+
+    /// Sets the view whose alpha channel is used to mask a view’s content.
+    @discardableResult
+    @objc open func mask(_ mask: NSUIView?) -> Self {
+        self.mask = mask
+        return self
+    }
+
+    /// Sets the view’s bounds rectangle, which expresses its location and size in its own coordinate system.
+    @discardableResult
+    @objc open func bounds(_ bounds: CGRect) -> Self {
+        self.bounds = bounds
+        return self
+    }
+
+    /// Sets the view’s frame rectangle, which defines its position and size in its superview’s coordinate system.
+    @discardableResult
+    @objc open func frame(_ frame: CGRect) -> Self {
+        self.frame = frame
+        return self
+    }
+
+    /// Sets the view’s frame size.
+    @discardableResult
+    @objc open func size(_ size: CGSize) -> Self {
+        self.frame.size = size
+        return self
+    }
+
+    /// Sets the view’s frame origin, which defines its position in its superview’s coordinate system.
+    @discardableResult
+    @objc open func origin(_ origin: CGPoint) -> Self {
+        self.frame.origin = origin
+        return self
+    }
+
+    /// Sets the center point of the view’s frame rectangle.
+    @discardableResult
+    @objc open func center(_ center: CGPoint) -> Self {
+        self.center = center
+        return self
+    }
+
+    /// Sets the view’s position on the z axis.
+    @discardableResult
+    @objc open func zPosition(_ zPosition: CGFloat) -> Self {
+        self.zPosition = zPosition
+        return self
+    }
+
+    /// Sets the options that determine how the view is resized relative to its superview.
+    @discardableResult
+    @objc open func autoresizingMask(_ mask: AutoresizingMask) -> Self {
+        autoresizingMask = mask
+        return self
+    }
+
+    #if os(macOS)
+    /// Sets the opacity of the view.
+    @discardableResult
+    @objc open func alphaValue(_ alphaValue: CGFloat) -> Self {
+        self.alphaValue = alphaValue
+        return self
+    }
+    #else
+    /// Sets the opacity of the view.
+    @discardableResult
+    @objc open func alpha(_ alpha: CGFloat) -> Self {
+        self.alpha = alpha
+        return self
+    }
+
+    /// Sets the first nondefault tint color value in the view’s hierarchy, ascending from and starting with the view itself.
+    @discardableResult
+    @objc open func tintColor(_ color: UIColor!) -> Self {
+        tintColor = color
+        return self
+    }
+
+    /// Sets the flag used to determine how a view lays out its content when its bounds change.x
+    @discardableResult
+    @objc open func contentMode(_ mode: UIView.ContentMode) -> Self {
+        contentMode = mode
+        return self
+    }
+    #endif
+
+    /**
+     Prints the hierarchy of the view and its subviews to the console.
+
+     - Parameters:
+       - depth: The maximum depth of the view hierarchy to print. A value of `.max` prints the entire hierarchy. Defaults to `.max`.
+       - includeDetails: If `true` prints the full description of each view; otherwise prints only the type.
+     */
+    public func printHierarchy(depth: Int = .max, includeDetails: Bool = false) {
+        guard depth >= 0 else { return }
+        printHierarchy(level: 0, depth: depth, includeDetails: false)
+    }
+
+    private func printHierarchy(level: Int, depth: Int, includeDetails: Bool) {
+        let string = includeDetails ? "\(self)" : "\(type(of: self))"
+        Swift.print("\(Array(repeating: " ", count: level).joined(separator: ""))\(string)")
+        guard level+1 <= depth else { return }
+        for subview in subviews {
+            subview.printHierarchy(level: level+1, depth: depth, includeDetails: includeDetails)
+        }
+    }
+
+    /**
+     Prints the hierarchy of views of a specific type starting from this view.
+
+     - Parameters:
+        - type: The view type to match (e.g., `NSTextField.self`). Only subtrees containing at least one view of this type will be printed.
+        - depth: The maximum depth of the view hierarchy to print. A value of `.max` prints the entire hierarchy. Defaults to `.max`.
+        - includeDetails: If `true` prints the full description of each view; otherwise prints only the type.
+     */
+    public func printHierarchy<V: NSUIView>(type _: V.Type, depth: Int = .max, includeDetails: Bool = false) {
+        printHierarchy(predicate: {$0 is V}, depth: depth, includeDetails: includeDetails)
+    }
+
+    /**
+     Prints the hierarchy of views that match a given predicate starting from this view.
+
+     - Parameters:
+        - predicate: A closure that determines whether a view should be included in the printed hierarchy. Entire subtrees are printed only if at least one view in the subtree matches the predicate.
+        - depth: The maximum depth of the view hierarchy to print. A value of `.max` prints the entire hierarchy. Defaults to `.max`.
+        - includeDetails: If `true` prints the full description of each view; otherwise prints only the type.
+     */
+    public func printHierarchy(predicate: (NSUIView) -> Bool, depth: Int = .max, includeDetails: Bool = false) {
+        guard depth >= 0 else { return }
+        printHierarchy(level: 0, depth: depth, predicate: predicate, includeDetails: includeDetails)
+    }
+
+    private func printHierarchy(level: Int, depth: Int, predicate: (NSUIView) -> Bool, includeDetails: Bool) {
+        let string = includeDetails ? "\(self)" : "\(type(of: self))"
+        Swift.print("\(Array(repeating: " ", count: level).joined(separator: ""))\(string)")
+        guard level+1 <= depth else { return }
+        for subview in subviews {
+            guard subview.matchesPredicateRecursively(predicate, level: level+1, depth: depth) else { continue }
+            subview.printHierarchy(level: level+1, depth: depth, predicate: predicate, includeDetails: includeDetails)
+        }
+    }
+
+    private func matchesPredicateRecursively(_ predicate: (NSUIView) -> Bool, level: Int, depth: Int) -> Bool {
+        if predicate(self) {
+            return true
+        }
+        guard level+1 <= depth else { return false }
+        return subviews.contains { $0.matchesPredicateRecursively(predicate, level: level+1, depth: depth) }
+    }
+}
 
 extension NSUIView {
     static var debugAutoLayoutProblems: Bool {
@@ -748,8 +713,8 @@ extension NSUIView {
                         AnyObject, Selector, NSObject, NSLayoutConstraint, [NSLayoutConstraint]) -> Void)
                     #else
                     try hook(NSSelectorFromString("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:"),
-                    methodSignature: (@convention(c)  (AnyObject, Selector, NSObject, NSLayoutConstraint, [NSLayoutConstraint]) -> ()).self,
-                    hookSignature: (@convention(block)  (AnyObject, NSObject, NSLayoutConstraint, [NSLayoutConstraint]) -> ()).self) { store in {
+                             methodSignature: (@convention(c)  (AnyObject, Selector, NSObject, NSLayoutConstraint, [NSLayoutConstraint]) -> ()).self,
+                             hookSignature: (@convention(block)  (AnyObject, NSObject, NSLayoutConstraint, [NSLayoutConstraint]) -> ()).self) { store in {
                         object, engine, constraint, constraints in
                         Swift.print()
                         Swift.print("Autolayout Error:")
@@ -758,7 +723,7 @@ extension NSUIView {
                         Swift.print(engine)
                         Swift.print()
                         store.original(object, store.selector, engine, constraint, constraints)
-                        }
+                    }
                     }
                     #endif
                 } catch {
@@ -771,22 +736,35 @@ extension NSUIView {
     }
 }
 
-extension Gradient.ColorStop {
-    static func padded(from: [Self], to: [Self]) -> (from: [Self], to: [Self]) {
-        var paddedFrom = from
-        var paddedTo = to
-        if from.count < to.count {
-            for i in from.count..<to.count {
-                paddedFrom +=  to[i].transparent
-            }
-        } else if from.count > to.count {
-            for i in to.count..<from.count {
-                paddedTo += from[i].transparent
-            }
+extension [Gradient.ColorStop] {
+    func animatable(to stops: Self) -> (start: Self, end: Self) {
+        var from = self
+        var to = stops
+        if count < stops.count {
+            from += stops[safe: count...].map({$0.transparent})
+        } else if count > stops.count {
+            to += self[safe: stops.count...].map({ $0.transparent })
         }
-
-        return (paddedFrom, paddedTo)
+        return (from, to)
     }
 }
 
+fileprivate extension Array {
+    func adjusted(toMatch count: Int, withTransform transform: (Element) -> Element, orFillWith fillValue: Element) -> Self {
+        var newValue = self
+        let diff = newValue.count - count
+        if diff < 0 {
+            for i in (newValue.count + diff)..<newValue.count {
+                newValue[i] = transform(newValue[i])
+            }
+        } else if diff > 0 {
+            newValue.append(contentsOf: Array(repeating: fillValue, count: diff))
+        }
+        return newValue
+    }
+
+    func adjusted(toMatch reference: Self, withTransform transform: (Element) -> Element, orFillWith fillValue: Element) -> Self {
+        adjusted(toMatch: reference.count, withTransform: transform, orFillWith: fillValue)
+    }
+}
 #endif

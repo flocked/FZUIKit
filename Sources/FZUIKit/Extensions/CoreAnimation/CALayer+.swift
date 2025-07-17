@@ -5,901 +5,893 @@
 //  Created by Florian Zand on 07.06.22.
 //
 
-// import QuartzCore
-
+#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 import FZSwiftUtils
 
-#if os(macOS) || os(iOS) || os(tvOS)
-    extension CALayer {
-        /**
-         A Boolean value indicating whether the layer is a sublayer of the specified layer.
-         
-         The method returns `true` if the layer is either an immediate or distant sublayer of `layer`.
-         
-         - Parameter layer: The layer to test for sublayer relationship within the layer hierarchy.
-         - Returns: `true` if the layer is a sublayer, or distant sublayer, of the specified layer.
-         */
-        func isDescendant(of layer: CALayer) -> Bool {
-            var current: CALayer? = self
-            while let currentLayer = current {
-                if currentLayer === layer {
-                    return true
-                }
-                current = currentLayer.superlayer
+extension CALayer {
+    /// The translation of the layer's transform on the x- and y-coordinate.
+    var translation: CGPoint {
+        get { transform.translation.asPoint }
+        set { CATransaction.disabledActions { transform.translation = Translation(newValue.x, newValue.y, transform.translation.z) } }
+    }
+    
+    /// The translation of the layer's transform.
+    var translationXYZ: Translation {
+        get { transform.translation }
+        set { CATransaction.disabledActions { transform.translation = newValue } }
+    }
+    
+    /// The scale of the layer's transform.
+    var scale: Scale {
+        get { transform.scale.scale }
+        set { CATransaction.disabledActions { transform.scale = newValue.vector } }
+    }
+    
+    /// The rotation of the layer's transform, in degrees.
+    var rotation: Rotation {
+        get { transform.eulerAnglesDegrees.rotation }
+        set { CATransaction.disabledActions { transform.eulerAnglesDegrees = newValue.vector } }
+    }
+    
+    /// The rotation of the layer's transform, in radians.
+    var rotationInRadians: Rotation {
+        get { transform.eulerAngles.rotation }
+        set { CATransaction.disabledActions { transform.eulerAngles = newValue.vector } }
+    }
+    
+    /// The shearing of the layer's transform.
+    var skew: Skew {
+        get { transform.skew }
+        set { CATransaction.disabledActions { transform.skew = newValue } }
+    }
+    
+    /// The perspective of the layer's transform (e.g. .m34).
+    var perspective: Perspective {
+        get { transform.perspective }
+        set { CATransaction.disabledActions { transform.perspective = newValue } }
+    }
+    
+    /**
+     A Boolean value indicating whether the layer is a sublayer of the specified layer.
+     
+     The method returns `true` if the layer is either an immediate or distant sublayer of `layer`.
+     
+     - Parameter layer: The layer to test for sublayer relationship within the layer hierarchy.
+     - Returns: `true` if the layer is a sublayer, or distant sublayer, of the specified layer.
+     */
+    func isDescendant(of layer: CALayer) -> Bool {
+        var current: CALayer? = self
+        while let currentLayer = current {
+            if currentLayer === layer {
+                return true
             }
-            return false
+            current = currentLayer.superlayer
         }
-        
-        /**
-         The center point of the layer's frame rectangle.
-
-         Setting this property updates the origin of the rectangle in the frame property appropriately.
-
-         Use this property, instead of the frame property, when you want to change the position of a layer. The center point is always valid, even when scaling or rotation factors are applied to the layer's transform.
-         */
-        @objc open var center: CGPoint {
-            get { frame.center }
-            set { frame.center = newValue }
-        }
-        
-        /// The shadow of the layer.
-        @objc open var shadow: ShadowConfiguration {
+        return false
+    }
+    
+    /**
+     The center point of the layer's frame rectangle.
+     
+     Setting this property updates the origin of the rectangle in the frame property appropriately.
+     
+     Use this property, instead of the frame property, when you want to change the position of a layer. The center point is always valid, even when scaling or rotation factors are applied to the layer's transform.
+     */
+    @objc open var center: CGPoint {
+        get { frame.center }
+        set { frame.center = newValue }
+    }
+    
+    /// The shadow of the layer.
+    @objc open var shadow: ShadowConfiguration {
+        get { configurations.shadow }
+        set { configurations.shadow = newValue }
+    }
+    
+    class Configurations {
+        var border: BorderConfiguration {
             get {
-                updatedShadowConfiguration()
-            }
-            set {
-                // parentView?.dynamicLayerColors[\.shadowColor] = newValue.resolvedColor()
-                shadowConfiguration = shadowConfiguration
-                #if os(macOS)
-                shadowColor = resolvedColor(for: newValue.resolvedColor(), \.shadowColor)
-                #else
-                shadowColor = resolvedColor(for: newValue.resolvedColor())
-                #endif
-                shadowOpacity = Float(newValue.opacity)
-                shadowRadius = newValue.radius
-                shadowOffset = newValue.offset.size
-            }
-        }
-        
-        var shadowConfiguration: ShadowConfiguration {
-            get { getAssociatedValue("shadow", initialValue: ShadowConfiguration(color: shadowColor?.nsUIColor, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point)) }
-            set { setAssociatedValue(newValue, key: "shadow") }
-        }
-
-        func updatedShadowConfiguration() -> ShadowConfiguration {
-            if parentView?.dynamicColors[\.shadowColor] == nil {
-                shadowConfiguration.color = shadowColor?.nsUIColor
-            }
-            shadowConfiguration.radius = shadowRadius
-            shadowConfiguration.offset = shadowOffset.point
-            shadowConfiguration.opacity = CGFloat(shadowOpacity)
-            return shadowConfiguration
-        }
-        
-        /// The inner shadow of the layer.
-        @objc open var innerShadow: ShadowConfiguration {
-            get { innerShadowLayer?.configuration ?? .none() }
-            set {
-                if newValue.isInvisible {
-                    innerShadowLayer?.removeFromSuperlayer()
+                guard let layer = layer else { return .none }
+                _border.color = layer.parentView?.dynamicColors[\._borderColor] ?? layer._borderColor?.nsUIColor
+                if let layer = layer.borderLayer {
+                    _border.width = layer.lineWidth
+                    _border.dash = .init(layer)
                 } else {
-                    if innerShadowLayer == nil {
-                        let innerShadowLayer = InnerShadowLayer()
-                        addSublayer(withConstraint: innerShadowLayer)
-                        innerShadowLayer.sendToBack()
-                        innerShadowLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
-                    }
-                    innerShadowLayer?.configuration = newValue
+                    _border.width = layer.borderWidth
                 }
-            }
-        }
-        
-        var innerShadowColor: CGColor? {
-            get { innerShadowLayer?.shadowColor }
-            set { innerShadowLayer?.shadowColor = newValue }
-        }
-        
-        var innerShadowConfiguration: ShadowConfiguration {
-            get { getAssociatedValue("innerShadow") ?? .none() }
-            set { setAssociatedValue(newValue, key: "innerShadow") }
-        }
-        
-        /// The shape of the shadow.
-        public var shadowShape: PathShape? {
-            get { getAssociatedValue("shadowShape") }
-            set {
-                setAssociatedValue(newValue, key: "shadowShape")
-                if let newValue = newValue {
-                    shadowShapeObservation = observeChanges(for: \.bounds) { [weak self] old, new in
-                        guard let self = self, old.size != new.size else { return }
-                        self.shadowPath = newValue.path(in: new)
-                    }
-                    shadowPath = newValue.path(in: bounds)
-                } else {
-                    shadowShapeObservation = nil
-                }
-            }
-        }
-        
-        var shadowShapeObservation: KeyValueObservation? {
-            get { getAssociatedValue("shadowShapeObservation") }
-            set { setAssociatedValue(newValue, key: "shadowShapeObservation") }
-        }
-        
-        /// The shape that is used for masking the layer.
-        public var maskShape: PathShape? {
-            get { (mask as? PathShapeMaskLayer)?.shape }
-            set {
-                if let newValue = newValue {
-                    (mask as? PathShapeMaskLayer ?? PathShapeMaskLayer(layer: self, shape: newValue)).shape = newValue
-                } else if mask is PathShapeMaskLayer {
-                    mask = nil
-                }
-                shadowShape = newValue
-                setupBoderLayer(for: border)
-            }
-        }
-        
-        var borderLayer: BorderLayer? {
-            get { getAssociatedValue("borderLayer") }
-            set { setAssociatedValue(newValue, key: "borderLayer") }
-        }
-        
-        class BorderLayer: CAShapeLayer {
-            var _shape: PathShape?
-            var observation: KeyValueObservation!
-            
-            var shape: PathShape? {
-                didSet { 
-                    _shape = shape?.inset(by: lineWidth*0.5)
-                    updateBorderShape()
-                }
-            }
-            
-            override var lineWidth: CGFloat {
-                didSet {
-                    guard oldValue != lineWidth else { return }
-                    _shape = shape?.inset(by: lineWidth*0.5)
-                    updateBorderShape()
-                }
-            }
-            
-            func updateBorderShape() {
-                path = _shape?.path(in: bounds)
-            }
-                        
-            init(for layer: CALayer) {
-                self.shape = layer.maskShape
-                super.init()
-                fillColor = nil
-                frame = layer.bounds
-                zPosition = .greatestFiniteMagnitude
-                layer.addSublayer(self)
-                observation = layer.observeChanges(for: \.bounds) { [weak self] old, new in
-                    guard let self = self, old.size != new.size else { return }
-                    self.frame = new
-                    self.updateBorderShape()
-                }
-            }
-            
-            required init?(coder: NSCoder) {
-                fatalError("init(coder:) has not been implemented")
-            }
-        }
-        
-        func setupBoderLayer(for border: BorderConfiguration) {
-            if (maskShape != nil && !border.isInvisible) || border.needsDashedBorder {
-                if borderLayer == nil {
-                    borderLayer = BorderLayer(for: self)
-                }
-                borderLayer?.shape = maskShape
-                borderLayer?.border = border
-                borderWidth = 0.0
-                borderColor = nil
-            } else {
-                borderLayer?.removeFromSuperlayer()
-                borderLayer = nil
-                borderColor = resolvedColor(for: border.resolvedColor())
-                borderWidth = border.width
-            }
-        }
-        
-        func resolvedColor(for color: NSUIColor?) -> CGColor? {
-            guard let view = parentView, let color = color else { return nil }
-            return color.resolvedColor(for: view).cgColor
-        }
-        
-        #if os(macOS)
-        func resolvedColor(for color: NSUIColor?, _ keyPath: WritableKeyPath<CALayer, CGColor?>) -> CGColor? {
-            guard let view = parentView else { return nil }
-            view.dynamicColors[keyPath] = color
-            return color?.resolvedColor(for: view).cgColor
-        }
-        #endif
-        
-        var nsuiBackgroundColor: NSUIColor? {
-            get {
-                if let color: NSUIColor = getAssociatedValue("nsuiBackgroundColor"), resolvedColor(for: color) != backgroundColor {
-                    nsuiBackgroundColor = backgroundColor?.nsUIColor
-                }
-                return getAssociatedValue("nsuiBackgroundColor")
+                return _border
             }
             set {
-                setAssociatedValue(newValue, key: "nsuiBackgroundColor")
-                backgroundColor = resolvedColor(for: newValue)
-            }
-        }
-        
-        func setupObser() {
-            if let parentView = parentView, shadowConfiguration.color?.isDynamic == true || innerShadowConfiguration.color?.isDynamic == true || borderConfiguration.color?.isDynamic == true || nsuiBackgroundColor?.isDynamic == true {
-                #if os(macOS)
-                parentView.effectiveAppearanceObservation = parentView.observeChanges(for: \.effectiveAppearance) { [weak self] old, new in
-                    guard let self = self else { return }
-                }
-                #endif
-            }
-        }
-        
-        class PathShapeMaskLayer: CAShapeLayer {
-            var shape: PathShape {
-                didSet { path = shape.path(in: bounds) }
-            }
-            var observation: KeyValueObservation!
-            init(layer: CALayer, shape: PathShape) {
-                self.shape = shape
-                super.init()
-                frame = layer.bounds
-                layer.mask = self
-                observation = layer.observeChanges(for: \.bounds) { [weak self] old, new in
-                    guard let self = self, old.size != new.size else { return }
-                    self.frame = new
-                    self.path = self.shape.path(in: new)
-                }
-            }
-            
-            required init?(coder: NSCoder) {
-                fatalError("init(coder:) has not been implemented")
-            }
-        }
-        
-        internal var innerShadowLayer: InnerShadowLayer? {
-            firstSublayer(type: InnerShadowLayer.self)
-        }
-        
-        /// The border of the layer.
-        @objc open var border: BorderConfiguration {
-            get { updatedBorderConfiguration() }
-            set {
-                guard newValue != border else { return }
-                borderConfiguration = newValue
-                if let layer = self as? CAShapeLayer {
-                    layer.strokeColor = resolvedColor(for: newValue.resolvedColor())
-                    layer.lineDashPattern = newValue.dash.pattern  as [NSNumber]
-                    layer.lineWidth = newValue.width
-                    layer.lineDashPhase = newValue.dash.phase
-                    layer.lineJoin = newValue.dash.lineJoin.shapeLayerLineJoin
-                    layer.lineCap = newValue.dash.lineCap.shapeLayerLineCap
-                } else {
-                    if (maskShape != nil && !newValue.isInvisible) || newValue.needsDashedBorder {
-                        if borderLayer == nil {
-                            borderLayer = BorderLayer(for: self)
+                guard let layer = layer else { return }
+                _border = newValue
+                var newValue = newValue
+                if !Self.hasActiveGrouping {
+                    if layer.resolvedColor(for: newValue.resolvedColor()) == nil, _border.color?.isVisible == true {
+                        newValue.color = .clear
+                    } else if _border.isInvisible, let color = newValue.resolvedColor() {
+                        if let parentView = layer.parentView {
+                            _border.color = color.resolvedColor(for: parentView).withAlpha(0.0)
+                        } else {
+                            _border.color = color.withAlpha(0.0)
                         }
-                        borderLayer?.shape = maskShape
-                        borderLayer?.border = newValue
-                        borderWidth = 0.0
-                        borderColor = nil
-                    } else {
-                        borderLayer?.removeFromSuperlayer()
-                        borderLayer = nil
-                        borderColor = resolvedColor(for: newValue.resolvedColor())
-                        borderWidth = newValue.width
+                        CATransaction.performNonAnimated {
+                            setupBorder()
+                        }
                     }
                 }
+                layer.parentView?.dynamicColors[\._borderColor] = newValue.resolvedColor()
+                setupBorder()
             }
         }
         
-        var _borderColor: CGColor? {
-            get { borderLayer?.strokeColor ?? (self as? CAShapeLayer)?.strokeColor ?? borderColor }
-            set {
-                if let borderLayer = borderLayer {
-                    borderLayer.strokeColor = newValue
-                    
-                } else if let self = self as? CAShapeLayer {
-                    self.strokeColor = newValue
-                } else {
-                    borderColor = newValue
+        func setupBorder() {
+            guard let layer = layer else { return }
+            if (layer.maskShape != nil && !_border.isInvisible) || _border.needsDashedBorder {
+                if layer.borderLayer == nil {
+                    layer.borderLayer = BorderLayer(for: layer)
                 }
-            }
-        }
-        
-        var _borderConfiguration: BorderConfiguration {
-            if let layer = self as? CAShapeLayer {
-                var configuration = BorderConfiguration(color:  layer.strokeColor?.nsUIColor, width: layer.lineWidth)
-                configuration.dash.lineCap = layer.lineCap.cgLineCap
-                configuration.dash.lineJoin = layer.lineJoin.cgLineJoin
-                configuration.dash.pattern = layer.lineDashPattern?.map({ CGFloat($0.doubleValue) }) ?? []
-                configuration.dash.phase = layer.lineDashPhase
-                return configuration
-            }
-            return borderLayer?.border ?? BorderConfiguration(color: borderColor?.nsUIColor, width: borderWidth)
-        }
-        
-        var _shadowConfiguration: ShadowConfiguration {
-            ShadowConfiguration(color: shadowColor?.nsUIColor, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point)
-        }
-        
-        struct Configurations {
-            let layer: CALayer
-            
-            var innerShadow: ShadowConfiguration {
-                layer.innerShadowLayer?.configuration ?? .none()
-            }
-            
-            var border: BorderConfiguration {
-                if let layer = layer as? CAShapeLayer {
-                    var configuration = BorderConfiguration(color:  layer.strokeColor?.nsUIColor, width: layer.lineWidth)
-                    configuration.dash.lineCap = layer.lineCap.cgLineCap
-                    configuration.dash.lineJoin = layer.lineJoin.cgLineJoin
-                    configuration.dash.pattern = layer.lineDashPattern?.map({ CGFloat($0.doubleValue) }) ?? []
-                    configuration.dash.phase = layer.lineDashPhase
-                    return configuration
-                }
-                return layer.borderLayer?.border ?? BorderConfiguration(color: layer.borderColor?.nsUIColor, width: layer.borderWidth)
-            }
-            
-            var shadow: ShadowConfiguration {
-                ShadowConfiguration(color: layer.shadowColor?.nsUIColor, opacity: CGFloat(layer.shadowOpacity), radius: layer.shadowRadius, offset: layer.shadowOffset.point)
-            }
-            
-            init(layer: CALayer) {
-                self.layer = layer
-            }
-        }
-        
-        var borderConfiguration: BorderConfiguration {
-            get { getAssociatedValue("border", initialValue: BorderConfiguration(color: borderColor?.nsUIColor, width: borderWidth)) }
-            set { setAssociatedValue(newValue, key: "border") }
-        }
-        
-        func updatedBorderConfiguration() -> BorderConfiguration {
-            let configurationColor = resolvedColor(for: borderConfiguration.resolvedColor())
-            if let layer = self as? CAShapeLayer {
-                borderConfiguration.color = configurationColor == layer.strokeColor ? configurationColor?.nsUIColor : layer.strokeColor?.nsUIColor
-                borderConfiguration.width = layer.lineWidth
-                borderConfiguration.dash.lineCap = layer.lineCap.cgLineCap
-                borderConfiguration.dash.lineJoin = layer.lineJoin.cgLineJoin
-                borderConfiguration.dash.phase = layer.lineDashPhase
-                borderConfiguration.dash.pattern = layer.lineDashPattern?.compactMap({ CGFloat($0.doubleValue) }) ?? []
+                layer.borderLayer?.shape = layer.maskShape
+                layer.borderLayer?.configuration = _border
+                layer.borderWidth = 0.0
+                layer.borderColor = nil
             } else {
-                borderConfiguration.color = configurationColor == borderColor ? configurationColor?.nsUIColor : borderColor?.nsUIColor
-                borderConfiguration.width = borderWidth
+                layer.borderColor = layer.borderLayer?.borderColor ?? layer.borderColor
+                layer.borderLayer?.removeFromSuperlayer()
+                layer.borderLayer = nil
+                layer.borderColor = layer.resolvedColor(for: _border.resolvedColor())
+                layer.borderWidth = _border.width
             }
-            return borderConfiguration
         }
         
-        /// The gradient of the layer.
-        public var gradient: Gradient? {
+        var shadow: ShadowConfiguration {
             get {
-                if let gradient: Gradient = getAssociatedValue("gradient") {
-                    return gradient
-                } else if let layer = self as? CAGradientLayer {
-                    let colors = (layer.colors as? [CGColor])?.compactMap(\.nsUIColor) ?? []
-                    let locations = layer.locations?.compactMap { CGFloat($0.floatValue) } ?? []
-                    let stops = zip(colors, locations).map({ Gradient.ColorStop(color: $0.0, location: $0.1) })
-                    let gradient = Gradient(stops: stops, startPoint: .init(layer.startPoint), endPoint: .init(layer.endPoint), type: .init(layer.type))
-                    setAssociatedValue(gradient, key: "gradient")
-                    return gradient
-                }
-                return nil
+                guard let layer = layer else { return .none }
+                _shadow.color = layer.parentView?.dynamicColors[\.shadowColor] ?? layer.shadowColor?.nsUIColor
+                _shadow.radius = layer.shadowRadius
+                _shadow.offset = layer.shadowOffset.point
+                _shadow.opacity = CGFloat(layer.shadowOpacity)
+                return _shadow
             }
             set {
-                setAssociatedValue(newValue, key: "gradient")
+                guard let layer = layer else { return }
+                _shadow = newValue
+                var newValue = newValue
+                if !Self.hasActiveGrouping {
+                    if layer.resolvedColor(for: newValue.resolvedColor()) == nil, _shadow.color?.isVisible == true {
+                        newValue.color = .clear
+                    } else if _shadow.isInvisible, let color = newValue.resolvedColor() {
+                        CATransaction.performNonAnimated {
+                            if let parentView = layer.parentView {
+                                layer.shadowColor = color.resolvedColor(for: parentView).withAlpha(0.0).cgColor
+                            } else {
+                                layer.shadowColor = color.withAlpha(0.0).cgColor
+                            }
+                        }
+                    }
+                }
+                layer.parentView?.dynamicColors[\.shadowColor] = newValue.resolvedColor()
+                layer.shadowColor = layer.resolvedColor(for: newValue.resolvedColor())
+                layer.shadowRadius = newValue.radius
+                layer.shadowOffset = newValue.offset.size
+                layer.opacity = Float(newValue.opacity)
+            }
+        }
+        
+        var innerShadow: ShadowConfiguration {
+            get { _innerShadow }
+            set {
+                guard let layer = layer else { return }
+                _innerShadow = newValue
+                if newValue.isInvisible {
+                    layer.innerShadowLayer?.removeFromSuperlayer()
+                    layer.innerShadowLayer = nil
+                } else if layer.innerShadowLayer == nil {
+                    layer.innerShadowLayer = _InnerShadowLayer(for: layer)
+                }
+                var newValue = newValue
+                if !Self.hasActiveGrouping {
+                    if layer.resolvedColor(for: newValue.resolvedColor()) == nil, _innerShadow.color?.isVisible == true {
+                        newValue.color = .clear
+                    } else if _innerShadow.isInvisible, let color = newValue.resolvedColor() {
+                        CATransaction.performNonAnimated {
+                            if let parentView = layer.parentView {
+                                layer.innerShadowLayer?.shadowColor  = color.resolvedColor(for: parentView).withAlpha(0.0).cgColor
+                            } else {
+                                layer.innerShadowLayer?.shadowColor = color.withAlpha(0.0).cgColor
+                            }
+                        }
+                    }
+                }
+                layer.parentView?.dynamicColors[\.innerShadowColor] = newValue.color
+                layer.innerShadowLayer?.configuration = newValue
+            }
+        }
+        
+        var backgroundColor: NSUIColor? {
+            get { layer?.parentView?.dynamicColors[\.backgroundColor] ?? layer?.backgroundColor?.nsUIColor }
+            set {
+                guard let layer = layer else { return }
+                var newValue = newValue
+                if !Self.hasActiveGrouping {
+                    if layer.resolvedColor(for: newValue) == nil, layer.backgroundColor?.alpha ?? 0.0 > 0.0 {
+                        newValue = .clear
+                    } else if layer.backgroundColor?.alpha ?? 1.0 <= 0.0, let color = newValue {
+                        CATransaction.performNonAnimated {
+                            layer.backgroundColor = color.withAlpha(0.0).cgColor
+                        }
+                    }
+                }
+                layer.parentView?.dynamicColors[\.backgroundColor] = newValue
+                layer.backgroundColor = layer.resolvedColor(for: newValue)
+            }
+        }
+        
+        var gradient: Gradient? {
+            get {
+                guard let layer = layer else { return nil }
+                if let layer = layer as? CAGradientLayer {
+                    let colors = layer.parentView?.dynamicColors.gradientColors ?? (layer.colors as? [CGColor])?.compactMap(\.nsUIColor) ?? []
+                    let locations = layer.locations?.map { CGFloat($0.floatValue) } ?? []
+                    _gradient?.stops = zip(colors, locations).map({ .init(color: $0.0, location: $0.1) })
+                    _gradient?.startPoint = .init(layer.startPoint)
+                    _gradient?.endPoint = .init(layer.endPoint)
+                    _gradient?.type = .init(layer.type)
+                } else if let gradient = _gradient {
+                    _gradient?.colors = layer.parentView?.dynamicColors.gradientColors ?? gradient.colors
+                }
+                return _gradient
+            }
+            set {
+                guard let layer = layer else { return }
+                _gradient = newValue
+                layer.parentView?.dynamicColors.gradientColors = newValue?.colors ?? []
                 if let newValue = newValue, !newValue.stops.isEmpty {
-                    if let layer = self as? CAGradientLayer {
-                        layer.colors = newValue.stops.compactMap(\.color.cgColor)
-                        layer.locations = newValue.stops.compactMap { NSNumber($0.location) }
-                        layer.startPoint = newValue.startPoint.point
-                        layer.endPoint = newValue.endPoint.point
-                        layer.type = newValue.type.gradientLayerType
+                    if let layer = layer as? CAGradientLayer {
+                        layer._gradient = newValue
                     } else {
-                        if _gradientLayer == nil {
+                        if layer._gradientLayer == nil {
                             let gradientLayer = GradientLayer()
-                            addSublayer(withConstraint: gradientLayer)
+                            layer.addSublayer(withConstraint: gradientLayer)
                             gradientLayer.sendToBack()
                             gradientLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude)
                         }
-                        _gradientLayer?.gradient = newValue
+                        layer._gradientLayer?._gradient = newValue
                     }
                 } else {
-                    if let layer = self as? CAGradientLayer {
+                    if let layer = layer as? CAGradientLayer {
                         layer.colors = nil
                     } else {
-                        _gradientLayer?.removeFromSuperlayer()
+                        layer._gradientLayer?.removeFromSuperlayer()
                     }
                 }
             }
         }
         
-        var _gradientLayer: GradientLayer? {
-            firstSublayer(type: GradientLayer.self)
-        }
+        private weak var layer: CALayer?
+        private var _border: BorderConfiguration
+        private var _shadow: ShadowConfiguration
+        private var _innerShadow: ShadowConfiguration = .none
+        private var _gradient: Gradient?
         
-        /// Sends the layer to the front of it's superlayer.
-        @objc open func sendToFront() {
-            guard let superlayer = superlayer else { return }
-            superlayer.addSublayer(self)
-        }
-
-        /// Sends the layer to the back of it's superlayer.
-        @objc open func sendToBack() {
-            guard let superlayer = superlayer else { return }
-            superlayer.insertSublayer(self, at: 0)
-        }
-
-        /**
-         Adds the specified sublayer and constraints it to the layer.
-
-         The properties `bounds`, `cornerRadius`, `cornerCurve` and `maskedCorners` of the specified layer will be constraint. To remove the constraints use `removeConstraints()`.
-
-         - Parameters:
-            - layer: The layer to be added.
-            - insets: Insets from the new sublayer border to the layer border.
-         */
-        @objc open func addSublayer(withConstraint layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
-            addSublayer(layer)
-            layer.constraint(to: self, insets: insets)
-        }
-
-        /**
-         Inserts the specified layer at the specified index and constraints it to the layer.
-
-         The properties `bounds`, `cornerRadius`, `cornerCurve` and `maskedCorners` of the specified layer will be constraint. To remove the constraints use `removeConstraints()`.
-
-         - Parameters:
-            - layer: The layer to be added.
-            - index: The index at which to insert layer. This value must be a valid 0-based index into the `sublayers` array.
-            - insets: Insets from the new sublayer border to the layer border.
-         */
-        @objc open func insertSublayer(withConstraint layer: CALayer, at index: UInt32, insets: NSDirectionalEdgeInsets = .zero) {
-            guard index >= 0, index < sublayers?.count ?? Int.max else { return }
-            insertSublayer(layer, at: index)
-            layer.constraint(to: self, insets: insets)
-        }
-        
-        /**
-         Constraints the layer to the specified layer.
-
-         The properties `bounds`, `cornerRadius`, `cornerCurve` and `maskedCorners` will be constraint to the specified layer. To remove the constraints use `removeConstraints()`.
-
-         - Parameters:
-            - layer: The layer to constraint to.
-            - insets: The insets.
-         */
-        @objc open func constraint(to layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
-            let frameUpdate: (() -> Void) = { [weak self] in
-                guard let self = self else { return }
-                var frame = layer.bounds
-                frame.size.width -= insets.width
-                frame.size.height -= insets.height
-                frame.center = layer.bounds.center
-                self.frame = frame
-            }
-            cornerRadius = layer.cornerRadius
-            maskedCorners = layer.maskedCorners
-            cornerCurve = layer.cornerCurve
-            
-            if layerObserver?.observedObject != layer {
-                layerObserver = KeyValueObserver(layer)
-            }
-            layerObserver?.add(\.cornerRadius) { [weak self] old, new in
-                guard let self = self, old != new else { return }
-                self.cornerRadius = new
-            }
-            layerObserver?.add(\.cornerCurve) { [weak self] old, new in
-                guard let self = self, old != new else { return }
-                self.cornerCurve = new
-            }
-            layerObserver?.add(\.maskedCorners) { [weak self] old, new in
-                guard let self = self, old != new else { return }
-                self.maskedCorners = new
-            }
-            layerObserver?.add(\.bounds) { old, new in
-                guard old != new else { return }
-                frameUpdate()
-            }
-            frameUpdate()
-            if superlayer == layer {
-                superLayerObservation = observeChanges(for: \.superlayer) { [weak self] old, new in
-                    guard let self = self, new != layer else { return }
-                    self.removeConstraints()
-                }
-            } else {
-                superLayerObservation = nil
-            }
-        }
-
-        /// Removes the layer constraints.
-        @objc open func removeConstraints() {
-            layerObserver = nil
-            superLayerObservation = nil
-        }
-        
-        var superLayerObservation: KeyValueObservation? {
-            get { getAssociatedValue("superLayerObservation") }
-            set { setAssociatedValue(newValue, key: "superLayerObservation") }
-        }
-
-        var layerObserver: KeyValueObserver<CALayer>? {
-            get { getAssociatedValue("layerObserver") }
-            set { setAssociatedValue(newValue, key: "layerObserver") }
-        }
-
-        /// The associated view using the layer.
-        @objc open var parentView: NSUIView? {
-            if let view = delegate as? NSUIView {
-                return view
-            }
-            return superlayer?.parentView
-        }
-
-        /// A rendered image of the layer.
-        @objc open var renderedImage: NSUIImage {
+        private static var hasActiveGrouping: Bool {
             #if os(macOS)
-                let btmpImgRep =
-                    NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(frame.width), pixelsHigh: Int(frame.height), bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 32)
-                let ctx = NSGraphicsContext(bitmapImageRep: btmpImgRep!)
-                let cgContext = ctx!.cgContext
-                render(in: cgContext)
-                let cgImage = cgContext.makeImage()
-                let nsimage = NSImage(cgImage: cgImage!, size: CGSize(width: frame.width, height: frame.height))
-                return nsimage
+            NSAnimationContext.hasActiveGrouping
             #else
-                UIGraphicsBeginImageContextWithOptions(frame.size, isOpaque, 0)
-                render(in: UIGraphicsGetCurrentContext()!)
-                let outputImage = UIGraphicsGetImageFromCurrentImageContext()
-                UIGraphicsEndImageContext()
-                return outputImage!
+            false
             #endif
         }
-
-        /**
-         The first superlayer that matches the specificed layer type.
-
-         - Parameter layerType: The type of layer to match.
-         - Returns: The first parent layer that matches the layer type or `nil` if none match or there isn't a matching parent.
-         */
-        public func firstSuperlayer<V: CALayer>(for _: V.Type) -> V? {
-            firstSuperlayer(where: { $0 is V }) as? V
-        }
-
-        /**
-         The first superlayer that matches the specificed predicate.
-
-         - Parameter predicate: The closure to match.
-         - Returns: The first parent layer that is matching the predicate or `nil` if none match or there isn't a matching parent.
-         */
-        @objc open func firstSuperlayer(where predicate: (CALayer) -> (Bool)) -> CALayer? {
-            if let superlayer = superlayer {
-                if predicate(superlayer) == true {
-                    return superlayer
-                }
-                return superlayer.firstSuperlayer(where: predicate)
-            }
-            return nil
-        }
         
-        /// An array of all enclosing superlayers..
-        @objc open func supervlayerChain() -> [CALayer] {
-            if let superlayer = superlayer {
-                return [superlayer] + superlayer.supervlayerChain()
-            }
-            return []
-        }
-
-        /**
-         The first sublayer that matches the specificed layer type.
-
-         - Parameters:
-            - type: The type of layer to match.
-            - depth: The maximum depth. As example a value of `0` returns the first sublayer matching of the receiver's sublayers and a value of `1` returns the first sublayer matching of the receiver's sublayers or any of their sublayers. To return the first sublayer matching of all sublayers use `max`.
-         - Returns: The first sublayer that matches the layer type or `nil` if no sublayer matches.
-         */
-        public func firstSublayer<V: CALayer>(type _: V.Type, depth: Int = 0) -> V? {
-            firstSublayer(where: { $0 is V }, depth: depth) as? V
-        }
-        
-        /**
-         The first sublayer that matches the specificed layer type.
-
-         - Parameters:
-            - type: The type of layer to match.
-            - depth: The maximum depth. As example a value of `0` returns the first sublayer matching of the receiver's sublayers and a value of `1` returns the first sublayer matching of the receiver's sublayers or any of their sublayers. To return the first sublayer matching of all sublayers use `max`.
-         - Returns: The first sublayer that matches the layer type or `nil` if no sublayer matches.
-         */
-        public func firstSublayer(type: String, depth: Int = 0) -> CALayer? {
-            firstSublayer(where: { NSStringFromClass(Swift.type(of: $0)) == type }, depth: depth)
-        }
-        
-        /**
-         The first sublayer that matches the specificed predicate.
-         
-         - Parameters:
-            - predicate: TThe closure to match.
-            - depth: The maximum depth. As example a value of `0` returns the first sublayer matching of the receiver's sublayers and a value of `1` returns the first sublayer matching of the receiver's sublayers or any of their sublayers. To return the first sublayer matching of all sublayers use `max`.
-
-         - Returns: The first sublayer that is matching the predicate or `nil` if no sublayer is matching.
-         */
-        @objc open func firstSublayer(where predicate: (CALayer) -> (Bool), depth: Int = 0) -> CALayer? {
-            if let sublayer = (sublayers ?? []).first(where: predicate) {
-                return sublayer
-            }
-            if depth > 0 {
-                for sublayer in sublayers ?? [] {
-                    if let sublayer = sublayer.firstSublayer(where: predicate, depth: depth - 1) {
-                        return sublayer
-                    }
-                }
-            }
-            return nil
-        }
-
-        /**
-         An array of all sublayers upto the maximum depth.
-
-         - Parameter depth: The maximum depth. As example a value of `0` returns the sublayers of the current layer and a value of `1` returns the sublayers of the current layer and all of their sublayers. To return all sublayers use `max`.
-         */
-        public func sublayers(depth: Int) -> [CALayer] {
-            let sublayers = sublayers ?? []
-            if depth > 0 {
-                return sublayers + sublayers.flatMap { $0.sublayers(depth: depth - 1) }
+        init(for layer: CALayer) {
+            self.layer = layer
+            _shadow = .init(color: layer.parentView?.dynamicColors[\.shadowColor] ?? layer.shadowColor?.nsUIColor, opacity: CGFloat(layer.shadowOpacity), radius: layer.shadowRadius, offset: layer.shadowOffset.point)
+            if let layer = layer as? CAShapeLayer {
+                _border = .init(color: layer.parentView?.dynamicColors[\._borderColor] ?? layer.strokeColor?.nsUIColor, width: layer.lineWidth, dash: .init(layer))
             } else {
-                return sublayers
+                _border = .init(color: layer.parentView?.dynamicColors[\._borderColor] ?? layer.borderColor?.nsUIColor, width: layer.borderWidth)
             }
-        }
-
-        /**
-         An array of all sublayers matching the specified layer type.
-
-          - Parameters:
-             - type: The type of sublayers.
-             - depth: The maximum depth. As example a value of `0` returns the sublayers of the current layer and a value of `1` returns the sublayers of the current layer and all of their sublayers. To return all sublayers use `max`.
-          */
-        public func sublayers<V: CALayer>(type _: V.Type, depth: Int = 0) -> [V] {
-            sublayers(depth: depth).compactMap { $0 as? V }
-        }
-        
-        /**
-         An array of all sublayers matching the specified layer type.
-
-          - Parameters:
-             - type: The type of sublayers.
-             - depth: The maximum depth. As example a value of `0` returns the sublayers of the current layer and a value of `1` returns the sublayers of the current layer and all of their sublayers. To return all sublayers use `max`.
-          */
-        public func sublayers(type: String, depth: Int = 0) -> [CALayer] {
-            sublayers(where: { NSStringFromClass(Swift.type(of: $0)) == type }, depth: depth)
-        }
-
-        /**
-         An array of all sublayers matching the specified predicte.
-
-          - Parameters:
-             - predicate: The predicate to match.
-             - depth: The maximum depth. As example a value of `0` returns the sublayers of the current layer and a value of `1` returns the sublayers of the current layer and all of their sublayers. To return all sublayers use `max`.
-          */
-        public func sublayers(where predicate: (CALayer) -> (Bool), depth: Int = 0) -> [CALayer] {
-            sublayers(depth: depth).filter { predicate($0) == true }
-        }
-
-        /**
-         An optional layer whose inverse alpha channel is used to mask the layer’s content.
-
-         In contrast to `mask` transparent pixels allow the underlying content to show, while opaque pixels block the content.
-         */
-        @objc var inverseMask: CALayer? {
-            get { (mask as? InverseMaskLayer)?.maskLayer }
-            set {
-                if let newValue = newValue {
-                    mask = InverseMaskLayer(maskLayer: newValue)
-                } else {
-                    mask = nil
-                }
-            }
-        }
-        
-        /**
-         Prints the hierarchy of the layer and its sublayers to the console.
-
-         - Parameters:
-           - depth: The maximum depth of the layer hierarchy to print. A value of `.max` prints the entire hierarchy. Defaults to `.max`.
-           - includeDetails: If `true` prints the full description of each layer; otherwise prints only the type.
-         */
-        public func printHierarchy(depth: Int = .max, includeDetails: Bool = false) {
-            guard depth >= 0 else { return }
-            printHierarchy(level: 0, depth: depth, includeDetails: false)
-        }
-        
-        private func printHierarchy(level: Int, depth: Int, includeDetails: Bool) {
-            let string = includeDetails ? "\(self)" : "\(type(of: self))"
-            Swift.print("\(Array(repeating: " ", count: level).joined(separator: ""))\(string)")
-            guard level+1 <= depth else { return }
-            for sublayer in _sublayers {
-                sublayer.printHierarchy(level: level+1, depth: depth, includeDetails: includeDetails)
-            }
-        }
-        
-        /**
-         Prints the hierarchy of layers of a specific type starting from this layer.
-
-         - Parameters:
-            - type: The layer type to match (e.g., `CAShapeLayer.self`). Only subtrees containing at least one layer of this type will be printed.
-            - depth: The maximum depth of the layer hierarchy to print. A value of `.max` prints the entire hierarchy. Defaults to `.max`.
-            - includeDetails: If `true` prints the full description of each layer; otherwise prints only the type.
-         */
-        public func printHierarchy<V: CALayer>(type _: V.Type, depth: Int = .max, includeDetails: Bool = false) {
-            printHierarchy(predicate: {$0 is V}, depth: depth, includeDetails: includeDetails)
-        }
-        
-        /**
-         Prints the hierarchy of layers that match a given predicate starting from this layer.
-
-         - Parameters:
-            - predicate: A closure that determines whether a layer should be included in the printed hierarchy. Entire subtrees are printed only if at least one layer in the subtree matches the predicate.
-            - depth: The maximum depth of the layer hierarchy to print. A value of `.max` prints the entire hierarchy. Defaults to `.max`.
-            - includeDetails: If `true` prints the full description of each layer; otherwise prints only the type.
-         */
-        public func printHierarchy(predicate: (CALayer) -> Bool, depth: Int = .max, includeDetails: Bool = false) {
-            guard depth >= 0 else { return }
-            printHierarchy(level: 0, depth: depth, predicate: predicate, includeDetails: includeDetails)
-        }
-
-        private func printHierarchy(level: Int, depth: Int, predicate: (CALayer) -> Bool, includeDetails: Bool) {
-            let string = includeDetails ? "\(self)" : "\(type(of: self))"
-            Swift.print("\(Array(repeating: " ", count: level).joined(separator: ""))\(string)")
-            guard level+1 <= depth else { return }
-            for sublayer in _sublayers {
-                guard sublayer.matchesPredicateRecursively(predicate, level: level+1, depth: depth) else { continue }
-                sublayer.printHierarchy(level: level+1, depth: depth, predicate: predicate, includeDetails: includeDetails)
-            }
-        }
-
-        private func matchesPredicateRecursively(_ predicate: (CALayer) -> Bool, level: Int, depth: Int) -> Bool {
-            if predicate(self) {
-                return true
-            }
-            guard level+1 <= depth else { return false }
-            return _sublayers.contains { $0.matchesPredicateRecursively(predicate, level: level+1, depth: depth) }
-        }
-        
-        var _sublayers: [CALayer] {
-            sublayers ?? []
+            _gradient = (layer as? CAGradientLayer)?._gradient
         }
     }
-
-/*
- public init(color: NSUIColor? = nil,
-             colorTransformer: ColorTransformer? = nil,
-             width: CGFloat = 0.0,
-             dash: Dash = Dash(),
-             insets: NSDirectionalEdgeInsets = .init(0)) {
- */
-#endif
-
-#if os(macOS)
-    public extension CAAutoresizingMask {
-        static let all: CAAutoresizingMask = [.layerHeightSizable, .layerWidthSizable, .layerMinXMargin, .layerMinYMargin, .layerMaxXMargin, .layerMaxYMargin]
-    }
-#endif
-
-/*
- extension CALayer {
-     class SavedColors {
-         enum Color: Int {
-             case background
-             case shadow
-             case border
-         }
-         var layer: CALayer
-         init(for layer: CALayer) {
-             self.layer = layer
-         }
-         var effectiveAppearanceObservation: KeyValueObservation?
-         var colors: [Color: (cgColor: CGColor?, nsColor: NSColor?)] = [:] {
-             didSet {
-                 guard let parentView = layer.parentView else { return }
-                 if !colors.contains(where: { $0.value.nsColor?.isDynamic == true }) {
-                     effectiveAppearanceObservation = nil
-                 } else if effectiveAppearanceObservation == nil {
-                     effectiveAppearanceObservation = parentView.observeChanges(for: \.appearance) { [weak self] old, new in
-                         guard let self = self else { return }
-                         self.updateColors()
-                     }
-                 }
-                 }
-         }
-         
-         func updateColors() {
-             if let color = colors[.background] {
-                 
-             }
-         }
-                 
-         func getColor(for type: Color, current: CGColor?) -> NSUIColor? {
-             let color = colors[type, default: (nil, nil)]
-             if color.cgColor != current {
-                 colors[type] = (current, nil)
-                 return current?.nsUIColor
-             }
-             return color.nsColor
-         }
-     }
- }
- */
-
-/*
-class CALayerConstraint {
-    public weak internal(set) var first: CALayer?
-    public weak internal(set) var second: CALayer?
     
-    public var isActive: Bool  {
-        get { observer.observedObject == second }
+    var configurations: Configurations {
+        getAssociatedValue("LayerConfigurations", initialValue: Configurations(for: self))
+    }
+    
+    var innerShadowLayer: _InnerShadowLayer? {
+        get { getAssociatedValue("innerShadowLayer") }
+        set { setAssociatedValue(newValue, key: "innerShadowLayer") }
+    }
+    
+    /// The inner shadow of the layer.
+    @objc open var innerShadow: ShadowConfiguration {
+        get { configurations.innerShadow }
+        set { configurations.innerShadow = newValue }
+    }
+    
+    var innerShadowColor: CGColor? {
+        get { innerShadowLayer?.shadowColor }
+        set { innerShadowLayer?.shadowColor = newValue }
+    }
+    
+    /// The shape that is used for masking the layer.
+    public var maskShape: PathShape? {
+        get { (mask as? PathShapeMaskLayer)?.shape }
         set {
-            guard newValue != isActive else { return }
-            if newValue, let second = second {
-                observer.replaceObservedObject(with: second)
+            if let newValue = newValue {
+                (mask as? PathShapeMaskLayer ?? PathShapeMaskLayer(layer: self, shape: newValue)).shape = newValue
+            } else if mask is PathShapeMaskLayer {
+                mask = nil
+            }
+            shadowShape = newValue
+            innerShadowLayer?._maskShape = newValue
+            configurations.setupBorder()
+        }
+    }
+    
+    /// The shape of the shadow.
+    public var shadowShape: PathShape? {
+        get { getAssociatedValue("shadowShape") }
+        set {
+            setAssociatedValue(newValue, key: "shadowShape")
+            if let newValue = newValue {
+                shadowShapeObservation = observeChanges(for: \.bounds) { [weak self] old, new in
+                    guard let self = self, old.size != new.size else { return }
+                    self.shadowPath = newValue.path(in: new)
+                }
+                shadowPath = newValue.path(in: bounds)
             } else {
-                observer.removeObservedObject()
+                shadowShapeObservation = nil
             }
         }
     }
-    public var insets: NSDirectionalEdgeInsets
     
-    var observer: KeyValueObserver<CALayer>!
+    var shadowShapeObservation: KeyValueObservation? {
+        get { getAssociatedValue("shadowShapeObservation") }
+        set { setAssociatedValue(newValue, key: "shadowShapeObservation") }
+    }
     
-    init(_ first: CALayer, second: CALayer, insets: NSDirectionalEdgeInsets) {
-        self.first = first
-        self.second = second
-        self.insets = insets
+    var borderLayer: BorderLayer? {
+        get { getAssociatedValue("borderLayer") }
+        set { setAssociatedValue(newValue, key: "borderLayer") }
+    }
+    
+    class BorderLayer: CAShapeLayer {
+        var observation: KeyValueObservation!
         
+        var configuration: BorderConfiguration = .none {
+            didSet {
+                let color = configuration.resolvedColor()
+                strokeColor = superlayer?.resolvedColor(for: color) ?? color?.cgColor
+                lineDashPattern = configuration.dash.pattern  as [NSNumber]
+                lineWidth = configuration.width
+                lineDashPhase = configuration.dash.phase
+                lineJoin = configuration.dash.lineJoin.shapeLayerLineJoin
+                lineCap = configuration.dash.lineCap.shapeLayerLineCap
+                if oldValue.insets != configuration.insets {
+                    updateFrame(update: false)
+                }
+                guard oldValue.width != configuration.width || oldValue.insets != configuration.insets else { return }
+                updatePath()
+            }
+        }
+        
+        func updateFrame(update: Bool = true) {
+            guard let layer = superlayer else { return }
+            var frame = layer.bounds
+            frame.size.width -= configuration.insets.width
+            frame.size.height -= configuration.insets.height
+            frame.origin.x = configuration.insets.leading
+            frame.origin.y = configuration.insets.bottom
+            self.frame = frame
+            guard update else { return }
+            updatePath()
+        }
+        
+        var shape: PathShape? {
+            didSet { updatePath() }
+        }
+        
+        func updatePath() {
+            path = shape?.inset(by: lineWidth*0.5).path(in: bounds)
+        }
+        
+        init(for layer: CALayer) {
+            defer { self.shape = layer.maskShape }
+            super.init()
+            fillColor = nil
+            frame = layer.bounds
+            zPosition = .greatestFiniteMagnitude
+            layer.addSublayer(self)
+            strokeColor = layer.borderColor
+            lineWidth = layer.borderWidth
+            sendToBack()
+            observation = layer.observeChanges(for: \.bounds) { [weak self] old, new in
+                guard let self = self, old.size != new.size else { return }
+                self.updateFrame()
+            }
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+    }
+    
+    class PathShapeMaskLayer: CAShapeLayer {
+        var shape: PathShape {
+            didSet { path = shape.path(in: bounds) }
+        }
+        
+        var observation: KeyValueObservation?
+        
+        init(layer: CALayer, shape: PathShape) {
+            self.shape = shape
+            super.init()
+            
+            frame = layer.bounds
+            layer.mask = self
+            observation = layer.observeChanges(for: \.bounds) { [weak self] old, new in
+                guard let self = self, old.size != new.size else { return }
+                self.frame = new
+                self.path = self.shape.path(in: new)
+            }
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+    }
+    
+    func resolvedColor(for color: NSUIColor?) -> CGColor? {
+        guard let view = parentView, let color = color else { return nil }
+        return color.resolvedColor(for: view).cgColor
+    }
+    
+    /// The border of the layer.
+    @objc open var border: BorderConfiguration {
+        get { configurations.border }
+        set { configurations.border = newValue }
+    }
+    
+    var _borderColor: CGColor? {
+        get { borderLayer?.strokeColor ?? borderColor }
+        set {
+            if let borderLayer = borderLayer {
+                borderLayer.strokeColor = newValue
+            } else {
+                borderColor = newValue
+            }
+        }
+    }
+    
+    /// The gradient of the layer.
+    public var gradient: Gradient? {
+        get {
+            if let gradient: Gradient = getAssociatedValue("gradient") {
+                return gradient
+            } else if let layer = self as? CAGradientLayer {
+                let colors = (layer.colors as? [CGColor])?.compactMap(\.nsUIColor) ?? []
+                let locations = layer.locations?.compactMap { CGFloat($0.floatValue) } ?? []
+                let stops = zip(colors, locations).map({ Gradient.ColorStop(color: $0.0, location: $0.1) })
+                let gradient = Gradient(stops: stops, startPoint: .init(layer.startPoint), endPoint: .init(layer.endPoint), type: .init(layer.type))
+                setAssociatedValue(gradient, key: "gradient")
+                return gradient
+            }
+            return nil
+        }
+        set {
+            setAssociatedValue(newValue, key: "gradient")
+            if let newValue = newValue, !newValue.stops.isEmpty {
+                if let layer = self as? CAGradientLayer {
+                    layer.colors = newValue.stops.compactMap(\.color.cgColor)
+                    layer.locations = newValue.stops.compactMap { NSNumber($0.location) }
+                    layer.startPoint = newValue.startPoint.point
+                    layer.endPoint = newValue.endPoint.point
+                    layer.type = newValue.type.gradientLayerType
+                } else {
+                    if _gradientLayer == nil {
+                        let gradientLayer = GradientLayer()
+                        addSublayer(withConstraint: gradientLayer)
+                        gradientLayer.sendToBack()
+                        gradientLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude)
+                    }
+                    _gradientLayer?.gradient = newValue
+                }
+            } else {
+                if let layer = self as? CAGradientLayer {
+                    layer.colors = nil
+                } else {
+                    _gradientLayer?.removeFromSuperlayer()
+                }
+            }
+        }
+    }
+    
+    var gradientColors: [CGColor] {
+        get { (self as? CAGradientLayer ?? _gradientLayer)?.colors as? [CGColor] ?? [] }
+        set { (self as? CAGradientLayer ?? _gradientLayer)?.colors = newValue }
+    }
+    
+    var _gradientLayer: GradientLayer? {
+        firstSublayer(type: GradientLayer.self)
+    }
+    
+    /// Sends the layer to the front of it's superlayer.
+    @objc open func sendToFront() {
+        guard let superlayer = superlayer else { return }
+        superlayer.addSublayer(self)
+    }
+    
+    /// Sends the layer to the back of it's superlayer.
+    @objc open func sendToBack() {
+        guard let superlayer = superlayer else { return }
+        superlayer.insertSublayer(self, at: 0)
+    }
+    
+    /**
+     Adds the specified sublayer and constraints it to the layer.
+     
+     The properties `bounds`, `cornerRadius`, `cornerCurve` and `maskedCorners` of the specified layer will be constraint. To remove the constraints use `removeConstraints()`.
+     
+     - Parameters:
+        - layer: The layer to be added.
+        - insets: Insets from the new sublayer border to the layer border.
+     */
+    @objc open func addSublayer(withConstraint layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
+        addSublayer(layer)
+        layer.constraint(to: self, insets: insets)
+    }
+    
+    /**
+     Inserts the specified layer at the specified index and constraints it to the layer.
+     
+     The properties `bounds`, `cornerRadius`, `cornerCurve` and `maskedCorners` of the specified layer will be constraint. To remove the constraints use `removeConstraints()`.
+     
+     - Parameters:
+        - layer: The layer to be added.
+        - index: The index at which to insert layer. This value must be a valid 0-based index into the `sublayers` array.
+        - insets: Insets from the new sublayer border to the layer border.
+     */
+    @objc open func insertSublayer(withConstraint layer: CALayer, at index: UInt32, insets: NSDirectionalEdgeInsets = .zero) {
+        guard index >= 0, index < sublayers?.count ?? Int.max else { return }
+        insertSublayer(layer, at: index)
+        layer.constraint(to: self, insets: insets)
+    }
+    
+    /**
+     Constraints the layer to the specified layer.
+     
+     The properties `bounds`, `cornerRadius`, `cornerCurve` and `maskedCorners` will be constraint to the specified layer. To remove the constraints use `removeConstraints()`.
+     
+     - Parameters:
+        - layer: The layer to constraint to.
+        - insets: The insets.
+     */
+    @objc open func constraint(to layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
         let frameUpdate: (() -> Void) = { [weak self] in
-            guard let self = self, let first = self.first, let second = self.second else { return }
-            var frame = second.bounds
+            guard let self = self else { return }
+            var frame = layer.bounds
             frame.size.width -= insets.width
             frame.size.height -= insets.height
-            frame.center = second.bounds.center
-            first.frame = frame
+            frame.center = layer.bounds.center
+            self.frame = frame
         }
-        first.cornerRadius = second.cornerRadius
-        first.maskedCorners = second.maskedCorners
-        first.cornerCurve = second.cornerCurve
-                        
-        observer = KeyValueObserver(second)
-        observer.add(\.cornerRadius) { [weak self] old, new in
-            guard let self = self, let first = self.first else { return }
-            first.cornerRadius = new
+        cornerRadius = layer.cornerRadius
+        maskedCorners = layer.maskedCorners
+        cornerCurve = layer.cornerCurve
+        
+        if layerObserver?.observedObject != layer {
+            layerObserver = KeyValueObserver(layer)
         }
-        observer.add(\.cornerCurve) { [weak self] old, new in
-            guard let self = self, let first = self.first else { return }
-            first.cornerCurve = new
+        layerObserver?.add(\.cornerRadius) { [weak self] old, new in
+            guard let self = self, old != new else { return }
+            self.cornerRadius = new
         }
-        observer.add(\.maskedCorners) { [weak self] old, new in
-            guard let self = self, let first = self.first else { return }
-            first.maskedCorners = new
+        layerObserver?.add(\.cornerCurve) { [weak self] old, new in
+            guard let self = self, old != new else { return }
+            self.cornerCurve = new
         }
-        observer.add(\.bounds) { old, new in
+        layerObserver?.add(\.maskedCorners) { [weak self] old, new in
+            guard let self = self, old != new else { return }
+            self.maskedCorners = new
+        }
+        layerObserver?.add(\.bounds) { old, new in
             guard old != new else { return }
             frameUpdate()
         }
         frameUpdate()
+        if superlayer == layer {
+            superLayerObservation = observeChanges(for: \.superlayer) { [weak self] old, new in
+                guard let self = self, new != layer else { return }
+                self.removeConstraints()
+            }
+        } else {
+            superLayerObservation = nil
+        }
+    }
+    
+    /// Removes the layer constraints.
+    @objc open func removeConstraints() {
+        layerObserver = nil
+        superLayerObservation = nil
+    }
+    
+    var superLayerObservation: KeyValueObservation? {
+        get { getAssociatedValue("superLayerObservation") }
+        set { setAssociatedValue(newValue, key: "superLayerObservation") }
+    }
+    
+    var layerObserver: KeyValueObserver<CALayer>? {
+        get { getAssociatedValue("layerObserver") }
+        set { setAssociatedValue(newValue, key: "layerObserver") }
+    }
+    
+    /// The associated view using the layer.
+    @objc open var parentView: NSUIView? {
+        if let view = delegate as? NSUIView {
+            return view
+        }
+        return superlayer?.parentView
+    }
+    
+    /// A rendered image of the layer.
+    @objc open var renderedImage: NSUIImage {
+#if os(macOS)
+        let btmpImgRep =
+        NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(frame.width), pixelsHigh: Int(frame.height), bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 32)
+        let ctx = NSGraphicsContext(bitmapImageRep: btmpImgRep!)
+        let cgContext = ctx!.cgContext
+        render(in: cgContext)
+        let cgImage = cgContext.makeImage()
+        let nsimage = NSImage(cgImage: cgImage!, size: CGSize(width: frame.width, height: frame.height))
+        return nsimage
+#else
+        UIGraphicsBeginImageContextWithOptions(frame.size, isOpaque, 0)
+        render(in: UIGraphicsGetCurrentContext()!)
+        let outputImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return outputImage!
+#endif
+    }
+    
+    /**
+     The first superlayer that matches the specificed layer type.
+     
+     - Parameter layerType: The type of layer to match.
+     - Returns: The first parent layer that matches the layer type or `nil` if none match or there isn't a matching parent.
+     */
+    public func firstSuperlayer<V: CALayer>(for _: V.Type) -> V? {
+        firstSuperlayer(where: { $0 is V }) as? V
+    }
+    
+    /**
+     The first superlayer that matches the specificed predicate.
+     
+     - Parameter predicate: The closure to match.
+     - Returns: The first parent layer that is matching the predicate or `nil` if none match or there isn't a matching parent.
+     */
+    @objc open func firstSuperlayer(where predicate: (CALayer) -> (Bool)) -> CALayer? {
+        if let superlayer = superlayer {
+            if predicate(superlayer) == true {
+                return superlayer
+            }
+            return superlayer.firstSuperlayer(where: predicate)
+        }
+        return nil
+    }
+    
+    /// An array of all enclosing superlayers..
+    @objc open func supervlayerChain() -> [CALayer] {
+        if let superlayer = superlayer {
+            return [superlayer] + superlayer.supervlayerChain()
+        }
+        return []
+    }
+    
+    /**
+     The first sublayer that matches the specificed layer type.
+     
+     - Parameters:
+        - type: The type of layer to match.
+        - depth: The maximum depth. As example a value of `0` returns the first sublayer matching of the receiver's sublayers and a value of `1` returns the first sublayer matching of the receiver's sublayers or any of their sublayers. To return the first sublayer matching of all sublayers use `max`.
+     - Returns: The first sublayer that matches the layer type or `nil` if no sublayer matches.
+     */
+    public func firstSublayer<V: CALayer>(type _: V.Type, depth: Int = 0) -> V? {
+        firstSublayer(where: { $0 is V }, depth: depth) as? V
+    }
+    
+    /**
+     The first sublayer that matches the specificed layer type.
+     
+     - Parameters:
+        - type: The type of layer to match.
+        - depth: The maximum depth. As example a value of `0` returns the first sublayer matching of the receiver's sublayers and a value of `1` returns the first sublayer matching of the receiver's sublayers or any of their sublayers. To return the first sublayer matching of all sublayers use `max`.
+     - Returns: The first sublayer that matches the layer type or `nil` if no sublayer matches.
+     */
+    public func firstSublayer(type: String, depth: Int = 0) -> CALayer? {
+        firstSublayer(where: { NSStringFromClass(Swift.type(of: $0)) == type }, depth: depth)
+    }
+    
+    /**
+     The first sublayer that matches the specificed predicate.
+     
+     - Parameters:
+        - predicate: TThe closure to match.
+        - depth: The maximum depth. As example a value of `0` returns the first sublayer matching of the receiver's sublayers and a value of `1` returns the first sublayer matching of the receiver's sublayers or any of their sublayers. To return the first sublayer matching of all sublayers use `max`.
+     
+     - Returns: The first sublayer that is matching the predicate or `nil` if no sublayer is matching.
+     */
+    @objc open func firstSublayer(where predicate: (CALayer) -> (Bool), depth: Int = 0) -> CALayer? {
+        if let sublayer = (sublayers ?? []).first(where: predicate) {
+            return sublayer
+        }
+        if depth > 0 {
+            for sublayer in sublayers ?? [] {
+                if let sublayer = sublayer.firstSublayer(where: predicate, depth: depth - 1) {
+                    return sublayer
+                }
+            }
+        }
+        return nil
+    }
+    
+    /**
+     An array of all sublayers upto the maximum depth.
+     
+     - Parameter depth: The maximum depth. As example a value of `0` returns the sublayers of the current layer and a value of `1` returns the sublayers of the current layer and all of their sublayers. To return all sublayers use `max`.
+     */
+    public func sublayers(depth: Int) -> [CALayer] {
+        let sublayers = sublayers ?? []
+        if depth > 0 {
+            return sublayers + sublayers.flatMap { $0.sublayers(depth: depth - 1) }
+        } else {
+            return sublayers
+        }
+    }
+    
+    /**
+     An array of all sublayers matching the specified layer type.
+     
+     - Parameters:
+        - type: The type of sublayers.
+        - depth: The maximum depth. As example a value of `0` returns the sublayers of the current layer and a value of `1` returns the sublayers of the current layer and all of their sublayers. To return all sublayers use `max`.
+     */
+    public func sublayers<V: CALayer>(type _: V.Type, depth: Int = 0) -> [V] {
+        sublayers(depth: depth).compactMap { $0 as? V }
+    }
+    
+    /**
+     An array of all sublayers matching the specified layer type.
+     
+     - Parameters:
+        - type: The type of sublayers.
+        - depth: The maximum depth. As example a value of `0` returns the sublayers of the current layer and a value of `1` returns the sublayers of the current layer and all of their sublayers. To return all sublayers use `max`.
+     */
+    public func sublayers(type: String, depth: Int = 0) -> [CALayer] {
+        sublayers(where: { NSStringFromClass(Swift.type(of: $0)) == type }, depth: depth)
+    }
+    
+    /**
+     An array of all sublayers matching the specified predicte.
+     
+     - Parameters:
+        - predicate: The predicate to match.
+        - depth: The maximum depth. As example a value of `0` returns the sublayers of the current layer and a value of `1` returns the sublayers of the current layer and all of their sublayers. To return all sublayers use `max`.
+     */
+    public func sublayers(where predicate: (CALayer) -> (Bool), depth: Int = 0) -> [CALayer] {
+        sublayers(depth: depth).filter { predicate($0) == true }
+    }
+    
+    /**
+     An optional layer whose inverse alpha channel is used to mask the layer’s content.
+     
+     In contrast to `mask` transparent pixels allow the underlying content to show, while opaque pixels block the content.
+     */
+    @objc var inverseMask: CALayer? {
+        get { (mask as? InverseMaskLayer)?.maskLayer }
+        set {
+            if let newValue = newValue {
+                mask = InverseMaskLayer(maskLayer: newValue)
+            } else {
+                mask = nil
+            }
+        }
+    }
+    
+    /**
+     Prints the hierarchy of the layer and its sublayers to the console.
+     
+     - Parameters:
+        - depth: The maximum depth of the layer hierarchy to print. A value of `.max` prints the entire hierarchy. Defaults to `.max`.
+        - includeDetails: If `true` prints the full description of each layer; otherwise prints only the type.
+     */
+    public func printHierarchy(depth: Int = .max, includeDetails: Bool = false) {
+        guard depth >= 0 else { return }
+        printHierarchy(level: 0, depth: depth, includeDetails: false)
+    }
+    
+    private func printHierarchy(level: Int, depth: Int, includeDetails: Bool) {
+        let string = includeDetails ? "\(self)" : "\(type(of: self))"
+        Swift.print("\(Array(repeating: " ", count: level).joined(separator: ""))\(string)")
+        guard level+1 <= depth else { return }
+        for sublayer in _sublayers {
+            sublayer.printHierarchy(level: level+1, depth: depth, includeDetails: includeDetails)
+        }
+    }
+    
+    /**
+     Prints the hierarchy of layers of a specific type starting from this layer.
+     
+     - Parameters:
+        -   type: The layer type to match (e.g., `CAShapeLayer.self`). Only subtrees containing at least one layer of this type will be printed.
+        - depth: The maximum depth of the layer hierarchy to print. A value of `.max` prints the entire hierarchy. Defaults to `.max`.
+        - includeDetails: If `true` prints the full description of each layer; otherwise prints only the type.
+     */
+    public func printHierarchy<V: CALayer>(type _: V.Type, depth: Int = .max, includeDetails: Bool = false) {
+        printHierarchy(predicate: {$0 is V}, depth: depth, includeDetails: includeDetails)
+    }
+    
+    /**
+     Prints the hierarchy of layers that match a given predicate starting from this layer.
+     
+     - Parameters:
+        - predicate: A closure that determines whether a layer should be included in the printed hierarchy. Entire subtrees are printed only if at least one layer in the subtree matches the predicate.
+        - depth: The maximum depth of the layer hierarchy to print. A value of `.max` prints the entire hierarchy. Defaults to `.max`.
+        - includeDetails: If `true` prints the full description of each layer; otherwise prints only the type.
+     */
+    public func printHierarchy(predicate: (CALayer) -> Bool, depth: Int = .max, includeDetails: Bool = false) {
+        guard depth >= 0 else { return }
+        printHierarchy(level: 0, depth: depth, predicate: predicate, includeDetails: includeDetails)
+    }
+    
+    private func printHierarchy(level: Int, depth: Int, predicate: (CALayer) -> Bool, includeDetails: Bool) {
+        let string = includeDetails ? "\(self)" : "\(type(of: self))"
+        Swift.print("\(Array(repeating: " ", count: level).joined(separator: ""))\(string)")
+        guard level+1 <= depth else { return }
+        for sublayer in _sublayers {
+            guard sublayer.matchesPredicateRecursively(predicate, level: level+1, depth: depth) else { continue }
+            sublayer.printHierarchy(level: level+1, depth: depth, predicate: predicate, includeDetails: includeDetails)
+        }
+    }
+    
+    private func matchesPredicateRecursively(_ predicate: (CALayer) -> Bool, level: Int, depth: Int) -> Bool {
+        if predicate(self) {
+            return true
+        }
+        guard level+1 <= depth else { return false }
+        return _sublayers.contains { $0.matchesPredicateRecursively(predicate, level: level+1, depth: depth) }
+    }
+    
+    var _sublayers: [CALayer] {
+        sublayers ?? []
     }
 }
 
-var constraint: CALayerConstraint? {
-    get { getAssociatedValue("layerConstraint") }
-    set { setAssociatedValue(newValue, key: "layerConstraint") }
+fileprivate extension CAGradientLayer {
+    var _gradient: Gradient {
+        get {
+            let colors = (colors as? [CGColor])?.compactMap(\.nsUIColor) ?? []
+            let locations = locations?.compactMap { CGFloat($0.floatValue) } ?? []
+            let stops = zip(colors, locations).map({ Gradient.ColorStop(color: $0.0, location: $0.1) })
+            return Gradient(stops: stops, startPoint: .init(startPoint), endPoint: .init(endPoint), type: .init(type))
+        }
+        set {
+            colors = newValue.stops.compactMap(\.color.cgColor)
+            locations = newValue.stops.compactMap { NSNumber($0.location) }
+            startPoint = newValue.startPoint.point
+            endPoint = newValue.endPoint.point
+            type = newValue.type.gradientLayerType
+        }
+    }
 }
-*/
+#endif
+
+#if os(macOS)
+public extension CAAutoresizingMask {
+    static let all: CAAutoresizingMask = [.layerHeightSizable, .layerWidthSizable, .layerMinXMargin, .layerMinYMargin, .layerMaxXMargin, .layerMaxYMargin]
+}
+#endif

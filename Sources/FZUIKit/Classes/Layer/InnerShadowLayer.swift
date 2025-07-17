@@ -21,6 +21,8 @@ open class InnerShadowLayer: CALayer {
     open var configuration: ShadowConfiguration {
         get { ShadowConfiguration(color: color, colorTransformer: colorTransformer, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point) }
         set {
+            
+            
             isUpdating = true
             color = newValue.color
             colorTransformer = newValue.colorTransformer
@@ -51,9 +53,9 @@ open class InnerShadowLayer: CALayer {
      - Returns: The inner shadow layer.
      */
     public init(configuration: ShadowConfiguration) {
+        defer { self.configuration = configuration }
         super.init()
         sharedInit()
-        self.configuration = configuration
     }
     
     override public init() {
@@ -167,131 +169,83 @@ open class InnerShadowLayer: CALayer {
     }
 }
 
-#endif
-
-#if os(macOS)
-
-extension NSView {
-    var dynamicLayerColors: DynamicLayerColors {
-        getAssociatedValue("dynamicLayerColors", initialValue: DynamicLayerColors(for: self))
+extension CALayer {
+    class _InnerShadowLayer: CALayer {
+        var isUpdating = false
+        
+        var configuration: ShadowConfiguration = .none {
+            didSet {
+                guard oldValue != configuration else { return }
+                isUpdating = true
+                shadowRadius = configuration.radius
+                shadowOffset = configuration.offset.size
+                shadowOpacity = Float(configuration.opacity)
+                shadowColor = superlayer?.resolvedColor(for: configuration.resolvedColor())
+                isUpdating = false
+                updateShadowPath()
+            }
+        }
+        
+        func updateShadowPath() {
+            let path: NSUIBezierPath
+            let innerPart: NSUIBezierPath
+            if let maskPath = _maskShape?.path(in: bounds.insetBy(dx: -20, dy: -20)), let innerMaskPath = maskShape?.path(in: bounds) {
+                path = NSUIBezierPath(cgPath: maskPath)
+                #if os(macOS)
+                innerPart = NSUIBezierPath(cgPath: innerMaskPath).reversed
+                #else
+                innerPart = NSUIBezierPath(cgPath: innerMaskPath).reversing()
+                #endif
+            } else {
+                path = NSUIBezierPath(roundedRect: bounds.insetBy(dx: -20, dy: -20), cornerRadius: cornerRadius)
+                #if os(macOS)
+                innerPart = NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).reversed
+                #else
+                innerPart = NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).reversing()
+                #endif
+            }
+            path.append(innerPart)
+            shadowPath = path.cgPath
+        }
+        
+        var _maskShape: PathShape? {
+            didSet { updateShadowPath() }
+        }
+        
+        override var bounds: CGRect {
+            didSet { if !isUpdating, oldValue != bounds { updateShadowPath() } }
+        }
+        
+        override var cornerRadius: CGFloat {
+            didSet { if !isUpdating, oldValue != cornerRadius { updateShadowPath() } }
+        }
+        
+        override var shadowRadius: CGFloat {
+            didSet { if !isUpdating, oldValue != shadowRadius { updateShadowPath() } }
+        }
+        
+        override var shadowOffset: CGSize {
+            didSet { if !isUpdating, oldValue != shadowOffset { updateShadowPath() } }
+        }
+        
+        init(for layer: CALayer) {
+            super.init()
+            
+            shadowOpacity = 0.0
+            shadowColor = nil
+            backgroundColor = .clear
+            masksToBounds = true
+            shadowOffset = .zero
+            shadowRadius = 0.0
+            layer.addSublayer(withConstraint: self)
+            sendToBack()
+            zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
     }
 }
-class DynamicLayerColors {
-    init(for view: NSView) {
-        self.view = view
-    }
-    
-    var dynamicColors: [WritableKeyPath<CALayer, CGColor>: DynamicColor] = [:] {
-        didSet { updateObserver() }
-    }
-    
-    var dynamicColorsOpt: [WritableKeyPath<CALayer, CGColor?>: DynamicColor] = [:] {
-        didSet { updateObserver() }
-    }
-    
-    weak var view: NSView?
-    
-    subscript(keyPath: WritableKeyPath<CALayer, CGColor>) -> NSColor? {
-        get {
-            update(keyPath)
-            return dynamicColors[keyPath]?.color
-        }
-        set {
-            guard newValue != dynamicColors[keyPath]?.color else { return }
-            dynamicColors[keyPath] = DynamicColor(newValue)
-        }
-    }
-    
-    subscript(keyPath: WritableKeyPath<CALayer, CGColor?>) -> NSColor? {
-        get {
-            update(keyPath)
-            return dynamicColorsOpt[keyPath]?.color
-        }
-        set {
-            guard newValue != dynamicColorsOpt[keyPath]?.color else { return }
-            dynamicColorsOpt[keyPath] = DynamicColor(newValue)
-        }
-    }
-    
-    func update(_ keyPath: WritableKeyPath<CALayer, CGColor>) {
-        guard let view = view, var layer = view.layer, let dynamic = dynamicColors[keyPath] else { return }
-        guard !dynamic.isMatching(layer[keyPath: keyPath]) else { return }
-        dynamicColors[keyPath] = nil
-    }
-    
-    func update(_ keyPath: WritableKeyPath<CALayer, CGColor?>) {
-        guard let view = view, var layer = view.layer, let dynamic = dynamicColorsOpt[keyPath] else { return }
-        guard !dynamic.isMatching(layer[keyPath: keyPath]) else { return }
-        dynamicColorsOpt[keyPath] = nil
-    }
-    
-    func updateColors() {
-        guard let view = view, var layer = view.layer else { return }
-        for val in dynamicColors {
-            if val.value.isMatching(layer[keyPath: val.key]) {
-                layer[keyPath: val.key] = val.value.color.resolvedColor(for: view).cgColor
-            } else {
-                dynamicColors[val.key] = nil
-            }
-        }
-        
-        for val in dynamicColorsOpt {
-            if val.value.isMatching(layer[keyPath: val.key]) {
-                layer[keyPath: val.key] = val.value.color.resolvedColor(for: view).cgColor
-            } else {
-                dynamicColorsOpt[val.key] = nil
-            }
-        }
-    }
-    
-    
-    var appearanceObservation: KeyValueObservation?
-    
-    func updateObserver() {
-        if dynamicColors.isEmpty && dynamicColorsOpt.isEmpty {
-            appearanceObservation = nil
-        } else if appearanceObservation == nil {
-            appearanceObservation = view?.observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
-                self?.updateColors()
-            }
-        }
-    }
-    
-    struct DynamicColor {
-        let color: NSColor
-        private var light: CGColor
-        private var dark: CGColor
-        
-        func isMatching(_ color: CGColor) -> Bool {
-            color == light || color == dark
-        }
-        
-        func isMatching(_ color: CGColor?) -> Bool {
-            guard let color = color else { return false }
-            return isMatching(color)
-        }
-        
-        init?(_ color: NSColor?) {
-            guard let color = color, color.isDynamic else { return nil }
-            let colors = color.dynamicColors
-            self.color = color
-            self.light = colors.light.cgColor
-            self.dark = colors.dark.cgColor
-        }
-    }
-    
-    /*
-    subscript(keyPath: WritableKeyPath<CALayer, CGColor>) -> NSColor? {
-        get {
-            dynamicColors[keyPath]
-        }
-    }
-    
-    subscript(keyPath: WritableKeyPath<CALayer, CGColor?>) -> NSColor? {
-        get {
-            dynamicColorsOpt[keyPath]
-        }
-    }
-     */
-}
+
 #endif

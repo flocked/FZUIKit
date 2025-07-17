@@ -105,21 +105,23 @@ import UIKit
 import FZSwiftUtils
 
 public extension NSObjectProtocol where Self: UIGestureRecognizer {
+    typealias ActionBlock = ((Self) -> Void)
+    
     /// Initializes the gesture recognizer with the specified action handler.
-    init(action: @escaping ((Self) -> Void)) {
+    init(action: @escaping ActionBlock) {
         self.init()
         actionBlock = action
     }
     
     /// Sets the action handler of the gesture recognizer.
     @discardableResult
-    func action(_ action: ((Self) -> Void)?) -> Self {
+    func action(_ action: ActionBlock?) -> Self {
         actionBlock = action
         return self
     }
         
     /// The action handler of the gesture recognizer.
-    var actionBlock: ((Self) -> Void)? {
+    var actionBlock: ActionBlock? {
         get { getAssociatedValue("actionBlock") }
         set {
             if newValue != nil, actionBlock == nil {

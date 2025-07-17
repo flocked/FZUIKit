@@ -47,13 +47,13 @@
         public var view: NSView?
 
         /// Properties for configuring the border.
-        public var border: BorderConfiguration = .none()
+        public var border: BorderConfiguration = .none
 
         /// Properties for configuring the shadow.
-        public var shadow: ShadowConfiguration = .none()
+        public var shadow: ShadowConfiguration = .none
 
         /// Properties for configuring the inner shadow.
-        public var innerShadow: ShadowConfiguration = .none()
+        public var innerShadow: ShadowConfiguration = .none
 
         /// Properties for configuring the background visual effect.
         public var visualEffect: VisualEffectConfiguration?

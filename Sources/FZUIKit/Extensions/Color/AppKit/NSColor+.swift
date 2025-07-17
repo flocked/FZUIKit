@@ -89,6 +89,7 @@ public extension NSColor {
     /// Creates a new color object with a supported color space.
     func withSupportedColorSpace() -> NSColor? {
         guard type == .componentBased || type == .catalog else { return nil }
+        guard !Self.supportedColorSpaces.contains(colorSpace) else { return self }
         for supportedColorSpace in Self.supportedColorSpaces {
             if let supportedColor = usingColorSpace(supportedColorSpace) {
                 return supportedColor
@@ -108,7 +109,7 @@ public extension NSColor {
     }
     
     /// Supported color spaces for displaying a color.
-    internal static let supportedColorSpaces: [NSColorSpace] = [.sRGB, .deviceRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .displayP3]
+    internal static let supportedColorSpaces: [NSColorSpace] = [.deviceRGB, .sRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .displayP3]
 }
 
 extension NSColor.SystemEffect: CustomStringConvertible {

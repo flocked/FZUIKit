@@ -12,15 +12,16 @@ import FZSwiftUtils
 
 /// A 2D shape represented as `CGPath`.
 public struct PathShape {
+    let id: String
     let handler: (CGRect)->(CGPath)
-    
     var insettableShape: (any InsettableShape)?
     
     /// Creates a shape with the specified handler that provides the path of the shape.
     public init(handler: @escaping (_ rect: CGRect) -> CGPath) {
         self.handler = handler
+        self.id = UUID().uuidString
     }
-    
+        
     public init(_ shape: some InsettableShape) {
         insettableShape = shape
         handler = {
@@ -30,6 +31,7 @@ public struct PathShape {
             return shape.path(in: $0).cgPath
             #endif
         }
+        id = String(describing: shape)
     }
     
     /// Creates a shape from the specified `SwiftUI`shape.
@@ -41,6 +43,7 @@ public struct PathShape {
             return shape.path(in: $0).cgPath
             #endif
         }
+        id = String(describing: shape)
     }
     
     /// Describes this shape as a path within a rectangular frame of reference.
@@ -318,6 +321,47 @@ extension PathShape {
      */
     public static func curvedShadow(radius: CGFloat = 5.0, curveAmount: CGFloat = 20) -> PathShape {
         PathShape(.curvedShadow(radius: radius, curveAmount: curveAmount))
+    }
+}
+
+/// The Objective-C class for ``PathShape``.
+public class __PathShape: NSObject, NSCopying {
+    let shape: PathShape
+    
+    public init(shape: PathShape) {
+        self.shape = shape
+    }
+    
+    public func copy(with zone: NSZone? = nil) -> Any {
+        __PathShape(shape: shape)
+    }
+    
+    public override func isEqual(_ object: Any?) -> Bool {
+        shape.id == (object as? __PathShape)?.shape.id
+    }
+}
+
+extension PathShape: _ObjectiveCBridgeable {
+    public func _bridgeToObjectiveC() -> __PathShape {
+        return __PathShape(shape: self)
+    }
+    
+    public static func _forceBridgeFromObjectiveC(_ source: __PathShape, result: inout PathShape?) {
+        result = source.shape
+    }
+    
+    public static func _conditionallyBridgeFromObjectiveC(_ source: __PathShape, result: inout PathShape?) -> Bool {
+        _forceBridgeFromObjectiveC(source, result: &result)
+        return true
+    }
+    
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: __PathShape?) -> PathShape {
+        if let source = source {
+            var result: PathShape?
+            _forceBridgeFromObjectiveC(source, result: &result)
+            return result!
+        }
+        return PathShape.rect
     }
 }
 

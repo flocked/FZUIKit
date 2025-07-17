@@ -44,13 +44,13 @@
             public var visualEffect: VisualEffectConfiguration?
 
             /// The border of the view.
-            public var border: BorderConfiguration = .none()
+            public var border: BorderConfiguration = .none
 
             /// The shadow of the view.
-            public var shadow: ShadowConfiguration = .none()
+            public var shadow: ShadowConfiguration = .none
 
             /// The inner shadow of the view.
-            public var innerShadow: ShadowConfiguration = .none()
+            public var innerShadow: ShadowConfiguration = .none
 
             /// The alpha value of the view.
             public var alpha: CGFloat = 1.0
@@ -137,13 +137,13 @@
             public var visualEffect: VisualEffectConfiguration?
 
             /// The border of the view.
-            public var border: BorderConfiguration = .none()
+            public var border: BorderConfiguration = .none
 
             /// The shadow of the view.
-            public var shadow: ShadowConfiguration = .none()
+            public var shadow: ShadowConfiguration = .none
 
             /// The inner shadow of the view.
-            public var innerShadow: ShadowConfiguration = .none()
+            public var innerShadow: ShadowConfiguration = .none
 
             /// The alpha value of the view.
             public var alpha: CGFloat = 1.0

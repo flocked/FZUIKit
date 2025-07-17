@@ -31,31 +31,21 @@ extension NSUIColor: Codable {
     fileprivate var values: [CGFloat] {
         var r, g, b, a, w: CGFloat
         (r, g, b, a, w) = (0, 0, 0, 0, 0)
-        var values: [CGFloat] = [0.0, 0.0]
         #if os(macOS)
-        if colorSpace.colorSpaceModel == .rgb {
-            getRed(&r, green: &g, blue: &b, alpha: &a)
-            values = [r, g, b, a]
-        } else if colorSpace.colorSpaceModel == .gray {
-            getWhite(&r, alpha: &a)
-            values = [r, a]
-        } else if colorSpace.colorSpaceModel == .cmyk {
-            getCyan(&r, magenta: &g, yellow: &b, black: &w, alpha: &a)
-            values = [r, g, b, w, a]
-        }  else if let color = withSupportedColorSpace() {
+        if let color = withSupportedColorSpace() {
             color.getRed(&r, green: &g, blue: &b, alpha: &a)
-            values = [r, g, b, a]
+            return [r, g, b, a]
         }
         #else
         if getRed(&r, green: &g, blue: &b, alpha: &a) {
-            values = [r, g, b, a]
+            return [r, g, b, a]
         } else if getWhite(&r, alpha: &a) {
-            values = [r, a]
+            return [r, a]
         } else if getHue(&r, saturation: &g, brightness: &b, alpha: &a) {
-            values = [r, g, b, a, 0.0]
+            return [r, g, b, a, 0.0]
         }
         #endif
-        return values
+        return [0, 0]
     }
 }
 

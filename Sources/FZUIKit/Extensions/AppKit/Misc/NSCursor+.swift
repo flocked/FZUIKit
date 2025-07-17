@@ -264,7 +264,7 @@ fileprivate extension NSCursor {
             for group in images {
                 let newImage = NSImage(size: group.first!.size)
                 for image in group {
-                    let image = image.withShadow(info.shadow ?? .none()) ?? image
+                    let image = image.withShadow(info.shadow ?? .none) ?? image
                     let rep = NSBitmapImageRep(cgImage: image)
                     rep.size = newImage.size
                     newImage.addRepresentation(rep)
@@ -273,7 +273,7 @@ fileprivate extension NSCursor {
             }
             self.init(animated: frameImages, frameDuration: info.frameDuration ?? 0.12, hotSpot: info.hotSpot)
         } else {
-            image = image.retinaScaled.withShadow(info.shadow ?? .none()) ?? image
+            image = image.retinaScaled.withShadow(info.shadow ?? .none) ?? image
             self.init(image: image, hotSpot: info.hotSpot)
         }
     }
