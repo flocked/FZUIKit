@@ -16,8 +16,8 @@ public extension NSViewProtocol where Self: NSView {
      The system dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
      */
     var isFirstResponder: Bool {
-        if let view = self as? NSTextField {
-            return view.window?.firstResponder == view.currentEditor() || view.window?.firstResponder == view
+        if let view = self as? NSTextField, let editor = view.currentEditor() {
+            return window?.firstResponder == editor || window?.firstResponder == self
         }
         return window?.firstResponder == self
      }

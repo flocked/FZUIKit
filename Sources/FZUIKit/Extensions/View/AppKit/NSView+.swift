@@ -549,76 +549,6 @@ extension NSView {
             fatalError("init(coder:) has not been implemented")
         }
     }
-    
-    func attach(to view: NSView, positionedBelow: Bool = true, includingAlpha: Bool = true) {
-        viewAttachment = ViewAttachment(for: self, target: view, below: positionedBelow, includeAloha: includingAlpha)
-    }
-    
-    func dettachFromView() {
-        viewAttachment = nil
-    }
-    
-    fileprivate var viewAttachment: ViewAttachment? {
-        get { getAssociatedValue("viewAttachment") }
-        set { setAssociatedValue(newValue, key: "viewAttachment") }
-    }
-    
-    fileprivate class ViewAttachment {
-        let viewObservation: KeyValueObserver<NSView>
-        var subviewsObservation: KeyValueObservation?
-        weak var view: NSView?
-        weak var target: NSView?
-        let mode: NSWindow.OrderingMode
-        
-        func setupSubviewsObservation() {
-            if let superview = view?.superview {
-                subviewsObservation = superview.observeChanges(for: \.subviews) { [weak self] old, new in
-                    guard let self = self else { return }
-                    self.setupPosition()
-                }
-            } else {
-                subviewsObservation = nil
-            }
-            setupPosition()
-        }
-        
-        func setupPosition() {
-            if let view = view, let superview = view.superview, let target = target, superview.subviews.contains(target) {
-                superview.addSubview(view, positioned: mode, relativeTo: target)
-            } else {
-                view?.removeFromSuperview()
-            }
-        }
-        
-        init(for view: NSView, target: NSView, below: Bool = true, includeAloha: Bool = true) {
-            self.view = view
-            self.target = target
-            self.mode = below ? .below : .above
-            self.viewObservation = KeyValueObserver(target)
-            view.frame = target.frame
-            view.isHidden = target.isHidden
-            
-            setupSubviewsObservation()
-            viewObservation.add(\.superview) { [weak self] old, new in
-                guard let self = self else { return }
-                self.setupSubviewsObservation()
-            }
-            viewObservation.add(\.isHidden) { [weak self] old, new in
-                guard let self = self else { return }
-                self.view?.isHidden = new
-            }
-            viewObservation.add(\.frame) { [weak self] old, new in
-                guard let self = self else { return }
-                self.view?.frame = new
-            }
-            guard includeAloha else { return }
-            view.alphaValue = target.alphaValue
-            viewObservation.add(\.alphaValue) { [weak self] old, new in
-                guard let self = self else { return }
-                self.view?.alphaValue = new
-            }
-        }
-    }
 
     /**
      The inner shadow of the view.
@@ -647,9 +577,9 @@ extension NSView {
         let resolved = color?.resolvedColor(for: self)
         if isProxy(), resolved == nil {
             return .clear
-        } else if let layer = layer {
+        } else if let layer = layer, let resolved = resolved {
             let color = layer[keyPath: keyPath]
-            if color == nil || color?.isVisible == false, let resolved = resolved {
+            if color == nil || color?.isVisible == false {
                 layer[keyPath: keyPath] = resolved.withAlphaComponent(0.0).cgColor
             }
         }
@@ -660,10 +590,8 @@ extension NSView {
         let resolved = color?.resolvedColor(for: self)
         if isProxy(), resolved == nil {
             return .clear
-        } else if let layer = layer {
-            if !layer[keyPath: validate], let resolved = resolved {
-                layer[keyPath: keyPath] = resolved.withAlphaComponent(0.0)
-            }
+        } else if let layer = layer, let resolved = resolved, !layer[keyPath: validate] {
+            layer[keyPath: keyPath] = resolved.withAlphaComponent(0.0)
         }
         return color
     }
@@ -930,6 +858,7 @@ extension NSView {
         do {
             _ = try Swizzle(NSView.self) {
                 #selector(NSView.defaultAnimation(forKey:)) <~> #selector(NSView.swizzledDefaultAnimation(forKey:))
+                // #selector(NSView.animation(forKey:)) <-> #selector(NSView.swizzledAnimation(forKey:))
             }
         } catch {
             Swift.debugPrint(error, (error as? LocalizedError)?.failureReason ?? "nil")
@@ -947,22 +876,16 @@ extension NSView {
         }
         return nil
     }
+    
+    @objc private func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        let animation = swizzledAnimation(forKey: key)
+        (animation as? CAPropertyAnimation)?.delegate = animationDelegate
+        return animation
+    }
 
     private static var didSwizzleAnimationForKey: Bool {
         get { getAssociatedValue("didSwizzleAnimationForKey") ?? false }
         set { setAssociatedValue(newValue, key: "didSwizzleAnimationForKey") }
-    }
-
-    func updatedColor<Layer: CALayer>(_ color: NSColor?, _ layer: Layer?, _ keyPath: ReferenceWritableKeyPath<Layer, CGColor?>) -> NSColor? {
-        let color = color?.resolvedColor(for: self)
-        let layerColor = layer?[keyPath: keyPath]
-        if layerColor?.isVisible == false || layerColor == nil {
-            layer?[keyPath: keyPath] = color?.withAlphaComponent(0.0).cgColor
-        }
-        if color == nil, isProxy() {
-            return .clear
-        }
-        return color
     }
 }
 
@@ -976,7 +899,7 @@ public extension NSView.AutoresizingMask {
 }
 
 /// The `NSView` properties keys that can be animated.
-fileprivate let NSViewAnimationKeys: Set<String> = ["_anchorPoint", "_anchorPointZ", "_animatableValues", "_center", "_contentOffset", "_contentOffsetFractional", "_cornerRadius", "_documentSize", "_fontSize", "_inverseMask", "_mask", "_placeholderTextColor", "_roundedCorners", "_screenFrame", "_selectionColor", "_selectionTextColor", "_shadowPath", "_transform", "_transform3D", "_windowFrame", "_zPosition", "__cornerRadius", "backgroundColor", "backgroundColorAnimatable", "bezelColor", "borderColor", "borderValues", "borderWidth", "contentTintColor", "cornerRadius", "fillColor", "gradientColors", "gradientEndPoint", "gradientLocations", "gradientStartPoint", "innerShadowValues", "shadowColor", "shadowValues", "textColor"]
+fileprivate let NSViewAnimationKeys: Set<String> = ["_anchorPoint", "_anchorPointZ", "_animatableValues", "_center", "_contentOffset", "_contentOffsetFractional", "_cornerRadius", "_documentSize", "_fontSize", "_gradient", "_inverseMask", "_mask", "_placeholderTextColor", "_roundedCorners", "_screenFrame", "_selectionColor", "_selectionTextColor", "_shadowPath", "_transform", "_transform3D", "_windowFrame", "_zPosition", "__cornerRadius", "backgroundColor", "backgroundColorAnimatable", "bezelColor", "borderColor", "borderValues", "borderWidth", "contentTintColor", "cornerRadius", "fillColor", "innerShadowValues", "shadowColor", "shadowValues", "textColor"]
 
 fileprivate extension CALayer {
     var isVisible: Bool {
@@ -1008,7 +931,7 @@ extension NSViewProtocol {
 
 fileprivate extension BorderConfiguration {
     var values: [Any] {
-        get { [width, color, dash.phase, dash.pattern, insets.top, insets.leading, insets.bottom, insets.trailing] }
+        get { [width, color as Any, dash.phase, dash.pattern, insets.top, insets.leading, insets.bottom, insets.trailing] }
         set {
             width = newValue[0] as! CGFloat
             color = newValue[1] as? NSColor
@@ -1021,12 +944,84 @@ fileprivate extension BorderConfiguration {
 
 fileprivate extension ShadowConfiguration {
     var values: [Any] {
-        get { [offset.x, offset.y, opacity, radius, color] }
+        get { [offset.x, offset.y, opacity, radius, color as Any] }
         set {
             offset = .init(newValue[0] as! CGFloat, newValue[1] as! CGFloat)
             opacity = newValue[2] as! CGFloat
             radius = newValue[3] as! CGFloat
             color = newValue[4] as? NSColor
+        }
+    }
+}
+
+extension NSView {
+    func attach(to view: NSView, positionedBelow: Bool = true, includingAlpha: Bool = true) {
+        viewAttachment = ViewAttachment(for: self, target: view, below: positionedBelow, includeAloha: includingAlpha)
+    }
+    
+    func dettachFromView() {
+        viewAttachment = nil
+    }
+    
+    fileprivate var viewAttachment: ViewAttachment? {
+        get { getAssociatedValue("viewAttachment") }
+        set { setAssociatedValue(newValue, key: "viewAttachment") }
+    }
+    
+    fileprivate class ViewAttachment {
+        let viewObservation: KeyValueObserver<NSView>
+        var subviewsObservation: KeyValueObservation?
+        weak var view: NSView?
+        weak var target: NSView?
+        let mode: NSWindow.OrderingMode
+        
+        func setupSubviewsObservation() {
+            if let superview = view?.superview {
+                subviewsObservation = superview.observeChanges(for: \.subviews) { [weak self] old, new in
+                    guard let self = self else { return }
+                    self.setupPosition()
+                }
+            } else {
+                subviewsObservation = nil
+            }
+            setupPosition()
+        }
+        
+        func setupPosition() {
+            if let view = view, let superview = view.superview, let target = target, superview.subviews.contains(target) {
+                superview.addSubview(view, positioned: mode, relativeTo: target)
+            } else {
+                view?.removeFromSuperview()
+            }
+        }
+        
+        init(for view: NSView, target: NSView, below: Bool = true, includeAloha: Bool = true) {
+            self.view = view
+            self.target = target
+            self.mode = below ? .below : .above
+            self.viewObservation = KeyValueObserver(target)
+            view.frame = target.frame
+            view.isHidden = target.isHidden
+            
+            setupSubviewsObservation()
+            viewObservation.add(\.superview) { [weak self] old, new in
+                guard let self = self else { return }
+                self.setupSubviewsObservation()
+            }
+            viewObservation.add(\.isHidden) { [weak self] old, new in
+                guard let self = self else { return }
+                self.view?.isHidden = new
+            }
+            viewObservation.add(\.frame) { [weak self] old, new in
+                guard let self = self else { return }
+                self.view?.frame = new
+            }
+            guard includeAloha else { return }
+            view.alphaValue = target.alphaValue
+            viewObservation.add(\.alphaValue) { [weak self] old, new in
+                guard let self = self else { return }
+                self.view?.alphaValue = new
+            }
         }
     }
 }

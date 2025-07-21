@@ -744,6 +744,12 @@ extension NSWindow {
         }
     }
     
+    @objc private func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        let animation = swizzledAnimation(forKey: key)
+        (animation as? CAPropertyAnimation)?.delegate = animationDelegate
+        return animation
+    }
+    
     var mainWindowObservation: KeyValueObservation? {
         get { getAssociatedValue("mainWindowObservation") }
         set { setAssociatedValue(newValue, key: "mainWindowObservation") }

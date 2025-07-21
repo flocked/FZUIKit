@@ -143,8 +143,10 @@ extension NSGestureRecognizer {
             delegateProxy?.delegateObservation = nil
             delegate = delegateProxy?.delegate
             delegateProxy = nil
-        } else if delegateProxy == nil {
-            delegateProxy = Delegate(for: self)
+        } else {
+            if delegateProxy == nil {
+                delegateProxy = Delegate(for: self)
+            }
         }
     }
     
@@ -154,11 +156,11 @@ extension NSGestureRecognizer {
     }
     
     private class Delegate: NSObject, NSGestureRecognizerDelegate {
-        var handlers = Handlers()
         weak var gestureRecognizer: NSGestureRecognizer?
         weak var delegate: NSGestureRecognizerDelegate?
         var delegateObservation: KeyValueObservation?
-        
+        var handlers: Handlers { gestureRecognizer?.handlers ?? .init() }
+
         init(for gestureRecognizer: NSGestureRecognizer) {
             super.init()
             delegate = gestureRecognizer.delegate

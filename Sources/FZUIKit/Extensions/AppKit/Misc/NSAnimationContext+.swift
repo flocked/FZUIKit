@@ -91,11 +91,7 @@ extension NSAnimationContext {
      */
     @discardableResult
     public func animate(withSpring spring: CASpringAnimation, allowsImplicitAnimation: Bool = false, changes: @escaping ()->(), completion: (()->())? = nil) -> NSAnimationContext {
-        NSView.swizzleAnimationForKey()
-        NSWindow.swizzleAnimationForKey()
-        NSLayoutConstraint.swizzleAnimationForKey()
-        NSPageController.swizzleAnimationForKey()
-        NSSplitViewItem.swizzleAnimationForKey()
+        Self.swizzleAll()
         animationQueue += { nextAnimation in
             Self.run(spring: spring, allowsImplicitAnimation: allowsImplicitAnimation, changes: changes) {
                 if NSAnimationContext.current.springAnimation == spring {
@@ -214,6 +210,21 @@ extension NSAnimationContext {
         get { getAssociatedValue("springAnimation") }
         set { setAssociatedValue(newValue, key: "springAnimation") }
     }
+    
+    static var didSwizzleDefaultAnimation: Bool {
+        get { getAssociatedValue("didSwizzleDefaultAnimation", initialValue: false) }
+        set { setAssociatedValue(newValue, key: "didSwizzleDefaultAnimation") }
+    }
+    
+    fileprivate static func swizzleAll() {
+        guard !didSwizzleDefaultAnimation else { return }
+        didSwizzleDefaultAnimation = true
+        NSView.swizzleAnimationForKey()
+        NSWindow.swizzleAnimationForKey()
+        NSLayoutConstraint.swizzleAnimationForKey()
+        NSPageController.swizzleAnimationForKey()
+        NSSplitViewItem.swizzleAnimationForKey()
+    }
 }
 
 fileprivate extension NSLayoutConstraint {
@@ -241,6 +252,12 @@ fileprivate extension NSLayoutConstraint {
             Swift.debugPrint(error)
         }
     }
+    
+    @objc private func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        let animation = swizzledAnimation(forKey: key)
+        (animation as? CAPropertyAnimation)?.delegate = animationDelegate
+        return animation
+    }
 }
 
 fileprivate extension NSPageController {
@@ -249,6 +266,12 @@ fileprivate extension NSPageController {
         if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.springAnimation {
             return springAnimation
         }
+        return animation
+    }
+    
+    @objc private func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        let animation = swizzledAnimation(forKey: key)
+        (animation as? CAPropertyAnimation)?.delegate = animationDelegate
         return animation
     }
     
@@ -276,6 +299,12 @@ fileprivate extension NSSplitViewItem {
         if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.springAnimation {
             return springAnimation
         }
+        return animation
+    }
+    
+    @objc private func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        let animation = swizzledAnimation(forKey: key)
+        (animation as? CAPropertyAnimation)?.delegate = animationDelegate
         return animation
     }
     

@@ -14,7 +14,7 @@
          - Parameter keyPath: The key path of the property to be animated.
          - Returns: A new instance of CAPropertyAnimation with the key path set to keyPath.
          */
-        convenience init<Value>(keyPath: WritableKeyPath<CALayer, Value>) {
+        convenience init<Value>(_ keyPath: WritableKeyPath<CALayer, Value>) {
             let keyPathString = NSExpression(forKeyPath: keyPath).keyPath
             self.init(keyPath: keyPathString)
         }

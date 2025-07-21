@@ -98,6 +98,102 @@ extension CALayer {
         }
     }
     
+    /// The inner shadow of the layer.
+    @objc open var innerShadow: ShadowConfiguration {
+        get { configurations.innerShadow }
+        set { configurations.innerShadow = newValue }
+    }
+    
+    fileprivate var innerShadowLayer: _InnerShadowLayer? {
+        get { getAssociatedValue("innerShadowLayer") }
+        set { setAssociatedValue(newValue, key: "innerShadowLayer") }
+    }
+    
+    var innerShadowColor: CGColor? {
+        get { innerShadowLayer?.shadowColor }
+        set { innerShadowLayer?.shadowColor = newValue }
+    }
+    
+    /// The shape that is used for masking the layer.
+    public var maskShape: PathShape? {
+        get { (mask as? PathShapeMaskLayer)?.shape }
+        set {
+            if let newValue = newValue {
+                (mask as? PathShapeMaskLayer ?? PathShapeMaskLayer(layer: self, shape: newValue)).shape = newValue
+            } else if mask is PathShapeMaskLayer {
+                mask = nil
+            }
+            shadowShape = newValue
+            innerShadowLayer?._maskShape = newValue
+            configurations.setupBorder()
+            #if os(macOS)
+            parentView?.setupShadowShapeView()
+            #endif
+        }
+    }
+    
+    /// The shape of the shadow.
+    public var shadowShape: PathShape? {
+        get { getAssociatedValue("shadowShape") }
+        set {
+            setAssociatedValue(newValue, key: "shadowShape")
+            if let newValue = newValue {
+                shadowShapeObservation = observeChanges(for: \.bounds) { [weak self] old, new in
+                    guard let self = self, old.size != new.size else { return }
+                    self.shadowPath = newValue.path(in: new)
+                }
+                shadowPath = newValue.path(in: bounds)
+            } else {
+                shadowShapeObservation = nil
+            }
+            #if os(macOS)
+            parentView?.setupShadowShapeView()
+            #endif
+        }
+    }
+    
+    fileprivate var shadowShapeObservation: KeyValueObservation? {
+        get { getAssociatedValue("shadowShapeObservation") }
+        set { setAssociatedValue(newValue, key: "shadowShapeObservation") }
+    }
+    
+    /// The border of the layer.
+    @objc open var border: BorderConfiguration {
+        get { configurations.border }
+        set { configurations.border = newValue }
+    }
+    
+    fileprivate var borderLayer: BorderLayer? {
+        get { getAssociatedValue("borderLayer") }
+        set { setAssociatedValue(newValue, key: "borderLayer") }
+    }
+    
+    var _borderColor: CGColor? {
+        get { borderLayer?.strokeColor ?? borderColor }
+        set {
+            if let borderLayer = borderLayer {
+                borderLayer.strokeColor = newValue
+            } else {
+                borderColor = newValue
+            }
+        }
+    }
+    
+    /// The gradient of the layer.
+    public var gradient: Gradient? {
+        get { configurations.gradient }
+        set { configurations.gradient = newValue }
+    }
+    
+    var gradientColors: [CGColor] {
+        get { (self as? CAGradientLayer ?? _gradientLayer)?.colors as? [CGColor] ?? [] }
+        set { (self as? CAGradientLayer ?? _gradientLayer)?.colors = newValue }
+    }
+    
+    var _gradientLayer: GradientLayer? {
+        firstSublayer(type: GradientLayer.self)
+    }
+    
     class Configurations {
         var border: BorderConfiguration {
             get {
@@ -307,228 +403,9 @@ extension CALayer {
         getAssociatedValue("LayerConfigurations", initialValue: Configurations(for: self))
     }
     
-    var innerShadowLayer: _InnerShadowLayer? {
-        get { getAssociatedValue("innerShadowLayer") }
-        set { setAssociatedValue(newValue, key: "innerShadowLayer") }
-    }
-    
-    /// The inner shadow of the layer.
-    @objc open var innerShadow: ShadowConfiguration {
-        get { configurations.innerShadow }
-        set { configurations.innerShadow = newValue }
-    }
-    
-    var innerShadowColor: CGColor? {
-        get { innerShadowLayer?.shadowColor }
-        set { innerShadowLayer?.shadowColor = newValue }
-    }
-    
-    /// The shape that is used for masking the layer.
-    public var maskShape: PathShape? {
-        get { (mask as? PathShapeMaskLayer)?.shape }
-        set {
-            if let newValue = newValue {
-                (mask as? PathShapeMaskLayer ?? PathShapeMaskLayer(layer: self, shape: newValue)).shape = newValue
-            } else if mask is PathShapeMaskLayer {
-                mask = nil
-            }
-            shadowShape = newValue
-            innerShadowLayer?._maskShape = newValue
-            configurations.setupBorder()
-            #if os(macOS)
-            parentView?.setupShadowShapeView()
-            #endif
-        }
-    }
-    
-    /// The shape of the shadow.
-    public var shadowShape: PathShape? {
-        get { getAssociatedValue("shadowShape") }
-        set {
-            setAssociatedValue(newValue, key: "shadowShape")
-            if let newValue = newValue {
-                shadowShapeObservation = observeChanges(for: \.bounds) { [weak self] old, new in
-                    guard let self = self, old.size != new.size else { return }
-                    self.shadowPath = newValue.path(in: new)
-                }
-                shadowPath = newValue.path(in: bounds)
-            } else {
-                shadowShapeObservation = nil
-            }
-            #if os(macOS)
-            parentView?.setupShadowShapeView()
-            #endif
-        }
-    }
-    
-    var shadowShapeObservation: KeyValueObservation? {
-        get { getAssociatedValue("shadowShapeObservation") }
-        set { setAssociatedValue(newValue, key: "shadowShapeObservation") }
-    }
-    
-    var borderLayer: BorderLayer? {
-        get { getAssociatedValue("borderLayer") }
-        set { setAssociatedValue(newValue, key: "borderLayer") }
-    }
-    
-    class BorderLayer: CAShapeLayer {
-        var observation: KeyValueObservation!
-        
-        var configuration: BorderConfiguration = .none {
-            didSet {
-                let color = configuration.resolvedColor()
-                strokeColor = superlayer?.resolvedColor(for: color) ?? color?.cgColor
-                lineDashPattern = configuration.dash.pattern  as [NSNumber]
-                lineWidth = configuration.width
-                lineDashPhase = configuration.dash.phase
-                lineJoin = configuration.dash.lineJoin.shapeLayerLineJoin
-                lineCap = configuration.dash.lineCap.shapeLayerLineCap
-                if oldValue.insets != configuration.insets {
-                    updateFrame(update: false)
-                }
-                guard oldValue.width != configuration.width || oldValue.insets != configuration.insets else { return }
-                updatePath()
-            }
-        }
-        
-        func updateFrame(update: Bool = true) {
-            guard let layer = superlayer else { return }
-            var frame = layer.bounds
-            frame.size.width -= configuration.insets.width
-            frame.size.height -= configuration.insets.height
-            frame.origin.x = configuration.insets.leading
-            frame.origin.y = configuration.insets.bottom
-            self.frame = frame
-            guard update else { return }
-            updatePath()
-        }
-        
-        var shape: PathShape? {
-            didSet { updatePath() }
-        }
-        
-        func updatePath() {
-            path = shape?.inset(by: lineWidth*0.5).path(in: bounds)
-        }
-        
-        init(for layer: CALayer) {
-            defer { self.shape = layer.maskShape }
-            super.init()
-            fillColor = nil
-            frame = layer.bounds
-            zPosition = .greatestFiniteMagnitude
-            layer.addSublayer(self)
-            strokeColor = layer.borderColor
-            lineWidth = layer.borderWidth
-            sendToBack()
-            observation = layer.observeChanges(for: \.bounds) { [weak self] old, new in
-                guard let self = self, old.size != new.size else { return }
-                self.updateFrame()
-            }
-        }
-        
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-    }
-    
-    class PathShapeMaskLayer: CAShapeLayer {
-        var shape: PathShape {
-            didSet { path = shape.path(in: bounds) }
-        }
-        
-        var observation: KeyValueObservation?
-        
-        init(layer: CALayer, shape: PathShape) {
-            self.shape = shape
-            super.init()
-            
-            frame = layer.bounds
-            layer.mask = self
-            observation = layer.observeChanges(for: \.bounds) { [weak self] old, new in
-                guard let self = self, old.size != new.size else { return }
-                self.frame = new
-                self.path = self.shape.path(in: new)
-            }
-        }
-        
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-    }
-    
     func resolvedColor(for color: NSUIColor?) -> CGColor? {
         guard let view = parentView, let color = color else { return nil }
         return color.resolvedColor(for: view).cgColor
-    }
-    
-    /// The border of the layer.
-    @objc open var border: BorderConfiguration {
-        get { configurations.border }
-        set { configurations.border = newValue }
-    }
-    
-    var _borderColor: CGColor? {
-        get { borderLayer?.strokeColor ?? borderColor }
-        set {
-            if let borderLayer = borderLayer {
-                borderLayer.strokeColor = newValue
-            } else {
-                borderColor = newValue
-            }
-        }
-    }
-    
-    /// The gradient of the layer.
-    public var gradient: Gradient? {
-        get {
-            if let gradient: Gradient = getAssociatedValue("gradient") {
-                return gradient
-            } else if let layer = self as? CAGradientLayer {
-                let colors = (layer.colors as? [CGColor])?.compactMap(\.nsUIColor) ?? []
-                let locations = layer.locations?.compactMap { CGFloat($0.floatValue) } ?? []
-                let stops = zip(colors, locations).map({ Gradient.ColorStop(color: $0.0, location: $0.1) })
-                let gradient = Gradient(stops: stops, startPoint: .init(layer.startPoint), endPoint: .init(layer.endPoint), type: .init(layer.type))
-                setAssociatedValue(gradient, key: "gradient")
-                return gradient
-            }
-            return nil
-        }
-        set {
-            setAssociatedValue(newValue, key: "gradient")
-            if let newValue = newValue, !newValue.stops.isEmpty {
-                if let layer = self as? CAGradientLayer {
-                    layer.colors = newValue.stops.compactMap(\.color.cgColor)
-                    layer.locations = newValue.stops.compactMap { NSNumber($0.location) }
-                    layer.startPoint = newValue.startPoint.point
-                    layer.endPoint = newValue.endPoint.point
-                    layer.type = newValue.type.gradientLayerType
-                } else {
-                    if _gradientLayer == nil {
-                        let gradientLayer = GradientLayer()
-                        addSublayer(withConstraint: gradientLayer)
-                        gradientLayer.sendToBack()
-                        gradientLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude)
-                    }
-                    _gradientLayer?.gradient = newValue
-                }
-            } else {
-                if let layer = self as? CAGradientLayer {
-                    layer.colors = nil
-                } else {
-                    _gradientLayer?.removeFromSuperlayer()
-                }
-            }
-        }
-    }
-    
-    var gradientColors: [CGColor] {
-        get { (self as? CAGradientLayer ?? _gradientLayer)?.colors as? [CGColor] ?? [] }
-        set { (self as? CAGradientLayer ?? _gradientLayer)?.colors = newValue }
-    }
-    
-    var _gradientLayer: GradientLayer? {
-        firstSublayer(type: GradientLayer.self)
     }
     
     /// Sends the layer to the front of it's superlayer.
@@ -651,22 +528,22 @@ extension CALayer {
     
     /// A rendered image of the layer.
     @objc open var renderedImage: NSUIImage {
-#if os(macOS)
+        #if os(macOS)
         let btmpImgRep =
-        NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(frame.width), pixelsHigh: Int(frame.height), bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 32)
+            NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(frame.width), pixelsHigh: Int(frame.height), bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 32)
         let ctx = NSGraphicsContext(bitmapImageRep: btmpImgRep!)
         let cgContext = ctx!.cgContext
         render(in: cgContext)
         let cgImage = cgContext.makeImage()
         let nsimage = NSImage(cgImage: cgImage!, size: CGSize(width: frame.width, height: frame.height))
         return nsimage
-#else
+        #else
         UIGraphicsBeginImageContextWithOptions(frame.size, isOpaque, 0)
         render(in: UIGraphicsGetCurrentContext()!)
         let outputImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return outputImage!
-#endif
+        #endif
     }
     
     /**
@@ -882,6 +759,92 @@ extension CALayer {
     }
 }
 
+fileprivate class BorderLayer: CAShapeLayer {
+    var observation: KeyValueObservation!
+    
+    var configuration: BorderConfiguration = .none {
+        didSet {
+            let color = configuration.resolvedColor()
+            strokeColor = superlayer?.resolvedColor(for: color) ?? color?.cgColor
+            lineDashPattern = configuration.dash.pattern  as [NSNumber]
+            lineWidth = configuration.width
+            lineDashPhase = configuration.dash.phase
+            lineJoin = configuration.dash.lineJoin.shapeLayerLineJoin
+            lineCap = configuration.dash.lineCap.shapeLayerLineCap
+            if oldValue.insets != configuration.insets {
+                updateFrame(update: false)
+            }
+            guard oldValue.width != configuration.width || oldValue.insets != configuration.insets else { return }
+            updatePath()
+        }
+    }
+    
+    func updateFrame(update: Bool = true) {
+        guard let layer = superlayer else { return }
+        var frame = layer.bounds
+        frame.size.width -= configuration.insets.width
+        frame.size.height -= configuration.insets.height
+        frame.origin.x = configuration.insets.leading
+        frame.origin.y = configuration.insets.bottom
+        self.frame = frame
+        guard update else { return }
+        updatePath()
+    }
+    
+    var shape: PathShape? {
+        didSet { updatePath() }
+    }
+    
+    func updatePath() {
+        path = shape?.inset(by: lineWidth*0.5).path(in: bounds)
+    }
+    
+    init(for layer: CALayer) {
+        defer { self.shape = layer.maskShape }
+        super.init()
+        fillColor = nil
+        frame = layer.bounds
+        zPosition = .greatestFiniteMagnitude
+        layer.addSublayer(self)
+        strokeColor = layer.borderColor
+        lineWidth = layer.borderWidth
+        sendToBack()
+        observation = layer.observeChanges(for: \.bounds) { [weak self] old, new in
+            guard let self = self, old.size != new.size else { return }
+            self.updateFrame()
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+fileprivate class PathShapeMaskLayer: CAShapeLayer {
+    var shape: PathShape {
+        didSet { path = shape.path(in: bounds) }
+    }
+    
+    var observation: KeyValueObservation?
+    
+    init(layer: CALayer, shape: PathShape) {
+        self.shape = shape
+        super.init()
+        
+        frame = layer.bounds
+        layer.mask = self
+        observation = layer.observeChanges(for: \.bounds) { [weak self] old, new in
+            guard let self = self, old.size != new.size else { return }
+            self.frame = new
+            self.path = self.shape.path(in: new)
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
 fileprivate extension CAGradientLayer {
     var _gradient: Gradient {
         get {
@@ -899,10 +862,10 @@ fileprivate extension CAGradientLayer {
         }
     }
 }
-#endif
 
 #if os(macOS)
 public extension CAAutoresizingMask {
     static let all: CAAutoresizingMask = [.layerHeightSizable, .layerWidthSizable, .layerMinXMargin, .layerMinYMargin, .layerMaxXMargin, .layerMaxYMargin]
 }
+#endif
 #endif

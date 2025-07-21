@@ -29,10 +29,9 @@ extension NSUIColor: Codable {
     }
     
     fileprivate var values: [CGFloat] {
-        var r, g, b, a, w: CGFloat
-        (r, g, b, a, w) = (0, 0, 0, 0, 0)
+        var (r, g, b, a): (CGFloat, CGFloat, CGFloat, CGFloat) = (0, 0, 0, 0)
         #if os(macOS)
-        if let color = withSupportedColorSpace() {
+        if let color = usingColorSpace(.deviceRGB) ?? usingColorSpace(.genericRGB) {
             color.getRed(&r, green: &g, blue: &b, alpha: &a)
             return [r, g, b, a]
         }
@@ -72,8 +71,7 @@ extension Decodable where Self: NSUIColor {
             #else
             self = Self(hue: components[0], saturation: components[1], brightness: components[2], alpha: components[3])
             #endif
-        default:
-            self = Self(white: 0.0, alpha: 0.0)
+        default: self = Self(white: 0.0, alpha: 0.0)
         }
     }
 }

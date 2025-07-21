@@ -18,7 +18,7 @@ extension NSUIColor {
     public func rgbaComponents() -> RGBAComponents {
         var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
         #if os(macOS)
-        if let color = withSupportedColorSpace() {
+        if let color = usingColorSpace(.deviceRGB) ?? usingColorSpace(.genericRGB) {
             color.getRed(&r, green: &g, blue: &b, alpha: &a)
         } else {
             fatalError("Could not convert color to RGBA.")

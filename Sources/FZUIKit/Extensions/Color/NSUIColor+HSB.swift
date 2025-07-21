@@ -18,7 +18,7 @@ extension NSUIColor {
     public func hsbaComponents() -> HSBAComponents {
         var hsba: (h: CGFloat, s: CGFloat, b: CGFloat, a: CGFloat) = (0,0,0,0)
         #if os(macOS)
-        if let color = withSupportedColorSpace() {
+        if let color = usingColorSpace(.deviceRGB) ?? usingColorSpace(.genericRGB) {
             color.getHue(&hsba.h, saturation: &hsba.s, brightness: &hsba.b, alpha: &hsba.a)
         } else {
             fatalError("Could not convert color to HSBA.")

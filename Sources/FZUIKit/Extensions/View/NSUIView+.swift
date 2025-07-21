@@ -373,51 +373,26 @@ extension NSUIView {
         get { optionalLayer?.gradient }
         set {
             NSUIView.swizzleAnimationForKey()
-            var newValue = newValue
-            let newGradient = newValue ?? .init(stops: [])
-            if !newGradient.stops.isEmpty {
-                backgroundColor = nil
-                self.wantsLayer = true
-                if optionalLayer?._gradientLayer == nil {
-                    var newGradient = newGradient
-                    newGradient.stops = newGradient.stops.map({
-                        $0.transparent })
-                    optionalLayer?.gradient = newGradient
+            if let newValue = newValue, !newValue.stops.isEmpty {
+                if optionalLayer?.gradient == nil {
+                    optionalLayer?.gradient = .init(stops: [])
                 }
+                backgroundColor = nil
             }
-            if let stops = optionalLayer?.gradient?.stops {
-                let stops = stops.animatable(to: newValue?.stops ?? [])
+            if var endGradient = newValue ?? optionalLayer?.gradient {
+                let stops = (optionalLayer?.gradient?.stops ?? []).animatable(to: newValue?.stops ?? [])
                 optionalLayer?.gradient?.stops = stops.start
-                newValue?.stops = stops.end
+                optionalLayer?.gradient?.type = endGradient.type
+                endGradient.stops = stops.end
+                _gradient = endGradient.values
             }
-            gradientStartPoint = newGradient.startPoint.point
-            gradientEndPoint = newGradient.endPoint.point
-            optionalLayer?._gradientLayer?.type = newGradient.type.gradientLayerType
-            gradientLocations = newGradient.stops.compactMap(\.location)
-            gradientColors = newGradient.stops.compactMap(\.color.cgColor)
         }
     }
-
-    @objc var gradientLocations: [CGFloat] {
-        get { optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? [] }
-        set { optionalLayer?._gradientLayer?.locations = (newValue.adjusted(toMatch: (optionalLayer?._gradientLayer?.locations as? [CGFloat] ?? []), withTransform: { _ in 0.0 }, orFillWith: 0.0)).map({ NSNumber($0) }) }
+    
+    @objc fileprivate var _gradient: [Any] {
+        get { optionalLayer?.gradient?.values ?? [] }
+        set { optionalLayer?.gradient?.values = newValue }
     }
-
-    @objc var gradientStartPoint: CGPoint {
-        get { optionalLayer?._gradientLayer?.startPoint ?? .zero }
-        set { optionalLayer?._gradientLayer?.startPoint = newValue }
-    }
-
-    @objc var gradientEndPoint: CGPoint {
-        get { optionalLayer?._gradientLayer?.endPoint ?? .zero }
-        set { optionalLayer?._gradientLayer?.endPoint = newValue }
-    }
-
-    @objc var gradientColors: [CGColor] {
-        get { optionalLayer?._gradientLayer?.colors as? [CGColor] ?? [] }
-        set { optionalLayer?._gradientLayer?.colors = newValue.adjusted(toMatch: (optionalLayer?._gradientLayer?.colors ?? []).count, withTransform: { $0.copy(alpha: 0.0) ?? $0 }, orFillWith: .clear) }
-    }
-
     #elseif canImport(UIKit)
     /**
      The background gradient of the view.
@@ -426,7 +401,22 @@ extension NSUIView {
      */
     public var gradient: Gradient? {
         get { optionalLayer?.gradient }
-        set { optionalLayer?.gradient = newValue }
+        set {
+            if let newValue = newValue, !newValue.stops.isEmpty {
+                if optionalLayer?.gradient == nil {
+                    optionalLayer?.gradient = .init(stops: [])
+                }
+                backgroundColor = nil
+            }
+            if var endGradient = newValue ?? optionalLayer?.gradient {
+                let stops = (optionalLayer?.gradient?.stops ?? []).animatable(to: newValue?.stops ?? [])
+                UIView.performWithoutAnimation {
+                    optionalLayer?.gradient = stops.start
+                }
+                endGradient.stops = stops.end
+                optionalLayer?.gradient = endGradient
+            }
+        }
     }
     #endif
 
@@ -690,10 +680,13 @@ extension NSUIView {
         guard level+1 <= depth else { return false }
         return subviews.contains { $0.matchesPredicateRecursively(predicate, level: level+1, depth: depth) }
     }
-}
 
-extension NSUIView {
-    static var debugAutoLayoutProblems: Bool {
+    /**
+     A Boolean value indicating whether to debug autolayout problems.
+     
+     If set to `true`, autolayout problems are printed to the console.
+     */
+    public static var debugAutoLayoutProblems: Bool {
         get { isMethodHooked(NSSelectorFromString("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:")) }
         set {
             guard newValue != debugAutoLayoutProblems else { return }
@@ -736,7 +729,7 @@ extension NSUIView {
     }
 }
 
-extension [Gradient.ColorStop] {
+fileprivate extension [Gradient.ColorStop] {
     func animatable(to stops: Self) -> (start: Self, end: Self) {
         var from = self
         var to = stops
@@ -749,22 +742,29 @@ extension [Gradient.ColorStop] {
     }
 }
 
-fileprivate extension Array {
-    func adjusted(toMatch count: Int, withTransform transform: (Element) -> Element, orFillWith fillValue: Element) -> Self {
-        var newValue = self
-        let diff = newValue.count - count
-        if diff < 0 {
-            for i in (newValue.count + diff)..<newValue.count {
-                newValue[i] = transform(newValue[i])
-            }
-        } else if diff > 0 {
-            newValue.append(contentsOf: Array(repeating: fillValue, count: diff))
-        }
-        return newValue
+fileprivate extension Gradient.ColorStop {
+    var values: [Any] {
+        get { [location, color] }
     }
 
-    func adjusted(toMatch reference: Self, withTransform transform: (Element) -> Element, orFillWith fillValue: Element) -> Self {
-        adjusted(toMatch: reference.count, withTransform: transform, orFillWith: fillValue)
+    init(_ values: [Any]) {
+        location = values[0] as! CGFloat
+        color = values[1] as! NSUIColor
+    }
+}
+
+fileprivate extension Gradient {
+    var values: [Any] {
+        get {
+            var values: [Any] = [startPoint.x, startPoint.y, endPoint.x, endPoint.y]
+            values.append(contentsOf: stops.map({ $0.values }))
+            return values
+        }
+        set {
+            startPoint = .init(newValue[0] as! CGFloat, newValue[1] as! CGFloat)
+            endPoint = .init(newValue[2] as! CGFloat, newValue[3] as! CGFloat)
+            stops = newValue[safe: 4...].map({ ColorStop($0 as! [Any]) })
+        }
     }
 }
 #endif
