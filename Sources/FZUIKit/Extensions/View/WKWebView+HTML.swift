@@ -53,7 +53,7 @@ extension WKWebView {
                 completion(nil)
                 return
             }
-            DispatchQueue.global(qos: .background).async {
+            DispatchQueue.main.async {
                 webView.evaluateJavaScript(js) { result, _ in
                     DispatchQueue.main.async {
                         completion(result as? ReturnType)
@@ -67,7 +67,7 @@ extension WKWebView {
                 completion(false)
                 return
             }
-            DispatchQueue.global(qos: .background).async {
+            DispatchQueue.main.async {
                 webView.evaluateJavaScript(js) { result, error in
                     DispatchQueue.main.async {
                         if let error = error {
