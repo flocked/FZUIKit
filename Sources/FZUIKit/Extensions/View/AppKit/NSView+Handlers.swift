@@ -41,16 +41,17 @@ extension NSView {
                 do {
                     menuProviderHook = try hook(#selector(NSView.menu(for:)), closure: {
                         original, view, selector, event in
-                        var location = event.location(in: view)
+                        let location = event.location(in: view)
+                        var altLocation = location
                         if let superview = view.superview {
-                            location = event.location(in: superview)
+                            altLocation = event.location(in: superview)
                         }
                         if let superview = view.superview {
                             Swift.print("menuFor", event.type.description, event.location(in: view), event.location(in: superview))
                         } else {
                             Swift.print("menuFor", event.type.description, event.location(in: view))
                         }
-                        if let hitView = view.hitTest(location), hitView !== view {
+                        if let hitView = view.hitTest(altLocation), hitView !== view {
                             if let textProvider = hitView as? TextLocationProvider {
                                 if textProvider.isLocationInsideText(view.convert(location, to: hitView)) {
                                     return nil
