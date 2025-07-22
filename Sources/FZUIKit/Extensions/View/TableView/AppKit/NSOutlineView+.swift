@@ -11,7 +11,7 @@ import AppKit
 import FZSwiftUtils
 
 extension NSOutlineView {
-    /// The items that are selected.
+    /// The items that are currently selected.
     public var selectedItems: [Any] {
       selectedRowIndexes.compactMap({ item(atRow: $0) })
     }
