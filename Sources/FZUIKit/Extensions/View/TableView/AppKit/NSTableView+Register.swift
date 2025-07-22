@@ -115,5 +115,10 @@ extension NSTableView {
         get { getAssociatedValue("isEnablingAutomaticRowHeights") ?? false }
         set { setAssociatedValue(newValue, key: "isEnablingAutomaticRowHeights") }
     }
+    
+    @objc static var shouldSwizzleViewRegistration: Bool {
+        get { didSwizzleViewRegistration }
+        set { swizzleViewRegistration() }
+    }
 }
 #endif
