@@ -7,21 +7,46 @@
 
 
 #if os(macOS) || os(iOS) || os(tvOS)
-    #if os(macOS)
-        import AppKit
-    #elseif canImport(UIKit)
-        import UIKit
-    #endif
+#if os(macOS)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 
 extension NSLayoutManager {
-    /// The frame of the string.
-    func boundingRect(for string: String) -> CGRect? {
+    /**
+     Removes the specified text container.
+     
+     - Parameter textContainer: The text container to remove.
+     */
+    public func removeTextContainer(_ textContainer: NSTextContainer) {
+        guard let index = textContainers.firstIndex(of: textContainer) else { return }
+        removeTextContainer(at: index)
+    }
+    
+    /// Sets the text containers of the layout manager.
+    @discardableResult
+    public func textContainers(_ textContainers: [NSTextContainer]) -> Self {
+        textContainersWritable = textContainers
+        return self
+    }
+    
+    fileprivate var textContainersWritable: [NSTextContainer] {
+        get { textContainers }
+        set {
+            textContainers.forEach({ removeTextContainer($0) })
+            newValue.forEach({ addTextContainer($0) })
+        }
+    }
+    
+    /// The frame of the specified string.
+    public func boundingRect(for string: String) -> CGRect? {
         guard let range = textStorage?.string.range(of: string) else { return nil }
         return boundingRect(for: range)
     }
     
-    /// The frame of the string at the range.
-    func boundingRect(for range: Range<String.Index>) -> CGRect? {
+    /// The frame of the string at the specified range.
+    public func boundingRect(for range: Range<String.Index>) -> CGRect? {
         var boundingRect: CGRect? = nil
         guard let string = textStorage?.string, let textContainer = textContainers.first, range.clamped(to: string.startIndex..<string.endIndex) == range else { return nil }
         enumerateEnclosingRects(forGlyphRange:  NSRange(range, in: string), withinSelectedGlyphRange:  NSRange(range, in: string), in: textContainer) { rect, stop in
