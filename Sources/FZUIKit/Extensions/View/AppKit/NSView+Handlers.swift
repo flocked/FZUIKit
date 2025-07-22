@@ -29,39 +29,43 @@ extension NSView {
     
     /**
      A handler that provides the menu for a right-click.
+     
+     If you ptovide this property, [menu](https://developer.apple.com/documentation/appkit/nsresponder/menu) will be ignored.
           
      - Parameter locationInView: The location of the right click inside the view.
-     - Returns: A menu for the location or `nil`, if you don't want to display a menu.
+     - Returns: A menu for the location or `nil`, if there shouldn't be a menu displayed.
      */
     public var menuProvider: ((_ locationInView: CGPoint)->(NSMenu?))? {
         get { _menuProvider }
         set {
-            try? menuProviderHook?.revert()
-            menuProviderHook = nil
-            _menuProvider = nil
-            guard let menuProvider = newValue else { return }
-            do {
-                menuProviderHook = try hook(#selector(NSView.menu(for:)), closure: {
-                    original, view, selector, event in
-                    let location = event.location(in: view)
-                    var _location = location
-                    if let superview = view.superview {
-                        _location = event.location(in: superview)
-                    }
-                    if let hitView = view.hitTest(_location), hitView !== view {
-                        if let textProvider = hitView as? TextLocationProvider {
-                            if textProvider.isLocationInsideText(view.convert(location, to: hitView)) {
+            _menuProvider = newValue
+            if newValue != nil, menuProviderHook == nil {
+                do {
+                    menuProviderHook = try hook(#selector(NSView.menu(for:)), closure: {
+                        original, view, selector, event in
+                        let location = event.location(in: view)
+                        var _location = location
+                        if let superview = view.superview {
+                            _location = event.location(in: superview)
+                        }
+                        if let hitView = view.hitTest(_location), hitView !== view {
+                            if let textProvider = hitView as? TextLocationProvider {
+                                if textProvider.isLocationInsideText(view.convert(location, to: hitView)) {
+                                    return nil
+                                }
+                            } else {
                                 return nil
                             }
-                        } else {
-                            return nil
                         }
-                    }
-                    return menuProvider(location)
-                } as @convention(block) ( (NSView, Selector, NSEvent) -> NSMenu?, NSView, Selector, NSEvent) -> NSMenu?)
-                _menuProvider = newValue
-            } catch {
-                Swift.print(error)
+                        return view._menuProvider?(location) ?? nil
+                    } as @convention(block) ( (NSView, Selector, NSEvent) -> NSMenu?, NSView, Selector, NSEvent) -> NSMenu?)
+                } catch {
+                    _menuProvider = nil
+                    Swift.print(error)
+                }
+            } else if newValue == nil {
+                try? menuProviderHook?.revert()
+                menuProviderHook = nil
             }
         }
     }
