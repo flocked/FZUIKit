@@ -26,6 +26,11 @@ extension NSOutlineView {
         collectItems(isExpanded: false)
     }
     
+    /// The items that are currently visible.
+    public var visibleItems: [Any]  {
+        visibleRowIndexes().compactMap({ item(atRow: $0) })
+    }
+    
     /// Expands all items.
     public func expandItems() {
         expandItems(collapsedItems)
