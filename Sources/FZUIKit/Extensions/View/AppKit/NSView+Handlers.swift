@@ -57,7 +57,7 @@ extension NSView {
         func getMenu() -> NSMenu? {
             guard let view = view, let event = NSEvent.current else { return nil }
             let location = event.location(in: view)
-            Swift.print("hitTest", view.hitTest(location) ?? "nil", view.hitTest(location)?.menu != nil)
+            Swift.print("hitTest", view.hitTest(location) ?? "nil", view.hitTest(location)?.menu != nil, view.subviews.count, view.subviews.map({ type(of: $0) }))
             if let subview = view.hitTest(location) {
                 if event.type == .rightMouseDown {
                     subview.rightMouseDown(with: event)
