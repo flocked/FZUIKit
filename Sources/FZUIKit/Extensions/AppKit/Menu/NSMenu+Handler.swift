@@ -121,6 +121,7 @@ extension NSMenu {
         
         func menuNeedsUpdate(_ menu: NSMenu) {
             guard menu.delegate === self else { return }
+            Swift.print("menuNeedsUpdate", ObjectIdentifier(menu).hashValue)
             menu.handlers.update?(menu)
             delegate?.menuNeedsUpdate?(menu)
             viewMenuProviderMenu = (menu as? NSView.ViewMenuProviderMenu)?.getMenu()
