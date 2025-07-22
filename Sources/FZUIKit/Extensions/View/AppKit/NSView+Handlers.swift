@@ -34,16 +34,30 @@ extension NSView {
      - Returns: A menu for the location or `nil`, if you don't want to display a menu.
      */
     public var menuProvider: ((_ locationInView: CGPoint)->(NSMenu?))? {
-        get { (menu as? ViewMenuProviderMenu)?.handler }
+        get { _menuProvider }
         set {
+            _menuProvider = newValue
             if let newValue = newValue {
                 do {
                     menuProviderHook = try hook(#selector(NSView.menu(for:)), closure: {
                         original, view, selector, event in
+                        var location = event.location(in: view)
+                        if let superview = view.superview {
+                            location = event.location(in: superview)
+                        }
                         if let superview = view.superview {
                             Swift.print("menuFor", event.type.description, event.location(in: view), event.location(in: superview))
                         } else {
                             Swift.print("menuFor", event.type.description, event.location(in: view))
+                        }
+                        if let hitView = view.hitTest(location), hitView !== view {
+                            if let textProvider = hitView as? TextLocationProvider {
+                                if textProvider.isLocationInsideText(view.convert(location, to: hitView)) {
+                                    return nil
+                                }
+                            } else {
+                                return nil
+                            }
                         }
                         return newValue(event.location(in: view))
                     } as @convention(block) ( (NSView, Selector, NSEvent) -> NSMenu?, NSView, Selector, NSEvent) -> NSMenu?)
@@ -63,6 +77,11 @@ extension NSView {
             }
              */
         }
+    }
+    
+    fileprivate var _menuProvider: ((_ locationInView: CGPoint)->(NSMenu?))? {
+        get { getAssociatedValue("_menuProvider") }
+        set { setAssociatedValue(newValue, key: "_menuProvider") }
     }
     
     fileprivate var menuProviderHook: Hook? {
