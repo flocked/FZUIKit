@@ -223,8 +223,10 @@ extension NSOutlineView {
             if newValue {
                 do {
                     centerIndicatorHook = try hook(#selector(NSOutlineView.frameOfOutlineCell(atRow:)), closure: {
-                        original, outlineview, selector, frame in
-                        original(outlineview, selector, frame)
+                        original, outlineview, selector, row in
+                        var frame = original(outlineview, selector, row)
+                        frame.center.y = outlineview.rowView(atRow: row, makeIfNecessary: true)?.bounds.center.y ?? frame.center.y
+                        return frame
                     } as @convention(block) ((NSOutlineView, Selector, Int) -> CGRect, NSOutlineView, Selector, Int) -> CGRect)
                 } catch {
                     Swift.print(error)
