@@ -26,8 +26,22 @@ extension NSOutlineView {
         collectItems(isExpanded: false)
     }
     
+    /// Expands all items.
+    public func expandItems() {
+        expandItems(collapsedItems)
+    }
+    
     /**
-     Expands a given item.
+     Expands all items and, optionally, their children.
+     
+     - Parameter expandChildren: A Boolean value indicating whether all child items of items should be expanded.
+     */
+    public func expandItems(expandChildren: Bool) {
+        expandItems(collapsedItems, expandChildren: expandChildren)
+    }
+    
+    /**
+     Expands the specified item.
      
      - Parameters:
         - item: The item to expand.
@@ -44,7 +58,24 @@ extension NSOutlineView {
     }
     
     /**
-     Expands a specified item and, optionally, its children.
+     Expands the specified items.
+     
+     - Parameters:
+        - items: The items to expand.
+        - eclusively: A Boolean value indicating whether all currently expanded items should be collapsed.
+     */
+    public func expandItems(_ items: [Any], eclusively: Bool = false) {
+        if !eclusively {
+            items.forEach({ expandItem($0) })
+        } else {
+            let expandedItems = expandedItems
+            items.forEach({ expandItem($0) })
+            expandedItems.forEach({ collapseItem($0) })
+        }
+    }
+    
+    /**
+     Expands the specified item and, optionally, its children.
      
      - Parameters:
         - item: The item to expand.
@@ -62,6 +93,77 @@ extension NSOutlineView {
     }
     
     /**
+     Expands the specified items and, optionally, their children.
+     
+     - Parameters:
+        - items: The items to expand.
+        - expandChildren: A Boolean value indicating whether all child items of the items should be expanded.
+        - eclusively: A Boolean value indicating whether all currently expanded items should be collapsed.
+     */
+    public func expandItems(_ items: [Any], expandChildren: Bool, eclusively: Bool = false) {
+        if !eclusively {
+            items.forEach({ expandItem($0, expandChildren: expandChildren) })
+        } else {
+            let expandedItems = expandedItems
+            items.forEach({ expandItem($0, expandChildren: expandChildren) })
+            expandedItems.forEach({ collapseItem($0) })
+        }
+    }
+    
+    /// Collapse all items.
+    public func collapseItems() {
+        collapseItems(expandedItems)
+    }
+    
+    /**
+     Collapse all items and, optionally, their children.
+     
+     - Parameter collapseChildren: A Boolean value indicating whether all child items of items should be collapsed.
+     */
+    public func collapseItems(collapseChildren: Bool) {
+        collapseItems(expandedItems, collapseChildren: collapseChildren)
+    }
+    
+    /**
+     Collapses the specified items.
+     
+     - Parameter items: The items to collapse.
+     */
+    public func collapseItems(_ items: [Any]) {
+        items.forEach({ collapseItem($0) })
+    }
+    
+    /**
+     Collapses the specified items and, optionally, their children.
+     
+     - Parameters:
+        - items: The items to collapse.
+        - collapseChildren: A Boolean value indicating whether all child items of items should be collapsed.
+     */
+    public func collapseItems(_ items: [Any], collapseChildren: Bool) {
+        items.forEach({ collapseItem($0, collapseChildren: collapseChildren) })
+    }
+    
+    /// Selects all items.
+    public func selectItems() {
+        selectAll(nil)
+    }
+    
+    /**
+     Selects the specified item.
+     
+     - Parameters:
+        - item: The item to select.
+        - extend: `true` if the selection should be extended, `false` if the current selection should be changed.
+     */
+    public func selectItem(_ item: Any, byExtendingSelection extend: Bool = false) {
+        expandItem(item)
+        let row = row(forItem: item)
+        guard row != -1 else { return }
+        selectRowIndexes(IndexSet([row]), byExtendingSelection: extend)
+    }
+    
+    /**
      Selects the specified items.
      
      - Parameters:
@@ -74,6 +176,22 @@ extension NSOutlineView {
       let rowIndexes = items.compactMap({ row(forItem: $0) }).filter({$0 != -1})
       guard !rowIndexes.isEmpty else { return }
       selectRowIndexes(IndexSet(rowIndexes), byExtendingSelection: extend)
+    }
+    
+    /// Deselects all items.
+    public func deselectItems() {
+        deselectAll(nil)
+    }
+    
+    /**
+     Deselects the specified item.
+     
+     - Parameter item: The item to deselect.
+     */
+    func deselectItem(_ item: Any) {
+        let row = row(forItem: item)
+        guard row != -1 else { return }
+        deselectRow(row)
     }
     
     /**
