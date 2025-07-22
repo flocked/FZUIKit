@@ -57,7 +57,8 @@ extension NSView {
         func getMenu() -> NSMenu? {
             guard let view = view, let event = NSEvent.current else { return nil }
             let location = event.location(in: view)
-            if let subview = view.hitTest(location) {
+            Swift.print("hitTest", view.subview(at: location) != nil, view.subview(at: location)?.menu != nil, view.subview(at: location) ?? "nil")
+            if let subview = view.subview(at: location) {
                 if event.type == .rightMouseDown {
                     subview.rightMouseDown(with: event)
                 } else if event.type == .rightMouseUp {
@@ -891,6 +892,16 @@ fileprivate class BackgroundStyleObserverView: NSControl {
                 controlView?.superview?.viewHandlers.backgroundStyle?(newValue)
             }
         }
+    }
+}
+
+fileprivate extension NSView {
+    func subview(at location: CGPoint) -> NSView? {
+        for subview in subviews {
+            guard let subview = subview.subview(at: convert(location, to: subview)) else { continue }
+            return subview
+        }
+        return bounds.contains(location) ? self : nil
     }
 }
     
