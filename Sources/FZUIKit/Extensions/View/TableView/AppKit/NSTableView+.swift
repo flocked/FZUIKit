@@ -177,6 +177,16 @@
             tableColumns(columns)
         }
         
+        /**
+         Returns the index of the specified column in the table view.
+         
+         - Parameter tableColumn: The table column.
+         - Returns: The index of the specified column in the [tableColumns](https://developer.apple.com/documentation/appkit/nstableview/tablecolumns) array, or `–1` if no columns is found.
+         */
+        func column(of tableColumn: NSTableColumn) -> Int {
+            tableColumns.firstIndex(of: tableColumn) ?? -1
+        }
+        
         /// Sets the table columns.
         @discardableResult
         func tableColumns(_ columns: [NSTableColumn]) -> Self {
@@ -386,12 +396,12 @@ extension NSTableView {
         }
     }
     
-    var toggleGestureRecognizer: ToggleGestureRecognizer? {
+    fileprivate var toggleGestureRecognizer: ToggleGestureRecognizer? {
         get { getAssociatedValue("toggleGestureRecognizer") }
         set { setAssociatedValue(newValue, key: "toggleGestureRecognizer") }
     }
     
-    class ToggleGestureRecognizer: NSGestureRecognizer {
+    fileprivate class ToggleGestureRecognizer: NSGestureRecognizer {
         init() {
             super.init(target: nil, action: nil)
             delaysPrimaryMouseButtonEvents = true
@@ -467,11 +477,11 @@ extension NSTableView {
         }
     }
     
-   @objc private func didDoubleClick(_ gesture: NSClickGestureRecognizer) {
+   @objc fileprivate func didDoubleClick(_ gesture: NSClickGestureRecognizer) {
         doubleClickHandler?(selectedRow != -1 ? selectedRow : nil)
     }
     
-    private var doubleClickGesture: DoubleClickGestureRecognizer? {
+    fileprivate var doubleClickGesture: DoubleClickGestureRecognizer? {
         get { getAssociatedValue("doubleClickGesture") }
         set { setAssociatedValue(newValue, key: "doubleClickGesture") }
     }

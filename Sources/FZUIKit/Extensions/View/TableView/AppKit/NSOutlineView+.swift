@@ -244,13 +244,49 @@ extension NSOutlineView {
         return self
     }
     
+    /**
+     Updates the data for the items you specify, preserving the existing row views and cells for the rows.
+
+     To update the contents of existing (including prefetched) cells without replacing them with new row views nad cells, use this method instead of ``AppKit/NSOutlineView/reloadItems(_:)``. For optimal performance, choose to reconfigure rows instead of reloading rows unless you have an explicit need to replace the existing row view or cells with new.
+     
+     - Parameter items: The items you want to update.
+     */
+    public func reconfigurateItems(_ items: [Any]) {
+        let rows = items.map({ row(forItem: $0) }).filter({ $0 != -1 })
+        guard !rows.isEmpty else { return }
+        reconfigureRows(at: IndexSet(rows))
+    }
+    
+    /**
+     Reloads and redisplays the data for the given item.
+     
+     This method may cause the outline view to change its selection without calling the outlineViewSelectionDidChange(_:) delegate method.
+     
+     - Parameter items: The items to reload.
+     
+     */
+    public func reloadItems(_ items: [Any]) {
+        items.forEach({ reloadItem($0) })
+    }
+    
+    /**
+     Reloads a given item and, optionally, its children.
+     
+     - Parameters:
+        - items: The items to reload.
+        - reloadChildren: A Boolean value indicating whether the child items of the `items` should be reloaded.
+     */
+    public func reloadItems(_ items: [Any], reloadChildren: Bool) {
+        items.forEach({ reloadItem($0, reloadChildren: reloadChildren) })
+    }
+    
     fileprivate var centerIndicatorHook: Hook? {
         get { getAssociatedValue("centerIndicatorHook") }
         set { setAssociatedValue(newValue, key: "centerIndicatorHook") }
     }
 
     /// Recursively walks the outline view collecting items based on expansion state.
-    private func collectItems(isExpanded: Bool, parent: Any? = nil) -> [Any] {
+    fileprivate func collectItems(isExpanded: Bool, parent: Any? = nil) -> [Any] {
         let childCount = dataSource?.outlineView?(self, numberOfChildrenOfItem: parent) ?? 0
         var result: [Any] = []
         for index in 0..<childCount {

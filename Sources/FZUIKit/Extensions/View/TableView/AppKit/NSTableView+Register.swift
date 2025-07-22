@@ -14,7 +14,7 @@ extension NSTableView {
     /**
      Registers a view class for the specified identifier, so that view-based table views can use it to instantiate views.
 
-     Use this method to associate the view class with the specified identifier. When you request a view using ``makeView(for:)``, the table view recycles an existing view with the same class or creates a new one by instantiating your class.
+     Use this method to associate the view class with the specified identifier. When you request a view using ``AppKit/NSTableView/makeView(for:)``, the table view recycles an existing view with the same class or creates a new one by instantiating your class.
      
      - Parameter viewClass: The  view class to register.
      */
@@ -31,7 +31,7 @@ extension NSTableView {
     /**
      Returns a new or existing view with the specified view class.
 
-     To be able to create a reusable view using this method, you have to register it first via ``register(_:)``.
+     To be able to create a reusable view using this method, you have to register it first via ``AppKit/NSTableView/register(_:)``.
 
      When this method is called, the table view automatically instantiates the cell view with the specified owner, which is usually the table view’s delegate. (The owner is useful in setting up outlets and target/actions from the view.).
 
@@ -54,21 +54,21 @@ extension NSTableView {
     /**
      The dictionary of all registered classes for view-based table view identifiers.
      
-     Each key in the dictionary is the identifier used to register the view class in the ``register(_:)``. The value of each key is the corresponding view class.
+     Each key in the dictionary is the identifier used to register the view class in the ``AppKit/NSTableView/register(_:)``. The value of each key is the corresponding view class.
      */
     @objc public private(set) var registeredClassesByIdentifier: [NSUserInterfaceItemIdentifier: NSView.Type] {
         get { getAssociatedValue("registeredClassesByIdentifier", initialValue: [:]) }
         set { setAssociatedValue(newValue, key: "registeredClassesByIdentifier") }
     }
 
-    @objc private func swizzled_register(_ nib: NSNib?, forIdentifier identifier: NSUserInterfaceItemIdentifier) {
+    @objc fileprivate func swizzled_register(_ nib: NSNib?, forIdentifier identifier: NSUserInterfaceItemIdentifier) {
         if nib == nil {
             registeredClassesByIdentifier[identifier] = nil
         }
         swizzled_register(nib, forIdentifier: identifier)
     }
 
-    @objc private func swizzled_makeView(withIdentifier identifier: NSUserInterfaceItemIdentifier, owner: Any?) -> NSView? {
+    @objc fileprivate func swizzled_makeView(withIdentifier identifier: NSUserInterfaceItemIdentifier, owner: Any?) -> NSView? {
         if isEnablingAutomaticRowHeights {
             isEnablingAutomaticRowHeights = false
             return nil
@@ -92,11 +92,6 @@ extension NSTableView {
         let view = swizzled_makeView(withIdentifier: identifier, owner: owner)
         return view
     }
-    
-    private static var didSwizzleViewRegistration: Bool {
-        get { getAssociatedValue("didSwizzleViewRegistration") ?? false }
-        set { setAssociatedValue(newValue, key: "didSwizzleViewRegistration") }
-    }
 
     static func swizzleViewRegistration() {
         guard !didSwizzleViewRegistration else { return }
@@ -111,12 +106,17 @@ extension NSTableView {
         }
     }
     
-    @objc var isEnablingAutomaticRowHeights: Bool {
+    fileprivate static var didSwizzleViewRegistration: Bool {
+        get { getAssociatedValue("didSwizzleViewRegistration") ?? false }
+        set { setAssociatedValue(newValue, key: "didSwizzleViewRegistration") }
+    }
+    
+    @objc fileprivate var isEnablingAutomaticRowHeights: Bool {
         get { getAssociatedValue("isEnablingAutomaticRowHeights") ?? false }
         set { setAssociatedValue(newValue, key: "isEnablingAutomaticRowHeights") }
     }
     
-    @objc static var shouldSwizzleViewRegistration: Bool {
+    @objc fileprivate static var shouldSwizzleViewRegistration: Bool {
         get { didSwizzleViewRegistration }
         set { swizzleViewRegistration() }
     }
