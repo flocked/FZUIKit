@@ -28,11 +28,12 @@ extension NSView {
     }
     
     /**
-     Handler that provides the menu for a right-click.
-     
-     The handler provides the location of the right click inside the view. Return the menu to the handler, or `nil`, if you don't want to display a menu.
+     A handler that provides the menu for a right-click.
+          
+     - Parameter locationInView: The location of the right click inside the view.
+     - Returns: A menu for the location or `nil`, if you don't want to display a menu.
      */
-    public var menuProvider: ((_ location: CGPoint)->(NSMenu?))? {
+    public var menuProvider: ((_ locationInView: CGPoint)->(NSMenu?))? {
         get { (menu as? ViewMenuProviderMenu)?.handler }
         set {
             if let newValue = newValue {
@@ -57,7 +58,7 @@ extension NSView {
         func getMenu() -> NSMenu? {
             guard let view = view, let event = NSEvent.current else { return nil }
             let location = event.location(in: view)
-            Swift.print("hitTest", view.subview(at: location) != nil, view.subview(at: location)?.menu != nil, view.subview(at: location) ?? "nil")
+            Swift.print("hitTest", event.type.description, view.subview(at: location) != nil, view.subview(at: location)?.menu != nil, view.subview(at: location) ?? "nil")
             if let subview = view.subview(at: location) {
                 if event.type == .rightMouseDown {
                     subview.rightMouseDown(with: event)
