@@ -36,20 +36,18 @@ extension NSView {
     public var menuProvider: ((_ locationInView: CGPoint)->(NSMenu?))? {
         get { _menuProvider }
         set {
-            _menuProvider = newValue
-            try? menuProviderHook?.revert()
             menuProviderHook = nil
             _menuProvider = nil
-            guard let newValue = newValue else { return }
+            guard let menuProvider = newValue else { return }
             do {
                 menuProviderHook = try hook(#selector(NSView.menu(for:)), closure: {
                     original, view, selector, event in
                     let location = event.location(in: view)
-                    var altLocation = location
+                    var _location = location
                     if let superview = view.superview {
-                        altLocation = event.location(in: superview)
+                        _location = event.location(in: superview)
                     }
-                    if let hitView = view.hitTest(altLocation), hitView !== view {
+                    if let hitView = view.hitTest(_location), hitView !== view {
                         if let textProvider = hitView as? TextLocationProvider {
                             if textProvider.isLocationInsideText(view.convert(location, to: hitView)) {
                                 return nil
@@ -58,8 +56,8 @@ extension NSView {
                             return nil
                         }
                     }
-                    return newValue(event.location(in: view))
-                } as @convention(block) ( (NSView, Selector, NSEvent) -> NSMenu?, NSView, Selector, NSEvent) -> NSMenu?)
+                    return menuProvider(location)
+                } as @convention(block) ( (NSView, Selector, NSEvent) -> NSMenu?, NSView, Selector, NSEvent) -> NSMenu?).revertOnDeinit(true)
                 _menuProvider = newValue
             } catch {
                 Swift.print(error)
