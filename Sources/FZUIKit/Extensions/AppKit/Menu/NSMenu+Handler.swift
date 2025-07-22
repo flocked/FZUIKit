@@ -62,11 +62,7 @@ extension NSMenu {
     }
     
     func setupDelegateProxy() {
-        if self is NSView.ViewMenuProviderMenu || handlers.needsDelegate || items.contains(where: { $0.needsDelegateProxy }) {
-            if delegateProxy == nil {
-                delegateProxy = Delegate(self)
-            }
-        } else if delegateProxy != nil {
+        if delegateProxy != nil {
             let _delegate = delegateProxy?.delegate
             delegateProxy = nil
             delegate = _delegate
@@ -77,7 +73,6 @@ extension NSMenu {
         weak var delegate: NSMenuDelegate?
         var eventObserver: CFRunLoopObserver?
         var delegateObservation: KeyValueObservation?
-        var viewMenuProviderMenu: NSMenu?
 
         init(_ menu: NSMenu) {
             self.delegate = menu.delegate
@@ -94,7 +89,6 @@ extension NSMenu {
             guard menu.delegate === self else { return }
             menu.handlers.willOpen?()
             delegate?.menuWillOpen?(menu)
-            viewMenuProviderMenu?.handlers.willOpen?()
         }
         
         func menuDidClose(_ menu: NSMenu) {
@@ -106,13 +100,6 @@ extension NSMenu {
                 CFRunLoopObserverInvalidate(eventObserver)
                 eventObserver = nil
             }
-            if let viewMenu = viewMenuProviderMenu {
-                let items = menu.items
-                menu.items = []
-                viewMenu.items = items
-                viewMenuProviderMenu = nil
-                viewMenu.handlers.didClose?()
-            }
         }
         
         func numberOfItems(in menu: NSMenu) -> Int {
@@ -121,15 +108,8 @@ extension NSMenu {
         
         func menuNeedsUpdate(_ menu: NSMenu) {
             guard menu.delegate === self else { return }
-            Swift.print("menuNeedsUpdate", ObjectIdentifier(menu).hashValue)
             menu.handlers.update?(menu)
             delegate?.menuNeedsUpdate?(menu)
-            viewMenuProviderMenu = (menu as? NSView.ViewMenuProviderMenu)?.getMenu()
-            if let viewMenu = viewMenuProviderMenu {
-                let items = viewMenu.items
-                viewMenu.items = []
-                menu.items = items
-            }
             let optionPressed = NSEvent.modifierFlags.contains([.option])
             menu.items.filter({ $0.visibility != .always }).forEach({ $0.isHidden = !optionPressed })
             if eventObserver == nil, menu.items.contains(where: { $0.visibility == .whileHoldingOption }) {
@@ -161,7 +141,6 @@ extension NSMenu {
         
         func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {
             menu.items.forEach({($0.view as? NSMenuItemView)?.isHighlighted = $0 === item })
-            viewMenuProviderMenu?.handlers.willHighlight?(item)
             if menu.delegate === self {
                 menu.handlers.willHighlight?(item)
             }

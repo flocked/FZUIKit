@@ -37,46 +37,33 @@ extension NSView {
         get { _menuProvider }
         set {
             _menuProvider = newValue
-            if let newValue = newValue {
-                do {
-                    menuProviderHook = try hook(#selector(NSView.menu(for:)), closure: {
-                        original, view, selector, event in
-                        let location = event.location(in: view)
-                        var altLocation = location
-                        if let superview = view.superview {
-                            altLocation = event.location(in: superview)
-                        }
-                        if let superview = view.superview {
-                            Swift.print("menuFor", event.type.description, event.location(in: view), event.location(in: superview))
-                        } else {
-                            Swift.print("menuFor", event.type.description, event.location(in: view))
-                        }
-                        if let hitView = view.hitTest(altLocation), hitView !== view {
-                            if let textProvider = hitView as? TextLocationProvider {
-                                if textProvider.isLocationInsideText(view.convert(location, to: hitView)) {
-                                    return nil
-                                }
-                            } else {
+            try? menuProviderHook?.revert()
+            menuProviderHook = nil
+            _menuProvider = nil
+            guard let newValue = newValue else { return }
+            do {
+                menuProviderHook = try hook(#selector(NSView.menu(for:)), closure: {
+                    original, view, selector, event in
+                    let location = event.location(in: view)
+                    var altLocation = location
+                    if let superview = view.superview {
+                        altLocation = event.location(in: superview)
+                    }
+                    if let hitView = view.hitTest(altLocation), hitView !== view {
+                        if let textProvider = hitView as? TextLocationProvider {
+                            if textProvider.isLocationInsideText(view.convert(location, to: hitView)) {
                                 return nil
                             }
+                        } else {
+                            return nil
                         }
-                        return newValue(event.location(in: view))
-                    } as @convention(block) ( (NSView, Selector, NSEvent) -> NSMenu?, NSView, Selector, NSEvent) -> NSMenu?)
-                } catch {
-                    Swift.print(error)
-                }
-            } else {
-                try? menuProviderHook?.revert()
-                menuProviderHook = nil
+                    }
+                    return newValue(event.location(in: view))
+                } as @convention(block) ( (NSView, Selector, NSEvent) -> NSMenu?, NSView, Selector, NSEvent) -> NSMenu?)
+                _menuProvider = newValue
+            } catch {
+                Swift.print(error)
             }
-            /*
-            if let newValue = newValue {
-                menu = menu as? ViewMenuProviderMenu ?? ViewMenuProviderMenu(for: self)
-                (menu as? ViewMenuProviderMenu)?.handler = newValue
-            } else if menu is ViewMenuProviderMenu {
-                menu = nil
-            }
-             */
         }
     }
     
@@ -88,41 +75,6 @@ extension NSView {
     fileprivate var menuProviderHook: Hook? {
         get { getAssociatedValue("menuProviderHook") }
         set { setAssociatedValue(newValue, key: "menuProviderHook") }
-    }
-    
-    class ViewMenuProviderMenu: NSMenu {
-        weak var view: NSView?
-        var handler: ((_ location: CGPoint)->(NSMenu?)) = { _ in return nil }
-        
-        init(for view: NSView) {
-            self.view = view
-            super.init(title: "")
-            self.setupDelegateProxy()
-        }
-        
-        func getMenu() -> NSMenu? {
-            guard let view = view, let event = NSEvent.current else { return nil }
-            let location = event.location(in: view)
-            var altLocation = location
-            if let superview = view.superview {
-                altLocation = event.location(in: superview)
-            }
-            Swift.print("getMenu", event.locationInWindow, altLocation, event.type.description, location, view)
-            if let hitView = view.hitTest(altLocation), hitView !== view {
-                if let textProvider = hitView as? TextLocationProvider {
-                    if textProvider.isLocationInsideText(view.convert(location, to: hitView)) {
-                        return nil
-                    }
-                } else {
-                    return nil
-                }
-            }
-            return handler(location)
-        }
-        
-        required init(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
     }
     
     /// The handlers for the window state.

@@ -333,11 +333,6 @@ open class NSMenuItemView: NSTableCellView {
         super.draw(dirtyRect)
         isHighlighted = enclosingMenuItem?.isHighlighted ?? isHighlighted
         updateBackgroundStyle()
-        
-        
-        if let menu = enclosingMenuItem?.menu, !(menu.delegate is NSMenu.Delegate) && !(menu.delegate is ViewMenuProviderMenu) {
-            menu.delegateProxy = NSMenu.Delegate(menu)
-        }
     }
 }
 #endif
