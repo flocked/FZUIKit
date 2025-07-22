@@ -243,4 +243,36 @@ fileprivate class EmptyCollectionTableView: NSView {
     }
 }
 
+/*
+extension NSCollectionView {
+    fileprivate var subviewHooks: [Hook] {
+        get { getAssociatedValue("subviewHooks") ?? [] }
+        set { setAssociatedValue(newValue, key: "subviewHooks") }
+    }
+    
+    func swizzleIsEmpty(shouldSwizzle: Bool = true) {
+        if shouldSwizzle {
+            guard subviewHooks.isEmpty else { return }
+            do {
+                subviewHooks += try hook(#selector(NSView.didAddSubview(_:)), closure: {
+                    original, view, selector, subview in
+                    original(view, selector, subview)
+                    view.isEmpty = view.subviews(where: { $0.parentController is NSCollectionViewItem }, depth: 1).isEmpty
+                } as @convention(block) ( (NSCollectionView, Selector, NSView) -> Void, NSCollectionView, Selector, NSView) -> Void)
+                subviewHooks += try hook(#selector(NSView.willRemoveSubview(_:)), closure: {
+                    original, view, selector, subview in
+                    original(view, selector, subview)
+                    view.isEmpty = view.subviews(where: { $0 != subview && $0.parentController is NSCollectionViewItem }, depth: 1).isEmpty
+                } as @convention(block) ( (NSCollectionView, Selector, NSView) -> Void, NSCollectionView, Selector, NSView) -> Void)
+            } catch {
+                Swift.print(error)
+            }
+        } else {
+            subviewHooks.forEach({ try? $0.revert() })
+            subviewHooks = []
+        }
+    }
+}
+*/
+
 #endif
