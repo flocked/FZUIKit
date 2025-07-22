@@ -58,6 +58,7 @@ extension NSView {
         func getMenu() -> NSMenu? {
             guard let view = view, let event = NSEvent.current else { return nil }
             let location = event.location(in: view)
+            Swift.print("getMenu", event.type.description, location, view)
             if let hitView = view.hitTest(location), hitView !== view {
                 if let textProvider = hitView as? TextLocationProvider {
                     if textProvider.isLocationInsideText(view.convert(location, to: hitView)) {
