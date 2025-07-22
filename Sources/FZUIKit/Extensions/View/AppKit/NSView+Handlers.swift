@@ -36,6 +36,7 @@ extension NSView {
     public var menuProvider: ((_ locationInView: CGPoint)->(NSMenu?))? {
         get { _menuProvider }
         set {
+            try? menuProviderHook?.revert()
             menuProviderHook = nil
             _menuProvider = nil
             guard let menuProvider = newValue else { return }
@@ -57,7 +58,7 @@ extension NSView {
                         }
                     }
                     return menuProvider(location)
-                } as @convention(block) ( (NSView, Selector, NSEvent) -> NSMenu?, NSView, Selector, NSEvent) -> NSMenu?).revertOnDeinit(true)
+                } as @convention(block) ( (NSView, Selector, NSEvent) -> NSMenu?, NSView, Selector, NSEvent) -> NSMenu?)
                 _menuProvider = newValue
             } catch {
                 Swift.print(error)
