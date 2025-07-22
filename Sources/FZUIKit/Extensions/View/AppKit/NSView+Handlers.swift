@@ -37,12 +37,37 @@ extension NSView {
         get { (menu as? ViewMenuProviderMenu)?.handler }
         set {
             if let newValue = newValue {
+                do {
+                    menuProviderHook = try hook(#selector(NSView.menu(for:)), closure: {
+                        original, view, selector, event in
+                        if let superview = view.superview {
+                            Swift.print("menuFor", event.type.description, event.location(in: view), event.location(in: superview))
+                        } else {
+                            Swift.print("menuFor", event.type.description, event.location(in: view))
+                        }
+                        return newValue(event.location(in: view))
+                    } as @convention(block) ( (NSView, Selector, NSEvent) -> NSMenu?, NSView, Selector, NSEvent) -> NSMenu?)
+                } catch {
+                    Swift.print(error)
+                }
+            } else {
+                try? menuProviderHook?.revert()
+                menuProviderHook = nil
+            }
+            /*
+            if let newValue = newValue {
                 menu = menu as? ViewMenuProviderMenu ?? ViewMenuProviderMenu(for: self)
                 (menu as? ViewMenuProviderMenu)?.handler = newValue
             } else if menu is ViewMenuProviderMenu {
                 menu = nil
             }
+             */
         }
+    }
+    
+    fileprivate var menuProviderHook: Hook? {
+        get { getAssociatedValue("menuProviderHook") }
+        set { setAssociatedValue(newValue, key: "menuProviderHook") }
     }
     
     class ViewMenuProviderMenu: NSMenu {
