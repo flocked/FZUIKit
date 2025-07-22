@@ -24,9 +24,12 @@ extension NSTableView {
             setAssociatedValue(newValue, key: "emptyContentView")
             if let newValue = newValue {
                 emptyContentConfiguration = nil
-                emptyView = newValue
-            } else if !(emptyView is ContentConfigurationView) {
-                emptyView = nil
+                if emptyView == nil {
+                    emptyView = .init(frame: .zero)
+                }
+                emptyView?.emptyView = newValue
+            } else if let emptyView = emptyView, emptyView.contentConfiguration == nil {
+                self.emptyView = nil
             }
             swizzleNumberOfRowsIfNeeded()
             updateEmptyView()
@@ -44,13 +47,12 @@ extension NSTableView {
             setAssociatedValue(newValue, key: "emptyContentConfiguration")
             if let newValue = newValue {
                 emptyContentView = nil
-                if let emptyView = emptyView as? ContentConfigurationView {
-                    emptyView.contentConfiguration = newValue
-                } else {
-                    emptyView = ContentConfigurationView(configuration: newValue)
+                if emptyView == nil {
+                    emptyView = .init(frame: .zero)
                 }
-            } else if emptyView is ContentConfigurationView {
-                emptyView = nil
+                emptyView?.contentConfiguration = newValue
+            } else if let emptyView = emptyView, emptyView.contentConfiguration != nil {
+                self.emptyView = nil
             }
             swizzleNumberOfRowsIfNeeded()
             updateEmptyView()
@@ -67,7 +69,7 @@ extension NSTableView {
         }
     }
     
-    fileprivate var emptyView: NSView? {
+    fileprivate var emptyView: EmptyCollectionTableView? {
         get { getAssociatedValue("emptyView") }
         set {
             guard newValue !== emptyView else { return }
@@ -118,6 +120,44 @@ extension NSTableView {
             updateEmptyView()
             emptyContentHandler?(newValue)
         }
+    }
+}
+
+fileprivate class EmptyCollectionTableView: NSView {
+    fileprivate var boundsSize: CGSize = .zero
+    
+    var emptyView: NSView? {
+        didSet {
+            guard oldValue != emptyView else { return }
+            emptyView?.removeFromSuperview()
+            guard let emptyView = emptyView?.size(bounds.size) else { return }
+            addSubview(emptyView)
+        }
+    }
+    
+    var contentConfiguration: NSContentConfiguration? {
+        didSet {
+            if let configuration = contentConfiguration {
+                if let contentView = contentView, contentView.supports(configuration) {
+                    contentView.configuration = configuration
+                } else {
+                    emptyView = configuration.makeContentView()
+                }
+            } else {
+                emptyView = nil
+            }
+        }
+    }
+    
+    fileprivate var contentView: (NSView & NSContentView)? {
+        emptyView as? NSView & NSContentView
+    }
+    
+    override func layout() {
+        super.layout()
+        guard bounds.size != boundsSize else { return }
+        boundsSize = bounds.size
+        emptyView?.frame.size = boundsSize
     }
 }
 

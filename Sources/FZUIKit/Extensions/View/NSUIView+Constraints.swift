@@ -11,6 +11,7 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import FZSwiftUtils
 
 public extension NSUIView {
     /**
@@ -139,9 +140,7 @@ public extension NSUIView {
             case bottomTrailing
         }
     }
-    
-    
-    
+        
     /**
      Adds a view to the end of the receiver’s list of subviews and constraits it's frame to the receiver.
      
@@ -216,12 +215,17 @@ public extension NSUIView {
      
      - Parameters:
         - view: The view to be constraint to.
+        - usingConstraints: A Boolean value indicating whether the view is constraint using `NSLayoutConstraint`.
         - mode: The mode for constraining the subview's frame.
      
      - Returns: The layout constraints in the following order: `leading`, `bottom`, `trailing` and `top`.
      */
     @discardableResult
-    @objc func constraint(to view: NSUIView, _ mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
+    @objc func constraint(to view: NSUIView, usingConstraints: Bool = true, _ mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
+        usingConstraints ? constraintUsingConstraints(to: view, mode) : constraintUsingObservation(to: view, mode)
+    }
+    
+    fileprivate func constraintUsingConstraints(to view: NSUIView, _ mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
         let constants: [CGFloat]
         switch mode {
         case .absolute:
@@ -250,7 +254,6 @@ public extension NSUIView {
         default: break
         }
         translatesAutoresizingMaskIntoConstraints = false
-        
         var constraints: [NSLayoutConstraint] = []
         switch mode {
         case let .insets(top, leading, bottom, trailing):
@@ -285,12 +288,60 @@ public extension NSUIView {
             }
         default:
             constraints = [leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: constants[0], multiplier:  multipliers[0]),
-                bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: constants[1], multiplier:  multipliers[1]),
-                trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: constants[2], multiplier:  multipliers[2]),
-                topAnchor.constraint(equalTo: view.topAnchor, constant: constants[3], multiplier:  multipliers[3]),]
+                           bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: constants[1], multiplier:  multipliers[1]),
+                           trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: constants[2], multiplier:  multipliers[2]),
+                           topAnchor.constraint(equalTo: view.topAnchor, constant: constants[3], multiplier:  multipliers[3]),]
         }
         constraints.activate()
         return constraints
+    }
+    
+    fileprivate func constraintUsingObservation(to view: NSUIView, _ mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
+        constraintDeinitObservation = view.observeDeinit { [weak self] in
+            guard let self = self else { return }
+            self.constraintBoundsObservation = nil
+        }
+        constraintBoundsObservation = view.observeChanges(for: \.bounds) { [weak self] old, new in
+            guard let self = self else { return }
+            switch mode {
+            case .full:
+               self.frame = new
+            case .insets(let top, let leading, let bottom, let trailing):
+                var frame = new
+                frame.origin.x += leading ?? 0.0
+                frame.origin.y += bottom ?? 0.0
+                frame.size.width -= ((leading ?? 0.0) + (trailing ?? 0.0))
+                frame.size.height -= ((bottom ?? 0.0) + (top ?? 0.0))
+                self.frame = frame
+            case .positioned(let position, let padding):
+                switch position {
+                case .top: frame.top = new.top - padding.y
+                case .topLeading: frame.topLeft = new.topLeft.offset(by: padding)
+                case .topTrailing: frame.topRight = new.topLeft.offset(by: padding)
+                case .bottom: frame.bottom = new.bottom + padding.y
+                case .bottomLeading: frame.bottomLeft = new.bottomLeft.offset(by: padding)
+                case .bottomTrailing: frame.bottomRight = new.bottomRight.offset(by: padding)
+                case .center: frame.center = new.center
+                case .leading: frame.left = new.left + padding.x
+                case .trailing: frame.right = new.right - padding.x
+                }
+            case .relative:
+                break
+            case .absolute:
+                break
+            }
+        }
+        return []
+    }
+    
+    fileprivate var constraintDeinitObservation: DeinitObservation? {
+        get { getAssociatedValue("constraintDeinitObservation") }
+        set { setAssociatedValue(newValue, key: "constraintDeinitObservation") }
+    }
+    
+    fileprivate var constraintBoundsObservation: KeyValueObservation? {
+        get { getAssociatedValue("constraintBoundsObservation") }
+        set { setAssociatedValue(newValue, key: "constraintBoundsObservation") }
     }
         
 #if os(macOS)
