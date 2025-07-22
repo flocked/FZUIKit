@@ -54,19 +54,9 @@ extension NSView {
                         if let hitView = view.hitTest(altLocation), hitView !== view {
                             if let textProvider = hitView as? TextLocationProvider {
                                 if textProvider.isLocationInsideText(view.convert(location, to: hitView)) {
-                                    if event.type == .rightMouseDown {
-                                        hitView.rightMouseDown(with: event)
-                                    } else if event.type == .rightMouseUp {
-                                        hitView.rightMouseUp(with: event)
-                                    }
                                     return nil
                                 }
                             } else {
-                                if event.type == .rightMouseDown {
-                                    hitView.rightMouseDown(with: event)
-                                } else if event.type == .rightMouseUp {
-                                    hitView.rightMouseUp(with: event)
-                                }
                                 return nil
                             }
                         }
