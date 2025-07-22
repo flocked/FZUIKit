@@ -56,7 +56,7 @@ extension NSTableView {
      
      Each key in the dictionary is the identifier used to register the view class in the ``register(_:)``. The value of each key is the corresponding view class.
      */
-    public private(set) var registeredClassesByIdentifier: [NSUserInterfaceItemIdentifier: NSView.Type] {
+    @objc public private(set) var registeredClassesByIdentifier: [NSUserInterfaceItemIdentifier: NSView.Type] {
         get { getAssociatedValue("registeredClassesByIdentifier", initialValue: [:]) }
         set { setAssociatedValue(newValue, key: "registeredClassesByIdentifier") }
     }
