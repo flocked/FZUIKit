@@ -10,62 +10,106 @@ import FZSwiftUtils
 import AppKit
 
 extension NSCollectionView {
-    
-    /// A view that is displayed whenever the collection view is empty.
-    public var emptyContentView: NSView {
-        swizzleNumberOfSectionsIfNeeded()
-        updateEmptyView()
-        return _emptyContentView
-    }
-    
-    /// A content configuration that is displayed whenever the collection view is empty.
-    public var emptyContentConfiguration: NSContentConfiguration? {
-        get { _emptyContentView.contentConfiguration }
+    /**
+     A view that is displayed whenever the collection view is empty.
+     
+     Applying this property, will set ``AppKit/NSCollectionView/emptyContentConfiguration`` to `nil`.
+     */
+    public var emptyContentView: NSView? {
+        get { getAssociatedValue("emptyContentView") }
         set {
+            guard newValue != emptyContentView else { return }
+            setAssociatedValue(newValue, key: "emptyContentView")
+            if let newValue = newValue {
+                emptyContentConfiguration = nil
+                emptyView = newValue
+            } else if !(emptyView is ContentConfigurationView) {
+                emptyView = nil
+            }
             swizzleNumberOfSectionsIfNeeded()
             updateEmptyView()
-            _emptyContentView.contentConfiguration = newValue
         }
     }
     
-    /// A handler that is called whenever the collection view is empty.
+    /**
+     A content configuration that is displayed whenever the collection view is empty.
+     
+     Applying this property, will set ``AppKit/NSCollectionView/emptyContentView`` to `nil`.
+     */
+    public var emptyContentConfiguration: NSContentConfiguration? {
+        get { getAssociatedValue("emptyContentConfiguration") }
+        set {
+            setAssociatedValue(newValue, key: "emptyContentConfiguration")
+            if let newValue = newValue {
+                emptyContentView = nil
+                if let emptyView = emptyView as? ContentConfigurationView {
+                    emptyView.contentConfiguration = newValue
+                } else {
+                    emptyView = ContentConfigurationView(configuration: newValue)
+                }
+            } else if emptyView is ContentConfigurationView {
+                emptyView = nil
+            }
+            swizzleNumberOfSectionsIfNeeded()
+            updateEmptyView()
+        }
+    }
+    
+    /**
+     A handler that is called whenever the collection view is empty.
+     
+     - Parameter isEmpty: A Boolean value indicating whether the collection view is empty.
+     */
     public var emptyContentHandler: ((_ isEmpty: Bool)->())? {
         get { getAssociatedValue("emptyContentHandler") }
         set { 
             setAssociatedValue(newValue, key: "emptyContentHandler")
-            if newValue != nil {
-                swizzleNumberOfSectionsIfNeeded()
-            }
+            guard newValue != nil else { return }
+            swizzleNumberOfSectionsIfNeeded()
         }
     }
     
-    func updateEmptyView() {
+    fileprivate var emptyView: NSView? {
+        get { getAssociatedValue("emptyView") }
+        set {
+            guard newValue !== emptyView else { return }
+            emptyView?.removeFromSuperview()
+            setAssociatedValue(newValue, key: "emptyView")
+        }
+    }
+    
+    fileprivate func updateEmptyView() {
+        guard let emptyView = emptyView else { return }
         if isEmpty == false {
-            _emptyContentView.removeFromSuperview()
-        } else if _emptyContentView.superview == nil {
-            addSubview(withConstraint: _emptyContentView)
+            emptyView.removeFromSuperview()
+        } else if emptyView.superview == nil {
+            addSubview(withConstraint: emptyView)
         }
     }
     
-    var _emptyContentView: ContentConfigurationView {
-        getAssociatedValue("_emptyContentView", initialValue: ContentConfigurationView())
-    }
-    
-    func swizzleNumberOfSectionsIfNeeded() {
-        if datasourceObservation == nil {
-            isEmpty = dataSource?.isEmpty(in: self) ?? true
+    fileprivate func swizzleNumberOfSectionsIfNeeded() {
+        if emptyContentHandler != nil || emptyContentHandler != nil || emptyContentView != nil {
+            guard datasourceObservation == nil else { return }
+            updateIsEmpty()
             datasourceObservation = observeChanges(for: \.dataSource) { [weak self] old, new in
                 guard let self = self else { return }
                 old?.swizzleIsEmpty(false)
                 new?.swizzleIsEmpty()
-                self.isEmpty = new?.isEmpty(in: self) ?? true
+                self.updateIsEmpty()
             }
-            dataSource?.swizzleNumberOfSections()
+            dataSource?.swizzleIsEmpty()
+        } else {
+            datasourceObservation = nil
+            dataSource?.swizzleIsEmpty(false)
         }
     }
     
-    var isEmpty: Bool {
-        get { getAssociatedValue("isEmpty", initialValue: (0..<numberOfSections).compactMap({ numberOfItems(inSection: $0) }).sum() == 0) }
+    fileprivate func updateIsEmpty() {
+        isEmpty = dataSource?.isEmpty(in: self) ?? ((0..<numberOfSections).compactMap({ numberOfItems(inSection: $0) }).sum() == 0)
+    }
+    
+    fileprivate var isEmpty: Bool {
+        get { getAssociatedValue("isEmpty") ?? false }
         set {
             guard newValue != isEmpty else { return }
             setAssociatedValue(newValue, key: "isEmpty")
@@ -74,13 +118,13 @@ extension NSCollectionView {
         }
     }
     
-    var datasourceObservation: KeyValueObservation? {
+    fileprivate var datasourceObservation: KeyValueObservation? {
         get { getAssociatedValue("datasourceObservation") }
         set { setAssociatedValue(newValue, key: "datasourceObservation") }
     }
 }
 
-extension NSCollectionViewDataSource {
+fileprivate extension NSCollectionViewDataSource {
     func isEmpty(in collectionView: NSCollectionView) -> Bool {
         if let numberOfSections = numberOfSections?(in: collectionView) {
             for section in 0..<numberOfSections {
@@ -103,30 +147,27 @@ extension NSCollectionViewDataSource {
     
     func swizzleNumberOfItems(_ shouldSwizzle: Bool = true) {
         guard let dataSource = self as? NSObject else { return }
-        let isMethodHooked = dataSource.isMethodHooked(#selector(NSCollectionViewDataSource.collectionView(_:numberOfItemsInSection:)))
-        if shouldSwizzle, !isMethodHooked {
+        if shouldSwizzle, numberOfItemsHook == nil {
             do {
-                try dataSource.hook(#selector(NSCollectionViewDataSource.collectionView(_:numberOfItemsInSection:)), closure: { original, object, sel, collectionView, section in
+                numberOfItemsHook = try dataSource.hook(#selector(NSCollectionViewDataSource.collectionView(_:numberOfItemsInSection:)), closure: { original, object, sel, collectionView, section in
                     let numberOfItems = original(object, sel, collectionView, section)
                     collectionView.isEmpty = numberOfItems <= 0
                     return numberOfItems
-                } as @convention(block) (
-                    (AnyObject, Selector, NSCollectionView, Int) -> Int,
-                    AnyObject, Selector, NSCollectionView, Int) -> Int)
+                } as @convention(block) ( (AnyObject, Selector, NSCollectionView, Int) -> Int, AnyObject, Selector, NSCollectionView, Int) -> Int)
             } catch {
                 debugPrint(error)
             }
-        } else if !shouldSwizzle, isMethodHooked {
-            dataSource.revertHooks(for: #selector(NSCollectionViewDataSource.collectionView(_:numberOfItemsInSection:)))
+        } else if !shouldSwizzle {
+            try? numberOfItemsHook?.revert()
+            numberOfItemsHook = nil
         }
     }
     
     func swizzleNumberOfSections(_ shouldSwizzle: Bool = true) {
         guard let dataSource = self as? NSObject else { return }
-        let isMethodHooked = dataSource.isMethodHooked(#selector(NSCollectionViewDataSource.numberOfSections(in:)))
-        if shouldSwizzle, !isMethodHooked {
+        if shouldSwizzle, numberOfSectionsHook == nil {
             do {
-                try dataSource.hook(#selector(NSCollectionViewDataSource.numberOfSections(in:)), closure: { original, object, sel, collectionView in
+                numberOfSectionsHook = try dataSource.hook(#selector(NSCollectionViewDataSource.numberOfSections(in:)), closure: { original, object, sel, collectionView in
                     let numberOfSections = original(object, sel, collectionView)
                     if numberOfSections <= 0 {
                         collectionView.isEmpty = true
@@ -141,15 +182,24 @@ extension NSCollectionViewDataSource {
                         collectionView.isEmpty = isEmpty
                     }
                     return numberOfSections
-                } as @convention(block) (
-                    (AnyObject, Selector, NSCollectionView) -> Int,
-                    AnyObject, Selector, NSCollectionView) -> Int)
+                } as @convention(block) ( (AnyObject, Selector, NSCollectionView) -> Int, AnyObject, Selector, NSCollectionView) -> Int)
             } catch {
                 debugPrint(error)
             }
-        } else if !shouldSwizzle, isMethodHooked {
-            dataSource.revertHooks(for: #selector(NSCollectionViewDataSource.numberOfSections(in:)))
+        } else if !shouldSwizzle {
+            try? numberOfSectionsHook?.revert()
+            numberOfSectionsHook = nil
         }
+    }
+    
+    var numberOfItemsHook: Hook? {
+        get { FZSwiftUtils.getAssociatedValue("numberOfItemsHook", object: self) }
+        set { FZSwiftUtils.setAssociatedValue(newValue, key: "numberOfItemsHook", object: self) }
+    }
+    
+    var numberOfSectionsHook: Hook? {
+        get { FZSwiftUtils.getAssociatedValue("numberOfSectionsHook", object: self) }
+        set { FZSwiftUtils.setAssociatedValue(newValue, key: "numberOfSectionsHook", object: self) }
     }
 }
 

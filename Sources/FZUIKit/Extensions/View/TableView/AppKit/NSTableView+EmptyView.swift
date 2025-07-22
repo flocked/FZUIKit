@@ -12,20 +12,48 @@ import AppKit
 import FZSwiftUtils
 
 extension NSTableView {
-    /// A view that is displayed whenever the table view is empty.
-    public var emptyContentView: NSView {
-        swizzleNumberOfRowsIfNeeded()
-        updateEmptyView()
-        return _emptyContentView
-    }
-    
-    /// A content configuration that is displayed whenever the table view is empty.
-    public var emptyContentConfiguration: NSContentConfiguration? {
-        get { _emptyContentView.contentConfiguration }
+    /**
+     A view that is displayed whenever the table view is empty.
+     
+     Applying this property, will set ``AppKit/NSTableView/emptyContentConfiguration`` to `nil`.
+     */
+    public var emptyContentView: NSView? {
+        get { getAssociatedValue("emptyContentView") }
         set {
+            guard newValue != emptyContentView else { return }
+            setAssociatedValue(newValue, key: "emptyContentView")
+            if let newValue = newValue {
+                emptyContentConfiguration = nil
+                emptyView = newValue
+            } else if !(emptyView is ContentConfigurationView) {
+                emptyView = nil
+            }
             swizzleNumberOfRowsIfNeeded()
             updateEmptyView()
-            _emptyContentView.contentConfiguration = newValue
+        }
+    }
+    
+    /**
+     A content configuration that is displayed whenever the table view is empty.
+     
+     Applying this property, will set ``AppKit/NSTableView/emptyContentView`` to `nil`.
+     */
+    public var emptyContentConfiguration: NSContentConfiguration? {
+        get { getAssociatedValue("emptyContentConfiguration") }
+        set {
+            setAssociatedValue(newValue, key: "emptyContentConfiguration")
+            if let newValue = newValue {
+                emptyContentView = nil
+                if let emptyView = emptyView as? ContentConfigurationView {
+                    emptyView.contentConfiguration = newValue
+                } else {
+                    emptyView = ContentConfigurationView(configuration: newValue)
+                }
+            } else if emptyView is ContentConfigurationView {
+                emptyView = nil
+            }
+            swizzleNumberOfRowsIfNeeded()
+            updateEmptyView()
         }
     }
     
@@ -34,82 +62,61 @@ extension NSTableView {
         get { getAssociatedValue("emptyContentHandler") }
         set { 
             setAssociatedValue(newValue, key: "emptyContentHandler")
-            if newValue != nil {
-                swizzleNumberOfRowsIfNeeded()
+            guard newValue != nil else { return }
+            swizzleNumberOfRowsIfNeeded()
+        }
+    }
+    
+    fileprivate var emptyView: NSView? {
+        get { getAssociatedValue("emptyView") }
+        set {
+            guard newValue !== emptyView else { return }
+            emptyView?.removeFromSuperview()
+            setAssociatedValue(newValue, key: "emptyView")
+        }
+    }
+    
+    fileprivate func swizzleNumberOfRowsIfNeeded() {
+        if emptyContentHandler != nil || emptyContentHandler != nil || emptyContentView != nil {
+            guard numberOfRowsHook == nil else { return }
+            isEmpty = numberOfRows <= 0
+            do {
+                numberOfRowsHook = try hook(#selector(getter: NSTableView.numberOfRows), closure: {
+                    original, tableView, selector in
+                    let numberOfRows = original(tableView, selector)
+                    tableView.isEmpty = numberOfRows <= 0
+                    return numberOfRows
+                } as @convention(block) ( (NSTableView, Selector) -> Int, NSTableView, Selector) -> Int)
+            } catch {
+               debugPrint(error)
             }
+        } else {
+            try? numberOfRowsHook?.revert()
+            numberOfRowsHook = nil
         }
     }
     
-    var _emptyContentView: ContentConfigurationView {
-        getAssociatedValue("_emptyContentView", initialValue: ContentConfigurationView())
+    fileprivate var numberOfRowsHook: Hook? {
+        get { getAssociatedValue("numberOfRowsHook") }
+        set { setAssociatedValue(newValue, key: "numberOfRowsHook") }
     }
     
-    func swizzleNumberOfRowsIfNeeded() {
-        if let view = (self as? NSOutlineView) {
-            guard !view.didSwizzleNumberOfRowsOutline else { return }
-            isEmpty = numberOfRows <= 0
-            view.swizzleNumberOfRowsOutline()
-        } else if !didSwizzleNumberOfRows {
-            isEmpty = numberOfRows <= 0
-            swizzleNumberOfRows()
-        }
-    }
-    
-    func updateEmptyView() {
+    fileprivate func updateEmptyView() {
+        guard let emptyView = emptyView else { return }
         if isEmpty == false {
-            _emptyContentView.removeFromSuperview()
-        } else if _emptyContentView.superview == nil {
-            addSubview(withConstraint: _emptyContentView)
+            emptyView.removeFromSuperview()
+        } else if emptyView.superview == nil {
+            addSubview(withConstraint: emptyView)
         }
     }
     
-    var isEmpty: Bool {
+    fileprivate var isEmpty: Bool {
         get { getAssociatedValue("isEmpty", initialValue: numberOfRows == 0) }
         set {
             guard newValue != isEmpty else { return }
             setAssociatedValue(newValue, key: "isEmpty")
             updateEmptyView()
             emptyContentHandler?(newValue)
-        }
-    }
-        
-    var didSwizzleNumberOfRows: Bool {
-        isMethodHooked(#selector(getter: NSTableView.numberOfRows))
-    }
-    
-    func swizzleNumberOfRows() {
-        guard !isMethodHooked(#selector(getter: NSTableView.numberOfRows)) else { return }
-        do {
-            try hook(#selector(getter: NSTableView.numberOfRows), closure: { original, object, sel in
-                let numberOfRows = original(object, sel)
-                (object as? NSTableView)?.isEmpty = numberOfRows <= 0
-                return numberOfRows
-            } as @convention(block) (
-                (AnyObject, Selector) -> Int,
-                AnyObject, Selector) -> Int)
-        } catch {
-           debugPrint(error)
-        }
-    }
-}
-
-extension NSOutlineView {
-    var didSwizzleNumberOfRowsOutline: Bool {
-        isMethodHooked(#selector(getter: NSTableView.numberOfRows))
-    }
-    
-    func swizzleNumberOfRowsOutline() {
-        guard !isMethodHooked(#selector(getter: NSTableView.numberOfRows)) else { return }
-        do {
-            try hook(#selector(getter: NSTableView.numberOfRows), closure: { original, object, sel in
-                let numberOfRows = original(object, sel)
-                (object as? NSOutlineView)?.isEmpty = numberOfRows <= 0
-                return numberOfRows
-            } as @convention(block) (
-                (AnyObject, Selector) -> Int,
-                AnyObject, Selector) -> Int)
-        } catch {
-           debugPrint(error)
         }
     }
 }
