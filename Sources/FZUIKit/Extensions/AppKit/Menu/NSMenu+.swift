@@ -269,6 +269,90 @@ extension NSMenu {
         return nil
     }
     
+    /// The submenus of the menu.
+    @objc open var submenus: [NSMenu] {
+        items.compactMap({ $0.submenu })
+    }
+    
+    /**
+     Returns all submenus in the menu up to a given depth.
+     
+     - Parameter depth: The number of submenu levels to include. Use `0` for only top-level submenus and `.max` for unlimited depth.
+     */
+    @objc open func submenus(depth: Int) -> [NSMenu] {
+        if depth > 0 {
+            return items.flatMap({ if let submenu = $0.submenu { return submenu + submenu.submenus(depth: depth-1)
+            } else { return [] } })
+        } else {
+            return items.compactMap({ $0.submenu })
+        }
+    }
+    
+    /**
+     Returns all submenus that satisfy a given predicate, searching up to a given submenu depth.
+     
+     - Parameters:
+        - predicate: A closure that returns `true` for menus to include.
+        - depth: The number of submenu levels to match. Use `0` for only top-level submenus and `.max` for unlimited depth.
+     */
+    @objc open func submenus(where predicate: (NSMenu) -> Bool, depth: Int) -> [NSMenu] {
+        submenus(depth: depth).filter(predicate)
+    }
+    
+    /**
+     Returns all submenus of a specific menu type, searching up to a given submenu depth.
+     
+     - Parameters:
+        - type: The subclass type of `NSMenu` to filter.
+        - depth: The number of submenu levels to match. Use `0` for only top-level submenus and `.max` for unlimited depth.
+     */
+    public func submenus<V: NSMenu>(type _: V.Type, depth: Int = 0) -> [V] {
+        submenus(depth: depth).compactMap { $0 as? V }
+    }
+    
+    /**
+     Returns the first submenu with the specified title.
+     
+     - Parameters:
+        - title: The title of the menu.
+        - depth: The number of submenu levels to match. Use `0` for only top-level submenus and `.max` for unlimited depth.
+     */
+    @objc open func submenu(withTitle title: String, depth: Int = 0) -> NSMenu? {
+        firstSubmenu(where: { $0.title == title }, depth: depth)
+    }
+    
+    /**
+     Returns the first submenu with the specific menu type, searching recursively through submenus.
+
+     - Parameters:
+        - type: The subclass type of `NSMenu` to search for.
+        - depth: The number of submenu levels to match. Use `0` for only top-level submenus and `.max` for unlimited depth.
+     */
+    public func firstSubmenu<V: NSMenu>(type _: V.Type, depth: Int = .max) -> V? {
+        submenus(where: { $0 is V }, depth: depth).first as? V
+    }
+    
+    /**
+     Returns the first submenu that satisfies a given predicate, searching recursively through submenus.
+     
+     - Parameters:
+        - predicate: A closure that returns `true` for the submenu to find.
+        - depth: The number of submenu levels to match. Use `0` for only top-level submenus and `.max` for unlimited depth.
+     */
+    @objc open func firstSubmenu(where predicate: (NSMenu) -> Bool, depth: Int) -> NSMenu? {
+        let submenus = items.compactMap({ $0.submenu })
+        if let submenu = submenus.first(where: predicate) {
+            return submenu
+        } else if depth > 0 {
+            for submenu in submenus {
+                if let submenu = submenu.firstSubmenu(where: predicate, depth: depth - 1) {
+                    return submenu
+                }
+            }
+        }
+        return nil
+    }
+    
     /**
      Pops up the menu at the specified location using a specified font.
 
@@ -469,14 +553,14 @@ extension NSMenu {
         
         func menuWillOpen(_ menu: NSMenu) {
             delegate?.menuWillOpen?(menu)
-            menu.items(depth: .max).forEach({
+            (menu + menu.submenus(depth: .max)).forEach({
                 mappedFonts[ObjectIdentifier($0)] = $0.font
                 $0.font = font
             })
         }
         
         func menuDidClose(_ menu: NSMenu) {
-            menu.items(depth: .max).forEach({
+            (menu + menu.submenus(depth: .max)).forEach({
                 $0.font = mappedFonts[ObjectIdentifier($0)]
             })
             delegate?.menuDidClose?(menu)

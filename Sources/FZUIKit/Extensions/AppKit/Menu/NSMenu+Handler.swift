@@ -24,13 +24,21 @@ extension NSMenu {
         public var effectiveAppearance: ((NSAppearance)->())?
         /// The handler that gets called before the menu is displayed to be able to update it.
         public var update: ((NSMenu)->())?
+        /**
+         The handler that provides the font for the menu.
+         
+         - Parameter includeSubmenus: Set this property to `true`, if  the returned font should be used for all submenus.
+         - Returns: The font for the menu.
+         */
+        public var font: ((_ includeSubmenus: inout Bool)->(NSFont?))?
 
         var needsDelegate: Bool {
             willOpen != nil ||
             didClose != nil ||
             willHighlight != nil ||
             effectiveAppearance != nil ||
-            update != nil
+            update != nil ||
+            font != nil
         }
     }
     
@@ -73,6 +81,9 @@ extension NSMenu {
         weak var delegate: NSMenuDelegate?
         var eventObserver: CFRunLoopObserver?
         var delegateObservation: KeyValueObservation?
+        var menuFont: NSFont?
+        var includeSubmenus = false
+        var mappedFonts: [ObjectIdentifier: NSFont] = [:]
 
         init(_ menu: NSMenu) {
             self.delegate = menu.delegate
@@ -89,9 +100,28 @@ extension NSMenu {
             guard menu.delegate === self else { return }
             menu.handlers.willOpen?()
             delegate?.menuWillOpen?(menu)
+            if let font = menu.handlers.font {
+                let font = font(&includeSubmenus)
+                menuFont = menu.font
+                menu.font = font
+                if includeSubmenus {
+                    menu.submenus(depth: .max).forEach({
+                        mappedFonts[ObjectIdentifier($0)] = $0.font
+                        $0.font = font
+                    })
+                }
+            }
         }
         
         func menuDidClose(_ menu: NSMenu) {
+            if menu.handlers.font != nil {
+                menu.font = menuFont
+                if includeSubmenus {
+                    menu.submenus(depth: .max).forEach({
+                        $0.font = mappedFonts[ObjectIdentifier($0)]
+                    })
+                }
+            }
             menu.items = menu.items.removeAlternates()
             guard menu.delegate === self else { return }
             menu.handlers.didClose?()
@@ -100,6 +130,7 @@ extension NSMenu {
                 CFRunLoopObserverInvalidate(eventObserver)
                 eventObserver = nil
             }
+            mappedFonts = [:]
         }
         
         func numberOfItems(in menu: NSMenu) -> Int {
