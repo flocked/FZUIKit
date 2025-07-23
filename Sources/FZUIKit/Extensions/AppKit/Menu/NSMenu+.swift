@@ -388,14 +388,14 @@ extension NSMenu {
      The total size includes the menu's items ``AppKit/NSMenuItem/alternateItem``.
      */
     var totalSize: CGSize {
-        var size = size
+        var totalSize = size
         let itemsCount = items.count
-        items = items.addAlternates()
-        size = self.size
+        items = items.withAlternates()
+        totalSize = size
         if itemsCount != items.count {
-            items = items.removeAlternates()
+            items = items.withoutAlternates()
         }
-        return size
+        return totalSize
     }
     
     /**
@@ -416,7 +416,15 @@ extension NSMenu {
      */
     @discardableResult
     public func popUp(positioning item: NSMenuItem? = nil, at location: CGPoint, in view: NSView? = nil, with font: NSFont) -> Bool {
-        fontDelegate = FontDelegate(menu: self, font: font)
+        handlers.font = { includeSubmenus in
+            includeSubmenus = true
+            return font
+        }
+        handlers.didClose = { [weak self] in
+            guard let self = self else { return }
+            self.handlers.font = nil
+            self.handlers.didClose = nil
+        }
         return popUp(positioning: item, at: location, in: view)
     }
     
@@ -570,78 +578,14 @@ extension NSMenu {
     public func popUpContext(at event: NSEvent, in view: NSView, with font: NSFont) {
         NSMenu.popUpContextMenu(self, with: event, for: view, with: font)
     }
-    
-    fileprivate var fontDelegate: FontDelegate? {
-        get { getAssociatedValue("fontDelegate") }
-        set { setAssociatedValue(newValue, key: "fontDelegate") }
-    }
-    
-    fileprivate class FontDelegate: NSObject, NSMenuDelegate {
-        let font: NSFont
-        var mappedFonts: [ObjectIdentifier: NSFont] = [:]
-        weak var delegate: NSMenuDelegate?
-        
-        init(menu: NSMenu, font: NSFont) {
-            self.font = font
-            super.init()
-            delegate = menu.delegate
-            menu.delegate = self
-        }
-        
-        func menuNeedsUpdate(_ menu: NSMenu) {
-            delegate?.menuNeedsUpdate?(menu)
-        }
-        
-        func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {
-            delegate?.menu?(menu, willHighlight: item)
-        }
-        
-        func menuWillOpen(_ menu: NSMenu) {
-            delegate?.menuWillOpen?(menu)
-            (menu + menu.submenus(depth: .max)).forEach({
-                mappedFonts[ObjectIdentifier($0)] = $0.font
-                $0.font = font
-            })
-        }
-        
-        func menuDidClose(_ menu: NSMenu) {
-            (menu + menu.submenus(depth: .max)).forEach({
-                $0.font = mappedFonts[ObjectIdentifier($0)]
-            })
-            delegate?.menuDidClose?(menu)
-            mappedFonts = [:]
-            menu.delegate = delegate
-            menu.fontDelegate = nil
-        }
-        
-        func numberOfItems(in menu: NSMenu) -> Int {
-            return delegate?.numberOfItems?(in: menu) ?? menu.items.count
-        }
-        
-        func menuHasKeyEquivalent(_ menu: NSMenu, for event: NSEvent, target: AutoreleasingUnsafeMutablePointer<AnyObject?>, action: UnsafeMutablePointer<Selector?>) -> Bool {
-            if let menuHasKeyEquivalent = delegate?.menuHasKeyEquivalent?(menu, for: event, target: target, action: action) {
-                return menuHasKeyEquivalent
-            }
-            let keyEquivalent = event.readableKeyCode.lowercased()
-            return menu.items.contains(where: {$0.keyEquivalent == keyEquivalent && $0.isEnabled})
-        }
-        
-        func confinementRect(for menu: NSMenu, on screen: NSScreen?) -> NSRect {
-            delegate?.confinementRect?(for: menu, on: screen) ?? .zero
-        }
-        
-        func menu(_ menu: NSMenu, update item: NSMenuItem, at index: Int, shouldCancel: Bool) -> Bool {
-            delegate?.menu?(menu, update: item, at: index, shouldCancel: shouldCancel) ?? true
-        }
-    }
 }
 
-fileprivate extension Array where Element: NSMenuItem {
-    func addAlternates() -> [NSMenuItem] {
+fileprivate extension [NSMenuItem] {
+    func withAlternates() -> [NSMenuItem] {
         flatMap { if let alternate = $0.alternateItem, !alternate.keyEquivalentModifierMask.isEmpty { return [$0, alternate] } else { return [$0] } }.uniqued()
     }
     
-    func removeAlternates() -> [Element] {
+    func withoutAlternates() -> [Element] {
         let alternateSet = Set(compactMap { $0.alternateItem?.objectId })
         return compactMap { alternateSet.contains($0.objectId) ? nil : $0 }
     }

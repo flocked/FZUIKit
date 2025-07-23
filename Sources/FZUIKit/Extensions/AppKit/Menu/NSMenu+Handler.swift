@@ -73,11 +73,6 @@ extension NSMenu {
         set { setAssociatedValue(newValue, key: "delegateProxy") }
     }
     
-    fileprivate var savedMinimumWidth: CGFloat? {
-        get { getAssociatedValue("savedMinimumWidth") }
-        set { setAssociatedValue(newValue, key: "savedMinimumWidth") }
-    }
-    
     func setupDelegateProxy() {
         if handlers.needsDelegate || items.contains(where: { $0.needsDelegateProxy }) {
             guard delegateProxy == nil else { return }
@@ -93,8 +88,8 @@ extension NSMenu {
         weak var delegate: NSMenuDelegate?
         var eventObserver: CFRunLoopObserver?
         var delegateObservation: KeyValueObservation?
-        var menuFont: NSFont?
-        var includeSubmenus = false
+        var menuMinimumWidth: CGFloat?
+        var includeSubmenuFonts = false
         var mappedFonts: [ObjectIdentifier: NSFont] = [:]
 
         init(_ menu: NSMenu) {
@@ -112,29 +107,21 @@ extension NSMenu {
             guard menu.delegate === self else { return }
             menu.handlers.willOpen?()
             delegate?.menuWillOpen?(menu)
-            if let font = menu.handlers.font {
-                let font = font(&includeSubmenus)
-                menuFont = menu.font
-                menu.font = font
-                if includeSubmenus {
-                    menu.submenus(depth: .max).forEach({
-                        mappedFonts[ObjectIdentifier($0)] = $0.font
-                        $0.font = font
-                    })
-                }
-            }
+            includeSubmenuFonts = false
+            guard let menuFont = menu.handlers.font?(&includeSubmenuFonts) else { return }
+            (menu + (includeSubmenuFonts ? menu.submenus(depth: .max) : [])).forEach({
+                mappedFonts[ObjectIdentifier($0)] = $0.font
+                $0.font = menuFont
+            })
         }
         
         func menuDidClose(_ menu: NSMenu) {
             if menu.handlers.font != nil {
-                menu.font = menuFont
-                if includeSubmenus {
-                    menu.submenus(depth: .max).forEach({
-                        $0.font = mappedFonts[ObjectIdentifier($0)]
-                    })
-                }
+                (menu + (includeSubmenuFonts ? menu.submenus(depth: .max) : [])).forEach({
+                    $0.font = mappedFonts[ObjectIdentifier($0)]
+                })
             }
-            menu.items = menu.items.removeAlternates()
+            menu.items = menu.items.withoutAlternates()
             guard menu.delegate === self else { return }
             menu.handlers.didClose?()
             delegate?.menuDidClose?(menu)
@@ -143,9 +130,9 @@ extension NSMenu {
                 eventObserver = nil
             }
             mappedFonts = [:]
-            if let minimumWidth = menu.savedMinimumWidth {
+            if let minimumWidth = menuMinimumWidth {
                 menu.minimumWidth = minimumWidth
-                menu.savedMinimumWidth = nil
+                menuMinimumWidth = nil
             }
         }
         
@@ -167,12 +154,12 @@ extension NSMenu {
                 CFRunLoopAddObserver(CFRunLoopGetCurrent(), eventObserver, CFRunLoopMode.commonModes)
             }
             let itemsCount = menu.items.count
-            menu.items = menu.items.addAlternates()
+            menu.items = menu.items.withAlternates()
             menu.items.forEach({ $0.updateHandler?($0) })
             if menu.autoUpdatesWidth, itemsCount != menu.items.count {
-                menu.savedMinimumWidth = menu.minimumWidth
-                menu.minimumWidth = menu.size.width
-            } else if let minimumWidth = menu.savedMinimumWidth {
+                menuMinimumWidth = menu.minimumWidth
+                menu.minimumWidth = max(menu.minimumWidth, menu.size.width)
+            } else if let minimumWidth = menuMinimumWidth {
                 menu.minimumWidth = minimumWidth
             }
         }
@@ -203,12 +190,12 @@ extension NSMenu {
     }
 }
 
-fileprivate extension Array where Element: NSMenuItem {
-    func addAlternates() -> [NSMenuItem] {
+fileprivate extension [NSMenuItem] {
+    func withAlternates() -> [NSMenuItem] {
         flatMap { if let alternate = $0.alternateItem, !alternate.keyEquivalentModifierMask.isEmpty { return [$0, alternate] } else { return [$0] } }.uniqued()
     }
     
-    func removeAlternates() -> [Element] {
+    func withoutAlternates() -> [Element] {
         let alternateSet = Set(compactMap { $0.alternateItem?.objectId })
         return compactMap { alternateSet.contains($0.objectId) ? nil : $0 }
     }
