@@ -268,5 +268,222 @@ extension NSMenu {
         }
         return nil
     }
+    
+    /**
+     Pops up the menu at the specified location using a specified font.
+
+     Displays the menu as a pop-up menu. The top left corner of the specified item (if specified, item must be present in the menu) is positioned at the specified location in the specified view, interpreted in the view’s own coordinate system.
+     
+     If `item` is `nil`, the menu is positioned such that the top left of the menu content frame is at the given location.
+          
+     If `view` is `nil`, the location is interpreted in the screen coordinate system. This allows you to pop up a menu disconnected from any window.
+
+     - Parameters:
+        - item: The menu item to be positioned at the specified location in the view.
+        - location: The location in the view coordinate system to display the menu item.
+        - view: The view to display the menu item over.
+        - font: The font for the menu.
+     - Returns: `true` if menu tracking ended because an item was selected, and `false` if menu tracking was cancelled for any reason.
+     */
+    @discardableResult
+    public func popUp(positioning item: NSMenuItem? = nil, at location: CGPoint, in view: NSView? = nil, with font: NSFont) -> Bool {
+        fontDelegate = FontDelegate(menu: self, font: font)
+        return popUp(positioning: item, at: location, in: view)
+    }
+    
+    
+    /**
+     Pops up the menu at the current mouse location in the specified view.
+
+     Displays the menu as a pop-up menu. The top left corner of the specified item (if specified, item must be present in the menu) is positioned at the specified location in the specified view, interpreted in the view’s own coordinate system.
+     
+     If `item` is `nil`, the menu is positioned such that the top left of the menu content frame is at the given location.
+          
+     - Parameters:
+        - item: The menu item to be positioned at the specified location in the view.
+        - view: The view to display the menu item over.
+     - Returns: `true` if menu tracking ended because an item was selected, and `false` if menu tracking was cancelled for any reason.
+     */
+    @discardableResult
+    public func popUp(positioning item: NSMenuItem? = nil, in view: NSView) -> Bool {
+        popUp(positioning: item, at: view.mouseLocationOutsideOfEventStream, in: view)
+    }
+    
+    /**
+     Pops up the menu at the current mouse location in the specified view using a specified font.
+
+     Displays the menu as a pop-up menu. The top left corner of the specified item (if specified, item must be present in the menu) is positioned at the specified location in the specified view, interpreted in the view’s own coordinate system.
+     
+     If `item` is `nil`, the menu is positioned such that the top left of the menu content frame is at the given location.
+          
+     - Parameters:
+        - item: The menu item to be positioned at the specified location in the view.
+        - view: The view to display the menu item over.
+        - font: The font for the menu.
+     - Returns: `true` if menu tracking ended because an item was selected, and `false` if menu tracking was cancelled for any reason.
+     */
+    @discardableResult
+    public func popUp(positioning item: NSMenuItem? = nil, in view: NSView, with font: NSFont) -> Bool {
+        popUp(positioning: item, at: view.mouseLocationOutsideOfEventStream, in: view, with: font)
+    }
+    
+    /**
+     Pops up the menu at the specified location.
+     
+     Displays the menu as a pop-up menu. The top left corner of the specified item (if specified, item must be present in the menu) is positioned at the specified location in the specified view, interpreted in the view’s own coordinate system.
+     
+     If `view` is `nil`, the location is interpreted in the screen coordinate system. This allows you to pop up a menu disconnected from any window.
+     
+     - Parameters:
+        - item: The menu item to be positioned at the specified location in the view.
+        - location: The location in the view coordinate system to display the menu item.
+        - view: The view to display the menu item over.
+     - Returns: `true` if menu tracking ended because an item was selected, and `false` if menu tracking was cancelled for any reason.
+     */
+    @_disfavoredOverload
+    @discardableResult
+    public func popUp(positioning item: NSMenuItem, at location: CGPoint, in view: NSView? = nil) -> Bool {
+        popUp(positioning: item, at: location, in: view)
+    }
+    
+    /**
+     Pops up the menu at the specified location.
+     
+     Displays the menu as a pop-up menu. The top left corner of the specified item (if specified, item must be present in the menu) is positioned at the specified location in the specified view, interpreted in the view’s own coordinate system.
+     
+     If `item` is `nil`, the menu is positioned such that the top left of the menu content frame is at the given location.
+
+     - Parameters:
+        - item: The menu item to be positioned at the specified location in the view.
+        - location: The location in the view coordinate system to display the menu item.
+        - view: The view to display the menu item over.
+     - Returns: `true` if menu tracking ended because an item was selected, and `false` if menu tracking was cancelled for any reason.
+     */
+    @_disfavoredOverload
+    @discardableResult
+    public func popUp(positioning item: NSMenuItem? = nil, at location: CGPoint, in view: NSView) -> Bool {
+        popUp(positioning: item, at: location, in: view)
+    }
+    
+    /**
+     Pops up the menu at the specified screen location.
+     
+     Displays the menu as a pop-up menu. The top left corner of the specified item (if specified, item must be present in the menu) is positioned at the specified location in the specified view, interpreted in the view’s own coordinate system.
+     
+     The menu is positioned such that the top left of the menu content frame is at the given screen location.
+     
+     - Parameters:
+        - screenLocation: The location in the screen coordinate system to display the menu item.
+     - Returns: `true` if menu tracking ended because an item was selected, and `false` if menu tracking was cancelled for any reason.
+     */
+    @_disfavoredOverload
+    @discardableResult
+    public func popUp(at screenLocation: CGPoint) -> Bool {
+        popUp(positioning: nil, at: screenLocation, in: nil)
+    }
+
+    /**
+     Pops up the menu at the specified event location location.
+     
+     Displays the menu as a pop-up menu. The top left corner of the specified item (if specified, item must be present in the menu) is positioned at the specified location in the specified view, interpreted in the view’s own coordinate system.
+     
+     If `item` is `nil`, the menu is positioned such that the top left of the menu content frame is at the given location.
+          
+     - Parameters:
+        - item: The menu item to be positioned at the specified event location in the view.
+        - event: The event representing the the location.
+        - view: The view to display the menu item over.
+     - Returns: `true` if menu tracking ended because an item was selected, and `false` if menu tracking was cancelled for any reason.
+     */
+    @discardableResult
+    public func popUp(positioning item: NSMenuItem? = nil, at event: NSEvent, in view: NSView) -> Bool {
+        popUp(positioning: item, at: event.location(in: view), in: view)
+    }
+    
+    /**
+     Pops up the menu at the specified event location location using a specified font.
+     
+     Displays the menu as a pop-up menu. The top left corner of the specified item (if specified, item must be present in the menu) is positioned at the specified location in the specified view, interpreted in the view’s own coordinate system.
+     
+     If `item` is `nil`, the menu is positioned such that the top left of the menu content frame is at the given location.
+          
+     - Parameters:
+        - item: The menu item to be positioned at the specified event location in the view.
+        - event: The event representing the the location.
+        - view: The view to display the menu item over.
+        - font: The font for the menu.
+     - Returns: `true` if menu tracking ended because an item was selected, and `false` if menu tracking was cancelled for any reason.
+     */
+    @discardableResult
+    public func popUp(positioning item: NSMenuItem? = nil, at event: NSEvent, in view: NSView, with font: NSFont) -> Bool {
+        popUp(positioning: item, at: event.location(in: view), in: view, with: font)
+    }
+     
+    /**
+     Pops up the menu as contextual menu for an event.
+
+     - Parameters:
+        - event: The event representing the location.
+        - view: The view to display the menu item over.
+     */
+    public func popUpContext(at event: NSEvent, in view: NSView) {
+        NSMenu.popUpContextMenu(self, with: event, for: view)
+    }
+    
+    /**
+     Pops up the menu as contextual menu for an event using a specified font.
+          
+     - Parameters:
+        - event: The event representing the location.
+        - view: The view to display the menu item over.
+        - font: The font for the menu.
+     */
+    public func popUpContext(at event: NSEvent, in view: NSView, with font: NSFont) {
+        NSMenu.popUpContextMenu(self, with: event, for: view, with: font)
+    }
+    
+    fileprivate var fontDelegate: FontDelegate? {
+        get { getAssociatedValue("fontDelegate") }
+        set { setAssociatedValue(newValue, key: "fontDelegate") }
+    }
+    
+    fileprivate class FontDelegate: NSObject, NSMenuDelegate {
+        let font: NSFont
+        var mapped: [ObjectIdentifier: NSFont] = [:]
+        weak var delegate: NSMenuDelegate?
+        
+        init(menu: NSMenu, font: NSFont) {
+            self.font = font
+            super.init()
+            delegate = menu.delegate
+            menu.delegate = self
+        }
+        
+        func menuNeedsUpdate(_ menu: NSMenu) {
+            delegate?.menuNeedsUpdate?(menu)
+        }
+        
+        func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {
+            delegate?.menu?(menu, willHighlight: item)
+        }
+        
+        func menuWillOpen(_ menu: NSMenu) {
+            delegate?.menuWillOpen?(menu)
+            menu.items(depth: .max).forEach({
+                mapped[ObjectIdentifier($0)] = $0.font
+                $0.font = font
+            })
+        }
+        
+        func menuDidClose(_ menu: NSMenu) {
+            menu.items(depth: .max).forEach({
+                $0.font = mapped[ObjectIdentifier($0)]
+            })
+            delegate?.menuDidClose?(menu)
+            mapped = [:]
+            menu.delegate = delegate
+            menu.fontDelegate = nil
+        }
+    }
 }
 #endif
