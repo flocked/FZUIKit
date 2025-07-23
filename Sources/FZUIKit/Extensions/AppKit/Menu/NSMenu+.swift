@@ -359,6 +359,27 @@ extension NSMenu {
     }
     
     /**
+     A Boolean value indicating whether the menu should auto update it's width.
+     
+     If set to `true`, the menu item width is automatically updated to the width of the items including their ``AppKit/NSMenuItem/alternateItem``.
+     */
+    public var autoUpdatesWidth: Bool {
+        get { getAssociatedValue("autoUpdatesWidth") ?? false }
+        set { setAssociatedValue(newValue, key: "autoUpdatesWidth") }
+    }
+    
+    /**
+     Sets the Boolean value indicating whether the menu should auto update it's width.
+     
+     If set to `true`, the menu item width is automatically updated to the width of the items including their ``AppKit/NSMenuItem/alternateItem``.
+     */
+    @discardableResult
+    public func autoUpdatesWidth(_ autoUpdates: Bool) -> Self {
+        autoUpdatesWidth = autoUpdates
+        return self
+    }
+    
+    /**
      Pops up the menu at the specified location using a specified font.
 
      Displays the menu as a pop-up menu. The top left corner of the specified item (if specified, item must be present in the menu) is positioned at the specified location in the specified view, interpreted in the view’s own coordinate system.

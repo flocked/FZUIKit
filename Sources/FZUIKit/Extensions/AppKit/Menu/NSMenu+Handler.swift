@@ -63,17 +63,17 @@ extension NSMenu {
         }
     }
     
-    var effectiveAppearanceObservation: KeyValueObservation? {
+    fileprivate var effectiveAppearanceObservation: KeyValueObservation? {
         get { getAssociatedValue("effectiveAppearanceObservation") }
         set { setAssociatedValue(newValue, key: "effectiveAppearanceObservation") }
     }
     
-    var delegateProxy: Delegate? {
+    fileprivate var delegateProxy: Delegate? {
         get { getAssociatedValue("delegateProxy") }
         set { setAssociatedValue(newValue, key: "delegateProxy") }
     }
     
-    var savedMinimumWidth: CGFloat? {
+    fileprivate var savedMinimumWidth: CGFloat? {
         get { getAssociatedValue("savedMinimumWidth") }
         set { setAssociatedValue(newValue, key: "savedMinimumWidth") }
     }
@@ -89,7 +89,7 @@ extension NSMenu {
         }
     }
     
-    class Delegate: NSObject, NSMenuDelegate {
+    fileprivate class Delegate: NSObject, NSMenuDelegate {
         weak var delegate: NSMenuDelegate?
         var eventObserver: CFRunLoopObserver?
         var delegateObservation: KeyValueObservation?
@@ -169,7 +169,7 @@ extension NSMenu {
             let itemsCount = menu.items.count
             menu.items = menu.items.addAlternates()
             menu.items.forEach({ $0.updateHandler?($0) })
-            if itemsCount != menu.items.count {
+            if menu.autoUpdatesWidth, itemsCount != menu.items.count {
                 menu.savedMinimumWidth = menu.minimumWidth
                 menu.minimumWidth = menu.estimatedWidth
             } else if let minimumWidth = menu.savedMinimumWidth {
