@@ -353,6 +353,11 @@ extension NSMenu {
         return nil
     }
     
+    /// The estimate width of the menu.
+    public var estimatedWidth: CGFloat {
+         items.map({$0.estimatedWidth}).max() ?? 0.0
+    }
+    
     /**
      Pops up the menu at the specified location using a specified font.
 

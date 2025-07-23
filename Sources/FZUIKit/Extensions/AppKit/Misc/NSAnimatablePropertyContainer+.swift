@@ -105,7 +105,7 @@ class AnimationDelegate: NSObject, CAAnimationDelegate {
         guard let key = (animation as? CAPropertyAnimation)?.keyPath else { return }
         animationKeys.insert(key)
         if let object = object, Self.animatingObjects[ObjectIdentifier(object)] == nil {
-            Self.animatingObjects[object.objectIdentifier] = Weak(object)
+            Self.animatingObjects[object.objectId] = Weak(object)
         }
     }
     
@@ -113,7 +113,7 @@ class AnimationDelegate: NSObject, CAAnimationDelegate {
         guard let key = (animation as? CAPropertyAnimation)?.keyPath else { return }
         animationKeys.remove(key)
         if animationKeys.isEmpty, let object = object {
-            Self.animatingObjects[object.objectIdentifier] = nil
+            Self.animatingObjects[object.objectId] = nil
         }
     }
 }

@@ -544,11 +544,69 @@ public extension NSMenuItem {
         set {
             guard newValue != alternateItem else { return }
             alternateItem?.isAlternate = false
+            alternateItem?.keyEquivalentModifierMask = []
             newValue?.isAlternate = true
             newValue?.keyEquivalentModifierMask = [.option]
+            if !alternateItemIsDisplayableWhenHidden {
+                newValue?.keyEquivalentModifierMask = isHidden ? [] : [.option]
+            }
             setAssociatedValue(newValue, key: "alternateItem")
             setupMenuDelegateProxy()
         }
+    }
+    
+    /**
+     Sets the alternate menu item displayed when the option key is hold.
+     
+     To change the modifier flag required to hold, use the alternate item's `keyEquivalentModifierMask` property.
+
+     - Parameters:
+        - item: The alternate item.
+        - isDisplayableWhenHidden: A Boolean value indicating whether the alternate item can be displayed even if the item is hidden.
+     */
+    @discardableResult
+    func alternateItem(_ item: NSMenuItem?, isDisplayableWhenHidden: Bool = true) -> Self {
+        alternateItem = item
+        alternateItemIsDisplayableWhenHidden = isDisplayableWhenHidden
+        return self
+    }
+    
+    /**
+     A Boolean value indicating whether the ``AppKit/NSMenuItem/alternateItem`` can be displayed if the item is hidden.
+     
+     The default value is `true`.
+     */
+    var alternateItemIsDisplayableWhenHidden: Bool {
+        get { alternateItemIsHiddenObservation == nil }
+        set {
+            guard newValue != alternateItemIsDisplayableWhenHidden else { return }
+            if newValue {
+                alternateItemIsHiddenObservation = nil
+                alternateItem?.keyEquivalentModifierMask = [.option]
+            } else {
+                alternateItemIsHiddenObservation = observeChanges(for: \.isHidden) { [weak self] old, new in
+                    guard let self = self else { return }
+                    self.alternateItem?.keyEquivalentModifierMask = new ? [] : [.option]
+                }
+                alternateItem?.keyEquivalentModifierMask = isHidden ? [] : [.option]
+            }
+        }
+    }
+    
+    /**
+     Sets the Boolean value indicating whether the ``AppKit/NSMenuItem/alternateItem`` can be displayed if the item is hidden.
+     
+     The default value is `true`.
+     */
+    @discardableResult
+    func alternateItemIsDisplayableWhenHidden(_ isDisplayable: Bool) -> Self {
+        alternateItemIsDisplayableWhenHidden = isDisplayable
+        return self
+    }
+    
+    private var alternateItemIsHiddenObservation: KeyValueObservation? {
+        get { getAssociatedValue("alternateItemIsHiddenObservation") }
+        set { setAssociatedValue(newValue, key: "alternateItemIsHiddenObservation") }
     }
     
     /// Removes the item from it's menu.
@@ -556,11 +614,27 @@ public extension NSMenuItem {
         menu?.removeItem(self)
     }
     
-    /// Sets the alternate menu item displayed when the option key is hold.
-    @discardableResult
-    func alternateItem(_ item: NSMenuItem?) -> Self {
-        self.alternateItem = item
-        return self
+    /// The estimate width of the item.
+    var estimatedWidth: CGFloat {
+        if let view = view {
+            return view.frame.width
+        }
+
+        var titleWidth = 0.0
+        if let attributed = attributedTitle {
+            titleWidth = attributed.size().width
+        } else {
+            titleWidth = (title as NSString).size(withAttributes: [.font: font ?? NSFont.menuFont(ofSize: 0)]).width
+        }
+
+        var imageWidth = 0.0
+        if let image = image {
+            imageWidth = image.size.width + 6
+        }
+
+        let alternateWidth = alternateItem?.estimatedWidth ?? 0.0
+        let width = titleWidth + imageWidth + 30
+        return max(width, alternateWidth)
     }
         
     internal func setupMenuDelegateProxy() {

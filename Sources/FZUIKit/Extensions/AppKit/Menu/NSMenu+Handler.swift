@@ -22,8 +22,12 @@ extension NSMenu {
         public var willHighlight: ((NSMenuItem?)->())?
         /// The handler that gets called when the appearance changes.
         public var effectiveAppearance: ((NSAppearance)->())?
-        /// The handler that gets called before the menu is displayed to be able to update it.
-        public var update: ((NSMenu)->())?
+        /**
+         The handler that gets called before the menu is displayed.
+         
+         The handler lets you update the menu before it's displayed.
+         */
+        public var update: ((_ menu: NSMenu)->())?
         /**
          The handler that provides the font for the menu.
          
@@ -69,8 +73,16 @@ extension NSMenu {
         set { setAssociatedValue(newValue, key: "delegateProxy") }
     }
     
+    var savedMinimumWidth: CGFloat? {
+        get { getAssociatedValue("savedMinimumWidth") }
+        set { setAssociatedValue(newValue, key: "savedMinimumWidth") }
+    }
+    
     func setupDelegateProxy() {
-        if delegateProxy != nil {
+        if handlers.needsDelegate || items.contains(where: { $0.needsDelegateProxy }) {
+            guard delegateProxy == nil else { return }
+            delegateProxy = .init(self)
+        } else if delegateProxy != nil {
             let _delegate = delegateProxy?.delegate
             delegateProxy = nil
             delegate = _delegate
@@ -131,6 +143,10 @@ extension NSMenu {
                 eventObserver = nil
             }
             mappedFonts = [:]
+            if let minimumWidth = menu.savedMinimumWidth {
+                menu.minimumWidth = minimumWidth
+                menu.savedMinimumWidth = nil
+            }
         }
         
         func numberOfItems(in menu: NSMenu) -> Int {
@@ -150,8 +166,15 @@ extension NSMenu {
                 })
                 CFRunLoopAddObserver(CFRunLoopGetCurrent(), eventObserver, CFRunLoopMode.commonModes)
             }
+            let itemsCount = menu.items.count
             menu.items = menu.items.addAlternates()
             menu.items.forEach({ $0.updateHandler?($0) })
+            if itemsCount != menu.items.count {
+                menu.savedMinimumWidth = menu.minimumWidth
+                menu.minimumWidth = menu.estimatedWidth
+            } else if let minimumWidth = menu.savedMinimumWidth {
+                menu.minimumWidth = minimumWidth
+            }
         }
         
         func menuHasKeyEquivalent(_ menu: NSMenu, for event: NSEvent, target: AutoreleasingUnsafeMutablePointer<AnyObject?>, action: UnsafeMutablePointer<Selector?>) -> Bool {
@@ -182,7 +205,7 @@ extension NSMenu {
 
 fileprivate extension Array where Element: NSMenuItem {
     func addAlternates() -> [NSMenuItem] {
-        flatMap { if let alternate = $0.alternateItem { return [$0, alternate] } else { return [$0] } }.uniqued()
+        flatMap { if let alternate = $0.alternateItem, !alternate.keyEquivalentModifierMask.isEmpty { return [$0, alternate] } else { return [$0] } }.uniqued()
     }
     
     func removeAlternates() -> [Element] {
