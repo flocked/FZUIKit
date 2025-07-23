@@ -484,6 +484,26 @@ extension NSMenu {
             menu.delegate = delegate
             menu.fontDelegate = nil
         }
+        
+        func numberOfItems(in menu: NSMenu) -> Int {
+            return delegate?.numberOfItems?(in: menu) ?? menu.items.count
+        }
+        
+        func menuHasKeyEquivalent(_ menu: NSMenu, for event: NSEvent, target: AutoreleasingUnsafeMutablePointer<AnyObject?>, action: UnsafeMutablePointer<Selector?>) -> Bool {
+            if let menuHasKeyEquivalent = delegate?.menuHasKeyEquivalent?(menu, for: event, target: target, action: action) {
+                return menuHasKeyEquivalent
+            }
+            let keyEquivalent = event.readableKeyCode.lowercased()
+            return menu.items.contains(where: {$0.keyEquivalent == keyEquivalent && $0.isEnabled})
+        }
+        
+        func confinementRect(for menu: NSMenu, on screen: NSScreen?) -> NSRect {
+            delegate?.confinementRect?(for: menu, on: screen) ?? .zero
+        }
+        
+        func menu(_ menu: NSMenu, update item: NSMenuItem, at index: Int, shouldCancel: Bool) -> Bool {
+            delegate?.menu?(menu, update: item, at: index, shouldCancel: shouldCancel) ?? true
+        }
     }
 }
 #endif
