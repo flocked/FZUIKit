@@ -361,7 +361,9 @@ extension NSMenu {
     /**
      A Boolean value indicating whether the menu should auto update it's width.
      
-     If set to `true`, the menu item width is automatically updated to the width of the items including their ``AppKit/NSMenuItem/alternateItem``.
+     If set to `true`, the menu width is automatically updated to the width of the items including the item's ``AppKit/NSMenuItem/alternateItem``.
+     
+     Setting this property to `true`, prevents that the menu width suddenly increases if an ``AppKit/NSMenuItem/alternateItem`` is displayed.
      */
     public var autoUpdatesWidth: Bool {
         get { getAssociatedValue("autoUpdatesWidth") ?? false }
@@ -371,7 +373,9 @@ extension NSMenu {
     /**
      Sets the Boolean value indicating whether the menu should auto update it's width.
      
-     If set to `true`, the menu item width is automatically updated to the width of the items including their ``AppKit/NSMenuItem/alternateItem``.
+     If set to `true`, the menu width is automatically updated to the width of the items including the item's ``AppKit/NSMenuItem/alternateItem``.
+     
+     Setting this value to `true`, prevents that the menu width suddenly increases if an ``AppKit/NSMenuItem/alternateItem`` is displayed.
      */
     @discardableResult
     public func autoUpdatesWidth(_ autoUpdates: Bool) -> Self {
