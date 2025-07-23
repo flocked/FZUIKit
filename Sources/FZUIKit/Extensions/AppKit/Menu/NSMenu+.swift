@@ -449,7 +449,7 @@ extension NSMenu {
     
     fileprivate class FontDelegate: NSObject, NSMenuDelegate {
         let font: NSFont
-        var mapped: [ObjectIdentifier: NSFont] = [:]
+        var mappedFonts: [ObjectIdentifier: NSFont] = [:]
         weak var delegate: NSMenuDelegate?
         
         init(menu: NSMenu, font: NSFont) {
@@ -470,17 +470,17 @@ extension NSMenu {
         func menuWillOpen(_ menu: NSMenu) {
             delegate?.menuWillOpen?(menu)
             menu.items(depth: .max).forEach({
-                mapped[ObjectIdentifier($0)] = $0.font
+                mappedFonts[ObjectIdentifier($0)] = $0.font
                 $0.font = font
             })
         }
         
         func menuDidClose(_ menu: NSMenu) {
             menu.items(depth: .max).forEach({
-                $0.font = mapped[ObjectIdentifier($0)]
+                $0.font = mappedFonts[ObjectIdentifier($0)]
             })
             delegate?.menuDidClose?(menu)
-            mapped = [:]
+            mappedFonts = [:]
             menu.delegate = delegate
             menu.fontDelegate = nil
         }
