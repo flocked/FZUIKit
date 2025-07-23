@@ -20,6 +20,15 @@ extension NSTextStorage {
         return self
     }
     
+    fileprivate var layoutManagersWritable: [NSLayoutManager] {
+        get { layoutManagers }
+        set {
+            layoutManagers.forEach({ removeLayoutManager($0)})
+            newValue.forEach({ addLayoutManager($0) })
+        }
+    }
+    
+    #if os(macOS)
     /**
      Sets the text storage contents as an array of attribute runs.
      
@@ -63,14 +72,7 @@ extension NSTextStorage {
         self.characters = characters
         return self
     }
-
-    fileprivate var layoutManagersWritable: [NSLayoutManager] {
-        get { layoutManagers }
-        set {
-            layoutManagers.forEach({ removeLayoutManager($0)})
-            newValue.forEach({ addLayoutManager($0) })
-        }
-    }
+    #endif
 }
 
 #endif

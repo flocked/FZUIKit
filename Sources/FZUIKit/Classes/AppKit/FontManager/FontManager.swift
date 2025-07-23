@@ -352,8 +352,8 @@ public class FontManager: NSObject {
                     NSSegment(symbolName: "underline")?.tag(33).isEnabled(target is NSTextView)
                     NSSegment(symbolName: "strikethrough")?.tag(44).isEnabled(target is NSTextView)
                 } else {
-                    NSSegment("B").font(.systemFont.bold).tag(11)
-                    NSSegment("I").font(.systemFont.italic).tag(22)
+                    NSSegment("B").font(.system.bold).tag(11)
+                    NSSegment("I").font(.system.italic).tag(22)
                 }
             }
             segmentedControl.sizeToFit()

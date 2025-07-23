@@ -27,6 +27,63 @@ public extension NSUIFontDescriptor {
         object(forKey: .face) as? String
     }
     
+    /// The font name.
+    var name: String? {
+        object(forKey: .name) as? String
+    }
+    
+    /// Returns the font for the specified font size.
+    func font(size fontSize: CGFloat) -> NSUIFont? {
+        NSUIFont(descriptor: self, size: fontSize)
+    }
+    
+    /// Returns the font descriptor for the specified locale.
+    func fontDescriptor(for locale: Locale) -> NSUIFontDescriptor? {
+        guard let name = name else { return nil }
+        let fontDescriptors = CTFontCopyDefaultCascadeListForLanguages(font(size: 0)!, [locale.identifier] as CFArray
+        ) as? [NSUIFontDescriptor]
+        return fontDescriptors?.first
+    }
+    
+    func allFontDescriptors(for locale: Locale) -> [NSUIFontDescriptor] {
+        let fontDescriptors = CTFontCopyDefaultCascadeListForLanguages(font(size: 0)!, [locale.identifier] as CFArray
+        ) as? [NSUIFontDescriptor]
+        return fontDescriptors ?? []
+    }
+    
+    ///  The localized family name of the font (e.g., “Helvetica-Bold”).
+    var localizedName: String? {
+        font(size: 10)?.localizedName(for: .full)?.name
+    }
+    
+    ///  The localized family name of the font (e.g., “Helvetica”).
+    var localizedFamilyName: String? {
+        font(size: 10)?.localizedName(for: .family)?.name
+    }
+    
+    /// The localized face name of the font (e.g., “Bold”).
+    var localizedFaceName: String? {
+        font(size: 10)?.localizedName(for: .subFamily)?.name
+    }
+    
+    ///  The localized family name of the font for the specified locale.
+    func localizedName(for locale: Locale) -> String? {
+        guard let fontDescriptor = fontDescriptor(for: locale) else { return nil }
+        return fontDescriptor.name
+    }
+    
+    ///  The localized family name of the font for the specified locale.
+    func localizedFamilyName(for locale: Locale) -> String? {
+        guard let fontDescriptor = fontDescriptor(for: locale) else { return nil }
+        return fontDescriptor.familyName
+    }
+    
+    /// The localized face name of the font for the specified locale.
+    func localizedFaceName(for locale: Locale) -> String? {
+        guard let fontDescriptor = fontDescriptor(for: locale) else { return nil }
+        return fontDescriptor.faceName
+    }
+    /*/
     #if os(macOS)
     ///  The localized family name of the font.
     var localizedFamilyName: String? {
@@ -40,21 +97,67 @@ public extension NSUIFontDescriptor {
         return NSFontManager.shared.localizedName(forFamily: familyName, face: faceName)
     }
     
-    /// A dictionary that describes the font’s variation axis.
-    var variation: [VariationKey: Any]? {
-        object(forKey: .variation) as? [VariationKey: Any]
+    ///  The localized family name of the font for the specified locale.
+    func localizedFamilyName(for locale: Locale) -> String? {
+        guard let fontDescriptor = fontDescriptor(for: locale) else { return nil }
+        return fontDescriptor.localizedFamilyName
+    }
+    
+    /// The localized face name of the font for the specified locale.
+    func localizedFaceName(for locale: Locale) -> String? {
+        guard let fontDescriptor = fontDescriptor(for: locale) else { return nil }
+        return fontDescriptor.localizedFaceName
     }
     #endif
+     */
     
     /// The value that overrides the glyph advancement specified by the font.
-    var fixedAdvance: CGFloat? {
-        object(forKey: .fixedAdvance) as? CGFloat
+    var fixedAdvance: CGFloat {
+        object(forKey: .fixedAdvance) as? CGFloat ?? 0.0
     }
     
+    #if os(macOS)
+    /// The set of Unicode characters covered by the font.
+    var characterSet: CharacterSet {
+        object(forKey: .characterSet) as? CharacterSet ?? NSUIFont(descriptor: self, size: pointSize)!.coveredCharacterSet
+     }
+    #else
     /// The set of Unicode characters covered by the font.
     var characterSet: CharacterSet? {
         object(forKey: .characterSet) as? CharacterSet
+     }
+    #endif
+    
+    #if os(macOS)
+    /*
+    /// The non-default font feature settings.
+    var featureSettings: [FeatureSetting] {
+        guard let values = object(forKey: .featureSettings) as? [[NSFontDescriptor.FeatureKey: Int]] else { return [] }
+        return values.compactMap({ .init($0) })
     }
+     */
+    
+    struct FeatureSetting {
+        /**
+         The type of the font feature.
+         
+         The value specifies a font feature type such as ligature, character shape, and so on.
+         */
+        public let typeIdentifier: Int
+        /**
+         The selector of the font feature.
+         
+         The value specifies a font feature selector such as common ligature off, traditional character shape, and so on.
+         */
+        public let selectorIdentifier: Int
+        
+        init?(_ dic: [NSUIFontDescriptor.FeatureKey: Int]) {
+            guard let typeID = dic[.typeIdentifier], let selectorID = dic[.selectorIdentifier] else { return nil }
+            self.typeIdentifier = typeID
+            self.selectorIdentifier = selectorID
+        }
+    }
+    #endif
     
     /// The relative slant angle value.
     var slant: CGFloat? {
@@ -128,6 +231,58 @@ public extension NSUIFontDescriptor {
         }
         return nil
     }
+    
+    #if os(macOS)
+    /// A dictionary of variation axis tags (e.g. `"wght"`, `"wdth") and their corresponding values.
+    var variationAxes: [String: Double] {
+        if let variationAxes = _variationAxes {
+            return variationAxes
+        }
+        guard let rawVariations = object(forKey: .variation) as? [NSNumber: NSNumber] else {
+            return [:]
+        }
+        return rawVariations.mapKeys({ UTCreateStringForOSType($0.uint32Value).takeRetainedValue() as String? ?? "Unknown" }).mapValues({ $0.doubleValue })
+    }
+    
+    fileprivate var _variationAxes: [String: Double]? {
+        guard let rawVariations = object(forKey: .variation) as? [NSFontDescriptor.VariationKey: Any] else {
+            return nil
+        }
+        return rawVariations.mapKeys({$0.rawValue}).compactMapValues({ $0 as? NSNumber}).mapValues({$0.doubleValue})
+    }
+    
+    /*
+    /// A dictionary of variation axis tags (e.g. `"wght"`, `"wdth"`) and their corresponding values.
+    var variations: Varations? {
+        Swift.print(object(forKey: .variation) ?? "nil")
+        guard let variations = object(forKey: .variation) as? [NSFontDescriptor.VariationKey: Any] else { return nil }
+        Swift.print(variations.keys.map({$0.rawValue}))
+        return Varations(variations)
+    }
+    
+    public struct Varations {
+        /// The localized variation axis name.
+        public let name: String
+        /// The axis identifier value
+        public let identifier: Int
+        /// The minimum axis value.
+        public let minimumValue: Double
+        /// The maximum axis value.
+        public let maximumValue: Double
+        /// The default axis value.
+        public let defaultValue: Double
+        
+        init?(_ variations: [NSFontDescriptor.VariationKey: Any]) {
+            guard let name = variations[.name] as? String, let id = variations[.identifier] as? Int, let minValue = variations[.minimumValue] as? Double, let maxValue = variations[.maximumValue] as? Double, let defaultValue = variations[.defaultValue] as? Double else { return nil }
+            self.name = name
+            self.identifier = id
+            self.minimumValue = minValue
+            self.maximumValue = maxValue
+            self.defaultValue = defaultValue
+        }
+    }
+    */
+#endif
 }
 
 public extension NSUIFontDescriptor.TraitKey {

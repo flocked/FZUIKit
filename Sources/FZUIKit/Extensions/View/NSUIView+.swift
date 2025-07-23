@@ -411,7 +411,7 @@ extension NSUIView {
             if var endGradient = newValue ?? optionalLayer?.gradient {
                 let stops = (optionalLayer?.gradient?.stops ?? []).animatable(to: newValue?.stops ?? [])
                 UIView.performWithoutAnimation {
-                    optionalLayer?.gradient = stops.start
+                    optionalLayer?.gradient?.stops = stops.start
                 }
                 endGradient.stops = stops.end
                 optionalLayer?.gradient = endGradient

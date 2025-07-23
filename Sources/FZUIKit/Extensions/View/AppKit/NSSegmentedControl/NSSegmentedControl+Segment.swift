@@ -101,7 +101,7 @@ public class NSSegment: NSObject, ExpressibleByStringLiteral {
     }
     
     /// The font of the segment.
-    public var font: NSFont = .systemFont {
+    public var font: NSFont = .system {
         didSet {
             guard let index = index else { return }
             segmentedControl?.setFont(font, forSegment: index)
@@ -285,7 +285,7 @@ public class NSSegment: NSObject, ExpressibleByStringLiteral {
         self.width = segmentedControl.width(forSegment: index)
         self.toolTip = segmentedControl.toolTip(forSegment: index)
         self.tag = segmentedControl.tag(forSegment: index)
-        self.font = segmentedControl.font(forSegment: index) ?? segmentedControl.font ?? .systemFont
+        self.font = segmentedControl.font(forSegment: index) ?? segmentedControl.font ?? .system
         self.index = index
         self.segmentedControl = segmentedControl
         self.toolbarItem = segmentedControl.toolbarItem

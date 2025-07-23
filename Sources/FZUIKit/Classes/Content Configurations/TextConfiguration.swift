@@ -378,7 +378,7 @@ public extension NSTextField {
             var configuration = TextConfiguration()
             configuration.numberOfLines = maximumNumberOfLines
             configuration.color = textColor ?? .labelColor
-            configuration.font = font ?? .systemFont
+            configuration.font = font ?? .system
             configuration.alignment = alignment
             configuration.lineBreakMode = lineBreakMode
             configuration.isEditable = isEditable
@@ -419,7 +419,7 @@ public extension NSTextView {
         get {
             var configuration = TextConfiguration()
             configuration.color = textColor ?? .labelColor
-            configuration.font = font ?? .systemFont
+            configuration.font = font ?? .system
             configuration.alignment = alignment
             configuration.isEditable = isEditable
             configuration.isSelectable = isSelectable
@@ -494,7 +494,7 @@ public extension UITextField {
         get {
             var configuration = TextConfiguration()
             configuration.color = textColor ?? .label
-            configuration.font = font ?? .systemFont
+            configuration.font = font ?? .system
             configuration.alignment = textAlignment
             configuration.adjustsFontSizeToFitWidth = adjustsFontSizeToFitWidth
             configuration.adjustsFontForContentSizeCategory = adjustsFontForContentSizeCategory
@@ -522,7 +522,7 @@ public extension UITextView {
     var textConfiguration: TextConfiguration {
         get {
             var configuration = TextConfiguration()
-            configuration.font = font ?? .systemFont
+            configuration.font = font ?? .system
             configuration.color = textColor ?? .label
             configuration.lineBreakMode = textContainer.lineBreakMode
             configuration.alignment = textAlignment
