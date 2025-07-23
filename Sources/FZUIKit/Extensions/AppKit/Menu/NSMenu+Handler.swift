@@ -24,13 +24,16 @@ extension NSMenu {
         public var effectiveAppearance: ((NSAppearance)->())?
         /// The handler that gets called before the menu is displayed to be able to update it.
         public var update: ((NSMenu)->())?
+        /// The handler that provides the font for the menu.
+        public var font: (()->(NSFont?))?
 
         var needsDelegate: Bool {
             willOpen != nil ||
             didClose != nil ||
             willHighlight != nil ||
             effectiveAppearance != nil ||
-            update != nil
+            update != nil ||
+            font != nil
         }
     }
     
@@ -73,7 +76,8 @@ extension NSMenu {
         weak var delegate: NSMenuDelegate?
         var eventObserver: CFRunLoopObserver?
         var delegateObservation: KeyValueObservation?
-
+        var mappedFonts: [Weak<NSMenuItem>: NSFont] = [:]
+        
         init(_ menu: NSMenu) {
             self.delegate = menu.delegate
             super.init()
@@ -89,6 +93,12 @@ extension NSMenu {
             guard menu.delegate === self else { return }
             menu.handlers.willOpen?()
             delegate?.menuWillOpen?(menu)
+            if let font = menu.handlers.font {
+                menu.items(depth: .max).forEach({
+                    mappedFonts[Weak($0)] = $0.font
+                    $0.font = font()
+                })
+            }
         }
         
         func menuDidClose(_ menu: NSMenu) {
@@ -100,6 +110,13 @@ extension NSMenu {
                 CFRunLoopObserverInvalidate(eventObserver)
                 eventObserver = nil
             }
+            if menu.handlers.font != nil {
+                menu.items(depth: .max).forEach({ item in
+                    guard let key = mappedFonts.first(where: { $0.key.object == item })?.key else { return }
+                    item.font = mappedFonts[key]
+                })
+            }
+            mappedFonts = [:]
         }
         
         func numberOfItems(in menu: NSMenu) -> Int {
