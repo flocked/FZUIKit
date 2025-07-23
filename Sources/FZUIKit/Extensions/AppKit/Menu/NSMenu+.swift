@@ -353,17 +353,14 @@ extension NSMenu {
         return nil
     }
     
-    /// The estimate width of the menu.
-    public var estimatedWidth: CGFloat {
-         items.map({$0.estimatedWidth}).max() ?? 0.0
-    }
-    
     /**
      A Boolean value indicating whether the menu should auto update it's width.
-     
+          
      If set to `true`, the menu width is automatically updated to the width of the items including the item's ``AppKit/NSMenuItem/alternateItem``.
      
-     Setting this property to `true`, prevents that the menu width suddenly increases if an ``AppKit/NSMenuItem/alternateItem`` is displayed.
+     Setting this property to `true`, prevents the menu width from increasing if an ``AppKit/NSMenuItem/alternateItem`` is displayed that is wider than the current menu width.
+     
+     The default value is `false`.
      */
     public var autoUpdatesWidth: Bool {
         get { getAssociatedValue("autoUpdatesWidth") ?? false }
@@ -375,12 +372,30 @@ extension NSMenu {
      
      If set to `true`, the menu width is automatically updated to the width of the items including the item's ``AppKit/NSMenuItem/alternateItem``.
      
-     Setting this value to `true`, prevents that the menu width suddenly increases if an ``AppKit/NSMenuItem/alternateItem`` is displayed.
+     Setting this property to `true`, prevents the menu width from increasing if an ``AppKit/NSMenuItem/alternateItem`` is displayed that is wider than the current menu width.
+     
+     The default value is `false`.
      */
     @discardableResult
     public func autoUpdatesWidth(_ autoUpdates: Bool) -> Self {
         autoUpdatesWidth = autoUpdates
         return self
+    }
+    
+    /**
+     The total size of the menu in screen coordinates.
+     
+     The total size includes the menu's items ``AppKit/NSMenuItem/alternateItem``.
+     */
+    var totalSize: CGSize {
+        var size = size
+        let itemsCount = items.count
+        items = items.addAlternates()
+        size = self.size
+        if itemsCount != items.count {
+            items = items.removeAlternates()
+        }
+        return size
     }
     
     /**
@@ -618,6 +633,17 @@ extension NSMenu {
         func menu(_ menu: NSMenu, update item: NSMenuItem, at index: Int, shouldCancel: Bool) -> Bool {
             delegate?.menu?(menu, update: item, at: index, shouldCancel: shouldCancel) ?? true
         }
+    }
+}
+
+fileprivate extension Array where Element: NSMenuItem {
+    func addAlternates() -> [NSMenuItem] {
+        flatMap { if let alternate = $0.alternateItem, !alternate.keyEquivalentModifierMask.isEmpty { return [$0, alternate] } else { return [$0] } }.uniqued()
+    }
+    
+    func removeAlternates() -> [Element] {
+        let alternateSet = Set(compactMap { $0.alternateItem?.objectId })
+        return compactMap { alternateSet.contains($0.objectId) ? nil : $0 }
     }
 }
 #endif

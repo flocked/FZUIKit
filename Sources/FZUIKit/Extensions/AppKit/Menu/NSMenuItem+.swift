@@ -615,7 +615,7 @@ public extension NSMenuItem {
     }
     
     /// The estimate width of the item.
-    var estimatedWidth: CGFloat {
+    internal var estimatedWidth: CGFloat {
         if let view = view {
             return view.frame.width
         }

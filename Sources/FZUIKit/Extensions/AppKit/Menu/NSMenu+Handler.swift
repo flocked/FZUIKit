@@ -171,7 +171,7 @@ extension NSMenu {
             menu.items.forEach({ $0.updateHandler?($0) })
             if menu.autoUpdatesWidth, itemsCount != menu.items.count {
                 menu.savedMinimumWidth = menu.minimumWidth
-                menu.minimumWidth = menu.estimatedWidth
+                menu.minimumWidth = menu.size.width
             } else if let minimumWidth = menu.savedMinimumWidth {
                 menu.minimumWidth = minimumWidth
             }
