@@ -738,6 +738,7 @@ extension NSWindow {
         do {
             _ = try Swizzle(NSWindow.self) {
                 #selector(NSWindow.defaultAnimation(forKey:)) <~> #selector(NSWindow.swizzledDefaultAnimation(forKey:))
+                #selector(NSWindow.animation(forKey:)) <-> #selector(NSWindow.swizzledAnimation(forKey:))
             }
         } catch {
             Swift.debugPrint(error)

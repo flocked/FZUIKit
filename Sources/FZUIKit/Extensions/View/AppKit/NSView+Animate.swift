@@ -18,10 +18,11 @@ import SwiftUI
          - allowsImplicitAnimation: A Boolean value indicating whether animations are enabled for animations that occur as a result of another property change.
          - changes: The closure containing the changes to animate. This is where you programmatically change any animatable properties of the views in your view hierarchy.
          - completion: A closure to execute after the animation completes.
+      - Returns: The animation group.
       */
      @discardableResult
-     public static func animate(timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimationContext {
-         .animate(timingFunction: timingFunction, allowsImplicitAnimation: allowsImplicitAnimation, changes: changes, completion: completion)
+     public static func animate(timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimator {
+         NSAnimationContext.animate(timingFunction: timingFunction, allowsImplicitAnimation: allowsImplicitAnimation, changes: changes, completion: completion)
      }
      
      /**
@@ -33,10 +34,11 @@ import SwiftUI
          - allowsImplicitAnimation: A Boolean value indicating whether animations are enabled for animations that occur as a result of another property change.
          - changes: The closure containing the changes to animate. This is where you programmatically change any animatable properties of the views in your view hierarchy.
          - completion: A closure to execute after the animation completes.
+      - Returns: The animation group.
       */
      @discardableResult
-     public static func animate(withDuration duration: TimeInterval, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimationContext {
-         .animate(duration: duration, timingFunction: timingFunction, allowsImplicitAnimation: allowsImplicitAnimation, changes: changes, completion: completion)
+     public static func animate(withDuration duration: TimeInterval, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimator {
+         NSAnimationContext.animate(duration: duration, timingFunction: timingFunction, allowsImplicitAnimation: allowsImplicitAnimation, changes: changes, completion: completion)
      }
      
      /**
@@ -47,10 +49,11 @@ import SwiftUI
          - allowsImplicitAnimation: A Boolean value indicating whether animations are enabled for animations that occur as a result of another property change.
          - changes: The closure containing the changes to animate. This is where you programmatically change any animatable properties of the views in your view hierarchy.
         - completion: A closure to execute after the animation completes.
+      - Returns: The animation group.
       */
      @discardableResult
-     public static func animate(withSpring spring: CASpringAnimation, allowsImplicitAnimation: Bool = false, changes: @escaping ()->(), completion: (()->())? = nil) -> NSAnimationContext {
-         .animate(withSpring: spring, allowsImplicitAnimation: allowsImplicitAnimation, changes: changes, completion: completion)
+     public static func animate(withSpring spring: CASpringAnimation, allowsImplicitAnimation: Bool = false, changes: @escaping ()->(), completion: (()->())? = nil) -> NSAnimator {
+         NSAnimationContext.animate(withSpring: spring, allowsImplicitAnimation: allowsImplicitAnimation, changes: changes, completion: completion)
      }
      
      /**
@@ -60,16 +63,41 @@ import SwiftUI
          - animation: The `SwiftUI` animation.
          - changes: The closure containing the changes to animate. This is where you programmatically change any animatable properties of the views in your view hierarchy.
          - completion: A closure to execute after the animation completes.
+      - Returns: The animation group.
       */
      @available(macOS 15.0, *)
-     public static func animate(_ animation: Animation, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimationContext {
-         .animate(animation, changes: changes, completion: completion)
+     public static func animate(_ animation: Animation, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimator {
+         NSAnimationContext.animate(animation: animation, changes: changes, completion: completion)
      }
      
      /// Runs the specified closure without any animations.
-     public static func performWithoutAnimation(_ changes: () -> Void) {
+     @discardableResult
+     public static func performWithoutAnimation(_ changes: @escaping () -> Void) -> NSAnimator {
          NSAnimationContext.performWithoutAnimation(changes)
          // CATransaction.performNonAnimated(changes)
+     }
+     
+     /**
+      Animates the specified animations in a serial order.
+      
+      Example usage:
+      
+      ```swift
+      NSAnimationGroup {
+         NSAnimator(duration: 4.0) {
+             view.animator().backgroundColor = .red
+             view.animator().frame.size.width = 200
+         }.repeats(2)
+         NSAnimator(duration: 2.0) {
+             view.animator().backgroundColor = .blue
+             view.animator().frame.size.width = 100
+         }.delay(1.0)
+      }
+      ```
+      */
+     @discardableResult
+     public static func animate(@NSAnimator.Builder _ animations: @escaping () -> [NSAnimator]) -> NSAnimationGroup {
+         NSAnimationContext.animate(animations)
      }
  }
 

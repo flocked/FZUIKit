@@ -379,13 +379,12 @@ extension NSUIView {
                 }
                 backgroundColor = nil
             }
-            if var endGradient = newValue ?? optionalLayer?.gradient {
-                let stops = (optionalLayer?.gradient?.stops ?? []).animatable(to: newValue?.stops ?? [])
-                optionalLayer?.gradient?.stops = stops.start
-                optionalLayer?.gradient?.type = endGradient.type
-                endGradient.stops = stops.end
-                _gradient = endGradient.values
-            }
+            guard var endGradient = newValue ?? optionalLayer?.gradient?.opacity(0.0) else { return }
+            let stops = (optionalLayer?.gradient?.stops ?? []).animatable(to: newValue?.stops ?? [])
+            optionalLayer?.gradient?.stops = stops.start
+            optionalLayer?.gradient?.type = endGradient.type
+            endGradient.stops = stops.end
+            _gradient = endGradient.values
         }
     }
     
@@ -408,14 +407,13 @@ extension NSUIView {
                 }
                 backgroundColor = nil
             }
-            if var endGradient = newValue ?? optionalLayer?.gradient {
-                let stops = (optionalLayer?.gradient?.stops ?? []).animatable(to: newValue?.stops ?? [])
-                UIView.performWithoutAnimation {
-                    optionalLayer?.gradient?.stops = stops.start
-                }
-                endGradient.stops = stops.end
-                optionalLayer?.gradient = endGradient
+            guard var endGradient = newValue ?? optionalLayer?.gradient?.opacity(0.0) else { return }
+            let stops = (optionalLayer?.gradient?.stops ?? []).animatable(to: newValue?.stops ?? [])
+            UIView.performWithoutAnimation {
+                optionalLayer?.gradient?.stops = stops.start
             }
+            endGradient.stops = stops.end
+            optionalLayer?.gradient = endGradient
         }
     }
     #endif

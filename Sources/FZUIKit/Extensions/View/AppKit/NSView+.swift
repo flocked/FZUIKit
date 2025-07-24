@@ -858,7 +858,7 @@ extension NSView {
         do {
             _ = try Swizzle(NSView.self) {
                 #selector(NSView.defaultAnimation(forKey:)) <~> #selector(NSView.swizzledDefaultAnimation(forKey:))
-                // #selector(NSView.animation(forKey:)) <-> #selector(NSView.swizzledAnimation(forKey:))
+                #selector(NSView.animation(forKey:)) <-> #selector(NSView.swizzledAnimation(forKey:))
             }
         } catch {
             Swift.debugPrint(error, (error as? LocalizedError)?.failureReason ?? "nil")

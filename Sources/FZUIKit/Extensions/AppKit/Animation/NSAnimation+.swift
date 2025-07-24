@@ -88,7 +88,6 @@ extension NSAnimation {
         }
     }
     
-    
     fileprivate class AnimationValueDelegate: AnimationDelegate {
         nonisolated func animation(_ animation: NSAnimation, valueForProgress progress: NSAnimation.Progress) -> Float {
             animation.handlers.valueForProgress?(progress) ?? progress
