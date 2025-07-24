@@ -15,12 +15,7 @@ public class NSAnimator: NSObject {
     fileprivate var animatingKeys: [Weak<NSObject & NSAnimatablePropertyContainer>: Set<String>] = [:]
     var animate: ((_ complection: (()->())?)->()) = { _ in }
     var _duration = 0.0
-    var animationTargets: [String: AnimationTarget] = [:]
-    struct AnimationTarget {
-        let from: Any?
-        let to: Any?
-        let byValue: Any?
-    }
+    var animationTargetValues: [String: AnimationTargetValue] = [:]
     
     /// Constants indicating the current state of the animation.
     public enum State {
@@ -113,7 +108,7 @@ public class NSAnimator: NSObject {
      If the animation is currently animating or the animation is stopped, the animation is restarted.
      */
     public func start() {
-        _start()
+        start(shouldRestart: true)
     }
     
     /// Stops the animation.
@@ -124,11 +119,12 @@ public class NSAnimator: NSObject {
             $0.value.forEach({ object.stopAnimation(for: $0) })
         })
         animatingKeys = [:]
+        animationTargetValues = [:]
         state = .inactive
     }
     
     @discardableResult
-    func _start(shouldRestart: Bool = true) -> Self {
+    func start(shouldRestart: Bool, next: (()->())? = nil) -> Self {
         guard !NSAnimationGroup.isActiveGroup else { return self }
         if state == .running {
             guard shouldRestart else { return self }
@@ -136,13 +132,20 @@ public class NSAnimator: NSObject {
             completion = { [weak self] in
                 guard let self = self else { return }
                 self.completion = _completion
-                self.animate(nil)
+                self.animationTargetValues = [:]
+                self.animate(next)
             }
             stop()
         } else {
-            animate(nil)
+            self.animationTargetValues = [:]
+            animate(next)
         }
         return self
+    }
+    
+    @discardableResult
+    func _start() -> Self {
+        start(shouldRestart: true)
     }
     
     /**
@@ -228,11 +231,9 @@ public class NSAnimator: NSObject {
             NSAnimationContext.current.animation = self
             NSAnimationContext.current.springAnimation = nil
             NSAnimationContext.animate(animation, changes: changes) {
-                /*
                 self.state = .stopped
                 self.completion?()
                 nextAnimation?()
-                 */
             }
         }
     }

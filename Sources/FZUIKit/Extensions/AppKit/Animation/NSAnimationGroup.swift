@@ -145,12 +145,12 @@ public class NSAnimationGroup: Hashable {
       //  context.duration = 0.0
         if isSynchronous {
             let animation = animationQueue.removeFirst()
-            animation.animate {
+            animation.start(shouldRestart: true) {
                 self.runNextAnimation()
             }
         } else {
             animationQueue.forEach({ animation in
-                animation.animate {
+                animation.start(shouldRestart: true) {
                     self.runNextAnimation()
                 }
             })
@@ -190,7 +190,7 @@ public class NSAnimationGroup: Hashable {
         let animation = animationQueue.removeFirst()
         currentAnimationIndex += 1
         guard isSynchronous else { return }
-        animation.animate {
+        animation.start(shouldRestart: true) {
             self.runNextAnimation()
         }
     }

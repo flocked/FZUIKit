@@ -60,7 +60,7 @@ extension NSAnimatablePropertyContainer where Self: NSObject {
         guard animationDelegate.animationKeys.contains(key) else { return }
         animationDelegate.animationKeys.remove(key)
         NSAnimationContext.performWithoutAnimation {
-            self.setValue(self.value(forKey: key), forKey: key)
+            self.setValue(safely: self.value(forKeySafely: key), forKey: key)
         }
         guard let layer = (self as? NSView)?.layer, layer.animation(forKey: key) != nil, let presentation = layer.presentation() else { return }
         CATransaction.begin()
@@ -111,6 +111,7 @@ class AnimationDelegate: NSObject, CAAnimationDelegate {
     
     func animationDidStart(_ animation: CAAnimation) {
         guard let animation = animation as? CAPropertyAnimation, let key = animation.keyPath else { return }
+        Swift.print("animationDidStart", key)
         if let animation = animation as? CABasicAnimation {
         }
         animationKeys.insert(key)
@@ -122,33 +123,12 @@ class AnimationDelegate: NSObject, CAAnimationDelegate {
         animators[key] = Weak(animator)
         Swift.print(animation)
         animator.addAnimationKey(key, for: object)
-        let beginTime = CACurrentMediaTime() + animator.delay
         animation.setValue(safely: Float(animator.repeatCount), forKey: "repeatCount")
         animation.setValue(safely: animator.repeatDuration, forKey: "repeatDuration")
         animation.setValue(safely: animator.autoreverses, forKey: "autoreverses")
         animation.setValue(safely: CACurrentMediaTime() + animator.delay, forKey: "beginTime")
-        
-
-        if Int(animation.repeatCount) != animator.repeatCount || animation.repeatDuration != animator.repeatDuration || animation.autoreverses != animator.autoreverses || animation.beginTime != beginTime {
-            if let animation = animation as? CABasicAnimation, let layer = (object as? NSView)?.layer, layer.animation(forKey: key) != nil {
-                Swift.print(key, animation.toValue ?? "nil", animation.fromValue ?? "nil", animation.duration)
-                let newAnimation = animation.copy() as! CABasicAnimation
-                newAnimation.repeatCount = Float(animator.repeatCount)
-                newAnimation.repeatDuration = animator.repeatDuration
-                newAnimation.autoreverses = animator.autoreverses
-                newAnimation.beginTime = CACurrentMediaTime() + animator.delay
-                newAnimation.delegate  = animation.delegate
-                Swift.print("GGGGGGGG")
-             //  layer.add(newAnimation, forKey: key)
-            }
-        }
-        
-       // animation.repeatCount = Float(animator.repeatCount)
-       // animation.repeatDuration = animator.repeatDuration
-      //  animation.autoreverses = animator.autoreverses
-       // animation.beginTime = CACurrentMediaTime() + animator.delay
         guard let animation = animation as? CABasicAnimation else { return }
-        animator.animationTargets[key] = .init(from: animation.fromValue, to: animation.toValue, byValue: animation.byValue)
+        animator.animationTargetValues[key] = .init(from: animation.fromValue, to: animation.toValue, byValue: animation.byValue)
     }
     
     func animationDidStop(_ animation: CAAnimation, finished flag: Bool) {
@@ -212,7 +192,7 @@ fileprivate extension NSLayoutConstraint {
     
     @objc private func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
         let animation = swizzledAnimation(forKey: key)
-        (animation as? CAPropertyAnimation)?.delegate = animationDelegate
+        (animation as? CAAnimation)?.delegate = animationDelegate
         return animation
     }
 }
@@ -228,7 +208,7 @@ fileprivate extension NSPageController {
     
     @objc private func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
         let animation = swizzledAnimation(forKey: key)
-        (animation as? CAPropertyAnimation)?.delegate = animationDelegate
+        (animation as? CAAnimation)?.delegate = animationDelegate
         return animation
     }
     
@@ -262,7 +242,7 @@ fileprivate extension NSSplitViewItem {
     
     @objc private func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
         let animation = swizzledAnimation(forKey: key)
-        (animation as? CAPropertyAnimation)?.delegate = animationDelegate
+        (animation as? CAAnimation)?.delegate = animationDelegate
         return animation
     }
     
@@ -285,39 +265,16 @@ fileprivate extension NSSplitViewItem {
     }
 }
 
-fileprivate extension NSObject {
-    func isPropertyReadOnly(_ propertyName: String) -> Bool {
-        var count: UInt32 = 0
-        guard let properties = class_copyPropertyList(object_getClass(self), &count) else {
-            return false
-        }
-        defer { free(properties) }
-
-        for i in 0..<count {
-            let property = properties[Int(i)]
-            let name = property_getName(property)
-            let propName = String(cString: name)
-            if propName == propertyName {
-                if let attributes = property_getAttributes(property) {
-                    let attrString = String(cString: attributes)
-                    // A read-only property contains "R" in the attribute string
-                    return attrString.contains(",R,") || attrString.hasPrefix("R,") || attrString.hasSuffix(",R")
-                }
-            }
-        }
-        return false // Not found
-    }
-}
-
-extension CALayer {
-     @objc private func swizzled_action(forKey event: String) -> (any CAAction)? {
+fileprivate extension CALayer {
+     @objc func swizzled_action(forKey event: String) -> (any CAAction)? {
          let action = swizzled_action(forKey: event)
-         if let action = action as? CABasicAnimation, let animation = NSAnimationContext.current.animation {
-             let new = action.copy() as! CABasicAnimation
+         if let animation = NSAnimationContext.current.animation, let action = action as? CAAnimation {
+             let new = action.copy() as! CAAnimation
              new.repeatCount = Float(animation.repeatCount)
              new.repeatDuration = animation.repeatDuration
              new.autoreverses = animation.autoreverses
              new.beginTime = CACurrentMediaTime() + animation.delay
+             new.delegate = parentView?.animationDelegate ?? new.delegate
              return new
          }
          return action

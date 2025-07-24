@@ -1,6 +1,6 @@
 //
 //  AnimationManager.swift
-//  FZUIKit
+//  
 //
 //  Created by Florian Zand on 24.07.25.
 //
