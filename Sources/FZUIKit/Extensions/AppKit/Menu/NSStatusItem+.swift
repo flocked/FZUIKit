@@ -18,6 +18,7 @@ extension NSStatusItem {
             guard newValue != view, let button = button else { return }
             button.subviews.removeAll(where: { $0.isStatusItemView })
             guard let newValue = newValue else { return }
+            newValue.isStatusItemView = true
             button.addSubview(newValue)
         }
     }
