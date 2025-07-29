@@ -144,6 +144,7 @@ public class NSAnimationGroup: NSAnimator {
         currentAnimationIndex = -1
         repeatTimer = nil
         repeatIndex = 0
+        delayedStart?.cancel()
         delayedStart = nil
     }
     
