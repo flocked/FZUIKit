@@ -40,6 +40,7 @@ extension NSAnimation {
         public var didEnd: (()->())?
         /// The handler that determinates if the animation should start.
         public var shouldStart: (()->(Bool))?
+        /// The handler for a custom curve value for the current progress value.
         public var valueForProgress: ((Progress)->(Float))?
         /// The handler that gets called when animation reaches a specific progress mark.
         public var didReachProgressMark: ((Progress)->())?

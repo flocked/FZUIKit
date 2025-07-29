@@ -58,7 +58,7 @@ public class NSAnimationGroup: NSAnimator {
         animations.map({ $0.duration }).sum()
     }
     
-    /// The number of animations in the animation group.
+    /// The number of ``NSAnimator`` animations in the animation group.
     public var animationsCount: Int {
         animations.count
     }

@@ -68,7 +68,7 @@ extension NSAnimationContext {
      */
     @available(macOS 15.0, *)
     @discardableResult
-    public class func animate(animation: Animation, changes: @escaping ()->(), completion: (()->())? = nil) -> NSAnimator {
+    public class func animate(with animation: Animation, changes: @escaping ()->(), completion: (()->())? = nil) -> NSAnimator {
         .init(animation: animation, changes: changes).completion(completion)._start()
     }
     

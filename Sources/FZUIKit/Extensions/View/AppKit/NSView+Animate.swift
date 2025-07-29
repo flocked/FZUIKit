@@ -66,8 +66,8 @@ import SwiftUI
       - Returns: The animation group.
       */
      @available(macOS 15.0, *)
-     public static func animate(_ animation: Animation, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimator {
-         NSAnimationContext.animate(animation: animation, changes: changes, completion: completion)
+     public static func animate(with animation: Animation, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimator {
+         NSAnimationContext.animate(with: animation, changes: changes, completion: completion)
      }
      
      /// Runs the specified closure without any animations.
