@@ -314,6 +314,15 @@ extension NSAnimator {
             component
         }
     }
+    
+    struct AnimationTargetValue {
+        let from: Any?
+        let to: Any?
+        let byValue: Any?
+        var reversed: AnimationTargetValue {
+            .init(from: to, to: from, byValue: byValue)
+        }
+    }
 }
 
 #endif

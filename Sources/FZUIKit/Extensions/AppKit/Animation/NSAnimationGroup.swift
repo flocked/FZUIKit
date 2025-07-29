@@ -200,4 +200,8 @@ public class NSAnimationGroup: NSAnimator {
     }
 }
 
+class AnimationManager {
+    static var runningAnimationGroups: Set<NSAnimationGroup> = []
+}
+
 #endif
