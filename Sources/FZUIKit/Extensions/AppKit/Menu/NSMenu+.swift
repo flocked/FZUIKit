@@ -586,8 +586,8 @@ fileprivate extension [NSMenuItem] {
     }
     
     func withoutAlternates() -> [Element] {
-        let alternateSet = Set(compactMap { $0.alternateItem?.objectId })
-        return compactMap { alternateSet.contains($0.objectId) ? nil : $0 }
+        let alternateSet = Set(compactMap { $0.alternateItem?.objectID })
+        return compactMap { alternateSet.contains($0.objectID) ? nil : $0 }
     }
 }
 #endif
