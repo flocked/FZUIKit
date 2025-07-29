@@ -215,7 +215,7 @@ extension NSPopover {
         self.animates = false
         close()
         detach()
-        DispatchQueue.main.asyncAfter(0.01) {
+        DispatchQueue.main.async(after: 0.01) {
             self.show(relativeTo: positioningView.bounds, of: positioningView, preferredEdge: self.preferredEdge)
             self.animates = animates
         }
