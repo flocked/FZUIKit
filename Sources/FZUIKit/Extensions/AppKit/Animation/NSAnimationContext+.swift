@@ -17,7 +17,7 @@ extension NSAnimationContext {
      The property returns `true`, if it's called inside a [runAnimationGroup(_:)](https://developer.apple.com/documentation/appkit/nsanimationcontext/runanimationgroup(_:completionhandler:)) closure or between [beginGrouping()](https://developer.apple.com/documentation/appkit/nsanimationcontext/begingrouping()) and [endGrouping()](https://developer.apple.com/documentation/appkit/nsanimationcontext/endrouping()).
      */
     public class var hasActiveGrouping: Bool {
-        value(forKey: "_hasActiveGrouping") as? Bool ?? false
+        value(forKeySafely: "_hasActiveGrouping") as? Bool ?? false
     }
     
     /// Runs the changes of the closure non-animated.
