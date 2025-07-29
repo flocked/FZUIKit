@@ -7,14 +7,14 @@
 
 #if os(macOS)
 
-    import AppKit
+import AppKit
 
-    public extension NSToolbarItemGroup {
-        /// The indexes of the selected subitems in the group.
-        var selectedIndexes: [Int] {
-            get { (0..<subitems.count).filter({isSelected(at: $0)})}
-            set { (0..<subitems.count).forEach({ setSelected(newValue.contains($0), at: $0) }) }
-        }
+public extension NSToolbarItemGroup {
+    /// The indexes of the selected subitems in the group.
+    var selectedIndexes: [Int] {
+        get { (0..<subitems.count).filter({isSelected(at: $0)})}
+        set { (0..<subitems.count).forEach({ setSelected(newValue.contains($0), at: $0) }) }
     }
+}
 
 #endif
