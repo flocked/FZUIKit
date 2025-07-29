@@ -12,6 +12,7 @@ import AppKit
 import UIKit
 #endif
 import FZSwiftUtils
+import SwiftUI
 
 extension CALayer {
     /// The translation of the layer's transform on the x- and y-coordinate.
@@ -115,7 +116,7 @@ extension CALayer {
     }
     
     /// The shape that is used for masking the layer.
-    public var maskShape: PathShape? {
+    public var maskShape: (any Shape)? {
         get { (mask as? PathShapeMaskLayer)?.shape }
         set {
             if let newValue = newValue {
@@ -133,16 +134,16 @@ extension CALayer {
     }
     
     /// The shape of the shadow.
-    public var shadowShape: PathShape? {
+    public var shadowShape: (any Shape)? {
         get { getAssociatedValue("shadowShape") }
         set {
             setAssociatedValue(newValue, key: "shadowShape")
             if let newValue = newValue {
                 shadowShapeObservation = observeChanges(for: \.bounds) { [weak self] old, new in
                     guard let self = self, old.size != new.size else { return }
-                    self.shadowPath = newValue.path(in: new)
+                    self.shadowPath = newValue.path(in: new).cgPath
                 }
-                shadowPath = newValue.path(in: bounds)
+                shadowPath = newValue.path(in: bounds).cgPath
             } else {
                 shadowShapeObservation = nil
             }
@@ -791,12 +792,16 @@ fileprivate class BorderLayer: CAShapeLayer {
         updatePath()
     }
     
-    var shape: PathShape? {
+    var shape: (any Shape)? {
         didSet { updatePath() }
     }
     
     func updatePath() {
-        path = shape?.inset(by: lineWidth*0.5).path(in: bounds)
+        if let shape = shape as? (any InsettableShape) {
+            path = shape.inset(by: lineWidth*0.5).path(in: bounds).cgPath
+        } else {
+            path = shape?.path(in: bounds.insetBy(dx: lineWidth*0.5, dy: lineWidth*0.5)).cgPath
+        }
     }
     
     init(for layer: CALayer) {
@@ -821,13 +826,13 @@ fileprivate class BorderLayer: CAShapeLayer {
 }
 
 fileprivate class PathShapeMaskLayer: CAShapeLayer {
-    var shape: PathShape {
-        didSet { path = shape.path(in: bounds) }
+    var shape: any Shape {
+        didSet { path = shape.path(in: bounds).cgPath }
     }
     
     var observation: KeyValueObservation?
     
-    init(layer: CALayer, shape: PathShape) {
+    init(layer: CALayer, shape: any Shape) {
         self.shape = shape
         super.init()
         
@@ -836,7 +841,7 @@ fileprivate class PathShapeMaskLayer: CAShapeLayer {
         observation = layer.observeChanges(for: \.bounds) { [weak self] old, new in
             guard let self = self, old.size != new.size else { return }
             self.frame = new
-            self.path = self.shape.path(in: new)
+            self.path = self.shape.path(in: new).cgPath
         }
     }
     

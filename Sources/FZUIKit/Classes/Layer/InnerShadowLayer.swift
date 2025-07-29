@@ -13,6 +13,7 @@ import AppKit
 import UIKit
 #endif
 import FZSwiftUtils
+import SwiftUI
 
 /// A layer with an inner shadow.
 open class InnerShadowLayer: CALayer {
@@ -42,7 +43,7 @@ open class InnerShadowLayer: CALayer {
         }
     }
     
-    var _maskShape: PathShape? {
+    var _maskShape: (any Shape)? {
         didSet { updateShadowPath() }
     }
     
@@ -119,7 +120,7 @@ open class InnerShadowLayer: CALayer {
     func updateShadowPath() {
         let path: NSUIBezierPath
         let innerPart: NSUIBezierPath
-        if let maskPath = _maskShape?.path(in: bounds.insetBy(dx: -20, dy: -20)), let innerMaskPath = maskShape?.path(in: bounds) {
+        if let maskPath = _maskShape?.path(in: bounds.insetBy(dx: -20, dy: -20)).cgPath, let innerMaskPath = maskShape?.path(in: bounds).cgPath {
             path = NSUIBezierPath(cgPath: maskPath)
             #if os(macOS)
             innerPart = NSUIBezierPath(cgPath: innerMaskPath).reversed
@@ -189,7 +190,7 @@ extension CALayer {
         func updateShadowPath() {
             let path: NSUIBezierPath
             let innerPart: NSUIBezierPath
-            if let maskPath = _maskShape?.path(in: bounds.insetBy(dx: -20, dy: -20)), let innerMaskPath = maskShape?.path(in: bounds) {
+            if let maskPath = _maskShape?.path(in: bounds.insetBy(dx: -20, dy: -20)).cgPath, let innerMaskPath = maskShape?.path(in: bounds).cgPath {
                 path = NSUIBezierPath(cgPath: maskPath)
                 #if os(macOS)
                 innerPart = NSUIBezierPath(cgPath: innerMaskPath).reversed
@@ -208,7 +209,7 @@ extension CALayer {
             shadowPath = path.cgPath
         }
         
-        var _maskShape: PathShape? {
+        var _maskShape: (any Shape)? {
             didSet { updateShadowPath() }
         }
         

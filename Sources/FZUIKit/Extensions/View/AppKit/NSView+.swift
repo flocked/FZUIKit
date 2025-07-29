@@ -8,6 +8,7 @@
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
+import SwiftUI
 
 extension NSView {
     /// Sets type of focus ring drawn around the view.
@@ -89,7 +90,7 @@ extension NSView {
         }
     }
 
-    @objc var _mask: NSView? {
+    @objc fileprivate var _mask: NSView? {
         get { (layer?.mask as? InverseMaskLayer)?.maskLayer?.parentView ?? layer?.mask?.parentView }
         set {
             newValue?.removeFromSuperview()
@@ -98,9 +99,25 @@ extension NSView {
     }
 
     /// The shape that is used for masking the view.
-    public var maskShape: PathShape? {
+    public var maskShape: (any Shape)? {
+        get { layer?.maskShape }
+        set {
+            if let newValue = newValue, isProxy() {
+                maskShapeControlPoints = newValue.morphable().animatableData.elements
+            } else {
+                optionalLayer?.maskShape = newValue
+            }
+        }
+    }
+    
+    var _maskShape: (any Shape)? {
         get { layer?.maskShape }
         set { optionalLayer?.maskShape = newValue }
+    }
+    
+    var maskShapeControlPoints: [Double] {
+        get { (_maskShape ?? .rect(cornerRadius: cornerRadius)).morphable().animatableData.elements }
+        set { _maskShape = MorphableShape(controlPoints: .init(newValue)) }
     }
 
     /**
@@ -120,7 +137,7 @@ extension NSView {
         }
     }
 
-    @objc var _inverseMask: NSView? {
+    @objc fileprivate var _inverseMask: NSView? {
         get { mask }
         set {
             newValue?.removeFromSuperview()
@@ -161,7 +178,7 @@ extension NSView {
         }
     }
 
-    @objc var _center: CGPoint {
+    @objc fileprivate var _center: CGPoint {
         get { frame.center }
         set { frame.center = newValue }
     }
@@ -181,7 +198,7 @@ extension NSView {
         }
     }
 
-    @objc var _zPosition: CGFloat {
+    @objc fileprivate var _zPosition: CGFloat {
         get { layer?.zPosition ?? 0.0 }
         set { optionalLayer?.zPosition = newValue.clamped(to: -CGFloat(Int.max)...CGFloat(Int.max)) }
     }
@@ -203,7 +220,7 @@ extension NSView {
         }
     }
 
-    @objc var _transform: CGAffineTransform {
+    @objc fileprivate var _transform: CGAffineTransform {
         get { layer?.affineTransform() ?? CGAffineTransformIdentity }
         set { optionalLayer?.setAffineTransform(newValue) }
     }
@@ -223,7 +240,7 @@ extension NSView {
         }
     }
 
-    @objc var _transform3D: CATransform3D {
+    @objc fileprivate var _transform3D: CATransform3D {
         get { layer?.transform ?? CATransform3DIdentity }
         set { optionalLayer?.transform = newValue }
     }
@@ -322,7 +339,7 @@ extension NSView {
         }
     }
 
-    @objc var _anchorPoint: FractionalPoint {
+    @objc fileprivate var _anchorPoint: FractionalPoint {
         get {
             let anchorPoint = layer?.anchorPoint ?? .zero
             return FractionalPoint(anchorPoint.x, anchorPoint.y)
@@ -345,7 +362,7 @@ extension NSView {
         }
     }
 
-    @objc var _anchorPointZ: CGFloat {
+    @objc fileprivate var _anchorPointZ: CGFloat {
         get { layer?.anchorPointZ ?? .zero }
         set { optionalLayer?.anchorPointZ = newValue }
     }
@@ -487,13 +504,13 @@ extension NSView {
         }
     }
 
-    @objc var _shadowPath: NSBezierPath? {
+    @objc fileprivate var _shadowPath: NSBezierPath? {
         get { layer?.shadowPath?.bezierPath }
         set { optionalLayer?.shadowPath = newValue?.cgPath }
     }
 
     /// The shape of the shadow.
-    public var shadowShape: PathShape? {
+    public var shadowShape: (any Shape)? {
         get { layer?.shadowShape }
         set { optionalLayer?.shadowShape = newValue }
     }
@@ -809,7 +826,7 @@ extension NSView {
         }
     }
 
-    @objc var _frameOnScreen: CGRect {
+    @objc fileprivate var _frameOnScreen: CGRect {
         get { convertToScreen(frame) }
         set { frame = convertFromScreen(newValue) }
     }
@@ -827,7 +844,7 @@ extension NSView {
         }
     }
 
-    @objc var _frameInWindow: CGRect {
+    @objc fileprivate var _frameInWindow: CGRect {
         get { convertToWindow(frame) }
         set { frame = convertFromWindow(newValue) }
     }
@@ -899,7 +916,7 @@ public extension NSView.AutoresizingMask {
 }
 
 /// The `NSView` properties keys that can be animated.
-fileprivate let NSViewAnimationKeys: Set<String> = ["_anchorPoint", "_anchorPointZ", "_animatableValues", "_center", "_contentOffset", "_contentOffsetFractional", "_cornerRadius", "_documentSize", "_fontSize", "_gradient", "_inverseMask", "_mask", "_placeholderTextColor", "_roundedCorners", "_screenFrame", "_selectionColor", "_selectionTextColor", "_shadowPath", "_transform", "_transform3D", "_windowFrame", "_zPosition", "__cornerRadius", "backgroundColor", "backgroundColorAnimatable", "bezelColor", "borderColor", "borderValues", "borderWidth", "contentTintColor", "cornerRadius", "fillColor", "innerShadowValues", "shadowColor", "shadowValues", "textColor"]
+fileprivate let NSViewAnimationKeys: Set<String> = ["_anchorPoint", "_anchorPointZ", "_animatableValues", "_center", "_contentOffset", "_contentOffsetFractional", "_cornerRadius", "_documentSize", "_fontSize", "_gradient", "_inverseMask", "_mask", "_placeholderTextColor", "_roundedCorners", "_screenFrame", "_selectionColor", "_selectionTextColor", "_shadowPath", "_transform", "_transform3D", "_windowFrame", "_zPosition", "__cornerRadius", "backgroundColor", "backgroundColorAnimatable", "bezelColor", "borderColor", "borderValues", "borderWidth", "contentTintColor", "cornerRadius", "fillColor", "innerShadowValues", "shadowColor", "shadowValues", "textColor", "maskShapeControlPoints"]
 
 fileprivate extension CALayer {
     var isVisible: Bool {

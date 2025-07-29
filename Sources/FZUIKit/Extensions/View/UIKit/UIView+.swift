@@ -8,6 +8,7 @@
 #if os(iOS) || os(tvOS)
 import UIKit
 import FZSwiftUtils
+import SwiftUI
 
 extension UIView {
     /// The parent view controller managing the view.
@@ -105,7 +106,7 @@ extension UIView {
     }
     
     /// The shape that is used for masking the view.
-    public var maskShape: PathShape? {
+    public var maskShape: (any Shape)? {
         get { layer.maskShape }
         set { layer.maskShape = newValue }
     }
@@ -194,7 +195,7 @@ extension UIView {
     }
     
     /// The shape of the shadow.
-    public var shadowShape: PathShape? {
+    public var shadowShape: (any Shape)? {
         get { layer.shadowShape }
         set { layer.shadowShape = newValue }
     }
