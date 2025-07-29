@@ -72,13 +72,6 @@ extension NSAnimatablePropertyContainer where Self: NSObject {
         layer.removeAnimation(forKey: key)
     }
     
-    fileprivate func updateValue(_ value: Any, for key: String) {
-        guard animationDelegate.animationKeys.contains(key) else { return }
-        self.setValue(safely: value, forKey: key)
-        guard let layer = (self as? NSView)?.layer, layer.animation(forKey: key) != nil else { return }
-        layer.setValue(safely: value, forKeyPath: key)
-    }
-    
     /// An array of keys of the object's properties that are currently animated.
     var animationKeys: [String] {
         animationDelegate.animationKeys.sorted()
@@ -111,7 +104,6 @@ class AnimationDelegate: NSObject, CAAnimationDelegate {
     
     func animationDidStart(_ animation: CAAnimation) {
         guard let animation = animation as? CAPropertyAnimation, let key = animation.keyPath else { return }
-        Swift.print("animationDidStart", key)
         if let animation = animation as? CABasicAnimation {
         }
         animationKeys.insert(key)
@@ -121,7 +113,6 @@ class AnimationDelegate: NSObject, CAAnimationDelegate {
         }
         guard let animator = NSAnimationContext.current.animation else { return }
         animators[key] = Weak(animator)
-        Swift.print(animation)
         animator.addAnimationKey(key, for: object)
         animation.setValue(safely: Float(animator.repeatCount), forKey: "repeatCount")
         animation.setValue(safely: animator.repeatDuration, forKey: "repeatDuration")
@@ -133,8 +124,10 @@ class AnimationDelegate: NSObject, CAAnimationDelegate {
     
     func animationDidStop(_ animation: CAAnimation, finished flag: Bool) {
         guard let key = (animation as? CAPropertyAnimation)?.keyPath else { return }
-        if animators[key]?.object?.autoreverses == true, let animation = animation as? CABasicAnimation {
-            object?.updateValue(animation.fromValue, for: key)
+        if animators[key]?.object?.autoreverses == true, let animation = animation as? CABasicAnimation, let object = object {
+            object.setValue(safely: animation.fromValue, forKey: key)
+            guard let layer = (object as? NSView)?.layer, layer.animation(forKey: key) != nil else { return }
+            layer.setValue(safely: animation.fromValue, forKeyPath: key)
         }
         animationKeys.remove(key)
         guard let object = object else { return }
@@ -166,7 +159,7 @@ class AnimatablePropertyContainer: NSObject {
 fileprivate extension NSLayoutConstraint {
     @objc class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
         guard let animation = swizzledDefaultAnimation(forKey: key) else { return nil }
-        if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.springAnimation {
+        if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animation?.spring {
             return springAnimation
         }
         return animation
@@ -200,7 +193,7 @@ fileprivate extension NSLayoutConstraint {
 fileprivate extension NSPageController {
     @objc class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
         guard let animation = swizzledDefaultAnimation(forKey: key) else { return nil }
-        if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.springAnimation {
+        if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animation?.spring {
             return springAnimation
         }
         return animation
@@ -234,7 +227,7 @@ fileprivate extension NSPageController {
 fileprivate extension NSSplitViewItem {
     @objc class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
         guard let animation = swizzledDefaultAnimation(forKey: key) else { return nil }
-        if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.springAnimation {
+        if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animation?.spring {
             return springAnimation
         }
         return animation

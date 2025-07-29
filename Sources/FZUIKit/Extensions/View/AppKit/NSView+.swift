@@ -867,7 +867,7 @@ extension NSView {
 
     @objc private class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
         if let animation = swizzledDefaultAnimation(forKey: key) {
-            if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.springAnimation {
+            if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animation?.spring {
                 return springAnimation
             }
             return animation

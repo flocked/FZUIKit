@@ -28,7 +28,7 @@ import SwiftUI
  }
  ```
  */
-public class NSAnimationGroup: Hashable {
+public class NSAnimationGroup: NSAnimator {
     fileprivate let id = UUID()
     static var isActiveGroup = false
     fileprivate let animations: [NSAnimator]
@@ -37,40 +37,30 @@ public class NSAnimationGroup: Hashable {
     fileprivate var repeatTimer: Timer?
     fileprivate var repeatIndex = 0
     fileprivate var delayedStart: DispatchWorkItem?
-    
-    var repeatCount = 0
-    var repeatDuration = 0.0
-    var delay = 0.0
+    fileprivate var nextAnimation: (()->())?
     
     /// Creates an animation group running the specified animations.
     public init(@NSAnimator.Builder animations: @escaping () -> [NSAnimator]) {
         Self.isActiveGroup = true
         self.animations = animations()
         Self.isActiveGroup = false
+        super.init()
+        self.animate = { nextAnimation in
+            self.nextAnimation = nextAnimation
+            self.start()
+        }
+        guard !Self.isActiveGroup else { return }
         start()
     }
     
-    /// A Boolean value indicating whether the animation group is animating.
-    public private(set) var isRunning = false
-    
-    /// The completion handler that is called when the animation group is finished.
-    public var completion: (()->())? = nil
-    
     /// The total duration of the animation group.
-    public var duration: CGFloat {
+    public override var duration: CGFloat {
         animations.map({ $0.duration }).sum()
     }
     
     /// The number of animations in the animation group.
     public var animationsCount: Int {
         animations.count
-    }
-    
-    /// Sets the completion handler that is called when the animation group is finished.
-    @discardableResult
-    public func completion(_ completion: (()->())?) -> Self {
-        self.completion = completion
-        return self
     }
     
     /**
@@ -95,54 +85,46 @@ public class NSAnimationGroup: Hashable {
         return self
     }
     
-    /// Restarts the animation group from the start.
-    public func restart() {
-        delayedStart = nil
-        if isRunning {
-            let _completion = completion
-            completion = { [weak self] in
-                guard let self = self else { return }
-                self.completion = _completion
-                self.start()
-            }
-            stop()
-        } else {
-            start()
-        }
+    /**
+     Starts the animation group.
+     
+     If the animation group is currently animating or the group is stopped, the animation group is restarted.
+     */
+    public override func start() {
+        start(shouldRestart: true)
     }
     
     /// Stops the animation group.
-    public func stop() {
-        guard isRunning else { return }
-        isRunning = false
+    public override func stop() {
+        guard state == .running else { return }
+        state = .stopped
         animationQueue = []
         animations.forEach({ $0.stop() })
         reset()
     }
     
-    fileprivate func start(shouldReset: Bool = true) {
-        guard !animations.isEmpty else { return }
+    @discardableResult
+    override func start(shouldRestart: Bool, next: (() -> ())? = nil) -> Self {
+        guard !animations.isEmpty else { return self }
         AnimatablePropertyContainer.swizzleAll()
-        if shouldReset {
+        if shouldRestart {
             reset()
         }
-        isRunning = true
-        if !isRunning, delay > 0 {
+        if state != .running, delay > 0 {
             delayedStart = DispatchWorkItem { [weak self] in
                 guard let self = self else { return }
-                self._start()
+                self.startGroup()
             }.perform(after: delay)
         } else {
-            _start()
+            startGroup()
         }
+        return self
     }
     
-    func _start() {
+    func startGroup() {
+        state = .running
         animationQueue = animations
-        var context: NSAnimationContext = .current
         NSAnimationContext.beginGrouping()
-        context = .current
-      //  context.duration = 0.0
         if isSynchronous {
             let animation = animationQueue.removeFirst()
             animation.start(shouldRestart: true) {
@@ -170,7 +152,7 @@ public class NSAnimationGroup: Hashable {
             currentAnimationIndex = -1
             if repeatCount > repeatIndex {
                 repeatIndex += 1
-                start(shouldReset: false)
+                start(shouldRestart: false)
             } else if repeatDuration > 0 {
                 if repeatTimer == nil {
                     repeatTimer = .scheduledTimer(withTimeInterval: repeatDuration, repeats: false) { [weak self] timer in
@@ -179,11 +161,13 @@ public class NSAnimationGroup: Hashable {
                         completion?()
                     }
                 }
-                start(shouldReset: false)
+                start(shouldRestart: false)
             } else {
                 completion?()
                 AnimationManager.runningAnimationGroups.remove(self)
-                isRunning = false
+                state = .stopped
+                nextAnimation?()
+                nextAnimation = nil
             }
             return
         }
@@ -195,12 +179,24 @@ public class NSAnimationGroup: Hashable {
         }
     }
     
-    public static func == (lhs: NSAnimationGroup, rhs: NSAnimationGroup) -> Bool {
-        lhs.id == rhs.id
+    private override init(nonAnimated changes: @escaping () -> ()) {
+        animations = []
+        super.init()
     }
     
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+    private override init(animation: Animation, changes: @escaping () -> ()) {
+        animations = []
+        super.init()
+    }
+    
+    private override init(spring: CASpringAnimation, allowsImplicitAnimation: Bool = false, changes: @escaping () -> ()) {
+        animations = []
+        super.init()
+    }
+    
+    private override init(duration: TimeInterval = 0.25, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, changes: @escaping () -> Void) {
+        animations = []
+        super.init()
     }
 }
 

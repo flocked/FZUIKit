@@ -16,6 +16,7 @@ public class NSAnimator: NSObject {
     var animate: ((_ complection: (()->())?)->()) = { _ in }
     var _duration = 0.0
     var animationTargetValues: [String: AnimationTargetValue] = [:]
+    var spring: CASpringAnimation?
     
     /// Constants indicating the current state of the animation.
     public enum State {
@@ -28,7 +29,7 @@ public class NSAnimator: NSObject {
     }
     
     /// The current state of the animation.
-    public private(set) var state: State = .inactive
+    public internal(set) var state: State = .inactive
     
     /// The total duration of the animation.
     public var duration: CGFloat {
@@ -165,19 +166,11 @@ public class NSAnimator: NSObject {
             self.state = .running
             NSAnimationContext.runAnimationGroup({ context in
                 context.animation = self
-                context.springAnimation = nil
                 context.duration = duration
                 context.timingFunction = timingFunction
                 context.allowsImplicitAnimation = allowsImplicitAnimation
                 changes()
-            }) {
-                if NSAnimationContext.current.animation === self {
-                    NSAnimationContext.current.animation = nil
-                }
-                self.state = .stopped
-                self.completion?()
-                nextAnimation?()
-            }
+            }) { self.finish(nextAnimation) }
         }
     }
     
@@ -192,26 +185,16 @@ public class NSAnimator: NSObject {
     public init(spring: CASpringAnimation, allowsImplicitAnimation: Bool = false, changes: @escaping ()->()) {
         AnimatablePropertyContainer.swizzleAll()
         super.init()
+        self.spring = spring
         _duration = spring.duration
         animate = { nextAnimation in
             self.state = .running
             NSAnimationContext.runAnimationGroup({ context in
                 context.animation = self
-                context.springAnimation = spring
                 context.duration = spring.duration
                 context.allowsImplicitAnimation = allowsImplicitAnimation
                 changes()
-            }) {
-                if NSAnimationContext.current.springAnimation == spring {
-                    NSAnimationContext.current.springAnimation = nil
-                }
-                if NSAnimationContext.current.animation === self {
-                    NSAnimationContext.current.animation = nil
-                }
-                self.state = .stopped
-                self.completion?()
-                nextAnimation?()
-            }
+            }) { self.finish(nextAnimation) }
         }
     }
     
@@ -229,11 +212,8 @@ public class NSAnimator: NSObject {
         animate = { nextAnimation in
             self.state = .running
             NSAnimationContext.current.animation = self
-            NSAnimationContext.current.springAnimation = nil
             NSAnimationContext.animate(animation, changes: changes) {
-                self.state = .stopped
-                self.completion?()
-                nextAnimation?()
+                self.finish(nextAnimation)
             }
         }
     }
@@ -245,16 +225,20 @@ public class NSAnimator: NSObject {
         animate = { nextAnimation in
             self.state = .running
             NSAnimationContext.runAnimationGroup { context in
-                context.springAnimation = nil
                 context.duration = 0.0
                 context.allowsImplicitAnimation = true
                 changes()
-            } completionHandler: {
-                self.state = .stopped
-                self.completion?()
-                nextAnimation?()
-            }
+            } completionHandler: { self.finish(nextAnimation) }
         }
+    }
+    
+    func finish(_ complete: (()->())?) {
+        if NSAnimationContext.current.animation === self {
+            NSAnimationContext.current.animation = nil
+        }
+        self.state = .stopped
+        self.completion?()
+        complete?()
     }
     
     func addAnimationKey(_ key: String, for object: NSObject & NSAnimatablePropertyContainer) {
@@ -274,6 +258,10 @@ public class NSAnimator: NSObject {
         } else {
             animatingKeys[animationObject] = keys
         }
+    }
+    
+    override init() {
+        super.init()
     }
 }
 

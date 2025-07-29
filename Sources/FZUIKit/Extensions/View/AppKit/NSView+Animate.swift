@@ -83,7 +83,7 @@ import SwiftUI
       Example usage:
       
       ```swift
-      NSAnimationGroup {
+      NSView.animate {
          NSAnimator(duration: 4.0) {
              view.animator().backgroundColor = .red
              view.animator().frame.size.width = 200

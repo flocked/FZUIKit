@@ -96,11 +96,6 @@ extension NSAnimationContext {
         AnimationManager.runningAnimationGroups.insert(group)
         return group
     }
-    
-    var springAnimation: CASpringAnimation? {
-        get { getAssociatedValue("springAnimation") }
-        set { setAssociatedValue(newValue, key: "springAnimation") }
-    }
 }
 
 #endif
