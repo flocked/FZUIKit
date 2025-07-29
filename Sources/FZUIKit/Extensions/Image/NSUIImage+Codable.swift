@@ -6,9 +6,9 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 extension NSUIImage: Codable {
@@ -16,7 +16,7 @@ extension NSUIImage: Codable {
         case encodingFailed
         case decodingFailed
     }
-    
+
     public func encode(to encoder: Encoder) throws {
         #if os(macOS)
         if let data = tiffData() {

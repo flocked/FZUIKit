@@ -6,16 +6,16 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 import SwiftUI
 
 public extension CGColor {
     /**
      Creates a new color in a different color space that matches the provided color.
-     
+
      - Parameters:
         - colorSpaceName: The name of the color space.
         - intent: The mechanism to use to match the color when the color is outside the gamut of the new color space.
@@ -25,11 +25,11 @@ public extension CGColor {
         guard let colorSpace = CGColorSpace(name: colorSpaceName) else { return nil }
         return converted(to: colorSpace, intent: intent, options: options)
     }
-    
+
     func sdsds() {
         converted(to: .deviceRGB)
     }
-    
+
     /// Returns the RGBA (red, green, blue, alpha) components of the color.
     func rgbaComponents() -> RGBAComponents? {
         var color = self
@@ -46,10 +46,10 @@ public extension CGColor {
             return RGBAComponents(components[0], components[1], components[2], components[3])
         default:
             #if os(macOS) || os(iOS) || os(tvOS)
-                let ciColor = CIColor(cgColor: color)
-                return RGBAComponents(ciColor.red, ciColor.green, ciColor.blue, ciColor.alpha)
+            let ciColor = CIColor(cgColor: color)
+            return RGBAComponents(ciColor.red, ciColor.green, ciColor.blue, ciColor.alpha)
             #else
-                return nil
+            return nil
             #endif
         }
     }
@@ -73,7 +73,7 @@ public extension CGColor {
     var isVisible: Bool {
         alpha != 0.0
     }
-    
+
     /**
      A Boolean value that indicates whether the color is light.
 
@@ -95,7 +95,7 @@ public extension CGColor {
     func withAlpha(_ alpha: CGFloat) -> CGColor {
         copy(alpha: alpha) ?? self
     }
-    
+
     /**
      Returns a new color object with the specified red component.
 
@@ -106,7 +106,7 @@ public extension CGColor {
         guard let rgba = rgbaComponents() else { return self }
         return CGColor(red: red.clamped(to: 0...1.0), green: rgba.green, blue: rgba.blue, alpha: rgba.alpha)
     }
-    
+
     /**
      Returns a new color object with the specified green component.
 
@@ -117,7 +117,7 @@ public extension CGColor {
         guard let rgba = rgbaComponents() else { return self }
         return CGColor(red: rgba.red, green: green.clamped(to: 0...1.0), blue: rgba.blue, alpha: rgba.alpha)
     }
-    
+
     /**
      Returns a new color object with the specified blue component.
 
@@ -128,7 +128,7 @@ public extension CGColor {
         guard let rgba = rgbaComponents() else { return self }
         return CGColor(red: rgba.red, green: rgba.green, blue: blue.clamped(to: 0...1.0), alpha: rgba.alpha)
     }
-    
+
     /// The red component of the color.
     var red: CGFloat {
         rgbaComponents()?.red ?? 0.0
@@ -169,44 +169,44 @@ public extension CGColor {
     }
 
     #if os(macOS)
-        /// Returns a `NSColor` representation of the color.
-        var nsColor: NSColor? {
-            NSColor(cgColor: self)
-        }
+    /// Returns a `NSColor` representation of the color.
+    var nsColor: NSColor? {
+        NSColor(cgColor: self)
+    }
 
-        /// Returns a `Color` representation of the color.
-        var swiftUI: Color? {
-            if let color = self.nsColor {
-                return Color(color)
-            }
-            return nil
+    /// Returns a `Color` representation of the color.
+    var swiftUI: Color? {
+        if let color = self.nsColor {
+            return Color(color)
         }
+        return nil
+    }
 
     #elseif canImport(UIKit)
-        /// Returns a `UIColor` representation of the color.
-        var uiColor: UIColor {
-            UIColor(cgColor: self)
-        }
+    /// Returns a `UIColor` representation of the color.
+    var uiColor: UIColor {
+        UIColor(cgColor: self)
+    }
 
-        /// Returns a `Color` representation of the color.
-        var swiftUI: Color {
-            Color(uiColor)
-        }
+    /// Returns a `Color` representation of the color.
+    var swiftUI: Color {
+        Color(uiColor)
+    }
 
-        /// The clear color in the Generic gray color space.
-        static var clear: CGColor {
-            CGColor(gray: 0, alpha: 0)
-        }
-    
-        /// The black color in the Generic gray color space.
-        static var black: CGColor {
-            CGColor(gray: 1, alpha: 1)
-        }
-    
-        /// The white color in the Generic gray color space.
-        static var white: CGColor {
-            CGColor(gray: 0, alpha: 1)
-        }
+    /// The clear color in the Generic gray color space.
+    static var clear: CGColor {
+        CGColor(gray: 0, alpha: 0)
+    }
+
+    /// The black color in the Generic gray color space.
+    static var black: CGColor {
+        CGColor(gray: 1, alpha: 1)
+    }
+
+    /// The white color in the Generic gray color space.
+    static var white: CGColor {
+        CGColor(gray: 0, alpha: 1)
+    }
     #endif
 
     internal var nsUIColor: NSUIColor? {

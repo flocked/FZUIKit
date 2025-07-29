@@ -6,33 +6,33 @@
 //
 
 #if os(macOS) || os(iOS) || os(tvOS)
-    import FZSwiftUtils
-    #if os(macOS)
-        import AppKit
-    #elseif canImport(UIKit)
-        import UIKit
-    #endif
+import FZSwiftUtils
+#if os(macOS)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 
-    extension NSUICollectionViewLayout {
-        /**
-         Invalidates all layout information animated and triggers a layout update.
-         
-         - Parameter duration: The animation duration.
-         */
-       @objc open func invalidateLayoutAnimated(duration: TimeInterval = 0.25) {
-            if duration <= 0.0 {
-                invalidateLayout()
-            } else {
-                NSUIView.animate(withDuration: duration) {
-                    #if os(macOS)
-                    self.collectionView?.animator().performBatchUpdates(nil)
-                    #else
-                    self.collectionView?.performBatchUpdates(nil)
-                    #endif
-                }
+extension NSUICollectionViewLayout {
+    /**
+     Invalidates all layout information animated and triggers a layout update.
+
+     - Parameter duration: The animation duration.
+     */
+    @objc open func invalidateLayoutAnimated(duration: TimeInterval = 0.25) {
+        if duration <= 0.0 {
+            invalidateLayout()
+        } else {
+            NSUIView.animate(withDuration: duration) {
+                #if os(macOS)
+                self.collectionView?.animator().performBatchUpdates(nil)
+                #else
+                self.collectionView?.performBatchUpdates(nil)
+                #endif
             }
         }
     }
+}
 
 /*
  class InvalidationLayout: NSUICollectionViewLayout {
@@ -42,7 +42,7 @@
      var interItemGapAttributes: [NSUICollectionViewLayoutAttributes] = []
      var decorationViewAttributes: [NSUICollectionViewLayoutAttributes] = []
 
-     
+
      init(for layout: NSUICollectionViewLayout) {
          super.init()
          guard let collectionView = layout.collectionView else { return }
@@ -61,24 +61,24 @@
              }
          }
      }
-     
+
      required init?(coder: NSCoder) {
          fatalError("init(coder:) has not been implemented")
      }
-     
+
      override func layoutAttributesForItem(at indexPath: IndexPath) -> NSCollectionViewLayoutAttributes? {
          itemAttributes.first(where: {$0.indexPath == indexPath})
      }
-     
+
      override func layoutAttributesForSupplementaryView(ofKind elementKind: NSCollectionView.SupplementaryElementKind, at indexPath: IndexPath) -> NSCollectionViewLayoutAttributes? {
          supplementaryViewAttributes.first(where: { $0.representedElementKind == elementKind && $0.indexPath == indexPath })
 
      }
-     
+
      override func layoutAttributesForDecorationView(ofKind elementKind: NSCollectionView.DecorationElementKind, at indexPath: IndexPath) -> NSCollectionViewLayoutAttributes? {
          decorationViewAttributes.first(where: { $0.representedElementKind == elementKind && $0.indexPath == indexPath })
      }
-     
+
      override func layoutAttributesForInterItemGap(before indexPath: IndexPath) -> NSCollectionViewLayoutAttributes? {
          interItemGapAttributes.first(where: { $0.indexPath == indexPath })
      }

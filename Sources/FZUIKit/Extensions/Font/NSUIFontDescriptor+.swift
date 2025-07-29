@@ -6,9 +6,9 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public extension NSUIFontDescriptor {
@@ -84,32 +84,32 @@ public extension NSUIFontDescriptor {
         return fontDescriptor.faceName
     }
     /*/
-    #if os(macOS)
-    ///  The localized family name of the font.
-    var localizedFamilyName: String? {
-        guard let familyName = familyName else { return nil }
-        return NSFontManager.shared.localizedName(forFamily: familyName, face: nil)
-    }
+     #if os(macOS)
+     ///  The localized family name of the font.
+     var localizedFamilyName: String? {
+         guard let familyName = familyName else { return nil }
+         return NSFontManager.shared.localizedName(forFamily: familyName, face: nil)
+     }
     
-    /// The localized face name of the font.
-    var localizedFaceName: String? {
-        guard let familyName = familyName, let faceName = faceName else { return nil }
-        return NSFontManager.shared.localizedName(forFamily: familyName, face: faceName)
-    }
+     /// The localized face name of the font.
+     var localizedFaceName: String? {
+         guard let familyName = familyName, let faceName = faceName else { return nil }
+         return NSFontManager.shared.localizedName(forFamily: familyName, face: faceName)
+     }
     
-    ///  The localized family name of the font for the specified locale.
-    func localizedFamilyName(for locale: Locale) -> String? {
-        guard let fontDescriptor = fontDescriptor(for: locale) else { return nil }
-        return fontDescriptor.localizedFamilyName
-    }
+     ///  The localized family name of the font for the specified locale.
+     func localizedFamilyName(for locale: Locale) -> String? {
+         guard let fontDescriptor = fontDescriptor(for: locale) else { return nil }
+         return fontDescriptor.localizedFamilyName
+     }
     
-    /// The localized face name of the font for the specified locale.
-    func localizedFaceName(for locale: Locale) -> String? {
-        guard let fontDescriptor = fontDescriptor(for: locale) else { return nil }
-        return fontDescriptor.localizedFaceName
-    }
-    #endif
-     */
+     /// The localized face name of the font for the specified locale.
+     func localizedFaceName(for locale: Locale) -> String? {
+         guard let fontDescriptor = fontDescriptor(for: locale) else { return nil }
+         return fontDescriptor.localizedFaceName
+     }
+     #endif
+      */
     
     /// The value that overrides the glyph advancement specified by the font.
     var fixedAdvance: CGFloat {
@@ -120,22 +120,22 @@ public extension NSUIFontDescriptor {
     /// The set of Unicode characters covered by the font.
     var characterSet: CharacterSet {
         object(forKey: .characterSet) as? CharacterSet ?? NSUIFont(descriptor: self, size: pointSize)!.coveredCharacterSet
-     }
+    }
     #else
     /// The set of Unicode characters covered by the font.
     var characterSet: CharacterSet? {
         object(forKey: .characterSet) as? CharacterSet
-     }
+    }
     #endif
     
     #if os(macOS)
     /*
-    /// The non-default font feature settings.
-    var featureSettings: [FeatureSetting] {
-        guard let values = object(forKey: .featureSettings) as? [[NSFontDescriptor.FeatureKey: Int]] else { return [] }
-        return values.compactMap({ .init($0) })
-    }
-     */
+     /// The non-default font feature settings.
+     var featureSettings: [FeatureSetting] {
+         guard let values = object(forKey: .featureSettings) as? [[NSFontDescriptor.FeatureKey: Int]] else { return [] }
+         return values.compactMap({ .init($0) })
+     }
+      */
     
     struct FeatureSetting {
         /**
@@ -161,7 +161,7 @@ public extension NSUIFontDescriptor {
     
     /// The relative slant angle value.
     var slant: CGFloat? {
-    traits?[.slant] as? CGFloat
+        traits?[.slant] as? CGFloat
     }
     
     /// The relative inter-glyph spacing.
@@ -220,7 +220,7 @@ public extension NSUIFontDescriptor {
             case let str where str.contains("Headline"): return .headline
             case let str where str.contains("Subhead"): return .subheadline
             #if os(macOS) || os(iOS)
-                case let str where str.contains("Title0"): return .largeTitle
+            case let str where str.contains("Title0"): return .largeTitle
             #endif
             case let str where str.contains("Title1"): return .title1
             case let str where str.contains("Title2"): return .title2
@@ -252,37 +252,37 @@ public extension NSUIFontDescriptor {
     }
     
     /*
-    /// A dictionary of variation axis tags (e.g. `"wght"`, `"wdth"`) and their corresponding values.
-    var variations: Varations? {
-        Swift.print(object(forKey: .variation) ?? "nil")
-        guard let variations = object(forKey: .variation) as? [NSFontDescriptor.VariationKey: Any] else { return nil }
-        Swift.print(variations.keys.map({$0.rawValue}))
-        return Varations(variations)
-    }
+     /// A dictionary of variation axis tags (e.g. `"wght"`, `"wdth"`) and their corresponding values.
+     var variations: Varations? {
+         Swift.print(object(forKey: .variation) ?? "nil")
+         guard let variations = object(forKey: .variation) as? [NSFontDescriptor.VariationKey: Any] else { return nil }
+         Swift.print(variations.keys.map({$0.rawValue}))
+         return Varations(variations)
+     }
     
-    public struct Varations {
-        /// The localized variation axis name.
-        public let name: String
-        /// The axis identifier value
-        public let identifier: Int
-        /// The minimum axis value.
-        public let minimumValue: Double
-        /// The maximum axis value.
-        public let maximumValue: Double
-        /// The default axis value.
-        public let defaultValue: Double
+     public struct Varations {
+         /// The localized variation axis name.
+         public let name: String
+         /// The axis identifier value
+         public let identifier: Int
+         /// The minimum axis value.
+         public let minimumValue: Double
+         /// The maximum axis value.
+         public let maximumValue: Double
+         /// The default axis value.
+         public let defaultValue: Double
         
-        init?(_ variations: [NSFontDescriptor.VariationKey: Any]) {
-            guard let name = variations[.name] as? String, let id = variations[.identifier] as? Int, let minValue = variations[.minimumValue] as? Double, let maxValue = variations[.maximumValue] as? Double, let defaultValue = variations[.defaultValue] as? Double else { return nil }
-            self.name = name
-            self.identifier = id
-            self.minimumValue = minValue
-            self.maximumValue = maxValue
-            self.defaultValue = defaultValue
-        }
-    }
-    */
-#endif
+         init?(_ variations: [NSFontDescriptor.VariationKey: Any]) {
+             guard let name = variations[.name] as? String, let id = variations[.identifier] as? Int, let minValue = variations[.minimumValue] as? Double, let maxValue = variations[.maximumValue] as? Double, let defaultValue = variations[.defaultValue] as? Double else { return nil }
+             self.name = name
+             self.identifier = id
+             self.minimumValue = minValue
+             self.maximumValue = maxValue
+             self.defaultValue = defaultValue
+         }
+     }
+     */
+    #endif
 }
 
 public extension NSUIFontDescriptor.TraitKey {
@@ -320,10 +320,10 @@ extension NSUIFontDescriptor.SymbolicTraits: Hashable {
 
 public extension NSUIFontDescriptor.AttributeName {
     #if canImport(UIKit)
-        /// A dictionary that fully describes the font traits.
-        static var traits: Self {
-            .init(rawValue: "NSCTFontSizeCategoryAttribute")
-        }
+    /// A dictionary that fully describes the font traits.
+    static var traits: Self {
+        .init(rawValue: "NSCTFontSizeCategoryAttribute")
+    }
     #endif
 
     /// A string that specifies the font size category.

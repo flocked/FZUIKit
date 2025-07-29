@@ -98,8 +98,8 @@ private let accuracy: Double = 0.0001
 extension CGVector3: Equatable {
     public static func == (lhs: Self, rhs: Self) -> Bool {
         abs(rhs.storage[0] - lhs.storage[0]) < accuracy &&
-        abs(rhs.storage[1] - lhs.storage[1]) < accuracy &&
-        abs(rhs.storage[2] - lhs.storage[2]) < accuracy
+            abs(rhs.storage[1] - lhs.storage[1]) < accuracy &&
+            abs(rhs.storage[2] - lhs.storage[2]) < accuracy
     }
 }
 

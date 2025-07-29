@@ -6,11 +6,11 @@
 //
 
 #if os(macOS) || os(iOS) || os(tvOS)
-    #if os(macOS)
-        import AppKit
-    #elseif canImport(UIKit)
-        import UIKit
-    #endif
+#if os(macOS)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 
 public protocol LayoutItem { // `NSUIView`, `NSUILayoutGuide`
     var superview: NSUIView? { get }
@@ -22,7 +22,7 @@ extension NSUILayoutGuide: LayoutItem {
 }
 
 public extension NSUIView {
-    
+
     struct Alignment {
         public enum Horizontal {
             case fill, center, leading, trailing
@@ -30,14 +30,14 @@ public extension NSUIView {
         public enum Vertical {
             case fill, center, top, bottom
         }
-        
+
         public let horizontal: Horizontal
         public let vertical: Vertical
-        
+
         public init(horizontal: Horizontal, vertical: Vertical) {
             (self.horizontal, self.vertical) = (horizontal, vertical)
         }
-        
+
         public static let fill = Alignment(horizontal: .fill, vertical: .fill)
         public static let center = Alignment(horizontal: .center, vertical: .center)
         public static let topLeading = Alignment(horizontal: .leading, vertical: .top)
@@ -54,14 +54,14 @@ public extension NSUIView {
 public extension LayoutItem {
     /**
      Pins the edges to the edges of the given item. By default, it uses the superview.
-     
+
      - Parameters:
         - target: The target item, or `nil` to use the superview.
         - insets: Insets the edges by the given insets.
         - axis: If provided, only constraints along the axis are created. For example, if you pass axis `.horizontal`, only the `.leading`, `.trailing` (and `.centerX` if needed) attributes are used.
         - alignment:The alignment of the view inside the target item.
         - priority:The priority of the constraints.
-     
+
      - Returns: The layout constraints.
      */
     @discardableResult

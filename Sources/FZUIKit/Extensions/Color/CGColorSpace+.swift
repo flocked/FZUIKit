@@ -6,9 +6,9 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 extension CGColorSpace {
@@ -18,25 +18,25 @@ extension CGColorSpace {
     public static let deviceCMYK = "kCGColorSpaceDeviceCMYK" as CFString
     /// The color space that represents a calibrated or device-dependent gray color space.
     public static let deviceGray = "kCGColorSpaceDeviceGray" as CFString
-    
+
     /// Returns the color space linearized.
     @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public var linearized: CGColorSpace? {
         CGColorSpaceCreateLinearized(self)
     }
-    
+
     /// Returns the color space extended linearized.
     @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public var extendedLinearized: CGColorSpace? {
         CGColorSpaceCreateExtendedLinearized(self)
     }
-    
+
     /// Returns the color space extended.
     @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public var extended: CGColorSpace? {
         CGColorSpaceCreateExtended(self)
     }
-    
+
     /// Returns the available system color spaces for the specified model
     public func availableColorSpaces(with model: CGColorSpaceModel) -> [CGColorSpace] {
         var names: [String] = []

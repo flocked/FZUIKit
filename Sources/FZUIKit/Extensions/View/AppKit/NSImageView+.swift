@@ -5,7 +5,6 @@
 //  Created by Florian Zand on 22.02.24.
 //
 
-
 #if os(macOS)
 import AppKit
 import FZSwiftUtils

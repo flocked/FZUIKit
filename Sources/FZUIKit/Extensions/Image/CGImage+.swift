@@ -6,36 +6,36 @@
 //
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 import SwiftUI
 import FZSwiftUtils
 
 public extension CGImage {
     #if os(macOS)
-        /// A `NSImage` representation of the image.
-        var nsImage: NSImage {
-            NSImage(cgImage: self)
-        }
+    /// A `NSImage` representation of the image.
+    var nsImage: NSImage {
+        NSImage(cgImage: self)
+    }
 
     #elseif canImport(UIKit)
-        /// A `UIImage` representation of the image.
-        var uiImage: UIImage {
-            UIImage(cgImage: self)
-        }
+    /// A `UIImage` representation of the image.
+    var uiImage: UIImage {
+        UIImage(cgImage: self)
+    }
     #endif
 
     /// An `Image` representation of the image.
     var swiftUI: Image {
         #if os(macOS)
-            return Image(nsImage)
+        return Image(nsImage)
         #elseif canImport(UIKit)
-            return Image(uiImage: uiImage)
+        return Image(uiImage: uiImage)
         #endif
     }
-    
+
     #if os(macOS) || os(iOS) || os(tvOS)
     /// A `CIImage` representation of the image.
     var ciImage: CIImage {
@@ -87,77 +87,77 @@ public extension CGImage {
         case unableToCreateImageFromContext
         case invalidContext
     }
-    
+
     /*
-    internal static func create(size: CGSize, bitsPerComponent: Int = 8, bytesPerRow: Int = 0, bitmapInfo: CGBitmapInfo? = nil, colorSpace: CGColorSpace? = nil, backgroundColor: CGColor? = nil, _ drawBlock: ((CGContext, CGSize) -> Void)? = nil) throws -> CGImage {
-        guard
-            let space = colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB),
-            let ctx = CGContext(
-                data: nil,
-                width: Int(size.width),
-                height: Int(size.height),
-                bitsPerComponent: bitsPerComponent,
-                bytesPerRow: bytesPerRow,
-                space: space,
-                bitmapInfo: (bitmapInfo ?? CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)).rawValue
-            )
-        else {
-            throw ImageError.invalidContext
-        }
+     internal static func create(size: CGSize, bitsPerComponent: Int = 8, bytesPerRow: Int = 0, bitmapInfo: CGBitmapInfo? = nil, colorSpace: CGColorSpace? = nil, backgroundColor: CGColor? = nil, _ drawBlock: ((CGContext, CGSize) -> Void)? = nil) throws -> CGImage {
+         guard
+             let space = colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB),
+             let ctx = CGContext(
+                 data: nil,
+                 width: Int(size.width),
+                 height: Int(size.height),
+                 bitsPerComponent: bitsPerComponent,
+                 bytesPerRow: bytesPerRow,
+                 space: space,
+                 bitmapInfo: (bitmapInfo ?? CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)).rawValue
+             )
+         else {
+             throw ImageError.invalidContext
+         }
 
-        // Drawing defaults
-        ctx.setShouldAntialias(true)
-        ctx.setAllowsAntialiasing(true)
-        ctx.interpolationQuality = .high
+         // Drawing defaults
+         ctx.setShouldAntialias(true)
+         ctx.setAllowsAntialiasing(true)
+         ctx.interpolationQuality = .high
 
-        // If a background color is set, fill it here
-        if let backgroundColor = backgroundColor {
-            ctx.saveGState()
-            ctx.setFillColor(backgroundColor)
-            ctx.fill([CGRect(origin: .zero, size: size)])
-            ctx.restoreGState()
-        }
+         // If a background color is set, fill it here
+         if let backgroundColor = backgroundColor {
+             ctx.saveGState()
+             ctx.setFillColor(backgroundColor)
+             ctx.fill([CGRect(origin: .zero, size: size)])
+             ctx.restoreGState()
+         }
 
-        // Perform the draw block
-        if let block = drawBlock {
-            ctx.saveGState()
-            block(ctx, size)
-            ctx.restoreGState()
-        }
+         // Perform the draw block
+         if let block = drawBlock {
+             ctx.saveGState()
+             block(ctx, size)
+             ctx.restoreGState()
+         }
 
-        guard let result = ctx.makeImage() else {
-            throw ImageError.unableToCreateImageFromContext
-        }
-        return result
-    }
-    */
-    
+         guard let result = ctx.makeImage() else {
+             throw ImageError.unableToCreateImageFromContext
+         }
+         return result
+     }
+     */
+
     /**
      Returns the image resized to the specified size.
-     
+
      - Parameters:
         - size: The size of the resized image.
         - quality: The quality of resizing the image.
-     
+
      - Returns: The resized image, or the image itself if resizing fails.
      */
     func resized(to size: CGSize, quality: CGInterpolationQuality = .high) -> CGImage {
         guard width != self.width || height != self.height else { return self }
         guard let colorSpace = colorSpace else { return self }
         guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: alphaInfo.rawValue) else { return self }
-        
+
         context.interpolationQuality = quality
         context.draw(self, in: CGRect(x: 0, y: 0, width: width, height: height))
         return context.makeImage() ?? self
     }
-    
+
     /**
      Returns the image resized to fit the specified size.
-     
+
      - Parameters:
         - size: The size of the resized image.
         - quality: The quality of resizing the image.
-     
+
      - Returns: The resized image, or the image itself if resizing fails.
      */
     func resized(toFit size: CGSize, quality: CGInterpolationQuality = .high) -> CGImage {
@@ -167,11 +167,11 @@ public extension CGImage {
 
     /**
      Returns the image resized to fill the specified size.
-     
+
      - Parameters:
         - size: The size of the resized image.
         - quality: The quality of resizing the image.
-     
+
      - Returns: The resized image, or the image itself if resizing fails.
      */
     func resized(toFill size: CGSize, quality: CGInterpolationQuality = .high) -> CGImage {
@@ -181,11 +181,11 @@ public extension CGImage {
 
     /**
      Returns the image resized to the specified width while maintaining the aspect ratio.
-     
+
      - Parameters:
         - width: The width of the resized image.
         - quality: The quality of resizing the image.
-     
+
      - Returns: The resized image, or the image itself if resizing fails.
      */
     func resized(toWidth width: CGFloat, quality: CGInterpolationQuality = .high) -> CGImage {
@@ -195,11 +195,11 @@ public extension CGImage {
 
     /**
      Returns the image resized to the specified height while maintaining the aspect ratio.
-     
+
      - Parameters:
         - height: The height of the resized image.
         - quality: The quality of resizing the image.
-     
+
      - Returns: The resized image, or the image itself if resizing fails.
      */
     func resized(toHeight height: CGFloat, quality: CGInterpolationQuality = .high) -> CGImage {
@@ -211,7 +211,7 @@ public extension CGImage {
 extension CGImage {
     /**
      Returns a Boolean value that indicates whether image is equal to the specified other image.
-     
+
      - Parameter image: The image to comapare.
      - Returns: `true` if the images are equal, otherwise `false`.
      */
@@ -223,7 +223,7 @@ extension CGImage {
         guard let newData = newContext.data else { return false }
         return memcmp(data, newData, context.height * context.bytesPerRow) == 0
     }
-    
+
     var context: CGContext? {
         guard let space = colorSpace, let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: space, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return nil }
         context.draw(self, in: CGRect(.zero, size))
@@ -275,10 +275,10 @@ import Accelerate.vImage
 @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
 extension CGImage {
     /**
-    Convert an image to a `vImage` buffer of the given pixel format.
+     Convert an image to a `vImage` buffer of the given pixel format.
 
-    - Parameter premultiplyAlpha: Whether the alpha channel should be premultiplied.
-    */
+     - Parameter premultiplyAlpha: Whether the alpha channel should be premultiplied.
+     */
     func toVImageBuffer(
         pixelFormat: PixelFormat,
         premultiplyAlpha: Bool
@@ -347,7 +347,7 @@ extension CGImage {
         case maxIntensity
         /// Grayscales by by using the minimum intensity of the red, green, or blue channels.
         case minIntensity
-#if os(macOS) || os(iOS) || os(tvOS)
+        #if os(macOS) || os(iOS) || os(tvOS)
         /// Grayscales by using the `CIPhotoEffectMono` Core Image filter for a monochrome effect.
         case ciPhotoEffectMono
         /// Grayscales by using the `CIColorControls` Core Image filter by reducing saturation to zero.
@@ -387,7 +387,7 @@ extension CGImage {
         #endif
         }
     }
-    
+
     private func convertToDeviceGray() -> CGImage? {
         guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.none.rawValue) else {  return nil }
         context.draw(self, in: CGRect(x: 0, y: 0, width: width, height: height))
@@ -410,7 +410,7 @@ extension CGImage {
         guard let context = CGContext(data: &pixelData, width: width, height: height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: bitmapInfo.rawValue) else { return nil }
         return context.makeImage()
     }
-    
+
     #if os(macOS) || os(iOS) || os(tvOS)
     private func applyCoreImageFilter(filterName: String) -> CGImage? {
         let ciImage = CIImage(cgImage: self)

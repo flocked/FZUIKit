@@ -6,12 +6,12 @@
 //
 
 #if os(macOS) || os(iOS) || os(tvOS)
-    import FZSwiftUtils
-    #if os(macOS)
-        import AppKit
-    #elseif canImport(UIKit)
-        import UIKit
-    #endif
+import FZSwiftUtils
+#if os(macOS)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 
 protocol InteractiveCollectionViewLayout: NSUICollectionViewLayout {
     var columns: Int { get set }
@@ -127,14 +127,14 @@ extension NSUICollectionView {
                 switch state {
                 case .began:
                     initalColumns = columns
-                    // displayingIndexPaths = collectionView?.displayingIndexPaths() ?? []
+                // displayingIndexPaths = collectionView?.displayingIndexPaths() ?? []
                 case .changed:
                     #if os(macOS)
                     columns = initalColumns + Int((magnification/(-0.5)).rounded())
                     #else
                     columns = initalColumns + Int((scale/(-0.5)).rounded())
                     #endif
-                    // scrollToDisplayingIndexPaths()
+                // scrollToDisplayingIndexPaths()
                 default: break
                 }
             }

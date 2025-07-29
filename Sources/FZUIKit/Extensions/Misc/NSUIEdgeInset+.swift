@@ -8,9 +8,9 @@
 import FZSwiftUtils
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 import SwiftUI
 
@@ -24,22 +24,22 @@ public extension CGRect {
 
 public extension NSUIEdgeInsets {
     #if os(macOS)
-        /// An edge insets struct whose top, left, bottom, and right fields are all set to 0.
-        static var zero = NSEdgeInsets(0)
+    /// An edge insets struct whose top, left, bottom, and right fields are all set to 0.
+    static var zero = NSEdgeInsets(0)
     #endif
 
     /// Creates an edge insets structure with the specified value for top, bottom, left and right.
     init(_ value: CGFloat) {
         self.init(top: value, left: value, bottom: value, right: value)
     }
-    
+
     /// Creates an edge insets structure with the specified width (left + right) and height (top + bottom) values.
     init(width: CGFloat, height: CGFloat = 0) {
         self.init()
         self.width = width
         self.height = height
     }
-    
+
     /// Creates an edge insets structure with the specified height (top + bottom) value.
     init(height: CGFloat) {
         self.init()
@@ -98,7 +98,7 @@ extension NSUIEdgeInsets: Codable {
         case left
         case right
     }
-    
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(top, forKey: .top)
@@ -106,7 +106,7 @@ extension NSUIEdgeInsets: Codable {
         try container.encode(left, forKey: .left)
         try container.encode(right, forKey: .right)
     }
-    
+
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         self = .init(top: try values.decode(CGFloat.self, forKey: .top),
@@ -122,17 +122,17 @@ extension NSUIEdgeInsets {
     func clamped(min: NSUIEdgeInsets) -> NSUIEdgeInsets {
         NSUIEdgeInsets(top: top.clamped(min: min.top), left: left.clamped(min: min.left), bottom: bottom.clamped(min: min.bottom), right: right.clamped(min: min.right))
     }
-    
+
     /// Clamps the insets to the specified maximum value.
     func clamped(max: NSUIEdgeInsets) -> NSUIEdgeInsets {
         NSUIEdgeInsets(top: top.clamped(max: max.top), left: left.clamped(max: max.left), bottom: bottom.clamped(max: max.bottom), right: right.clamped(max: max.right))
     }
-    
+
     /// Clamps the insets to the specified minimum value.
     mutating func clamp(min: NSUIEdgeInsets) {
         self = clamped(min: min)
     }
-    
+
     /// Clamps the insets to the specified maximum value.
     mutating func clamp(max: NSUIEdgeInsets) {
         self = clamped(max: max)
@@ -142,8 +142,8 @@ extension NSUIEdgeInsets {
 
 public extension NSDirectionalEdgeInsets {
     #if os(macOS)
-        /// A directional edge insets structure whose top, leading, bottom, and trailing fields all have a value of ´0´.
-        static var zero = NSDirectionalEdgeInsets(0)
+    /// A directional edge insets structure whose top, leading, bottom, and trailing fields all have a value of ´0´.
+    static var zero = NSDirectionalEdgeInsets(0)
     #endif
 
     /// Creates an edge insets structure with the specified value for top, bottom, leading and trailing.
@@ -157,7 +157,7 @@ public extension NSDirectionalEdgeInsets {
         self.width = width
         self.height = height
     }
-    
+
     /// Creates an edge insets structure with the specified height (top + bottom) value.
     init(height: CGFloat) {
         self.init()
@@ -190,33 +190,33 @@ public extension NSDirectionalEdgeInsets {
     }
 
     #if os(macOS)
-        /// The insets as `NSEdgeInsets`.
-        var nsEdgeInsets: NSEdgeInsets {
-            .init(top: self.top, left: self.leading, bottom: self.bottom, right: self.trailing)
-        }
+    /// The insets as `NSEdgeInsets`.
+    var nsEdgeInsets: NSEdgeInsets {
+        .init(top: self.top, left: self.leading, bottom: self.bottom, right: self.trailing)
+    }
 
     #elseif canImport(UIKit)
-        /// The insets as `UIEdgeInsets`.
-        var uiEdgeInsets: UIEdgeInsets {
-            .init(top: top, left: leading, bottom: bottom, right: trailing)
-        }
+    /// The insets as `UIEdgeInsets`.
+    var uiEdgeInsets: UIEdgeInsets {
+        .init(top: top, left: leading, bottom: bottom, right: trailing)
+    }
     #endif
-    
+
     /// Clamps the insets to the specified minimum value.
     func clamped(min: NSDirectionalEdgeInsets) -> NSDirectionalEdgeInsets {
         NSDirectionalEdgeInsets(top: top.clamped(min: min.top), leading: leading.clamped(min: min.leading), bottom: bottom.clamped(min: min.bottom), trailing: trailing.clamped(min: min.trailing))
     }
-    
+
     /// Clamps the insets to the specified maximum value.
     func clamped(max: NSDirectionalEdgeInsets) -> NSDirectionalEdgeInsets {
         NSDirectionalEdgeInsets(top: top.clamped(max: max.top), leading: leading.clamped(max: max.leading), bottom: bottom.clamped(max: max.bottom), trailing: trailing.clamped(max: max.trailing))
     }
-    
+
     /// Clamps the insets to the specified minimum value.
     mutating func clamp(min: NSDirectionalEdgeInsets) {
         self = clamped(min: min)
     }
-    
+
     /// Clamps the insets to the specified maximum value.
     mutating func clamp(max: NSDirectionalEdgeInsets) {
         self = clamped(max: max)
@@ -244,7 +244,7 @@ extension NSDirectionalEdgeInsets: Codable {
         case leading
         case trailing
     }
-    
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(top, forKey: .top)
@@ -252,7 +252,7 @@ extension NSDirectionalEdgeInsets: Codable {
         try container.encode(leading, forKey: .leading)
         try container.encode(trailing, forKey: .trailing)
     }
-    
+
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         self = .init(top: try values.decode(CGFloat.self, forKey: .top),
@@ -295,7 +295,7 @@ extension EdgeInsets: Hashable {
         self.width = width
         self.height = height
     }
-    
+
     /// Creates an edge insets structure with the specified height (top + bottom) value.
     public init(height: CGFloat) {
         self.init()
@@ -321,12 +321,12 @@ extension EdgeInsets: Hashable {
             bottom = value
         }
     }
-    
+
     /// The insets as `NSDirectionalEdgeInsets`.
     var directional: NSDirectionalEdgeInsets {
         .init(top: top, leading: leading, bottom: bottom, trailing: trailing)
     }
-    
+
     #if os(macOS)
     /// The insets as `NSEdgeInsets`.
     var nsEdgeInsets: NSEdgeInsets {
@@ -338,29 +338,29 @@ extension EdgeInsets: Hashable {
         .init(top: top, left: leading, bottom: bottom, right: trailing)
     }
     #endif
-    
+
     public func hash(into hasher: inout Hasher) {
         hasher.combine(top)
         hasher.combine(bottom)
         hasher.combine(leading)
         hasher.combine(trailing)
     }
-    
+
     /// Clamps the insets to the specified minimum value.
     func clamped(min: EdgeInsets) -> EdgeInsets {
         EdgeInsets(top: top.clamped(min: min.top), leading: leading.clamped(min: min.leading), bottom: bottom.clamped(min: min.bottom), trailing: trailing.clamped(min: min.trailing))
     }
-    
+
     /// Clamps the insets to the specified maximum value.
     func clamped(max: EdgeInsets) -> EdgeInsets {
         EdgeInsets(top: top.clamped(max: max.top), leading: leading.clamped(max: max.leading), bottom: bottom.clamped(max: max.bottom), trailing: trailing.clamped(max: max.trailing))
     }
-    
+
     /// Clamps the insets to the specified minimum value.
     mutating func clamp(min: EdgeInsets) {
         self = clamped(min: min)
     }
-    
+
     /// Clamps the insets to the specified maximum value.
     mutating func clamp(max: EdgeInsets) {
         self = clamped(max: max)
@@ -374,7 +374,7 @@ extension EdgeInsets: Codable {
         case leading
         case trailing
     }
-    
+
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(top, forKey: .top)
@@ -382,7 +382,7 @@ extension EdgeInsets: Codable {
         try container.encode(leading, forKey: .leading)
         try container.encode(trailing, forKey: .trailing)
     }
-    
+
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         self = .init(top: try values.decode(CGFloat.self, forKey: .top),

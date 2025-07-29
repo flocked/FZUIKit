@@ -10,12 +10,12 @@
 
 
 #if os(macOS) || os(iOS) || os(tvOS)
-    import FZSwiftUtils
-    #if os(macOS)
-        import AppKit
-    #elseif canImport(UIKit)
-        import UIKit
-    #endif
+import FZSwiftUtils
+#if os(macOS)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 
 /// A layout that organizes items into columns (either as `waterfall` or `grid`).
 public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCollectionViewLayout {

@@ -11,9 +11,9 @@
 import FZSwiftUtils
 
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 public extension NSUIColor {
@@ -25,9 +25,9 @@ public extension NSUIColor {
         }
         var hexValue: UInt64 = 0
         guard Scanner(string: hex).scanHexInt64(&hexValue) else {
-          return nil
+            return nil
         }
-        
+
         let r, g, b, a, divisor: CGFloat
         switch hex.count {
         case 3:
@@ -55,9 +55,9 @@ public extension NSUIColor {
             b = CGFloat((hexValue & 0x0000FF00) >> 8) / divisor
             a = CGFloat( hexValue & 0x000000FF) / divisor
         default:
-          return nil
+            return nil
         }
-        
+
         #if os(iOS) || os(watchOS) || os(tvOS)
         self.init(red: r, green: g, blue: b, alpha: a)
         #else

@@ -6,48 +6,48 @@
 //
 
 #if os(macOS) || os(iOS) || os(tvOS)
-    #if os(macOS)
-        import AppKit
-    #elseif canImport(UIKit)
-        import UIKit
-    #endif
-    import SwiftUI
-    import FZSwiftUtils
+#if os(macOS)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
+import SwiftUI
+import FZSwiftUtils
 
-    @available(macOS 11.0, iOS 13.0, *)
-    public extension NSUIHostingController {
-        /**
-         Creates a hosting controller object with the given contents.
+@available(macOS 11.0, iOS 13.0, *)
+public extension NSUIHostingController {
+    /**
+     Creates a hosting controller object with the given contents.
 
-         - Parameter content: The contents of the SwiftUI hierarchy to be shown inside the view.
-         */
-        convenience init(@ViewBuilder content: () -> Content) {
-            self.init(rootView: content())
-        }
-        
-        /// A Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
-        var ignoresSafeArea: Bool {
-            get { view.isMethodHooked(#selector(getter: NSUIView.safeAreaInsets)) }
-            set { view.setSafeAreaInsets(newValue ? .zero : nil) }
-        }
-        
-        /// Sets the Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
-        @discardableResult
-        func ignoresSafeArea(_ ignores: Bool) -> Self {
-            ignoresSafeArea = ignores
-            return self
-        }
-        
-        /// The minimum size of the view that satisfies the constraints it holds.
-        var fittingSize: CGSize {
-            view.intrinsicContentSize
-        }
-        
-        /// Resizes the view’s frame so that it’s the size satisfies the constraints it holds.
-        func sizeToFit() {
-            view.frame.size = view.intrinsicContentSize
-        }
+     - Parameter content: The contents of the SwiftUI hierarchy to be shown inside the view.
+     */
+    convenience init(@ViewBuilder content: () -> Content) {
+        self.init(rootView: content())
     }
+        
+    /// A Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
+    var ignoresSafeArea: Bool {
+        get { view.isMethodHooked(#selector(getter: NSUIView.safeAreaInsets)) }
+        set { view.setSafeAreaInsets(newValue ? .zero : nil) }
+    }
+        
+    /// Sets the Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
+    @discardableResult
+    func ignoresSafeArea(_ ignores: Bool) -> Self {
+        ignoresSafeArea = ignores
+        return self
+    }
+        
+    /// The minimum size of the view that satisfies the constraints it holds.
+    var fittingSize: CGSize {
+        view.intrinsicContentSize
+    }
+        
+    /// Resizes the view’s frame so that it’s the size satisfies the constraints it holds.
+    func sizeToFit() {
+        view.frame.size = view.intrinsicContentSize
+    }
+}
 
 extension NSUIHostingController {
     var _previousWidth: CGFloat {
@@ -89,8 +89,8 @@ extension NSUIHostingController {
                         AnyObject, Selector) -> Void)
                     #else
                     try hook(selector,
-                    methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
-                    hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
+                             methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
+                             hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
                         object in
                         if let controller = object as? Self {
                             if controller.view.frame.size.width != controller._previousWidth {
@@ -100,12 +100,12 @@ extension NSUIHostingController {
                             }
                         }
                         store.original(object, store.selector)
-                        }
+                    }
                     }
                     #endif
                 } catch {
-                   // handle error
-                   debugPrint(error)
+                    // handle error
+                    debugPrint(error)
                 }
             } else {
                 revertHooks(for: selector)
@@ -128,11 +128,11 @@ fileprivate extension NSUIView {
                     AnyObject, Selector) -> NSUIEdgeInsets)
                 #else
                 try hook(#selector(getter: NSUIView.safeAreaInsets),
-                methodSignature: (@convention(c)  (AnyObject, Selector) -> NSUIEdgeInsets).self,
-                hookSignature: (@convention(block)  (AnyObject) -> NSUIEdgeInsets).self) { store in {
+                         methodSignature: (@convention(c)  (AnyObject, Selector) -> NSUIEdgeInsets).self,
+                         hookSignature: (@convention(block)  (AnyObject) -> NSUIEdgeInsets).self) { store in {
                     object in
                     return newSafeAreaInsets
-                    }
+                }
                 }
                 #endif
             } catch {
@@ -142,51 +142,51 @@ fileprivate extension NSUIView {
     }
 }
 
-    #if canImport(AppKit)
-        public extension NSHostingView {
-            /**
-             Calculates and returns the most appropriate size for the current view.
+#if canImport(AppKit)
+public extension NSHostingView {
+    /**
+     Calculates and returns the most appropriate size for the current view.
              
-             - Parameter size: The proposed new size for the view.
-             - Returns: The size that offers the best fit for the root view and its contents.
-             */
-            func sizeThatFits(in size: CGSize) -> CGSize {
-                hostingController.view = self
-                return hostingController.sizeThatFits(in: size)
-            }
+     - Parameter size: The proposed new size for the view.
+     - Returns: The size that offers the best fit for the root view and its contents.
+     */
+    func sizeThatFits(in size: CGSize) -> CGSize {
+        hostingController.view = self
+        return hostingController.sizeThatFits(in: size)
+    }
             
-            /// A Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
-            @available(macOS 11.0, *)
-            var ignoresSafeArea: Bool {
-                get { isMethodHooked(#selector(getter: NSUIView.safeAreaInsets)) }
-                set { setSafeAreaInsets(newValue ? .zero : nil) }
-            }
+    /// A Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
+    @available(macOS 11.0, *)
+    var ignoresSafeArea: Bool {
+        get { isMethodHooked(#selector(getter: NSUIView.safeAreaInsets)) }
+        set { setSafeAreaInsets(newValue ? .zero : nil) }
+    }
             
-            /**
-             Creates a hosting view object with the given contents.
+    /**
+     Creates a hosting view object with the given contents.
 
-             - Parameter content: The contents of the SwiftUI hierarchy to be shown inside the view.
-             */
-            convenience init(@ViewBuilder content: () -> Content) {
-                self.init(rootView: content())
-            }
+     - Parameter content: The contents of the SwiftUI hierarchy to be shown inside the view.
+     */
+    convenience init(@ViewBuilder content: () -> Content) {
+        self.init(rootView: content())
+    }
             
-            /// Sets the Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
-            @discardableResult
-            @available(macOS 11.0, *)
-            func ignoresSafeArea(_ ignores: Bool) -> Self {
-                ignoresSafeArea = ignores
-                return self
-            }
+    /// Sets the Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
+    @discardableResult
+    @available(macOS 11.0, *)
+    func ignoresSafeArea(_ ignores: Bool) -> Self {
+        ignoresSafeArea = ignores
+        return self
+    }
             
-            /// Resizes the view’s frame so that it’s the size satisfies the constraints it holds.
-            func sizeToFit() {
-                frame.size = fittingSize
-            }
+    /// Resizes the view’s frame so that it’s the size satisfies the constraints it holds.
+    func sizeToFit() {
+        frame.size = fittingSize
+    }
             
-            internal var hostingController: NSHostingController<Content> {
-                getAssociatedValue("hostingController", initialValue: NSHostingController(rootView: rootView))
-            }
-        }
-    #endif
+    internal var hostingController: NSHostingController<Content> {
+        getAssociatedValue("hostingController", initialValue: NSHostingController(rootView: rootView))
+    }
+}
+#endif
 #endif

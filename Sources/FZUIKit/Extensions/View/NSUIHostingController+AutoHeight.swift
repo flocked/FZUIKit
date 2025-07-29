@@ -6,59 +6,59 @@
 //
 
 #if os(macOS) || os(iOS) || os(tvOS)
-    #if os(macOS)
-        import AppKit
-    #elseif canImport(UIKit)
-        import UIKit
-    #endif
-    import SwiftUI
+#if os(macOS)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
+import SwiftUI
 import FZSwiftUtils
 
-    /// Creates a hosting controller object that automatically adjusts it height to fit the it's SwiftUI view.
-    public class AutoHeightHostingController<Content>: NSUIHostingController<Content> where Content: View {
-        override public init(rootView: Content) {
-            super.init(rootView: rootView)
-            view.backgroundColor = .clear
-            #if os(macOS)
-                view.translatesAutoresizingMaskIntoConstraints = false
-            #endif
-            heightAnchor.isActive = true
-        }
-
-        @available(*, unavailable)
-        @MainActor dynamic required init?(coder _: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-
-        /// A Boolean value that indicates whether the view's height should be adjusted to fit the SwiftUI's view.
-        public var autoAdjustHeight: Bool = true {
-            didSet {
-                heightAnchor.isActive = autoAdjustHeight
-            }
-        }
-
-        var previousWidth: CGFloat = 0.0
-        lazy var heightAnchor = self.view.heightAnchor.constraint(equalToConstant: 1000)
-
+/// Creates a hosting controller object that automatically adjusts it height to fit the it's SwiftUI view.
+public class AutoHeightHostingController<Content>: NSUIHostingController<Content> where Content: View {
+    override public init(rootView: Content) {
+        super.init(rootView: rootView)
+        view.backgroundColor = .clear
         #if os(macOS)
-            override public func viewDidLayout() {
-                if view.frame.size.width != previousWidth {
-                    previousWidth = view.frame.size.width
-                    let fittingSize = sizeThatFits(in: CGSize(width: previousWidth, height: 40000))
-                    heightAnchor.constant = fittingSize.height
-                }
-            }
-
-        #elseif canImport(UIKit)
-            override public func viewDidLayoutSubviews() {
-                if view.frame.size.width != previousWidth {
-                    previousWidth = view.frame.size.width
-                    let fittingSize = sizeThatFits(in: CGSize(width: previousWidth, height: 40000))
-                    heightAnchor.constant = fittingSize.height
-                }
-            }
+        view.translatesAutoresizingMaskIntoConstraints = false
         #endif
+        heightAnchor.isActive = true
     }
+
+    @available(*, unavailable)
+    @MainActor dynamic required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    /// A Boolean value that indicates whether the view's height should be adjusted to fit the SwiftUI's view.
+    public var autoAdjustHeight: Bool = true {
+        didSet {
+            heightAnchor.isActive = autoAdjustHeight
+        }
+    }
+
+    var previousWidth: CGFloat = 0.0
+    lazy var heightAnchor = self.view.heightAnchor.constraint(equalToConstant: 1000)
+
+    #if os(macOS)
+    override public func viewDidLayout() {
+        if view.frame.size.width != previousWidth {
+            previousWidth = view.frame.size.width
+            let fittingSize = sizeThatFits(in: CGSize(width: previousWidth, height: 40000))
+            heightAnchor.constant = fittingSize.height
+        }
+    }
+
+    #elseif canImport(UIKit)
+    override public func viewDidLayoutSubviews() {
+        if view.frame.size.width != previousWidth {
+            previousWidth = view.frame.size.width
+            let fittingSize = sizeThatFits(in: CGSize(width: previousWidth, height: 40000))
+            heightAnchor.constant = fittingSize.height
+        }
+    }
+    #endif
+}
 
 #endif
 

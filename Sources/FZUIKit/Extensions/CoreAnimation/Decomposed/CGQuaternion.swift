@@ -72,7 +72,7 @@ private let accuracy: Double = 0.0001
 extension CGQuaternion: Equatable {
     public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.axis == rhs.axis &&
-        abs(rhs.storage.angle - lhs.storage.angle) < accuracy
+            abs(rhs.storage.angle - lhs.storage.angle) < accuracy
     }
 }
 

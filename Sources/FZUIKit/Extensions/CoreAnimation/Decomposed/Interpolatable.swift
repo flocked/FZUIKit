@@ -14,14 +14,14 @@ import simd
 public protocol Interpolatable {
     /// The type of the fraction that will be used to linearly interpolate `Self`.
     associatedtype FractionType: FloatingPoint
-    
+
     /**
      Linearly interpolates `Self` to another instance of `Self` based on a given fraction.
-     
+
      - Parameters:
         - to: The end value to interpolate to.
         - fraction: The fraction to interpolate between the two values (i.e. 0% is 0.0, 100% is 1.0).
-     
+
      - Returns: An interpolated instance of `Self`.
      */
     func lerp(to: Self, fraction: FractionType) -> Self

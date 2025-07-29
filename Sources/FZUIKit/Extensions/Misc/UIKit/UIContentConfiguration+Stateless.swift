@@ -6,11 +6,11 @@
 //
 
 #if os(iOS) || os(tvOS)
-    import UIKit
+import UIKit
 
-    public extension UIContentConfiguration {
-        func updated(for _: UIConfigurationState) -> Self {
-            self
-        }
+public extension UIContentConfiguration {
+    func updated(for _: UIConfigurationState) -> Self {
+        self
     }
+}
 #endif

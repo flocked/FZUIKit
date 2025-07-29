@@ -6,70 +6,70 @@
 //
 
 #if os(macOS)
-    import AppKit
-    public extension NSNib {
-        /**
-         Returns a nib object from the nib file in the main bundle.
+import AppKit
+public extension NSNib {
+    /**
+     Returns a nib object from the nib file in the main bundle.
 
-         The `NSNib` object looks for the nib file in the main bundle's language-specific project directories first, followed by the Resources directory.
+     The `NSNib` object looks for the nib file in the main bundle's language-specific project directories first, followed by the Resources directory.
 
-         - Parameter nibName: The name of the nib file, without any leading path information. Inclusion of the .nib extension on the nib file name is optional.
-         - Returns: The initialized `NSNib` object or `nil` if there were errors during initialization or the nib file could not be located.
-         */
-        convenience init?(nibNamed nibName: NSNib.Name) {
-            self.init(nibNamed: nibName, bundle: nil)
-        }
-        
-        /**
-         Returns a nib object from the nib file in the main bundle.
-
-         The `NSNib` object looks for the nib file in the main bundle's language-specific project directories first, followed by the Resources directory.
-
-         - Parameter nibName: The name of the nib file, without any leading path information. Inclusion of the .nib extension on the nib file name is optional.
-         - Returns: The initialized `NSNib` object or `nil` if there were errors during initialization or the nib file could not be located.
-         */
-        convenience init?(_ nibName: NSNib.Name) {
-            self.init(nibNamed: nibName, bundle: nil)
-        }
-        
-        /**
-         Instantiates objects in the nib file with the specified owner.
-         
-         - Parameter owner: The object to set as the Nib’s owner (File’s Owner).
-         */
-        @discardableResult
-        func instantiate(withOwner owner: Any?) -> [Any] {
-            var topLevelObjects: NSArray?
-            instantiate(withOwner: owner, topLevelObjects: &topLevelObjects)
-            return topLevelObjects as? [Any] ?? []
-        }
+     - Parameter nibName: The name of the nib file, without any leading path information. Inclusion of the .nib extension on the nib file name is optional.
+     - Returns: The initialized `NSNib` object or `nil` if there were errors during initialization or the nib file could not be located.
+     */
+    convenience init?(nibNamed nibName: NSNib.Name) {
+        self.init(nibNamed: nibName, bundle: nil)
     }
+
+    /**
+     Returns a nib object from the nib file in the main bundle.
+
+     The `NSNib` object looks for the nib file in the main bundle's language-specific project directories first, followed by the Resources directory.
+
+     - Parameter nibName: The name of the nib file, without any leading path information. Inclusion of the .nib extension on the nib file name is optional.
+     - Returns: The initialized `NSNib` object or `nil` if there were errors during initialization or the nib file could not be located.
+     */
+    convenience init?(_ nibName: NSNib.Name) {
+        self.init(nibNamed: nibName, bundle: nil)
+    }
+
+    /**
+     Instantiates objects in the nib file with the specified owner.
+
+     - Parameter owner: The object to set as the Nib’s owner (File’s Owner).
+     */
+    @discardableResult
+    func instantiate(withOwner owner: Any?) -> [Any] {
+        var topLevelObjects: NSArray?
+        instantiate(withOwner: owner, topLevelObjects: &topLevelObjects)
+        return topLevelObjects as? [Any] ?? []
+    }
+}
 
 #elseif os(iOS) || os(tvOS)
-    import UIKit
-    public extension UINib {
-        /**
-         Returns a nib object from the nib file in the main bundle.
+import UIKit
+public extension UINib {
+    /**
+     Returns a nib object from the nib file in the main bundle.
 
-         The`UINib` object looks for the nib file in the main bundle’s language-specific project directories first, followed by the Resources directory.
+     The`UINib` object looks for the nib file in the main bundle’s language-specific project directories first, followed by the Resources directory.
 
-         - Parameter nibName: The name of the nib file, without any leading path information. Inclusion of the .nib extension on the nib file name is optional.
-         - Returns: The initialized `UINib` object. An exception is thrown if there were errors during initialization or the nib file could not be located.
-         */
-        convenience init(nibName: String) {
-            self.init(nibName: nibName, bundle: nil)
-        }
-        
-        /**
-         Returns a nib object from the nib file in the main bundle.
-
-         The`UINib` object looks for the nib file in the main bundle’s language-specific project directories first, followed by the Resources directory.
-
-         - Parameter nibName: The name of the nib file, without any leading path information. Inclusion of the .nib extension on the nib file name is optional.
-         - Returns: The initialized `UINib` object. An exception is thrown if there were errors during initialization or the nib file could not be located.
-         */
-        convenience init(_ nibName: String) {
-            self.init(nibName: nibName, bundle: nil)
-        }
+     - Parameter nibName: The name of the nib file, without any leading path information. Inclusion of the .nib extension on the nib file name is optional.
+     - Returns: The initialized `UINib` object. An exception is thrown if there were errors during initialization or the nib file could not be located.
+     */
+    convenience init(nibName: String) {
+        self.init(nibName: nibName, bundle: nil)
     }
+
+    /**
+     Returns a nib object from the nib file in the main bundle.
+
+     The`UINib` object looks for the nib file in the main bundle’s language-specific project directories first, followed by the Resources directory.
+
+     - Parameter nibName: The name of the nib file, without any leading path information. Inclusion of the .nib extension on the nib file name is optional.
+     - Returns: The initialized `UINib` object. An exception is thrown if there were errors during initialization or the nib file could not be located.
+     */
+    convenience init(_ nibName: String) {
+        self.init(nibName: nibName, bundle: nil)
+    }
+}
 #endif

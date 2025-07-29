@@ -7,9 +7,9 @@
 
 #if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 import Vision
 
@@ -17,7 +17,7 @@ import Vision
 extension NSUIImage {
     /**
      The contour path of the image.
-     
+
      - Parameters:
         - size: The size for the contour path, or `nil` to use the image size.
         - contrastAdjustment: The amount by which to adjust the image contrast. Contour detection works best with high-contrast images. The default value of this property is `2.0`, which doubles the image contrast to achieve the most accurate results. This property supports a value range from `0.0` to `3.0`.
@@ -33,7 +33,7 @@ extension NSUIImage {
 extension CGImage {
     /**
      The contour path of the image.
-     
+
      - Parameters:
         - size: The size for the contour path, or `nil` to use the image size.
         - contrastAdjustment: The amount by which to adjust the image contrast. Contour detection works best with high-contrast images. The default value of this property is `2.0`, which doubles the image contrast to achieve the most accurate results. This property supports a value range from `0.0` to `3.0`.
@@ -59,7 +59,7 @@ enum ContourError: LocalizedError {
     case imageNotFound
     case noContour
     case noCGImage
-    
+
     var errorDescription: String? {
         switch self {
         case .imageNotFound: return "Image not found."

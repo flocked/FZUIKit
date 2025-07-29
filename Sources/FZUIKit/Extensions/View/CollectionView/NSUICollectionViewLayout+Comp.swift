@@ -6,13 +6,13 @@
 //
 
 #if os(macOS) || os(iOS) || os(tvOS)
-    import Foundation
-    import FZSwiftUtils
-    #if os(macOS)
-        import AppKit
-    #elseif canImport(UIKit)
-        import UIKit
-    #endif
+import Foundation
+import FZSwiftUtils
+#if os(macOS)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 
 extension NSUICollectionViewLayout {
     /**
@@ -55,17 +55,17 @@ extension NSUICollectionViewLayout {
         let layoutItemSize: NSCollectionLayoutSize
         if orientation == .horizontal {
             layoutItemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                              heightDimension: .absolute(itemSize))
+                                                    heightDimension: .absolute(itemSize))
         } else {
             layoutItemSize = NSCollectionLayoutSize(widthDimension: .absolute(itemSize),
-                                              heightDimension: .fractionalHeight(1.0))
+                                                    heightDimension: .fractionalHeight(1.0))
         }
 
         let item = NSCollectionLayoutItem(layoutSize: layoutItemSize, supplementaryItems: [])
         let groupSize: NSCollectionLayoutSize
         if orientation == .horizontal {
             groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
-                                                   heightDimension: .fractionalHeight(1.0))
+                                               heightDimension: .fractionalHeight(1.0))
         } else {
             groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
                                                heightDimension: .fractionalHeight(1.0))
@@ -73,10 +73,10 @@ extension NSUICollectionViewLayout {
         let group: NSCollectionLayoutGroup
         if orientation == .horizontal {
             group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize,
-                                                           subitems: [item])
+                                                     subitems: [item])
         } else {
             group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize,
-                                                           subitems: [item])
+                                                       subitems: [item])
         }
         group.interItemSpacing = .fixed(spacing)
         group.contentInsets = insets
@@ -126,96 +126,96 @@ extension NSUICollectionViewLayout {
         return layout
     }
     
-#if os(macOS) || os(iOS)
-/**
- A interactive grid layout where the user can change the amount of columns by pinching the collection view.
+    #if os(macOS) || os(iOS)
+    /**
+     A interactive grid layout where the user can change the amount of columns by pinching the collection view.
  
- - Parameters:
-    - columns: The amount of columns for the grid.
-    - userInteraction: User interaction options for changing the amount of columns by pinching the collection view and pressing the `plus` or `minus` key.
-    - itemAspectRatio: The aspect ratio of the items.
-    - spacing: The spacing between the items.
-    - insets: The insets of the layout.
-    - header: The layout's supplementary header type.
-    - footer: The layout's supplementary footer type.
- */
-public static func gridCompositional(columns: Int = 3, userInteraction: ColumnsLayoutUserInteraction = .init(), itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil) -> NSUICollectionViewLayout {
-    let layout = _grid(columns: columns, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer)
-    layout.configurate(with: userInteraction) { columns in
-        .gridCompositional(columns: columns, userInteraction: userInteraction, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer)
+     - Parameters:
+        - columns: The amount of columns for the grid.
+        - userInteraction: User interaction options for changing the amount of columns by pinching the collection view and pressing the `plus` or `minus` key.
+        - itemAspectRatio: The aspect ratio of the items.
+        - spacing: The spacing between the items.
+        - insets: The insets of the layout.
+        - header: The layout's supplementary header type.
+        - footer: The layout's supplementary footer type.
+     */
+    public static func gridCompositional(columns: Int = 3, userInteraction: ColumnsLayoutUserInteraction = .init(), itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil) -> NSUICollectionViewLayout {
+        let layout = _grid(columns: columns, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer)
+        layout.configurate(with: userInteraction) { columns in
+            .gridCompositional(columns: columns, userInteraction: userInteraction, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer)
+        }
+        return layout
     }
-    return layout
-}
-#else
-/**
- A collection view layout that displays the items in a grid.
+    #else
+    /**
+     A collection view layout that displays the items in a grid.
  
- - Parameters:
-    - columns: The amount of columns for the grid.
-    - itemAspectRatio: The aspect ratio of the items.
-    - spacing: The spacing between the items.
-    - insets: The insets of the layout.
-    - header: The layout's supplementary header type.
-    - footer: The layout's supplementary footer type.
- */
-public static func grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil) -> NSUICollectionViewLayout {
-    _grid(columns: columns, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer)
-}
-#endif
-internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, center: NSUIUserInterfaceLayoutOrientation? = nil) -> CollectionViewCompositionalColumnLayout {
-    let layout = CollectionViewCompositionalColumnLayout { (_: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
-        // Item
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(itemAspectRatio.width / itemAspectRatio.height), heightDimension: .fractionalHeight(1))
+     - Parameters:
+        - columns: The amount of columns for the grid.
+        - itemAspectRatio: The aspect ratio of the items.
+        - spacing: The spacing between the items.
+        - insets: The insets of the layout.
+        - header: The layout's supplementary header type.
+        - footer: The layout's supplementary footer type.
+     */
+    public static func grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil) -> NSUICollectionViewLayout {
+        _grid(columns: columns, itemAspectRatio: itemAspectRatio, spacing: spacing, insets: insets, header: header, footer: footer)
+    }
+    #endif
+    internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1, 1), spacing: CGFloat = 8.0, insets: NSDirectionalEdgeInsets = .init(16), header: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, footer: NSCollectionLayoutBoundarySupplementaryItem.ItemType? = nil, center: NSUIUserInterfaceLayoutOrientation? = nil) -> CollectionViewCompositionalColumnLayout {
+        let layout = CollectionViewCompositionalColumnLayout { (_: Int, layoutEnvironment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection? in
+            // Item
+            let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(itemAspectRatio.width / itemAspectRatio.height), heightDimension: .fractionalHeight(1))
 
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+            let item = NSCollectionLayoutItem(layoutSize: itemSize)
 
-        // Group
-        let groupHeight: CGFloat = {
-            let totalSpacing = spacing * (CGFloat(columns) - 1)
-            let horizontalInsets = insets.leading + insets.trailing
+            // Group
+            let groupHeight: CGFloat = {
+                let totalSpacing = spacing * (CGFloat(columns) - 1)
+                let horizontalInsets = insets.leading + insets.trailing
 
-            let itemWidth = (layoutEnvironment.container.effectiveContentSize.width - totalSpacing - horizontalInsets) / CGFloat(columns)
+                let itemWidth = (layoutEnvironment.container.effectiveContentSize.width - totalSpacing - horizontalInsets) / CGFloat(columns)
 
-            return itemWidth * itemAspectRatio.height / itemAspectRatio.width
-        }()
+                return itemWidth * itemAspectRatio.height / itemAspectRatio.width
+            }()
 
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
-                                               heightDimension: .absolute(groupHeight))
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: columns)
-        group.interItemSpacing = .fixed(spacing)
+            let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1),
+                                                   heightDimension: .absolute(groupHeight))
+            let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitem: item, count: columns)
+            group.interItemSpacing = .fixed(spacing)
 
-        /*
-        if let center = center {
-            let containerSize = layoutEnvironment.container.contentSize
+            /*
+             if let center = center {
+                 let containerSize = layoutEnvironment.container.contentSize
             
-            if center == .horizontal {
-                let groupWidthDimension = group.layoutSize.widthDimension.dimension
-                let itemWidth = containerSize.width * groupWidthDimension
-                let inset = (containerSize.width - CGFloat(columns) * itemWidth) / 2.0
-            } else {
-                let groupHeightDimension = group.layoutSize.heightDimension.dimension
-                let itemHeight = containerSize.height * groupHeightDimension
-            }
-        }
-        */
+                 if center == .horizontal {
+                     let groupWidthDimension = group.layoutSize.widthDimension.dimension
+                     let itemWidth = containerSize.width * groupWidthDimension
+                     let inset = (containerSize.width - CGFloat(columns) * itemWidth) / 2.0
+                 } else {
+                     let groupHeightDimension = group.layoutSize.heightDimension.dimension
+                     let itemHeight = containerSize.height * groupHeightDimension
+                 }
+             }
+             */
         
-        // Section
-        let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = spacing
-        section.contentInsets = insets
+            // Section
+            let section = NSCollectionLayoutSection(group: group)
+            section.interGroupSpacing = spacing
+            section.contentInsets = insets
 
-        // Header & Footer
-        if let headerItem = header?.item(elementKind: NSUICollectionView.elementKindSectionHeader) {
-            section.boundarySupplementaryItems.append(headerItem)
+            // Header & Footer
+            if let headerItem = header?.item(elementKind: NSUICollectionView.elementKindSectionHeader) {
+                section.boundarySupplementaryItems.append(headerItem)
+            }
+            if let footherItem = footer?.item(elementKind: NSUICollectionView.elementKindSectionFooter) {
+                section.boundarySupplementaryItems.append(footherItem)
+            }
+            return section
         }
-        if let footherItem = footer?.item(elementKind: NSUICollectionView.elementKindSectionFooter) {
-            section.boundarySupplementaryItems.append(footherItem)
-        }
-        return section
+        layout.columns = columns
+        return layout
     }
-    layout.columns = columns
-    return layout
-}
     
     /// The item order of a compositional waterfall layout.
     public enum WaterfallItemOrder {
@@ -227,7 +227,7 @@ internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1,
         case rightToLeft
     }
     
-#if os(macOS) || os(iOS)
+    #if os(macOS) || os(iOS)
     /**
      A waterfall collection view layout.
      
@@ -306,7 +306,7 @@ internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1,
         }
     }
 
-#else
+    #else
     /**
      Creates a waterfall collection view layout with the specifed amount of columns.
      
@@ -319,7 +319,7 @@ internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1,
     public static func waterfallCompositional(columns: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemOrder: WaterfallItemOrder = .shortestColumn, itemSizeProvider: @escaping (IndexPath) -> CGSize) -> NSUICollectionViewLayout {
         _waterfallCompositional(columns: columns, spacing: spacing, insets: insets, itemOrder: itemOrder, itemSizeProvider: itemSizeProvider)
     }
-#endif
+    #endif
     
     static func _waterfallCompositional(columns: Int = 2, spacing: CGFloat = 8.0, insets: NSUIEdgeInsets = .init(8.0), itemOrder: WaterfallItemOrder = .shortestColumn, itemSizeProvider: @escaping (IndexPath) -> CGSize) -> CollectionViewCompositionalColumnLayout {
         var numberOfItems: (Int) -> Int = { _ in 0 }
@@ -342,7 +342,7 @@ internal static func _grid(columns: Int = 3, itemAspectRatio: CGSize = CGSize(1,
                 }
                 return items
             }
-         //   group.contentInsets = insets.directional
+            //   group.contentInsets = insets.directional
             
             let section = NSCollectionLayoutSection(group: group)
             // section.contentInsetsReference = configuration.contentInsetsReference

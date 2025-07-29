@@ -6,9 +6,9 @@
 //
 
 #if canImport(UIKit)
-    import UIKit
+import UIKit
 #elseif os(macOS)
-    import AppKit
+import AppKit
 #endif
 import SwiftUI
 import FZSwiftUtils
@@ -35,22 +35,22 @@ extension NSUIColor {
     }
 
     #if os(iOS) || os(tvOS) || os(watchOS)
-        /// The hue component of the color.
-        public final var hueComponent: CGFloat {
-            hsbaComponents().hue
-        }
+    /// The hue component of the color.
+    public final var hueComponent: CGFloat {
+        hsbaComponents().hue
+    }
 
-        /// The saturation component of the color.
-        public final var saturationComponent: CGFloat {
-            hsbaComponents().saturation
-        }
+    /// The saturation component of the color.
+    public final var saturationComponent: CGFloat {
+        hsbaComponents().saturation
+    }
 
-        /// The brightness component of the color.
-        public final var brightnessComponent: CGFloat {
-            hsbaComponents().brightness
-        }
+    /// The brightness component of the color.
+    public final var brightnessComponent: CGFloat {
+        hsbaComponents().brightness
+    }
     #endif
-    
+
     /**
      Returns a new color object with the specified hue value.
 
@@ -66,12 +66,12 @@ extension NSUIColor {
         #endif
         return _withHue(hue)
     }
-    
+
     func _withHue(_ hue: CGFloat) -> NSUIColor {
         let hsba = hsbaComponents()
         return NSUIColor(hue: hue, saturation: hsba.saturation, brightness: hsba.brightness, alpha: hsba.alpha)
     }
-    
+
     /**
      Returns a new color object with the specified saturation value.
 
@@ -88,12 +88,12 @@ extension NSUIColor {
         #endif
         return _withSaturation(saturation)
     }
-    
+
     func _withSaturation(_ saturation: CGFloat) -> NSUIColor {
         let hsba = hsbaComponents()
         return NSUIColor(hue: hsba.hue, saturation: hsba.saturation, brightness: saturation, alpha: hsba.alpha)
     }
-    
+
     /**
      Returns a new color object with the specified brightness value.
 
@@ -109,7 +109,7 @@ extension NSUIColor {
         #endif
         return _withBrightness(brightness)
     }
-    
+
     func _withBrightness(_ brightness: CGFloat) -> NSUIColor {
         let hsba = hsbaComponents()
         return NSUIColor(hue: hsba.hue, saturation: hsba.saturation, brightness: brightness, alpha: hsba.alpha)
@@ -122,7 +122,7 @@ public struct HSBAComponents {
     public var hue: CGFloat {
         didSet { hue = hue.clamped(to: 0.0...1.0) }
     }
-    
+
     /// Sets the hue component of the color (between `0.0` to `1.0`).
     @discardableResult
     public func hue(_ hue: CGFloat) -> Self {
@@ -135,7 +135,7 @@ public struct HSBAComponents {
     public var saturation: CGFloat {
         didSet { saturation = saturation.clamped(to: 0.0...1.0) }
     }
-    
+
     /// Sets the saturation component of the color (between `0.0` to `1.0`).
     @discardableResult
     public func saturation(_ saturation: CGFloat) -> Self {
@@ -148,7 +148,7 @@ public struct HSBAComponents {
     public var brightness: CGFloat {
         didSet { brightness = brightness.clamped(to: 0.0...1.0) }
     }
-    
+
     /// Sets the brightness component of the color (between `0.0` to `1.0`).
     @discardableResult
     public func brightness(_ brightness: CGFloat) -> Self {
@@ -161,7 +161,7 @@ public struct HSBAComponents {
     public var alpha: CGFloat {
         didSet { alpha = alpha.clamped(to: 0.0...1.0) }
     }
-    
+
     /// Sets the alpha value of the color (between `0.0` to `1.0`).
     @discardableResult
     public func alpha(_ alpha: CGFloat) -> Self {
@@ -172,7 +172,7 @@ public struct HSBAComponents {
 
     /**
      Creates HSBA components with the specified hue, saturation, brightness and alpha components.
-     
+
      - Parameters:
         -  hue: The hue component of the color (between `0.0` to `1.0`).
         - saturation: The saturation component of the color (between `0.0` to `1.0`).
