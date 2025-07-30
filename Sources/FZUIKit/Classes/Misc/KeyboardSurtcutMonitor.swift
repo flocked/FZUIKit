@@ -38,8 +38,6 @@ public final class CGKeyEventMonitor {
         }
     }
     
-    
-    
     /// A Boolean value that indicates whether the monitor is active.
     public var isActive = true {
         didSet {
@@ -63,6 +61,16 @@ public final class CGKeyEventMonitor {
         self.handler = handler
         self.keyType = keyType
         keyType.globalMonitor.updateMonitor(self)
+    }
+    
+    /// A key down monitor for the specific keyboard shortfcut.
+    public static func keyDown(_ shortcut: KeyboardShortcut, handler: @escaping () -> Void) -> Self {
+        Self(shortcut: shortcut, for: .keyDown, handler: handler)
+    }
+    
+    /// A key up monitor for the specific keyboard shortfcut.
+    public static func keyUp(_ shortcut: KeyboardShortcut, handler: @escaping () -> Void) -> Self {
+        Self(shortcut: shortcut, for: .keyDown, handler: handler)
     }
 
     deinit {
