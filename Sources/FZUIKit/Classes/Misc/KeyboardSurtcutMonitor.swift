@@ -47,7 +47,7 @@ public final class CGKeyEventMonitor {
     }
     
     
-    /// The key
+    /// The key event type.
     public var keyType: EventType = .keyDown {
         didSet {
             guard oldValue != keyType, isActive else { return }
