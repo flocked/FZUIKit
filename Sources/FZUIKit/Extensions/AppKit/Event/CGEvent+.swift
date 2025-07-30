@@ -48,6 +48,10 @@ extension CGEventFlags: Hashable {
         if contains(.maskAlphaShift) { flags.insert(.capsLock) }
         return flags
     }
+    
+    var monitor: Self {
+        intersection([.maskShift, .maskControl, .maskCommand, .maskNumericPad, .maskHelp, .maskAlternate, .maskSecondaryFn, .maskShift])
+    }
 }
 
 #endif

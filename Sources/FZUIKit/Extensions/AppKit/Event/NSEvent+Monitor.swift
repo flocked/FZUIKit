@@ -8,6 +8,7 @@
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
+import Combine
 
 public extension NSEvent {
     /**
@@ -124,23 +125,15 @@ public extension NSEvent {
         /// A Boolean value that indicates whether the monitor is active.
         public var isActive: Bool {
             get { monitor != nil }
-            set {
-                if newValue {
-                    start()
-                } else {
-                    stop()
-                }
-            }
+            set { newValue ? start() : stop() }
         }
         
         /// Starts monitoring events.
         public func start() {
             guard !isActive else { return }
             switch type {
-            case .global:
-                monitor = NSEvent.addGlobalMonitorForEvents(matching: mask, handler: handler as! ((NSEvent) -> Void))
-            case .local:
-                monitor = NSEvent.addLocalMonitorForEvents(matching: mask, handler: handler as! ((NSEvent) -> (NSEvent?)))
+            case .global: monitor = NSEvent.addGlobalMonitorForEvents(matching: mask, handler: handler as! ((NSEvent) -> Void))
+            case .local: monitor = NSEvent.addLocalMonitorForEvents(matching: mask, handler: handler as! ((NSEvent) -> (NSEvent?)))
             }
         }
         
@@ -152,9 +145,6 @@ public extension NSEvent {
         }
     }
 }
-
-#if canImport(Combine)
-import Combine
 
 extension NSEvent.Monitor {
     /// An event publisher which receives copies of events the system posts.
@@ -218,5 +208,4 @@ extension NSEvent.Monitor {
         }
     }
 }
-#endif
 #endif

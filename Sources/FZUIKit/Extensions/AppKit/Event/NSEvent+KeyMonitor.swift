@@ -8,6 +8,7 @@
 #if os(macOS)
 
 import AppKit
+import Combine
 
 extension NSEvent {
     /**
@@ -18,7 +19,7 @@ extension NSEvent {
         - type: The key event type to monitor (either `keyDown` or `keyUp`).
         - handler: The handler that is called when the keyboard shortcut is pressed.
      */
-    public static func localKeyMonitor(for shortcut: KeyboardShortcut, type: KeyboardMonitor.KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> (NSEvent?))) -> KeyboardMonitor {
+    public static func localKeyMonitor(for shortcut: KeyboardShortcut, type: KeyMonitor.KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> (NSEvent?))) -> KeyMonitor {
         .local(for: shortcut, type: type, handler: handler)
     }
     
@@ -30,12 +31,12 @@ extension NSEvent {
         - type: The key event type to monitor (either `keyDown` or `keyUp`).
         - handler: The handler that is called when the keyboard shortcut is pressed.
      */
-    public static func globalKeyMonitor(for shortcut: KeyboardShortcut, type: KeyboardMonitor.KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> ())) -> KeyboardMonitor {
+    public static func globalKeyMonitor(for shortcut: KeyboardShortcut, type: KeyMonitor.KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> ())) -> KeyMonitor {
         .global(for: shortcut, type: type, handler: handler)
     }
     
-    /// A keyboard monitor which calls a handler.
-    public class KeyboardMonitor: NSObject {
+    /// A keyboard shortcut monitor.
+    public class KeyMonitor: NSObject {
         
         /// The keyboard shortcut monitored.
         public var shortcut: KeyboardShortcut
@@ -49,11 +50,20 @@ extension NSEvent {
             case keyDown
             /// Key up.
             case keyUp
+            /// Key down & up.
+            case all
+            
+            var mask: EventTypeMask {
+                switch self {
+                case .keyDown: return .keyDown
+                case .keyUp: return .keyUp
+                case .all: return [.keyDown, .keyUp]
+                }
+            }
         }
         
         private var monitor: Any?
         private let id = UUID()
-        private let mask: EventTypeMask
         private var handler: Any!
         private let isLocal: Bool
         typealias LocalHandler = ((_ event: NSEvent) -> (NSEvent?))
@@ -67,7 +77,7 @@ extension NSEvent {
             - type: The key event type to monitor (either `keyDown` or `keyUp`).
             - handler: The handler that is called when the keyboard shortcut is pressed.
          */
-        public static func local(for shortcut: KeyboardShortcut, type: KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> (NSEvent?))) -> KeyboardMonitor {
+        public static func local(for shortcut: KeyboardShortcut, type: KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> (NSEvent?))) -> KeyMonitor {
             .init(for: shortcut, isLocal: true, type: type, handler: handler)
         }
         
@@ -79,13 +89,12 @@ extension NSEvent {
             - type: The key event type to monitor (either `keyDown` or `keyUp`).
             - handler: The handler that is called when the keyboard shortcut is pressed.
          */
-        public static func global(for shortcut: KeyboardShortcut, type: KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> ())) -> KeyboardMonitor {
+        public static func global(for shortcut: KeyboardShortcut, type: KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> ())) -> KeyMonitor {
             .init(for: shortcut, isLocal: false, type: type, handler: handler)
         }
         
         private init(for shortcut: KeyboardShortcut, isLocal: Bool, type: KeyEventType, handler: Any) {
             self.shortcut = shortcut
-            self.mask = type == .keyDown ? .keyDown : .keyUp
             self.isLocal = isLocal
             self.keyEventType = type
             super.init()
@@ -93,16 +102,14 @@ extension NSEvent {
             if isLocal {
                 let handler = handler as! ((_ event: NSEvent) -> (NSEvent?))
                 let mapped: ((_ event: NSEvent) -> (NSEvent?)) = { [weak self] event in
-                    guard let self = self else { return event }
-                    guard event.keyCode == self.shortcut.keyCode ?? -1, event.modifierFlags.contains(self.shortcut.modifierFlags) else { return event }
+                    guard let self = self, self.shortcut.isMatching(event) else { return event }
                     return handler(event)
                 }
                 self.handler = mapped
             } else {
                 let handler = handler as! ((_ event: NSEvent) -> ())
                 let mapped: ((_ event: NSEvent) -> ()) = { [weak self] event in
-                    guard let self = self else { return }
-                    guard event.keyCode == self.shortcut.keyCode ?? -1, event.modifierFlags.contains(self.shortcut.modifierFlags) else { return }
+                    guard let self = self, self.shortcut.isMatching(event) else { return }
                     handler(event)
                 }
                 self.handler = mapped
@@ -113,22 +120,16 @@ extension NSEvent {
         /// A Boolean value that indicates whether the monitor is active.
         public var isActive: Bool {
             get { monitor != nil }
-            set {
-                if newValue {
-                    start()
-                } else {
-                    stop()
-                }
-            }
+            set { newValue ? start() : stop() }
         }
         
         /// Starts monitoring the keyboard shortcut.
         public func start() {
             guard !isActive else { return }
             if isLocal {
-                monitor = NSEvent.addLocalMonitorForEvents(matching: mask, handler: handler as! ((NSEvent) -> (NSEvent?)))
+                monitor = NSEvent.addLocalMonitorForEvents(matching: keyEventType.mask, handler: handler as! ((NSEvent) -> (NSEvent?)))
             } else {
-                monitor = NSEvent.addGlobalMonitorForEvents(matching: mask, handler: handler as! ((NSEvent) -> Void))
+                monitor = NSEvent.addGlobalMonitorForEvents(matching: keyEventType.mask, handler: handler as! ((NSEvent) -> Void))
             }
         }
         
@@ -138,13 +139,14 @@ extension NSEvent {
             NSEvent.removeMonitor(monitor)
             self.monitor = nil
         }
+        
+        deinit {
+            stop()
+        }
     }
 }
 
-#if canImport(Combine)
-import Combine
-
-extension NSEvent.KeyboardMonitor {
+extension NSEvent.KeyMonitor {
     /// A keyboard  event publisher which receives copies of events the system posts.
     public struct Publisher: Combine.Publisher {
         public typealias Output = NSEvent
@@ -193,7 +195,7 @@ extension NSEvent.KeyboardMonitor {
         
         final class Subscription<S: Subscriber<Output, Failure>>: Combine.Subscription {
             var subscriber: S?
-            let monitor: NSEvent.KeyboardMonitor
+            let monitor: NSEvent.KeyMonitor
             
             init(publisher: Publisher, subscriber: S) {
                 self.subscriber = subscriber
@@ -219,6 +221,4 @@ extension NSEvent.KeyboardMonitor {
         }
     }
 }
-#endif
-
 #endif

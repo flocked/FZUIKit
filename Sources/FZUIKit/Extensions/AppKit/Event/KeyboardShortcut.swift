@@ -21,10 +21,18 @@ public struct KeyboardShortcut: Hashable, ExpressibleByNilLiteral, ExpressibleBy
     
     /// The keyboard equivalent modifiers.
     public var modifierFlags: NSEvent.ModifierFlags = [] {
-        didSet { flags = modifierFlags.cgEventFlags }
+        didSet { flags = modifierFlags.monitor.cgEventFlags }
     }
     
     var flags: CGEventFlags = []
+    
+    func isMatching(_ event: NSEvent) -> Bool {
+        event.keyCode == keyCode ?? -2 && event.modifierFlags == modifierFlags
+    }
+    
+    func isMatching(_ event: CGEvent) -> Bool {
+        event.keyCode == keyCode ?? -2 && event.flags == flags
+    }
 
     /// a
     public static let a = Self("a")
@@ -304,5 +312,11 @@ public struct KeyboardShortcut: Hashable, ExpressibleByNilLiteral, ExpressibleBy
         0x7E: ["up"],
         0x7F: ["power", "eject"]
     ]
+}
+
+fileprivate extension NSEvent.ModifierFlags {
+    var monitor: Self {
+        intersection([.shift, .control, .command, .numericPad, .help, .option, .function, .capsLock])
+    }
 }
 #endif

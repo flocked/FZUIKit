@@ -33,6 +33,15 @@ public extension NSEvent {
     }
     
     /**
+     The window associated with the event.
+     
+     Periodic events do not have a window.
+     */
+    var window: NSWindow? {
+        NSApp.window(withWindowNumber: windowNumber)
+    }
+    
+    /**
      Creates and returns a new key down event with the specified key code.
      
      - Parameters:
@@ -511,50 +520,14 @@ extension NSEvent.EventTypeMask: CustomStringConvertible, Hashable, Codable {
     public func intersects(_ event: NSEvent?) -> Bool {
         guard let event = event else { return false }
         if event.type == .mouse {
-            return event.associatedEventsMask.intersection(self).isEmpty == false
+            return !event.associatedEventsMask.intersection(self).isEmpty
         }
-        return self.intersects(event.type)
+        return intersects(event.type)
     }
     
     /// A Boolean value that indicates whether the specified event type intersects with the mask.
     public func intersects(_ type: NSEvent.EventType) -> Bool {
-        switch type {
-        case .leftMouseDown: return contains(.leftMouseDown)
-        case .leftMouseUp: return contains(.leftMouseUp)
-        case .rightMouseDown: return contains(.rightMouseDown)
-        case .rightMouseUp: return contains(.rightMouseUp)
-        case .mouseMoved: return contains(.mouseMoved)
-        case .leftMouseDragged: return contains(.leftMouseDragged)
-        case .rightMouseDragged: return contains(.rightMouseDragged)
-        case .mouseEntered: return contains(.mouseEntered)
-        case .mouseExited: return contains(.mouseExited)
-        case .keyDown: return contains(.keyDown)
-        case .keyUp: return contains(.keyUp)
-        case .flagsChanged: return contains(.flagsChanged)
-        case .appKitDefined: return contains(.appKitDefined)
-        case .systemDefined: return contains(.systemDefined)
-        case .applicationDefined: return contains(.applicationDefined)
-        case .periodic: return contains(.periodic)
-        case .cursorUpdate: return contains(.cursorUpdate)
-        case .scrollWheel: return contains(.scrollWheel)
-        case .tabletPoint: return contains(.tabletPoint)
-        case .tabletProximity: return contains(.tabletProximity)
-        case .otherMouseDown: return contains(.otherMouseDown)
-        case .otherMouseUp: return contains(.otherMouseUp)
-        case .otherMouseDragged: return contains(.otherMouseDragged)
-        case .gesture: return contains(.gesture)
-        case .magnify: return contains(.magnify)
-        case .swipe: return contains(.swipe)
-        case .rotate: return contains(.rotate)
-        case .beginGesture: return contains(.beginGesture)
-        case .endGesture: return contains(.endGesture)
-        case .smartMagnify: return contains(.smartMagnify)
-        case .pressure: return contains(.pressure)
-        case .directTouch: return contains(.directTouch)
-        case .changeMode: return contains(.changeMode)
-        //  case .quickLook: return contains(.quick)
-        default: return false
-        }
+        contains(Self(type: type))
     }
     
     /// A mask for user interaction events  (`keyboard`, `mouse`, `mouseMovements`, `magnify`, `scrollWheel`, `swipe` or `rotate`).
