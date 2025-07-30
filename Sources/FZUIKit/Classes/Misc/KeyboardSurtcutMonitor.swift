@@ -104,7 +104,7 @@ fileprivate final class GlobalKeyPressMonitor {
                 let keyCode = Int(event.getIntegerValueField(.keyboardEventKeycode))
                 
                 let flags = NSEvent.ModifierFlags(rawValue: UInt(event.flags.rawValue))
-                for (shortcut, handler) in monitor.monitors.orderedValues.collect() {
+                for (shortcut, handler) in monitor.monitors.values {
                     guard keyCode == shortcut.keyCode, event.flags.contains(shortcut.flags) else { continue }
                     handler()
                 }
