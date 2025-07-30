@@ -10,7 +10,7 @@ import AppKit
 import FZSwiftUtils
 
 /// A keyboard shortcut monitor.
-public final class KeyboardShortcutMonitor {
+public final class CGKeyEventMonitor {
     public enum EventType {
         /// Key down.
         case keyDown
@@ -79,7 +79,7 @@ fileprivate final class GlobalKeyPressMonitor {
     private var runLoopSource: CFRunLoopSource?
     private let eventType: CGEventType
 
-    private init(_ type: KeyboardShortcutMonitor.EventType) {
+    private init(_ type: CGKeyEventMonitor.EventType) {
         self.eventType = type == .keyUp ? .keyDown : .keyUp
     }
 
@@ -141,16 +141,16 @@ fileprivate final class GlobalKeyPressMonitor {
         eventTap = nil
     }
     
-    func updateMonitor(_ monitor: KeyboardShortcutMonitor) {
+    func updateMonitor(_ monitor: CGKeyEventMonitor) {
         monitor.isActive ? addMonitor(monitor) : removeMonitor(monitor)
     }
     
-    func addMonitor(_ monitor: KeyboardShortcutMonitor) {
+    func addMonitor(_ monitor: CGKeyEventMonitor) {
         monitors[ObjectIdentifier(monitor)] = (monitor.shortcut, monitor.handler)
         start()
     }
     
-    func removeMonitor(_ monitor: KeyboardShortcutMonitor) {
+    func removeMonitor(_ monitor: CGKeyEventMonitor) {
         monitors.removeValue(forKey: ObjectIdentifier(monitor))
         if monitors.isEmpty {
             stop()
