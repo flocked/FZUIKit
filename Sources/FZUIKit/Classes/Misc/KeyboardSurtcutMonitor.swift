@@ -103,7 +103,6 @@ fileprivate final class GlobalKeyPressMonitor {
                 let monitor = Unmanaged<GlobalKeyPressMonitor>.fromOpaque(refcon).takeUnretainedValue()
                 let keyCode = Int(event.getIntegerValueField(.keyboardEventKeycode))
                 
-                let flags = NSEvent.ModifierFlags(rawValue: UInt(event.flags.rawValue))
                 for (shortcut, handler) in monitor.monitors.values {
                     guard keyCode == shortcut.keyCode, event.flags.contains(shortcut.flags) else { continue }
                     handler()
@@ -169,21 +168,6 @@ fileprivate final class GlobalKeyPressMonitor {
 
     private func flagsMatch(_ actual: NSEvent.ModifierFlags, required: NSEvent.ModifierFlags) -> Bool {
         actual.intersection(relevantFlags) == required
-    }
-}
-
-extension CGEventFlags: Hashable {
-    var modifierFlags: NSEvent.ModifierFlags {
-        var flags: NSEvent.ModifierFlags = []
-        if contains(.maskShift) { flags.insert(.shift) }
-        if contains(.maskControl) { flags.insert(.control) }
-        if contains(.maskCommand) { flags.insert(.command) }
-        if contains(.maskNumericPad) { flags.insert(.numericPad) }
-        if contains(.maskHelp) { flags.insert(.help) }
-        if contains(.maskAlternate) { flags.insert(.option) }
-        if contains(.maskSecondaryFn) { flags.insert(.function) }
-        if contains(.maskAlphaShift) { flags.insert(.capsLock) }
-        return flags
     }
 }
 
