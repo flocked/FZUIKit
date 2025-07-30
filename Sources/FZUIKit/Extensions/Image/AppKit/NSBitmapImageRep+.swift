@@ -99,15 +99,14 @@ public extension NSBitmapImageRep {
         do {
             try hook(#selector(self.setProperty(_:withValue:)), closure: { original, object, sel, property, value in
                 original(object, sel, property, value)
-                guard let object = object as? NSBitmapImageRep else { return }
                 if property == .currentFrameDuration, let value = value as? TimeInterval {
                     object._currentFrameDuration = value
                 } else if property == .currentFrame {
                     original(object, sel, .currentFrameDuration, object._currentFrameDuration)
                 }
             } as @convention(block) (
-                (AnyObject, Selector, NSBitmapImageRep.PropertyKey, Any?) -> Void,
-                AnyObject, Selector, NSBitmapImageRep.PropertyKey, Any?) -> Void)
+                (NSBitmapImageRep, Selector, NSBitmapImageRep.PropertyKey, Any?) -> Void,
+                NSBitmapImageRep, Selector, NSBitmapImageRep.PropertyKey, Any?) -> Void)
             currentFrame = 0
             _currentFrameDuration = currentFrameDuration
             currentFrame = _currentFrame

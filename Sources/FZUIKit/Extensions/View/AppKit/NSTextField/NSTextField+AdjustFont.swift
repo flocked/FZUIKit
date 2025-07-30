@@ -143,20 +143,16 @@ extension NSTextField {
             textFieldObserver = nil
             _font = font
             do {
-                try hook(#selector(setter: font), closure: { original, object, sel, font in
-                    guard let textField = (object as? NSTextField), textField._font != font else { return }
+                try hook(#selector(setter: font), closure: { original, textField, sel, font in
+                    guard textField._font != font else { return }
                     textField._font = font
-                    original(object, sel, font)
+                    original(textField, sel, font)
                     textField.adjustFontSize()
-                } as @convention(block) (
-                    (AnyObject, Selector, NSFont?) -> Void,
-                    AnyObject, Selector, NSFont?) -> Void)
+                } as @convention(block) ((NSTextField, Selector, NSFont?) -> Void, NSTextField, Selector, NSFont?) -> Void)
 
                 try hook(#selector(getter: font), closure: { original, object, sel in
-                    (object as? NSTextField)?._font ?? original(object, sel)
-                } as @convention(block) (
-                    (AnyObject, Selector) -> NSFont?,
-                    AnyObject, Selector) -> NSFont?)
+                    object._font ?? original(object, sel)
+                } as @convention(block) ((NSTextField, Selector) -> NSFont?, NSTextField, Selector) -> NSFont?)
             } catch {
                 Swift.debugPrint(error)
             }

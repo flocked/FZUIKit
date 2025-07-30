@@ -71,9 +71,8 @@ extension NSCollectionViewItem {
     static func swizzlePreferredLayoutAttributesFitting() {
         guard !isMethodHooked(#selector(Self.preferredLayoutAttributesFitting(_:))) else { return }
         do {
-            try hook(#selector(Self.preferredLayoutAttributesFitting(_:)), closure: { original, object, sel, attributes in
-                let preferred = original(object, sel, attributes)
-                guard let item = object as? Self else { return preferred }
+            try hook(#selector(Self.preferredLayoutAttributesFitting(_:)), closure: { original, item, sel, attributes in
+                let preferred = original(item, sel, attributes)
                 if preferred.frame.size == NSCollectionViewFlowLayout.automaticSize {
                     
                 }
@@ -87,9 +86,7 @@ extension NSCollectionViewItem {
                     preferred.size = item.view.systemLayoutSizeFitting(attributes.size, withHorizontalFittingPriority: .fittingSizeCompression, verticalFittingPriority: .required)
                 }
                 return preferred
-            } as @convention(block) (
-                (AnyObject, Selector, NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes,
-                AnyObject, Selector, NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes)
+            } as @convention(block) ((Self, Selector, NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes, Self, Selector, NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes)
         } catch {
            // handle error
            debugPrint(error)

@@ -337,10 +337,7 @@ extension NSTextField {
             if isMethodHooked(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) == false {
                 textFieldObserver = nil
                 do {
-                    try hook(#selector(NSTextViewDelegate.textView(_:doCommandBy:)), closure: { original, object, sel, textView, selector in
-                        guard let textField = object as? NSTextField else {
-                            return original(object, sel, textView, selector)
-                        }
+                    try hook(#selector(NSTextViewDelegate.textView(_:doCommandBy:)), closure: { original, textField, sel, textView, selector in
                         switch selector {
                         case #selector(NSControl.cancelOperation(_:)):
                             switch textField.editingActionOnEscapeKeyDown {
@@ -380,10 +377,8 @@ extension NSTextField {
                             }
                         default: break
                         }
-                        return original(object, sel, textView, selector)
-                    } as @convention(block) (
-                        (AnyObject, Selector, NSTextView, Selector) -> Bool,
-                        AnyObject, Selector, NSTextView, Selector) -> Bool)
+                        return original(textField, sel, textView, selector)
+                    } as @convention(block) ((NSTextField, Selector, NSTextView, Selector) -> Bool, NSTextField, Selector, NSTextView, Selector) -> Bool)
                     setupTextFieldObserver()
                 } catch {
                     Swift.debugPrint(error)

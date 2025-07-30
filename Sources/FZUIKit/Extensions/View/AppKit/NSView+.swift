@@ -800,9 +800,7 @@ extension NSView {
         do {
             try hook(#selector(getter: NSView.tag), closure: { original, object, sel in
                 return tag
-            } as @convention(block) (
-                (NSView, Selector) -> Int,
-                NSView, Selector) -> Int)
+            } as @convention(block) ((NSView, Selector) -> Int, NSView, Selector) -> Int)
         } catch {
             Swift.print(error)
         }

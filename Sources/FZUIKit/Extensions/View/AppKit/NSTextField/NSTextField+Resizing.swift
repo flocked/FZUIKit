@@ -131,15 +131,13 @@ extension NSTextField {
             guard !isMethodHooked(#selector(getter: NSTextField.intrinsicContentSize)) else { return }
             textFieldObserver = nil
             do {
-                try hook(#selector(getter: NSTextField.intrinsicContentSize), closure: { original, object, sel in
-                    if let textField = object as? NSTextField, (textField.automaticallyResizesToFit || textField.preferredMinLayoutWidth != .zero) {
+                try hook(#selector(getter: NSTextField.intrinsicContentSize), closure: { original, textField, sel in
+                    if (textField.automaticallyResizesToFit || textField.preferredMinLayoutWidth != .zero) {
                         let newSize = textField.calculatedFittingSize
                         return newSize
                     }
-                    return original(object, sel)
-                } as @convention(block) (
-                    (AnyObject, Selector) -> CGSize,
-                    AnyObject, Selector) -> CGSize)
+                    return original(textField, sel)
+                } as @convention(block) ((NSTextField, Selector) -> CGSize, NSTextField, Selector) -> CGSize)
                 setupTextFieldObserver()
             } catch {
                 Swift.debugPrint(error)

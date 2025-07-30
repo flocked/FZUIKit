@@ -58,7 +58,7 @@ extension NSView {
                             }
                         }
                         return view._menuProvider?(location) ?? nil
-                    } as @convention(block) ( (NSView, Selector, NSEvent) -> NSMenu?, NSView, Selector, NSEvent) -> NSMenu?)
+                    } as @convention(block) ((NSView, Selector, NSEvent) -> NSMenu?, NSView, Selector, NSEvent) -> NSMenu?)
                 } catch {
                     _menuProvider = nil
                     Swift.print(error)
@@ -390,35 +390,25 @@ extension NSView {
             guard newValue != isLiveResizingObservable else { return }
             if newValue {
                 do {
-                    try hook(#selector(NSView.viewWillStartLiveResize), closure: { original, object, sel in
-                        if let view = object as? NSView {
-                            view.willChangeValue(for: \.inLiveResize)
-                            view._inLiveResize = true
-                            view.didChangeValue(for: \.inLiveResize)
-                            view._inLiveResize = nil
-                        }
-                        original(object, sel)
-                    } as @convention(block) (
-                        (AnyObject, Selector) -> Void,
-                        AnyObject, Selector) -> Void)
+                    try hook(#selector(NSView.viewWillStartLiveResize), closure: { original, view, sel in
+                        view.willChangeValue(for: \.inLiveResize)
+                        view._inLiveResize = true
+                        view.didChangeValue(for: \.inLiveResize)
+                        view._inLiveResize = nil
+                        original(view, sel)
+                    } as @convention(block) ((NSView, Selector) -> Void, NSView, Selector) -> Void)
                     
-                    try hook(#selector(NSView.viewDidEndLiveResize), closure: { original, object, sel in
-                        if let view = object as? NSView {
-                            view._inLiveResize = true
-                            view.willChangeValue(for: \.inLiveResize)
-                            view._inLiveResize = nil
-                            view.didChangeValue(for: \.inLiveResize)
-                        }
-                        original(object, sel)
-                    } as @convention(block) (
-                        (AnyObject, Selector) -> Void,
-                        AnyObject, Selector) -> Void)
+                    try hook(#selector(NSView.viewDidEndLiveResize), closure: { original, view, sel in
+                        view._inLiveResize = true
+                        view.willChangeValue(for: \.inLiveResize)
+                        view._inLiveResize = nil
+                        view.didChangeValue(for: \.inLiveResize)
+                        original(view, sel)
+                    } as @convention(block) ((NSView, Selector) -> Void, NSView, Selector) -> Void)
                     
                     try hook(#selector(getter: NSView.inLiveResize), closure: { original, object, sel in
-                        (object as? NSView)?._inLiveResize ?? original(object, sel)
-                    } as @convention(block) (
-                        (AnyObject, Selector) -> Bool,
-                        AnyObject, Selector) -> Bool)
+                        object._inLiveResize ?? original(object, sel)
+                    } as @convention(block) ((NSView, Selector) -> Bool, NSView, Selector) -> Bool)
                 } catch {
                    debugPrint(error)
                 }
@@ -433,31 +423,25 @@ extension NSView {
     fileprivate static func setupLiveResizingObservation() {
         guard !isMethodHooked(#selector(NSView.viewWillStartLiveResize)) else { return  }
         do {
-            try hook(#selector(NSView.viewWillStartLiveResize), closure: { original, object, sel in
-                (object as? NSView)?.willChangeValue(for: \.inLiveResize)
-                (object as? NSView)?._inLiveResize = true
-                (object as? NSView)?.didChangeValue(for: \.inLiveResize)
-                (object as? NSView)?._inLiveResize = nil
-                original(object, sel)
-            } as @convention(block) (
-                (AnyObject, Selector) -> Void,
-                AnyObject, Selector) -> Void)
+            try hook(#selector(NSView.viewWillStartLiveResize), closure: { original, view, sel in
+                view.willChangeValue(for: \.inLiveResize)
+                view._inLiveResize = true
+                view.didChangeValue(for: \.inLiveResize)
+                view._inLiveResize = nil
+                original(view, sel)
+            } as @convention(block) ((NSView, Selector) -> Void, NSView, Selector) -> Void)
             
-            try hook(#selector(NSView.viewDidEndLiveResize), closure: { original, object, sel in
-                (object as? NSView)?._inLiveResize = true
-                (object as? NSView)?.willChangeValue(for: \.inLiveResize)
-                (object as? NSView)?._inLiveResize = nil
-                (object as? NSView)?.didChangeValue(for: \.inLiveResize)
-                original(object, sel)
-            } as @convention(block) (
-                (AnyObject, Selector) -> Void,
-                AnyObject, Selector) -> Void)
+            try hook(#selector(NSView.viewDidEndLiveResize), closure: { original, view, sel in
+                view._inLiveResize = true
+                view.willChangeValue(for: \.inLiveResize)
+                view._inLiveResize = nil
+                view.didChangeValue(for: \.inLiveResize)
+                original(view, sel)
+            } as @convention(block) ((NSView, Selector) -> Void, NSView, Selector) -> Void)
             
             try hook(#selector(getter: NSView.inLiveResize), closure: { original, object, sel in
-                (object as? NSView)?._inLiveResize ?? original(object, sel)
-            } as @convention(block) (
-                (AnyObject, Selector) -> Bool,
-                AnyObject, Selector) -> Bool)
+                object._inLiveResize ?? original(object, sel)
+            } as @convention(block) ((NSView, Selector) -> Bool, NSView, Selector) -> Bool)
         } catch {
            // handle error
            debugPrint(error)

@@ -220,7 +220,7 @@ extension NSOutlineView {
         scrollRowToVisible(row)
     }
     
-    /// A Boolean value indicating whether the indicator view should be centered.
+    /// A Boolean value indicating whether the indicator view of each should be centered.
     public var centersIndicator: Bool {
         get { centerIndicatorHook != nil }
         set {
@@ -242,7 +242,7 @@ extension NSOutlineView {
         }
     }
     
-    /// Sets the Boolean value indicating whether the indicator view should be centered.
+    /// Sets the Boolean value indicating whether the indicator view of each item should be centered.
     @discardableResult
     public func centersIndicator(_ centersIndicator: Bool) -> Self {
         self.centersIndicator = centersIndicator

@@ -75,18 +75,14 @@ extension NSUIHostingController {
                 guard !isMethodHooked(selector) else { return }
                 do {
                     #if os(macOS) || os(iOS)
-                    try hook(selector, closure: { original, object, sel in
-                        if let controller = object as? Self {
-                            if controller.view.frame.size.width != controller._previousWidth {
-                                controller._previousWidth = controller.view.frame.size.width
-                                let fittingSize = controller.sizeThatFits(in: CGSize(width: controller._previousWidth, height: 40000))
-                                controller._heightAnchor.constant = fittingSize.height
-                            }
+                    try hook(selector, closure: { original, controller, sel in
+                        if controller.view.frame.size.width != controller._previousWidth {
+                            controller._previousWidth = controller.view.frame.size.width
+                            let fittingSize = controller.sizeThatFits(in: CGSize(width: controller._previousWidth, height: 40000))
+                            controller._heightAnchor.constant = fittingSize.height
                         }
-                        original(object, selector)
-                    } as @convention(block) (
-                        (AnyObject, Selector) -> Void,
-                        AnyObject, Selector) -> Void)
+                        original(controller, selector)
+                    } as @convention(block) ((Self, Selector) -> Void, Self, Selector) -> Void)
                     #else
                     try hook(selector,
                              methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,

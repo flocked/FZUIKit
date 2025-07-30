@@ -46,41 +46,35 @@ extension NSCollectionView {
         if dropTargetGapIndicatorColor != nil || !centeredDropTargetGapIndicator {
             guard !isMethodHooked(#selector(NSCollectionView.draggingUpdated(_:))) else { return }
             do {
-                try hook(#selector(NSCollectionView.draggingUpdated(_:)), closure: { original, object, sel, info in
-                    if let collectionView = object as? NSCollectionView {
-                        if let dropView = collectionView._dropTargetGapIndicatorView {
-                            if collectionView.dragIndicatorView.superview == nil {
-                                collectionView.addSubview(collectionView.dragIndicatorView, positioned: .above, relativeTo: dropView)
-                            }
-                            if collectionView.dragIndicatorView.bounds.size != dropView.bounds.size || collectionView.dragIndicatorView.updateImage {
-                                collectionView.dragIndicatorView.updateImage = false
-                                collectionView.dragIndicatorView.frame.size = dropView.bounds.size
-                                var image = dropView.renderedImage
-                                if collectionView.dropTargetGapIndicatorColor != nil {
-                                    image = image.grayscaled() ?? image
-                                }
-                                collectionView.dragIndicatorView.image = image
-                            }
-                            collectionView.dragIndicatorView.frame = dropView.frame
-                            if !collectionView.centeredDropTargetGapIndicator {
-                                collectionView.dragIndicatorView.frame.x -= dropView.bounds.width / 2.0
-                            }
-                            dropView.isHidden = true
-                        } else {
-                            collectionView.dragIndicatorView.removeFromSuperview()
+                try hook(#selector(NSCollectionView.draggingUpdated(_:)), closure: { original, collectionView, sel, info in
+                    if let dropView = collectionView._dropTargetGapIndicatorView {
+                        if collectionView.dragIndicatorView.superview == nil {
+                            collectionView.addSubview(collectionView.dragIndicatorView, positioned: .above, relativeTo: dropView)
                         }
+                        if collectionView.dragIndicatorView.bounds.size != dropView.bounds.size || collectionView.dragIndicatorView.updateImage {
+                            collectionView.dragIndicatorView.updateImage = false
+                            collectionView.dragIndicatorView.frame.size = dropView.bounds.size
+                            var image = dropView.renderedImage
+                            if collectionView.dropTargetGapIndicatorColor != nil {
+                                image = image.grayscaled() ?? image
+                            }
+                            collectionView.dragIndicatorView.image = image
+                        }
+                        collectionView.dragIndicatorView.frame = dropView.frame
+                        if !collectionView.centeredDropTargetGapIndicator {
+                            collectionView.dragIndicatorView.frame.x -= dropView.bounds.width / 2.0
+                        }
+                        dropView.isHidden = true
+                    } else {
+                        collectionView.dragIndicatorView.removeFromSuperview()
                     }
-                    return original(object, sel, info)
-                } as @convention(block) (
-                    (AnyObject, Selector, any NSDraggingInfo) -> NSDragOperation,
-                    AnyObject, Selector, any NSDraggingInfo) -> NSDragOperation)
+                    return original(collectionView, sel, info)
+                } as @convention(block) ((NSCollectionView, Selector, any NSDraggingInfo) -> NSDragOperation, NSCollectionView, Selector, any NSDraggingInfo) -> NSDragOperation)
                 
                 try hook(#selector(NSCollectionView.draggingEnded(_:)), closure: { original, object, sel, info in
                     original(object, sel, info)
-                    (object as? NSCollectionView)?.dragIndicatorView.removeFromSuperview()
-                } as @convention(block) (
-                    (AnyObject, Selector, any NSDraggingInfo) -> Void,
-                    AnyObject, Selector, any NSDraggingInfo) -> Void)
+                    object.dragIndicatorView.removeFromSuperview()
+                } as @convention(block) ((NSCollectionView, Selector, any NSDraggingInfo) -> Void, NSCollectionView, Selector, any NSDraggingInfo) -> Void)
             } catch {
                debugPrint(error)
             }

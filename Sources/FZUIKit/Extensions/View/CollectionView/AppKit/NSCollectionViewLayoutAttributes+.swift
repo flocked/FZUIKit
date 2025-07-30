@@ -79,28 +79,21 @@ extension NSCollectionViewItem {
             guard newValue != isTransformableByLayoutAttributes else { return }
             if newValue {
                 do {
-                    try NSCollectionViewItem.hook(#selector(NSCollectionViewItem.apply), closure: { original, object, sel, attributes in
-                        original(object, sel, attributes)
-                        guard let view = (object as? NSCollectionViewItem)?.view else { return }
-                        if attributes.transform != view.transform {
-                            view.transform = attributes.transform
+                    try NSCollectionViewItem.hook(#selector(NSCollectionViewItem.apply), closure: { original, item, sel, attributes in
+                        original(item, sel, attributes)
+                        if attributes.transform != item.view.transform {
+                            item.view.transform = attributes.transform
                         }
-                        if attributes.transform3D != view.transform3D {
-                            view.transform3D = attributes.transform3D
+                        if attributes.transform3D != item.view.transform3D {
+                            item.view.transform3D = attributes.transform3D
                         }
-                    } as @convention(block) (
-                        (AnyObject, Selector, NSCollectionViewLayoutAttributes) -> Void,
-                        AnyObject, Selector, NSCollectionViewLayoutAttributes) -> Void)
+                    } as @convention(block) ((NSCollectionViewItem, Selector, NSCollectionViewLayoutAttributes) -> Void, NSCollectionViewItem, Selector, NSCollectionViewLayoutAttributes) -> Void)
                     
-                    try NSCollectionViewItem.hook(#selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)), closure: { original, object, sel, attributes in
-                        if let view = (object as? NSCollectionViewItem)?.view {
-                            attributes.transform = view.transform
-                            attributes.transform3D = view.transform3D
-                        }
-                        return original(object, sel, attributes)
-                    } as @convention(block) (
-                        (AnyObject, Selector, NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes,
-                        AnyObject, Selector, NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes)
+                    try NSCollectionViewItem.hook(#selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)), closure: { original, item, sel, attributes in
+                        attributes.transform = item.view.transform
+                        attributes.transform3D = item.view.transform3D
+                        return original(item, sel, attributes)
+                    } as @convention(block) ((NSCollectionViewItem, Selector, NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes, NSCollectionViewItem, Selector, NSCollectionViewLayoutAttributes) -> NSCollectionViewLayoutAttributes)
                 } catch {
                     Swift.print(error)
                 }

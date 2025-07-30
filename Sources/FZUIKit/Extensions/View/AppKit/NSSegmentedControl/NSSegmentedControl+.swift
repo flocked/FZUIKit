@@ -140,16 +140,14 @@ public extension NSSegmentedControl {
             guard newValue != selectsExclusivelyOnRightClick else { return }
             if selectsExclusivelyOnRightClick {
                 do {
-                    selectsExclusivelyOnRightClickHook = try hook(#selector(NSView.rightMouseDown(with:)), closure: { original, object, sel, event in
-                        if let view = object as? NSSegmentedControl, view.trackingMode == .selectAny, let index = view.indexOfSegment(at: event.location(in: view)) {
+                    selectsExclusivelyOnRightClickHook = try hook(#selector(NSView.rightMouseDown(with:)), closure: { original, view, sel, event in
+                        if view.trackingMode == .selectAny, let index = view.indexOfSegment(at: event.location(in: view)) {
                             view.setSelected(true, forSegment: index, exclusive: true)
                             view.performAction()
                         } else {
-                            original(object, sel, event)
+                            original(view, sel, event)
                         }
-                    } as @convention(block) (
-                        (AnyObject, Selector, NSEvent) -> Void,
-                        AnyObject, Selector, NSEvent) -> Void)
+                    } as @convention(block) ((NSSegmentedControl, Selector, NSEvent) -> Void, NSSegmentedControl, Selector, NSEvent) -> Void)
                 } catch {
                     debugPrint(error)
                 }

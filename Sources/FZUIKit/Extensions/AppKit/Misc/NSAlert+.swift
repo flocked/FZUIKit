@@ -220,26 +220,24 @@ extension NSAlert {
     func swizzleRunModal() {
         guard !isMethodHooked(#selector(self.runModal)) else { return }
         do {
-            try hook(#selector(self.runModal), closure: { original, object, sel in
-                guard let alert = object as? NSAlert, let suppressionKey = alert.suppressionKey else {
-                    return original(object, sel)
+            try hook(#selector(self.runModal), closure: { original, alert, sel in
+                guard let suppressionKey = alert.suppressionKey else {
+                    return original(alert, sel)
                 }
                 if let supressionKeys: [String] = Defaults.shared["AlertSupressions"], supressionKeys.contains(suppressionKey) {
                     return .suppress
                 }
                 alert.showsSuppressionButton = true
-                let runModal = original(object, sel)
+                let runModal = original(alert, sel)
                 if alert.suppressionButton?.state == .on {
                     NSAlert.supressionKeys.insert(suppressionKey)
                 }
                 return runModal
-            } as @convention(block) (
-                (AnyObject, Selector) -> NSApplication.ModalResponse,
-                AnyObject, Selector) -> NSApplication.ModalResponse)
+            } as @convention(block) ((NSAlert, Selector) -> NSApplication.ModalResponse, NSAlert, Selector) -> NSApplication.ModalResponse)
             
-            try hook(#selector(self.beginSheetModal(for:completionHandler:)), closure: { original, object, sel, window, handler in
-                guard let alert = object as? NSAlert, let suppressionKey = alert.suppressionKey else {
-                    original(object, sel, window, handler)
+            try hook(#selector(self.beginSheetModal(for:completionHandler:)), closure: { original, alert, sel, window, handler in
+                guard let suppressionKey = alert.suppressionKey else {
+                    original(alert, sel, window, handler)
                     return
                 }
                 if let supressionKeys: [String] = Defaults.shared["AlertSupressions"], supressionKeys.contains(suppressionKey) {
@@ -252,11 +250,9 @@ extension NSAlert {
                         }
                         handler?(response)
                     }
-                    original(object, sel, window, wrappedHandler)
+                    original(alert, sel, window, wrappedHandler)
                 }
-            } as @convention(block) (
-                (AnyObject, Selector, NSWindow, ((NSApplication.ModalResponse) -> Void)?) -> Void,
-                AnyObject, Selector, NSWindow, ((NSApplication.ModalResponse) -> Void)?) -> Void)
+            } as @convention(block) ((NSAlert, Selector, NSWindow, ((NSApplication.ModalResponse) -> Void)?) -> Void, NSAlert, Selector, NSWindow, ((NSApplication.ModalResponse) -> Void)?) -> Void)
         } catch {
             Swift.debugPrint()
         }

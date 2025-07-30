@@ -51,9 +51,7 @@ extension VelocityGestureRecognizer {
             try hook(#selector(setter: NSGestureRecognizer.state), closure: { original, object, sel, state in
                 (object as? VelocityGestureRecognizer)?.updateVelocity()
                 original(object, sel, state)
-            } as @convention(block) (
-                (AnyObject, Selector, State) -> Void,
-                AnyObject, Selector, State) -> Void)
+            } as @convention(block) ((AnyObject, Selector, State) -> Void, AnyObject, Selector, State) -> Void)
             updateVelocity()
         } catch {
             Swift.debugPrint(error)
