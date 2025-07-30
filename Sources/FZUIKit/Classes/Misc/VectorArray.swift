@@ -162,6 +162,7 @@ extension VectorArray: VectorArithmetic & AdditiveArithmetic {
             let rhsD = cast(rhs.elements)
             return VectorArray(uncast(lhs.count == rhs.count ? vDSP.add(lhsD, rhsD) : vDSP.add(lhsD[0..<count], rhsD[0..<count])))
         }
+        
         var lhs = lhs
         for index in 0..<count {
             lhs[index] += rhs[index]
