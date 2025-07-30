@@ -74,7 +74,7 @@ extension NSEvent {
          
          - Parameters:
             - shortcut: The keyboard shortcut to monitor.
-            - type: The key event type to monitor (either `keyDown` or `keyUp`).
+            - type: The key event type to monitor (either `keyDown`, `keyUp` or `all`).
             - handler: The handler that is called when the keyboard shortcut is pressed.
          */
         public static func local(for shortcut: KeyboardShortcut, type: KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> (NSEvent?))) -> KeyMonitor {
@@ -86,7 +86,7 @@ extension NSEvent {
          
          - Parameters:
             - shortcut: The keyboard shortcut to monitor.
-            - type: The key event type to monitor (either `keyDown` or `keyUp`).
+            - type: The key event type to monitor (either `keyDown`, `keyUp` or `all`).
             - handler: The handler that is called when the keyboard shortcut is pressed.
          */
         public static func global(for shortcut: KeyboardShortcut, type: KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> ())) -> KeyMonitor {
@@ -165,7 +165,7 @@ extension NSEvent.KeyMonitor {
          
          - Parameters:
             - shortcut: The keyboard shortcut to monitor.
-            - type: The key event type to monitor (either `keyDown` or `keyUp`).
+            - type: The key event type to monitor (either `keyDown`, `keyUp` or `all`).
          */
         public static func local(for shortcut: KeyboardShortcut, type: KeyEventType = .keyDown) -> Self {
             Self(for: shortcut, isLocal: true, type: type)
@@ -176,7 +176,7 @@ extension NSEvent.KeyMonitor {
          
          - Parameters:
             - shortcut: The keyboard shortcut to monitor.
-            - type: The key event type to monitor (either `keyDown` or `keyUp`).
+            - type: The key event type to monitor (either `keyDown`, `keyUp` or `all`).
          */
         public static func global(for shortcut: KeyboardShortcut, type: KeyEventType = .keyDown) -> Self {
             Self(for: shortcut, isLocal: false, type: type)
