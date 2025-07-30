@@ -159,7 +159,7 @@ extension UIView {
      */
     @objc public var inverseMask: NSUIView? {
         get { (layer.mask as? InverseMaskLayer)?.maskLayer?.parentView }
-        set { layer.mask = newValue?.layer.inverseMask }
+        set { layer.inverseMask = newValue?.layer }
     }
     
     /**

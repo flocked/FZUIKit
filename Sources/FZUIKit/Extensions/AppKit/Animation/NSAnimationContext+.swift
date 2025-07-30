@@ -57,6 +57,7 @@ extension NSAnimationContext {
         .init(spring: spring, changes: changes).completion(completion)._start()
     }
     
+    #if compiler(>=6.0)
     /**
      Runs the animation group using the specified `SwiftUI` animation.
      
@@ -71,6 +72,7 @@ extension NSAnimationContext {
     public class func animate(with animation: Animation, changes: @escaping ()->(), completion: (()->())? = nil) -> NSAnimator {
         .init(animation: animation, changes: changes).completion(completion)._start()
     }
+    #endif
     
     /**
      Animates the specified animations in a serial order.

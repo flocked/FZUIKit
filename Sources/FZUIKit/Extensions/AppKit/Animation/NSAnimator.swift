@@ -198,6 +198,7 @@ public class NSAnimator: NSObject {
         }
     }
     
+    #if compiler(>=6.0)
     /**
      Creates an animation using the specfied `SwiftUI` animation.
 
@@ -217,6 +218,7 @@ public class NSAnimator: NSObject {
             }
         }
     }
+    #endif
     
     /// Creates an animator that runs the specified changes without animation.
     public init(nonAnimated changes: @escaping ()->()) {

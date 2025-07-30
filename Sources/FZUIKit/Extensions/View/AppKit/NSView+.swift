@@ -93,16 +93,42 @@ extension NSView {
     @objc fileprivate var _mask: NSView? {
         get { (layer?.mask as? InverseMaskLayer)?.maskLayer?.parentView ?? layer?.mask?.parentView }
         set {
+            /*
+            if let newValue = newValue {
+                maskViewObservation = newValue.observeChanges(for: \.superview) { [weak self] old, new in
+                    guard let self = self, self.mask == newValue else { return }
+                    self.mask = nil
+                }
+                maskObservation = observeChanges(for: \.layer?.mask, handler: { [weak self] old, new in
+                    guard let self = self, new != newValue.layer else { return }
+                    self.mask = nil
+                })
+            } else {
+                maskObservation = nil
+                maskViewObservation = nil
+            }
+             */
             newValue?.removeFromSuperview()
             optionalLayer?.mask = newValue?.optionalLayer
         }
     }
+    
+    fileprivate var maskViewObservation: KeyValueObservation? {
+        get { getAssociatedValue("maskViewObservation") }
+        set { setAssociatedValue(newValue, key: "maskViewObservation") }
+    }
+    
+    fileprivate var maskObservation: KeyValueObservation? {
+        get { getAssociatedValue("maskObservation") }
+        set { setAssociatedValue(newValue, key: "maskObservation") }
+    }
+
 
     /// The shape that is used for masking the view.
     public var maskShape: (any Shape)? {
         get { layer?.maskShape }
         set {
-            if let newValue = newValue, isProxy() {
+            if let newValue = newValue, isProxy(), NSAnimationContext.hasActiveGrouping {
                 maskShapeControlPoints = newValue.morphable().animatableData.elements
             } else {
                 optionalLayer?.maskShape = newValue
@@ -110,12 +136,12 @@ extension NSView {
         }
     }
     
-    var _maskShape: (any Shape)? {
+    fileprivate var _maskShape: (any Shape)? {
         get { layer?.maskShape }
         set { optionalLayer?.maskShape = newValue }
     }
     
-    var maskShapeControlPoints: [Double] {
+    fileprivate var maskShapeControlPoints: [Double] {
         get { (_maskShape ?? .rect(cornerRadius: cornerRadius)).morphable().animatableData.elements }
         set { _maskShape = MorphableShape(controlPoints: .init(newValue)) }
     }
@@ -141,10 +167,10 @@ extension NSView {
         get { mask }
         set {
             newValue?.removeFromSuperview()
-            optionalLayer?.mask = newValue?.optionalLayer?.inverseMask
+            optionalLayer?.inverseMask = newValue?.optionalLayer
         }
     }
-
+    
     /**
      A Boolean value that determines whether the view is opaque.
 
@@ -512,7 +538,23 @@ extension NSView {
     /// The shape of the shadow.
     public var shadowShape: (any Shape)? {
         get { layer?.shadowShape }
+        set {
+            if let newValue = newValue, isProxy(), NSAnimationContext.hasActiveGrouping {
+                shadowShapeControlPoints = newValue.morphable().animatableData.elements
+            } else {
+                optionalLayer?.shadowShape = newValue
+            }
+        }
+    }
+    
+    fileprivate var _shadowShape: (any Shape)? {
+        get { layer?.shadowShape }
         set { optionalLayer?.shadowShape = newValue }
+    }
+    
+    fileprivate var shadowShapeControlPoints: [Double] {
+        get { (_shadowShape ?? .rect(cornerRadius: cornerRadius)).morphable().animatableData.elements }
+        set { _shadowShape = MorphableShape(controlPoints: .init(newValue)) }
     }
 
     func setupShadowShapeView() {
@@ -916,7 +958,7 @@ public extension NSView.AutoresizingMask {
 }
 
 /// The `NSView` properties keys that can be animated.
-fileprivate let NSViewAnimationKeys: Set<String> = ["_anchorPoint", "_anchorPointZ", "_animatableValues", "_center", "_contentOffset", "_contentOffsetFractional", "_cornerRadius", "_documentSize", "_fontSize", "_gradient", "_inverseMask", "_mask", "_placeholderTextColor", "_roundedCorners", "_screenFrame", "_selectionColor", "_selectionTextColor", "_shadowPath", "_transform", "_transform3D", "_windowFrame", "_zPosition", "__cornerRadius", "backgroundColor", "backgroundColorAnimatable", "bezelColor", "borderColor", "borderValues", "borderWidth", "contentTintColor", "cornerRadius", "fillColor", "innerShadowValues", "shadowColor", "shadowValues", "textColor", "maskShapeControlPoints"]
+fileprivate let NSViewAnimationKeys: Set<String> = ["_anchorPoint", "_anchorPointZ", "_animatableValues", "_center", "_contentOffset", "_contentOffsetFractional", "_cornerRadius", "_documentSize", "_fontSize", "_gradient", "_inverseMask", "_mask", "_placeholderTextColor", "_roundedCorners", "_screenFrame", "_selectionColor", "_selectionTextColor", "_shadowPath", "_transform", "_transform3D", "_windowFrame", "_zPosition", "__cornerRadius", "backgroundColor", "backgroundColorAnimatable", "bezelColor", "borderColor", "borderValues", "borderWidth", "contentTintColor", "cornerRadius", "fillColor", "innerShadowValues", "shadowColor", "shadowValues", "textColor", "maskShapeControlPoints", "shadowShapeControlPoints"]
 
 fileprivate extension CALayer {
     var isVisible: Bool {

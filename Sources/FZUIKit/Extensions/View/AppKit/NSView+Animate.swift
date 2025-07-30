@@ -56,6 +56,7 @@ import SwiftUI
          NSAnimationContext.animate(withSpring: spring, allowsImplicitAnimation: allowsImplicitAnimation, changes: changes, completion: completion)
      }
      
+    #if compiler(>=6.0)
      /**
       Animate changes to one or more views using the specified `SwiftUI` animation.
       
@@ -69,6 +70,7 @@ import SwiftUI
      public static func animate(with animation: Animation, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimator {
          NSAnimationContext.animate(with: animation, changes: changes, completion: completion)
      }
+     #endif
      
      /// Runs the specified closure without any animations.
      @discardableResult
