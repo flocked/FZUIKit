@@ -12,13 +12,6 @@ import Foundation
 import FZSwiftUtils
 
 public extension NSApplication {
-    internal var holdcmdQMonitor: NSEvent.Monitor? {
-        get { getAssociatedValue("") }
-        set { setAssociatedValue(newValue, key: "") }
-    }
-        
-        
-        
     /// The app’s activation policy that control whether and how an app may be activated.
     var activationPolicy: NSApplication.ActivationPolicy {
         get { activationPolicy() }
@@ -39,7 +32,7 @@ public extension NSApplication {
     /**
      A Boolean value that indicates whether the application is a trusted accessibility client.
          
-     - Parameter prompt: Indicates whether the user will be informed if the current process is untrusted. This could be used, for example, on application startup to always warn a user if accessibility is not enabled for the current process. Prompting occurs asynchronously and does not affect the return value.
+     - Parameter prompt: A Boolean value indicating whether the user will be informed if the current process is untrusted. This could be used, for example, on application startup to always warn a user if accessibility is not enabled for the current process. Prompting occurs asynchronously and does not affect the return value.
      */
     func checkAccessibilityAccess(prompt: Bool = true) -> Bool {
         let checkOptPrompt = kAXTrustedCheckOptionPrompt.takeUnretainedValue() as NSString
@@ -60,32 +53,36 @@ public extension NSApplication {
         shell("open -n \(path)")
     }
         
-    /**
-     The amount of seconds the user have to press `CMD+Q` to close the app via the keyboard.
-     */
-    var keyboardTerminationDelay: TimeInterval? {
-        get { getAssociatedValue("keyboardTerminationDelay") }
+    /// The amount of seconds the user have to press `CMD+Q` to close the application.
+    var keyboardTerminationDelay: TimeInterval {
+        get { getAssociatedValue("keyboardTerminationDelay") ?? 0.0 }
         set {
+            let newValue = newValue.clamped(min: 0.0)
             setAssociatedValue(newValue, key: "keyboardTerminationDelay")
-            if let newValue = newValue {
-                slowTerminationKeyDownMonitor = NSEvent.localMonitor(for: .keyDown) { event in
-                    if event.keyCode == 12 && event.modifierFlags.contains(.command) {
-                        if let startTime = self.slowTerminationStartTime {
-                            let timeElapsed = CFAbsoluteTimeGetCurrent() - startTime
-                            if timeElapsed >= newValue {
-                                NSApp.terminate(nil)
-                            }
-                        } else {
-                            self.slowTerminationStartTime = CFAbsoluteTimeGetCurrent()
-                        }
-                        return nil
-                    } else {
-                        self.slowTerminationStartTime = nil
-                    }
-                    return event
+            delayedTerminationMonitors = []
+            delayedTerminationWindow?.close()
+            delayedTerminationWindow = nil
+            guard newValue > 0.0 else { return }
+            delayedTerminationStartTime = CACurrentMediaTime()
+            delayedTerminationMonitors += NSEvent.localMonitor(for: .keyDown) { [weak self] event in
+                guard let self = self else { return event }
+                if event.keyCode == 12 && event.modifierFlags.contains(.command) {
+                    self.delayedTerminationStartTime = CACurrentMediaTime()
+                    guard let screen = NSScreen.main else { return event }
+                    self.delayedTerminationWindow = HudView.window()
+                    self.delayedTerminationWindow?.center(on: screen)
+                    self.delayedTerminationWindow?.orderFront(nil)
                 }
-            } else {
-                slowTerminationKeyDownMonitor = nil
+                return event
+            }
+            delayedTerminationMonitors += NSEvent.localMonitor(for: .keyDown) { [weak self] event in
+                guard let self = self else { return event }
+                if event.keyCode == 12 && event.modifierFlags.contains(.command), self.delayedTerminationStartTime - CACurrentMediaTime() >= newValue {
+                    NSApp.terminate(nil)
+                }
+                self.delayedTerminationWindow?.close()
+                self.delayedTerminationWindow = nil
+                return event
             }
         }
     }
@@ -142,15 +139,20 @@ public extension NSApplication {
         get { getAssociatedValue("notificationTokens", initialValue: [:]) }
         set { setAssociatedValue(newValue, key: "notificationTokens") }
     }
-                
-    internal var slowTerminationKeyDownMonitor: NSEvent.Monitor? {
-        get { getAssociatedValue("slowTerminationKeyDownMonitor") }
-        set { setAssociatedValue(newValue, key: "slowTerminationKeyDownMonitor") }
+    
+    internal var delayedTerminationMonitors: [NSEvent.Monitor] {
+        get { getAssociatedValue("delayedTerminationMonitors") ?? [] }
+        set { setAssociatedValue(newValue, key: "delayedTerminationMonitors") }
     }
         
-    internal var slowTerminationStartTime: CFAbsoluteTime? {
-        get { getAssociatedValue("slowTerminationStartTime") }
-        set { setAssociatedValue(newValue, key: "slowTerminationStartTime") }
+    internal var delayedTerminationStartTime: CFAbsoluteTime {
+        get { getAssociatedValue("delayedTerminationStartTime") ?? 0.0 }
+        set { setAssociatedValue(newValue, key: "delayedTerminationStartTime") }
+    }
+    
+    internal var delayedTerminationWindow: NSWindow? {
+        get { getAssociatedValue("delayedTerminationWindow") }
+        set { setAssociatedValue(newValue, key: "delayedTerminationWindow") }
     }
 }
 
@@ -170,6 +172,34 @@ fileprivate func shell(_ command: String) -> String {
     let output = String(data: data, encoding: .utf8)!
     
     return output
+}
+
+fileprivate class HudView: NSVisualEffectView {
+    static func window() -> NSWindow {
+        let hudView = HudView()
+        let window = NSWindow(contentRect: hudView.frame, styleMask: [.borderless], backing: .buffered, defer: false)
+        window.level = .floating
+        window.titleVisibility = .hidden
+        window.contentView = hudView
+        return window
+    }
+    
+    let textField = NSTextField(labelWithString: "Hold CMD+Q To Quit.").font(.largeTitle)
+    
+    init() {
+        super.init(frame: .zero)
+        visualEffect = .vibrantDark()
+        cornerRadius = 28
+        textField.sizeToFit()
+        frame.size = textField.bounds.size
+        frame = frame.insetBy(dx: -20, dy: -20)
+        addSubview(textField)
+        textField.center = bounds.center
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 }
 
 #endif

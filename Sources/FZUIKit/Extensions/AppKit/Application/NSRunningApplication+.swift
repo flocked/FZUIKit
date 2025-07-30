@@ -9,27 +9,27 @@
 import AppKit
 
 public extension NSRunningApplication {
-    /// Returns the frontmost app, which is the app that receives key events.
+    /// The frontmost application, which is the app that receives key events.
     class var frontmost: NSRunningApplication? {
         NSWorkspace.shared.frontmostApplication
     }
         
-    /// Returns the app that owns the currently displayed menu bar.
+    /// The application that owns the currently displayed menu bar.
     class var menuBarOwning: NSRunningApplication? {
         NSWorkspace.shared.menuBarOwningApplication
     }
         
-    /// Returns an array of running apps.
+    /// The running applications.
     class var runningApplications: [NSRunningApplication] {
         NSWorkspace.shared.runningApplications
     }
         
     /**
-     Returns an array of running apps with the specified localized name.
+     The running applications with the specified localized name.
          
      - Parameter name: Tha localized application name.
      */
-    class func runningApplications(withName name: String) -> [NSRunningApplication] {
+    class func runningApplications(named name: String) -> [NSRunningApplication] {
         runningApplications.filter({ $0.localizedName == name })
     }
         

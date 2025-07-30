@@ -20,9 +20,8 @@ public struct KeyboardShortcut: Hashable, ExpressibleByNilLiteral, ExpressibleBy
     public private(set) var keyCode: Int? = nil
     
     /// The keyboard equivalent modifiers.
-    public var modifierFlags: NSEvent.ModifierFlags {
-        get { flags.modifierFlags }
-        set { flags = newValue.cgEventFlags }
+    public var modifierFlags: NSEvent.ModifierFlags = [] {
+        didSet { flags = modifierFlags.cgEventFlags }
     }
     
     var flags: CGEventFlags = []
@@ -178,8 +177,8 @@ public struct KeyboardShortcut: Hashable, ExpressibleByNilLiteral, ExpressibleBy
     
     public init(keyEquivalent: String, modifierFlags: NSEvent.ModifierFlags = []) {
         self.keyEquivalent = keyEquivalent
-        self.flags = modifierFlags.cgEventFlags
         self.keyCode = Self.keyCodeMapping.first(where: {$0.value.contains(keyEquivalent)})?.key
+        defer { self.modifierFlags = modifierFlags }
     }
     
     public init(stringLiteral value: String) {

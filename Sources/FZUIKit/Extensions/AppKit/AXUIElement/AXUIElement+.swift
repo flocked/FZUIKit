@@ -28,7 +28,7 @@ public extension AXUIElement {
     
     /// Creates and returns the accessibility object for the application with the specified localized name.
     static func application(named name: String) -> AXUIElement? {
-        guard let runningApplication = NSRunningApplication.runningApplications(withName: name).first else { return nil}
+        guard let runningApplication = NSRunningApplication.runningApplications(named: name).first else { return nil}
         return application(runningApplication)
     }
     

@@ -55,7 +55,7 @@ public extension NSEvent {
      */
     class Monitor {
         /// An event mask specifying the events that are monitored.
-        public let mask: NSEvent.EventTypeMask
+        public let mask: EventTypeMask
         
         /// The monitor type.
         public let type: MonitorType
@@ -115,11 +115,9 @@ public extension NSEvent {
             self.handler = handler
             self.type = type
             start()
-            Self.monitors[id] = .init(self)
         }
         
         deinit {
-            Self.monitors[id] = nil
             stop()
         }
         
@@ -152,75 +150,13 @@ public extension NSEvent {
             NSEvent.removeMonitor(monitor)
             self.monitor = nil
         }
-        
-        /**
-         Activates all local event monitors.
-         
-         - Parameter mask: The mask of the monitors to activate, or `nil` to activate all.
-         */
-        public static func activateLocals(for mask: NSEvent.EventTypeMask? = nil) {
-            if let mask = mask {
-                localMonitors.filter({$0.mask == mask}).forEach({$0.isActive = true})
-            } else {
-                localMonitors.forEach({$0.isActive = true})
-            }
-        }
-        
-        /**
-         Deactivates all local event monitors.
-         
-         - Parameter mask: The mask of the monitors to activate, or `nil` to activate all.
-         */
-        public static func deactivateLocals(for mask: NSEvent.EventTypeMask? = nil) {
-            if let mask = mask {
-                localMonitors.filter({$0.mask == mask}).forEach({$0.isActive = false})
-            } else {
-                localMonitors.forEach({$0.isActive = false})
-            }
-        }
-        
-        /**
-         Activates all global event monitors.
-         
-         - Parameter mask: The mask of the monitors to activate, or `nil` to activate all.
-         */
-        public static func activateGlobals(for mask: NSEvent.EventTypeMask? = nil) {
-            if let mask = mask {
-                globalMonitors.filter({$0.mask == mask}).forEach({$0.isActive = true})
-            } else {
-                globalMonitors.forEach({$0.isActive = true})
-            }
-        }
-        
-        /**
-         Deactivates all global event monitors.
-         
-         - Parameter mask: The mask of the monitors to activate, or `nil` to activate all.
-         */
-        public static func deactivateGlobals(for mask: NSEvent.EventTypeMask? = nil) {
-            if let mask = mask {
-                globalMonitors.filter({$0.mask == mask}).forEach({$0.isActive = false})
-            } else {
-                globalMonitors.forEach({$0.isActive = false})
-            }
-        }
-        
-        private static var monitors: [UUID: Weak<NSEvent.Monitor>] = [:]
-        
-        private static var localMonitors: [Monitor] {
-            monitors.values.compactMap({$0.object}).filter({$0.type == .local})
-        }
-        
-        private static var globalMonitors: [Monitor] {
-            monitors.values.compactMap({$0.object}).filter({$0.type == .global})
-        }
     }
 }
 
 #if canImport(Combine)
 import Combine
 
-extension NSEvent {
+extension NSEvent.Monitor {
     /// An event publisher which receives copies of events the system posts.
     public struct Publisher: Combine.Publisher {
         public typealias Output = NSEvent
