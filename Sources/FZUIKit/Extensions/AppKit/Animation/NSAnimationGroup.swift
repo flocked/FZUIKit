@@ -185,10 +185,12 @@ public class NSAnimationGroup: NSAnimator {
         super.init()
     }
     
+    #if compiler(>=6.0)
     private override init(animation: Animation, changes: @escaping () -> ()) {
         animations = []
         super.init()
     }
+    #endif
     
     private override init(spring: CASpringAnimation, allowsImplicitAnimation: Bool = false, changes: @escaping () -> ()) {
         animations = []
