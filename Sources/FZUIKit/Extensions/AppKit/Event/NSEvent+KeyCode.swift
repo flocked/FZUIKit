@@ -645,7 +645,7 @@ extension NSEvent {
         }
         let layoutData = Unmanaged<CFData>.fromOpaque(ptr).takeUnretainedValue() as Data
         let dataRef = unsafeBitCast(layoutData, to: CFData.self)
-        let keyLayout = unsafeBitCast(CFDataGetBytePtr(dataRef), to: UnsafePointer<UCKeyboardLayout>.self)
+        // let keyLayout = unsafeBitCast(CFDataGetBytePtr(dataRef), to: UnsafePointer<UCKeyboardLayout>.self)
         let osStatus = layoutData.withUnsafeBytes {
             UCKeyTranslate($0.bindMemory(to: UCKeyboardLayout.self).baseAddress, keyCode, UInt16(kUCKeyActionDown), flags, keyboardType, UInt32(kUCKeyTranslateNoDeadKeysMask), &deadKeys, maxNameLength, &nameLength, &nameBuffer)
         }

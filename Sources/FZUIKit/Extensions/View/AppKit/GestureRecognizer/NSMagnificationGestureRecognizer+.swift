@@ -25,11 +25,6 @@ extension NSMagnificationGestureRecognizer: VelocityGestureRecognizer {
         set{ setAssociatedValue(newValue, key: "prevMagnification") }
     }
     
-    var time: CFTimeInterval {
-        get{ getAssociatedValue("time") ?? CACurrentMediaTime() }
-        set{ setAssociatedValue(newValue, key: "time") }
-    }
-    
     func updateVelocity() {
         let prevTime = time
         time = CACurrentMediaTime()
@@ -42,6 +37,10 @@ extension NSMagnificationGestureRecognizer: VelocityGestureRecognizer {
         }
         prevMagnification = magnification
     }
+}
+
+protocol VelocityGestureRecognizer: NSGestureRecognizer {
+    func updateVelocity()
 }
 
 extension VelocityGestureRecognizer {
@@ -57,10 +56,11 @@ extension VelocityGestureRecognizer {
             Swift.debugPrint(error)
         }
     }
-}
-
-protocol VelocityGestureRecognizer: NSGestureRecognizer {
-    func updateVelocity()
+    
+    var time: CFTimeInterval {
+        get{ getAssociatedValue("time") ?? CACurrentMediaTime() }
+        set{ setAssociatedValue(newValue, key: "time") }
+    }
 }
 
 #endif

@@ -33,6 +33,28 @@ public extension NSEvent {
     }
     
     /**
+     The change on the x- and y-coordinate for scroll wheel, mouse-move, mouse-drag, and swipe events.
+     
+     This property is only valid for scroll wheel, mouse-move, mouse-drag, and swipe events.
+     
+     For swipe events, a nonzero `x` value represents a horizontal swipe; `-1.0` corresponds to swipe right and `1.0` corresponds to swipe left. `y` represents a vertical swipe.
+     
+     For scroll wheel events, use ``scrollingDelta`` instead.
+     */
+    var delta: CGPoint {
+        CGPoint(deltaX, deltaY)
+    }
+    
+    /**
+     The scroll wheel’s vertical and horizontal delta.
+     
+     This is the preferred property for accessing `NSScrollWheel` delta values. When [hasPreciseScrollingDeltas](https://developer.apple.com/documentation/appkit/nsevent/hasprecisescrollingdeltas) is `false`, your application may need to modify the raw value before using it.
+     */
+    var scrollingDelta: CGPoint {
+        CGPoint(scrollingDeltaX, scrollingDeltaY)
+    }
+    
+    /**
      The window associated with the event.
      
      Periodic events do not have a window.

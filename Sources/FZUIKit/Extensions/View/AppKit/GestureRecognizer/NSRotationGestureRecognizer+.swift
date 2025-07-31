@@ -25,11 +25,6 @@ extension NSRotationGestureRecognizer: VelocityGestureRecognizer {
         set{ setAssociatedValue(newValue, key: "prevRotation") }
     }
     
-    var time: CFTimeInterval {
-        get{ getAssociatedValue("time") ?? CACurrentMediaTime() }
-        set{ setAssociatedValue(newValue, key: "time") }
-    }
-    
     func updateVelocity() {
         let prevTime = time
         time = CACurrentMediaTime()

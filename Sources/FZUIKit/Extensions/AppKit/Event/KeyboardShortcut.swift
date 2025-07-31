@@ -47,7 +47,7 @@ extension NSMenuItem {
 }
 
 /// A keyboard shortcut.
-public struct KeyboardShortcut: Hashable, ExpressibleByStringLiteral, ExpressibleByNilLiteral {
+public struct KeyboardShortcut: Hashable, ExpressibleByStringLiteral, ExpressibleByNilLiteral, CustomStringConvertible {
     /// The key of the shortcut.
     public var key: Key?
     
@@ -90,6 +90,12 @@ public struct KeyboardShortcut: Hashable, ExpressibleByStringLiteral, Expressibl
     
     private init(_ key: Key) {
         self.key = key
+    }
+    
+    public var description: String {
+        let keyString = key != nil ? "\(key!.description)" : "-"
+        let flagsString = "\(modifierFlags)"
+        return "(\(keyString), \(flagsString))"
     }
     
     func isMatching(_ event: NSEvent) -> Bool {
@@ -355,7 +361,7 @@ public struct KeyboardShortcut: Hashable, ExpressibleByStringLiteral, Expressibl
 
 extension KeyboardShortcut {
     /// The key of a shortcut.
-    public struct Key: Hashable, ExpressibleByIntegerLiteral {
+    public struct Key: Hashable, ExpressibleByIntegerLiteral, CustomStringConvertible {
         /// The key code.
         public let rawValue: UInt16
         
@@ -601,6 +607,29 @@ extension KeyboardShortcut {
         /// Volume Up
         public static let volumeUp = Self(kVK_VolumeUp)
         
+        /// Command.
+        public static let command = Self(kVK_Command)
+        /// Shift.
+        public static let shift = Self(kVK_Shift)
+        /// Caps lock.
+        public static let capsLock = Self(kVK_CapsLock)
+        /// Option.
+        public static let option = Self(kVK_Option)
+        /// Control.
+        public static let control = Self(kVK_Control)
+        /// Right command.
+        public static let rightCommand = Self(kVK_RightCommand)
+        /// Right shift.
+        public static let rightShift = Self(kVK_RightShift)
+        /// Right option.
+        public static let rightOption = Self(kVK_RightOption)
+        /// Right control.
+        public static let rightControl = Self(kVK_RightControl)
+        /// Function.
+        public static let function = Self(kVK_Function)
+        
+        static let modifierFlags: [Self] = [.command, .shift, .capsLock, .option, .control, .rightCommand, .rightShift, .rightOption, .rightControl, .function]
+        
         /// A string representation of the key used for `NSMenuItem` and `NSButton` [keyEquivalent](https://developer.apple.com/documentation/appkit/nsmenuitem/keyequivalent).
         public var keyEquivalent: String? {
             switch self {
@@ -766,16 +795,16 @@ extension KeyboardShortcut {
             case .number9: return ["9", "("]
                     
             // Keypad
-            case .keypad0: return ["kp0", "keypad 0", "0"]
-            case .keypad1: return ["kp1", "keypad 1", "1"]
-            case .keypad2: return ["kp2", "keypad 2", "2"]
-            case .keypad3: return ["kp3", "keypad 3", "3"]
-            case .keypad4: return ["kp4", "keypad 4", "4"]
-            case .keypad5: return ["kp5", "keypad 5", "5"]
-            case .keypad6: return ["kp6", "keypad 6", "6"]
-            case .keypad7: return ["kp7", "keypad 7", "7"]
-            case .keypad8: return ["kp8", "keypad 8", "8"]
-            case .keypad9: return ["kp9", "keypad 9", "9"]
+            case .keypad0: return ["keypad 0", "kp0", "0"]
+            case .keypad1: return ["keypad 1", "kp1", "1"]
+            case .keypad2: return ["keypad 2", "kp2", "2"]
+            case .keypad3: return ["keypad 3", "kp3", "3"]
+            case .keypad4: return ["keypad 4", "kp4", "4"]
+            case .keypad5: return ["keypad 5", "kp5", "5"]
+            case .keypad6: return ["keypad 6", "kp6", "6"]
+            case .keypad7: return ["keypad 7", "kp7", "7"]
+            case .keypad8: return ["keypad 8", "kp8", "8"]
+            case .keypad9: return ["keypad 9", "kp9", "9"]
             case .keypadClear: return ["Clear", "kp_clear"]
             case .keypadDivide: return ["/", "kp_divide", "keypad slash"]
             case .keypadEnter: return ["Enter", "kp_enter", "keypad enter", "⏎"]
@@ -841,9 +870,18 @@ extension KeyboardShortcut {
             case .mute: return ["Mute", "Mute Volume"]
             case .volumeDown: return ["Volume Down", "VolumeDown"]
             case .volumeUp: return ["Volume Up", "VolumeUp"]
-
+            case .command, .rightCommand: return ["Command", "⌘"]
+            case .shift, .rightShift: return ["Shift", "⇧"]
+            case .option, .rightOption: return ["Option", "⌥"]
+            case .control, .rightControl: return ["Control", "⌃"]
+            case .function: return ["Function", "fn"]
+            case .capsLock: return ["CapsLock", "⇪"]
             default: return []
             }
+        }
+        
+        public var description: String {
+            stringRepresentations.first ?? "raw: \(rawValue)"
         }
     }
 }

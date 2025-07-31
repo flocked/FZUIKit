@@ -7,6 +7,7 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
 extension CGEvent {
     /// The key code of the event.
@@ -14,14 +15,9 @@ extension CGEvent {
         Int(getIntegerValueField(.keyboardEventKeycode))
     }
     
-    /// The x-coordinate change for scroll wheel, mouse-move, mouse-drag, and swipe events.
-    public var deltaX: Double {
-        getDoubleValueField(.mouseEventDeltaX)
-    }
-    
-    /// The y-coordinate change for scroll wheel, mouse-move, mouse-drag, and swipe events.
-    public var deltaY: Double {
-        getDoubleValueField(.mouseEventDeltaY)
+    /// The change on the x- and y-coordinate for scroll wheel, mouse-move, mouse-drag, and swipe events.
+    public var delta: CGPoint {
+        CGPoint(getDoubleValueField(.mouseEventDeltaX), getDoubleValueField(.mouseEventDeltaY))
     }
     
     /// The button for a mouse event.
