@@ -53,13 +53,9 @@ public struct KeyboardShortcut: Hashable, ExpressibleByStringLiteral, Expressibl
     
     /// The modifier flags of the shortcut.
     public var modifierFlags: NSEvent.ModifierFlags = [] {
-        didSet {
-            modifierFlags = modifierFlags.monitor
-            flags = modifierFlags.cgEventFlags
-        }
+        didSet { modifierFlags = modifierFlags.monitor }
     }
     
-    var flags: CGEventFlags = []
     
     /// Creates a keyboard shortcut with the specified key and modifier flags.
     public init(key: Key, modifierFlags: NSEvent.ModifierFlags = []) {
@@ -101,7 +97,7 @@ public struct KeyboardShortcut: Hashable, ExpressibleByStringLiteral, Expressibl
     }
     
     func isMatching(_ event: CGEvent) -> Bool {
-        event.keyCode == key?.rawValue ?? UInt16(event.keyCode) && event.flags == flags
+        event.keyCode == key?.rawValue ?? UInt16(event.keyCode) && event.flags.modifierFlags == modifierFlags
     }
     
     public static func + (lhs: Self, rhs: NSEvent.ModifierFlags) -> Self {

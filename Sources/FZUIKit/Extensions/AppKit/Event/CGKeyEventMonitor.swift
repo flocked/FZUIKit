@@ -260,7 +260,7 @@ fileprivate final class GlobalKeyMonitor {
     private var runLoopSource: CFRunLoopSource?
     private let eventType: CGEventType
     private let mask: CGEventTypeMask
-    private var previousFlags: CGEventFlags = []
+    private var previousFlags: NSEvent.ModifierFlags = []
         
     private init(_ type: CGEventType) {
         self.eventType = type
@@ -270,30 +270,30 @@ fileprivate final class GlobalKeyMonitor {
     func start() {
         guard eventTap == nil else { return }
         let refcon = UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
-        previousFlags = NSEvent.modifierFlags.cgEventFlags
+        previousFlags = NSEvent.modifierFlags
         eventTap = CGEvent.tapCreate(for: mask, tap: .cgSessionEventTap, userInfo: refcon) { _, type, event, refcon in
             guard let refcon = refcon else { return Unmanaged.passUnretained(event) }
             let monitor = Unmanaged<GlobalKeyMonitor>.fromOpaque(refcon).takeUnretainedValue()
             guard type == monitor.eventType else { return Unmanaged.passUnretained(event) }
-            let flags = event.flags.monitor
             guard let nsEvent = NSEvent(cgEvent: event) else { return Unmanaged.passUnretained(event) }
+            let flags = nsEvent.modifierFlags.monitor
             if monitor.eventType == .flagsChanged {
                 defer { monitor.previousFlags = flags }
                 for (shortcut, eventType, handler) in monitor.monitors.values {
                     switch eventType {
                     case .keyDown:
-                        guard monitor.previousFlags == shortcut.flags, handler(nsEvent) == nil else { continue }
+                        guard monitor.previousFlags == shortcut.modifierFlags, handler(nsEvent) == nil else { continue }
                     case .keyUp:
-                        guard flags == shortcut.flags, handler(nsEvent) == nil else { continue }
+                        guard flags == shortcut.modifierFlags, handler(nsEvent) == nil else { continue }
                     case .all:
-                        guard monitor.previousFlags == shortcut.flags || flags == shortcut.flags, handler(nsEvent) == nil else { continue }
+                        guard monitor.previousFlags == shortcut.modifierFlags || flags == shortcut.modifierFlags, handler(nsEvent) == nil else { continue }
                     }
                     return nil
                 }
             } else {
                 let keyCode = event.keyCode
                 for (shortcut,_, handler) in monitor.monitors.values {
-                    guard let _keyCode = shortcut.key?.rawValue, keyCode == _keyCode, flags == shortcut.flags, handler(nsEvent) == nil else { continue }
+                    guard let _keyCode = shortcut.key?.rawValue, keyCode == _keyCode, flags == shortcut.modifierFlags, handler(nsEvent) == nil else { continue }
                     return nil
                 }
             }
@@ -333,6 +333,12 @@ fileprivate final class GlobalKeyMonitor {
         monitors.removeValue(forKey: ObjectIdentifier(monitor))
         guard monitors.isEmpty else { return }
         stop()
+    }
+}
+
+fileprivate extension NSEvent.ModifierFlags {
+    var monitor: Self {
+        intersection([.shift, .control, .command, .numericPad, .help, .option, .function, .capsLock])
     }
 }
 
