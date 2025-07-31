@@ -318,6 +318,41 @@ public extension NSEvent {
     var isFunctionPressed: Bool {
         modifierFlags.contains(.function)
     }
+    
+    /// The mouse button for a mouse event.
+    var mouseButton: MouseButton? {
+        isMouse ? MouseButton(rawValue: buttonNumber) : nil
+    }
+    
+    /// Represents a mouse button type.
+    enum MouseButton: RawRepresentable, Hashable {
+        /// Left mouse button (`primary`).
+        case left
+        /// Right mouse button  (`secondary`).
+        case right
+        /// Middle mouse button (typically a scroll wheel press).
+        case middle
+        /// Other mouse button.
+        case other(Int)
+        
+        public var rawValue: Int {
+            switch self {
+            case .left: return 0
+            case .right: return 1
+            case .middle: return 2
+            case .other(let index): return index
+            }
+        }
+        
+        public init(rawValue: Int) {
+            switch rawValue {
+            case 0: self = .left
+            case 1: self = .right
+            case 2: self = .middle
+            default: self = .other(rawValue)
+            }
+        }
+    }
 }
 
 extension NSEvent.EventType {

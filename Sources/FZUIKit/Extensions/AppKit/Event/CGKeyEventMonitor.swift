@@ -14,7 +14,7 @@ import Combine
 public final class CGKeyEventMonitor {
     
     /// Key event type.
-    public enum KeyEventType {
+    public enum KeyEventType: Int {
         /// Key down.
         case keyDown
         /// Key up.
@@ -31,11 +31,20 @@ public final class CGKeyEventMonitor {
         }
     }
     
+    fileprivate var monitors: [GlobalKeyMonitor] {
+        if shortcut.key != nil {
+            return keyEventType.monitors
+        } else if !shortcut.modifierFlags.isEmpty {
+            return [.flags]
+        }
+        return []
+    }
+    
     /// The shortcut that is monitored.
     public var shortcut: KeyboardShortcut {
         didSet {
             guard oldValue != shortcut, isActive else { return }
-            keyEventType.monitors.forEach({ $0.addMonitor(self) })
+            monitors.forEach({ $0.addMonitor(self) })
         }
     }
     
@@ -47,7 +56,7 @@ public final class CGKeyEventMonitor {
     public var handler: (_ event: NSEvent) -> (NSEvent?) {
         didSet {
             guard isActive else { return }
-            keyEventType.monitors.forEach({ $0.addMonitor(self) })
+            monitors.forEach({ $0.addMonitor(self) })
         }
     }
     
@@ -77,7 +86,7 @@ public final class CGKeyEventMonitor {
         get { _isActive }
         set {
             guard newValue != _isActive else { return }
-            _isActive = keyEventType.monitors.map({ $0.activateMonitor(self, newValue) }).first ?? false
+            _isActive = monitors.map({ $0.activateMonitor(self, newValue) }).first ?? false
         }
     }
     
@@ -92,13 +101,13 @@ public final class CGKeyEventMonitor {
     public func stop() {
         isActive = false
     }
-        
+            
     /// The key event type.
     public var keyEventType: KeyEventType {
         didSet {
             guard oldValue != keyEventType, isActive else { return }
-            oldValue.monitors.forEach({ $0.removeMonitor(self) })
-            _isActive = keyEventType.monitors.map({ $0.activateMonitor(self, true) }).first ?? false
+            [GlobalKeyMonitor.keyDown, .keyUp, .flags].forEach({ $0.removeMonitor(self) })
+            _isActive = monitors.map({ $0.activateMonitor(self, true) }).first ?? false
         }
     }
     
@@ -243,37 +252,52 @@ extension CGKeyEventMonitor {
 fileprivate final class GlobalKeyMonitor {
     static let keyDown = GlobalKeyMonitor(.keyDown)
     static let keyUp = GlobalKeyMonitor(.keyUp)
+    static let flags = GlobalKeyMonitor(.flagsChanged)
         
-    private var monitors: OrderedDictionary<ObjectIdentifier, (shortcut: KeyboardShortcut, handler: (NSEvent) -> (NSEvent?))> = [:]
-
+    private var monitors: OrderedDictionary<ObjectIdentifier, (shortcut: KeyboardShortcut, eventType: CGKeyEventMonitor.KeyEventType, handler: (NSEvent) -> (NSEvent?))> = [:]
+    
     private var eventTap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
     private let eventType: CGEventType
-    private var isRunning: Bool {
-        eventTap != nil
-    }
+    private let mask: CGEventTypeMask
+    private var previousFlags: CGEventFlags = []
         
-    private init(_ type: CGKeyEventMonitor.KeyEventType) {
-        self.eventType = type == .keyDown ? .keyDown : .keyUp
+    private init(_ type: CGEventType) {
+        self.eventType = type
+        self.mask = CGEventTypeMask(type: type)
     }
         
     func start() {
         guard eventTap == nil else { return }
         let refcon = UnsafeMutableRawPointer(Unmanaged.passUnretained(self).toOpaque())
-        eventTap = CGEvent.tapCreate(for: eventType == .keyDown ? .keyDown : .keyUp, tap: .cgSessionEventTap, userInfo: refcon) { _, type, event, refcon in
+        previousFlags = NSEvent.modifierFlags.cgEventFlags
+        eventTap = CGEvent.tapCreate(for: mask, tap: .cgSessionEventTap, userInfo: refcon) { _, type, event, refcon in
             guard let refcon = refcon else { return Unmanaged.passUnretained(event) }
             let monitor = Unmanaged<GlobalKeyMonitor>.fromOpaque(refcon).takeUnretainedValue()
             guard type == monitor.eventType else { return Unmanaged.passUnretained(event) }
-            let keyCode = event.keyCode
             let flags = event.flags.monitor
-            var shouldReturnEvent = true
             guard let nsEvent = NSEvent(cgEvent: event) else { return Unmanaged.passUnretained(event) }
-            for (shortcut, handler) in monitor.monitors.values {
-                guard keyCode == shortcut.keyCode, flags == shortcut.flags, handler(nsEvent) == nil else { continue }
-                shouldReturnEvent = false
-                break
+            if monitor.eventType == .flagsChanged {
+                defer { monitor.previousFlags = flags }
+                for (shortcut, eventType, handler) in monitor.monitors.values {
+                    switch eventType {
+                    case .keyDown:
+                        guard monitor.previousFlags == shortcut.flags, handler(nsEvent) == nil else { continue }
+                    case .keyUp:
+                        guard flags == shortcut.flags, handler(nsEvent) == nil else { continue }
+                    case .all:
+                        guard monitor.previousFlags == shortcut.flags || flags == shortcut.flags, handler(nsEvent) == nil else { continue }
+                    }
+                    return nil
+                }
+            } else {
+                let keyCode = event.keyCode
+                for (shortcut,_, handler) in monitor.monitors.values {
+                    guard let _keyCode = shortcut.key?.rawValue, keyCode == _keyCode, flags == shortcut.flags, handler(nsEvent) == nil else { continue }
+                    return nil
+                }
             }
-            return shouldReturnEvent ? Unmanaged.passUnretained(event) : nil
+            return Unmanaged.passUnretained(event)
         }
         guard let eventTap = eventTap else {
             print("Failed to create event tap. Enable Accessibility permissions.")
@@ -297,11 +321,11 @@ fileprivate final class GlobalKeyMonitor {
         
     func activateMonitor( _ monitor: CGKeyEventMonitor, _ shouldActivate: Bool) -> Bool {
         shouldActivate ? addMonitor(monitor) : removeMonitor(monitor)
-        return shouldActivate ? isRunning : false
+        return shouldActivate ? eventTap != nil : false
     }
         
     func addMonitor(_ monitor: CGKeyEventMonitor) {
-        monitors[ObjectIdentifier(monitor)] = (monitor.shortcut, monitor.handler)
+        monitors[ObjectIdentifier(monitor)] = (monitor.shortcut, monitor.keyEventType, monitor.handler)
         start()
     }
         

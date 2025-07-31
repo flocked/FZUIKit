@@ -24,8 +24,8 @@ extension CGEvent {
         getDoubleValueField(.mouseEventDeltaY)
     }
     
-    /// The button number for a mouse event.
-    public var buttonNumber: CGMouseButton {
+    /// The button for a mouse event.
+    public var mouseButton: CGMouseButton {
         CGMouseButton(rawValue: UInt32(getIntegerValueField(.mouseEventButtonNumber))) ?? .left
     }
     

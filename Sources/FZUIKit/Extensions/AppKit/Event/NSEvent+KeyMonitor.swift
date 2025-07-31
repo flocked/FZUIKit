@@ -15,7 +15,9 @@ extension NSEvent {
     public class KeyMonitor: NSObject {
         
         /// The keyboard shortcut monitored.
-        public var shortcut: KeyboardShortcut
+        public var shortcut: KeyboardShortcut {
+            didSet { updateMonitor() }
+        }
         
         /// The key event type monitored.
         public let keyEventType: KeyEventType
@@ -42,6 +44,8 @@ extension NSEvent {
         private let id = UUID()
         private var handler: Any!
         private let isLocal: Bool
+        private var _isActive = false
+        private var previousFlags: NSEvent.ModifierFlags = []
         
         /**
          Returns a local keyboard monitor for the specified keyboard shortcut and handler.
@@ -94,14 +98,48 @@ extension NSEvent {
             if isLocal {
                 let handler = handler as! ((_ event: NSEvent) -> (NSEvent?))
                 let mapped: ((_ event: NSEvent) -> (NSEvent?)) = { [weak self] event in
-                    guard let self = self, self.shortcut.isMatching(event) else { return event }
+                    guard let self = self else { return event }
+                    let modifierFlags = event.modifierFlags.monitor
+                    defer { self.previousFlags = modifierFlags }
+                    if self.shortcut.key == nil {
+                        guard self.previousFlags != modifierFlags else { return event }
+                        switch self.keyEventType {
+                        case .keyDown:
+                            guard modifierFlags == self.shortcut.modifierFlags else { return event }
+                            return handler(event)
+                        case .keyUp:
+                            guard self.previousFlags == self.shortcut.modifierFlags else { return event }
+                            return handler(event)
+                        case .all:
+                            guard self.previousFlags == self.shortcut.modifierFlags || modifierFlags == self.shortcut.modifierFlags else { return event }
+                            return handler(event)
+                        }
+                    }
+                    guard self.shortcut.isMatching(event) else { return event }
                     return handler(event)
                 }
                 self.handler = mapped
             } else {
                 let handler = handler as! ((_ event: NSEvent) -> ())
                 let mapped: ((_ event: NSEvent) -> ()) = { [weak self] event in
-                    guard let self = self, self.shortcut.isMatching(event) else { return }
+                    guard let self = self else { return }
+                    let modifierFlags = event.modifierFlags.monitor
+                    defer { self.previousFlags = modifierFlags }
+                    if self.shortcut.key == nil {
+                        guard self.previousFlags != modifierFlags else { return }
+                        switch self.keyEventType {
+                        case .keyDown:
+                            guard modifierFlags == self.shortcut.modifierFlags else { return }
+                            handler(event)
+                        case .keyUp:
+                            guard self.previousFlags == self.shortcut.modifierFlags else { return }
+                            handler(event)
+                        case .all:
+                            guard self.previousFlags == self.shortcut.modifierFlags || modifierFlags == self.shortcut.modifierFlags else { return }
+                            handler(event)
+                        }
+                    }
+                    guard self.shortcut.isMatching(event) else { return }
                     handler(event)
                 }
                 self.handler = mapped
@@ -111,22 +149,31 @@ extension NSEvent {
         
         /// A Boolean value that indicates whether the monitor is active.
         public var isActive: Bool {
-            get { monitor != nil }
+            get { _isActive }
             set { newValue ? start() : stop() }
         }
-        
+                
         /// Starts monitoring the keyboard shortcut.
         public func start() {
             guard !isActive else { return }
+            _isActive = true
+            updateMonitor()
+        }
+        
+        private func updateMonitor() {
+            guard isActive, shortcut.key != nil || !shortcut.modifierFlags.isEmpty else { return }
+            previousFlags = NSEvent.modifierFlags
+            let mask = shortcut.key != nil ? keyEventType.mask : .flagsChanged
             if isLocal {
-                monitor = NSEvent.addLocalMonitorForEvents(matching: keyEventType.mask, handler: handler as! ((NSEvent) -> (NSEvent?)))
+                monitor = NSEvent.addLocalMonitorForEvents(matching: mask, handler: handler as! ((NSEvent) -> (NSEvent?)))
             } else {
-                monitor = NSEvent.addGlobalMonitorForEvents(matching: keyEventType.mask, handler: handler as! ((NSEvent) -> Void))
+                monitor = NSEvent.addGlobalMonitorForEvents(matching: mask, handler: handler as! ((NSEvent) -> Void))
             }
         }
         
         /// Stops monitoring the keyboard shortcut.
         public func stop() {
+            _isActive = false
             guard let monitor = monitor else { return }
             NSEvent.removeMonitor(monitor)
             self.monitor = nil
