@@ -68,7 +68,7 @@ extension NSUICollectionView {
         func setupKeyDownMonitor() {
             if let interactiveLayout = interactiveLayout, interactiveLayout.keyDownColumnChangeAmount != 0 || interactiveLayout.keyDownColumnChangeAmountShift != 0 || interactiveLayout.keyDownColumnChangeAmountAlt != 0 {
                 guard keyDownMonitor == nil else { return }
-                keyDownMonitor = NSEvent.localMonitor(for: .keyDown) { event in
+                keyDownMonitor = .local(for: .keyDown) { event in
                     guard event.keyCode == 44 || event.keyCode == 30, self.collectionView?.isFirstResponder == true else { return event }
                     self.updateColumns(with: event)
                     return nil

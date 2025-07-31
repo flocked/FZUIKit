@@ -21,17 +21,20 @@ public struct KeyboardShortcut: Hashable, ExpressibleByNilLiteral, ExpressibleBy
     
     /// The keyboard equivalent modifiers.
     public var modifierFlags: NSEvent.ModifierFlags = [] {
-        didSet { flags = modifierFlags.monitor.cgEventFlags }
+        didSet {
+            modifierFlags = modifierFlags.monitor
+            flags = modifierFlags.cgEventFlags
+        }
     }
     
     var flags: CGEventFlags = []
     
     func isMatching(_ event: NSEvent) -> Bool {
-        event.keyCode == keyCode ?? -2 && event.modifierFlags == modifierFlags
+        event.keyCode == keyCode ?? Int(event.keyCode) && event.modifierFlags.monitor == modifierFlags
     }
     
     func isMatching(_ event: CGEvent) -> Bool {
-        event.keyCode == keyCode ?? -2 && event.flags == flags
+        event.keyCode == keyCode ?? event.keyCode && event.flags == flags
     }
 
     /// a

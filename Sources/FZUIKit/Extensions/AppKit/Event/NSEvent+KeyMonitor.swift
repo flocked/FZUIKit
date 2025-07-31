@@ -14,12 +14,26 @@ extension NSEvent {
     /**
      Returns a local keyboard monitor for the specified keyboard shortcut and handler.
      
+     Return either the event to the handler, or `nil` to stop the dispatching of the event.
+     
      - Parameters:
         - shortcut: The keyboard shortcut to monitor.
         - type: The key event type to monitor (either `keyDown` or `keyUp`).
         - handler: The handler that is called when the keyboard shortcut is pressed.
      */
     public static func localKeyMonitor(for shortcut: KeyboardShortcut, type: KeyMonitor.KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> (NSEvent?))) -> KeyMonitor {
+        .local(for: shortcut, type: type, handler: handler)
+    }
+    
+    /**
+     Returns a local keyboard monitor for the specified keyboard shortcut and handler.
+     
+     - Parameters:
+        - shortcut: The keyboard shortcut to monitor.
+        - type: The key event type to monitor (either `keyDown` or `keyUp`).
+        - handler: The handler that is called when the keyboard shortcut is pressed.
+     */
+    public static func localKeyMonitor(for shortcut: KeyboardShortcut, type: KeyMonitor.KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> ())) -> KeyMonitor {
         .local(for: shortcut, type: type, handler: handler)
     }
     
@@ -66,8 +80,20 @@ extension NSEvent {
         private let id = UUID()
         private var handler: Any!
         private let isLocal: Bool
-        typealias LocalHandler = ((_ event: NSEvent) -> (NSEvent?))
-        typealias GlobalHandler = ((_ event: NSEvent) -> ())
+        
+        /**
+         Returns a local keyboard monitor for the specified keyboard shortcut and handler.
+         
+         Return either the event to the handler, or `nil` to stop the dispatching of the event.
+         
+         - Parameters:
+            - shortcut: The keyboard shortcut to monitor.
+            - type: The key event type to monitor (either `keyDown`, `keyUp` or `all`).
+            - handler: The handler that is called when the keyboard shortcut is pressed.
+         */
+        public static func local(for shortcut: KeyboardShortcut, type: KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> (NSEvent?))) -> KeyMonitor {
+            .init(for: shortcut, isLocal: true, type: type, handler: handler)
+        }
         
         /**
          Returns a local keyboard monitor for the specified keyboard shortcut and handler.
@@ -77,8 +103,12 @@ extension NSEvent {
             - type: The key event type to monitor (either `keyDown`, `keyUp` or `all`).
             - handler: The handler that is called when the keyboard shortcut is pressed.
          */
-        public static func local(for shortcut: KeyboardShortcut, type: KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> (NSEvent?))) -> KeyMonitor {
-            .init(for: shortcut, isLocal: true, type: type, handler: handler)
+        public static func local(for shortcut: KeyboardShortcut, type: KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> ())) -> KeyMonitor {
+            let handler: ((_ event: NSEvent) -> (NSEvent?)) = {
+                handler($0)
+                return $0
+            }
+            return .init(for: shortcut, isLocal: true, type: type, handler: handler)
         }
         
         /**
@@ -219,6 +249,12 @@ extension NSEvent.KeyMonitor {
                 subscriber = nil
             }
         }
+    }
+}
+
+fileprivate extension NSEvent.ModifierFlags {
+    var monitor: Self {
+        intersection([.shift, .control, .command, .numericPad, .help, .option, .function, .capsLock])
     }
 }
 #endif

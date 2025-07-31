@@ -89,7 +89,7 @@ extension NSView {
     func setupResignMouseDownMonitor() {
         if isFirstResponder {
             guard resignMouseDownMonitor == nil else { return }
-            resignMouseDownMonitor = NSEvent.localMonitor(for: .leftMouseDown) { [weak self] event in
+            resignMouseDownMonitor = .local(for: .leftMouseDown) { [weak self] event in
                 guard let self = self else { return event }
                 let location = event.location(in: self)
                 if self.isFirstResponder, !self.bounds.contains(location), event.clickCount >= self.firstResponderResignClickCount {

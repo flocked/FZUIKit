@@ -16,15 +16,30 @@ public extension NSEvent {
      
      The event monitor receives copies of events the system posts to this app prior to their dispatch.
      
-     The handler will not be called for events that are consumed by nested event-tracking loops such as control tracking, menu tracking, or window dragging; only events that are dispatched through the applications `sendEvent(_:)` method will be passed to the handler.
+     Return either the event to the handler, or `nil` to stop the dispatching of the event.
 
-     - Note: Compared to `addLocalMonitorForEvents(matching:handler:)`the monitor is automatically removed on deinit.
-     
+     The handler will not be called for events that are consumed by nested event-tracking loops such as control tracking, menu tracking, or window dragging; only events that are dispatched through the applications [sendEvent(_:)](https://developer.apple.com/documentation/appkit/nsapplication/sendevent(_:)) method will be passed to the handler.
+
      - Parameters:
         - mask: An event mask specifying the events to monitor.
         - handler: The event handler that is called with the monitored event. You can return the event unmodified, create and return a new event, or return `nil` to stop the dispatching of the event.
      */
     static func localMonitor(for mask: EventTypeMask, handler: @escaping ((_ event: NSEvent) -> (NSEvent?))) -> Monitor {
+        Monitor.local(for: mask, handler: handler)
+    }
+    
+    /**
+     Returns a local event monitor for the specified mask and handler.
+     
+     The event monitor receives copies of events the system posts to this app prior to their dispatch.
+     
+     The handler will not be called for events that are consumed by nested event-tracking loops such as control tracking, menu tracking, or window dragging; only events that are dispatched through the applications [sendEvent(_:)](https://developer.apple.com/documentation/appkit/nsapplication/sendevent(_:)) method will be passed to the handler.
+
+     - Parameters:
+        - mask: An event mask specifying the events to monitor.
+        - handler: The event handler that is called with the monitored event. You can return the event unmodified, create and return a new event, or return `nil` to stop the dispatching of the event.
+     */
+    static func localMonitor(for mask: EventTypeMask, handler: @escaping ((_ event: NSEvent) -> ())) -> Monitor {
         Monitor.local(for: mask, handler: handler)
     }
     
@@ -38,9 +53,7 @@ public extension NSEvent {
      Key-related events may only be monitored if accessibility is enabled or if your application is trusted for accessibility access (see `AXIsProcessTrusted()`).
      
      Note that the handler will not be called for events that are sent to your own application.
-     
-     - Note: Compared to `addGlobalMonitorForEvents(matching:handler:)`the monitor is automatically removed on deinit.
-     
+          
      - Parameters:
         - mask: An event mask specifying the events to monitor.
         - handler: The handler that is called with the monitored event.
@@ -52,7 +65,7 @@ public extension NSEvent {
     /**
      An event monitor which calls a handler.
      
-     Compared to `addLocalMonitorForEvents(matching:handler:)` and `addGlobalMonitorForEvents(matching:handler:)`, the monitor is automatically removed on deinit.
+     Compared to NSEvent [addLocalMonitorForEvents(matching:handler:)](https://developer.apple.com/documentation/appkit/nsevent/addlocalmonitorforevents(matching:handler:)) and [addGlobalMonitorForEvents(matching:handler:)](https://developer.apple.com/documentation/appkit/nsevent/addglobalmonitorforevents(matching:handler:)), the monitor is automatically removed on deinit.
      */
     class Monitor {
         /// An event mask specifying the events that are monitored.
@@ -78,9 +91,9 @@ public extension NSEvent {
          
          The event monitor receives copies of events the system posts to this app prior to their dispatch.
          
-         The handler will not be called for events that are consumed by nested event-tracking loops such as control tracking, menu tracking, or window dragging; only events that are dispatched through the applications `sendEvent(_:)` method will be passed to the handler.
+         Return either the event to the handler, or `nil` to stop the dispatching of the event.
          
-         - Note: Compared to `addLocalMonitorForEvents(matching:handler:)`the monitor is automatically removed on deinit.
+         The handler will not be called for events that are consumed by nested event-tracking loops such as control tracking, menu tracking, or window dragging; only events that are dispatched through the applications [sendEvent(_:)](https://developer.apple.com/documentation/appkit/nsapplication/sendevent(_:)) method will be passed to the handler.
          
          - Parameters:
             - mask: An event mask specifying the events to monitor.
@@ -88,6 +101,26 @@ public extension NSEvent {
          */
         public static func local(for mask: EventTypeMask, handler: @escaping ((_ event: NSEvent) -> (NSEvent?))) -> Monitor {
             Monitor(mask: mask, type: .local, handler: handler)
+        }
+        
+        /**
+         Returns a local event monitor for the specified mask and handler.
+         
+         The event monitor receives copies of events the system posts to this app prior to their dispatch.
+         
+         The handler will not be called for events that are consumed by nested event-tracking loops such as control tracking, menu tracking, or window dragging; only events that are dispatched through the applications [sendEvent(_:)](https://developer.apple.com/documentation/appkit/nsapplication/sendevent(_:)) method will be passed to the handler.
+         
+         - Parameters:
+            - mask: An event mask specifying the events to monitor.
+            - handler: The event handler that is called with the monitored event. You can return the event unmodified, create and return a new event, or return `nil` to stop the dispatching of the event.
+         */
+        public static func local(for mask: EventTypeMask, handler: @escaping ((_ event: NSEvent) -> ())) -> Monitor {
+            let handler: ((_ event: NSEvent) -> (NSEvent?)) = {
+                handler($0)
+                return $0
+            }
+            
+            return Monitor(mask: mask, type: .local, handler: handler)
         }
         
         /**
@@ -132,8 +165,8 @@ public extension NSEvent {
         public func start() {
             guard !isActive else { return }
             switch type {
-            case .global: monitor = NSEvent.addGlobalMonitorForEvents(matching: mask, handler: handler as! ((NSEvent) -> Void))
             case .local: monitor = NSEvent.addLocalMonitorForEvents(matching: mask, handler: handler as! ((NSEvent) -> (NSEvent?)))
+            case .global: monitor = NSEvent.addGlobalMonitorForEvents(matching: mask, handler: handler as! ((NSEvent) -> Void))
             }
         }
         

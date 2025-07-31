@@ -557,7 +557,7 @@ extension NSTextView {
         set {
             guard newValue != endsEditingOnOutsideClick else { return }
             if newValue {
-                mouseDownMonitor = NSEvent.localMonitor(for: .leftMouseDown) { [weak self] event in
+                mouseDownMonitor = .local(for: .leftMouseDown) { [weak self] event in
                     guard let self = self, self.endsEditingOnOutsideClick, self.isFirstResponder else { return event }
                     if self.bounds.contains(event.location(in: self)) == false {
                         self.resignAsFirstResponder()

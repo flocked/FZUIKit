@@ -64,7 +64,7 @@ public extension NSApplication {
             delayedTerminationWindow = nil
             guard newValue > 0.0 else { return }
             delayedTerminationStartTime = CACurrentMediaTime()
-            delayedTerminationMonitors += NSEvent.localMonitor(for: .keyDown) { [weak self] event in
+            delayedTerminationMonitors += .local(for: .keyDown) { [weak self] event in
                 guard let self = self else { return event }
                 if event.keyCode == 12 && event.modifierFlags.contains(.command) {
                     self.delayedTerminationStartTime = CACurrentMediaTime()
@@ -75,7 +75,7 @@ public extension NSApplication {
                 }
                 return event
             }
-            delayedTerminationMonitors += NSEvent.localMonitor(for: .keyDown) { [weak self] event in
+            delayedTerminationMonitors += .local(for: .keyDown) { [weak self] event in
                 guard let self = self else { return event }
                 if event.keyCode == 12 && event.modifierFlags.contains(.command), self.delayedTerminationStartTime - CACurrentMediaTime() >= newValue {
                     NSApp.terminate(nil)
