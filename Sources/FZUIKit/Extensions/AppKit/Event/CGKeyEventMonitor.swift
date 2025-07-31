@@ -278,16 +278,15 @@ fileprivate final class GlobalKeyMonitor {
             guard let nsEvent = NSEvent(cgEvent: event) else { return Unmanaged.passUnretained(event) }
             let flags = nsEvent.modifierFlags.monitor
             if monitor.eventType == .flagsChanged {
+                guard monitor.previousFlags != flags else { return Unmanaged.passUnretained(event) }
                 defer { monitor.previousFlags = flags }
                 for (shortcut, eventType, handler) in monitor.monitors.values {
                     switch eventType {
-                    case .keyDown:
-                        guard monitor.previousFlags == shortcut.modifierFlags, handler(nsEvent) == nil else { continue }
-                    case .keyUp:
-                        guard flags == shortcut.modifierFlags, handler(nsEvent) == nil else { continue }
-                    case .all:
-                        guard monitor.previousFlags == shortcut.modifierFlags || flags == shortcut.modifierFlags, handler(nsEvent) == nil else { continue }
+                    case .keyDown: guard monitor.previousFlags == shortcut.modifierFlags else { continue }
+                    case .keyUp: guard flags == shortcut.modifierFlags else { continue }
+                    case .all: guard monitor.previousFlags == shortcut.modifierFlags || flags == shortcut.modifierFlags else { continue }
                     }
+                    guard handler(nsEvent) == nil else { continue }
                     return nil
                 }
             } else {
