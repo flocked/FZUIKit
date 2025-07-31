@@ -114,12 +114,12 @@ public final class CGKeyEventMonitor {
     /**
      Creates a keyboard monitor for the specified keyboard shortcut and handler.
      
+     Return either the event to the handler, or `nil` to stop the dispatching of the event.
+     
      - Parameters:
         - shortcut: The keyboard shortcut to monitor.
         - keyEventType: The key event type to monitor (either `keyDown`, `keyUp` or `all`).
         - handler: The handler that is called if the shortcut is pressed.
-     
-     Return either the event to the handler, or `nil` to stop the dispatching of the event.
      */
     public init(shortcut: KeyboardShortcut, type keyEventType: KeyEventType = .keyDown, handler: @escaping (_ event: NSEvent) -> (NSEvent?)) {
         self.shortcut = shortcut
@@ -149,11 +149,11 @@ public final class CGKeyEventMonitor {
     /**
      Creates a key down monitor for the specified keyboard shortcut and handler.
      
+     Return either the event to the handler, or `nil` to stop the dispatching of the event.
+     
      - Parameters:
         - shortcut: The keyboard shortcut to monitor.
         - handler: The handler that is called if the shortcut is pressed.
-     
-     Return either the event to the handler, or `nil` to stop the dispatching of the event.
      */
     public static func keyDown(_ shortcut: KeyboardShortcut, handler: @escaping (_ event: NSEvent) -> (NSEvent?)) -> Self {
         Self(shortcut: shortcut, type: .keyDown, handler: handler)
@@ -173,11 +173,11 @@ public final class CGKeyEventMonitor {
     /**
      Creates a key up monitor for the specified keyboard shortcut and handler.
      
+     Return either the event to the handler, or `nil` to stop the dispatching of the event.
+     
      - Parameters:
         - shortcut: The keyboard shortcut to monitor.
         - handler: The handler that is called if the shortcut is released.
-     
-     Return either the event to the handler, or `nil` to stop the dispatching of the event.
      */
     public static func keyUp(_ shortcut: KeyboardShortcut, handler: @escaping (_ event: NSEvent) -> (NSEvent?)) -> Self {
         Self(shortcut: shortcut, type: .keyUp, handler: handler)
@@ -192,6 +192,32 @@ public final class CGKeyEventMonitor {
      */
     public static func keyUp(_ shortcut: KeyboardShortcut, handler: @escaping (_ event: NSEvent) -> ()) -> Self {
         Self(shortcut: shortcut, type: .keyUp, handler: handler)
+    }
+    
+    /**
+     Creates a modifier flags monitor for the specified keyboard shortcut and handler.
+     
+     Return either the event to the handler, or `nil` to stop the dispatching of the event.
+     
+     - Parameters:
+        - shortcut: The keyboard shortcut to monitor.
+        - keyEventType: The key event type to monitor (either `keyDown`, `keyUp` or `all`).
+        - handler: The handler that is called if the shortcut is released.
+     */
+    public static func flags(_ modifierFlags: NSEvent.ModifierFlags, type keyEventType: KeyEventType = .keyDown, handler: @escaping (_ event: NSEvent) -> (NSEvent?)) -> Self {
+        Self(shortcut: .init(modifierFlags: modifierFlags), type: keyEventType, handler: handler)
+    }
+    
+    /**
+     Creates a modifier flags monitor for the specified keyboard shortcut and handler.
+     
+     - Parameters:
+        - shortcut: The keyboard shortcut to monitor.
+        - keyEventType: The key event type to monitor (either `keyDown`, `keyUp` or `all`).
+        - handler: The handler that is called if the shortcut is released.
+     */
+    public static func flags(_ modifierFlags: NSEvent.ModifierFlags, type keyEventType: KeyEventType = .keyDown, handler: @escaping (_ event: NSEvent) -> ()) -> Self {
+        Self(shortcut: .init(modifierFlags: modifierFlags), type: keyEventType, handler: handler)
     }
 
     deinit {
