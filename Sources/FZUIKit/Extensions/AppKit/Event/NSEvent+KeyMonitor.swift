@@ -11,44 +11,6 @@ import AppKit
 import Combine
 
 extension NSEvent {
-    /**
-     Returns a local keyboard monitor for the specified keyboard shortcut and handler.
-     
-     Return either the event to the handler, or `nil` to stop the dispatching of the event.
-     
-     - Parameters:
-        - shortcut: The keyboard shortcut to monitor.
-        - type: The key event type to monitor (either `keyDown` or `keyUp`).
-        - handler: The handler that is called when the keyboard shortcut is pressed.
-     */
-    public static func localKeyMonitor(for shortcut: KeyboardShortcut, type: KeyMonitor.KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> (NSEvent?))) -> KeyMonitor {
-        .local(for: shortcut, type: type, handler: handler)
-    }
-    
-    /**
-     Returns a local keyboard monitor for the specified keyboard shortcut and handler.
-     
-     - Parameters:
-        - shortcut: The keyboard shortcut to monitor.
-        - type: The key event type to monitor (either `keyDown` or `keyUp`).
-        - handler: The handler that is called when the keyboard shortcut is pressed.
-     */
-    public static func localKeyMonitor(for shortcut: KeyboardShortcut, type: KeyMonitor.KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> ())) -> KeyMonitor {
-        .local(for: shortcut, type: type, handler: handler)
-    }
-    
-    /**
-     Returns a global keyboard monitor for the specified keyboard shortcut and handler.
-     
-     - Parameters:
-        - shortcut: The keyboard shortcut to monitor.
-        - type: The key event type to monitor (either `keyDown` or `keyUp`).
-        - handler: The handler that is called when the keyboard shortcut is pressed.
-     */
-    public static func globalKeyMonitor(for shortcut: KeyboardShortcut, type: KeyMonitor.KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> ())) -> KeyMonitor {
-        .global(for: shortcut, type: type, handler: handler)
-    }
-    
     /// A keyboard shortcut monitor.
     public class KeyMonitor: NSObject {
         
