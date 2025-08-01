@@ -38,14 +38,13 @@ extension NSAnimatablePropertyContainer where Self: NSObject {
         }
         guard let layer = (self as? NSView)?.layer, var animationKeys = layer.animationKeys(), let presentation = layer.presentation() else { return }
         animationKeys = animationKeys.filter({ keys.contains($0) })
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        for key in animationKeys {
-            if let value = presentation.value(forKeyPath: key) {
-                layer.setValue(value, forKeyPath: key)
+        CATransaction.disabledActions {
+            for key in animationKeys {
+                if let value = presentation.value(forKeyPath: key) {
+                    layer.setValue(value, forKeyPath: key)
+                }
             }
         }
-        CATransaction.commit()
         animationKeys.forEach({ layer.removeAnimation(forKey: $0) })
     }
     
@@ -63,12 +62,11 @@ extension NSAnimatablePropertyContainer where Self: NSObject {
             self.setValue(safely: self.value(forKeySafely: key), forKey: key)
         }
         guard let layer = (self as? NSView)?.layer, layer.animation(forKey: key) != nil, let presentation = layer.presentation() else { return }
-        CATransaction.begin()
-        CATransaction.setDisableActions(true)
-        if let value = presentation.value(forKeyPath: key) {
-            layer.setValue(value, forKeyPath: key)
+        CATransaction.disabledActions {
+            if let value = presentation.value(forKeyPath: key) {
+                layer.setValue(value, forKeyPath: key)
+            }
         }
-        CATransaction.commit()
         layer.removeAnimation(forKey: key)
     }
     
@@ -78,7 +76,7 @@ extension NSAnimatablePropertyContainer where Self: NSObject {
     }
     
     var animationDelegate: AnimationDelegate {
-        getAssociatedValue("propertyAnimationDelegate", initialValue: AnimationDelegate(for: self))
+        getAssociatedValue("propertyAnimationDelegate", initialValue: AnimationDelegate(for: self as! AnimatablePropertyProvider))
     }
 }
 
@@ -89,54 +87,7 @@ extension NSAnimationContext {
     class func stopAllAnimations() {
         AnimationDelegate.animatingObjects.values.forEach({ $0.object?.stopAllAnimations() })
     }
-}
-
-class AnimationDelegate: NSObject, CAAnimationDelegate {
-    typealias Object = NSAnimatablePropertyContainer & NSObject
-    static var animatingObjects: SynchronizedDictionary<ObjectIdentifier, Weak<Object>> = [:]
-    weak var object: Object?
-    var animationKeys: Set<String> = []
-    var animators: [String: Weak<NSAnimator>] = [:]
     
-    init(for object: Object) {
-        self.object = object
-    }
-    
-    func animationDidStart(_ animation: CAAnimation) {
-        guard let animation = animation as? CAPropertyAnimation, let key = animation.keyPath else { return }
-        animationKeys.insert(key)
-        guard let object = object else { return }
-        if Self.animatingObjects[ObjectIdentifier(object)] == nil {
-            Self.animatingObjects[object.objectID] = Weak(object)
-        }
-        guard let animator = NSAnimationContext.current.animation else { return }
-        animators[key] = Weak(animator)
-        animator.addAnimationKey(key, for: object)
-        animation.setValue(safely: Float(animator.repeatCount), forKey: "repeatCount")
-        animation.setValue(safely: animator.repeatDuration, forKey: "repeatDuration")
-        animation.setValue(safely: animator.autoreverses, forKey: "autoreverses")
-        animation.setValue(safely: CACurrentMediaTime() + animator.delay, forKey: "beginTime")
-        guard let animation = animation as? CABasicAnimation else { return }
-        animator.animationTargetValues[key] = .init(from: animation.fromValue, to: animation.toValue, byValue: animation.byValue)
-    }
-    
-    func animationDidStop(_ animation: CAAnimation, finished flag: Bool) {
-        guard let key = (animation as? CAPropertyAnimation)?.keyPath else { return }
-        if animators[key]?.object?.autoreverses == true, let animation = animation as? CABasicAnimation, let object = object {
-            object.setValue(safely: animation.fromValue, forKey: key)
-            guard let layer = (object as? NSView)?.layer, layer.animation(forKey: key) != nil else { return }
-            layer.setValue(safely: animation.fromValue, forKeyPath: key)
-        }
-        animationKeys.remove(key)
-        guard let object = object else { return }
-        animators[key]?.object?.removeAnimationKey(key, for: object)
-        animators[key] = nil
-        guard animationKeys.isEmpty else { return }
-        Self.animatingObjects[object.objectID] = nil
-    }
-}
-
-class AnimatablePropertyContainer: NSObject {
     fileprivate static var didSwizzleDefaultAnimation: Bool {
         get { getAssociatedValue("didSwizzleDefaultAnimation", initialValue: false) }
         set { setAssociatedValue(newValue, key: "didSwizzleDefaultAnimation") }
@@ -157,7 +108,7 @@ class AnimatablePropertyContainer: NSObject {
 fileprivate extension NSLayoutConstraint {
     @objc class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
         guard let animation = swizzledDefaultAnimation(forKey: key) else { return nil }
-        if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animation?.spring {
+        if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animator?.spring {
             return springAnimation
         }
         return animation
@@ -191,7 +142,7 @@ fileprivate extension NSLayoutConstraint {
 fileprivate extension NSPageController {
     @objc class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
         guard let animation = swizzledDefaultAnimation(forKey: key) else { return nil }
-        if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animation?.spring {
+        if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animator?.spring {
             return springAnimation
         }
         return animation
@@ -225,7 +176,7 @@ fileprivate extension NSPageController {
 fileprivate extension NSSplitViewItem {
     @objc class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
         guard let animation = swizzledDefaultAnimation(forKey: key) else { return nil }
-        if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animation?.spring {
+        if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animator?.spring {
             return springAnimation
         }
         return animation
@@ -256,20 +207,98 @@ fileprivate extension NSSplitViewItem {
     }
 }
 
+protocol AnimatablePropertyProvider: NSObject {
+    func stopAnimation(for key: String)
+    func stopAllAnimations()
+    var animationDelegate: AnimationDelegate { get }
+}
+
+extension NSView: AnimatablePropertyProvider { }
+extension NSWindow: AnimatablePropertyProvider { }
+extension NSLayoutConstraint: AnimatablePropertyProvider { }
+extension NSPageController: AnimatablePropertyProvider { }
+extension NSSplitViewItem: AnimatablePropertyProvider { }
+extension CALayer: AnimatablePropertyProvider { }
+
+class WeakAnimatablePropertyProvider: Equatable, Hashable {
+    private let id = UUID()
+    weak var object: AnimatablePropertyProvider?
+    init(_ provider: AnimatablePropertyProvider) {
+        object = provider
+    }
+    
+    static func == (lhs: WeakAnimatablePropertyProvider, rhs: WeakAnimatablePropertyProvider) -> Bool {
+        lhs.hashValue == rhs.hashValue
+    }
+
+    func hash(into hasher: inout Hasher) {
+        if let object = object {
+            hasher.combine(ObjectIdentifier(object))
+        } else {
+            hasher.combine(id)
+        }
+    }
+}
+
+extension CALayer {
+    func stopAllAnimations() {
+        guard var animationKeys = animationKeys(), let presentation = presentation() else { return }
+        let keys = animationDelegate.animationKeys
+        animationKeys = animationKeys.filter({ keys.contains($0) })
+        CATransaction.disabledActions {
+            for key in animationKeys {
+                if let value = presentation.value(forKeyPath: key) {
+                    setValue(value, forKeyPath: key)
+                }
+            }
+        }
+        animationKeys.forEach({ removeAnimation(forKey: $0) })
+    }
+    
+    func stopAnimation(for key: String) {
+        guard animation(forKey: key) != nil, let presentation = presentation() else { return }
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        if let value = presentation.value(forKeyPath: key) {
+            setValue(value, forKeyPath: key)
+            if let parentView = parentView, let value = parentView.value(forKeySafely: key) {
+                parentView.setValue(safely: value, forKey: key)
+            }
+            if key == "bounds", let value = value as? CGRect {
+                parentView?.frame.size = value.size
+            } else if key == "position", let value = value as? CGPoint {
+                parentView?.frame.origin = value
+            } else if key == "opacity", let value = value as? CGFloat {
+                parentView?.alphaValue = value
+            }
+        }
+        CATransaction.commit()
+        removeAnimation(forKey: key)
+    }
+    
+    var animationDelegate: AnimationDelegate {
+        getAssociatedValue("propertyAnimationDelegate", initialValue: AnimationDelegate(for: self))
+    }
+}
+
 fileprivate extension CALayer {
-     @objc func swizzled_action(forKey event: String) -> (any CAAction)? {
-         let action = swizzled_action(forKey: event)
-         if let animation = NSAnimationContext.current.animation, let action = action as? CAAnimation {
-             let new = action.copy() as! CAAnimation
-             new.repeatCount = Float(animation.repeatCount)
-             new.repeatDuration = animation.repeatDuration
-             new.autoreverses = animation.autoreverses
-             new.beginTime = CACurrentMediaTime() + animation.delay
-             new.delegate = parentView?.animationDelegate ?? new.delegate
-             return new
-         }
-         return action
-     }
+    @objc func swizzled_action(forKey event: String) -> (any CAAction)? {
+        var action = swizzled_action(forKey: event)
+        if action == nil, Self.animatableKeys.contains(event) {
+            action = CABasicAnimation(keyPath: event)
+        }
+        if let animation = NSAnimationContext.current.animator, let action = action as? CAAnimation, let new = action.copy() as? CAAnimation {
+            new.repeatCount = Float(animation.repeatCount)
+            new.repeatDuration = animation.repeatDuration
+            new.autoreverses = animation.autoreverses
+            new.beginTime = CACurrentMediaTime() + animation.delay
+            new.delegate = animationDelegate
+            return new
+        }
+        return action
+    }
+    
+    static let animatableKeys: Set<String> = ["bounds", "position", "zPosition", "anchorPoint", "anchorPointZ", "transform",  "frame", "contents", "contentsRect", "contentsScale", "contentsCenter", "opacity", "backgroundColor", "cornerRadius", "borderWidth", "borderColor", "shadowColor", "shadowOpacity", "shadowOffset", "shadowRadius", "shadowPath", "mask", "masksToBounds", "fillColor", "strokeColor", "lineDashPattern", "lineWidth", "fillColor", "strokeStart", "strokeEnd", "lineDashPhase", "isHidden", "contents", "path", "inverseMask"]
     
     static var didSwizzleActionForKey: Bool {
         get { getAssociatedValue("didSwizzleActionForKey", initialValue: false) }

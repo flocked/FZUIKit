@@ -361,7 +361,6 @@ extension NSUIView {
         value(forKeySafely: "recursiveDescription") as? String ?? ""
     }
 
-    #if os(macOS)
     /**
      The background gradient of the view.
 
@@ -372,7 +371,6 @@ extension NSUIView {
     public var gradient: Gradient? {
         get { optionalLayer?.gradient }
         set {
-            NSUIView.swizzleAnimationForKey()
             if let newValue = newValue, !newValue.stops.isEmpty {
                 if optionalLayer?.gradient == nil {
                     optionalLayer?.gradient = .init(stops: [])
@@ -381,42 +379,13 @@ extension NSUIView {
             }
             guard var endGradient = newValue ?? optionalLayer?.gradient?.opacity(0.0) else { return }
             let stops = (optionalLayer?.gradient?.stops ?? []).animatable(to: newValue?.stops ?? [])
-            optionalLayer?.gradient?.stops = stops.start
-            optionalLayer?.gradient?.type = endGradient.type
-            endGradient.stops = stops.end
-            _gradient = endGradient.values
-        }
-    }
-    
-    @objc fileprivate var _gradient: [Any] {
-        get { optionalLayer?.gradient?.values ?? [] }
-        set { optionalLayer?.gradient?.values = newValue }
-    }
-    #elseif canImport(UIKit)
-    /**
-     The background gradient of the view.
-
-     Applying a gradient sets the view's `backgroundColor` to `nil`.
-     */
-    public var gradient: Gradient? {
-        get { optionalLayer?.gradient }
-        set {
-            if let newValue = newValue, !newValue.stops.isEmpty {
-                if optionalLayer?.gradient == nil {
-                    optionalLayer?.gradient = .init(stops: [])
-                }
-                backgroundColor = nil
-            }
-            guard var endGradient = newValue ?? optionalLayer?.gradient?.opacity(0.0) else { return }
-            let stops = (optionalLayer?.gradient?.stops ?? []).animatable(to: newValue?.stops ?? [])
-            UIView.performWithoutAnimation {
-                optionalLayer?.gradient?.stops = stops.start
+            NSUIView.performWithoutAnimation {
+                self.optionalLayer?.gradient?.stops = stops.start
             }
             endGradient.stops = stops.end
             optionalLayer?.gradient = endGradient
         }
     }
-    #endif
 
     /// Sets the background gradient of the view.
     public func gradient( _ gradient: Gradient?) -> Self {
@@ -451,27 +420,23 @@ extension NSUIView {
         self.border = border
         return self
     }
+    
+    func sdsds() {
+        
+    }
 
     #if os(macOS)
     /// Sets the outer shadow of the view.
     @discardableResult
     @objc open func outerShadow(_ shadow: ShadowConfiguration) -> Self {
-        #if os(macOS)
-        self.outerShadow = shadow
-        #else
-        self.shadow = shadow
-        #endif
+        outerShadow = shadow
         return self
     }
     #else
     /// Sets the outer shadow of the view.
     @discardableResult
     @objc open func shadow(_ shadow: ShadowConfiguration) -> Self {
-        #if os(macOS)
-        self.outerShadow = shadow
-        #else
         self.shadow = shadow
-        #endif
         return self
     }
     #endif
@@ -737,32 +702,6 @@ fileprivate extension [Gradient.ColorStop] {
             to += self[safe: stops.count...].map({ $0.transparent })
         }
         return (from, to)
-    }
-}
-
-fileprivate extension Gradient.ColorStop {
-    var values: [Any] {
-        get { [location, color] }
-    }
-
-    init(_ values: [Any]) {
-        location = values[0] as! CGFloat
-        color = values[1] as! NSUIColor
-    }
-}
-
-fileprivate extension Gradient {
-    var values: [Any] {
-        get {
-            var values: [Any] = [startPoint.x, startPoint.y, endPoint.x, endPoint.y]
-            values.append(contentsOf: stops.map({ $0.values }))
-            return values
-        }
-        set {
-            startPoint = .init(newValue[0] as! CGFloat, newValue[1] as! CGFloat)
-            endPoint = .init(newValue[2] as! CGFloat, newValue[3] as! CGFloat)
-            stops = newValue[safe: 4...].map({ ColorStop($0 as! [Any]) })
-        }
     }
 }
 #endif

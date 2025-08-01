@@ -106,7 +106,7 @@ public class NSAnimationGroup: NSAnimator {
     @discardableResult
     override func start(shouldRestart: Bool, next: (() -> ())? = nil) -> Self {
         guard !animations.isEmpty else { return self }
-        AnimatablePropertyContainer.swizzleAll()
+        NSAnimationContext.swizzleAll()
         if shouldRestart {
             reset()
         }

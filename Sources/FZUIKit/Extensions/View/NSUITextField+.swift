@@ -27,7 +27,7 @@ public extension NSUITextField {
         }
     }
 
-    internal var _fontSize: CGFloat {
+    @objc internal var _fontSize: CGFloat {
         get { font?.pointSize ?? 0.0 }
         set { font = font?.withSize(newValue) }
     }

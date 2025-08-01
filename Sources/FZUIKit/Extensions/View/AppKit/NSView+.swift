@@ -77,20 +77,14 @@ extension NSView {
      The view whose alpha channel is used to mask a view’s content.
 
      The view’s alpha channel determines how much of the view’s content and background shows through. Fully or partially opaque pixels allow the underlying content to show through but fully transparent pixels block that content.
-
-     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().mask`.
-
+     
      The default value is `nil`, which results in a view with no mask.
-     */
-    public var mask: NSView? {
-        get { _mask }
-        set {
-            NSView.swizzleAnimationForKey()
-            _mask = newValue
-        }
-    }
 
-    @objc fileprivate var _mask: NSView? {
+     Changes to this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
+     */
+    @objc open var mask: NSView? {
         get { (layer?.mask as? InverseMaskLayer)?.maskLayer?.parentView ?? layer?.mask?.parentView }
         set {
             /*
@@ -127,43 +121,21 @@ extension NSView {
     /// The shape that is used for masking the view.
     public var maskShape: (any Shape)? {
         get { layer?.maskShape }
-        set {
-            if let newValue = newValue, isProxy(), NSAnimationContext.hasActiveGrouping {
-                maskShapeControlPoints = newValue.morphable().animatableData.elements
-            } else {
-                optionalLayer?.maskShape = newValue
-            }
-        }
-    }
-    
-    fileprivate var _maskShape: (any Shape)? {
-        get { layer?.maskShape }
         set { optionalLayer?.maskShape = newValue }
     }
     
-    fileprivate var maskShapeControlPoints: [Double] {
-        get { (_maskShape ?? .rect(cornerRadius: cornerRadius)).morphable().animatableData.elements }
-        set { _maskShape = MorphableShape(controlPoints: .init(newValue)) }
-    }
-
     /**
      The view whose inverse alpha channel is used to mask a view’s content.
 
      In contrast to ``mask`` transparent pixels allow the underlying content to show, while opaque pixels block the content.
-
-     Changes to this property turns the view into a layer-backed view. The property can be animated by changing it via `animator().inverseMask`.
-
+     
      The default value is `nil`, which results in a view with no inverse mask.
+
+     Changes to this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
      */
     @objc public var inverseMask: NSView? {
-        get { _inverseMask }
-        set {
-            NSView.swizzleAnimationForKey()
-            _inverseMask = newValue
-        }
-    }
-
-    @objc fileprivate var _inverseMask: NSView? {
         get { mask }
         set {
             newValue?.removeFromSuperview()
@@ -182,7 +154,7 @@ extension NSView {
 
      Changes to this property turns the view into a layer-backed view. The default value is `false`.
      */
-    public var isOpaque: Bool {
+    @objc open var isOpaque: Bool {
         get { layer?.isOpaque ?? false }
         set { optionalLayer?.isOpaque = newValue }
     }
@@ -193,18 +165,10 @@ extension NSView {
      Setting this property updates the origin of the rectangle in the frame property appropriately.
 
      Use this property, instead of the frame property, when you want to change the position of a view. The center point is always valid, even when scaling or rotation factors are applied to the view's transform.
-
-     Changes to this property can be animated via `animator().center`.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
      */
-    public var center: CGPoint {
-        get { _center }
-        set {
-            NSView.swizzleAnimationForKey()
-            _center = newValue
-        }
-    }
-
-    @objc fileprivate var _center: CGPoint {
+    @objc open var center: CGPoint {
         get { frame.center }
         set { frame.center = newValue }
     }
@@ -216,15 +180,7 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
-    public var zPosition: CGFloat {
-        get { _zPosition }
-        set {
-            NSView.swizzleAnimationForKey()
-            _zPosition = newValue
-        }
-    }
-
-    @objc fileprivate var _zPosition: CGFloat {
+    @objc open var zPosition: CGFloat {
         get { layer?.zPosition ?? 0.0 }
         set { optionalLayer?.zPosition = newValue.clamped(to: -CGFloat(Int.max)...CGFloat(Int.max)) }
     }
@@ -238,15 +194,7 @@ extension NSView {
 
      The default value is `CGAffineTransformIdentity`, which results in a view with no transformation.
      */
-    public var transform: CGAffineTransform {
-        get { _transform }
-        set {
-            NSView.swizzleAnimationForKey()
-            _transform = newValue
-        }
-    }
-
-    @objc fileprivate var _transform: CGAffineTransform {
+    @objc open var transform: CGAffineTransform {
         get { layer?.affineTransform() ?? CGAffineTransformIdentity }
         set { optionalLayer?.setAffineTransform(newValue) }
     }
@@ -258,39 +206,35 @@ extension NSView {
 
      The default value is `CATransform3DIdentity`, which results in a view with no transformation.
      */
-    public var transform3D: CATransform3D {
-        get { _transform3D }
-        set {
-            NSView.swizzleAnimationForKey()
-            _transform3D = newValue
-        }
-    }
-
-    @objc fileprivate var _transform3D: CATransform3D {
+    @objc open var transform3D: CATransform3D {
         get { layer?.transform ?? CATransform3DIdentity }
         set { optionalLayer?.transform = newValue }
     }
 
     /**
      The rotation of the view as euler angles in degrees.
-
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator().rotation`.
-
+     
      The default value is `0.0`, which results in a view with no rotation.
+
+     Changes to this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
      */
-    public var rotation: Rotation {
+    @objc open var rotation: Rotation {
         get { transform3D.eulerAnglesDegrees.rotation }
         set { transform3D.eulerAnglesDegrees = newValue.vector }
     }
 
     /**
      The rotation of the view as euler angles in radians.
-
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator().rotationInRadians`.
-
+     
      The default value is `0.0`, which results in a view with no rotation.
+
+     Changes to this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
      */
-    public var rotationInRadians: Rotation {
+    @objc open var rotationInRadians: Rotation {
         get { transform3D.eulerAngles.rotation }
         set { transform3D.eulerAngles = newValue.vector }
     }
@@ -298,11 +242,13 @@ extension NSView {
     /**
      The scale transform of the view.
 
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator().scale`.
-
+     Changes to this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
+     
      The default value is `none`, which results in a view displayed at it's original scale.
      */
-    public var scale: Scale {
+    @objc open var scale: Scale {
         get { layer?.scale ?? .none }
         set { transform3D.scale = newValue.vector }
     }
@@ -310,11 +256,13 @@ extension NSView {
     /**
      The perspective of the view's transform.
 
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator().perspective`.
-
+     Changes to this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
+     
      The default value is `zero`, which results in a view with no transformed perspective.
      */
-    public var perspective: Perspective {
+    @objc open var perspective: Perspective {
         get { transform3D.perspective }
         set { transform3D.perspective = newValue }
     }
@@ -323,11 +271,13 @@ extension NSView {
     /**
      The translation of the view's transform.
 
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator().translation`.
-
+     Changes to this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
+     
      The default value is `zero`, which results in a view with no transformed translation.
      */
-    public var translation: Translation {
+    @objc open var translation: Translation {
         get { transform3D.translation }
         set { transform3D.translation = newValue }
     }
@@ -335,11 +285,13 @@ extension NSView {
     /**
      The shearing of the view's transform.
 
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator().skew`.
-
+     Changes to this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
+     
      The default value is `zero`, which results in a view with no transformed shearing.
      */
-    public var skew: Skew {
+    @objc open var skew: Skew {
         get { transform3D.skew }
         set { transform3D.skew = newValue }
     }
@@ -347,25 +299,17 @@ extension NSView {
     /**
      The anchor point for the view’s position along the z axis.
 
-
-
      You specify the value for this property using the unit coordinate space, where (0, 0) is the bottom-left corner of the view’s bounds rectangle, and (1, 1) is the top-right corner.
 
      All geometric manipulations to the view occur about the specified point. For example, applying a rotation transform to a view with the default anchor point causes the view to rotate around its center. Changing the anchor point to a different location causes the view to rotate around that new point.
 
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator().anchorPoint`.
-
+     Changes to this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
+     
      The default value is `zero`.
      */
-    public var anchorPoint: FractionalPoint {
-        get { _anchorPoint }
-        set {
-            NSView.swizzleAnimationForKey()
-            _anchorPoint = newValue
-        }
-    }
-
-    @objc fileprivate var _anchorPoint: FractionalPoint {
+    @objc open var anchorPoint: FractionalPoint {
         get {
             let anchorPoint = layer?.anchorPoint ?? .zero
             return FractionalPoint(anchorPoint.x, anchorPoint.y)
@@ -376,43 +320,29 @@ extension NSView {
     /**
      The anchor point for the view’s position along the z axis.
 
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator().anchorPointZ`.
-
+     Changes to this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
+     
      The default value is `0.0`.
      */
-    public var anchorPointZ: CGFloat {
-        get { _anchorPointZ }
-        set {
-            NSView.swizzleAnimationForKey()
-            _anchorPointZ = newValue
-        }
-    }
-
-    @objc fileprivate var _anchorPointZ: CGFloat {
+    @objc open var anchorPointZ: CGFloat {
         get { layer?.anchorPointZ ?? .zero }
         set { optionalLayer?.anchorPointZ = newValue }
     }
 
-
-
     /**
      The corner radius of the view.
-
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator().cornerRadius`.
-
+     
      The default value is `0.0`, which results in a view with no rounded corners.
 
      Setting the corner radius to value other than `0.0`, sets the ``cornerShape`` to `normal`.
-     */
-    public var cornerRadius: CGFloat {
-        get { __cornerRadius }
-        set {
-            NSView.swizzleAnimationForKey()
-            __cornerRadius = newValue
-        }
-    }
 
-    @objc var __cornerRadius: CGFloat {
+     Changes to this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
+     */
+    @objc open var cornerRadius: CGFloat {
         get { layer?.cornerRadius ?? 0.0 }
         set {
             let clipsToBounds = clipsToBounds
@@ -428,17 +358,11 @@ extension NSView {
     /**
      The corner curve of the view.
 
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator().cornerCurve`.
+     Changes to this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
      */
-    public var cornerCurve: CALayerCornerCurve {
-        get { _cornerCurve }
-        set {
-            NSView.swizzleAnimationForKey()
-            _cornerCurve = newValue
-        }
-    }
-
-    @objc var _cornerCurve: CALayerCornerCurve {
+    @objc open var cornerCurve: CALayerCornerCurve {
         get { layer?.cornerCurve ?? .circular }
         set { optionalLayer?.cornerCurve = newValue }
     }
@@ -461,76 +385,58 @@ extension NSView {
 
     /**
      The border of the view.
-
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator().border`.
-
+     
      The default value is `none`, which results in a view with no border.
+
+     Changes to this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
      */
-    public var border: BorderConfiguration {
+    @objc open var border: BorderConfiguration {
         get { layer?.configurations.border ?? .none }
         set {
-            NSView.swizzleAnimationForKey()
             var newValue = newValue
             newValue.color = animationColor(newValue.color, \.configurations.border.color, \.configurations.border.isVisible)
-            optionalLayer?.configurations.border.colorTransformer = newValue.colorTransformer
-            optionalLayer?.configurations.border.dash.lineCap = newValue.dash.lineCap
-            optionalLayer?.configurations.border.dash.lineJoin = newValue.dash.lineJoin
-            borderValues = newValue.values
+            optionalLayer?.configurations.border = newValue
         }
-    }
-    
-    @objc fileprivate var borderValues: [Any] {
-        get { layer?.configurations.border.values ?? [] }
-        set { optionalLayer?.configurations.border.values = newValue }
     }
     
     /**
      The outer shadow of the view.
 
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator().outerShadow`.
-
+     Changes to this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
+     
      If the shadow is visible, `clipsToBounds` is set to `false`.
 
      The default value is `none`, which results in a view with no outer shadow.
      */
-    public var outerShadow: ShadowConfiguration {
+    @objc open var outerShadow: ShadowConfiguration {
         get {
             let view = realSelf
             return view.layer?.configurations.shadow ?? .none
         }
         set {
-            NSView.swizzleAnimationForKey()
-            optionalLayer?.configurations.shadow.colorTransformer = newValue.colorTransformer
             var newValue = newValue
             newValue.color = animationColor(newValue.color, \.configurations.shadow.color, \.configurations.shadow.isVisible)
-            shadowValues = newValue.values
+            optionalLayer?.configurations.shadow = newValue
             if newValue.isVisible {
                 clipsToBounds = false
             }
         }
     }
-    
-    @objc fileprivate var shadowValues: [Any] {
-        get { layer?.configurations.shadow.values ?? [] }
-        set { optionalLayer?.configurations.shadow.values = newValue }
-    }
 
     /**
      The shadow path of the view.
-
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator().shadowPath`.
-
+     
      The default value is `nil`, which results in a view with no shadow path.
-     */
-    public var shadowPath: NSBezierPath? {
-        get { _shadowPath }
-        set {
-            NSView.swizzleAnimationForKey()
-            _shadowPath = newValue
-        }
-    }
 
-    @objc fileprivate var _shadowPath: NSBezierPath? {
+     Changes to this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
+     */
+    @objc open var shadowPath: NSBezierPath? {
         get { layer?.shadowPath?.bezierPath }
         set { optionalLayer?.shadowPath = newValue?.cgPath }
     }
@@ -538,23 +444,7 @@ extension NSView {
     /// The shape of the shadow.
     public var shadowShape: (any Shape)? {
         get { layer?.shadowShape }
-        set {
-            if let newValue = newValue, isProxy(), NSAnimationContext.hasActiveGrouping {
-                shadowShapeControlPoints = newValue.morphable().animatableData.elements
-            } else {
-                optionalLayer?.shadowShape = newValue
-            }
-        }
-    }
-    
-    fileprivate var _shadowShape: (any Shape)? {
-        get { layer?.shadowShape }
         set { optionalLayer?.shadowShape = newValue }
-    }
-    
-    fileprivate var shadowShapeControlPoints: [Double] {
-        get { (_shadowShape ?? .rect(cornerRadius: cornerRadius)).morphable().animatableData.elements }
-        set { _shadowShape = MorphableShape(controlPoints: .init(newValue)) }
     }
 
     func setupShadowShapeView() {
@@ -614,22 +504,17 @@ extension NSView {
 
      The default value is `none`, which results in a view with no inner shadow.
 
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator().innerShadow`.
+     Changes to this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
      */
-    public var innerShadow: ShadowConfiguration {
+    @objc open var innerShadow: ShadowConfiguration {
         get { realSelf.layer?.configurations.innerShadow ?? .none }
         set {
-            NSView.swizzleAnimationForKey()
-            optionalLayer?.configurations.innerShadow.colorTransformer = newValue.colorTransformer
             var newValue = newValue
             newValue.color = animationColor(newValue.color, \.configurations.innerShadow.color, \.configurations.innerShadow.isVisible)
-            innerShadowValues = newValue.values
+            optionalLayer?.configurations.innerShadow = newValue
         }
-    }
-    
-    @objc fileprivate var innerShadowValues: [Any] {
-        get { layer?.configurations.innerShadow.values ?? [] }
-        set { optionalLayer?.configurations.innerShadow.values = newValue }
     }
     
     func animationColor(_ color: NSUIColor?, _ keyPath: ReferenceWritableKeyPath<CALayer, CGColor?>) -> NSUIColor? {
@@ -858,15 +743,7 @@ extension NSView {
     }
 
     /// The view’s frame rectangle, which defines its position and size in its screen’s coordinate system.
-    public var frameOnScreen: CGRect {
-        get { _frameOnScreen }
-        set {
-            NSView.swizzleAnimationForKey()
-            _frameOnScreen = newValue
-        }
-    }
-
-    @objc fileprivate var _frameOnScreen: CGRect {
+    @objc open var frameOnScreen: CGRect {
         get { convertToScreen(frame) }
         set { frame = convertFromScreen(newValue) }
     }
@@ -876,15 +753,7 @@ extension NSView {
 
      If the view isn't added to a window, it returns `zero`.
      */
-    public var frameInWindow: CGRect {
-        get { _frameInWindow }
-        set {
-            NSView.swizzleAnimationForKey()
-            _frameInWindow = newValue
-        }
-    }
-
-    @objc fileprivate var _frameInWindow: CGRect {
+    @objc open var frameInWindow: CGRect {
         get { convertToWindow(frame) }
         set { frame = convertFromWindow(newValue) }
     }
@@ -924,12 +793,12 @@ extension NSView {
 
     @objc private class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
         if let animation = swizzledDefaultAnimation(forKey: key) {
-            if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animation?.spring {
+            if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animator?.spring {
                 return springAnimation
             }
             return animation
         } else if NSViewAnimationKeys.contains(key) {
-            return swizzledDefaultAnimation(forKey: "frameOrigin")
+             return swizzledDefaultAnimation(forKey: "frameOrigin")
         }
         return nil
     }
@@ -956,7 +825,7 @@ public extension NSView.AutoresizingMask {
 }
 
 /// The `NSView` properties keys that can be animated.
-fileprivate let NSViewAnimationKeys: Set<String> = ["_anchorPoint", "_anchorPointZ", "_animatableValues", "_center", "_contentOffset", "_contentOffsetFractional", "_cornerRadius", "_documentSize", "_fontSize", "_gradient", "_inverseMask", "_mask", "_placeholderTextColor", "_roundedCorners", "_screenFrame", "_selectionColor", "_selectionTextColor", "_shadowPath", "_transform", "_transform3D", "_windowFrame", "_zPosition", "__cornerRadius", "backgroundColor", "backgroundColorAnimatable", "bezelColor", "borderColor", "borderValues", "borderWidth", "contentTintColor", "cornerRadius", "fillColor", "innerShadowValues", "shadowColor", "shadowValues", "textColor", "maskShapeControlPoints", "shadowShapeControlPoints"]
+fileprivate let NSViewAnimationKeys: Set<String> = ["_contentOffset", "_contentOffsetFractional", "_documentSize", "_fontSize", "_placeholderTextColor", "_roundedCorners", "_selectionColor", "_selectionTextColor", "backgroundColor", "bezelColor", "borderColor", "borderWidth", "contentTintColor", "cornerRadius", "fillColor", "shadowColor", "textColor"]
 
 fileprivate extension CALayer {
     var isVisible: Bool {

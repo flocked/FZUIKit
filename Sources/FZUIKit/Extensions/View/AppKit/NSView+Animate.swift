@@ -37,7 +37,7 @@ import SwiftUI
       - Returns: The animation group.
       */
      @discardableResult
-     public static func animate(withDuration duration: TimeInterval, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimator {
+     public static func animate(withDuration duration: TimeInterval, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = true, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimator {
          NSAnimationContext.animate(duration: duration, timingFunction: timingFunction, allowsImplicitAnimation: allowsImplicitAnimation, changes: changes, completion: completion)
      }
      
@@ -52,7 +52,7 @@ import SwiftUI
       - Returns: The animation group.
       */
      @discardableResult
-     public static func animate(withSpring spring: CASpringAnimation, allowsImplicitAnimation: Bool = false, changes: @escaping ()->(), completion: (()->())? = nil) -> NSAnimator {
+     public static func animate(withSpring spring: CASpringAnimation, allowsImplicitAnimation: Bool = true, changes: @escaping ()->(), completion: (()->())? = nil) -> NSAnimator {
          NSAnimationContext.animate(withSpring: spring, allowsImplicitAnimation: allowsImplicitAnimation, changes: changes, completion: completion)
      }
      
@@ -67,6 +67,7 @@ import SwiftUI
       - Returns: The animation group.
       */
      @available(macOS 15.0, *)
+     @discardableResult
      public static func animate(with animation: Animation, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimator {
          NSAnimationContext.animate(with: animation, changes: changes, completion: completion)
      }

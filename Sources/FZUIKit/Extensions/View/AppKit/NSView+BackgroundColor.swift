@@ -16,12 +16,8 @@ public extension NSViewProtocol where Self: NSView {
      Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
      */
     var backgroundColor: NSColor? {
-        get { backgroundColorAnimatable }
-        set {
-            NSView.swizzleAnimationForKey()
-            realSelf.dynamicColors.background = newValue
-            backgroundColorAnimatable = animationColor(newValue, \.backgroundColor)
-        }
+        get { layer?.configurations.backgroundColor }
+        set { optionalLayer?.configurations.backgroundColor = newValue }
     }
     
     /**
@@ -33,13 +29,6 @@ public extension NSViewProtocol where Self: NSView {
     func backgroundColor(_ color: NSUIColor?) -> Self {
         backgroundColor = color
         return self
-    }
-}
-
-extension NSView {
-    @objc var backgroundColorAnimatable: NSColor? {
-        get { layer?.configurations.backgroundColor }
-        set { optionalLayer?.configurations.backgroundColor = newValue }
     }
 }
 #endif

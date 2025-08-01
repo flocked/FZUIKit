@@ -23,7 +23,7 @@ extension NSAnimationContext {
     /// Runs the changes of the closure non-animated.
     @discardableResult
     public class func performWithoutAnimation(_ changes: @escaping () -> Void) -> NSAnimator {
-        NSAnimator(nonAnimated: changes)._start()
+        NSAnimator(nonAnimated: changes).starting()
     }
     
     /**
@@ -38,8 +38,8 @@ extension NSAnimationContext {
      - Returns: The animation group.
      */
     @discardableResult
-    public class func animate(duration: TimeInterval = 0.25, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimator {
-        .init(duration: duration, timingFunction: timingFunction, allowsImplicitAnimation: allowsImplicitAnimation, changes: changes).completion(completion)._start()
+    public class func animate(duration: TimeInterval = 0.25, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = true, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimator {
+        .init(duration: duration, timingFunction: timingFunction, allowsImplicitAnimation: allowsImplicitAnimation, changes: changes).completion(completion).starting()
     }
     
     /**
@@ -53,8 +53,8 @@ extension NSAnimationContext {
      - Returns: The animation group.
      */
     @discardableResult
-    public class func animate(withSpring spring: CASpringAnimation, allowsImplicitAnimation: Bool = false, changes: @escaping ()->(), completion: (()->())? = nil) -> NSAnimator {
-        .init(spring: spring, changes: changes).completion(completion)._start()
+    public class func animate(withSpring spring: CASpringAnimation, allowsImplicitAnimation: Bool = true, changes: @escaping ()->(), completion: (()->())? = nil) -> NSAnimator {
+        .init(spring: spring, allowsImplicitAnimation: allowsImplicitAnimation, changes: changes).completion(completion).starting()
     }
     
     #if compiler(>=6.0)
@@ -70,7 +70,7 @@ extension NSAnimationContext {
     @available(macOS 15.0, *)
     @discardableResult
     public class func animate(with animation: Animation, changes: @escaping ()->(), completion: (()->())? = nil) -> NSAnimator {
-        .init(animation: animation, changes: changes).completion(completion)._start()
+        .init(animation: animation, changes: changes).completion(completion).starting()
     }
     #endif
     

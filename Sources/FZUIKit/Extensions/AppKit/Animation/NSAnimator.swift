@@ -12,11 +12,13 @@ import SwiftUI
 
 /// An animation that animates changes provided in a handler.
 public class NSAnimator: NSObject {
-    fileprivate var animatingKeys: [Weak<NSObject & NSAnimatablePropertyContainer>: Set<String>] = [:]
+    fileprivate var animatingKeys: [WeakAnimatablePropertyProvider: Set<String>] = [:]
     var animate: ((_ complection: (()->())?)->()) = { _ in }
     var _duration = 0.0
     var animationTargetValues: [String: AnimationTargetValue] = [:]
     var spring: CASpringAnimation?
+    var shouldRestart = false
+    var startTime = CACurrentMediaTime()
     
     /// Constants indicating the current state of the animation.
     public enum State {
@@ -38,6 +40,15 @@ public class NSAnimator: NSObject {
         totalDuration += autoreverses ? _duration : 0.0
         return totalDuration
     }
+    
+    /*
+    /// The completion percentage of the animation.
+    public var fractionComplete: CGFloat {
+        guard state != .inactive else { return 0.0 }
+        // (CACurrentMediaTime() - startTime / duration).clamped(max: 1.0)
+        return 1.0
+    }
+     */
     
     /// The completion handler that is called when the animation is finished.
     public var completion: (()->())? = nil
@@ -119,8 +130,6 @@ public class NSAnimator: NSObject {
             guard let object = $0.key.object else { return }
             $0.value.forEach({ object.stopAnimation(for: $0) })
         })
-        animatingKeys = [:]
-        animationTargetValues = [:]
         state = .inactive
     }
     
@@ -129,23 +138,17 @@ public class NSAnimator: NSObject {
         guard !NSAnimationGroup.isActiveGroup else { return self }
         if state == .running {
             guard shouldRestart else { return self }
-            let _completion = completion
-            completion = { [weak self] in
-                guard let self = self else { return }
-                self.completion = _completion
-                self.animationTargetValues = [:]
-                self.animate(next)
-            }
+            self.shouldRestart = true
             stop()
         } else {
-            self.animationTargetValues = [:]
+            animationTargetValues = [:]
+            animatingKeys = [:]
             animate(next)
         }
         return self
     }
     
-    @discardableResult
-    func _start() -> Self {
+    func starting() -> Self {
         start(shouldRestart: true)
     }
     
@@ -159,13 +162,14 @@ public class NSAnimator: NSObject {
         - changes: The closure containing the changes to animate.
      */
     public init(duration: TimeInterval = 0.25, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, changes: @escaping () -> Void) {
-        AnimatablePropertyContainer.swizzleAll()
+        NSAnimationContext.swizzleAll()
         super.init()
         _duration = duration
         animate = { nextAnimation in
             self.state = .running
+            self.startTime = CACurrentMediaTime()
             NSAnimationContext.runAnimationGroup({ context in
-                context.animation = self
+                context.animator = self
                 context.duration = duration
                 context.timingFunction = timingFunction
                 context.allowsImplicitAnimation = allowsImplicitAnimation
@@ -183,14 +187,14 @@ public class NSAnimator: NSObject {
         - changes: The closure containing the changes to animate.
      */
     public init(spring: CASpringAnimation, allowsImplicitAnimation: Bool = false, changes: @escaping ()->()) {
-        AnimatablePropertyContainer.swizzleAll()
+        NSAnimationContext.swizzleAll()
         super.init()
         self.spring = spring
         _duration = spring.duration
         animate = { nextAnimation in
             self.state = .running
             NSAnimationContext.runAnimationGroup({ context in
-                context.animation = self
+                context.animator = self
                 context.duration = spring.duration
                 context.allowsImplicitAnimation = allowsImplicitAnimation
                 changes()
@@ -208,11 +212,11 @@ public class NSAnimator: NSObject {
      */
     @available(macOS 15.0, *)
     public init(animation: Animation, changes: @escaping ()->()) {
-        AnimatablePropertyContainer.swizzleAll()
+        NSAnimationContext.swizzleAll()
         super.init()
         animate = { nextAnimation in
             self.state = .running
-            NSAnimationContext.current.animation = self
+            NSAnimationContext.current.animator = self
             NSAnimationContext.animate(animation, changes: changes) {
                 self.finish(nextAnimation)
             }
@@ -222,7 +226,7 @@ public class NSAnimator: NSObject {
     
     /// Creates an animator that runs the specified changes without animation.
     public init(nonAnimated changes: @escaping ()->()) {
-        AnimatablePropertyContainer.swizzleAll()
+        NSAnimationContext.swizzleAll()
         super.init()
         animate = { nextAnimation in
             self.state = .running
@@ -235,23 +239,26 @@ public class NSAnimator: NSObject {
     }
     
     func finish(_ complete: (()->())?) {
-        if NSAnimationContext.current.animation === self {
-            NSAnimationContext.current.animation = nil
+        if NSAnimationContext.current.animator === self {
+            NSAnimationContext.current.animator = nil
         }
         self.state = .stopped
         self.completion?()
         complete?()
+        guard shouldRestart else { return }
+        shouldRestart = false
+        start()
     }
     
-    func addAnimationKey(_ key: String, for object: NSObject & NSAnimatablePropertyContainer) {
+    func addAnimationKey(_ key: String, for object: AnimatablePropertyProvider) {
         if let animationObject = animatingKeys.keys.first(where: {$0.object === object }) {
             animatingKeys[animationObject, default: []].insert(key)
         } else {
-            animatingKeys[Weak(object), default: []].insert(key)
+            animatingKeys[.init(object), default: []].insert(key)
         }
     }
     
-    func removeAnimationKey(_ key: String, for object: NSObject & NSAnimatablePropertyContainer) {
+    func removeAnimationKey(_ key: String, for object: AnimatablePropertyProvider) {
         guard let animationObject = animatingKeys.keys.first(where: {$0.object === object }) else { return }
         var keys = animatingKeys[animationObject, default: []]
         keys.remove(key)
@@ -268,9 +275,9 @@ public class NSAnimator: NSObject {
 }
 
 extension NSAnimationContext {
-    var animation: NSAnimator? {
-        get { getAssociatedValue("contextAnimation") }
-        set { setAssociatedValue(newValue, key: "contextAnimation") }
+    var animator: NSAnimator? {
+        get { getAssociatedValue("animator") }
+        set { setAssociatedValue(newValue, key: "animator") }
     }
 }
 
@@ -320,9 +327,8 @@ extension NSAnimator {
     struct AnimationTargetValue {
         let from: Any?
         let to: Any?
-        let byValue: Any?
         var reversed: AnimationTargetValue {
-            .init(from: to, to: from, byValue: byValue)
+            .init(from: to, to: from)
         }
     }
 }
