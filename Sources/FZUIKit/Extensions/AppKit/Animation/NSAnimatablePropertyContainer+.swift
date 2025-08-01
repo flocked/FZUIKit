@@ -26,9 +26,7 @@ extension NSAnimatablePropertyContainer {
 }
 
 extension NSAnimatablePropertyContainer where Self: NSObject {
-    /**
-     Stops all animations of properties animated using [animator()](https://developer.apple.com/documentation/appkit/nsanimatablepropertycontainer/animator()).
-     */
+    /// Stops all animations of properties.
     func stopAllAnimations() {
         let keys = animationDelegate.animationKeys
         NSAnimationContext.performWithoutAnimation {
@@ -81,13 +79,6 @@ extension NSAnimatablePropertyContainer where Self: NSObject {
 }
 
 extension NSAnimationContext {
-    /**
-     Stops all animations of properties animated using [animator()](https://developer.apple.com/documentation/appkit/nsanimatablepropertycontainer/animator()).
-     */
-    class func stopAllAnimations() {
-        AnimationDelegate.animatingObjects.values.forEach({ $0.object?.stopAllAnimations() })
-    }
-    
     fileprivate static var didSwizzleDefaultAnimation: Bool {
         get { getAssociatedValue("didSwizzleDefaultAnimation", initialValue: false) }
         set { setAssociatedValue(newValue, key: "didSwizzleDefaultAnimation") }
@@ -102,108 +93,6 @@ extension NSAnimationContext {
         NSPageController.swizzleAnimationForKey()
         NSSplitViewItem.swizzleAnimationForKey()
         CALayer.swizzleActionForKey()
-    }
-}
-
-fileprivate extension NSLayoutConstraint {
-    @objc class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        guard let animation = swizzledDefaultAnimation(forKey: key) else { return nil }
-        if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animator?.spring {
-            return springAnimation
-        }
-        return animation
-    }
-    
-    static var didSwizzleDefaultAnimation: Bool {
-        get { getAssociatedValue("didSwizzleDefaultAnimation", initialValue: false) }
-        set { setAssociatedValue(newValue, key: "didSwizzleDefaultAnimation") }
-    }
-    
-    static func swizzleAnimationForKey() {
-        guard !didSwizzleDefaultAnimation else { return }
-        didSwizzleDefaultAnimation = true
-        do {
-            _ = try Swizzle(NSLayoutConstraint.self) {
-                #selector(NSLayoutConstraint.defaultAnimation(forKey:)) <~> #selector(NSLayoutConstraint.swizzledDefaultAnimation(forKey:))
-                #selector(NSLayoutConstraint.animation(forKey:)) <-> #selector(NSLayoutConstraint.swizzledAnimation(forKey:))
-            }
-        } catch {
-            Swift.debugPrint(error)
-        }
-    }
-    
-    @objc private func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        let animation = swizzledAnimation(forKey: key)
-        (animation as? CAAnimation)?.delegate = animationDelegate
-        return animation
-    }
-}
-
-fileprivate extension NSPageController {
-    @objc class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        guard let animation = swizzledDefaultAnimation(forKey: key) else { return nil }
-        if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animator?.spring {
-            return springAnimation
-        }
-        return animation
-    }
-    
-    @objc private func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        let animation = swizzledAnimation(forKey: key)
-        (animation as? CAAnimation)?.delegate = animationDelegate
-        return animation
-    }
-    
-    static var didSwizzleDefaultAnimation: Bool {
-        get { getAssociatedValue("didSwizzleDefaultAnimation", initialValue: false) }
-        set { setAssociatedValue(newValue, key: "didSwizzleDefaultAnimation") }
-    }
-    
-    static func swizzleAnimationForKey() {
-        guard !didSwizzleDefaultAnimation else { return }
-        didSwizzleDefaultAnimation = true
-        do {
-            _ = try Swizzle(NSPageController.self) {
-                #selector(NSPageController.defaultAnimation(forKey:)) <~> #selector(NSPageController.swizzledDefaultAnimation(forKey:))
-                #selector(NSPageController.animation(forKey:)) <-> #selector(NSPageController.swizzledAnimation(forKey:))
-            }
-        } catch {
-            Swift.debugPrint(error)
-        }
-    }
-}
-
-fileprivate extension NSSplitViewItem {
-    @objc class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        guard let animation = swizzledDefaultAnimation(forKey: key) else { return nil }
-        if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animator?.spring {
-            return springAnimation
-        }
-        return animation
-    }
-    
-    @objc private func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        let animation = swizzledAnimation(forKey: key)
-        (animation as? CAAnimation)?.delegate = animationDelegate
-        return animation
-    }
-    
-    static var didSwizzleDefaultAnimation: Bool {
-        get { getAssociatedValue("didSwizzleDefaultAnimation", initialValue: false) }
-        set { setAssociatedValue(newValue, key: "didSwizzleDefaultAnimation") }
-    }
-    
-    static func swizzleAnimationForKey() {
-        guard !didSwizzleDefaultAnimation else { return }
-        didSwizzleDefaultAnimation = true
-        do {
-            _ = try Swizzle(NSSplitViewItem.self) {
-                #selector(NSSplitViewItem.defaultAnimation(forKey:)) <~> #selector(NSSplitViewItem.swizzledDefaultAnimation(forKey:))
-                #selector(NSSplitViewItem.animation(forKey:)) <-> #selector(NSSplitViewItem.swizzledAnimation(forKey:))
-            }
-        } catch {
-            Swift.debugPrint(error)
-        }
     }
 }
 
@@ -292,6 +181,10 @@ fileprivate extension CALayer {
             new.repeatDuration = animation.repeatDuration
             new.autoreverses = animation.autoreverses
             new.beginTime = CACurrentMediaTime() + animation.delay
+            if animation.autoreverses {
+                new.fillMode = .forwards
+                new.isRemovedOnCompletion = false
+            }
             new.delegate = animationDelegate
             return new
         }
@@ -299,11 +192,6 @@ fileprivate extension CALayer {
     }
     
     static let animatableKeys: Set<String> = ["bounds", "position", "zPosition", "anchorPoint", "anchorPointZ", "transform",  "frame", "contents", "contentsRect", "contentsScale", "contentsCenter", "opacity", "backgroundColor", "cornerRadius", "borderWidth", "borderColor", "shadowColor", "shadowOpacity", "shadowOffset", "shadowRadius", "shadowPath", "mask", "masksToBounds", "fillColor", "strokeColor", "lineDashPattern", "lineWidth", "fillColor", "strokeStart", "strokeEnd", "lineDashPhase", "isHidden", "contents", "path", "inverseMask"]
-    
-    static var didSwizzleActionForKey: Bool {
-        get { getAssociatedValue("didSwizzleActionForKey", initialValue: false) }
-        set { setAssociatedValue(newValue, key: "didSwizzleActionForKey") }
-    }
     
     static func swizzleActionForKey() {
         guard !didSwizzleActionForKey else { return }
@@ -316,47 +204,79 @@ fileprivate extension CALayer {
             Swift.debugPrint(error)
         }
     }
+    
+    static var didSwizzleActionForKey: Bool {
+        get { getAssociatedValue("didSwizzleActionForKey", initialValue: false) }
+        set { setAssociatedValue(newValue, key: "didSwizzleActionForKey") }
+    }
 }
 
-extension NSView {
+extension AnimatablePropertyProvider {
     static func swizzleAnimationForKey() {
         guard !didSwizzleAnimationForKey else { return }
         didSwizzleAnimationForKey = true
         do {
             _ = try Swizzle(NSView.self) {
-                #selector(NSView.defaultAnimation(forKey:)) <~> #selector(NSView.swizzledDefaultAnimation(forKey:))
-                #selector(NSView.animation(forKey:)) <-> #selector(NSView.swizzledAnimation(forKey:))
+                #selector(NSView.defaultAnimation(forKey:)) <~> #selector(NSObject.swizzledDefaultAnimation(forKey:))
+                #selector(NSView.animation(forKey:)) <-> #selector(NSObject.swizzledAnimation(forKey:))
             }
         } catch {
             Swift.debugPrint(error, (error as? LocalizedError)?.failureReason ?? "nil")
         }
     }
 
-    @objc private class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+    private static var didSwizzleAnimationForKey: Bool {
+        get { getAssociatedValue("didSwizzleAnimationForKey") ?? false }
+        set { setAssociatedValue(newValue, key: "didSwizzleAnimationForKey") }
+    }
+}
+
+fileprivate extension NSObject {
+    @objc class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        guard let animation = swizzledDefaultAnimation(forKey: key) else { return nil }
+        if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animator?.spring {
+            return springAnimation
+        }
+        return animation
+    }
+    
+    @objc func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        let animation = swizzledAnimation(forKey: key)
+        (animation as? CAAnimation)?.delegate = (self as! AnimatablePropertyProvider).animationDelegate
+        return animation
+    }
+}
+
+fileprivate extension NSView {
+    @objc override class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
         if let animation = swizzledDefaultAnimation(forKey: key) {
             if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animator?.spring {
                 return springAnimation
             }
             return animation
-        } else if NSViewAnimationKeys.contains(key) {
+        } else if Self.animatableKeys.contains(key) {
              return swizzledDefaultAnimation(forKey: "frameOrigin")
         }
         return nil
     }
     
-    @objc private func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        let animation = swizzledAnimation(forKey: key)
-        (animation as? CAAnimation)?.delegate = animationDelegate
-        return animation
-    }
+    static let animatableKeys: Set<String> = ["_contentOffset", "_contentOffsetFractional", "_documentSize", "_fontSize", "_placeholderTextColor", "_roundedCorners", "_selectionColor", "_selectionTextColor", "backgroundColor", "bezelColor", "borderColor", "borderWidth", "contentTintColor", "cornerRadius", "fillColor", "shadowColor", "textColor"]
+}
 
-    private static var didSwizzleAnimationForKey: Bool {
-        get { getAssociatedValue("didSwizzleAnimationForKey") ?? false }
-        set { setAssociatedValue(newValue, key: "didSwizzleAnimationForKey") }
+fileprivate extension NSWindow {
+    @objc override class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
+        if let animation = swizzledDefaultAnimation(forKey: key) {
+            if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animator?.spring {
+                return springAnimation
+            }
+            return animation
+        } else if animatableKeys.contains(key) {
+            return swizzledDefaultAnimation(forKey: "alphaValue")
+        }
+        return nil
     }
     
-    /// The `NSView` properties keys that can be animated.
-    fileprivate static let NSViewAnimationKeys: Set<String> = ["_contentOffset", "_contentOffsetFractional", "_documentSize", "_fontSize", "_placeholderTextColor", "_roundedCorners", "_selectionColor", "_selectionTextColor", "backgroundColor", "bezelColor", "borderColor", "borderWidth", "contentTintColor", "cornerRadius", "fillColor", "shadowColor", "textColor"]
+    static let animatableKeys = ["_frameAnimatable", "_contentSize"]
 }
 
 #endif

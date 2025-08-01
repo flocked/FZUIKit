@@ -714,43 +714,6 @@ extension NSWindow {
         set { (contentViewController as? NSSplitViewController)?.animator(isProxy()).isInspectorVisible = newValue }
     }
     
-    @objc private class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        if let animation = swizzledDefaultAnimation(forKey: key) {
-            if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animator?.spring {
-                return springAnimation
-            }
-            return animation
-        } else if NSWindowAnimationKeys.contains(key) {
-            return swizzledDefaultAnimation(forKey: "alphaValue")
-        }
-        return nil
-    }
-    
-    private static var didSwizzleAnimationForKey: Bool {
-        get { getAssociatedValue("didSwizzleAnimationForKey") ?? false }
-        set { setAssociatedValue(newValue, key: "didSwizzleAnimationForKey") }
-    }
-    
-    /// Swizzles windows to support additional properties for animating.
-    static func swizzleAnimationForKey() {
-        guard !didSwizzleAnimationForKey else { return }
-        didSwizzleAnimationForKey = true
-        do {
-            _ = try Swizzle(NSWindow.self) {
-                #selector(NSWindow.defaultAnimation(forKey:)) <~> #selector(NSWindow.swizzledDefaultAnimation(forKey:))
-                #selector(NSWindow.animation(forKey:)) <-> #selector(NSWindow.swizzledAnimation(forKey:))
-            }
-        } catch {
-            Swift.debugPrint(error)
-        }
-    }
-    
-    @objc private func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        let animation = swizzledAnimation(forKey: key)
-        (animation as? CAAnimation)?.delegate = animationDelegate
-        return animation
-    }
-    
     var mainWindowObservation: KeyValueObservation? {
         get { getAssociatedValue("mainWindowObservation") }
         set { setAssociatedValue(newValue, key: "mainWindowObservation") }
@@ -768,6 +731,4 @@ extension NSWindow {
         didChangeValue(for: keyPath)
     }
 }
-
-fileprivate let NSWindowAnimationKeys = ["_frameAnimatable", "_contentSize"]
 #endif

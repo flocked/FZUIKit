@@ -19,6 +19,7 @@ public class NSAnimator: NSObject {
     var spring: CASpringAnimation?
     var shouldRestart = false
     var startTime = CACurrentMediaTime()
+    var isStopped = false
     
     /// Constants indicating the current state of the animation.
     public enum State {
@@ -126,6 +127,7 @@ public class NSAnimator: NSObject {
     /// Stops the animation.
     public func stop() {
         guard state == .running else { return }
+        isStopped = true
         animatingKeys.forEach({
             guard let object = $0.key.object else { return }
             $0.value.forEach({ object.stopAnimation(for: $0) })
@@ -143,6 +145,7 @@ public class NSAnimator: NSObject {
         } else {
             animationTargetValues = [:]
             animatingKeys = [:]
+            isStopped = false
             animate(next)
         }
         return self
