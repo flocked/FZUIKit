@@ -777,42 +777,6 @@ extension NSView {
     public func convertToWindow(_ frame: CGRect) -> CGRect {
         convert(frame, to: nil)
     }
-
-    static func swizzleAnimationForKey() {
-        guard !didSwizzleAnimationForKey else { return }
-        didSwizzleAnimationForKey = true
-        do {
-            _ = try Swizzle(NSView.self) {
-                #selector(NSView.defaultAnimation(forKey:)) <~> #selector(NSView.swizzledDefaultAnimation(forKey:))
-                #selector(NSView.animation(forKey:)) <-> #selector(NSView.swizzledAnimation(forKey:))
-            }
-        } catch {
-            Swift.debugPrint(error, (error as? LocalizedError)?.failureReason ?? "nil")
-        }
-    }
-
-    @objc private class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        if let animation = swizzledDefaultAnimation(forKey: key) {
-            if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animator?.spring {
-                return springAnimation
-            }
-            return animation
-        } else if NSViewAnimationKeys.contains(key) {
-             return swizzledDefaultAnimation(forKey: "frameOrigin")
-        }
-        return nil
-    }
-    
-    @objc private func swizzledAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        let animation = swizzledAnimation(forKey: key)
-        (animation as? CAAnimation)?.delegate = animationDelegate
-        return animation
-    }
-
-    private static var didSwizzleAnimationForKey: Bool {
-        get { getAssociatedValue("didSwizzleAnimationForKey") ?? false }
-        set { setAssociatedValue(newValue, key: "didSwizzleAnimationForKey") }
-    }
 }
 
 public extension NSView.AutoresizingMask {
@@ -823,9 +787,6 @@ public extension NSView.AutoresizingMask {
     /// An autoresizing mask with flexible size and fixed margins.
     static let all: NSView.AutoresizingMask = [.height, .width, .minYMargin, .minXMargin, .maxXMargin, .maxYMargin]
 }
-
-/// The `NSView` properties keys that can be animated.
-fileprivate let NSViewAnimationKeys: Set<String> = ["_contentOffset", "_contentOffsetFractional", "_documentSize", "_fontSize", "_placeholderTextColor", "_roundedCorners", "_selectionColor", "_selectionTextColor", "backgroundColor", "bezelColor", "borderColor", "borderWidth", "contentTintColor", "cornerRadius", "fillColor", "shadowColor", "textColor"]
 
 fileprivate extension CALayer {
     var isVisible: Bool {
