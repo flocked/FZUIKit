@@ -20,20 +20,6 @@ extension NSWindow {
         order(.below, relativeTo: window.windowNumber)
     }
     
-    @objc open func cascadeFrame(for screen: NSScreen, frame: CGRect) -> CGRect {
-        let spacing = 10.0
-        setFrame(frame, display: false)
-        guard frame.width <= screen.visibleFrame.width, frame.height <= screen.visibleFrame.height else { return frame }
-        var offsetFrame = frame.offsetBy(dx: 30, dy: -30)
-        if offsetFrame.maxX + spacing > screen.visibleFrame.maxX {
-            offsetFrame.origin.x = screen.visibleFrame.x + spacing
-        }
-        if offsetFrame.y - spacing < screen.visibleFrame.y {
-            offsetFrame.origin.y = screen.visibleFrame.maxY-frame.height -  spacing
-        }
-        return offsetFrame
-    }
-    
     /// Repositions the window’s origin with an offset from the specified frame.
     @objc open func cascade(from frame: CGRect) {
         let spacing = 10.0
