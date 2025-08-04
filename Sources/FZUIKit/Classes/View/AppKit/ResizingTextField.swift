@@ -14,14 +14,14 @@ import FZSwiftUtils
 open class ResizingTextField: NSTextField {
 
     /// A Boolean value indicating whether the text field automatically resizes to fit it's text.
-    public override var automaticallyResizesToFit: Bool {
+    open override var automaticallyResizesToFit: Bool {
         didSet {
             invalidateIntrinsicContentSize()
         }
     }
 
     /// Indicates how the text field should resize for fitting the placeholder.
-    public var resizesToFitPlaceholder: PlaceHolderResizeOption = .emptyText {
+    open var resizesToFitPlaceholder: PlaceHolderResizeOption = .emptyText {
         didSet { if oldValue != resizesToFitPlaceholder, resizesToFitPlaceholder != .never {
             invalidateIntrinsicContentSize()
         } }
@@ -42,8 +42,8 @@ open class ResizingTextField: NSTextField {
 
      When ``automaticallyResizesToFit`` is enabled, the minimum width is limited to this value.
      */
-    public var minWidth: CGFloat? {
-        didSet { 
+    open var minWidth: CGFloat? {
+        didSet {
             if oldValue != minWidth {
                 invalidateIntrinsicContentSize()
             }
@@ -55,7 +55,7 @@ open class ResizingTextField: NSTextField {
 
      When ``automaticallyResizesToFit`` is enabled and the text field hits the maximum width, it will automatically grow in height.
      */
-    public var maxWidth: CGFloat? {
+    open var maxWidth: CGFloat? {
         didSet {
             if oldValue != maxWidth {
                 invalidateIntrinsicContentSize()
@@ -111,35 +111,35 @@ open class ResizingTextField: NSTextField {
         }
     }
 
-    override public var stringValue: String {
+    override open var stringValue: String {
         didSet {
             guard !isEditing else { return }
             lastContentSize = stringValueSize()
         }
     }
 
-    override public var attributedStringValue: NSAttributedString {
+    override open var attributedStringValue: NSAttributedString {
         didSet {
             guard !isEditing else { return }
             lastContentSize = stringValueSize()
         }
     }
 
-    override public var placeholderString: String? {
+    override open var placeholderString: String? {
         didSet {
             guard oldValue != placeholderString else { return }
             placeholderSize = placeholderStringSize()
         }
     }
 
-    override public var placeholderAttributedString: NSAttributedString? {
+    override open var placeholderAttributedString: NSAttributedString? {
         didSet {
             guard oldValue != placeholderAttributedString else { return }
             placeholderSize = placeholderStringSize()
         }
     }
 
-    override public var font: NSFont? {
+    override open var font: NSFont? {
         didSet {
             guard !isEditing else { return }
             lastContentSize = stringValueSize()
@@ -148,7 +148,7 @@ open class ResizingTextField: NSTextField {
         }
     }
 
-    public func stringValueSize() -> CGSize {
+    func stringValueSize() -> CGSize {
         let stringSize = attributedStringValue.size()
         return CGSize(width: stringSize.width, height: super.intrinsicContentSize.height)
     }
@@ -167,7 +167,7 @@ open class ResizingTextField: NSTextField {
         return placeholderStringSize
     }
 
-    override public func textDidBeginEditing(_ notification: Notification) {
+    override open func textDidBeginEditing(_ notification: Notification) {
         super.textDidBeginEditing(notification)
         isEditing = true
         // This is a tweak to fix the problem of insertion points being drawn at the wrong position.
@@ -176,12 +176,12 @@ open class ResizingTextField: NSTextField {
         }
     }
 
-    override public func textDidEndEditing(_ notification: Notification) {
+    override open func textDidEndEditing(_ notification: Notification) {
         super.textDidEndEditing(notification)
         isEditing = false
     }
 
-    override public func textDidChange(_ notification: Notification) {
+    override open func textDidChange(_ notification: Notification) {
         super.textDidChange(notification)
         invalidateIntrinsicContentSize()
     }
@@ -191,7 +191,7 @@ open class ResizingTextField: NSTextField {
         set { super.cellClass = newValue }
     }
 
-    override public var intrinsicContentSize: CGSize {
+    override open var intrinsicContentSize: CGSize {
         let intrinsicContentSize = super.intrinsicContentSize
         guard automaticallyResizesToFit else { return intrinsicContentSize }
         let minWidth: CGFloat!
