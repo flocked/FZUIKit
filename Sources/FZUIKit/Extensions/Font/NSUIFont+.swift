@@ -14,17 +14,17 @@ import FZSwiftUtils
 
 public extension NSUIFont {
     /// The available font names.
-    public static var availableFonts: [String] {
+    static var availableFonts: [String] {
         availableFontDescriptors.compactMap({ $0.name })
     }
     
     /// Returns the available font names with the specified font traits.
-    public static func availableFonts(with symbolicTraits: NSUIFontDescriptor.SymbolicTraits) -> [String] {
+    static func availableFonts(with symbolicTraits: NSUIFontDescriptor.SymbolicTraits) -> [String] {
         availableFontDescriptors.filter({ $0.symbolicTraits.contains(symbolicTraits) }).compactMap({ $0.name })
     }
     
     /// Returns the available font names for the specified locale.
-    public static func availableFonts(for locale: Locale) -> [String] {
+    static func availableFonts(for locale: Locale) -> [String] {
         var language = locale.identifier
         if #available(macOS 13, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
             guard let languageCode = locale.language.languageCode?.identifier else {

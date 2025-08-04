@@ -10,6 +10,11 @@ import AppKit
 import FZSwiftUtils
 
 public extension NSFont {
+    /// The standard system font, with default size.
+    static var systemFont: NSUIFont {
+        .systemFont(ofSize: 0)
+    }
+    
     /// The font used for standard interface labels, with default size.
     static var label: NSFont {
         .labelFont(ofSize: 0)

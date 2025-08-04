@@ -65,7 +65,6 @@ public extension CGImage {
         guard width != self.width || height != self.height else { return self }
         guard let colorSpace = colorSpace else { return self }
         guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: colorSpace, bitmapInfo: alphaInfo.rawValue) else { return self }
-
         context.interpolationQuality = quality
         context.draw(self, in: CGRect(x: 0, y: 0, width: width, height: height))
         return context.makeImage() ?? self
