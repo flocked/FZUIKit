@@ -41,7 +41,7 @@ extension NSWindow {
     }
     
     /**
-     A Boolean value that indicates whether the window is the first responder.
+     A Boolean value indicating whether the window is the first responder.
      
      The system dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
      */
@@ -49,81 +49,94 @@ extension NSWindow {
         firstResponder == self
     }
     
-    /// A Boolean value that indicates whether the window displays a title bar.
+    /// A Boolean value indicating whether the window displays a title bar.
     @objc open var isTitled: Bool {
         get { styleMask.contains(.titled) }
         set { styleMask[.titled] = newValue }
     }
     
-    /// Sets the Boolean value that indicates whether the window displays a title bar.
+    /// Sets the Boolean value indicating whether the window displays a title bar.
     @discardableResult
     @objc open func isTitled(_ isTitled: Bool) -> Self {
         self.isTitled = isTitled
         return self
     }
     
-    /// A Boolean value that indicates whether the window’s contentView consumes the full size of the window.
+    /// A Boolean value indicating whether the window’s contentView consumes the full size of the window.
     @objc open var hasFullSizeContentView: Bool {
         get { styleMask.contains(.fullSizeContentView) }
         set { styleMask[.fullSizeContentView] = newValue }
     }
     
-    /// Sets the Boolean value that indicates whether the window’s contentView consumes the full size of the window.
+    /// Sets the Boolean value indicating whether the window’s contentView consumes the full size of the window.
     @discardableResult
     @objc open func hasFullSizeContentView(_ hasFullSizeContentView: Bool) -> Self {
         self.hasFullSizeContentView = hasFullSizeContentView
         return self
     }
     
-    /// A Boolean value that indicates whether the window displays a close button.
+    /// A Boolean value indicating whether the window displays a close button.
     @objc open var displaysCloseButton: Bool {
         get { styleMask.contains(.closable) }
         set { styleMask[.closable] = newValue }
     }
     
-    /// Sets the Boolean value that indicates whether the window displays a close button.
+    /// Sets the Boolean value indicating whether the window displays a close button.
     @discardableResult
     @objc open func displaysCloseButton(_ displays: Bool) -> Self {
         self.displaysCloseButton = displays
         return self
     }
     
-    /// A Boolean value that indicates whether the window can be resized by the user.
+    /// A Boolean value indicating whether the window can be resized by the user.
     @objc open var isResizable: Bool {
         get { styleMask.contains(.resizable) }
         set { styleMask[.resizable] = newValue }
     }
     
-    /// Sets the Boolean value that indicates whether the window can be resized by the user.
+    /// Sets the Boolean value indicating whether the window can be resized by the user.
     @discardableResult
     @objc open func isResizable(_ isResizable: Bool) -> Self {
         self.isResizable = isResizable
         return self
     }
     
-    /// A Boolean value that indicates whether the window displays a minimize button.
+    /// A Boolean value indicating whether the window displays a minimize button.
     @objc open var displaysMinimizeButton: Bool {
         get { styleMask.contains(.miniaturizable) }
         set { styleMask[.miniaturizable] = newValue }
     }
     
-    /// Sets the Boolean value that indicates whether the window displays a minimize button.
+    /// Sets the Boolean value indicating whether the window displays a minimize button.
     @discardableResult
     @objc open func displaysMinimizeButton(_ displays: Bool) -> Self {
         self.displaysMinimizeButton = displays
         return self
     }
     
-    /// A Boolean value that indicates whether the window displays none of the usual peripheral elements.
+    /// A Boolean value indicating whether the window displays none of the usual peripheral elements.
     @objc open var isBorderless: Bool {
         get { styleMask.contains(.borderless) }
         set { styleMask[.borderless] = newValue }
     }
     
-    /// Sets the Boolean value that indicates whether the window displays none of the usual peripheral elements.
+    /// Sets the Boolean value indicating whether the window displays none of the usual peripheral elements.
     @discardableResult
     @objc open func isBorderless(_ isBorderless: Bool) -> Self {
         self.isBorderless = isBorderless
+        return self
+    }
+    
+    /// A Boolean value indicating whether the window is a document-modal panel.
+    @objc open var isDocumentModal: Bool {
+        get { styleMask.contains(.docModalWindow) }
+        set { styleMask[.docModalWindow] = newValue }
+    }
+    
+    /// Sets the Boolean value indicating whether the window is a document-modal panel.
+    @discardableResult
+    @objc open func isDocumentModal(_ isDocumentModal: Bool) -> Self {
+        self.isDocumentModal = isDocumentModal
         return self
     }
     
@@ -385,28 +398,28 @@ extension NSWindow {
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the window can hide when its application becomes hidden.
+    /// Sets the Boolean value indicating whether the window can hide when its application becomes hidden.
     @discardableResult
     @objc open func canHide(_ canHide: Bool) -> Self {
         self.canHide = canHide
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the window is removed from the screen when its application becomes inactive.
+    /// Sets the Boolean value indicating whether the window is removed from the screen when its application becomes inactive.
     @discardableResult
     @objc open func hidesOnDeactivate(_ hides: Bool) -> Self {
         self.hidesOnDeactivate = hides
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the window is opaque.
+    /// Sets the Boolean value indicating whether the window is opaque.
     @discardableResult
     @objc open func isOpaque(_ isOpaque: Bool) -> Self {
         self.isOpaque = isOpaque
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the window has a shadow.
+    /// Sets the Boolean value indicating whether the window has a shadow.
     @discardableResult
     @objc open func hasShadow(_ hasShadow: Bool) -> Self {
         self.hasShadow = hasShadow
@@ -450,7 +463,7 @@ extension NSWindow {
         set { setAssociatedValue(newValue, key: "observations") }
     }
     
-    /// A Boolean value that indicates whether the window is fullscreen.
+    /// A Boolean value indicating whether the window is fullscreen.
     @objc open var isFullscreen: Bool {
         get {
             setupFullscreenObservation()
@@ -462,7 +475,7 @@ extension NSWindow {
         }
     }
     
-    /// Sets the Boolean value that indicates whether the window is fullscreen.
+    /// Sets the Boolean value indicating whether the window is fullscreen.
     @discardableResult
     @objc open func isFullscreen(_ isFullscreen: Bool) -> Self {
         self.isFullscreen = isFullscreen
@@ -577,7 +590,7 @@ extension NSWindow {
         return frame.height - contentRect(forFrameRect: frame).height
     }
     
-    /// A Boolean value that indicates whether window currently displays a tab bar.
+    /// A Boolean value indicating whether window currently displays a tab bar.
     @objc open var isTabBarVisible: Bool {
         get { tabGroup?.isTabBarVisible ?? false }
         set {
@@ -586,7 +599,7 @@ extension NSWindow {
         }
     }
     
-    /// Sets the Boolean value that indicates whether window currently displays a tab bar.
+    /// Sets the Boolean value indicating whether window currently displays a tab bar.
     @discardableResult
     @objc open func isTabBarVisible(_ isVisible: Bool) -> Self {
         self.isTabBarVisible = isVisible
@@ -612,7 +625,7 @@ extension NSWindow {
      - Parameters:
         - window: The window to insert.
         - position: The position to insert the window.
-        - select: A Boolean value that indicates whether to select the inserted tab.
+        - select: A Boolean value indicating whether to select the inserted tab.
      */
     public func insertTabWindow(_ window: NSWindow, position: NSWindowTabGroup.TabPosition = .afterSelected, select: Bool = true) {
         tabGroup?.insertWindow(window, position: position, select: select)
@@ -690,7 +703,7 @@ extension NSWindow {
     }
     
     /**
-     A Boolean value that indicates whether the sidebar is visible.
+     A Boolean value indicating whether the sidebar is visible.
      
      If the window's content view controller isn't a split view controlller with a sidebar item, it returns `false`.
      
