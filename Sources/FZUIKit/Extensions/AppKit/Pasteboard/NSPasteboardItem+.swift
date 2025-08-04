@@ -68,7 +68,7 @@ extension NSPasteboardItem {
     /// The color of the pasteboard item.
     public var color: NSColor? {
         get {
-            if let data = data(forType: .color), let color: NSColor = try? NSKeyedUnarchiver.unarchive(data) {
+            if let data = data(forType: .color), let color: NSColor = try? NSKeyedUnarchiver.unarchivedObject(from: data) {
                 return color
             }
             return nil
