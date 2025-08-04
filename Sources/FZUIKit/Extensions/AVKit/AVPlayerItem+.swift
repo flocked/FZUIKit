@@ -59,7 +59,7 @@ public extension AVPlayerItem {
         - percentage: The percentage to which to seek (between `0.0` and `1.0`).
         - tolerance: The tolerance.
         - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
-            - finished: A Boolean value that indicates whether the seek operation completed.
+            - finished: A Boolean value indicating whether the seek operation completed.
      */
     func seek(toPercentage percentage: Double, tolerance: TimeDuration? = nil, completionHandler: ((Bool) -> Void)? = nil) {
         let to: Double = duration.seconds * percentage.clamped(to: 0.0...1.0)
@@ -74,7 +74,7 @@ public extension AVPlayerItem {
         - time: The time to which to seek.
         - tolerance: The tolerance.
         - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
-            - finished: A Boolean value that indicates whether the seek operation completed.
+            - finished: A Boolean value indicating whether the seek operation completed.
      */
     func seek(to time: TimeDuration, tolerance: TimeDuration? = nil, completionHandler: ((Bool) -> Void)? = nil) {
         let time = CMTime(seconds: time.seconds.clamped(to: 0...duration.seconds))

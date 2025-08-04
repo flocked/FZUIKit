@@ -21,7 +21,7 @@
             set { arrangedObjects = newValue }
         }
 
-        /// A Boolean value that indicates whether the user can swipe between displayed pages.
+        /// A Boolean value indicating whether the user can swipe between displayed pages.
         public var isSwipeable = true
 
         /// A value that specifies if the displayed page is controllable by keyboard input.

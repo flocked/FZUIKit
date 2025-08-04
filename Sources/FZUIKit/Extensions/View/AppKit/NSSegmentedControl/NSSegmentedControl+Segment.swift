@@ -54,7 +54,7 @@ public class NSSegment: NSObject, ExpressibleByStringLiteral {
         }
     }
     
-    /// A Boolean value that indicates whether the segment shows a menu indicator.
+    /// A Boolean value indicating whether the segment shows a menu indicator.
     public var showsMenuIndicator: Bool = false {
         didSet {
             guard let index = index else { return }
@@ -62,7 +62,7 @@ public class NSSegment: NSObject, ExpressibleByStringLiteral {
         }
     }
     
-    /// A Boolean value that indicates whether the segment is selected.
+    /// A Boolean value indicating whether the segment is selected.
     public var isSelected: Bool = false {
         didSet {
             guard let index = index else { return }
@@ -70,7 +70,7 @@ public class NSSegment: NSObject, ExpressibleByStringLiteral {
         }
     }
     
-    /// A Boolean value that indicates whether the segment is enabled.
+    /// A Boolean value indicating whether the segment is enabled.
     public var isEnabled: Bool = true {
         didSet {
             guard let index = index else { return }
@@ -158,21 +158,21 @@ public class NSSegment: NSObject, ExpressibleByStringLiteral {
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the menu indicator is shown.
+    /// Sets the Boolean value indicating whether the menu indicator is shown.
     @discardableResult
     public func showsMenuIndicator(_ shows: Bool) -> Self {
         showsMenuIndicator = shows
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the segment is selected.
+    /// Sets the Boolean value indicating whether the segment is selected.
     @discardableResult
     public func isSelected(_ isSelected: Bool) -> Self {
         self.isSelected = isSelected
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the segment is enabled.
+    /// Sets the Boolean value indicating whether the segment is enabled.
     @discardableResult
     public func isEnabled(_ isEnabled: Bool) -> Self {
         self.isEnabled = isEnabled
@@ -214,7 +214,7 @@ public class NSSegment: NSObject, ExpressibleByStringLiteral {
     /// The index of the segment, or `nil` if the segment isn't displayed in any segmented control.
     public internal(set) var index: Int? = nil
     
-    /// A Boolean value that indicates whether the segment is the last selected segment.
+    /// A Boolean value indicating whether the segment is the last selected segment.
     public var isLastSelected: Bool {
         segmentedControl?.selectedSegment ?? -2 == index
     }

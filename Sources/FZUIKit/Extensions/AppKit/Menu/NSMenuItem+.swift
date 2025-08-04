@@ -81,7 +81,7 @@ public extension NSMenuItem {
      
      - Parameters:
         - view: The view of the menu item.
-        - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
+        - showsHighlight: A Boolean value indicating whether menu item should highlight on interaction.
         - action: The action handler.
      
      - Returns: An instance of `NSMenuItem`.
@@ -100,7 +100,7 @@ public extension NSMenuItem {
           
      - Parameters:
         - view: The view of the menu item.
-        - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
+        - showsHighlight: A Boolean value indicating whether menu item should highlight on interaction.
         - action: The action handler.
      
      - Returns: An instance of `NSMenuItem`.
@@ -120,7 +120,7 @@ public extension NSMenuItem {
      - Parameters:
         - view: The view of the menu item.
         - sizingOptions: The options for how the view creates and updates constraints based on the size of `view`.
-        - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
+        - showsHighlight: A Boolean value indicating whether menu item should highlight on interaction.
         - action: The action handler.
      
      - Returns: An instance of `NSMenuItem`.
@@ -140,7 +140,7 @@ public extension NSMenuItem {
      
      - Parameters:
         - view: The view of the menu item.
-        - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
+        - showsHighlight: A Boolean value indicating whether menu item should highlight on interaction.
         - action: The action handler.
      
      - Returns: An instance of `NSMenuItem`.
@@ -160,7 +160,7 @@ public extension NSMenuItem {
      - Parameters:
         - content: The view of the menu item.
         - sizingOptions: The options for how the view creates and updates constraints based on the size of `rootView`.
-        - showsHighlight: A Boolean value that indicates whether menu item should highlight on interaction.
+        - showsHighlight: A Boolean value indicating whether menu item should highlight on interaction.
         - action: The action handler.
      
      - Returns: An instance of `NSMenuItem`.
@@ -198,14 +198,14 @@ public extension NSMenuItem {
         return self
     }
     
-    /// A Boolean value that indicates whether the menu item is enabled.
+    /// A Boolean value indicating whether the menu item is enabled.
     @discardableResult
     func isEnabled(_ isEnabled: Bool) -> Self {
         self.isEnabled = isEnabled
         return self
     }
     
-    /// A Boolean value that indicates whether the menu item is hidden.
+    /// A Boolean value indicating whether the menu item is hidden.
     @discardableResult
     func isHidden(_ isHidden: Bool) -> Self {
         self.isHidden = isHidden
@@ -254,21 +254,21 @@ public extension NSMenuItem {
         return self
     }
     
-    /// The image of the menu item that indicates an “on” state.
+    /// The image of the menu item indicating an “on” state.
     @discardableResult
     func onStateImage(_ image: NSImage!) -> Self {
         onStateImage = image
         return self
     }
     
-    /// The image of the menu item that indicates an “off” state.
+    /// The image of the menu item indicating an “off” state.
     @discardableResult
     func offStateImage(_ image: NSImage?) -> Self {
         offStateImage = image
         return self
     }
     
-    /// The image of the menu item that indicates a “mixed” state, that is, a state neither “on” nor “off.”
+    /// The image of the menu item indicating a “mixed” state, that is, a state neither “on” nor “off.”
     @discardableResult
     func mixedStateImage(_ image: NSImage!) -> Self {
         mixedStateImage = image
@@ -329,7 +329,7 @@ public extension NSMenuItem {
 
      - Parameters:
         - view: The  view of the menu item.
-        - showsHighlight: A Boolean value that indicates whether to draw the highlight when the item is highlighted.
+        - showsHighlight: A Boolean value indicating whether to draw the highlight when the item is highlighted.
      */
     @discardableResult
     func view(_ view: NSView?, showsHighlight: Bool = true) -> Self {
@@ -354,7 +354,7 @@ public extension NSMenuItem {
 
      - Parameters:
         - view: The  SwiftUI `View`.
-        - showsHighlight: A Boolean value that indicates whether to draw the highlight when the item is highlighted.
+        - showsHighlight: A Boolean value indicating whether to draw the highlight when the item is highlighted.
      */
     @discardableResult
     func view<V: View>(_ view: V, showsHighlight: Bool = true) -> Self {
@@ -371,7 +371,7 @@ public extension NSMenuItem {
 
      - Parameters:
         - view: The  SwiftUI `View`.
-        - showsHighlight: A Boolean value that indicates whether to draw the highlight when the item is highlighted.
+        - showsHighlight: A Boolean value indicating whether to draw the highlight when the item is highlighted.
      */
     @discardableResult
     func view<Content: View>(@ViewBuilder _ view: () -> Content, showsHighlight: Bool = true) -> Self {
@@ -388,7 +388,7 @@ public extension NSMenuItem {
      - Parameters:
         - view: The  SwiftUI `View`.
         - sizingOptions: The options for how the view creates and updates constraints based on the size of `view`.
-        - showsHighlight: A Boolean value that indicates whether to draw the highlight when the item is highlighted.
+        - showsHighlight: A Boolean value indicating whether to draw the highlight when the item is highlighted.
      */
     @available(macOS 13.0, *)
     @discardableResult
@@ -407,7 +407,7 @@ public extension NSMenuItem {
      - Parameters:
         - view: The  SwiftUI `View`.
         - sizingOptions: The options for how the view creates and updates constraints based on the size of `SwiftUI` view.
-        - showsHighlight: A Boolean value that indicates whether to draw the highlight when the item is highlighted.
+        - showsHighlight: A Boolean value indicating whether to draw the highlight when the item is highlighted.
      */
     @available(macOS 13.0, *)
     @discardableResult

@@ -103,7 +103,7 @@ public extension NSColor {
         CIColor(color: self)
     }
     
-    /// A Boolean value that indicates whether the color has a color space. Accessing `colorSpace` directly crashes if a color doesn't have a color space. Therefore it's recommended to use this property prior.
+    /// A Boolean value indicating whether the color has a color space. Accessing `colorSpace` directly crashes if a color doesn't have a color space. Therefore it's recommended to use this property prior.
     var hasColorSpace: Bool {
         type == .componentBased && !String(describing: self).contains("customDynamic")
     }

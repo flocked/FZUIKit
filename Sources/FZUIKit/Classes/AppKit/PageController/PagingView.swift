@@ -49,7 +49,7 @@
             set { pageController.keyboardControl = newValue }
         }
 
-        /// A Boolean value that indicates whether the user can swipe between displayed pages.
+        /// A Boolean value indicating whether the user can swipe between displayed pages.
         public var isSwipeable: Bool {
             get { pageController.isSwipeable }
             set { pageController.isSwipeable = newValue }

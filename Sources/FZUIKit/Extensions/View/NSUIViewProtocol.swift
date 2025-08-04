@@ -20,7 +20,7 @@ public protocol NSViewProtocol: NSView {
     /// Returns the size that best fits the specified height.
     func sizeThatFits(height: CGFloat) -> CGSize
     
-    /// A Boolean value that indicates whether the view is enabled.
+    /// A Boolean value indicating whether the view is enabled.
     var isEnabled: Bool { get set }
     
     /*
@@ -31,7 +31,7 @@ public protocol NSViewProtocol: NSView {
      */
     var backgroundColor: NSUIColor? { get set }
     /**
-     A Boolean value that indicates whether the view is the first responder.
+     A Boolean value indicating whether the view is the first responder.
      
      The system dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
      */
@@ -46,7 +46,7 @@ import UIKit
 
 /// The group of methods that are fundamental to all `UIView` objects.
 public protocol UIViewProtocol: UIView {
-    /// A Boolean value that indicates whether the view is enabled.
+    /// A Boolean value indicating whether the view is enabled.
     var isEnabled: Bool { get set }
 }
 

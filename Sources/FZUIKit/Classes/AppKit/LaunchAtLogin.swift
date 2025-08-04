@@ -17,7 +17,7 @@ import AppKit
 
 @available(macOS 13.0, *)
 public enum LaunchAtLogin {
-	/// A Boolean value that indicates whether the app automatically launches at login.
+	/// A Boolean value indicating whether the app automatically launches at login.
 	public static var isEnabled: Bool {
 		get { SMAppService.mainApp.status == .enabled }
 		set {
@@ -39,7 +39,7 @@ public enum LaunchAtLogin {
 	}
 
 	/**
-     A Boolean value that indicates whether the app was launchedx at login.
+     A Boolean value indicating whether the app was launchedx at login.
      
      - Important: This property must only be checked in [applicationDidFinishLaunching(_:)](https://developer.apple.com/documentation/AppKit/NSApplicationDelegate/applicationDidFinishLaunching(_:))
 	*/

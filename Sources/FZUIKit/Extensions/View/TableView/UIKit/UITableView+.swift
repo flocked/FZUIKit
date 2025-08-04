@@ -80,7 +80,7 @@ public extension UITableView {
      If no rows are currently selected, the first row is selected.
      
      - Parameters:
-        - extend: A Boolean value that indicates whether the selection should be extended.
+        - extend: A Boolean value indicating whether the selection should be extended.
         - scrollPosition: A constant that identifies a relative position in the table view (top, middle, bottom) for the row when scrolling concludes.
      */
     func selectNextRow(byExtendingSelection extend: Bool = false, scrollPosition: ScrollPosition) {
@@ -106,7 +106,7 @@ public extension UITableView {
      If no rows are currently selected, the last row is selected.
      
      - Parameters:
-        - extend: A Boolean value that indicates whether the selection should be extended.
+        - extend: A Boolean value indicating whether the selection should be extended.
         - scrollPosition: A constant that identifies a relative position in the table view (top, middle, bottom) for the row when scrolling concludes.
      */
     func selectPreviousRow(byExtendingSelection extend: Bool = false, scrollPosition: ScrollPosition) {

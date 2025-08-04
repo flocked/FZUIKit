@@ -140,7 +140,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         }
     }
     
-    /// A Boolean value that indicates whether to apply the ``sectionInset`` to the  safe area of the collection view.
+    /// A Boolean value indicating whether to apply the ``sectionInset`` to the  safe area of the collection view.
     @available(macOS 11.0, iOS 13.0, tvOS 13.0, *)
     public var sectionInsetUsesSafeArea: Bool {
         get { _sectionInsetUsesSafeArea }
@@ -656,7 +656,7 @@ extension ColumnCollectionViewLayout {
     /// User interaction options for changing the amount of columns by pinching the collection view and pressing the `plus` or `minus` key.
     public struct UserInteraction {
         
-        /// A Boolean value that indicates whether the user can change the amount of columns by pinching the collection view.
+        /// A Boolean value indicating whether the user can change the amount of columns by pinching the collection view.
         public var isPinchable: Bool = false
         
         /// The range of columns that the user can change to.
@@ -728,7 +728,7 @@ extension ColumnCollectionViewLayout {
         public var inset: NSUIEdgeInsets = .zero
         
         /**
-         A Boolean value that indicates whether headers pin to the top/footers pin to the bottom of the collection view bounds during scrolling.
+         A Boolean value indicating whether headers pin to the top/footers pin to the bottom of the collection view bounds during scrolling.
                   
          When this property is `true`, section header views scroll with content until they reach the top of the screen, at which point they are pinned to the upper bounds of the collection view. Each new header view that scrolls to the top of the screen pushes the previously pinned header view offscreen.
          */

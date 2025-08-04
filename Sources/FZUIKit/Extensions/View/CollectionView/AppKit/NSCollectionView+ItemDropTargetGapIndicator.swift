@@ -28,7 +28,7 @@ extension NSCollectionView {
     }
     
     /**
-     A Boolean value that indicates whether the drop target gap indicator is centered.
+     A Boolean value indicating whether the drop target gap indicator is centered.
      
      The indicator is displayed, whenever the user drags an item to a supported. target index path.
      
@@ -164,7 +164,7 @@ extension NSCollectionView {
 /*
 extension NSCollectionViewLayout {
     /**
-     A Boolean value that indicates whether the drop target gap indicator is centered.
+     A Boolean value indicating whether the drop target gap indicator is centered.
      
      The indicator is displayed, whenever the user drags an item to a supported. target index path.
      

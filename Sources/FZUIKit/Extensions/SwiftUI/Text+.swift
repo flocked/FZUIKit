@@ -41,7 +41,7 @@ public extension Text {
     @available(iOS 15.0, macOS 12.0, *)
     /// A view mpdifier that controls whether text can be selected.
     public struct DynamicTextSelection: ViewModifier {
-        /// A Boolean value that indicates whether text can be selected.
+        /// A Boolean value indicating whether text can be selected.
         public let allowsSelection: Bool
 
         public func body(content: Content) -> some View {

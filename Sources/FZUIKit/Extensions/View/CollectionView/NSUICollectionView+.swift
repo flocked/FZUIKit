@@ -53,7 +53,7 @@ public extension NSUICollectionView {
         return nil
     }
         
-    /// A Boolean value that indicates whether an item exists at the specified index path.
+    /// A Boolean value indicating whether an item exists at the specified index path.
     func isValidIndexPath(_ indexPath: IndexPath) -> Bool {
         indexPath.section < numberOfSections && indexPath.item < numberOfItems(inSection: indexPath.section)
     }
@@ -137,7 +137,7 @@ public extension NSUICollectionView {
      If no items are currently selected, the first item is selected.
          
      - Parameters:
-        - extend: A Boolean value that indicates whether the selection should be extended.
+        - extend: A Boolean value indicating whether the selection should be extended.
         - scrollPosition: The options for scrolling the newly selected items into view. You may combine one vertical and one horizontal scrolling option when calling this method. Specifying more than one option for either the vertical or horizontal directions raises an exception.
      */
     func selectNextItem(byExtendingSelection extend: Bool = false, scrollPosition: ScrollPosition) {
@@ -167,7 +167,7 @@ public extension NSUICollectionView {
      If no items are currently selected, the last item is selected.
          
      - Parameters:
-        - extend: A Boolean value that indicates whether the selection should be extended.
+        - extend: A Boolean value indicating whether the selection should be extended.
         - scrollPosition: The options for scrolling the newly selected items into view. You may combine one vertical and one horizontal scrolling option when calling this method. Specifying more than one option for either the vertical or horizontal directions raises an exception.
      */
     func selectPreviousItem(byExtendingSelection extend: Bool = false, scrollPosition: ScrollPosition) {

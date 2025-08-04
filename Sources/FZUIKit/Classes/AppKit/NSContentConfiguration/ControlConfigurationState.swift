@@ -31,16 +31,16 @@ public struct ControlConfigurationState: NSConfigurationState {
         }
     }
     
-    /// A Boolean value that indicates whether the control is enabled and reacts to mouse events.
+    /// A Boolean value indicating whether the control is enabled and reacts to mouse events.
     public var isEnabled: Bool = false
     
-    /// A Boolean value that indicates whether the mouse is hovering the control.
+    /// A Boolean value indicating whether the mouse is hovering the control.
     public var isHovered: Bool = false
     
-    /// A Boolean value that indicates whether the control is pressed down.
+    /// A Boolean value indicating whether the control is pressed down.
     public var isPressed: Bool = false
     
-    /// A Boolean value that indicates whether the view is in an editing state.
+    /// A Boolean value indicating whether the view is in an editing state.
     public var isEditing: Bool = false
     
     /// The active state of an control.

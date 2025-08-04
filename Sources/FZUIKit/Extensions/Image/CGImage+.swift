@@ -129,7 +129,7 @@ public extension CGImage {
 
 extension CGImage {
     /**
-     Returns a Boolean value that indicates whether image is equal to the specified other image.
+     Returns a Boolean value indicating whether image is equal to the specified other image.
 
      - Parameter image: The image to comapare.
      - Returns: `true` if the images are equal, otherwise `false`.

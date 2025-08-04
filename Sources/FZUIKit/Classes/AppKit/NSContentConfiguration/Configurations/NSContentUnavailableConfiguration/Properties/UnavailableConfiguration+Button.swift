@@ -84,7 +84,7 @@ public extension NSContentUnavailableConfiguration {
         /// The action of the button.
         public var action: (() -> Void)?
         
-        /// A Boolean value that indicates whether the button is enabled.
+        /// A Boolean value indicating whether the button is enabled.
         public var isEnabled: Bool = true
         
         /// The state of the button.

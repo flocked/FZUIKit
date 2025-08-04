@@ -165,7 +165,7 @@ public extension NSUIImage {
         #endif
     }
     
-    /// Returns a Boolean value that indicates whether image is equal to the specified other image.
+    /// Returns a Boolean value indicating whether image is equal to the specified other image.
     func isEqual(to image: NSUIImage) -> Bool {
         #if os(macOS)
         if framesCount == 1, let cgImage = cgImage, let other = image.cgImage {

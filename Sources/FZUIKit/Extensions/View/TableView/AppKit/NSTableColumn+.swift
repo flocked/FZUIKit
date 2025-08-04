@@ -69,14 +69,14 @@ public extension NSTableColumn {
         return self
     }
         
-    /// Sets the Boolean that indicates whether a cell-based table’s column cells are user editable.
+    /// Sets the Boolean indicating whether a cell-based table’s column cells are user editable.
     @discardableResult
     func isEditable(_ isEditable: Bool) -> Self {
         self.isEditable = isEditable
         return self
     }
         
-    /// Sets Boolean that indicates whether the table column is hidden.
+    /// Sets Boolean indicating whether the table column is hidden.
     @discardableResult
     func isHidden(_ isHidden: Bool) -> Self {
         self.isHidden = isHidden
@@ -97,7 +97,7 @@ public extension NSTableColumn {
         return self
     }
         
-    /// A Boolean value that indicates whether the column is visible.
+    /// A Boolean value indicating whether the column is visible.
     var isVisible: Bool {
         tableView?.visibleColumns.contains(self) ?? false
     }
@@ -138,7 +138,7 @@ public extension NSTableColumn {
     }
         
         
-    /// A Boolean that indicates whether the table column is sorting the table view.
+    /// A Boolean indicating whether the table column is sorting the table view.
     var isSorting: Bool {
         get {
             guard let tableView = tableView, let sortDescriptor = sortDescriptorPrototype else { return false }
@@ -158,7 +158,7 @@ public extension NSTableColumn {
         }
     }
         
-    /// Sets the Boolean that indicates whether the table column is sorting the table view.
+    /// Sets the Boolean indicating whether the table column is sorting the table view.
     @discardableResult
     func isSorting(_ isSorting: Bool) -> Self {
         self.isSorting = isSorting

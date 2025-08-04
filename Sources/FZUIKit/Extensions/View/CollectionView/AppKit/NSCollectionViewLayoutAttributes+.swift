@@ -72,7 +72,7 @@ extension NSCollectionLayoutVisibleItem {
 }
 
 extension NSCollectionViewItem {
-    /// A Boolean value that indicates whether the item view's transform can be changed via layout attributes.
+    /// A Boolean value indicating whether the item view's transform can be changed via layout attributes.
     static var isTransformableByLayoutAttributes: Bool {
         get {NSCollectionViewItem.isMethodHooked(#selector(NSCollectionViewItem.apply)) }
         set {

@@ -58,12 +58,12 @@ public extension AVAsset {
         (try? load(.duration))?.timeDuration
     }
     
-    /// A Boolean value that indicates whether the the asset has audio.
+    /// A Boolean value indicating whether the the asset has audio.
     var hasAudio: Bool {
         audioChannels > 0
     }
     
-    /// A Boolean value that indicates whether the the asset has video.
+    /// A Boolean value indicating whether the the asset has video.
     var hasVideo: Bool {
         !tracks(withMediaType: .video).isEmpty
     }
@@ -84,7 +84,7 @@ public extension AVAsset {
      
      If the asset doesn't contain a video track, it returns an empty array.
      
-     - Parameter unique: A Boolean value that indicates whether to return only unique frames.
+     - Parameter unique: A Boolean value indicating whether to return only unique frames.
      */
     func videoFrames(unique: Bool = false) -> [CGImage] {
         let images = videoImageBuffers.compactMap({$0.cgImage})
@@ -105,7 +105,7 @@ public extension AVAsset {
      Returns gif data for a video asset.
      
      - Parameters:
-        - uniqueFrames: A Boolean value that indicates whether the gif should only use unique video frames.
+        - uniqueFrames: A Boolean value indicating whether the gif should only use unique video frames.
         - duration: The gif animation duration, or `nil` to use the video duration.
      */
     func gifData(uniqueFrames: Bool = true, duration: Double? = nil) -> Data? {
@@ -123,7 +123,7 @@ public extension AVAsset {
      Returns an animated image for a video asset.
      
      - Parameters:
-        - uniqueFrames: A Boolean value that indicates whether the animated image should only use unique video frames.
+        - uniqueFrames: A Boolean value indicating whether the animated image should only use unique video frames.
         - duration: The image animation duration, or `nil` to use the video duration.
      */
     func animatedImage(uniqueFrames: Bool = true, duration: CGFloat? = nil) -> NSUIImage? {

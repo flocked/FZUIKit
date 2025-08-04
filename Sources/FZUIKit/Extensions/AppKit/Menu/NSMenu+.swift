@@ -53,7 +53,7 @@ extension NSMenu {
         self.items(items())
     }
     
-    /// A Boolean value that indicates whether the menu automatically enables and disables its menu items.
+    /// A Boolean value indicating whether the menu automatically enables and disables its menu items.
     @discardableResult
     public func autoenablesItems(_ autoenables: Bool) -> Self {
         autoenablesItems = autoenables
@@ -113,14 +113,14 @@ extension NSMenu {
         return self
     }
     
-    /// A Boolean value that indicates whether the pop-up menu allows appending of contextual menu plug-in items.
+    /// A Boolean value indicating whether the pop-up menu allows appending of contextual menu plug-in items.
     @discardableResult
     public func allowsContextMenuPlugIns(_ allows: Bool) -> Self {
         allowsContextMenuPlugIns = allows
         return self
     }
     
-    /// A Boolean value that indicates whether the menu displays the state column.
+    /// A Boolean value indicating whether the menu displays the state column.
     @discardableResult
     public func showsStateColumn(_ shows: Bool) -> Self {
         showsStateColumn = shows

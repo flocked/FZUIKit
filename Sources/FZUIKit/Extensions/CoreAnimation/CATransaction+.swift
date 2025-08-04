@@ -48,7 +48,7 @@ public extension CATransaction {
         set { CATransaction.setAnimationTimingFunction(newValue) }
     }
 
-    /// A Boolean value that indicates whether changes made within the current transaction group are suppressed.
+    /// A Boolean value indicating whether changes made within the current transaction group are suppressed.
     static var disableActions: Bool {
         get { CATransaction.disableActions() }
         set { CATransaction.setDisableActions(newValue) }

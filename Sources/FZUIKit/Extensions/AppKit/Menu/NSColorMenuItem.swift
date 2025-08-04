@@ -42,13 +42,13 @@ public class NSColorMenuItem: NSMenuItem {
         set { itemView.setRootView(.init(color: color, title: newValue, style: style, colorIsLeading: colorIsLeading)) }
     }
     
-    /// A Boolean value that indicates whether the color is leading the text.
+    /// A Boolean value indicating whether the color is leading the text.
     public var colorIsLeading: Bool {
         get { itemView.hostingView.rootView.colorIsLeading }
         set { itemView.setRootView(.init(color: color, title: itemView.hostingView.rootView.title, style: style, colorIsLeading: newValue)) }
     }
     
-    /// Sets the Boolean value that indicates whether the color is leading the text.
+    /// Sets the Boolean value indicating whether the color is leading the text.
     @discardableResult
     public func colorIsLeading(_ isLeading: Bool) -> Self {
         self.colorIsLeading = isLeading
@@ -96,7 +96,7 @@ public class NSColorMenuItem: NSMenuItem {
         - color: The color of the menu item.
         - title: The title of the menu item.
         - style: The color style of the menu item.
-        - colorIsLeading: A Boolean value that indicates whether the color is leading the text.
+        - colorIsLeading: A Boolean value indicating whether the color is leading the text.
         - itemWidth: The width of the menu item.
         - action: The action block of the menu item.
      */

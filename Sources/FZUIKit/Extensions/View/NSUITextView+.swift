@@ -49,7 +49,7 @@ public extension NSUITextView {
 
      - Parameters:
         - string: The string for the text lines.
-        - onlyVisible: A Boolean value that indicates whether to only return visible text lines.
+        - onlyVisible: A Boolean value indicating whether to only return visible text lines.
      */
     func textLines(for string: String) -> [TextLine] {
         #if os(macOS)
@@ -67,7 +67,7 @@ public extension NSUITextView {
          
      - Parameters:
         - range: The string range for the text lines.
-        - onlyVisible: A Boolean value that indicates whether to only return visible text lines.
+        - onlyVisible: A Boolean value indicating whether to only return visible text lines.
      */
     func textLines(for range: Range<String.Index>) -> [TextLine] {
         #if os(macOS)

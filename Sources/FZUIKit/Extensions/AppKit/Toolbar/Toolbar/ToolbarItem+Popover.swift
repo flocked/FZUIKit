@@ -141,7 +141,7 @@ extension Toolbar {
             return self
         }
         
-        /// A Boolean value that indicates whether the popover is detachable by the user.
+        /// A Boolean value indicating whether the popover is detachable by the user.
         open var isDetachable: Bool = false {
             didSet {
                 guard oldValue != isDetachable else { return }
@@ -149,14 +149,14 @@ extension Toolbar {
             }
         }
         
-        /// Sets the Boolean value that indicates whether the popover is detachable by the user.
+        /// Sets the Boolean value indicating whether the popover is detachable by the user.
         @discardableResult
         open func isDetachable(_ isDetachable: Bool) -> Self {
             self.isDetachable = isDetachable
             return self
         }
         
-        /// A Boolean value that indicates whether the popover hides it's arrow.
+        /// A Boolean value indicating whether the popover hides it's arrow.
         open var hidesArrow: Bool = false {
             didSet {
                 guard oldValue != hidesArrow else { return }
@@ -164,7 +164,7 @@ extension Toolbar {
             }
         }
         
-        /// Sets the Boolean value that indicates whether the popover hides it's arrow.
+        /// Sets the Boolean value indicating whether the popover hides it's arrow.
         @discardableResult
         open func hidesArrow(_ hidesArrow: Bool) -> Self {
             self.hidesArrow = hidesArrow

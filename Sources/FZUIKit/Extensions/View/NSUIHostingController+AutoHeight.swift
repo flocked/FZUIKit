@@ -30,7 +30,7 @@ public class AutoHeightHostingController<Content>: NSUIHostingController<Content
         fatalError("init(coder:) has not been implemented")
     }
 
-    /// A Boolean value that indicates whether the view's height should be adjusted to fit the SwiftUI's view.
+    /// A Boolean value indicating whether the view's height should be adjusted to fit the SwiftUI's view.
     public var autoAdjustHeight: Bool = true {
         didSet {
             heightAnchor.isActive = autoAdjustHeight
@@ -74,7 +74,7 @@ public class AutoHeightHostingController<Content>: NSUIHostingController<Content
          self.height.activate()
      }
 
-     /// A Boolean value that indicates whether the view's height should be adjusted to fit the SwiftUI's view.
+     /// A Boolean value indicating whether the view's height should be adjusted to fit the SwiftUI's view.
      public var autoAdjustHeight: Bool = true {
          didSet {
              self.height.isActive = self.autoAdjustHeight

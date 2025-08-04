@@ -21,17 +21,17 @@ open class ScrollPlayerView: AVPlayerView {
     }
     
     
-    /// A value that indicates whether the volume is controllable by scrolling up & down.
+    /// A value indicating whether the volume is controllable by scrolling up & down.
     open var volumeScrollControl: VolumeScrollControl = .off
     
-    /// Sets the value that indicates whether the volume is controllable by scrolling up & down.
+    /// Sets the value indicating whether the volume is controllable by scrolling up & down.
     @discardableResult
     open func volumeScrollControl(_ volumeScrollControl: VolumeScrollControl) -> Self {
         self.volumeScrollControl = volumeScrollControl
         return self
     }
     
-    /// The value that indicates whether the volume is controllable by scrolling up & down.
+    /// The value indicating whether the volume is controllable by scrolling up & down.
     public enum VolumeScrollControl: Int {
         /// Scrolling doesn't change the volume.
         case off = 0
@@ -47,17 +47,17 @@ open class ScrollPlayerView: AVPlayerView {
         }
     }
     
-    /// A value that indicates whether the playback position is controllable by scrolling left & right.
+    /// A value indicating whether the playback position is controllable by scrolling left & right.
     open var playbackPositionScrollControl: PlaybackPositionScrollControl = .off
     
-    /// Sets the value that indicates whether the playback position is controllable by scrolling left & right.
+    /// Sets the value indicating whether the playback position is controllable by scrolling left & right.
     @discardableResult
     open func playbackPositionScrollControl(_ playbackPositionScrollControl: PlaybackPositionScrollControl) -> Self {
         self.playbackPositionScrollControl = playbackPositionScrollControl
         return self
     }
 
-    /// The value that indicates whether the playback position is controllable by scrolling left & right.
+    /// The value indicating whether the playback position is controllable by scrolling left & right.
     public enum PlaybackPositionScrollControl: Int {
         /// Scrolling doesn't change the playback position.
         case off = 0
@@ -73,10 +73,10 @@ open class ScrollPlayerView: AVPlayerView {
         }
     }
     
-    /// A Boolean value that indicates whether right clicking toggles the playback between play and pause.
+    /// A Boolean value indicating whether right clicking toggles the playback between play and pause.
     open var togglePlaybackByRightClick: Bool = false
     
-    /// Sets the Boolean value that indicates whether right clicking toggles the playback between play and pause.
+    /// Sets the Boolean value indicating whether right clicking toggles the playback between play and pause.
     @discardableResult
     open func togglePlaybackByRightClick(_ togglePlaybackByRightClick: Bool) -> Self {
         self.togglePlaybackByRightClick = togglePlaybackByRightClick

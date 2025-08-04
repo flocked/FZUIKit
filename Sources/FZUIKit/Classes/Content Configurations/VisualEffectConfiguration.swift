@@ -45,7 +45,7 @@ public struct VisualEffectConfiguration: Hashable, Codable {
     public var appearance: NSAppearance?
 
     /**
-     A value that indicates whether a view has a visual effect applied.
+     A value indicating whether a view has a visual effect applied.
 
      The default value of this property is `followsWindowActiveState`.
      */

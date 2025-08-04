@@ -47,7 +47,7 @@ open class Toolbar: NSObject {
      
      - Parameters:
         - identifier: A string to identify the kind of the toolbar. The default value is `nil`, which provides a unique identifier.
-        - allowsUserCustomization: A Boolean value that indicates whether users can modify the contents of the toolbar.
+        - allowsUserCustomization: A Boolean value indicating whether users can modify the contents of the toolbar.
         - items: An array of toolbar items.
      
      - Returns: The initialized `Toolbar` object.
@@ -73,7 +73,7 @@ open class Toolbar: NSObject {
      
      - Parameters:
         - identifier: A string to identify the kind of the toolbar. The default value is `nil`, which provides a unique identifier.
-        - allowsUserCustomization: A Boolean value that indicates whether users can modify the contents of the toolbar.
+        - allowsUserCustomization: A Boolean value indicating whether users can modify the contents of the toolbar.
         - items: The toolbar items.
      
      - Returns: The initialized `Toolbar` object.
@@ -116,13 +116,13 @@ open class Toolbar: NSObject {
         return self
     }
     
-    /// A Boolean value that indicates whether the toolbar is visible.
+    /// A Boolean value indicating whether the toolbar is visible.
     open var isVisible: Bool {
         get { toolbar.isVisible }
         set { toolbar.isVisible = newValue }
     }
     
-    /// Sets the Boolean value that indicates whether the toolbar is visible.
+    /// Sets the Boolean value indicating whether the toolbar is visible.
     @discardableResult
     open func isVisible(_ isVisible: Bool) -> Self {
         self.isVisible = isVisible
@@ -170,52 +170,52 @@ open class Toolbar: NSObject {
         return self
     }
         
-    /// A value that indicates whether the toolbar displays items using a name, icon, or combination of elements.
+    /// A value indicating whether the toolbar displays items using a name, icon, or combination of elements.
     open var displayMode: NSToolbar.DisplayMode {
         get { toolbar.displayMode }
         set { toolbar.displayMode = newValue }
     }
     
-    /// Sets the value that indicates whether the toolbar displays items using a name, icon, or combination of elements.
+    /// Sets the value indicating whether the toolbar displays items using a name, icon, or combination of elements.
     @discardableResult
     open func displayMode(_ mode: NSToolbar.DisplayMode) -> Self {
         displayMode = mode
         return self
     }
     
-    /// A Boolean value that indicates whether the toolbar shows the separator between the toolbar and the main window contents.
+    /// A Boolean value indicating whether the toolbar shows the separator between the toolbar and the main window contents.
     open var showsBaselineSeparator: Bool {
         get { toolbar.showsBaselineSeparator }
         set { toolbar.showsBaselineSeparator = newValue }
     }
     
-    /// Sets the Boolean value that indicates whether the toolbar shows the separator between the toolbar and the main window contents.
+    /// Sets the Boolean value indicating whether the toolbar shows the separator between the toolbar and the main window contents.
     @discardableResult
     open func showsBaselineSeparator(_ shows: Bool) -> Self {
         showsBaselineSeparator = shows
         return self
     }
     
-    /// A Boolean value that indicates whether users can modify the contents of the toolbar.
+    /// A Boolean value indicating whether users can modify the contents of the toolbar.
     open var allowsUserCustomization: Bool {
         get { toolbar.allowsUserCustomization }
         set { toolbar.allowsUserCustomization = newValue }
     }
     
-    /// Sets the Boolean value that indicates whether users can modify the contents of the toolbar.
+    /// Sets the Boolean value indicating whether users can modify the contents of the toolbar.
     @discardableResult
     open func allowsUserCustomization(_ allows: Bool) -> Self {
         allowsUserCustomization = allows
         return self
     }
     
-    /// A Boolean value that indicates whether the toolbar can add items for Action extensions.
+    /// A Boolean value indicating whether the toolbar can add items for Action extensions.
     open var allowsExtensionItems: Bool {
         get { toolbar.allowsExtensionItems }
         set { toolbar.allowsExtensionItems = newValue }
     }
     
-    /// Sets the Boolean value that indicates whether the toolbar can add items for Action extensions.
+    /// Sets the Boolean value indicating whether the toolbar can add items for Action extensions.
     @discardableResult
     open func allowsExtensionItems(_ allows: Bool) -> Self {
         allowsExtensionItems = allows
@@ -316,18 +316,18 @@ open class Toolbar: NSObject {
         toolbar.runCustomizationPalette(sender)
     }
     
-    /// A Boolean value that indicates whether the toolbar’s customization palette is in use.
+    /// A Boolean value indicating whether the toolbar’s customization palette is in use.
     open var customizationPaletteIsDisplaying: Bool {
         toolbar.customizationPaletteIsRunning
     }
     
-    /// A Boolean value that indicates whether the toolbar autosaves its configuration.
+    /// A Boolean value indicating whether the toolbar autosaves its configuration.
     open var autosavesConfiguration: Bool {
         get { toolbar.autosavesConfiguration }
         set { toolbar.autosavesConfiguration = newValue }
     }
     
-    /// Sets the Boolean value that indicates whether the toolbar autosaves its configuration.
+    /// Sets the Boolean value indicating whether the toolbar autosaves its configuration.
     @discardableResult
     open func autosavesConfiguration(_ autosaves: Bool) -> Self {
         autosavesConfiguration = autosaves

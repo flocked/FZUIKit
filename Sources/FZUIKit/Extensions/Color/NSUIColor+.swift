@@ -60,7 +60,7 @@ public extension NSUIColor {
         return brightness >= 0.5
     }
     
-    /// A Boolean value that indicates whether the color is visible (`alphaComponent` isn't `0`).
+    /// A Boolean value indicating whether the color is visible (`alphaComponent` isn't `0`).
     var isVisible: Bool {
         alphaComponent > 0.0
     }
@@ -81,7 +81,7 @@ public extension NSUIColor {
     
     #if os(macOS) || os(iOS) || os(tvOS)
     
-    /// A Boolean value that indicates whether the color contains a different light and dark color variant.
+    /// A Boolean value indicating whether the color contains a different light and dark color variant.
     var isDynamic: Bool {
         let dyamic = self.dynamicColors
         return dyamic.light != dyamic.dark

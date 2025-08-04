@@ -88,7 +88,7 @@ public class NSMenuItemHostingView<Content: View>: NSMenuItemView {
      
      - Parameters:
         - rootView: The view of the item.
-        - showsHighlight: A Boolean value that indicates whether the view displays the highlight background view (``NSMenuItemView/highlightView``) when it's enclosing menu item is highlighted (the mouse is hovering the item).
+        - showsHighlight: A Boolean value indicating whether the view displays the highlight background view (``NSMenuItemView/highlightView``) when it's enclosing menu item is highlighted (the mouse is hovering the item).
      */
     public init(rootView: Content, showsHighlight: Bool = true) {
         hostingView = NSHostingView(rootView: ItemView(rootView))
@@ -102,7 +102,7 @@ public class NSMenuItemHostingView<Content: View>: NSMenuItemView {
      
      - Parameters:
         - content: The view of the item.
-        - showsHighlight: A Boolean value that indicates whether the view displays the highlight background view (``NSMenuItemView/highlightView``) when it's enclosing menu item is highlighted (the mouse is hovering the item).
+        - showsHighlight: A Boolean value indicating whether the view displays the highlight background view (``NSMenuItemView/highlightView``) when it's enclosing menu item is highlighted (the mouse is hovering the item).
      */
     public convenience init(@ViewBuilder _ content: () -> Content, showsHighlight: Bool = true) {
         self.init(rootView: content(), showsHighlight: showsHighlight)
@@ -113,7 +113,7 @@ public class NSMenuItemHostingView<Content: View>: NSMenuItemView {
      
      - Parameters:
         - rootView: The view of the item.
-        - showsHighlight: A Boolean value that indicates whether the menu item should show a highlight background color if it's highlighted by the user.
+        - showsHighlight: A Boolean value indicating whether the menu item should show a highlight background color if it's highlighted by the user.
         - sizingOptions: The options for how the view creates and updates constraints based on the size of `rootView`.
      */
     @available(macOS 13.0, *)
@@ -127,7 +127,7 @@ public class NSMenuItemHostingView<Content: View>: NSMenuItemView {
      
      - Parameters:
         - content: The view of the item.
-        - showsHighlight: A Boolean value that indicates whether the menu item should show a highlight background color if it's highlighted by the user.
+        - showsHighlight: A Boolean value indicating whether the menu item should show a highlight background color if it's highlighted by the user.
         - sizingOptions: The options for how the view creates and updates constraints based on the size of `rootView`.
      */
     @available(macOS 13.0, *)
@@ -149,7 +149,7 @@ public class NSMenuItemHostingView<Content: View>: NSMenuItemView {
 
 extension EnvironmentValues {
     /**
-     A Boolean value that indicates whether the menu item is highlighted.
+     A Boolean value indicating whether the menu item is highlighted.
      
      Use this to adjust your content to look good in front of the selection background.
      
@@ -161,7 +161,7 @@ extension EnvironmentValues {
     }
     
     /**
-     A Boolean value that indicates whether the menu item is isEnabled.
+     A Boolean value indicating whether the menu item is isEnabled.
      
      Use this to adjust your content to look good in front of the selection background.
      

@@ -19,7 +19,7 @@ extension Toolbar {
      */
     open class Group: ToolbarItem {
         
-        /// A value that indicates how a group item selects its subitems.
+        /// A value indicating how a group item selects its subitems.
         public typealias SelectionMode = NSToolbarItemGroup.SelectionMode
         
         /// A value that represents how a toolbar displays a group item.

@@ -13,13 +13,13 @@ import UIKit
 #endif
 
 public extension NSUIViewProtocol where Self: NSUIView {
-    /// A Boolean value that indicates whether the view is enabled.
+    /// A Boolean value indicating whether the view is enabled.
     var isEnabled: Bool {
         get { !subviews.compactMap(\.isEnabled).contains(false) }
         set { subviews.forEach { $0.isEnabled = newValue } }
     }
     
-    /// Sets the Boolean value that indicates whether the view is enabled.
+    /// Sets the Boolean value indicating whether the view is enabled.
     @discardableResult
     func isEnabled(_ isEnabled: Bool) -> Self {
         self.isEnabled = isEnabled
@@ -30,7 +30,7 @@ public extension NSUIViewProtocol where Self: NSUIView {
 #if os(macOS)
 public extension NSTextView {
     /**
-     A Boolean value that indicates whether the text view is enabled.
+     A Boolean value indicating whether the text view is enabled.
      
      If `true`, the text view's `isEditable`will be `true` and it's text color will be `labelColor`, else `isEditable`will be `true` and it's text color will be `secondaryLabelColor`.
      */
@@ -46,7 +46,7 @@ public extension NSTextView {
 #elseif os(iOS)
 public extension UITextView {
     /**
-     A Boolean value that indicates whether the text view is enabled.
+     A Boolean value indicating whether the text view is enabled.
      
      If `true`, the text view's `isEditable`will be `true` and it's text color will be `label`, else `isEditable`will be `true` and it's text color will be `secondaryLabel`.
      */

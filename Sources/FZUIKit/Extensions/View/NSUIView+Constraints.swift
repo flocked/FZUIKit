@@ -19,7 +19,7 @@ public extension NSUIView {
      
      - Parameters:
         - view: The view to add to the view as a subview.
-        - perserveFrame: A Boolean value that indicates whether the view's frame in it's superview's coordinate system is peserved.
+        - perserveFrame: A Boolean value indicating whether the view's frame in it's superview's coordinate system is peserved.
      */
     func addSubview(_ view: NSUIView, perserveFrame: Bool) {
         if perserveFrame, view.superview !== self, let frame = view.superview?.convert(view.frame, to: self) {
@@ -34,7 +34,7 @@ public extension NSUIView {
      - Parameters:
         - view: The view to insert.
         - index: The index of insertation.
-        - perserveFrame: A Boolean value that indicates whether the view's frame in it's superview's coordinate system is peserved.
+        - perserveFrame: A Boolean value indicating whether the view's frame in it's superview's coordinate system is peserved.
      */
     func insertSubview(_ view: NSUIView, at index: Int, perserveFrame: Bool) {
         if perserveFrame, view.superview !== self, let frame = view.superview?.convert(view.frame, to: self) {
@@ -51,7 +51,7 @@ public extension NSUIView {
         - view: The view object to add to the view as a subview.
         - place: An enum constant specifying the position of the `view` relative to `otherView`.
         - otherView: The other view is to be positioned relative to. If `otherView` is `nil` (or isn’t a subview of the view), `view` is added above or below all of its new siblings.
-        - perserveFrame: A Boolean value that indicates whether the view's frame in it's superview's coordinate system is peserved.
+        - perserveFrame: A Boolean value indicating whether the view's frame in it's superview's coordinate system is peserved.
      */
     func addSubview(_ view: NSView, positioned place: NSWindow.OrderingMode, relativeTo otherView: NSView?, perserveFrame: Bool) {
         if perserveFrame, view.superview !== self, let frame = view.superview?.convert(view.frame, to: self) {
@@ -66,7 +66,7 @@ public extension NSUIView {
      - Parameters:
         - view: The view to insert below another view. It’s removed from its superview if it’s not a sibling of siblingSubview.
         - siblingSubview: The sibling view that will be above the inserted view.
-        - perserveFrame: A Boolean value that indicates whether the view's frame in it's superview's coordinate system is peserved.
+        - perserveFrame: A Boolean value indicating whether the view's frame in it's superview's coordinate system is peserved.
      */
     func insertSubview(_ view: NSUIView, belowSubview siblingSubview: NSUIView, perserveFrame: Bool) {
         if perserveFrame, view.superview !== self, let frame = view.superview?.convert(view.frame, to: self) {
@@ -81,7 +81,7 @@ public extension NSUIView {
      - Parameters:
         - view: Inserts a view above another view in the view hierarchy.
         - siblingSubview: The sibling view that will be behind the inserted view.
-        - perserveFrame: A Boolean value that indicates whether the view's frame in it's superview's coordinate system is peserved.
+        - perserveFrame: A Boolean value indicating whether the view's frame in it's superview's coordinate system is peserved.
      */
     func insertSubview(_ view: NSUIView, aboveSubview siblingSubview: NSUIView, perserveFrame: Bool) {
         if perserveFrame, view.superview !== self, let frame = view.superview?.convert(view.frame, to: self) {

@@ -25,13 +25,13 @@ public extension NSUIHostingController {
         self.init(rootView: content())
     }
         
-    /// A Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
+    /// A Boolean value indicating whether the SwiftUI view ignores the safe area insets.
     var ignoresSafeArea: Bool {
         get { view.isMethodHooked(#selector(getter: NSUIView.safeAreaInsets)) }
         set { view.setSafeAreaInsets(newValue ? .zero : nil) }
     }
         
-    /// Sets the Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
+    /// Sets the Boolean value indicating whether the SwiftUI view ignores the safe area insets.
     @discardableResult
     func ignoresSafeArea(_ ignores: Bool) -> Self {
         ignoresSafeArea = ignores
@@ -151,7 +151,7 @@ public extension NSHostingView {
         return hostingController.sizeThatFits(in: size)
     }
             
-    /// A Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
+    /// A Boolean value indicating whether the SwiftUI view ignores the safe area insets.
     @available(macOS 11.0, *)
     var ignoresSafeArea: Bool {
         get { isMethodHooked(#selector(getter: NSUIView.safeAreaInsets)) }
@@ -167,7 +167,7 @@ public extension NSHostingView {
         self.init(rootView: content())
     }
             
-    /// Sets the Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
+    /// Sets the Boolean value indicating whether the SwiftUI view ignores the safe area insets.
     @discardableResult
     @available(macOS 11.0, *)
     func ignoresSafeArea(_ ignores: Bool) -> Self {

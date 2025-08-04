@@ -462,7 +462,7 @@ public extension NSButton {
      - Parameters:
         - title: The title of the button.
         - image: The image of the button.
-        - isChecked: A Boolean value that indicates whether the checkbox is checked.
+        - isChecked: A Boolean value indicating whether the checkbox is checked.
         - action: The handler that get's called when the checkbox gets pressed.
      */
     static func checkbox(_ title: String, image: NSImage? = nil, isChecked: Bool = false, action: ActionBlock? = nil) -> Self {
@@ -479,7 +479,7 @@ public extension NSButton {
      
      - Parameters:
         - image: The image of the button.
-        - isChecked: A Boolean value that indicates whether the checkbox is checked.
+        - isChecked: A Boolean value indicating whether the checkbox is checked.
         - action: The handler that get's called when the checkbox gets pressed.
      */
     static func checkbox(_ image: NSImage, isChecked: Bool = false, action: ActionBlock? = nil) -> Self {
@@ -497,7 +497,7 @@ public extension NSButton {
      - Parameters:
         - title: The title of the button.
         - symbolName: The name of the symbol image.
-        - isChecked: A Boolean value that indicates whether the checkbox is checked.
+        - isChecked: A Boolean value indicating whether the checkbox is checked.
         - action: The handler that get's called when the checkbox gets pressed.
      */
     @available(macOS 11.0, *)
@@ -511,7 +511,7 @@ public extension NSButton {
      - Parameters:
         - title: The title of the button.
         - image: The image of the button.
-        - isSelected: A Boolean value that indicates whether the radio is is selected.
+        - isSelected: A Boolean value indicating whether the radio is is selected.
         - action: The handler that get's called when the button gets pressed.
      */
     static func radio(_ title: String, image: NSImage? = nil, isSelected: Bool = false, action: ActionBlock? = nil) -> Self {
@@ -528,7 +528,7 @@ public extension NSButton {
      
      - Parameters:
         - image: The image of the button.
-        - isSelected: A Boolean value that indicates whether the radio is is selected.
+        - isSelected: A Boolean value indicating whether the radio is is selected.
         - action: The handler that get's called when the button gets pressed.
      */
     static func radio(_ image: NSImage, isSelected: Bool = false, action: ActionBlock? = nil) -> Self {
@@ -546,7 +546,7 @@ public extension NSButton {
      - Parameters:
         - title: The title of the button.
         - symbolName: The name of the symbol image.
-        - isSelected: A Boolean value that indicates whether the radio is is selected.
+        - isSelected: A Boolean value indicating whether the radio is is selected.
         - action: The handler that get's called when the button gets pressed.
      */
     @available(macOS 11.0, *)
@@ -572,19 +572,19 @@ public extension NSButton {
         return self
     }
     
-    /// A Boolean value that indicates whether the button's state is `on`.
+    /// A Boolean value indicating whether the button's state is `on`.
     var isToggled: Bool {
         get { state == .on }
         set { state = newValue ? .on : .off }
     }
     
-    /// A Boolean value that indicates if the button’s image and text appear “dim” when the button is disabled.
+    /// A Boolean value indicating if the button’s image and text appear “dim” when the button is disabled.
     var dimsWhenDisabled: Bool {
         get { (cell as? NSButtonCell)?.imageDimsWhenDisabled ?? true }
         set { (cell as? NSButtonCell)?.imageDimsWhenDisabled = newValue }
     }
     
-    /// Sets the Boolean value that indicates if the button’s image and text appear “dim” when the button is disabled.
+    /// Sets the Boolean value indicating if the button’s image and text appear “dim” when the button is disabled.
     @discardableResult
     func dimsWhenDisabled(_ dims: Bool) -> Self {
         dimsWhenDisabled = dims
@@ -759,7 +759,7 @@ public extension NSButton {
         return self
     }
     
-    /// Sets the Boolean value that indicates whether spring loading is enabled for the button.
+    /// Sets the Boolean value indicating whether spring loading is enabled for the button.
     @discardableResult
     func isSpringLoaded(_ isSpringLoaded: Bool) -> Self {
         self.isSpringLoaded = isSpringLoaded
@@ -840,7 +840,7 @@ public extension NSButton {
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the button is transparent.
+    /// Sets the Boolean value indicating whether the button is transparent.
     @discardableResult
     func isTransparent(_ isTransparent: Bool) -> Self {
         self.isTransparent = isTransparent
@@ -868,7 +868,7 @@ public extension NSButton {
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the button allows a mixed state.
+    /// Sets the Boolean value indicating whether the button allows a mixed state.
     @discardableResult
     func allowsMixedState(_ allowsMixedState: Bool) -> Self {
         self.allowsMixedState = allowsMixedState

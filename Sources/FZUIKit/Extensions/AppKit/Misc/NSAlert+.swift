@@ -118,7 +118,7 @@ extension NSAlert {
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the alert has a help button.
+    /// Sets the Boolean value indicating whether the alert has a help button.
     @discardableResult
     public func showsHelp(_ showsHelp: Bool) -> Self {
         self.showsHelp = showsHelp
@@ -139,7 +139,7 @@ extension NSAlert {
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the alert includes a suppression checkbox, which you can employ to allow a user to opt out of seeing the alert again.
+    /// Sets the Boolean value indicating whether the alert includes a suppression checkbox, which you can employ to allow a user to opt out of seeing the alert again.
     @discardableResult
     public func showsSuppressionButton(_ shows: Bool) -> Self {
         self.showsSuppressionButton = shows

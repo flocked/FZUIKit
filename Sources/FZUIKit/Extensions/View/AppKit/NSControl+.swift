@@ -88,7 +88,7 @@ extension NSControl {
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the text in the control’s cell uses single line mode.
+    /// Sets the Boolean value indicating whether the text in the control’s cell uses single line mode.
     @discardableResult
     public func usesSingleLineMode(_ usesSingleLineMode: Bool) -> Self {
         self.usesSingleLineMode = usesSingleLineMode

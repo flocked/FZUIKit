@@ -20,7 +20,7 @@ extension NSUICollectionViewLayout {
      
      - Parameters:
         - rowHeight: The height of each row.
-        - seperatorLine: A Boolean value that indicates whether the layout displays seperator lines.
+        - seperatorLine: A Boolean value indicating whether the layout displays seperator lines.
      */
     static func list(rowHeight: CGFloat, seperatorLine: Bool) -> NSUICollectionViewLayout {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0),
@@ -93,7 +93,7 @@ extension NSUICollectionViewLayout {
      
      - Parameters:
         - direction: The item direction of the layout.
-        - paging: A Boolean value that indicates whether the items are paging.
+        - paging: A Boolean value indicating whether the items are paging.
         - itemSpacing: The spacing between the items.
         - insets: The insets of the layout.
      */
@@ -258,7 +258,7 @@ extension NSUICollectionViewLayout {
             self.animationDuration = animationDuration
         }
         
-        /// A Boolean value that indicates whether the user can change the amount of columns by pinching the collection view.
+        /// A Boolean value indicating whether the user can change the amount of columns by pinching the collection view.
         public var isPinchable: Bool = false
         
         /// The amount of columns added or removed when the user presses the `plus` / `minus` key.

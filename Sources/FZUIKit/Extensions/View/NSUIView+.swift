@@ -487,7 +487,7 @@ extension NSUIView {
         return self
     }
 
-    /// Sets the Boolean value that indicates whether the view, and its subviews, confine their drawing areas to the bounds of the view.
+    /// Sets the Boolean value indicating whether the view, and its subviews, confine their drawing areas to the bounds of the view.
     @discardableResult
     @objc open func clipsToBounds(_ clipsToBounds: Bool) -> Self {
         self.clipsToBounds = clipsToBounds

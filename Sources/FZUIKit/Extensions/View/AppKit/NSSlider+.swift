@@ -120,7 +120,7 @@ public extension NSSlider {
         return self
     }
         
-    /// Sets the Boolean value that indicates whether the slider fixes its values to those values represented by its tick marks.
+    /// Sets the Boolean value indicating whether the slider fixes its values to those values represented by its tick marks.
     @discardableResult
     func allowsTickMarkValuesOnly(_ allows: Bool) -> Self {
         self.allowsTickMarkValuesOnly = allows

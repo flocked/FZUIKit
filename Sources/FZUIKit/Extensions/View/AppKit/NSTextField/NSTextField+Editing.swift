@@ -222,7 +222,7 @@ extension NSTextField {
         return self
     }
 
-    /// A Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
+    /// A Boolean value indicating whether the text field should stop editing when the user clicks outside the text field.
     public var endsEditingOnOutsideClick: Bool {
         get { firstResponderResignClickCount > 0 }
         set {
@@ -231,14 +231,14 @@ extension NSTextField {
         }
     }
         
-    /// Sets the Boolean value that indicates whether the text field should stop editing when the user clicks outside the text field.
+    /// Sets the Boolean value indicating whether the text field should stop editing when the user clicks outside the text field.
     @discardableResult
     public func endsEditingOnOutsideClick(_ endsEditing: Bool) -> Self {
         endsEditingOnOutsideClick = endsEditing
         return self
     }
         
-    /// A Boolean value that indicates whether the user can edit the string value of the text field by double clicking it.
+    /// A Boolean value indicating whether the user can edit the string value of the text field by double clicking it.
     public var isEditableByDoubleClick: Bool {
         get { doubleClickEditGestureRecognizer != nil }
         set {
@@ -253,7 +253,7 @@ extension NSTextField {
         }
     }
         
-    /// Sets Boolean value that indicates whether the user can edit the string value of the text field by double clicking it.
+    /// Sets Boolean value indicating whether the user can edit the string value of the text field by double clicking it.
     @discardableResult
     public func isEditableByDoubleClick(_ isEditableByDoubleClick: Bool) -> Self {
         self.isEditableByDoubleClick = isEditableByDoubleClick

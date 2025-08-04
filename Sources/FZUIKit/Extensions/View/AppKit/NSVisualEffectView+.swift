@@ -41,7 +41,7 @@ public extension NSVisualEffectView {
         return self
     }
     
-    /// Sets the value that indicates whether a view has a visual effect applied.
+    /// Sets the value indicating whether a view has a visual effect applied.
     @discardableResult
     func state(_ state: State) -> Self {
         self.state = state

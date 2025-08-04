@@ -66,7 +66,7 @@ public extension NSBox {
         return self
     }
         
-    /// Sets the Boolean value that indicates whether the box is transparent.
+    /// Sets the Boolean value indicating whether the box is transparent.
     @discardableResult
     func isTransparent(_ isTransparent: Bool) -> Self {
         self.isTransparent = isTransparent

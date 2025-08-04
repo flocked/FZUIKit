@@ -33,7 +33,7 @@ public extension NSTableCellView {
         return tableView?.tableColumns[safe: columnIndex]
     }
 
-    /// A Boolean value that indicates whether the column displaying the cell is selected.
+    /// A Boolean value indicating whether the column displaying the cell is selected.
     var isColumnSelected: Bool {
         if let columnIndex = columnIndex {
             return tableView?.selectedColumnIndexes.contains(columnIndex) ?? false
@@ -41,7 +41,7 @@ public extension NSTableCellView {
         return false
     }
 
-    /// A Boolean value that indicates whether the row displaying the cell is selected.
+    /// A Boolean value indicating whether the row displaying the cell is selected.
     var isRowSelected: Bool { rowView?.isSelected ?? false }
 }
 #endif

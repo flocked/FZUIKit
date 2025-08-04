@@ -75,7 +75,7 @@ public struct VisualEffectView: NSViewRepresentable {
         return view
     }
     
-    /// Sets value that indicates whether a view has a visual effect applied.
+    /// Sets value indicating whether a view has a visual effect applied.
     public func state(_ state: NSVisualEffectView.State) -> Self {
         var view = self
         view.state = state

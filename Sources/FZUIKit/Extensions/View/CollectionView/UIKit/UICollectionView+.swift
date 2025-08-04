@@ -47,7 +47,7 @@ extension UICollectionView {
      - Parameters:
         - layout: The new layout object for the collection view.
         - animationDuration: The duration for the collection view animating changes from the current layout to the new layout. Specify a value of `0.0` to make the change without animations.
-        - completion: A block object to be executed when the animation sequence ends. This block has no return value and takes a single Boolean argument that indicates whether or not the animations actually finished before the completion handler was called. If the duration of the animation is `0.0`, this block is performed at the beginning of the next run loop cycle. This parameter may be NULL.
+        - completion: A block object to be executed when the animation sequence ends. This block has no return value and takes a single Boolean argument indicating whether or not the animations actually finished before the completion handler was called. If the duration of the animation is `0.0`, this block is performed at the beginning of the next run loop cycle. This parameter may be NULL.
      */
     func setCollectionViewLayout(_ layout: UICollectionViewLayout, animationDuration: CGFloat, completion: ((Bool) -> Void)? = nil) {
         if animationDuration > 0.0 {

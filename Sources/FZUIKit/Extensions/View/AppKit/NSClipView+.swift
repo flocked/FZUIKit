@@ -10,14 +10,14 @@ import AppKit
 import FZSwiftUtils
 
 extension NSClipView {
-    /// Sets the Boolean value that indicates whether the clip view draws its background.
+    /// Sets the Boolean value indicating whether the clip view draws its background.
     @discardableResult
     @objc open func drawsBackground(_ draws: Bool) -> Self {
         drawsBackground = draws
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the clip view draws its background.
+    /// Sets the Boolean value indicating whether the clip view draws its background.
     @discardableResult
     @objc open func backgroundColor(_ color: NSColor?) -> Self {
         backgroundColor = color ?? .clear

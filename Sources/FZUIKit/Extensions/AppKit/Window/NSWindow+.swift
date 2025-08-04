@@ -62,13 +62,13 @@ extension NSWindow {
         return self
     }
     
-    /// A Boolean value indicating whether the window’s contentView consumes the full size of the window.
+    /// A Boolean value indicating whether the [contentView](https://developer.apple.com/documentation/appkit/nswindow/contentview) consumes the full size of the window.
     @objc open var hasFullSizeContentView: Bool {
         get { styleMask.contains(.fullSizeContentView) }
         set { styleMask[.fullSizeContentView] = newValue }
     }
     
-    /// Sets the Boolean value indicating whether the window’s contentView consumes the full size of the window.
+    /// Sets the Boolean value indicating whether the [contentView](https://developer.apple.com/documentation/appkit/nswindow/contentview) consumes the full size of the window.
     @discardableResult
     @objc open func hasFullSizeContentView(_ hasFullSizeContentView: Bool) -> Self {
         self.hasFullSizeContentView = hasFullSizeContentView
@@ -582,10 +582,8 @@ extension NSWindow {
      The value takes into account the tab bar, as well as transparent title bars and full size content.
      */
     public var titlebarHeight: CGFloat {
-        if styleMask.contains(.fullSizeContentView), let windowFrameHeight = contentView?.frame.height {
-            let contentLayoutRectHeight = contentLayoutRect.height
-            let fullSizeContentViewNoContentAreaHeight = windowFrameHeight - contentLayoutRectHeight
-            return fullSizeContentViewNoContentAreaHeight
+        if hasFullSizeContentView, let windowFrameHeight = contentView?.frame.height {
+            return windowFrameHeight - contentLayoutRect.height
         }
         return frame.height - contentRect(forFrameRect: frame).height
     }

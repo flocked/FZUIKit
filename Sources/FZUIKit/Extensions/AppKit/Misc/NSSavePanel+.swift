@@ -40,35 +40,35 @@ extension NSSavePanel {
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the panel displays UI for creating directories.
+    /// Sets the Boolean value indicating whether the panel displays UI for creating directories.
     @discardableResult
     @objc open func canCreateDirectories(_ canCreate: Bool) -> Self {
         self.canCreateDirectories = canCreate
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the panel displays files that are normally hidden from the user.
+    /// Sets the Boolean value indicating whether the panel displays files that are normally hidden from the user.
     @discardableResult
     @objc open func showsHiddenFiles(_ shows: Bool) -> Self {
         self.showsHiddenFiles = shows
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the panel allows the user to save files with a filename extension that’s not in the list of allowed types.
+    /// Sets the Boolean value indicating whether the panel allows the user to save files with a filename extension that’s not in the list of allowed types.
     @discardableResult
     @objc open func allowsOtherFileTypes(_ allows: Bool) -> Self {
         self.allowsOtherFileTypes = allows
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the panel displays file packages as directories.
+    /// Sets the Boolean value indicating whether the panel displays file packages as directories.
     @discardableResult
     @objc open func treatsFilePackagesAsDirectories(_ treats: Bool) -> Self {
         self.treatsFilePackagesAsDirectories = treats
         return self
     }
             
-    /// Sets the Boolean value that indicates whether the panel displays the Tags field.
+    /// Sets the Boolean value indicating whether the panel displays the Tags field.
     @discardableResult
     @objc open func showsTagField(_ shows: Bool) -> Self {
         self.showsTagField = shows
@@ -103,14 +103,14 @@ extension NSSavePanel {
         return self
     }
     
-    /// Sets the Boolean value that indicates whether to display filename extensions.
+    /// Sets the Boolean value indicating whether to display filename extensions.
     @discardableResult
     @objc open func isExtensionHidden(_ isExtensionHidden: Bool) -> Self {
         self.isExtensionHidden = isExtensionHidden
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the panel displays UI for hiding or showing filename extensions.
+    /// Sets the Boolean value indicating whether the panel displays UI for hiding or showing filename extensions.
     @discardableResult
     @objc open func canSelectHiddenExtension(_ canSelectHiddenExtension: Bool) -> Self {
         self.canSelectHiddenExtension = canSelectHiddenExtension

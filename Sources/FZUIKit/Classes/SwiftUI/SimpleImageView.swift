@@ -119,7 +119,7 @@ public struct SimpleImageView: NSViewRepresentable {
         return view
     }
 
-    /// Sets the Boolean value that indicates whether the image animates.
+    /// Sets the Boolean value indicating whether the image animates.
     public func animates(_ animates: Bool) -> SimpleImageView {
         var view = self
         view.animates = animates

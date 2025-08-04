@@ -11,7 +11,7 @@ import FZSwiftUtils
 
 extension NSSplitViewController {
     /**
-     A Boolean value that indicates whether the sidebar is visible.
+     A Boolean value indicating whether the sidebar is visible.
      
      If the split view doesn't contain a sidebar, it returns `false`.
      

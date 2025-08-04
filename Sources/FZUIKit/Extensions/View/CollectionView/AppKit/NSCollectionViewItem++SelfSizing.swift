@@ -41,10 +41,10 @@ public class CollectionViewSupplementaryView: NSView, NSCollectionViewElement {
 
 /// An object that contains layout-related attributes including self sizing for an element in a collection view.
 public class SelfSizingCollectionViewLayoutAttributes: NSCollectionViewLayoutAttributes {
-    /// A Boolean value that indicates whether the iitem should be self sized vertically.
+    /// A Boolean value indicating whether the iitem should be self sized vertically.
     public var shouldVerticallySelfSize: Bool = false
     
-    /// A Boolean value that indicates whether the iitem should be self sized horizontally.
+    /// A Boolean value indicating whether the iitem should be self sized horizontally.
     public var shouldHorizontallySelfSize: Bool = false
     
     override public func copy(with zone: NSZone? = nil) -> Any {

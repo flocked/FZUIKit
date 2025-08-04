@@ -148,7 +148,7 @@ fileprivate extension DisplayLinkPublisher {
         /// The handler that is called for each new frame on the display.
         var onFrame: ((Frame) -> Void)?
         
-        /// A Boolean value that indicates whether the display link is paused or not.
+        /// A Boolean value indicating whether the display link is paused or not.
         var isPaused: Bool {
             get { displayLink.isPaused }
             set { displayLink.isPaused = newValue }
@@ -223,7 +223,7 @@ fileprivate extension DisplayLinkPublisher {
         /// The handler that is called for each new frame on the display.
         var onFrame: ((Frame) -> Void)?
         
-        /// A Boolean value that indicates whether the display link is paused or not.
+        /// A Boolean value indicating whether the display link is paused or not.
         var isPaused: Bool = true {
             didSet {
                 guard isPaused != oldValue else { return }
@@ -267,7 +267,7 @@ fileprivate extension DisplayLinkPublisher {
         /// The handler that is called for each new frame on the display.
         public var onFrame: ((Frame) -> Void)?
         
-        /// A Boolean value that indicates whether the display link is paused or not.
+        /// A Boolean value indicating whether the display link is paused or not.
         public var isPaused: Bool {
             get { displayLink.isPaused }
             set { displayLink.isPaused = newValue }

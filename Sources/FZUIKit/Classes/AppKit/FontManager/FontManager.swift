@@ -63,7 +63,7 @@ public class FontManager: NSObject {
     var targetFontObservation: Any?
     
     /**
-     A Boolean value that indicates whether the target is automatically updated.
+     A Boolean value indicating whether the target is automatically updated.
 
      if `true`, the target is automatically updates based on the first responder of the window that displays ``fontFamilyPopUpButton``.
      */
@@ -458,7 +458,7 @@ public class FontManager: NSObject {
         }
     }
     
-    /// A Boolean value that indicates whether the selected font is displayed on the popup buttons.
+    /// A Boolean value indicating whether the selected font is displayed on the popup buttons.
     public var showsFontAppearanceOnPopUpButtons: Bool = false {
         didSet {
             guard oldValue != showsFontAppearanceOnPopUpButtons else { return }
@@ -483,7 +483,7 @@ public class FontManager: NSObject {
         }
     }
     
-    /// A Boolean value that indicates whether the font names are presented with the system standard font or their font.
+    /// A Boolean value indicating whether the font names are presented with the system standard font or their font.
     public var showsFontAppearanceWhenSelecting: Bool = true {
         didSet {
             guard oldValue != showsFontAppearanceWhenSelecting else { return }
@@ -494,7 +494,7 @@ public class FontManager: NSObject {
         }
     }
     
-    /// A Boolean value that indicates whether the font selection user interface objects are enabled.
+    /// A Boolean value indicating whether the font selection user interface objects are enabled.
     public var isEnabled = true {
         didSet {
             fontFamilyPopUpButton?.isEnabled = isEnabled

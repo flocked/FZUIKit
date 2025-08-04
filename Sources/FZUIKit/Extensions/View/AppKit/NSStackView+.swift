@@ -44,7 +44,7 @@ extension NSStackView {
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the stack view removes hidden views from its view hierarchy.
+    /// Sets the Boolean value indicating whether the stack view removes hidden views from its view hierarchy.
     @discardableResult
     @objc open func detachesHiddenViews(_ detaches: Bool) -> Self {
         self.detachesHiddenViews = detaches

@@ -34,7 +34,7 @@ public extension NSWindowTabGroup {
      - Parameters:
         - window: The window to insert into the tab group.
         - position: The position in the tab group at which to insert window.
-        - select: A Boolean value that indicates whether to select the inserted tab.
+        - select: A Boolean value indicating whether to select the inserted tab.
      */
     func insertWindow(_ window: NSWindow, position: TabPosition = .afterSelected, select: Bool = true) {
         switch position {
@@ -87,7 +87,7 @@ public extension NSWindowTabGroup {
 
      - Parameters:
         - tabWindow: The tab window.
-        - orderFront: A Boolean value that indicates whether the tab should be ordered to the front.
+        - orderFront: A Boolean value indicating whether the tab should be ordered to the front.
      */
     func moveTabToNewWindow(_ tabWindow: NSWindow, orderFront: Bool) {
         guard windows.count > 1, windows.contains(tabWindow) else { return }

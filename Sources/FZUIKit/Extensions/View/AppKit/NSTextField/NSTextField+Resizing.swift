@@ -11,7 +11,7 @@ import FZSwiftUtils
 
 extension NSTextField {
     /**
-     A Boolean value that indicates whether the text field is automatically adjust it's size to fit it's string value.
+     A Boolean value indicating whether the text field is automatically adjust it's size to fit it's string value.
      
      If you you set this property to `true`, ``adjustsFontSizeToFitWidth`` is set to `false`.
      
@@ -34,7 +34,7 @@ extension NSTextField {
     }
     
     /**
-     Sets Boolean value that indicates whether the text field is automatically adjust it's size to fit it's string value.
+     Sets Boolean value indicating whether the text field is automatically adjust it's size to fit it's string value.
      
      If you you set this property to `true`, ``adjustsFontSizeToFitWidth`` is set to `false`.
      

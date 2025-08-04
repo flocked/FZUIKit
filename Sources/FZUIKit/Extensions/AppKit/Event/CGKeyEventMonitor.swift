@@ -81,7 +81,7 @@ public final class CGKeyEventMonitor {
         return self
     }
     
-    /// A Boolean value that indicates whether the monitor is active.
+    /// A Boolean value indicating whether the monitor is active.
     public var isActive: Bool {
         get { _isActive }
         set {

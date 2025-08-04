@@ -162,7 +162,7 @@ open class MagnifyMediaView: NSView {
         return self
     }
         
-    /// A Boolean value that indicates whether media is looped.
+    /// A Boolean value indicating whether media is looped.
     open var imageAnimationPlayback: ImageView.AnimationPlaybackOption {
         get { mediaView.imageAnimationPlayback }
         set { mediaView.imageAnimationPlayback = newValue }
@@ -230,46 +230,46 @@ open class MagnifyMediaView: NSView {
         set { mediaView.isMuted = newValue }
     }
         
-    /// Sets the Boolean value that indicates whether media is muted.
+    /// Sets the Boolean value indicating whether media is muted.
     @discardableResult
     open func isMuted(_ isMuted: Bool) -> Self {
         self.isMuted = isMuted
         return self
     }
         
-    /// A Boolean value that indicates whether media is looped.
+    /// A Boolean value indicating whether media is looped.
     open var isLooping: Bool {
         get { mediaView.isLooping }
         set { mediaView.isLooping = newValue }
     }
         
-    /// Sets the Boolean value that indicates whether media is looped.
+    /// Sets the Boolean value indicating whether media is looped.
     @discardableResult
     open func isLooping(_ isLooping: Bool) -> Self {
         self.isLooping = isLooping
         return self
     }
         
-    /// A value that indicates whether the volume is controllable by scrolling up & down.
+    /// A value indicating whether the volume is controllable by scrolling up & down.
     open var volumeScrollControl: MediaView.VolumeScrollControl {
         get { mediaView.volumeScrollControl }
         set { mediaView.volumeScrollControl = newValue }
     }
         
-    /// Sets the value that indicates whether the volume is controllable by scrolling up & down.
+    /// Sets the value indicating whether the volume is controllable by scrolling up & down.
     @discardableResult
     open func volumeScrollControl(_ volumeScrollControl: MediaView.VolumeScrollControl) -> Self {
         self.volumeScrollControl = volumeScrollControl
         return self
     }
         
-    /// A value that indicates whether the playback position is controllable by scrolling left & right.
+    /// A value indicating whether the playback position is controllable by scrolling left & right.
     open var playbackPositionScrollControl: MediaView.PlaybackPositionScrollControl {
         get { mediaView.playbackPositionScrollControl }
         set { mediaView.playbackPositionScrollControl = newValue }
     }
         
-    /// Sets the value that indicates whether the playback position is controllable by scrolling left & right.
+    /// Sets the value indicating whether the playback position is controllable by scrolling left & right.
     @discardableResult
     open func playbackPositionScrollControl(_ playbackPositionScrollControl: MediaView.PlaybackPositionScrollControl) -> Self {
         self.playbackPositionScrollControl = playbackPositionScrollControl
@@ -302,13 +302,13 @@ open class MagnifyMediaView: NSView {
         return self
     }
         
-    /// A Boolean value that indicates whether right clicking toggles the playback between play and pause.
+    /// A Boolean value indicating whether right clicking toggles the playback between play and pause.
     open var togglePlaybackByRightClick: Bool {
         get { mediaView.togglePlaybackByRightClick }
         set { mediaView.togglePlaybackByRightClick = newValue }
     }
         
-    /// Sets the Boolean value that indicates whether right clicking toggles the playback between play and pause.
+    /// Sets the Boolean value indicating whether right clicking toggles the playback between play and pause.
     @discardableResult
     open func togglePlaybackByRightClick(_ togglePlaybackByRightClick: Bool) -> Self {
         self.togglePlaybackByRightClick = togglePlaybackByRightClick
@@ -357,7 +357,7 @@ open class MagnifyMediaView: NSView {
         - time: The time to which to seek.
         - tolerance: The tolerance.
         - completion: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
-            - finished: A Boolean value that indicates whether the seek operation completed.
+            - finished: A Boolean value indicating whether the seek operation completed.
      */
     open func seekVideo(to interval: TimeDuration, tolerance: TimeDuration? = nil, completion: ((Bool) -> Void)? = nil) {
         mediaView.seekVideo(to: interval, tolerance: tolerance, completionHandler: completion)
@@ -370,7 +370,7 @@ open class MagnifyMediaView: NSView {
         - percentage: The percentage to which to seek (between `0.0` and `1.0`).
         - tolerance: The tolerance.
         - completion: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
-            - finished: A Boolean value that indicates whether the seek operation completed.
+            - finished: A Boolean value indicating whether the seek operation completed.
      */
     open func seekVideo(toPercentage percentage: Double, tolerance: TimeDuration? = nil, completion: ((Bool) -> Void)? = nil) {
         mediaView.seekVideo(toPercentage: percentage, tolerance: tolerance, completionHandler: completion)
@@ -432,7 +432,7 @@ open class MagnifyMediaView: NSView {
         
     // MARK: - Scroll
 
-    /// A Boolean that indicates whether the media view has scrollers.
+    /// A Boolean indicating whether the media view has scrollers.
     open var hasScrollers: Bool {
         get { scrollView.hasVerticalScroller }
         set {
@@ -441,7 +441,7 @@ open class MagnifyMediaView: NSView {
         }
     }
         
-    /// Sets the Boolean that indicates whether the media view has scrollers.
+    /// Sets the Boolean indicating whether the media view has scrollers.
     @discardableResult
     open func hasScrollers(_ hasScrollers: Bool) -> Self {
         self.hasScrollers = hasScrollers
@@ -727,10 +727,10 @@ open class MagnifyMediaView: NSView {
         sharedInit()
     }
         
-    /// A Boolean value that indicates whether the media is draggable outside.
+    /// A Boolean value indicating whether the media is draggable outside.
     open var isDraggable: Bool = false
         
-    /// Sets the Boolean value that indicates whether the media is draggable outside.
+    /// Sets the Boolean value indicating whether the media is draggable outside.
     open func isDraggable(_ isDraggable: Bool) -> Self {
         self.isDraggable = isDraggable
         return self

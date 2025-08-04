@@ -48,8 +48,8 @@ extension NSTextView {
      The scroll view can be accessed via the text view's `enclosingScrollView` property.
          
      - Parameters:
-        - scrollsHorizontal: A Boolean value that indicates whether the text view is horizontal scrollable.
-        - bordered: A Boolean value that indicates whether the scroll view is bordered.
+        - scrollsHorizontal: A Boolean value indicating whether the text view is horizontal scrollable.
+        - bordered: A Boolean value indicating whether the scroll view is bordered.
      - Returns: The scroll view.
           */
     public static func scrollable(scrollsHorizontal: Bool = false, bordered: Bool = false) -> NSTextView {
@@ -66,8 +66,8 @@ extension NSTextView {
      The scroll view can be accessed via the text view's `enclosingScrollView` property.
          
      - Parameters:
-        - scrollsHorizontal: A Boolean value that indicates whether the text view is horizontal scrollable.
-        - bordered: A Boolean value that indicates whether the scroll view is bordered.
+        - scrollsHorizontal: A Boolean value indicating whether the text view is horizontal scrollable.
+        - bordered: A Boolean value indicating whether the scroll view is bordered.
      - Returns: The scroll view.
      */
     @discardableResult
@@ -237,7 +237,7 @@ extension NSTextView {
         return textView
     }
         
-    /// Sets the Boolean value that indicates whether the text view draws its background.
+    /// Sets the Boolean value indicating whether the text view draws its background.
     @discardableResult
     public func drawsBackground(_ draws: Bool) -> Self {
         drawsBackground = draws
@@ -273,7 +273,7 @@ extension NSTextView {
         return self
     }
         
-    /// Sets the Boolean value that indicates whether the receiver allows its background color to change.
+    /// Sets the Boolean value indicating whether the receiver allows its background color to change.
     @discardableResult
     public func allowsDocumentBackgroundColorChange(_ allows: Bool) -> Self {
         self.allowsDocumentBackgroundColorChange = allows
@@ -294,7 +294,7 @@ extension NSTextView {
         return self
     }
         
-    /// Sets the Boolean value that indicates whether the receiver allows undo.
+    /// Sets the Boolean value indicating whether the receiver allows undo.
     @discardableResult
     public func allowsUndo(_ allows: Bool) -> Self {
         self.allowsUndo = allows
@@ -315,7 +315,7 @@ extension NSTextView {
         return self
     }
         
-    /// Sets the Boolean value that indicates whether image attachments should permit editing of their images.
+    /// Sets the Boolean value indicating whether image attachments should permit editing of their images.
     @discardableResult
     public func allowsImageEditing(_ allows: Bool) -> Self {
         self.allowsImageEditing = allows
@@ -336,42 +336,42 @@ extension NSTextView {
         return self
     }
         
-    /// Sets the Boolean value that indicates whether the text view supplies autocompletion suggestions as the user types.
+    /// Sets the Boolean value indicating whether the text view supplies autocompletion suggestions as the user types.
     @discardableResult
     public func isAutomaticTextCompletionEnabled(_ enabled: Bool) -> Self {
         self.isAutomaticTextCompletionEnabled = enabled
         return self
     }
         
-    /// Sets the Boolean value that indicates whether automatic text replacement is enabled.
+    /// Sets the Boolean value indicating whether automatic text replacement is enabled.
     @discardableResult
     public func isAutomaticTextReplacementEnabled(_ enabled: Bool) -> Self {
         self.isAutomaticTextReplacementEnabled = enabled
         return self
     }
         
-    /// Sets the Boolean value that indicates whether automatic spelling correction is enabled.
+    /// Sets the Boolean value indicating whether automatic spelling correction is enabled.
     @discardableResult
     public func isAutomaticSpellingCorrectionEnabled(_ enabled: Bool) -> Self {
         self.isAutomaticSpellingCorrectionEnabled = enabled
         return self
     }
         
-    /// Sets the Boolean value that indicates whether automatic data detection is enabled.
+    /// Sets the Boolean value indicating whether automatic data detection is enabled.
     @discardableResult
     public func isAutomaticDashSubstitutionEnabled(_ enabled: Bool) -> Self {
         self.isAutomaticDashSubstitutionEnabled = enabled
         return self
     }
         
-    /// Sets the Boolean value that indicates whether automatic text replacement is enabled.
+    /// Sets the Boolean value indicating whether automatic text replacement is enabled.
     @discardableResult
     public func isAutomaticDataDetectionEnabled(_ enabled: Bool) -> Self {
         self.isAutomaticDataDetectionEnabled = enabled
         return self
     }
                 
-    /// Sets the Boolean value that indicates whether the text view automatically supplies the destination of a link as a tooltip for text that has a link attribute.
+    /// Sets the Boolean value indicating whether the text view automatically supplies the destination of a link as a tooltip for text that has a link attribute.
     @discardableResult
     public func displaysLinkToolTips(_ displays: Bool) -> Self {
         self.displaysLinkToolTips = displays
@@ -392,7 +392,7 @@ extension NSTextView {
         return self
     }
         
-    /// Sets the Boolean value that indicates whether this text view uses the inspector bar.
+    /// Sets the Boolean value indicating whether this text view uses the inspector bar.
     @discardableResult
     public func usesInspectorBar(_ usesInspectorBar: Bool) -> Self {
         self.usesInspectorBar = usesInspectorBar
@@ -406,7 +406,7 @@ extension NSTextView {
         return self
     }
         
-    /// Sets the Boolean value that indicates whether to use a rollover button for selecton.
+    /// Sets the Boolean value indicating whether to use a rollover button for selecton.
     @discardableResult
     public func usesRolloverButtonForSelection(_ uses: Bool) -> Self {
         self.usesRolloverButtonForSelection = uses
@@ -414,7 +414,7 @@ extension NSTextView {
     }
         
         
-    /// Sets the Boolean value that indicates whether the receiver allows for a find panel.
+    /// Sets the Boolean value indicating whether the receiver allows for a find panel.
     @discardableResult
     public func usesFindPanel(_ usesFindPanel: Bool) -> Self {
         self.usesFindPanel = usesFindPanel
@@ -551,7 +551,7 @@ extension NSTextView {
         select(range.lowerBound..<range.upperBound)
     }
         
-    /// A Boolean value that indicates whether the text view should stop editing when the user clicks outside the text view.
+    /// A Boolean value indicating whether the text view should stop editing when the user clicks outside the text view.
     public var endsEditingOnOutsideClick: Bool {
         get { mouseDownMonitor != nil }
         set {
@@ -570,7 +570,7 @@ extension NSTextView {
         }
     }
         
-    /// Sets the Boolean value that indicates whether the text view should stop editing when the user clicks outside the text view.
+    /// Sets the Boolean value indicating whether the text view should stop editing when the user clicks outside the text view.
     @discardableResult
     public func endsEditingOnOutsideClick(_ endsEditing: Bool) -> Self {
         self.endsEditingOnOutsideClick = endsEditing

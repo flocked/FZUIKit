@@ -29,32 +29,32 @@ public extension NSScreen {
         return CGDisplayBounds(displayID)
     }
 
-    /// A Boolean value that indicates whether the mouse cursor is visble on the screen.
+    /// A Boolean value indicating whether the mouse cursor is visble on the screen.
     var containsMouse: Bool {
         Self.withMouse == self
     }
 
-    /// A Boolean value that indicates whether the screen is built-in.
+    /// A Boolean value indicating whether the screen is built-in.
     var isBuiltIn: Bool {
         CGDisplayIsBuiltin(displayID ?? 0) != 0
     }
 
-    /// A Boolean value that indicates whether the screen is virtual (e.g. Sidecar or Airplay screens)"
+    /// A Boolean value indicating whether the screen is virtual (e.g. Sidecar or Airplay screens)"
     var isVirtual: Bool {
         localizedName.lowercased().contains(any: ["dummy", "airplay", "sidecar"])
     }
 
-    /// A Boolean value that indicates whether the screen is Airplay.
+    /// A Boolean value indicating whether the screen is Airplay.
     var isAirplay: Bool {
         localizedName.lowercased().contains("airplay")
     }
 
-    /// A Boolean value that indicates whether the screen is Sidecar.
+    /// A Boolean value indicating whether the screen is Sidecar.
     var isSidecar: Bool {
         localizedName.lowercased().contains("sidecar")
     }
 
-    /// A Boolean value that indicates whether the screen is the main screen with the keyboard focus.
+    /// A Boolean value indicating whether the screen is the main screen with the keyboard focus.
     var isMain: Bool {
         self == NSScreen.main
     }
@@ -106,7 +106,7 @@ public extension NSScreen {
         NSScreen.screens.first(where: { NSMouseInRect(point, $0.frame, false) })
     }
 
-    /// Enables screen sleep and returns a Boolean value that indicates whether enabling succeeded.
+    /// Enables screen sleep and returns a Boolean value indicating whether enabling succeeded.
     @discardableResult
     static func enableScreenSleep() -> Bool {
         guard _screenSleepIsDisabled else { return true }
@@ -114,7 +114,7 @@ public extension NSScreen {
         return !_screenSleepIsDisabled
     }
 
-    /// Disables screen sleep and returns a Boolean value that indicates whether disabling succeeded.
+    /// Disables screen sleep and returns a Boolean value indicating whether disabling succeeded.
     @discardableResult
     static func disableScreenSleep() -> Bool {
         guard !_screenSleepIsDisabled else { return true }

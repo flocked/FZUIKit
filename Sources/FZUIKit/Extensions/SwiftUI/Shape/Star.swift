@@ -12,10 +12,10 @@ public struct Star: Shape {
     /// The number of points of the star.
     public var points = 5
 
-    /// A Boolean value that indicates whether the star is a cutout.
+    /// A Boolean value indicating whether the star is a cutout.
     public var cutout = false
 
-    /// A Boolean value that indicates whether star is rounded.
+    /// A Boolean value indicating whether star is rounded.
     public var rounded = false
 
     func Cartesian(length: Double, angle: Double) -> CGPoint {

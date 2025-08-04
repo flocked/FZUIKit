@@ -13,7 +13,7 @@ public extension View {
 
      - Parameters:
         - textAlignment: The alignment of the text.
-        - autoWidth: A Boolean value that indicates whether the text should fit its width automatically.
+        - autoWidth: A Boolean value indicating whether the text should fit its width automatically.
      */
     func textAlignment(_ textAlignment: TextAlignment, autoWidth: Bool = true) -> some View {
         multilineTextAlignment(textAlignment)

@@ -27,7 +27,7 @@ public class PDFGraphicsRendererFormat: GraphicsRendererFormat {
     /// The PDF document info.
     public var documentInfo: PDFDocumentInfo = .init()
     
-    /// A Boolean value that indicates the graphics context’s flipped state.
+    /// A Boolean value indicating the graphics context’s flipped state.
     public var isFlipped: Bool = false
     
     /// Creates a new format with the specified document info and whether or not the context should be flipped

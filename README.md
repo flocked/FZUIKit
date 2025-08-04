@@ -41,7 +41,7 @@ let backgroundView = NSBackgroundView(configuration: configuration)
 
 #### NSContentUnavailableConfiguration
 
-A content configuration for a content-unavailable view. It is a composable description of a view that indicates your app can’t display content. Using a content-unavailable configuration, you can obtain system default styling for a variety of different empty states. 
+A content configuration for a content-unavailable view. It is a composable description of a view indicating your app can’t display content. Using a content-unavailable configuration, you can obtain system default styling for a variety of different empty states. 
 
 ```swift
 let configuration = NSContentUnavailableConfiguration.loading() // A loading view that is displaying a spinning indicator.

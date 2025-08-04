@@ -14,7 +14,7 @@ import AppKit
  The image renderer format contains properties that determine the attributes of the underlying Core Graphics contexts that the image renderer creates. Use ``default()`` to create an image renderer format instance optimized for the current device.
  */
 struct NSGraphicsImageRendererFormat {
-    /// A Boolean value that indicates whether the underlying Core Graphics context has an alpha channel.
+    /// A Boolean value indicating whether the underlying Core Graphics context has an alpha channel.
     public var opaque: Bool = false
     
     /**

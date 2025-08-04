@@ -96,7 +96,7 @@ extension NSPasteboard {
         readObjects(forClasses: [T._ObjectiveCType.self]) as? [T] ?? []
     }
     
-    /// Returns a Boolean value that indicates whether the receiver contains any items that conform to the specified content types.
+    /// Returns a Boolean value indicating whether the receiver contains any items that conform to the specified content types.
     @available(macOS 11.0, *)
     func canReadItem(withDataConformingToTypes types: [UTType]) -> Bool {
         canReadItem(withDataConformingToTypes: types.compactMap({ $0.identifier }))

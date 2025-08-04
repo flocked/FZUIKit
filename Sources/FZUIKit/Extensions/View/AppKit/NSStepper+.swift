@@ -30,14 +30,14 @@ public extension NSStepper {
         return self
     }
     
-    /// Sets the Boolean value that indicates how the stepper responds to mouse events.
+    /// Sets the Boolean value indicating how the stepper responds to mouse events.
     @discardableResult
     func autorepeat(_ autorepeat: Bool) -> Self {
         self.autorepeat = autorepeat
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the stepper wraps around the minimum and maximum values.
+    /// Sets the Boolean value indicating whether the stepper wraps around the minimum and maximum values.
     @discardableResult
     func valueWraps(_ wraps: Bool) -> Self {
         self.valueWraps = wraps

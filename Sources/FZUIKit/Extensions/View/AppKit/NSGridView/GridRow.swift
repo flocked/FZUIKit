@@ -85,7 +85,7 @@ public class GridRow {
         return self
     }
     
-    /// A Boolean value that indicates whether the row is hidden.
+    /// A Boolean value indicating whether the row is hidden.
     public var isHidden: Bool {
         get { gridRow?.isHidden ?? properties.isHidden }
         set {
@@ -94,7 +94,7 @@ public class GridRow {
         }
     }
     
-    /// Sets the boolean value that indicates whether the row is hidden.
+    /// Sets the boolean value indicating whether the row is hidden.
     @discardableResult
     public func isHidden(_ isHidden: Bool) -> Self {
         self.isHidden = isHidden

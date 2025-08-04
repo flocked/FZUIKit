@@ -71,7 +71,7 @@ public extension NSTableView {
          
      If no row is currently selected, the first row is selected.
          
-     - Parameter extend: A Boolean value that indicates whether the selection should be extended.
+     - Parameter extend: A Boolean value indicating whether the selection should be extended.
      */
     func selectNextRow(byExtendingSelection extend: Bool = false) {
         let row = (selectedRowIndexes.last ?? -1) + 1
@@ -84,7 +84,7 @@ public extension NSTableView {
          
      If no row is currently selected, the last row is selected.
          
-     - Parameter extend: A Boolean value that indicates whether the selection should be extended.
+     - Parameter extend: A Boolean value indicating whether the selection should be extended.
      */
     func selectPreviousRow(byExtendingSelection extend: Bool = false) {
         let row = (selectedRowIndexes.first ?? numberOfRows) - 1
@@ -95,7 +95,7 @@ public extension NSTableView {
     /**
      Marks the table view as needing redisplay, so it will reload the data for visible cells and draw the new values.
          
-     - Parameter maintainingSelection: A Boolean value that indicates whether the table view should maintain it's selection after reloading.
+     - Parameter maintainingSelection: A Boolean value indicating whether the table view should maintain it's selection after reloading.
      */
     func reloadData(maintainingSelection: Bool) {
         let selectedRowIndexes = selectedRowIndexes
@@ -300,7 +300,7 @@ public extension NSTableView {
         return self
     }
         
-    /// Sets the Boolean value that indicates whether the table view uses autolayout to calculate the height of rows.
+    /// Sets the Boolean value indicating whether the table view uses autolayout to calculate the height of rows.
     @discardableResult
     func usesAutomaticRowHeights(_ uses: Bool) -> Self {
         self.usesAutomaticRowHeights = uses

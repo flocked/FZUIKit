@@ -13,14 +13,14 @@ import UIKit
 #endif
 
 extension NSUIControl {
-    /// Sets the Boolean value that indicates whether the receiver reacts to mouse events.
+    /// Sets the Boolean value indicating whether the receiver reacts to mouse events.
     @discardableResult
     public func isEnabled(_ isEnabled: Bool) -> Self {
         self.isEnabled = isEnabled
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the cell is highlighted.
+    /// Sets the Boolean value indicating whether the cell is highlighted.
     @discardableResult
     public func isHighlighted(_ isHighlighted: Bool) -> Self {
         self.isHighlighted = isHighlighted

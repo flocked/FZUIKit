@@ -30,7 +30,7 @@ public extension NSApplication {
     }
 
     /**
-     A Boolean value that indicates whether the application is a trusted accessibility client.
+     A Boolean value indicating whether the application is a trusted accessibility client.
          
      - Parameter prompt: A Boolean value indicating whether the user will be informed if the current process is untrusted. This could be used, for example, on application startup to always warn a user if accessibility is not enabled for the current process. Prompting occurs asynchronously and does not affect the return value.
      */

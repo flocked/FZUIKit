@@ -12,7 +12,7 @@ import Foundation
 import FZSwiftUtils
 
 extension NSScrollView {
-    /// Sets the Boolean value that indicates whether the scroll view draws its background.
+    /// Sets the Boolean value indicating whether the scroll view draws its background.
     @discardableResult
     public func drawsBackground(_ draws: Bool) -> Self {
         drawsBackground = draws
@@ -119,7 +119,7 @@ extension NSScrollView {
         return self
     }
     
-    /// Sets the Boolean that indicates whether the scroll view has a vertical and horizontal scroller.
+    /// Sets the Boolean indicating whether the scroll view has a vertical and horizontal scroller.
     @discardableResult
     public func hasScroller(_ hasScroller: Bool) -> Self {
         self.hasVerticalScroller = hasScroller
@@ -127,21 +127,21 @@ extension NSScrollView {
         return self
     }
     
-    /// Sets the Boolean that indicates whether the scroll view has a vertical scroller.
+    /// Sets the Boolean indicating whether the scroll view has a vertical scroller.
     @discardableResult
     public func hasVerticalScroller(_ hasScroller: Bool) -> Self {
         self.hasVerticalScroller = hasScroller
         return self
     }
     
-    /// Sets the Boolean that indicates whether the scroll view has a horizontal scroller.
+    /// Sets the Boolean indicating whether the scroll view has a horizontal scroller.
     @discardableResult
     public func hasHorizontalScroller(_ hasScroller: Bool) -> Self {
         self.hasHorizontalScroller = hasScroller
         return self
     }
     
-    /// Sets the Boolean that indicates whether the scroll view keeps a vertical and horizontal ruler object.
+    /// Sets the Boolean indicating whether the scroll view keeps a vertical and horizontal ruler object.
     @discardableResult
     public func hasRuler(_ hasRuler: Bool) -> Self {
         self.hasVerticalRuler = hasRuler
@@ -149,28 +149,28 @@ extension NSScrollView {
         return self
     }
     
-    /// Sets the Boolean that indicates whether the scroll view keeps a vertical ruler object.
+    /// Sets the Boolean indicating whether the scroll view keeps a vertical ruler object.
     @discardableResult
     public func hasVerticalRuler(_ hasRuler: Bool) -> Self {
         self.hasVerticalRuler = hasRuler
         return self
     }
     
-    /// Sets the Boolean that indicates whether the scroll view keeps a horizontal ruler object.
+    /// Sets the Boolean indicating whether the scroll view keeps a horizontal ruler object.
     @discardableResult
     public func hasHorizontalRuler(_ hasRuler: Bool) -> Self {
         self.hasHorizontalRuler = hasRuler
         return self
     }
     
-    /// Sets the Boolean that indicates whether the scroll view displays its rulers.
+    /// Sets the Boolean indicating whether the scroll view displays its rulers.
     @discardableResult
     public func rulersVisible(_ visible: Bool) -> Self {
         self.rulersVisible = visible
         return self
     }
     
-    /// Sets the Boolean that indicates whether the scroll view automatically adjusts its content insets.
+    /// Sets the Boolean indicating whether the scroll view automatically adjusts its content insets.
     @discardableResult
     public func automaticallyAdjustsContentInsets(_ adjusts: Bool) -> Self {
         self.automaticallyAdjustsContentInsets = adjusts
@@ -205,7 +205,7 @@ extension NSScrollView {
         return self
     }
     
-    /// Sets the Boolean that indicates whether the scroll view redraws its document view while scrolling continuously.
+    /// Sets the Boolean indicating whether the scroll view redraws its document view while scrolling continuously.
     @discardableResult
     public func scrollsDynamically(_ scrollsDynamically: Bool) -> Self {
         self.scrollsDynamically = scrollsDynamically
@@ -234,7 +234,7 @@ extension NSScrollView {
         return self
     }
     
-    /// Sets the Boolean that indicates whether the user is allowed to magnify the scroll view.
+    /// Sets the Boolean indicating whether the user is allowed to magnify the scroll view.
     @discardableResult
     public func allowsMagnification(_ allows: Bool) -> Self {
         self.allowsMagnification = allows
@@ -530,7 +530,7 @@ extension NSScrollView {
         setContentOffset(contentOffset, animationSpeed: animationSpeed, timingCurve: timingCurve)
     }
     
-    /// A Boolean value that indicates whether the window is being scrolled by the user.
+    /// A Boolean value indicating whether the window is being scrolled by the user.
     @objc public private(set) var inLiveScroll: Bool {
         get {
             setupLiveResizeObservation()
@@ -539,7 +539,7 @@ extension NSScrollView {
         set { setAssociatedValue(newValue, key: "inLiveScroll") }
     }
     
-    /// A Boolean value that indicates whether the scroll view is being magnified by the user.
+    /// A Boolean value indicating whether the scroll view is being magnified by the user.
     @objc public private(set) var inLiveMagnify: Bool {
         get {
             setupLiveMagnifyObservation()
@@ -623,7 +623,7 @@ extension NSScrollView {
         minMagnification...maxMagnification
     }
     
-    /// A Boolean value that indicates whether the clip view should automatically center itself.
+    /// A Boolean value indicating whether the clip view should automatically center itself.
     @objc open var shouldCenterClipView: Bool {
         get { (contentView as? CenteredClipView)?.shouldCenter ?? false }
         set {
@@ -683,7 +683,7 @@ extension NSScrollView {
          */
     }
     
-    /// A Boolean value that indicates whether the scroll view should automatically manage it's document view.
+    /// A Boolean value indicating whether the scroll view should automatically manage it's document view.
     @objc open var managesDocumentView: Bool {
         get { getAssociatedValue("managesDocumentView", initialValue: false) }
         set {
@@ -694,14 +694,14 @@ extension NSScrollView {
         }
     }
     
-    /// Sets the Boolean value that indicates whether the scroll view should automatically manage it's document view.
+    /// Sets the Boolean value indicating whether the scroll view should automatically manage it's document view.
     @discardableResult
     @objc open func managesDocumentView(_ manages: Bool) -> Self {
         self.managesDocumentView = manages
         return self
     }
     
-    ///A Boolean value that indicates whether the scrollers automatically hide if the `magnification` value is `1.0`.
+    ///A Boolean value indicating whether the scrollers automatically hide if the `magnification` value is `1.0`.
     @objc open var hidesScrollersWhenZoomedOut: Bool {
         get { getAssociatedValue("hidesScrollersWhenZoomedOut", initialValue: false) }
         set {
@@ -712,7 +712,7 @@ extension NSScrollView {
         }
     }
     
-    /// Sets the Boolean value that indicates whether the scrollers automatically hide if the `magnification` value is `1.0`.
+    /// Sets the Boolean value indicating whether the scrollers automatically hide if the `magnification` value is `1.0`.
     @discardableResult
     @objc open func hidesScrollersWhenZoomedOut(_ hides: Bool) -> Self {
         self.hidesScrollersWhenZoomedOut = hides

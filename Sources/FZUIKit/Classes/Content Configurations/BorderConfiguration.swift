@@ -66,7 +66,7 @@ public struct BorderConfiguration: Hashable {
         /// The shape of the joints between connected dash segments.
         public var lineJoin: CGLineJoin = .miter
         
-        /// A Boolean value that indicates whether the dash animates.
+        /// A Boolean value indicating whether the dash animates.
         public var animates: Bool = false
         
         /// The speed of the dash animation.

@@ -16,7 +16,7 @@ import FZSwiftUtils
 
 public extension NSUIView {
 
-    /// A value that indicates whether a view is movable by clicking and dragging anywhere in its background.
+    /// A value indicating whether a view is movable by clicking and dragging anywhere in its background.
     enum BackgroundDragOption: Hashable, ExpressibleByBooleanLiteral {
         /// The view is movable.
         case on
@@ -42,7 +42,7 @@ public extension NSUIView {
         }
     }
 
-    /// A value that indicates whether the view is movable by clicking and dragging anywhere in its background.
+    /// A value indicating whether the view is movable by clicking and dragging anywhere in its background.
     var isMovableByViewBackground: BackgroundDragOption {
         get { getAssociatedValue("isMovableByViewBackground", initialValue: .off) }
         set {

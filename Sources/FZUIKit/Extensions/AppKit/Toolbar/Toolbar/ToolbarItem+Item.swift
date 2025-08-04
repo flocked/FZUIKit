@@ -51,27 +51,27 @@ extension Toolbar {
             return self
         }
         
-        /// A Boolean value that indicates whether the toolbar item has a bordered style.
+        /// A Boolean value indicating whether the toolbar item has a bordered style.
         open var isBordered: Bool {
             get { item.isBordered }
             set { item.isBordered = newValue }
         }
         
-        /// Sets the Boolean value that indicates whether the toolbar item has a bordered style.
+        /// Sets the Boolean value indicating whether the toolbar item has a bordered style.
         @discardableResult
         open func bordered(_ isBordered: Bool) -> Self {
             item.isBordered = isBordered
             return self
         }
         
-        /// A Boolean value that indicates whether the toolbar item behaves as a navigation item in the toolbar.
+        /// A Boolean value indicating whether the toolbar item behaves as a navigation item in the toolbar.
         @available(macOS 11.0, *)
         open var isNavigational: Bool {
             get { item.isNavigational }
             set { item.isNavigational = newValue }
         }
         
-        /// Sets the Boolean value that indicates whether the toolbar item behaves as a navigation item in the toolbar.
+        /// Sets the Boolean value indicating whether the toolbar item behaves as a navigation item in the toolbar.
         @available(macOS 11.0, *)
         @discardableResult
         open func isNavigational(_ isNavigational: Bool) -> Self {

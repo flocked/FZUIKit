@@ -23,7 +23,7 @@ public class NumberTextField: NSControl {
         didSet { updateTextFormatter() }
     }
 
-    /// A Boolean value that indicates whether the text field shows a stepper next to it.
+    /// A Boolean value indicating whether the text field shows a stepper next to it.
     @IBInspectable var showsStepper: Bool = false {
         didSet {
             guard oldValue != showsStepper else { return }
@@ -38,7 +38,7 @@ public class NumberTextField: NSControl {
         }
     }
 
-    /// Sets the Boolean value that indicates whether the text field shows a stepper next to it.
+    /// Sets the Boolean value indicating whether the text field shows a stepper next to it.
     @discardableResult
     public func showsStepper(_ showsStepper: Bool) -> Self {
         self.showsStepper = showsStepper

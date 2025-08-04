@@ -74,13 +74,13 @@ open class UIHostingView<Content: View>: UIView {
         set { hostingController.sizingOptions = newValue }
     }
         
-    /// A Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
+    /// A Boolean value indicating whether the SwiftUI view ignores the safe area insets.
     open var ignoresSafeArea: Bool {
         get { hostingController.ignoresSafeArea }
         set { hostingController.ignoresSafeArea = newValue }
     }
         
-    /// Sets the Boolean value that indicates whether the SwiftUI view ignores the safe area insets.
+    /// Sets the Boolean value indicating whether the SwiftUI view ignores the safe area insets.
     @discardableResult
     open func ignoreSafeArea(_ ignores: Bool) -> Self {
         ignoresSafeArea = ignores

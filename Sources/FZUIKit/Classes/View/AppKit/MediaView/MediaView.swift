@@ -347,46 +347,46 @@ open class MediaView: NSControl {
         return self
     }
         
-    /// A Boolean value that indicates whether media is muted.
+    /// A Boolean value indicating whether media is muted.
     open var isMuted: Bool {
         get { player.isMuted }
         set { player.isMuted = newValue }
     }
         
-    /// Sets the Boolean value that indicates whether media is muted.
+    /// Sets the Boolean value indicating whether media is muted.
     @discardableResult
     open func isMuted(_ isMuted: Bool) -> Self {
         self.isMuted = isMuted
         return self
     }
 
-    /// A Boolean value that indicates whether media is looped.
+    /// A Boolean value indicating whether media is looped.
     open var isLooping: Bool {
         get { player.isLooping }
         set { player.isLooping = newValue }
     }
         
-    /// Sets the Boolean value that indicates whether media is looped.
+    /// Sets the Boolean value indicating whether media is looped.
     @discardableResult
     open func isLooping(_ isLooping: Bool) -> Self {
         self.isLooping = isLooping
         return self
     }
 
-    /// A value that indicates whether the volume is controllable by scrolling up & down.
+    /// A value indicating whether the volume is controllable by scrolling up & down.
     open var volumeScrollControl: VolumeScrollControl {
         get { .init(rawValue: videoView.volumeScrollControl.rawValue)! }
         set { videoView.volumeScrollControl = .init(rawValue: newValue.rawValue)! }
     }
         
-    /// Sets the value that indicates whether the volume is controllable by scrolling up & down.
+    /// Sets the value indicating whether the volume is controllable by scrolling up & down.
     @discardableResult
     open func volumeScrollControl(_ volumeScrollControl: VolumeScrollControl) -> Self {
         self.volumeScrollControl = volumeScrollControl
         return self
     }
         
-    /// The value that indicates whether the volume is controllable by scrolling up & down.
+    /// The value indicating whether the volume is controllable by scrolling up & down.
     public enum VolumeScrollControl: Int {
         /// Scrolling doesn't change the volume.
         case off = 0
@@ -402,20 +402,20 @@ open class MediaView: NSControl {
         }
     }
         
-    /// A value that indicates whether the playback position is controllable by scrolling left & right.
+    /// A value indicating whether the playback position is controllable by scrolling left & right.
     open var playbackPositionScrollControl: PlaybackPositionScrollControl {
         get { .init(rawValue: videoView.playbackPositionScrollControl.rawValue)! }
         set { videoView.playbackPositionScrollControl = .init(rawValue: newValue.rawValue)! }
     }
         
-    /// Sets the value that indicates whether the playback position is controllable by scrolling left & right.
+    /// Sets the value indicating whether the playback position is controllable by scrolling left & right.
     @discardableResult
     open func playbackPositionScrollControl(_ playbackPositionScrollControl: PlaybackPositionScrollControl) -> Self {
         self.playbackPositionScrollControl = playbackPositionScrollControl
         return self
     }
 
-    /// The value that indicates whether the playback position is controllable by scrolling left & right.
+    /// The value indicating whether the playback position is controllable by scrolling left & right.
     public enum PlaybackPositionScrollControl: Int {
         /// Scrolling doesn't change the playback position.
         case off = 0
@@ -464,13 +464,13 @@ open class MediaView: NSControl {
         case pause
     }
         
-    /// A Boolean value that indicates whether right clicking toggles the playback between play and pause.
+    /// A Boolean value indicating whether right clicking toggles the playback between play and pause.
     open var togglePlaybackByRightClick: Bool {
         get { videoView.togglePlaybackByRightClick }
         set { videoView.togglePlaybackByRightClick = newValue }
     }
         
-    /// Sets the Boolean value that indicates whether right clicking toggles the playback between play and pause.
+    /// Sets the Boolean value indicating whether right clicking toggles the playback between play and pause.
     @discardableResult
     open func togglePlaybackByRightClick(_ togglePlaybackByRightClick: Bool) -> Self {
         self.togglePlaybackByRightClick = togglePlaybackByRightClick
@@ -553,7 +553,7 @@ open class MediaView: NSControl {
         - time: The time to which to seek.
         - tolerance: The tolerance.
         - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
-            - finished: A Boolean value that indicates whether the seek operation completed.
+            - finished: A Boolean value indicating whether the seek operation completed.
      */
     open func seekVideo(to interval: TimeDuration, tolerance: TimeDuration? = nil, completionHandler: ((Bool) -> Void)? = nil) {
         player.seek(to: interval, tolerance: tolerance, completionHandler: completionHandler)
@@ -566,7 +566,7 @@ open class MediaView: NSControl {
         - percentage: The percentage to which to seek (between `0.0` and `1.0`).
         - tolerance: The tolerance.
         - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
-            - finished: A Boolean value that indicates whether the seek operation completed.
+            - finished: A Boolean value indicating whether the seek operation completed.
      */
     open func seekVideo(toPercentage percentage: Double, tolerance: TimeDuration? = nil, completionHandler: ((Bool) -> Void)? = nil) {
         player.seek(toPercentage: percentage, tolerance: tolerance, completionHandler: completionHandler)

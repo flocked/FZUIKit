@@ -64,7 +64,7 @@ public extension NSViewProtocol where Self: NSView {
 
 extension NSView {
     /**
-     A value that indicates the amount of mouse clicks outside the view to resign the view as first responder in its window.
+     A value indicating the amount of mouse clicks outside the view to resign the view as first responder in its window.
      
      Tne default value is `0` and indicates that a mouse click outside the view isn't resigning the view as first responder in its window.
      */

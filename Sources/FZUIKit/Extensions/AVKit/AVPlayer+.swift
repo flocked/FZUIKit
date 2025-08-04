@@ -22,7 +22,7 @@ public extension AVPlayer {
         /// The player has an error.
         case error(Error)
         
-        /// A Boolean value that indicates whether the player is playing.
+        /// A Boolean value indicating whether the player is playing.
         public var isPlaying: Bool {
             switch self {
             case .isPlaying: return true
@@ -30,7 +30,7 @@ public extension AVPlayer {
             }
         }
         
-        /// A Boolean value that indicates whether the player is paused.
+        /// A Boolean value indicating whether the player is paused.
         public var isPaused: Bool {
             switch self {
             case .isPaused: return true
@@ -38,7 +38,7 @@ public extension AVPlayer {
             }
         }
         
-        /// A Boolean value that indicates whether the player is stopped.
+        /// A Boolean value indicating whether the player is stopped.
         public var isStopped: Bool {
             switch self {
             case .isStopped: return true
@@ -147,7 +147,7 @@ public extension AVPlayer {
         - percentage: The percentage to which to seek (between `0.0` and `1.0`).
         - tolerance: The tolerance.
         - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
-            - finished: A Boolean value that indicates whether the seek operation completed.
+            - finished: A Boolean value indicating whether the seek operation completed.
      */
     func seek(toPercentage percentage: Double, tolerance: TimeDuration? = nil, completionHandler: ((Bool) -> Void)? = nil) {
         guard let currentItem = currentItem else { return }
@@ -164,7 +164,7 @@ public extension AVPlayer {
         - time: The time to which to seek.
         - tolerance: The tolerance.
         - completionHandler: The block to invoke when the seek operation has either been completed or been interrupted. The block takes one argument:
-            - finished: A Boolean value that indicates whether the seek operation completed.
+            - finished: A Boolean value indicating whether the seek operation completed.
      */
     func seek(to time: TimeDuration, tolerance: TimeDuration? = nil, completionHandler: ((Bool) -> Void)? = nil) {
         let time = CMTime(duration: time)
@@ -218,7 +218,7 @@ public extension AVPlayer {
         }
     }
     
-    /// A Boolean value that indicates whether the player should restart the playing item when it did finished playing.
+    /// A Boolean value indicating whether the player should restart the playing item when it did finished playing.
     var isLooping: Bool {
         get { getAssociatedValue("isLooping", initialValue: false) }
         set {

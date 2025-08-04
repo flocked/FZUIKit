@@ -65,14 +65,14 @@ extension NSDatePicker {
         return self
     }
     
-    /// Sets the value that indicates which visual elements of the date picker are currently shown, and which won't be usable because they are hidden.
+    /// Sets the value indicating which visual elements of the date picker are currently shown, and which won't be usable because they are hidden.
     @discardableResult
     public func datePickerElements(_ elements: NSDatePicker.ElementFlags) -> Self {
         datePickerElements = elements
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the date picker draws its background.
+    /// Sets the Boolean value indicating whether the date picker draws its background.
     @discardableResult
     public func drawsBackground(_ draws: Bool) -> Self {
         drawsBackground = draws

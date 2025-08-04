@@ -53,9 +53,9 @@ extension NSView {
      The scroll view can be accessed via the view's `enclosingScrollView` property.
 
      - Parameters:
-        - managed: A Boolean value that indicates whether the scroll view should automatically manage the view.
-        - bordered: A Boolean value that indicates whether the scroll view is bordered.
-        - drawsBackground: A Boolean value that indicates whether the scroll view draws it's background.
+        - managed: A Boolean value indicating whether the scroll view should automatically manage the view.
+        - bordered: A Boolean value indicating whether the scroll view is bordered.
+        - drawsBackground: A Boolean value indicating whether the scroll view draws it's background.
      - Returns: The scroll view.
      */
     @discardableResult

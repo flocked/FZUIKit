@@ -27,7 +27,7 @@ public class ImageGraphicsRendererFormat: GraphicsRendererFormat {
     public var scale: CGFloat = NSScreen.main?.backingScaleFactor ?? 1.0
     
     /**
-     A Boolean value that indicates whether the underlying Core Graphics context has an alpha channel.
+     A Boolean value indicating whether the underlying Core Graphics context has an alpha channel.
      
      Setting the value of this property to `false` specifies that the underlying Core Graphics context has an alpha channel, whereas `true` indicates it does not. The default value is `false`.
      
@@ -44,7 +44,7 @@ public class ImageGraphicsRendererFormat: GraphicsRendererFormat {
      */
     public var preferredRange: Range = .standard
     
-    /// A Boolean value that indicates the graphics context’s flipped state.
+    /// A Boolean value indicating the graphics context’s flipped state.
     public var isFlipped: Bool = false
     
     /**

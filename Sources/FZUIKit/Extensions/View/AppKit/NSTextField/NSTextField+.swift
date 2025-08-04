@@ -54,7 +54,7 @@ public extension NSTextField {
      - Parameters:
         - string: The string value of the text field.
         - placeholder: The place holder of the text field.
-        - rounded: A Boolean value that indicates whether the text field's bezel is rounded.
+        - rounded: A Boolean value indicating whether the text field's bezel is rounded.
      */
     static func editing(_ string: String = "", placeholder: String? = nil, rounded: Bool = false) -> Self {
         Self(string: string)
@@ -359,7 +359,7 @@ public extension NSTextField {
     /**
      The text lines of the text field.
          
-     - Parameter onlyVisible: A Boolean value that indicates whether to only return visible text lines.
+     - Parameter onlyVisible: A Boolean value indicating whether to only return visible text lines.
      */
     func textLines(onlyVisible: Bool = true) -> [TextLine] {
         getTextLines(onlyVisible: onlyVisible)
@@ -372,7 +372,7 @@ public extension NSTextField {
 
      - Parameters:
         - string: The string for the text lines.
-        - onlyVisible: A Boolean value that indicates whether to only return visible text lines.
+        - onlyVisible: A Boolean value indicating whether to only return visible text lines.
      */
     func textLines(for string: String, onlyVisible: Bool = true) -> [TextLine] {
         guard let range = stringValue.range(of: string) else { return [] }
@@ -386,7 +386,7 @@ public extension NSTextField {
          
      - Parameters:
         - range: The string range for the text lines.
-        - onlyVisible: A Boolean value that indicates whether to only return visible text lines.
+        - onlyVisible: A Boolean value indicating whether to only return visible text lines.
      */
     func textLines(for range: Range<String.Index>, onlyVisible: Bool = true) -> [TextLine] {
         guard range.clamped(to: stringValue.startIndex..<stringValue.endIndex) == range else { return [] }

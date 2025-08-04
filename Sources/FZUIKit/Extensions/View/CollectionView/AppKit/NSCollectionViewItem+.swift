@@ -19,7 +19,7 @@ extension NSCollectionViewItem {
         _collectionView?.indexPath(for: self)
     }
     
-    /// A Boolean value that indicates whether the item is visible in the collection view that owns the item.
+    /// A Boolean value indicating whether the item is visible in the collection view that owns the item.
     @objc open var isVisible: Bool {
         guard let collectionView = _collectionView else { return false }
         return collectionView.visibleRect.intersects(view.frame)

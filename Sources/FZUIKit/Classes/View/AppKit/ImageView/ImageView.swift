@@ -66,7 +66,7 @@ open class ImageView: NSControl {
     var croppedImages: [NSImage] = []
     var nonAlphaRects: SynchronizedArray<CGRect> = []
     
-    /// A Boolean value that indicates whether the images should be cropped to  non their non alpha area.
+    /// A Boolean value indicating whether the images should be cropped to  non their non alpha area.
     open var cropImagesToNonTransparent: Bool = false {
         didSet {
             guard oldValue != cropImagesToNonTransparent else { return }
@@ -74,7 +74,7 @@ open class ImageView: NSControl {
         }
     }
     
-    /// Sets the Boolean value that indicates whether the images should be cropped to  non their non alpha area.
+    /// Sets the Boolean value indicating whether the images should be cropped to  non their non alpha area.
     @discardableResult
     open func cropImagesToNonTransparent(_ crop: Bool) -> Self {
         cropImagesToNonTransparent = crop
@@ -396,7 +396,7 @@ open class ImageView: NSControl {
         }
     }
 
-    /// A Boolean value that indicates whether the animation is running.
+    /// A Boolean value indicating whether the animation is running.
     open var isAnimating: Bool {
         timer != nil
     }
@@ -609,7 +609,7 @@ open class ImageView: NSControl {
     
     // MARK: - Responding to user events
     
-    /// A value that indicates whether the image view can be selected.
+    /// A value indicating whether the image view can be selected.
     open var isSelectable: SelectionOption = false {
         didSet {
             guard isSelectable != oldValue else { return }
@@ -619,14 +619,14 @@ open class ImageView: NSControl {
         }
     }
     
-    /// Sets the value that indicates whether the image view can be selected.
+    /// Sets the value indicating whether the image view can be selected.
     @discardableResult
     open func isSelectable(_ isSelectable: SelectionOption) -> Self {
         self.isSelectable = isSelectable
         return self
     }
     
-    /// Constant that indicates whether the user can select the image view.
+    /// Constant indicating whether the user can select the image view.
     public enum SelectionOption: Int, ExpressibleByBooleanLiteral {
         /// The user can select the image view by clickling the image.
         case byImage
@@ -686,7 +686,7 @@ open class ImageView: NSControl {
      - Parameters:
         - effect: The symbol effect to add.
         - options: The options for the symbol effect.
-        - animated: A Boolean value that indicates whether to animate the addition of a scale, appear, or disappear effect.
+        - animated: A Boolean value indicating whether to animate the addition of a scale, appear, or disappear effect.
     */
     @MainActor
     @available(macOS 14.0, *)
@@ -703,7 +703,7 @@ open class ImageView: NSControl {
      - Parameters:
         - effect: The symbol effect to add.
         - options: The options for the symbol effect.
-        - animated: A Boolean value that indicates whether to animate the addition of a scale, appear, or disappear effect.
+        - animated: A Boolean value indicating whether to animate the addition of a scale, appear, or disappear effect.
     */
     @MainActor
     @available(macOS 14.0, *)
@@ -720,7 +720,7 @@ open class ImageView: NSControl {
      - Parameters:
         - effect: The symbol effect to add.
         - options: The options for the symbol effect.
-        - animated: A Boolean value that indicates whether to animate the addition of a scale, appear, or disappear effect.
+        - animated: A Boolean value indicating whether to animate the addition of a scale, appear, or disappear effect.
      */
     @MainActor
     @available(macOS 14.0, *)
@@ -754,7 +754,7 @@ open class ImageView: NSControl {
      - Parameters:
         - effect: The symbol effect to match for removal.
         - options: The options to use when removing the symbol effect.
-        - animated: A Boolean value that indicates whether to animate the removal of a scale, appear, or disappear effect.
+        - animated: A Boolean value indicating whether to animate the removal of a scale, appear, or disappear effect.
      */
     @MainActor
     @available(macOS 14.0, *)
@@ -771,7 +771,7 @@ open class ImageView: NSControl {
      - Parameters:
         - effect: The symbol effect to match for removal.
         - options: The options to use when removing the symbol effect.
-        - animated: A Boolean value that indicates whether to animate the removal of a scale, appear, or disappear effect.
+        - animated: A Boolean value indicating whether to animate the removal of a scale, appear, or disappear effect.
      */
     @MainActor
     @available(macOS 14.0, *)
@@ -788,7 +788,7 @@ open class ImageView: NSControl {
      - Parameters:
         - effect: The symbol effect to match for removal.
         - options: The options to use when removing the symbol effect.
-        - animated: A Boolean value that indicates whether to animate the removal of a scale, appear, or disappear effect.
+        - animated: A Boolean value indicating whether to animate the removal of a scale, appear, or disappear effect.
      */
     @MainActor
     @available(macOS 14.0, *)
@@ -804,7 +804,7 @@ open class ImageView: NSControl {
      
      - Parameters:
         - options: The options to use when removing the symbol effects.
-        - animated: A Boolean value that indicates whether to animate the removal of a scale, appear, or disappear effects.
+        - animated: A Boolean value indicating whether to animate the removal of a scale, appear, or disappear effects.
      */
     @MainActor
     @available(macOS 14.0, *)

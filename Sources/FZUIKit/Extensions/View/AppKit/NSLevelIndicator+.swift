@@ -108,14 +108,14 @@ public extension NSLevelIndicator {
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the indicator is editable.
+    /// Sets the Boolean value indicating whether the indicator is editable.
     @discardableResult
     func isEditable(_ isEditable: Bool) -> Self {
         self.isEditable = isEditable
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the indicator draws tiered capacity levels.
+    /// Sets the Boolean value indicating whether the indicator draws tiered capacity levels.
     @discardableResult
     func drawsTieredCapacityLevels(_ draws: Bool) -> Self {
         self.drawsTieredCapacityLevels = draws

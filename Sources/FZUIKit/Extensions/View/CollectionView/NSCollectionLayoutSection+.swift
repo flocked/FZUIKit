@@ -20,7 +20,7 @@ public extension NSCollectionLayoutSection {
      - Parameters:
         - kind: The element kind of the item.
         - height: The height of the item.
-        - floating: A Boolean value that indicates whether the item floats.
+        - floating: A Boolean value indicating whether the item floats.
         - alignment: The alignment of the item.
      */
     func addSupplementaryItem(_ kind: String, height: NSCollectionLayoutDimension = .estimated(44), floating: Bool = true, alignment: NSRectAlignment = .top) {
@@ -39,7 +39,7 @@ public extension NSCollectionLayoutSection {
 
      - Parameters:
         - height: The height of the item.
-        - floating: A Boolean value that indicates whether the item floats.
+        - floating: A Boolean value indicating whether the item floats.
      */
     func addHeader(height: NSCollectionLayoutDimension = .estimated(44), floating: Bool = true) {
         addSupplementaryItem(NSUICollectionView.elementKindSectionHeader, height: height, floating: floating, alignment: .top)
@@ -50,7 +50,7 @@ public extension NSCollectionLayoutSection {
 
      - Parameters:
         - height: The height of the item.
-        - floating: A Boolean value that indicates whether the item floats.
+        - floating: A Boolean value indicating whether the item floats.
      */
     func addFooter(height: NSCollectionLayoutDimension = .estimated(44), floating: Bool = true) {
         addSupplementaryItem(NSUICollectionView.elementKindSectionFooter, height: height, floating: floating, alignment: .bottom)

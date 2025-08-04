@@ -68,7 +68,7 @@ extension NSUIGestureRecognizer {
      Initializes the gesture recognizer with the specified specfied reattching configuration.
      
      - Parameters:
-        - reattachesAutomatically: A Boolean value that indicates whether the gesture recognizer is automatically added again to it's view when it's removed.
+        - reattachesAutomatically: A Boolean value indicating whether the gesture recognizer is automatically added again to it's view when it's removed.
         - action: The action handler.
      - Returns: The initialized gesture recognizer object.
      */
@@ -79,7 +79,7 @@ extension NSUIGestureRecognizer {
         
     }
     
-    /// A Boolean value that indicates whether the gesture recognizer is automatically added again to it's view when it's removed.
+    /// A Boolean value indicating whether the gesture recognizer is automatically added again to it's view when it's removed.
    @objc open var reattachesAutomatically: Bool {
         get { reattachViewObservation != nil }
         set {
@@ -100,7 +100,7 @@ extension NSUIGestureRecognizer {
         }
     }
     
-    /// Sets the Boolean value that indicates whether the gesture recognizer is automatically added again to it's view when it's removed.
+    /// Sets the Boolean value indicating whether the gesture recognizer is automatically added again to it's view when it's removed.
     @discardableResult
     @objc open func reattaches(_ reattaches: Bool) -> Self {
         self.reattachesAutomatically = reattaches

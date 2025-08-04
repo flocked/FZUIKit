@@ -256,7 +256,7 @@ open class MagnifyImageView: NSControl {
         imageView.stopAnimating()
     }
 
-    /// Returns a Boolean value that indicates whether the animation is running.
+    /// Returns a Boolean value indicating whether the animation is running.
     open var isAnimating: Bool {
         imageView.isAnimating
     }
@@ -347,7 +347,7 @@ open class MagnifyImageView: NSControl {
         set { imageView.isSelectable = newValue }
     }
     
-    /// Sets the value that indicates whether the image view can be selected.
+    /// Sets the value indicating whether the image view can be selected.
     @discardableResult
     open func isSelectable(_ isSelectable: ImageView.SelectionOption) -> Self {
         self.isSelectable = isSelectable
@@ -399,7 +399,7 @@ open class MagnifyImageView: NSControl {
      - Parameters:
         - effect: The symbol effect to add.
         - options: The options for the symbol effect.
-        - animated: A Boolean value that indicates whether to animate the addition of a scale, appear, or disappear effect.
+        - animated: A Boolean value indicating whether to animate the addition of a scale, appear, or disappear effect.
     */
     @MainActor
     @available(macOS 14.0, *)
@@ -416,7 +416,7 @@ open class MagnifyImageView: NSControl {
      - Parameters:
         - effect: The symbol effect to add.
         - options: The options for the symbol effect.
-        - animated: A Boolean value that indicates whether to animate the addition of a scale, appear, or disappear effect.
+        - animated: A Boolean value indicating whether to animate the addition of a scale, appear, or disappear effect.
     */
     @MainActor
     @available(macOS 14.0, *)
@@ -433,7 +433,7 @@ open class MagnifyImageView: NSControl {
      - Parameters:
         - effect: The symbol effect to add.
         - options: The options for the symbol effect.
-        - animated: A Boolean value that indicates whether to animate the addition of a scale, appear, or disappear effect.
+        - animated: A Boolean value indicating whether to animate the addition of a scale, appear, or disappear effect.
      */
     @MainActor
     @available(macOS 14.0, *)
@@ -467,7 +467,7 @@ open class MagnifyImageView: NSControl {
      - Parameters:
         - effect: The symbol effect to match for removal.
         - options: The options to use when removing the symbol effect.
-        - animated: A Boolean value that indicates whether to animate the removal of a scale, appear, or disappear effect.
+        - animated: A Boolean value indicating whether to animate the removal of a scale, appear, or disappear effect.
      */
     @MainActor
     @available(macOS 14.0, *)
@@ -484,7 +484,7 @@ open class MagnifyImageView: NSControl {
      - Parameters:
         - effect: The symbol effect to match for removal.
         - options: The options to use when removing the symbol effect.
-        - animated: A Boolean value that indicates whether to animate the removal of a scale, appear, or disappear effect.
+        - animated: A Boolean value indicating whether to animate the removal of a scale, appear, or disappear effect.
      */
     @MainActor
     @available(macOS 14.0, *)
@@ -501,7 +501,7 @@ open class MagnifyImageView: NSControl {
      - Parameters:
         - effect: The symbol effect to match for removal.
         - options: The options to use when removing the symbol effect.
-        - animated: A Boolean value that indicates whether to animate the removal of a scale, appear, or disappear effect.
+        - animated: A Boolean value indicating whether to animate the removal of a scale, appear, or disappear effect.
      */
     @MainActor
     @available(macOS 14.0, *)
@@ -517,7 +517,7 @@ open class MagnifyImageView: NSControl {
      
      - Parameters:
         - options: The options to use when removing the symbol effects.
-        - animated: A Boolean value that indicates whether to animate the removal of a scale, appear, or disappear effects.
+        - animated: A Boolean value indicating whether to animate the removal of a scale, appear, or disappear effects.
      */
     @MainActor
     @available(macOS 14.0, *)
@@ -529,7 +529,7 @@ open class MagnifyImageView: NSControl {
     
     // MARK: - Scroll
     
-    /// A Boolean that indicates whether the media view has scrollers.
+    /// A Boolean indicating whether the media view has scrollers.
     open var hasScrollers: Bool {
         get { scrollView.hasVerticalScroller }
         set {
@@ -538,7 +538,7 @@ open class MagnifyImageView: NSControl {
         }
     }
     
-    /// Sets the Boolean that indicates whether the media view has scrollers.
+    /// Sets the Boolean indicating whether the media view has scrollers.
     @discardableResult
     open func hasScrollers(_ hasScrollers: Bool) -> Self {
         self.hasScrollers = hasScrollers

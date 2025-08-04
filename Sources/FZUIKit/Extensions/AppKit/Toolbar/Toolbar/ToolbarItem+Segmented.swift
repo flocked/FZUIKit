@@ -95,7 +95,7 @@ extension Toolbar {
         }
         
         /**
-         The Boolean value that indicates whether the toolbar item is displayed as a group of individual toolbar items and labels for each segment.
+         The Boolean value indicating whether the toolbar item is displayed as a group of individual toolbar items and labels for each segment.
          
          - Note: This property only works if you provide both `title` and `image` for each segment.
          */
@@ -107,7 +107,7 @@ extension Toolbar {
         }
         
         /**
-         Sets the Boolean value that indicates whether the toolbar item is displayed as a group of individual toolbar items and labels for each segment.
+         Sets the Boolean value indicating whether the toolbar item is displayed as a group of individual toolbar items and labels for each segment.
          
          - Note: This property only works if you provide `image` for each segment.
          */

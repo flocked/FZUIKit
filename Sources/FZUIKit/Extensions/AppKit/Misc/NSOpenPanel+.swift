@@ -12,49 +12,49 @@ import UniformTypeIdentifiers
 #endif
 
 extension NSOpenPanel {
-    /// Sets the Boolean that indicates whether the user can choose directories in the panel.
+    /// Sets the Boolean indicating whether the user can choose directories in the panel.
     @discardableResult
     @objc open func canChooseDirectories(_ canChoose: Bool) -> Self {
         self.canChooseDirectories = canChoose
         return self
     }
     
-    /// Sets the Boolean that indicates whether the user can choose files in the panel.
+    /// Sets the Boolean indicating whether the user can choose files in the panel.
     @discardableResult
     @objc open func canChooseFiles(_ canChoose: Bool) -> Self {
         self.canChooseFiles = canChoose
         return self
     }
     
-    /// Sets the Boolean that indicates whether the panel resolves aliases.
+    /// Sets the Boolean indicating whether the panel resolves aliases.
     @discardableResult
     @objc open func resolvesAliases(_ resolves: Bool) -> Self {
         self.resolvesAliases = resolves
         return self
     }
     
-    /// Sets the Boolean value that indicates how the panel responds to iCloud documents that aren't fully downloaded locally.
+    /// Sets the Boolean value indicating how the panel responds to iCloud documents that aren't fully downloaded locally.
     @discardableResult
     @objc open func isAccessoryViewDisclosed(_ isDisclosed: Bool) -> Self {
         self.isAccessoryViewDisclosed = isDisclosed
         return self
     }
             
-    /// Sets the Boolean that indicates whether the user may select multiple files and directories.
+    /// Sets the Boolean indicating whether the user may select multiple files and directories.
     @discardableResult
     @objc open func allowsMultipleSelection(_ allows: Bool) -> Self {
         self.allowsMultipleSelection = allows
         return self
     }
     
-    /// Sets the Boolean that indicates whether the user may select multiple files and directories.
+    /// Sets the Boolean indicating whether the user may select multiple files and directories.
     @discardableResult
     @objc open func canDownloadUbiquitousContents(_ canDownload: Bool) -> Self {
         self.canDownloadUbiquitousContents = canDownload
         return self
     }
     
-    /// Sets the Boolean value that indicates how the panel responds to iCloud documents that have conflicting versions.
+    /// Sets the Boolean value indicating how the panel responds to iCloud documents that have conflicting versions.
     @discardableResult
     @objc open func canResolveUbiquitousConflicts(_ canResolve: Bool) -> Self {
         self.canResolveUbiquitousConflicts = canResolve
@@ -73,7 +73,7 @@ extension NSOpenPanel {
      
      - Parameters:
         - allowedContentTypes: The allowed file content types. To allow selecting directories, include `directory`.
-        - allowsMultiple: A Boolean value that indicates whether the user may select multiple files and directories.
+        - allowsMultiple: A Boolean value indicating whether the user may select multiple files and directories.
         - message: The message of the panel.
         - openButton: The title of the open button. The default value is `nil`, which uses `open` as title.
         - directory: The current directory of the panel.
@@ -96,7 +96,7 @@ extension NSOpenPanel {
      
      - Parameters:
         - allowedContentTypes: The allowed file content types. To allow selecting directories, include `directory`.
-        - allowsMultiple: A Boolean value that indicates whether the user may select multiple files and directories.
+        - allowsMultiple: A Boolean value indicating whether the user may select multiple files and directories.
         - message: The message of the panel.
         - openButton: The title of the open button. The default value is `nil`, which uses `open` as title.
         - directory: The current directory of the panel.
@@ -119,7 +119,7 @@ extension NSOpenPanel {
      
      - Parameters:
         - allowedContentTypes: The allowed file content types. To allow selecting directories, include `directory`.
-        - allowsMultiple: A Boolean value that indicates whether the user may select multiple files and directories.
+        - allowsMultiple: A Boolean value indicating whether the user may select multiple files and directories.
         - message: The message of the panel.
         - openButton: The title of the open button. The default value is `nil`, which uses `open` as title.
         - directory: The current directory of the panel.

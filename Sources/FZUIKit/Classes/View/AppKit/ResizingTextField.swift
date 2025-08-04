@@ -13,7 +13,7 @@ import FZSwiftUtils
 /// A text field that automatically resizes to fit it's text.
 open class ResizingTextField: NSTextField {
 
-    /// A Boolean value that indicates whether the text field automatically resizes to fit it's text.
+    /// A Boolean value indicating whether the text field automatically resizes to fit it's text.
     public override var automaticallyResizesToFit: Bool {
         didSet {
             invalidateIntrinsicContentSize()

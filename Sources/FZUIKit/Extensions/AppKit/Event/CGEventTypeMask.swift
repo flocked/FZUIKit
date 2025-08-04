@@ -73,7 +73,7 @@ public struct CGEventTypeMask: OptionSet, Hashable, Codable {
     /// All available events.
     public static let all: CGEventTypeMask = [.null, .leftMouseDown, .leftMouseUp, .rightMouseDown, .rightMouseUp, .mouseMoved, .leftMouseDragged, .rightMouseDragged, .keyDown, .keyUp, .flagsChanged, .scrollWheel, .tabletPointer, .tabletProximity, .otherMouseDown, .otherMouseUp, .otherMouseDragged, .tapDisabledByTimeout, .tapDisabledByUserInput]
     
-    /// A Boolean value that indicates whether the specified event type intersects with the mask.
+    /// A Boolean value indicating whether the specified event type intersects with the mask.
     public func intersects(_ type: CGEventType) -> Bool {
         contains(Self(type: type))
     }

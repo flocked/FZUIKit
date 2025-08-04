@@ -80,7 +80,7 @@ public class GridColumn {
         return self
     }
 
-    /// A Boolean value that indicates whether the column is hidden.
+    /// A Boolean value indicating whether the column is hidden.
     public var isHidden: Bool {
         get { gridColumn?.isHidden ?? properties.isHidden }
         set {
@@ -89,7 +89,7 @@ public class GridColumn {
         }
     }
     
-    /// Sets the Boolean value that indicates whether the column is hidden.
+    /// Sets the Boolean value indicating whether the column is hidden.
     @discardableResult
     public func isHidden(_ isHidden: Bool) -> Self {
         self.isHidden = isHidden

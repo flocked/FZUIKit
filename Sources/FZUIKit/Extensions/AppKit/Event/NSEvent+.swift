@@ -249,13 +249,13 @@ public extension NSEvent {
         }
     }
     
-    /// A Boolean value that indicates whether no modifier key is pressed.
+    /// A Boolean value indicating whether no modifier key is pressed.
     var isNoModifierPressed: Bool {
         modifierFlags.intersection(.deviceIndependentFlagsMask).isEmpty
     }
     
     /**
-     A Boolean value that indicates whether the event type is a right mouse-down event.
+     A Boolean value indicating whether the event type is a right mouse-down event.
      
      The value returns `true` for:
      - type is `rightMouseDown`
@@ -266,7 +266,7 @@ public extension NSEvent {
     }
     
     /**
-     A Boolean value that indicates whether the event is a right mouse-up event.
+     A Boolean value indicating whether the event is a right mouse-up event.
      
      The value returns `true` for:
      - type is `rightMouseUp`
@@ -276,67 +276,67 @@ public extension NSEvent {
         type == .rightMouseUp || (modifierFlags.contains(.control) && type == .leftMouseUp)
     }
     
-    /// A Boolean value that indicates whether the event is a user interaction event.
+    /// A Boolean value indicating whether the event is a user interaction event.
     var isUserInteraction: Bool {
         type == .userInteraction
     }
     
-    /// A Boolean value that indicates whether the event is a keyboard event (`keyDown`, `keyUp` or `flagsChanged`).
+    /// A Boolean value indicating whether the event is a keyboard event (`keyDown`, `keyUp` or `flagsChanged`).
     var isKeyboard: Bool {
         type == .keyboard
     }
     
-    /// A Boolean value that indicates whether the event is a mouse click event.
+    /// A Boolean value indicating whether the event is a mouse click event.
     var isMouse: Bool {
         type == .mouse
     }
     
-    /// A Boolean value that indicates whether the event is either a `.leftMouseDown`, `.leftMouseUp` or `.leftMouseDragged` event.
+    /// A Boolean value indicating whether the event is either a `.leftMouseDown`, `.leftMouseUp` or `.leftMouseDragged` event.
     var isLeftMouse: Bool {
         type == .leftMouse
     }
     
-    /// A Boolean value that indicates whether the event is either a `rightMouseDown`, `rightMouseUp` or `rightMouseDragged` event.
+    /// A Boolean value indicating whether the event is either a `rightMouseDown`, `rightMouseUp` or `rightMouseDragged` event.
     var isRightMouse: Bool {
         type == .rightMouse
     }
     
-    /// A Boolean value that indicates whether the event is either a `.otherMouseDown`, `.otherMouseUp` or `.otherMouseDragged` event.
+    /// A Boolean value indicating whether the event is either a `.otherMouseDown`, `.otherMouseUp` or `.otherMouseDragged` event.
     var isOtherMouse: Bool {
         type == .otherMouse
     }
     
-    /// A Boolean value that indicates whether the event is a mouse movement event (`mouseEntered`, `mouseMoved` or `mouseExited`).
+    /// A Boolean value indicating whether the event is a mouse movement event (`mouseEntered`, `mouseMoved` or `mouseExited`).
     var isMouseMovement: Bool {
         type == .mouseMovements
     }
     
-    /// A Boolean value that indicates whether the `command` key is pressed.
+    /// A Boolean value indicating whether the `command` key is pressed.
     var isCommandPressed: Bool {
         modifierFlags.contains(.command)
     }
     
-    /// A Boolean value that indicates whether the `option` key is pressed.
+    /// A Boolean value indicating whether the `option` key is pressed.
     var isOptionPressed: Bool {
         modifierFlags.contains(.option)
     }
     
-    /// A Boolean value that indicates whether the `control` key is pressed.
+    /// A Boolean value indicating whether the `control` key is pressed.
     var isControlPressed: Bool {
         modifierFlags.contains(.control)
     }
     
-    /// A Boolean value that indicates whether the `shift` key is pressed.
+    /// A Boolean value indicating whether the `shift` key is pressed.
     var isShiftPressed: Bool {
         modifierFlags.contains(.shift)
     }
     
-    /// A Boolean value that indicates whether the `capslock` key is pressed.
+    /// A Boolean value indicating whether the `capslock` key is pressed.
     var isCapsLockPressed: Bool {
         modifierFlags.contains(.capsLock)
     }
     
-    /// A Boolean value that indicates whether the `function` key is pressed.
+    /// A Boolean value indicating whether the `function` key is pressed.
     var isFunctionPressed: Bool {
         modifierFlags.contains(.function)
     }
@@ -573,7 +573,7 @@ extension NSEvent.SpecialKey: CustomStringConvertible, Hashable, Codable {
 }
 
 extension NSEvent.EventTypeMask: CustomStringConvertible, Hashable, Codable {
-    /// A Boolean value that indicates whether the specified event intersects with the mask.
+    /// A Boolean value indicating whether the specified event intersects with the mask.
     public func intersects(_ event: NSEvent?) -> Bool {
         guard let event = event else { return false }
         if event.type == .mouse {
@@ -582,7 +582,7 @@ extension NSEvent.EventTypeMask: CustomStringConvertible, Hashable, Codable {
         return intersects(event.type)
     }
     
-    /// A Boolean value that indicates whether the specified event type intersects with the mask.
+    /// A Boolean value indicating whether the specified event type intersects with the mask.
     public func intersects(_ type: NSEvent.EventType) -> Bool {
         contains(Self(type: type))
     }

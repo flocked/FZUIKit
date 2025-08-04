@@ -97,7 +97,7 @@ public class DisplayLinkTimer {
         lastFireDate?.addingTimeInterval(timeInterval.seconds)
     }
     
-    /// A Boolean value that indicates whether the timer is running.
+    /// A Boolean value indicating whether the timer is running.
     public var isRunning: Bool {
         displayLink != nil
     }

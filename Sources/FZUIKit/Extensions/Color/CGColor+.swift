@@ -69,13 +69,13 @@ public extension CGColor {
         return CGColor(red: c1.red, green: c1.green, blue: c1.blue, alpha: c1.alpha)
     }
 
-    /// A Boolean value that indicates whether the color is visible (alpha value isn't zero).
+    /// A Boolean value indicating whether the color is visible (alpha value isn't zero).
     var isVisible: Bool {
         alpha != 0.0
     }
 
     /**
-     A Boolean value that indicates whether the color is light.
+     A Boolean value indicating whether the color is light.
 
      It is useful when you need to know whether you should display the text in black or white.
      */

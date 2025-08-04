@@ -9,7 +9,7 @@
 import AppKit
 import SwiftUI
 /**
- A view that indicates there’s no content to display.
+ A view indicating there’s no content to display.
  
  Use a content-unavailable view to indicate that your app can’t display content. For example, content may not be available if a search returns no results or your app is loading data over the network.
  */

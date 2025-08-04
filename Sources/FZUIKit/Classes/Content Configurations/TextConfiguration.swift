@@ -49,7 +49,7 @@ public struct TextConfiguration {
     public var allowsDefaultTighteningForTruncation: Bool = false
     
     #if canImport(UIKit)
-    /// A Boolean value that indicates whether the object automatically updates its font when the device’s content size category changes.
+    /// A Boolean value indicating whether the object automatically updates its font when the device’s content size category changes.
     public var adjustsFontForContentSizeCategory: Bool = false
     
     /// A Boolean value that determines whether the full text displays when the pointer hovers over the truncated text.

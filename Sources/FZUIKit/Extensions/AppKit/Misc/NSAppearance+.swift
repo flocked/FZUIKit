@@ -52,7 +52,7 @@ public extension NSAppearance {
     }
 
     /**
-     A Boolean value that indicates whether the appearance is light.
+     A Boolean value indicating whether the appearance is light.
 
      The following appearances are light: ``aqua``, ``vibrantLight``, ``accessibilityHighContrastAqua`` and ``accessibilityHighContrastVibrantLight``.
      */
@@ -61,7 +61,7 @@ public extension NSAppearance {
     }
 
     /**
-     A Boolean value that indicates whether the appearance is dark.
+     A Boolean value indicating whether the appearance is dark.
 
      The following appearances are dark: ``darkAqua``, ``vibrantDark``, ``accessibilityHighContrastDarkAqua`` and ``accessibilityHighContrastVibrantDark``.
      */

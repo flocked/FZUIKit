@@ -45,7 +45,7 @@ public extension NSTableRowView {
         return tableView.rowView(atRow: row - 1, makeIfNecessary: false) as? Self
     }
 
-    /// A Boolean value that indicates whether the row is displaying row actions.
+    /// A Boolean value indicating whether the row is displaying row actions.
     var isDisplayingRowAction: Bool {
         get { subviews.contains(where: { $0.className == "NSTableViewActionButtonsGroupView" }) }
     }

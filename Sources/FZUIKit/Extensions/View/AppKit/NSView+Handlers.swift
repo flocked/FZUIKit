@@ -383,7 +383,7 @@ extension NSView {
         set { setAssociatedValue(newValue, key: "willMoveToSuperviewHook") }
     }
     
-    /// A Boolean value that indicates whether the property `inLiveResize` is KVO observable.
+    /// A Boolean value indicating whether the property `inLiveResize` is KVO observable.
     public static var isLiveResizingObservable: Bool {
         get { isMethodHooked(#selector(NSView.viewWillStartLiveResize)) }
         set {

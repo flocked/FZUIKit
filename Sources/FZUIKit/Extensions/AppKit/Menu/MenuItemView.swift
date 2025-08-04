@@ -57,7 +57,7 @@ open class NSMenuItemView: NSTableCellView {
     // MARK: - Properties
     
     /**
-     A Boolean value that indicates whether this menu item view should automatically change the appearance of subviews based on the highlight state.
+     A Boolean value indicating whether this menu item view should automatically change the appearance of subviews based on the highlight state.
 
      The default value is `true` and the view will automatically change the appearance of supported views (e.g. `NSTextField` or `NSImageView`) to match the highlight state of the enclosing menu item.
      */
@@ -65,14 +65,14 @@ open class NSMenuItemView: NSTableCellView {
         didSet { updateBackgroundStyle() }
     }
     
-    /// Sets the Boolean value that indicates whether this menu item view should automatically change the appearance of subviews based on the highlight state.
+    /// Sets the Boolean value indicating whether this menu item view should automatically change the appearance of subviews based on the highlight state.
     @discardableResult
     public func autoHighlightSubviews(_ autoHighlightSubviews: Bool) -> Self {
         self.autoHighlightSubviews = autoHighlightSubviews
         return self
     }
     
-    /// A Boolean value that indicates whether the view displays the highlight background view (``highlightView``) when it's enclosing menu item is highlighted (the mouse is hovering the item).
+    /// A Boolean value indicating whether the view displays the highlight background view (``highlightView``) when it's enclosing menu item is highlighted (the mouse is hovering the item).
     public var showsHighlight: Bool = true {
         didSet {
             guard oldValue != showsHighlight else { return }
@@ -80,14 +80,14 @@ open class NSMenuItemView: NSTableCellView {
         }
     }
     
-    /// Sets the Boolean value that indicates whether the view displays the highlight background view (``highlightView``) when it's enclosing menu item is highlighted (the mouse is hovering the item).
+    /// Sets the Boolean value indicating whether the view displays the highlight background view (``highlightView``) when it's enclosing menu item is highlighted (the mouse is hovering the item).
     @discardableResult
     public func showsHighlight(_ showsHighlight: Bool) -> Self {
         self.showsHighlight = showsHighlight
         return self
     }
     
-    /// A Boolean value that indicates whether the enclosing menu item is enabled.
+    /// A Boolean value indicating whether the enclosing menu item is enabled.
     var isEnabled: Bool {
         get { enclosingMenuItem?.isEnabled ?? true }
         set {
@@ -239,7 +239,7 @@ open class NSMenuItemView: NSTableCellView {
 
      - Parameters:
         - content: A subview.
-        - showsHighlight: A Boolean value that indicates whether the view displays the highlight background view (``highlightView``) when it's enclosing menu item is highlighted (the mouse is hovering the item).
+        - showsHighlight: A Boolean value indicating whether the view displays the highlight background view (``highlightView``) when it's enclosing menu item is highlighted (the mouse is hovering the item).
      */
     public convenience init(content: NSView, showsHighlight: Bool = true) {
         self.init()

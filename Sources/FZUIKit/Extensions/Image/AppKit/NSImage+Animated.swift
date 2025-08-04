@@ -11,7 +11,7 @@ import FZSwiftUtils
 
 public extension NSImage {
 
-    /// A Boolean value that indicates whether the image is animated (e.g. a GIF).
+    /// A Boolean value indicating whether the image is animated (e.g. a GIF).
     var isAnimated: Bool {
         framesCount > 1 && bitmapImageRep?.value(forProperty: .currentFrameDuration) != nil
     }

@@ -20,24 +20,24 @@ import FZSwiftUtils
  */
 public struct NSViewConfigurationState: NSConfigurationState, Hashable {
    
-    /// A Boolean value that indicates whether the view is selected.
+    /// A Boolean value indicating whether the view is selected.
     public var isSelected: Bool = false
 
     /**
-     A Boolean value that indicates whether the view is enabled.
+     A Boolean value indicating whether the view is enabled.
 
      The value of this property is `true`, if it's table view `isEnabled` is `true`.
      */
     public var isEnabled: Bool = true
 
     /**
-     A Boolean value that indicates whether the view is in a hovered state.
+     A Boolean value indicating whether the view is in a hovered state.
 
      The value of this property is `true`, if the mouse is hovering the view.
      */
     public var isHovered: Bool = false
 
-    /// A Boolean value that indicates whether the view is in an editing state.
+    /// A Boolean value indicating whether the view is in an editing state.
     public var isEditing: Bool = false
     
     /// The active state of the view.
@@ -65,16 +65,16 @@ public struct NSViewConfigurationState: NSConfigurationState, Hashable {
     public var appearance: NSAppearance?
     
     /**
-     A Boolean value that indicates whether the view is in an emphasized state.
+     A Boolean value indicating whether the view is in an emphasized state.
 
      The value of this property is `true`, if it's window is key.
      */
     var isActive: Bool = false
 
-    /// A Boolean value that indicates whether the view is in a focused state.
+    /// A Boolean value indicating whether the view is in a focused state.
     var isFocused: Bool = false
 
-    /// A Boolean value that indicates whether the view is in an expanded state.
+    /// A Boolean value indicating whether the view is in an expanded state.
     var isExpanded: Bool = false
 
     var customStates = [NSConfigurationStateCustomKey: AnyHashable]()

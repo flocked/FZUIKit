@@ -19,44 +19,44 @@ open class ToolbarItem: NSObject {
         rootItem
     }
     
-    /// A Boolean value that indicates whether the item is available on the 'default' toolbar presented to the user.
+    /// A Boolean value indicating whether the item is available on the 'default' toolbar presented to the user.
     open var isDefault = true
     
-    /// Sets the Boolean value that indicates whether the item is available on the 'default' toolbar presented to the user.
+    /// Sets the Boolean value indicating whether the item is available on the 'default' toolbar presented to the user.
     @discardableResult
     open func isDefault(_ isDefault: Bool) -> Self {
         self.isDefault = isDefault
         return self
     }
     
-    /// A Boolean value that indicates whether the item can be selected.
+    /// A Boolean value indicating whether the item can be selected.
     open var isSelectable = false
     
-    /// Sets the Boolean value that indicates whether the item can be selected.
+    /// Sets the Boolean value indicating whether the item can be selected.
     @discardableResult
     open func isSelectable(_ isSelectable: Bool) -> Self {
         self.isSelectable = isSelectable
         return self
     }
     
-    /// A Boolean value that indicates whether the item can't be removed or rearranged by the user.
+    /// A Boolean value indicating whether the item can't be removed or rearranged by the user.
     open var isImmovable = false
     
-    /// Sets the Boolean value that indicates whether the item can't be removed or rearranged by the user.
+    /// Sets the Boolean value indicating whether the item can't be removed or rearranged by the user.
     @discardableResult
     open func isImmovable(_ isImmovable: Bool) -> Self {
         self.isImmovable = isImmovable
         return self
     }
     
-    /// A Boolean value that indicates whether the item displays in the center of the toolbar.
+    /// A Boolean value indicating whether the item displays in the center of the toolbar.
     @available(macOS 13.0, *)
     open var isCentered: Bool {
         get { _isCentered }
         set { _isCentered = newValue }
     }
     
-    /// Sets the Boolean value that indicates whether the item displays in the center of the toolbar.
+    /// Sets the Boolean value indicating whether the item displays in the center of the toolbar.
     @available(macOS 13.0, *)
     @discardableResult
     open func isCentered(_ isCentered: Bool) -> Self {
@@ -72,7 +72,7 @@ open class ToolbarItem: NSObject {
     }
     
     /**
-     A Boolean value that indicates whether the toolbar automatically validates the item.
+     A Boolean value indicating whether the toolbar automatically validates the item.
      
      If the value of this property is `true`, the toolbar automatically validates the item; otherwise, it doesn’t validate the item automatically. The default value of this property is `true`.
      */
@@ -82,7 +82,7 @@ open class ToolbarItem: NSObject {
     }
     
     /**
-     Sets the Boolean value that indicates whether the toolbar automatically validates the item.
+     Sets the Boolean value indicating whether the toolbar automatically validates the item.
      
      If the value of this property is `true`, the toolbar automatically validates the item; otherwise, it doesn’t validate the item automatically. The default value of this property is `true`.
      */
@@ -92,7 +92,7 @@ open class ToolbarItem: NSObject {
         return self
     }
     
-    /// A Boolean value that indicates whether the item is selected.
+    /// A Boolean value indicating whether the item is selected.
     var isSelected: Bool {
         get { toolbar?.selectedItem === self }
         set {
@@ -103,7 +103,7 @@ open class ToolbarItem: NSObject {
     }
     
     /**
-     A Boolean value that indicates whether the item is currently visible in the toolbar, and not in the overflow menu.
+     A Boolean value indicating whether the item is currently visible in the toolbar, and not in the overflow menu.
      
      The value of this property is true when the item is visible in the toolbar, and false when it isn’t in the toolbar or is present in the toolbar’s overflow menu. This property is key-value observing (KVO) compliant.
      */
@@ -197,13 +197,13 @@ open class ToolbarItem: NSObject {
         return self
     }
     
-    /// A Boolean value that indicates whether the item is enabled.
+    /// A Boolean value indicating whether the item is enabled.
     open var isEnabled: Bool {
         get { item.isEnabled }
         set { item.isEnabled = newValue }
     }
     
-    /// Sets the Boolean value that indicates whether the item is enabled.
+    /// Sets the Boolean value indicating whether the item is enabled.
     @discardableResult
     open func isEnabled(_ isEnabled: Bool) -> Self {
         item.isEnabled = isEnabled
@@ -274,14 +274,14 @@ open class ToolbarItem: NSObject {
     }
     
     
-    /// A Boolean value that indicates whether the item is hidden.
+    /// A Boolean value indicating whether the item is hidden.
     @available(macOS 15.0, *)
     open var isHidden: Bool {
         get { item._isHidden }
         set { item._isHidden = newValue }
     }
     
-    /// Sets the Boolean value that indicates whether the item is hidden.
+    /// Sets the Boolean value indicating whether the item is hidden.
     @available(macOS 15.0, *)
     @discardableResult
     open func isHidden(_ isHidden: Bool) -> Self {

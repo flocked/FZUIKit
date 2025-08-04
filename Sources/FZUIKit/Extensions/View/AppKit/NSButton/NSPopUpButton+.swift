@@ -108,26 +108,26 @@ public extension NSPopUpButton {
         return self
     }
         
-    /// A Boolean value that indicates if the control uses an item from the menu for its own title.
+    /// A Boolean value indicating if the control uses an item from the menu for its own title.
     var usesItemFromMenu: Bool {
         get { (cell as? NSPopUpButtonCell)?.usesItemFromMenu ?? true }
         set { (cell as? NSPopUpButtonCell)?.usesItemFromMenu = newValue }
     }
         
-    /// Sets the Boolean value that indicates if the control uses an item from the menu for its own title.
+    /// Sets the Boolean value indicating if the control uses an item from the menu for its own title.
     @discardableResult
     func usesItemFromMenu(_ usesItemFromMenu: Bool) -> Self {
         self.usesItemFromMenu = usesItemFromMenu
         return self
     }
         
-    /// A Boolean value that indicates if the pop-up button links the state of the selected menu item to the current selection.
+    /// A Boolean value indicating if the pop-up button links the state of the selected menu item to the current selection.
     var altersStateOfSelectedItem: Bool {
         get { (cell as? NSPopUpButtonCell)?.altersStateOfSelectedItem ?? false }
         set { (cell as? NSPopUpButtonCell)?.altersStateOfSelectedItem = newValue }
     }
         
-    /// Sets a Boolean value that indicates if the pop-up button links the state of the selected menu item to the current selection.
+    /// Sets a Boolean value indicating if the pop-up button links the state of the selected menu item to the current selection.
     @discardableResult
     func altersStateOfSelectedItem(_ alters: Bool) -> Self {
         self.altersStateOfSelectedItem = alters

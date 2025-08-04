@@ -38,7 +38,7 @@ extension NSColorPanel {
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the receiver shows alpha values and an opacity slider.
+    /// Sets the Boolean value indicating whether the receiver shows alpha values and an opacity slider.
     @discardableResult
     public func showsAlpha(_ shows: Bool) -> Self {
         self.showsAlpha = shows

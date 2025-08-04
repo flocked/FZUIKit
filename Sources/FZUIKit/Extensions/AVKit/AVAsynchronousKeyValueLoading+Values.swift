@@ -43,12 +43,12 @@ public extension AVKeyValues where T: AVAsset {
         try? object?.load(.duration)
     }
         
-    /// A Boolean value that indicates whether the asset provides precise duration and timing.
+    /// A Boolean value indicating whether the asset provides precise duration and timing.
     var providesPreciseDurationAndTiming: Bool? {
         try? object?.load(.providesPreciseDurationAndTiming)
     }
     
-    /// A time value that indicates how closely playback follows the latest live stream content.
+    /// A time value indicating how closely playback follows the latest live stream content.
     var minimumTimeOffsetFromLive: CMTime? {
         try? object?.load(.minimumTimeOffsetFromLive)
     }
@@ -79,7 +79,7 @@ public extension AVKeyValues where T: AVAsset {
         try? object?.load(.availableMetadataFormats)
     }
     
-    /// A metadata item that indicates the creation date of an asset.
+    /// A metadata item indicating the creation date of an asset.
     var creationDate: AVMetadataItem? {
         try? object?.load(.creationDate)
     }
@@ -91,37 +91,37 @@ public extension AVKeyValues where T: AVAsset {
     
     // MARK: - Loading Suitability
     
-    /// A Boolean value that indicates whether an asset contains playable content.
+    /// A Boolean value indicating whether an asset contains playable content.
     var isPlayable: Bool? {
         try? object?.load(.isPlayable)
     }
     
     #if os(macOS) || os(iOS) || os(tvOS)
-    /// A Boolean value that indicates whether you can export an asset using an export session.
+    /// A Boolean value indicating whether you can export an asset using an export session.
     var isExportable: Bool? {
         try? object?.load(.isExportable)
     }
     
-    /// A Boolean value that indicates whether you can extract the asset’s media data using an asset reader.
+    /// A Boolean value indicating whether you can extract the asset’s media data using an asset reader.
     var isReadable: Bool? {
         try? object?.load(.isReadable)
     }
     #endif
     
-    /// A Boolean value that indicates whether you can use the asset in a media composition.
+    /// A Boolean value indicating whether you can use the asset in a media composition.
     var isComposable: Bool? {
         try? object?.load(.isComposable)
     }
     
     #if os(iOS) || os(tvOS)
-    /// A Boolean value that indicates whether the asset provides precise duration and timing.
+    /// A Boolean value indicating whether the asset provides precise duration and timing.
     var isCompatibleWithSavedPhotosAlbum: Bool? {
         try? object?.load(.isCompatibleWithSavedPhotosAlbum)
     }
     #endif
     
     #if os(macOS) || os(iOS) || os(tvOS)
-    /// A Boolean value that indicates whether the asset is compatible with AirPlay Video.
+    /// A Boolean value indicating whether the asset is compatible with AirPlay Video.
     var isCompatibleWithAirPlayVideo: Bool? {
         try? object?.load(.isCompatibleWithAirPlayVideo)
     }
@@ -178,19 +178,19 @@ public extension AVKeyValues where T: AVAsset {
     // MARK: - Content Protections
     
     #if os(macOS) || os(iOS) || os(tvOS)
-    /// A Boolean value that indicates whether the asset contains protected content.
+    /// A Boolean value indicating whether the asset contains protected content.
     var hasProtectedContent: Bool? {
         try? object?.load(.hasProtectedContent)
     }
     
     // MARK: - Fragment Support
     
-    /// A Boolean value that indicates whether you can extend the asset by fragments.
+    /// A Boolean value indicating whether you can extend the asset by fragments.
     var canContainFragments: Bool? {
         try? object?.load(.canContainFragments)
     }
     
-    /// A Boolean value that indicates whether at least one movie fragment extends the asset.
+    /// A Boolean value indicating whether at least one movie fragment extends the asset.
     var containsFragments: Bool? {
         try? object?.load(.containsFragments)
     }

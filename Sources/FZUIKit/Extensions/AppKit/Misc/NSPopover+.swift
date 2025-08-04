@@ -99,7 +99,7 @@ extension NSPopover {
         return self
     }
     
-    /// A Boolean value that indicates whether the size of the popview is automatically resized to the content view`s size. `
+    /// A Boolean value indicating whether the size of the popview is automatically resized to the content view`s size. `
     @objc open var isResizingAutomatically: Bool {
         get { contentViewFrameObservation != nil  }
         set {
@@ -117,14 +117,14 @@ extension NSPopover {
         }
     }
     
-    /// Sets the Boolean value that indicates whether the content view is automatically sized to the content view`s size. `
+    /// Sets the Boolean value indicating whether the content view is automatically sized to the content view`s size. `
     @discardableResult
     @objc open func isResizingAutomatically(_ autosizes: Bool) -> Self {
         self.isResizingAutomatically = autosizes
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the content view of the popover extends into the arrow region.
+    /// Sets the Boolean value indicating whether the content view of the popover extends into the arrow region.
     @available(macOS 14.0, *)
     @discardableResult
     @objc open func hasFullSizeContent(_ hasFullSizeContent: Bool) -> Self {
@@ -156,7 +156,7 @@ extension NSPopover {
         return self
     }
     
-    /// A Boolean value that indicates whether the popover is detachable by the user.
+    /// A Boolean value indicating whether the popover is detachable by the user.
     @objc open var isDetachable: Bool {
         get { getAssociatedValue("isDetachable", initialValue: false) }
         set { setAssociatedValue(newValue, key: "isDetachable")
@@ -164,21 +164,21 @@ extension NSPopover {
         }
     }
     
-    /// Sets the Boolean value that indicates whether the popover is detachable by the user.
+    /// Sets the Boolean value indicating whether the popover is detachable by the user.
     @discardableResult
     @objc open func isDetachable(_ isDetachable: Bool) -> Self {
         self.isDetachable = isDetachable
         return self
     }
     
-    /// Sets the Boolean value that indicates whether the popover animates.
+    /// Sets the Boolean value indicating whether the popover animates.
     @discardableResult
     @objc open func animates(_ animates: Bool) -> Self {
         self.animates = animates
         return self
     }
     
-    /// A Boolean value that indicates whether the popover's close button is hidden when detached.
+    /// A Boolean value indicating whether the popover's close button is hidden when detached.
     @objc open var hidesDetachedCloseButton: Bool {
         get { getAssociatedValue("hidesDetachedCloseButton", initialValue: false) }
         set {
@@ -190,7 +190,7 @@ extension NSPopover {
         }
     }
     
-    /// Sets the Boolean value that indicates whether the popover's close button is hidden when detached.
+    /// Sets the Boolean value indicating whether the popover's close button is hidden when detached.
     @discardableResult
     @objc open func hidesDetachedCloseButton(_ hides: Bool) -> Self {
         self.hidesDetachedCloseButton = hides
@@ -255,7 +255,7 @@ extension NSPopover {
         return self
     }
     
-    /// A Boolean value that indicates whether the arrow is visible
+    /// A Boolean value indicating whether the arrow is visible
     @objc open var isArrowVisible: Bool {
         get { !(value(forKeySafely: "shouldHideAnchor") as? Bool ?? false) }
         set {
@@ -265,7 +265,7 @@ extension NSPopover {
         }
     }
     
-    /// Sets the Boolean value that indicates whether the arrow is visible
+    /// Sets the Boolean value indicating whether the arrow is visible
     @discardableResult
     @objc open func isArrowVisible(_ isVisible: Bool) -> Self {
         self.isArrowVisible = isVisible
@@ -288,8 +288,8 @@ extension NSPopover {
      - Parameters:
         - positioningView: The view relative to which the popover should be positioned.
         - preferredEdge: The edge of `positioningView` the popover should prefer to be anchored to.
-        - hideArrow: A Boolean value that indicates whether to hide the arrow of the popover.
-        - tracksView: A Boolean value that indicates whether to track the `positioningView`. If set to `true`, the popover is automatially positioned to the view's frame and automatically hides, if the view hides.
+        - hideArrow: A Boolean value indicating whether to hide the arrow of the popover.
+        - tracksView: A Boolean value indicating whether to track the `positioningView`. If set to `true`, the popover is automatially positioned to the view's frame and automatically hides, if the view hides.
      */
     public func show(_ positioningView: NSView, preferredEdge: NSRectEdge, hideArrow: Bool = false, tracksView: Bool = false) {
         show(relativeTo: .zero, of: positioningView, preferredEdge: preferredEdge, hideArrow: hideArrow, tracksView: tracksView)
@@ -302,7 +302,7 @@ extension NSPopover {
         - positioningRect: The rectangle within `positioningView` relative to which the popover should be positioned, or `nil` to set it to the bounds of the `positioningView`.
         - positioningView: The view relative to which the popover should be positioned.
         - preferredEdge: The edge of `positioningView` the popover should prefer to be anchored to.
-        - tracksView: A Boolean value that indicates whether to track the `positioningView`. If set to `true`, the popover is automatially positioned to the view's frame and automatically hides, if the view hides.
+        - tracksView: A Boolean value indicating whether to track the `positioningView`. If set to `true`, the popover is automatially positioned to the view's frame and automatically hides, if the view hides.
      */
     public func show(relativeTo positioningRect: CGRect, of positioningView: NSView, preferredEdge: NSRectEdge, hideArrow: Bool) {
         self.show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge, hideArrow: hideArrow, tracksView: false)
@@ -315,7 +315,7 @@ extension NSPopover {
         - positioningRect: The rectangle within `positioningView` relative to which the popover should be positioned, or `nil` to set it to the bounds of the `positioningView`.
         - positioningView: The view relative to which the popover should be positioned.
         - preferredEdge: The edge of `positioningView` the popover should prefer to be anchored to.
-        - tracksView: A Boolean value that indicates whether to track the `positioningView`. If set to `true`, the popover is automatially positioned to the view's frame and automatically hides, if the view hides.
+        - tracksView: A Boolean value indicating whether to track the `positioningView`. If set to `true`, the popover is automatially positioned to the view's frame and automatically hides, if the view hides.
      */
     public func show(relativeTo positioningRect: CGRect, of positioningView: NSView, preferredEdge: NSRectEdge, tracksView: Bool) {
         self.show(relativeTo: positioningRect, of: positioningView, preferredEdge: preferredEdge, hideArrow: false, tracksView: tracksView)
@@ -328,8 +328,8 @@ extension NSPopover {
         - positioningRect: The rectangle within `positioningView` relative to which the popover should be positioned, or `nil` to set it to the bounds of the `positioningView`.
         - positioningView: The view relative to which the popover should be positioned.
         - preferredEdge: The edge of `positioningView` the popover should prefer to be anchored to.
-        - hideArrow: A Boolean value that indicates whether to hide the arrow of the popover.
-        - tracksView: A Boolean value that indicates whether to track the `positioningView`. If set to `true`, the popover is automatially positioned to the view's frame and automatically hides, if the view hides.
+        - hideArrow: A Boolean value indicating whether to hide the arrow of the popover.
+        - tracksView: A Boolean value indicating whether to track the `positioningView`. If set to `true`, the popover is automatially positioned to the view's frame and automatically hides, if the view hides.
      */
     public func show(relativeTo positioningRect: CGRect, of positioningView: NSView, preferredEdge: NSRectEdge, hideArrow: Bool, tracksView: Bool) {
         let spacing: CGFloat = 0.0

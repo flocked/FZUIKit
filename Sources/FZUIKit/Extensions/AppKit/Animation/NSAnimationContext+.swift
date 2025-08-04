@@ -12,7 +12,7 @@ import SwiftUI
 
 extension NSAnimationContext {
     /**
-     A Boolean value that indicates whether the the current animation context has an active grouping.
+     A Boolean value indicating whether the the current animation context has an active grouping.
      
      The property returns `true`, if it's called inside a [runAnimationGroup(_:)](https://developer.apple.com/documentation/appkit/nsanimationcontext/runanimationgroup(_:completionhandler:)) closure or between [beginGrouping()](https://developer.apple.com/documentation/appkit/nsanimationcontext/begingrouping()) and [endGrouping()](https://developer.apple.com/documentation/appkit/nsanimationcontext/endrouping()).
      */
