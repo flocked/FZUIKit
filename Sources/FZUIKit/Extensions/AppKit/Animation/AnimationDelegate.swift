@@ -27,6 +27,9 @@ class AnimationDelegate: NSObject, CAAnimationDelegate {
         animation.setValue(safely: animator.repeatDuration, forKey: "repeatDuration")
         animation.setValue(safely: animator.autoreverses, forKey: "autoreverses")
         animation.setValue(safely: CACurrentMediaTime() + animator.delay, forKey: "beginTime")
+        if #available(macOS 12.0, *) {
+            animation.setValue(safely: animator.preferredFrameRateRange, forKey: "preferredFrameRateRange")
+        }
         guard let animation = animation as? CABasicAnimation else { return }
         animator.animationTargetValues[key] = .init(from: animation.fromValue, to: object.value(forKeySafely: key))
     }
@@ -54,7 +57,6 @@ class AnimationDelegate: NSObject, CAAnimationDelegate {
         guard let object = object else { return }
         animation.animator?.removeAnimationKey(key, for: object)
         animation.animator = nil
-        guard animationKeys.isEmpty else { return }
     }
 }
 

@@ -14,7 +14,7 @@ import SwiftUI
 public class NSAnimator: NSObject {
     fileprivate var animatingKeys: [WeakAnimatablePropertyProvider: Set<String>] = [:]
     var animate: ((_ complection: (()->())?)->()) = { _ in }
-    var _duration = 0.0
+    var animationDuration = 0.0
     var animationTargetValues: [String: AnimationTargetValue] = [:]
     var spring: CASpringAnimation?
     var shouldRestart = false
@@ -36,9 +36,9 @@ public class NSAnimator: NSObject {
     
     /// The total duration of the animation.
     public var duration: CGFloat {
-        var totalDuration = _duration + repeatDuration + delay
-        totalDuration += CGFloat(repeatCount) * _duration
-        totalDuration += autoreverses ? _duration : 0.0
+        var totalDuration = animationDuration + repeatDuration + delay
+        totalDuration += CGFloat(repeatCount) * animationDuration
+        totalDuration += autoreverses ? animationDuration : 0.0
         return totalDuration
     }
     
@@ -115,6 +115,15 @@ public class NSAnimator: NSObject {
         return self
     }
     
+    /// The preferred frame rate range.
+    @available(macOS 12.0, *)
+    public var preferredFrameRateRange: CAFrameRateRange {
+        get { _preferredFrameRateRange as? CAFrameRateRange ?? .default }
+        set { _preferredFrameRateRange = newValue }
+    }
+    
+    var _preferredFrameRateRange: Any?
+    
     /**
      Starts the animation.
      
@@ -167,7 +176,7 @@ public class NSAnimator: NSObject {
     public init(duration: TimeInterval = 0.25, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, changes: @escaping () -> Void) {
         NSAnimationContext.swizzleAll()
         super.init()
-        _duration = duration
+        animationDuration = duration
         animate = { nextAnimation in
             self.state = .running
             self.startTime = CACurrentMediaTime()
@@ -193,7 +202,7 @@ public class NSAnimator: NSObject {
         NSAnimationContext.swizzleAll()
         super.init()
         self.spring = spring
-        _duration = spring.duration
+        animationDuration = spring.duration
         animate = { nextAnimation in
             self.state = .running
             NSAnimationContext.runAnimationGroup({ context in

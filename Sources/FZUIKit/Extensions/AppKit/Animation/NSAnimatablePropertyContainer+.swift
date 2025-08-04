@@ -28,22 +28,8 @@ extension NSAnimatablePropertyContainer {
 extension NSAnimatablePropertyContainer where Self: NSObject {
     /// Stops all animations of properties.
     func stopAllAnimations() {
-        let keys = animationDelegate.animationKeys
-        NSAnimationContext.performWithoutAnimation {
-            for key in keys {
-                self.setValue(self.value(forKey: key), forKey: key)
-            }
-        }
-        guard let layer = (self as? NSView)?.layer, var animationKeys = layer.animationKeys(), let presentation = layer.presentation() else { return }
-        animationKeys = animationKeys.filter({ keys.contains($0) })
-        CATransaction.disabledActions {
-            for key in animationKeys {
-                if let value = presentation.value(forKeyPath: key) {
-                    layer.setValue(value, forKeyPath: key)
-                }
-            }
-        }
-        animationKeys.forEach({ layer.removeAnimation(forKey: $0) })
+        animationDelegate.animationKeys.forEach({ stopAnimation(for: $0) })
+        (self as? NSView)?.layer?.stopAllAnimations()
     }
     
     /// Stops the animation of the specified property.
@@ -54,23 +40,17 @@ extension NSAnimatablePropertyContainer where Self: NSObject {
     
     /// Stops the animation of the specified property.
     func stopAnimation(for key: String) {
-        guard animationDelegate.animationKeys.contains(key) else { return }
-        animationDelegate.animationKeys.remove(key)
-        NSAnimationContext.performWithoutAnimation {
-            self.setValue(safely: self.value(forKeySafely: key), forKey: key)
-        }
-        guard let layer = (self as? NSView)?.layer, layer.animation(forKey: key) != nil, let presentation = layer.presentation() else { return }
-        CATransaction.disabledActions {
-            if let value = presentation.value(forKeyPath: key) {
-                layer.setValue(value, forKeyPath: key)
+        if animationDelegate.animationKeys.contains(key), let value = value(forKeySafely: key) {
+            NSAnimationContext.performWithoutAnimation {
+                self.setValue(safely: value, forKey: key)
             }
         }
-        layer.removeAnimation(forKey: key)
+        (self as? NSView)?.layer?.stopAnimation(for: key)
     }
     
     /// An array of keys of the object's properties that are currently animated.
     var animationKeys: [String] {
-        animationDelegate.animationKeys.sorted()
+        (animationDelegate.animationKeys + ((self as? NSView)?.layer?.animationKeys() ?? [])).sorted()
     }
     
     var animationDelegate: AnimationDelegate {
@@ -80,7 +60,7 @@ extension NSAnimatablePropertyContainer where Self: NSObject {
 
 extension NSAnimationContext {
     fileprivate static var didSwizzleDefaultAnimation: Bool {
-        get { getAssociatedValue("didSwizzleDefaultAnimation", initialValue: false) }
+        get { getAssociatedValue("didSwizzleDefaultAnimation") ?? false }
         set { setAssociatedValue(newValue, key: "didSwizzleDefaultAnimation") }
     }
     
@@ -130,6 +110,7 @@ class WeakAnimatablePropertyProvider: Equatable, Hashable {
 }
 
 extension CALayer {
+    /// Stops all animations of properties.
     func stopAllAnimations() {
         guard var animationKeys = animationKeys(), let presentation = presentation() else { return }
         let keys = animationDelegate.animationKeys
@@ -144,6 +125,13 @@ extension CALayer {
         animationKeys.forEach({ removeAnimation(forKey: $0) })
     }
     
+    /// Stops the animation of the specified property.
+    func stopAnimation(for keyPath: PartialKeyPath<CALayer>) {
+        guard let key = keyPath.kvcStringValue else { return }
+        stopAnimation(for: key)
+    }
+    
+    /// Stops the animation of the specified property.
     func stopAnimation(for key: String) {
         guard animation(forKey: key) != nil, let presentation = presentation() else { return }
         CATransaction.begin()
@@ -181,6 +169,9 @@ fileprivate extension CALayer {
             new.repeatDuration = animation.repeatDuration
             new.autoreverses = animation.autoreverses
             new.beginTime = CACurrentMediaTime() + animation.delay
+            if #available(macOS 12.0, *) {
+                new.preferredFrameRateRange = animation.preferredFrameRateRange
+            }
             if animation.autoreverses {
                 new.fillMode = .forwards
                 new.isRemovedOnCompletion = false
