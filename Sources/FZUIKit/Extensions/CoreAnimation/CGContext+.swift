@@ -11,6 +11,24 @@ import CoreGraphics
 public protocol CGContextType { }
 extension CGContext: CGContextType { }
 
+extension CGContext {
+    /// Fills the specified rectangle with the provided color.
+    public func fill(_ color: CGColor, in rect: CGRect) {
+        saveGState()
+        setFillColor(color)
+        fill(rect)
+        restoreGState()
+    }
+    
+    /// Strokes the specified rectangle with the provided color.
+    public func stroke(_ color: CGColor, in rect: CGRect) {
+        saveGState()
+        setStrokeColor(color)
+        stroke(rect)
+        restoreGState()
+    }
+}
+
 public extension CGContextType where Self == CGContext {
     /**
      Creates a bitmap graphics context.

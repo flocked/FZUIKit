@@ -51,87 +51,7 @@ public extension CGImage {
     internal var nsUIImage: NSUIImage {
         NSUIImage(cgImage: self)
     }
-
-    static func create(size: CGSize, backgroundColor: CGColor? = nil, _ drawBlock: ((CGContext, CGSize) -> Void)? = nil) throws -> CGImage {
-        // Make the context. For the moment, always work in RGBA (CGColorSpace.sRGB)
-        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
-        guard let space = CGColorSpace(name: CGColorSpace.sRGB), let ctx = CGContext(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: 8, bytesPerRow: 0, space: space, bitmapInfo: bitmapInfo.rawValue) else { throw ImageError.invalidContext }
-
-        // Drawing defaults
-        ctx.setShouldAntialias(true)
-        ctx.setAllowsAntialiasing(true)
-        ctx.interpolationQuality = .high
-
-        // If a background color is set, fill it here
-        if let backgroundColor = backgroundColor {
-            ctx.saveGState()
-            ctx.setFillColor(backgroundColor)
-            ctx.fill([CGRect(origin: .zero, size: size)])
-            ctx.restoreGState()
-        }
-
-        // Perform the draw block
-        if let block = drawBlock {
-            ctx.saveGState()
-            block(ctx, size)
-            ctx.restoreGState()
-        }
-
-        guard let result = ctx.makeImage() else {
-            throw ImageError.unableToCreateImageFromContext
-        }
-        return result
-    }
-
-    enum ImageError: Error {
-        case unableToCreateImageFromContext
-        case invalidContext
-    }
-
-    /*
-     internal static func create(size: CGSize, bitsPerComponent: Int = 8, bytesPerRow: Int = 0, bitmapInfo: CGBitmapInfo? = nil, colorSpace: CGColorSpace? = nil, backgroundColor: CGColor? = nil, _ drawBlock: ((CGContext, CGSize) -> Void)? = nil) throws -> CGImage {
-         guard
-             let space = colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB),
-             let ctx = CGContext(
-                 data: nil,
-                 width: Int(size.width),
-                 height: Int(size.height),
-                 bitsPerComponent: bitsPerComponent,
-                 bytesPerRow: bytesPerRow,
-                 space: space,
-                 bitmapInfo: (bitmapInfo ?? CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)).rawValue
-             )
-         else {
-             throw ImageError.invalidContext
-         }
-
-         // Drawing defaults
-         ctx.setShouldAntialias(true)
-         ctx.setAllowsAntialiasing(true)
-         ctx.interpolationQuality = .high
-
-         // If a background color is set, fill it here
-         if let backgroundColor = backgroundColor {
-             ctx.saveGState()
-             ctx.setFillColor(backgroundColor)
-             ctx.fill([CGRect(origin: .zero, size: size)])
-             ctx.restoreGState()
-         }
-
-         // Perform the draw block
-         if let block = drawBlock {
-             ctx.saveGState()
-             block(ctx, size)
-             ctx.restoreGState()
-         }
-
-         guard let result = ctx.makeImage() else {
-             throw ImageError.unableToCreateImageFromContext
-         }
-         return result
-     }
-     */
-
+    
     /**
      Returns the image resized to the specified size.
 
@@ -245,6 +165,29 @@ extension Collection where Element == CGImage {
 }
 
 extension CGImage {
+
+}
+
+import Accelerate.vImage
+
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+extension CGImage {
+    /**
+     Convert an image to a `vImage` buffer of the specified given pixel format.
+
+     - Parameters:
+        - pixelFormat: The pixel format.
+        - premultiplyAlpha: A Boolean value indicating whether the alpha channel should be premultiplied.
+     */
+    func toVImageBuffer(pixelFormat: PixelFormat, premultiplyAlpha: Bool) throws -> vImage.PixelBuffer<vImage.Interleaved8x4> {
+        guard var imageFormat = vImage_CGImageFormat(bitsPerComponent: vImage.Interleaved8x4.bitCountPerComponent, bitsPerPixel: vImage.Interleaved8x4.bitCountPerPixel, colorSpace: CGColorSpaceCreateDeviceRGB(), bitmapInfo: pixelFormat.toBitmapInfo(premultiplyAlpha: premultiplyAlpha), renderingIntent: .perceptual)
+        else {
+            throw NSError("Could not initialize vImage_CGImageFormat")
+        }
+
+        return try vImage.PixelBuffer(cgImage: self, cgImageFormat: &imageFormat, pixelFormat: vImage.Interleaved8x4.self)
+    }
+    
     enum PixelFormat {
         /// Big-endian, alpha first.
         case argb
@@ -254,85 +197,16 @@ extension CGImage {
         case bgra
         /// Little-endian, alpha last.
         case abgr
-
-        var title: String {
-            switch self {
-            case .argb:
-                "ARGB"
-            case .rgba:
-                "RGBA"
-            case .bgra:
-                "BGRA"
-            case .abgr:
-                "ABGR"
-            }
+                
+        func toBitmapInfo(premultiplyAlpha: Bool) -> CGBitmapInfo {
+            let alphaFirst = premultiplyAlpha ? CGImageAlphaInfo.premultipliedFirst : .first
+            let alphaLast = premultiplyAlpha ? CGImageAlphaInfo.premultipliedLast : .last
+            let byteOrder: CGBitmapInfo = self == .argb || self == .rgba ? .byteOrder32Big : .byteOrder32Little
+            let alphaInfo: CGImageAlphaInfo = self == .argb || self == .bgra ? alphaFirst : alphaLast
+            return CGBitmapInfo(rawValue: byteOrder.rawValue | alphaInfo.rawValue)
         }
     }
 }
-
-import Accelerate.vImage
-
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
-extension CGImage {
-    /**
-     Convert an image to a `vImage` buffer of the given pixel format.
-
-     - Parameter premultiplyAlpha: Whether the alpha channel should be premultiplied.
-     */
-    func toVImageBuffer(
-        pixelFormat: PixelFormat,
-        premultiplyAlpha: Bool
-    ) throws -> vImage.PixelBuffer<vImage.Interleaved8x4> {
-        guard
-            var imageFormat = vImage_CGImageFormat(
-                bitsPerComponent: vImage.Interleaved8x4.bitCountPerComponent,
-                bitsPerPixel: vImage.Interleaved8x4.bitCountPerPixel,
-                colorSpace: CGColorSpaceCreateDeviceRGB(),
-                bitmapInfo: pixelFormat.toBitmapInfo(premultiplyAlpha: premultiplyAlpha),
-                renderingIntent: .perceptual
-            )
-        else {
-            throw NSError("Could not initialize vImage_CGImageFormat")
-        }
-
-        return try vImage.PixelBuffer(
-            cgImage: self,
-            cgImageFormat: &imageFormat,
-            pixelFormat: vImage.Interleaved8x4.self
-        )
-    }
-}
-
-extension CGImage.PixelFormat: CustomDebugStringConvertible {
-    var debugDescription: String { "CGImage.PixelFormat(\(title)" }
-}
-
-extension CGImage.PixelFormat {
-    func toBitmapInfo(premultiplyAlpha: Bool) -> CGBitmapInfo {
-        let alphaFirst = premultiplyAlpha ? CGImageAlphaInfo.premultipliedFirst : .first
-        let alphaLast = premultiplyAlpha ? CGImageAlphaInfo.premultipliedLast : .last
-
-        let byteOrder: CGBitmapInfo
-        let alphaInfo: CGImageAlphaInfo
-        switch self {
-        case .argb:
-            byteOrder = .byteOrder32Big
-            alphaInfo = alphaFirst
-        case .rgba:
-            byteOrder = .byteOrder32Big
-            alphaInfo = alphaLast
-        case .bgra:
-            byteOrder = .byteOrder32Little
-            alphaInfo = alphaFirst // This might look wrong, but the order is inverse because of little endian.
-        case .abgr:
-            byteOrder = .byteOrder32Little
-            alphaInfo = alphaLast
-        }
-
-        return CGBitmapInfo(rawValue: byteOrder.rawValue | alphaInfo.rawValue)
-    }
-}
-
 
 extension CGImage {
     /// The mode of grayscaling an image.
@@ -425,4 +299,45 @@ extension CGImage {
         }
     }
     #endif
+}
+
+extension CFType where Self == CGImage {
+    /// Creates an image with the specified size.
+    public init(size: CGSize) {
+        let context = CGContext(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        context.clear(CGRect(.zero, size))
+        self = context.makeImage()!
+    }
+    
+    /// Creates an image with the specified size and color.
+    public init(size: CGSize, color: CGColor) {
+        let context = CGContext(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        context.saveGState()
+        context.fill(color, in: CGRect(origin: .zero, size: size))
+        context.restoreGState()
+        self = context.makeImage()!
+    }
+    
+    /**
+     Creates an image whose contents are drawn using the specified block.
+     
+     - Parameters:
+        - size: The size of the image.
+        - drawingHandler: A block that draws the contents of the image representation.
+     */
+    public init(size: CGSize, drawingHandler: ((CGContext) -> Void)) throws {
+        guard let space = CGColorSpace(name: CGColorSpace.sRGB), let context = CGContext(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: 8, bytesPerRow: 0, space: space, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { throw CGImageError.invalidContext }
+        context.saveGState()
+        drawingHandler(context)
+        context.restoreGState()
+        guard let result = context.makeImage() else {
+            throw CGImageError.unableToCreateImageFromContext
+        }
+        self = result
+    }
+}
+
+fileprivate enum CGImageError: Error {
+    case unableToCreateImageFromContext
+    case invalidContext
 }
