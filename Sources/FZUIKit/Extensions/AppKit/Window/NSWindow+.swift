@@ -326,7 +326,7 @@ extension NSWindow {
           
      The value can be animated via `animator().size`.
      */
-    public var size: CGSize {
+    @objc open var size: CGSize {
         get { frame.size }
         set { frameAnimatable.size = newValue }
     }
@@ -339,7 +339,7 @@ extension NSWindow {
         - expandToBottom:A Boolean value indicating whether the window should expand it's size to the bottom.
      */
     @discardableResult
-    public func size(_ size: CGSize, expandToBottom: Bool = false) -> Self {
+    @objc open func size(_ size: CGSize, expandToBottom: Bool = false) -> Self {
         frameAnimatable = expandToBottom ? frame.size(size).offsetBy(dy: size.height - self.frame.height) : frame.size(size)
         return self
     }
@@ -349,30 +349,21 @@ extension NSWindow {
      
      The value can be animated via `animator().contentSize`.
      */
-    public var contentSize: CGSize {
-        get { _contentSize }
-        set {
-            NSWindow.swizzleAnimationForKey()
-            _contentSize = newValue
-        }
-    }
-    
-    @objc var _contentSize: CGSize {
+    @objc open var contentSize: CGSize {
         get { contentLayoutRect.size }
         set { setContentSize(newValue) }
     }
     
-    
     /// Sets the size of the window.
     @discardableResult
-    public func contentSize(_ size: CGSize) -> Self {
+    @objc open func contentSize(_ size: CGSize) -> Self {
         self.contentSize = size
         return self
     }
     
     /// Sets the origin of the window’s frame rectangle in screen coordinates.
     @discardableResult
-    public func origin(_ origin: CGPoint) -> Self {
+    @objc open func origin(_ origin: CGPoint) -> Self {
         self.frameAnimatable.origin = origin
         return self
     }
@@ -386,7 +377,7 @@ extension NSWindow {
     
     /// Sets the window’s alpha value.
     @discardableResult
-    public func alphaValue(_ alphaValue: CGFloat) -> Self {
+    @objc open func alphaValue(_ alphaValue: CGFloat) -> Self {
         self.alphaValue = alphaValue
         return self
     }
@@ -539,14 +530,14 @@ extension NSWindow {
      
      The value can be animated via `animator()`.
      */
-    public var centerPoint: CGPoint {
+    @objc open var centerPoint: CGPoint {
         get { frameAnimatable.center }
         set { frameAnimatable.center = newValue }
     }
     
     /// Sets the center point of the window's frame rectangle.
     @discardableResult
-    public func centerPoint(_ centerPoint: CGPoint) -> Self {
+    @objc open func centerPoint(_ centerPoint: CGPoint) -> Self {
         self.centerPoint = centerPoint
         return self
     }
@@ -556,15 +547,7 @@ extension NSWindow {
      
      The value can be animated via `animator().frameAnimatable`.
      */
-    public var frameAnimatable: CGRect {
-        get { frame }
-        set {
-            NSWindow.swizzleAnimationForKey()
-            _frameAnimatable = newValue
-        }
-    }
-    
-    @objc var _frameAnimatable: CGRect {
+    @objc open var frameAnimatable: CGRect {
         get { frame }
         set { setFrame(newValue, display: false) }
     }

@@ -254,20 +254,4 @@ fileprivate extension NSView {
     static let animatableKeys: Set<String> = ["_contentOffset", "_contentOffsetFractional", "_documentSize", "_fontSize", "_placeholderTextColor", "_roundedCorners", "_selectionColor", "_selectionTextColor", "backgroundColor", "bezelColor", "borderColor", "borderWidth", "contentTintColor", "cornerRadius", "fillColor", "shadowColor", "textColor"]
 }
 
-fileprivate extension NSWindow {
-    @objc override class func swizzledDefaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {
-        if let animation = swizzledDefaultAnimation(forKey: key) {
-            if animation is CABasicAnimation, NSAnimationContext.hasActiveGrouping, let springAnimation = NSAnimationContext.current.animator?.spring {
-                return springAnimation
-            }
-            return animation
-        } else if animatableKeys.contains(key) {
-            return swizzledDefaultAnimation(forKey: "alphaValue")
-        }
-        return nil
-    }
-    
-    static let animatableKeys = ["_frameAnimatable", "_contentSize"]
-}
-
 #endif
