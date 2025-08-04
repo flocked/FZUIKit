@@ -51,10 +51,6 @@ public extension CGImage {
     internal var nsUIImage: NSUIImage {
         NSUIImage(cgImage: self)
     }
-    
-    static func create(size: CGSize, backgroundColor: CGColor? = nil, colorSpace: CGColorSpace = CGColorSpaceCreateDeviceRGB()) {
-        
-    }
 
     static func create(size: CGSize, backgroundColor: CGColor? = nil, _ drawBlock: ((CGContext, CGSize) -> Void)? = nil) throws -> CGImage {
         // Make the context. For the moment, always work in RGBA (CGColorSpace.sRGB)
