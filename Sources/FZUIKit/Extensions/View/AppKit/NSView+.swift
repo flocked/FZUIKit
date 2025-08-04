@@ -87,36 +87,10 @@ extension NSView {
     @objc open var mask: NSView? {
         get { (layer?.mask as? InverseMaskLayer)?.maskLayer?.parentView ?? layer?.mask?.parentView }
         set {
-            /*
-            if let newValue = newValue {
-                maskViewObservation = newValue.observeChanges(for: \.superview) { [weak self] old, new in
-                    guard let self = self, self.mask == newValue else { return }
-                    self.mask = nil
-                }
-                maskObservation = observeChanges(for: \.layer?.mask, handler: { [weak self] old, new in
-                    guard let self = self, new != newValue.layer else { return }
-                    self.mask = nil
-                })
-            } else {
-                maskObservation = nil
-                maskViewObservation = nil
-            }
-             */
             newValue?.removeFromSuperview()
             optionalLayer?.mask = newValue?.optionalLayer
         }
     }
-    
-    fileprivate var maskViewObservation: KeyValueObservation? {
-        get { getAssociatedValue("maskViewObservation") }
-        set { setAssociatedValue(newValue, key: "maskViewObservation") }
-    }
-    
-    fileprivate var maskObservation: KeyValueObservation? {
-        get { getAssociatedValue("maskObservation") }
-        set { setAssociatedValue(newValue, key: "maskObservation") }
-    }
-
 
     /// The shape that is used for masking the view.
     public var maskShape: (any Shape)? {
@@ -135,7 +109,7 @@ extension NSView {
      
      The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
      */
-    @objc public var inverseMask: NSView? {
+    @objc open var inverseMask: NSView? {
         get { mask }
         set {
             newValue?.removeFromSuperview()
@@ -374,7 +348,7 @@ extension NSView {
 
      The default value is `all`, which results in a view with all corners rounded to the value specified at ``cornerRadius``.
      */
-    @objc public var roundedCorners: CACornerMask {
+    @objc open var roundedCorners: CACornerMask {
         get { layer?.maskedCorners.toAll ?? .all }
         set {
             optionalLayer?.maskedCorners = newValue
