@@ -78,15 +78,6 @@ public extension NSSlider {
         (cell as? NSSliderCell)?.knobRect(flipped: isFlipped) ?? .zero
     }
         
-    /// The position of the slider knob.
-    var knobPointPosition: CGFloat {
-        let sliderOrigin = frame.origin.x + knobThickness / 2
-        let sliderWidth = frame.width - knobThickness
-        assert(maxValue > minValue)
-        let knobPos = sliderOrigin + sliderWidth * CGFloat((doubleValue - minValue) / (maxValue - minValue))
-        return knobPos
-    }
-        
     /// Sets the minimum value the slider can send to its target.
     @discardableResult
     func minValue(_ minValue: Double) -> Self {
