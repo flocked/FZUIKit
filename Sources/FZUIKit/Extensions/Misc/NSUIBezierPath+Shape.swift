@@ -13,6 +13,7 @@ import UIKit
 #endif
 import FZSwiftUtils
 
+/*
 extension NSUIBezierPath {
     static func ellipse(_ size: CGSize) -> NSUIBezierPath {
         NSUIBezierPath(ovalIn: CGRect(.zero, size))
@@ -24,13 +25,21 @@ extension NSUIBezierPath {
         let yValue = (size.height - value) / 2.0
         return NSUIBezierPath(roundedRect: CGRect(CGPoint(xValue, yValue), CGSize(value, value)), cornerRadius: value / 2.0)
     }
-    
-    static func rectangle(_ size: CGSize, cornerRadius: CGFloat) -> NSUIBezierPath {
+        
+    static func rect(_ size: CGSize) -> NSUIBezierPath {
         NSUIBezierPath(rect: CGRect(.zero, size))
     }
     
     static func roundedRect(_ size: CGSize, cornerRadius: CGFloat) -> NSUIBezierPath {
         NSUIBezierPath(roundedRect: CGRect(.zero, size), cornerRadius: cornerRadius)
+    }
+    
+    static func roundedRect(_ size: CGSize, cornerRadius: CGFloat, byRoundingCorners corners: NSUIRectCorner) -> NSUIBezierPath {
+        NSUIBezierPath(roundedRect: CGRect(.zero, size), byRoundingCorners: corners, cornerRadius: cornerRadius)
+    }
+    
+    static func roundedRect(_ size: CGSize, topLeft: CGFloat, topRight: CGFloat, bottomLeft: CGFloat, bottomRight: CGFloat) -> NSUIBezierPath {
+        NSUIBezierPath(roundedRect: CGRect(.zero, size), topLeft: topLeft, topRight: topRight, bottomLeft: bottomLeft, bottomRight: bottomRight)
     }
     
     static func star(rect: CGRect, points: Int = 5, rounded: Bool = false, cutout: Bool = false) -> NSUIBezierPath {
@@ -169,16 +178,7 @@ extension NSUIBezierPath {
         path.close()
         return path
     }
-    
-    /// Creates and returns a new Bézier path object initialized with a rounded rectangular path.
-    public convenience init(roundedRect rect: CGRect, cornerRadius: CGFloat, style: CornerCurveStyle = .continuous) {
-        self.init(cgPath: CGPath(roundedRect: rect, cornerRadius: cornerRadius, style: style))
-    }
-    
-    /// Creates and returns a new Bézier path object initialized with a rounded rectangular path  with different values.
-    public convenience init(roundedRect rect: CGRect, topLeftRadius: CGFloat = 0, bottomLeftRadius: CGFloat = 0, bottomRightRadius: CGFloat = 0, topRightRadius: CGFloat = 0, style: CornerCurveStyle = .continuous) {
-        self.init(cgPath: CGPath(roundedRect: rect, topLeftRadius: topLeftRadius, bottomLeftRadius: bottomLeftRadius, bottomRightRadius: bottomRightRadius, topRightRadius: topRightRadius, style: style))
-    }
 }
+*/
 
 #endif
