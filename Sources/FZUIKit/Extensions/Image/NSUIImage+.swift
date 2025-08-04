@@ -13,19 +13,52 @@ import UIKit
 import FZSwiftUtils
 
 public extension NSUIImage {
+    #if os(macOS)
     /**
-     Creates an image object that contains a system symbol image.
+     Creates an system symbol image with the specified name.
+
+     - Parameters:
+        - systemName: The name of the system symbol image.
+        - description: The accessibility description for the symbol image, if any.
+     */
+    @available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+    static func symbol(_ systemName: String, accessibilityDescription description: String? = nil) -> NSUIImage? {
+        NSImage(systemSymbolName: systemName, accessibilityDescription: description)
+    }
+    
+    /**
+     Creates an system symbol image with the specified name and configuration.
      
+     - Parameters:
+        - systemName: The name of the system symbol image.
+        - description: The accessibility description for the symbol image, if any.
+        - configuration: The image configuration the system applies to the image.
+     */
+    @available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+    static func symbol(_ systemName: String, withConfiguration configuration: SymbolConfiguration) -> NSImage? {
+        NSImage(systemSymbolName: systemName)?.withSymbolConfiguration(configuration)
+    }
+    #else
+    /**
+     Creates an system symbol image with the specified name.
+
      - Parameter systemName: The name of the system symbol image.
      */
-    @available(macOS 11.0, *)
-    static func symbol(_ systemName: String) -> NSUIImage? {
-        #if os(macOS)
-        NSUIImage(systemSymbolName: systemName)
-        #else
-        NSUIImage(systemName: systemName)
-        #endif
+    static func symbol(_ systemName: String) -> UIImage? {
+        UIImage(systemName: systemName)
     }
+    
+    /**
+     Creates an system symbol image with the specified name and configuration.
+     
+     - Parameters:
+        - systemName: The name of the system symbol image.
+        - configuration: The image configuration the system applies to the image.
+     */
+    static func symbol(_ systemName: String, withConfiguration configuration: Configuration) -> UIImage? {
+        UIImage(systemName: systemName, withConfiguration: configuration)
+    }
+    #endif
     
     /// The symbol name of the image.
     @available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)

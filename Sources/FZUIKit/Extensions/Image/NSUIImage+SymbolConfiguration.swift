@@ -478,15 +478,16 @@ public extension NSImage {
     }
     
     /**
-     Creates a symbol image with the system symbol name and configuration.
+     Creates a symbol image with the specified system symbol name and configuration.
      
      - Parameters:
         - name: The name of the system symbol image.
+        - description: The accessibility description for the symbol image, if any.
         - configuration: The symbol configuration the system applies to the image.
      - Returns: A symbol image based on the name and configuration you specify; otherwise `nil` if the method couldn’t find a suitable image.
      */
-    convenience init?(systemSymbolName name: String, withConfiguration configuration: SymbolConfiguration) {
-        guard let image = NSImage(systemSymbolName: name)?.withSymbolConfiguration(configuration) else { return nil }
+    convenience init?(systemSymbolName name: String, accessibilityDescription description: String? = nil, withConfiguration configuration: SymbolConfiguration) {
+        guard let image = NSImage(systemSymbolName: name, accessibilityDescription: description)?.withSymbolConfiguration(configuration) else { return nil }
         let archiver = NSKeyedArchiver(requiringSecureCoding: false)
         image.encode(with: archiver)
         archiver.finishEncoding()
@@ -495,21 +496,17 @@ public extension NSImage {
     }
     
     /**
-     Creates a symbol image with the system symbol name and configuration.
+     Creates a symbol image with the specified system symbol name and configuration.
      
      - Parameters:
         - name: The name of the system symbol image.
+        - description: The accessibility description for the symbol image, if any.
         - configuration: The symbol configuration the system applies to the image.
      - Returns: A symbol image based on the name and configuration you specify; otherwise `nil` if the method couldn’t find a suitable image.
      */
     @available(macOS 12.0, *)
-    convenience init?(systemSymbolName name: String, WithConfiguration configuration: ImageSymbolConfiguration) {
-        guard let image = NSImage(systemSymbolName: name)?.withSymbolConfiguration(configuration) else { return nil }
-        let archiver = NSKeyedArchiver(requiringSecureCoding: false)
-        image.encode(with: archiver)
-        archiver.finishEncoding()
-        guard let unarchiver = try? NSKeyedUnarchiver(forReadingFrom: archiver.encodedData) else { return nil }
-        self.init(coder: unarchiver)
+    convenience init?(systemSymbolName name: String, accessibilityDescription description: String? = nil, withConfiguration configuration: ImageSymbolConfiguration) {
+        self.init(systemSymbolName: name, accessibilityDescription: description, withConfiguration: configuration.nsUI())
     }
     
     /**
