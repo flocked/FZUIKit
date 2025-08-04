@@ -14,26 +14,6 @@ import FZSwiftUtils
 
 public extension NSUIImage {
     /**
-     Returns a Boolean value that indicates whether image is equal to the specified other image.
-     
-     - Parameter image: The image to comapare.
-     - Returns: `true` if the images are equal, otherwise `false`.
-     */
-    func isEqual(to image: NSUIImage) -> Bool {
-        #if os(macOS)
-        if framesCount == 1, let cgImage = cgImage, let other = image.cgImage {
-            return cgImage.isEqual(to: other)
-        }
-        return tiffData() == image.tiffData()
-        #else
-        if let cgImage = cgImage, let other = image.cgImage {
-            return cgImage.isEqual(to: other)
-        }
-        return pngData() == image.pngData()
-        #endif
-    }
-    
-    /**
      Creates an image object that contains a system symbol image.
      
      - Parameter systemName: The name of the system symbol image.
@@ -113,6 +93,92 @@ public extension NSUIImage {
         NSUIImage(color: color, size: size)
     }
     #endif
+    
+    /**
+     Creates a resizable mask image with the specified corner radius.
+
+     - Parameter cornerRadius: The corner radius.
+
+     - Returns: A black-filled image with transparent corners, suitable for use as a resizable mask.
+     */
+    static func maskImage(cornerRadius: CGFloat) -> NSUIImage {
+        let size = CGSize(width: cornerRadius * 2, height: cornerRadius * 2)
+        func draw(in rect: CGRect) {
+            let path = NSUIBezierPath(roundedRect: rect, cornerRadius: cornerRadius)
+            path.close()
+            NSUIColor.black.setFill()
+            path.fill()
+        }
+        #if os(macOS)
+        let image = NSImage(size: size, flipped: false) { rect in
+            draw(in: rect)
+            return true
+        }
+        image.capInsets = NSEdgeInsets(top: cornerRadius, left: cornerRadius, bottom: cornerRadius, right: cornerRadius)
+        return image
+        #else
+        let format = UIGraphicsImageRendererFormat.default()
+        format.opaque = false
+        let image = UIGraphicsImageRenderer(size: size, format: format).image { context in
+            draw(in: CGRect(origin: .zero, size: size))
+        }
+        let insets = UIEdgeInsets(top: cornerRadius, left: cornerRadius, bottom: cornerRadius, right: cornerRadius)
+        return image.resizableImage(withCapInsets: insets, resizingMode: .stretch)
+        #endif
+    }
+    
+    /**
+     Creates a resizable mask image with the specified rounded corners.
+
+     - Parameters:
+       - roundedCorners: The corners to round.
+       - cornerRadius: The radius to apply to the specified corners.
+
+     - Returns: A black-filled image with transparent corners, suitable for use as a resizable mask.
+     */
+    static func maskImage(roundedCorners: NSUIRectCorner, cornerRadius: CGFloat) -> NSUIImage {
+        if roundedCorners == .allCorners {
+            return maskImage(cornerRadius: cornerRadius)
+        }
+        let size = CGSize(width: cornerRadius * 2, height: cornerRadius * 2)
+        func draw(in rect: CGRect) {
+            let path = NSUIBezierPath(roundedRect: rect, byRoundingCorners: roundedCorners, cornerRadius: cornerRadius)
+            path.close()
+            NSUIColor.black.setFill()
+            path.fill()
+        }
+        #if os(macOS)
+        let image = NSImage(size: size, flipped: false) { rect in
+            draw(in: rect)
+            return true
+        }
+        image.capInsets = NSEdgeInsets(top: cornerRadius, left: cornerRadius, bottom: cornerRadius, right: cornerRadius)
+        return image
+        #else
+        let format = UIGraphicsImageRendererFormat.default()
+        format.opaque = false
+        let image = UIGraphicsImageRenderer(size: size, format: format).image { context in
+            draw(in: CGRect(origin: .zero, size: size))
+        }
+        let insets = UIEdgeInsets(top: cornerRadius, left: cornerRadius, bottom: cornerRadius, right: cornerRadius)
+        return image.resizableImage(withCapInsets: insets, resizingMode: .stretch)
+        #endif
+    }
+    
+    /// Returns a Boolean value that indicates whether image is equal to the specified other image.
+    func isEqual(to image: NSUIImage) -> Bool {
+        #if os(macOS)
+        if framesCount == 1, let cgImage = cgImage, let other = image.cgImage {
+            return cgImage.isEqual(to: other)
+        }
+        return tiffData() == image.tiffData()
+        #else
+        if let cgImage = cgImage, let other = image.cgImage {
+            return cgImage.isEqual(to: other)
+        }
+        return pngData() == image.pngData()
+        #endif
+    }
 }
 
 extension Collection where Element == NSUIImage {

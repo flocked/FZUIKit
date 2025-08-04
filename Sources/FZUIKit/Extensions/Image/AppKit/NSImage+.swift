@@ -86,65 +86,33 @@ public extension NSImage {
     /**
      Returns a new version of the current image with the specified tint color.
 
-     For bitmap images, this method draws the background tint color followed by the image contents using the `CGBlendMode.destinationIn mode. For symbol images, this method returns an image that always uses the specified tint color.
+     For bitmap images, this method draws the background tint color followed by the image contents using the [CGBlendMode.destinationIn](https://developer.apple.com/documentation/CoreGraphics/CGBlendMode/destinationIn) mode. For symbol images, this method returns an image that always uses the specified tint color.
 
      The new image uses the same rendering mode as the original image.
 
      - Parameter color: The tint color to apply to the image.
      - Returns: A new version of the image that incorporates the specified tint color.
      */
-    func withTintColor(_ color: NSColor) -> NSImage {
-        if #available(macOS 12.0, *) {
-            if isSymbolImage {
-                return withSymbolConfiguration(.init(paletteColors: [color])) ?? self
-            }
+    func withTintColor(_ color: NSUIColor) -> NSUIImage {
+        if #available(macOS 12.0, *), isSymbolImage {
+            return applyingSymbolConfiguration(.init(paletteColors: [color])) ?? self
         }
-
-        if let cgImage = cgImage {
-            let rect = CGRect(.zero, cgImage.size)
-            if let tintedImage = try? CGImage.create(size: rect.size, { ctx, _ in
-
-                // draw black background to preserve color of transparent pixels
-                ctx.setBlendMode(.normal)
-                ctx.setFillColor(CGColor.black)
-                ctx.fill([rect])
-
-                // Draw the image
-                ctx.setBlendMode(.normal)
-                ctx.draw(cgImage, in: rect)
-
-                // tint image (losing alpha) - the luminosity of the original image is preserved
-                ctx.setBlendMode(.color)
-                ctx.setFillColor(color.cgColor)
-                ctx.fill([rect])
-
-                //   if keepingAlpha {
-                // mask by alpha values of original image
-                ctx.setBlendMode(.destinationIn)
-                ctx.draw(cgImage, in: rect)
-                //  }
-            }).nsImage {
-                return tintedImage
-            }
-        }
-        return self
-    }
-
-    /// Returns an object scaled to the curren screen that may be used as the contents of a layer.
-    var scaledLayerContents: Any {
-        let scale = recommendedLayerContentsScale(0.0)
-        return layerContents(forContentsScale: scale)
-    }
-
-    static func maskImage(cornerRadius: CGFloat) -> NSImage {
-        let image = NSImage(size: NSSize(width: cornerRadius * 2, height: cornerRadius * 2), flipped: false) { rectangle in
-            let bezierPath = NSBezierPath(roundedRect: rectangle, xRadius: cornerRadius, yRadius: cornerRadius)
-            NSColor.black.setFill()
-            bezierPath.fill()
+        return NSImage(size: size, flipped: false) { rect in
+            color.set()
+            rect.fill()
+            self.draw(in: rect, from: NSRect(origin: .zero, size: self.size), operation: .destinationIn, fraction: 1.0)
             return true
         }
-        image.capInsets = NSEdgeInsets(top: cornerRadius, left: cornerRadius, bottom: cornerRadius, right: cornerRadius)
-        return image
+    }
+
+    /// Returns an object scaled to the current main screen that may be used as the contents of a layer.
+    var scaledLayerContents: Any {
+        layerContents(forContentsScale: recommendedLayerContentsScale(0.0))
+    }
+    
+    /// Returns an object scaled to the specified screen that may be used as the contents of a layer.
+    func scaledLayerContents(for screen: NSScreen) -> Any {
+        layerContents(forContentsScale: recommendedLayerContentsScale(screen.backingScaleFactor))
     }
 }
 
@@ -153,9 +121,7 @@ public extension NSImage {
     var bitmapImageRep: NSBitmapImageRep? {
         if let representation = representations.compactMap({$0 as? NSBitmapImageRep}).first {
             return representation
-        }
-
-        if let cgImage = cgImage {
+        } else if let cgImage = cgImage {
             let imageRep = NSBitmapImageRep(cgImage: cgImage)
             imageRep.size = size
             return imageRep
@@ -169,6 +135,15 @@ public extension NSImage {
      - Returns: A data object containing the TIFF data, or `nil` if there was a problem generating the data. This function may return `nil` if the image has no data or if the underlying `CGImageRef` contains data in an unsupported bitmap format.
      */
     func tiffData() -> Data? { tiffRepresentation }
+    
+    /**
+     Returns a data object that contains the specified image in TIFF format.
+     
+     - Parameter compression: The compression method to use.
+
+     - Returns: A data object containing the TIFF data, or `nil` if there was a problem generating the data. This function may return `nil` if the image has no data or if the underlying `CGImageRef` contains data in an unsupported bitmap format.
+     */
+    func tiffData(compression: NSBitmapImageRep.TIFFCompression) -> Data? { bitmapImageRep?.tiffData(compression: compression) }
 
     /**
      Returns a data object that contains the specified image in PNG format.
@@ -191,8 +166,8 @@ public extension NSImage {
 
      - Returns: A data object containing the JPEG data, or `nil` if there’s a problem generating the data. This function may return `nil` if the image has no data or if the underlying `CGImageRef` contains data in an unsupported bitmap format.
      */
-    func jpegData(compressionFactor factor: Double) -> Data? {
-        bitmapImageRep?.jpegData(compressionFactor: factor)
+    func jpegData(compressionQuality: Double) -> Data? {
+        bitmapImageRep?.jpegData(compressionFactor: compressionQuality)
     }
 
 

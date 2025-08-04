@@ -51,7 +51,7 @@ public class ImageGraphicsRenderer: GraphicsRenderer {
      - Returns: A `Data` object representing a JPEG-encoded representation of the image created by the supplied drawing actions, or `nil` if the image couldn't be rendered.
      */
     public func jpegData(withCompressionQuality quality: CGFloat, actions: (_ context: Context) -> Void) -> Data? {
-        image(actions: actions)?.jpegData(compressionFactor: quality)
+        image(actions: actions)?.jpegData(compressionQuality: quality)
     }
     
     /**

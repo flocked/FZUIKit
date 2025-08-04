@@ -88,19 +88,19 @@ public extension NSUIColor {
     }
     
     /**
-     Creates a gradient color object that uses the specified colors and frame as gradient.
+     Creates a gradient color object that uses the specified gradient and size.
      
      - Parameters:
-        - gradientColors: The colors of the gradient.
-        - frame: The frame of the gradient.
+        - gradient: The gradient.
+        - size: The size of the gradient.
      
      - Returns: A gradient color.
      */
-    convenience init(gradientColors: [NSUIColor], frame: CGRect) {
+    convenience init(gradient: Gradient, size: CGSize) {
         let backgroundGradientLayer = CAGradientLayer()
-        backgroundGradientLayer.frame = frame
-        backgroundGradientLayer.colors = gradientColors.map(\.cgColor)
-        let backgroundColorImage = backgroundGradientLayer.renderedImage
+        backgroundGradientLayer.bounds.size = size
+        backgroundGradientLayer.gradient = gradient
+        let backgroundColorImage = backgroundGradientLayer.renderedImage!.nsUIImage
         self.init(patternImage: backgroundColorImage)
     }
     #endif

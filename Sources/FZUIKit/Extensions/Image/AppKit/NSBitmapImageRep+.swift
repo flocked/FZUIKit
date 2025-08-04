@@ -17,14 +17,24 @@ public extension NSBitmapImageRep {
     /// A data object that contains the representation in tiff format.
     var tiffData: Data? { representation(using: .tiff, properties: [:]) }
     
-    /// A data object that contains the representation in tiff format.
-    func tiffData(compression: TIFFCompression) -> Data? { representation(using: .tiff, properties: [.compressionMethod:compression]) }
+    /**
+     A data object that contains the representation in tiff format.
+     
+     - Parameter compression: The compression method to use.
+     */
+    func tiffData(compression: TIFFCompression) -> Data? { representation(using: .tiff, properties: [.compressionMethod: compression]) }
     
     /// A data object that contains the representation in JPEG format.
     var jpegData: Data? { representation(using: .jpeg, properties: [:]) }
         
-    /// A data object that contains the representation in JPEG format with the specified compressio factor.
-    func jpegData(compressionFactor: Double) -> Data? { representation(using: .jpeg, properties: [.compressionFactor: compressionFactor]) }
+    /**
+     A data object that contains the representation in JPEG format with the specified compression factor.
+     
+     - Parameter compressionFactor: The value between `0.0` and `1.0`, with `1.0` resulting in no compression and `0.0` resulting in the maximum compression possible.
+     */
+    func jpegData(compressionFactor: Double) -> Data? {
+        representation(using: .jpeg, properties: [.compressionFactor: compressionFactor.clamped(to: 0...1.0)])
+    }
     
     /// The number of frames in an animated GIF image, or `0` if the image isn't a GIF.
     var frameCount: Int {

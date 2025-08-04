@@ -15,46 +15,276 @@ import FZSwiftUtils
 import SwiftUI
 
 extension CALayer {
-    /// The translation of the layer's transform on the x- and y-coordinate.
-    var translation: CGPoint {
+    /// Sets the layer’s frame rectangle.
+    @discardableResult
+    public func frame(_ frame: CGRect) -> Self {
+        self.frame = frame
+        return self
+    }
+    
+    /// Sets the layer’s bounds rectangle.
+    @discardableResult
+    public func bounds(_ bounds: CGRect) -> Self {
+        self.bounds = bounds
+        return self
+    }
+    
+    /// Sets the Boolean indicating whether the layer is displayed.
+    @discardableResult
+    public func isHidden(_ isHidden: Bool) -> Self {
+        self.isHidden = isHidden
+        return self
+    }
+    
+    /// Sets the Boolean value indicating whether the layer contains completely opaque content.
+    @discardableResult
+    public func isOpaque(_ isOpaque: Bool) -> Self {
+        self.isOpaque = isOpaque
+        return self
+    }
+    
+    /// Sets the opacity of the layer.
+    public func opacity(_ opacity: Float) -> Self {
+        self.opacity = opacity
+        return self
+    }
+    
+    /// Sets The radius to use when drawing rounded corners for the layer’s background.
+    public func cornerRadius(_ cornerRadius: CGFloat) -> Self {
+        self.cornerRadius = cornerRadius
+        return self
+    }
+    
+    /// Sets the object that provides the contents of the layer.
+    @discardableResult
+    public func contents(_ contents: Any?) -> Self {
+        self.contents = contents
+        return self
+    }
+    
+    /// Sets the that specifies how the layer’s contents are positioned or scaled within its bounds.
+    @discardableResult
+    public func contentsGravity(_ contentsGravity: CALayerContentsGravity) -> Self {
+        self.contentsGravity = contentsGravity
+        return self
+    }
+    
+    /// Sets the rectangle, in the unit coordinate space, that defines the portion of the layer’s contents that should be used.
+    @discardableResult
+    public func contentsRect(_ contentsRect: CGRect) -> Self {
+        self.contentsRect = contentsRect
+        return self
+    }
+    
+    /// Sets the rectangle that defines how the layer contents are scaled if the layer’s contents are resized.
+    public func contentsCenter(_ contentsCenter: CGRect) -> Self {
+        self.contentsCenter = contentsCenter
+        return self
+    }
+    
+    /// Sets the Boolean indicating whether sublayers are clipped to the layer’s bounds.
+    @discardableResult
+    public func masksToBounds(_ masksToBounds: Bool) -> Self {
+        self.masksToBounds = masksToBounds
+        return self
+    }
+    
+    /// Sets the Boolean indicating whether the layer displays its content when facing away from the viewer.
+    @discardableResult
+    public func isDoubleSided(_ isDoubleSided: Bool) -> Self {
+        self.isDoubleSided = isDoubleSided
+        return self
+    }
+    
+    /// Sets the masked corners of the layer.
+    @discardableResult
+    public func maskedCorners(_ maskedCorners: CACornerMask) -> Self {
+        self.maskedCorners = maskedCorners
+        return self
+    }
+    
+    /// The background color of the receiver.
+    @discardableResult
+    public func backgroundColor(_ backgroundColor: CGColor?) -> Self {
+        self.backgroundColor = backgroundColor
+        return self
+    }
+    
+    /// Sets the Boolean indicating whether the layer is allowed to perform edge antialiasing.
+    @discardableResult
+    public func allowsEdgeAntialiasing(_ allows: Bool) -> Self {
+        self.allowsEdgeAntialiasing = allows
+        return self
+    }
+    
+    /// Sets the Boolean indicating whether the layer is allowed to composite itself as a group separate from its parent.
+    @discardableResult
+    public func allowsGroupOpacity(_ allows: Bool) -> Self {
+        self.allowsGroupOpacity = allows
+        return self
+    }
+    
+    /// Sets the layer’s position on the z axis.
+    public func zPosition(_ zPosition: CGFloat) -> Self {
+        self.zPosition = zPosition
+        return self
+    }
+    
+    /// Sets the anchor point for the layer’s position.
+    public func anchorPoint(_ anchorPoint: CGPoint) -> Self {
+        self.anchorPoint = anchorPoint
+        return self
+    }
+    
+    /// Sets the anchor point for the layer’s position along the z axis.
+    public func anchorPointZ(_ anchorPointZ: CGFloat) -> Self {
+        self.anchorPointZ = anchorPointZ
+        return self
+    }
+    
+    /// Sets the scale factor applied to the layer.
+    public func contentsScale(_ contentsScale: CGFloat) -> Self {
+        self.contentsScale = contentsScale
+        return self
+    }
+    
+    /// Sets transform applied to the layer’s contents.
+    public func transform(_ transform: CATransform3D) -> Self {
+        self.transform = transform
+        return self
+    }
+    
+    /// Sets the transform to apply to sublayers when rendering.
+    public func sublayerTransform(_ transform: CATransform3D) -> Self {
+        self.sublayerTransform = transform
+        return self
+    }
+    
+    #if os(macOS)
+    /// Sets the autoresizing mask of the layer.
+    public func autoresizingMask(_ mask: CAAutoresizingMask) -> Self {
+        self.autoresizingMask = mask
+        return self
+    }
+    #endif
+    
+    /// Sets the name of the layer.
+    public func name(_ name: String?) -> Self {
+        self.name = name
+        return self
+    }
+    
+    /// The translation of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform) on the x- and y-coordinate.
+    public var translation: CGPoint {
         get { transform.translation.asPoint }
         set { CATransaction.disabledActions { transform.translation = Translation(newValue.x, newValue.y, transform.translation.z) } }
     }
     
-    /// The translation of the layer's transform.
-    var translationXYZ: Translation {
+    /// Sets the translation of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform) on the x- and y-coordinate.
+    @discardableResult
+    public func translation(_ translation: CGPoint) -> Self {
+        self.translation = translation
+        return self
+    }
+    
+    /// The translation of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform).
+    public var translationXYZ: Translation {
         get { transform.translation }
         set { CATransaction.disabledActions { transform.translation = newValue } }
     }
     
-    /// The scale of the layer's transform.
-    var scale: Scale {
+    /// Sets the translation of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform).
+    @discardableResult
+    public func translationXYZ(_ translation: Translation) -> Self {
+        self.translationXYZ = translation
+        return self
+    }
+    
+    /// The scale of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform).
+    public var scale: Scale {
         get { transform.scale.scale }
         set { CATransaction.disabledActions { transform.scale = newValue.vector } }
     }
     
-    /// The rotation of the layer's transform, in degrees.
-    var rotation: Rotation {
+    /// Sets the scale of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform).
+    @discardableResult
+    public func scale(_ scale: Scale) -> Self {
+        self.scale = scale
+        return self
+    }
+    
+    /// The rotation of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform), in degrees.
+    public var rotation: Rotation {
         get { transform.eulerAnglesDegrees.rotation }
         set { CATransaction.disabledActions { transform.eulerAnglesDegrees = newValue.vector } }
     }
     
-    /// The rotation of the layer's transform, in radians.
-    var rotationInRadians: Rotation {
+    /// Sets the rotation of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform), in degrees.
+    @discardableResult
+    public func rotation(_ rotation: Rotation) -> Self {
+        self.rotation = rotation
+        return self
+    }
+    
+    /// The rotation of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform), in radians.
+    public var rotationInRadians: Rotation {
         get { transform.eulerAngles.rotation }
         set { CATransaction.disabledActions { transform.eulerAngles = newValue.vector } }
     }
     
-    /// The shearing of the layer's transform.
-    var skew: Skew {
+    /// Sets the rotation of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform), in radians.
+    @discardableResult
+    public func rotationInRadians(_ rotation: Rotation) -> Self {
+        self.rotationInRadians = rotation
+        return self
+    }
+    
+    /// The shearing of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform).
+    public var skew: Skew {
         get { transform.skew }
         set { CATransaction.disabledActions { transform.skew = newValue } }
     }
     
-    /// The perspective of the layer's transform (e.g. .m34).
-    var perspective: Perspective {
+    /// Sets the shearing of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform).
+    @discardableResult
+    public func skew(_ skew: Skew) -> Self {
+        self.skew = skew
+        return self
+    }
+    
+    /// The perspective of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform) (e.g. .m34).
+    public var perspective: Perspective {
         get { transform.perspective }
         set { CATransaction.disabledActions { transform.perspective = newValue } }
+    }
+    
+    /// Sets the perspective of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform) (e.g. .m34).
+    @discardableResult
+    public func perspective(_ Perspective: Skew) -> Self {
+        self.perspective = perspective
+        return self
+    }
+    
+    /// Sets the image as the [contents](https://developer.apple.com/documentation/quartzcore/calayer/contents) of the layer.
+    @discardableResult
+    public func image(_ image: CGImage?) -> Self {
+        contents = image
+        return self
+    }
+    
+    /// Sets the image as the [contents](https://developer.apple.com/documentation/quartzcore/calayer/contents) of the layer.
+    @discardableResult
+    public func image(_ image: NSUIImage) -> Self {
+        #if os(macOS)
+        if let screen = parentView?.window?.screen {
+            contents = image.scaledLayerContents(for: screen)
+        } else {
+            contents = image.scaledLayerContents
+        }
+        #else
+        contents = image
+        #endif
+        return self
     }
     
     /**
@@ -88,6 +318,13 @@ extension CALayer {
         set { frame.center = newValue }
     }
     
+    /// Sets the the center point of the layer's frame rectangle.
+    @discardableResult
+    public func center(_ center: CGPoint) -> Self {
+        self.center = center
+        return self
+    }
+    
     /// The shadow of the layer.
     @objc open var shadow: ShadowConfiguration {
         get { configurations.shadow }
@@ -99,10 +336,24 @@ extension CALayer {
         }
     }
     
+    /// Sets the shadow of the layer.
+    @discardableResult
+    public func shadow(_ shadow: ShadowConfiguration) -> Self {
+        self.shadow = shadow
+        return self
+    }
+    
     /// The inner shadow of the layer.
     @objc open var innerShadow: ShadowConfiguration {
         get { configurations.innerShadow }
         set { configurations.innerShadow = newValue }
+    }
+    
+    /// Sets the inner shadow of the layer.
+    @discardableResult
+    public func innerShadow(_ innerShadow: ShadowConfiguration) -> Self {
+        self.innerShadow = innerShadow
+        return self
     }
     
     fileprivate var innerShadowLayer: _InnerShadowLayer? {
@@ -113,6 +364,13 @@ extension CALayer {
     var innerShadowColor: CGColor? {
         get { innerShadowLayer?.shadowColor }
         set { innerShadowLayer?.shadowColor = newValue }
+    }
+    
+    /// Sets the layer whose alpha channel is used to mask the layer’s content.
+    @discardableResult
+    public func mask(_ mask: CALayer?) -> Self {
+        self.mask = mask
+        return self
     }
     
     /// The shape that is used for masking the layer.
@@ -132,6 +390,21 @@ extension CALayer {
             #endif
         }
     }
+    
+    /// Sets the shape that is used for masking the layer.
+    @discardableResult
+    public func maskShape(_ shape: (any Shape)?) -> Self {
+        self.maskShape = shape
+        return self
+    }
+    
+    /// Sets the shape of the layer’s shadow.
+    @discardableResult
+    public func shadowPath(_ path: CGPath?) -> Self {
+        self.shadowPath = path
+        return self
+    }
+    
     
     /// The shape of the shadow.
     public var shadowShape: (any Shape)? {
@@ -153,6 +426,13 @@ extension CALayer {
         }
     }
     
+    /// Sets the shape of the shadow.
+    @discardableResult
+    public func shadowShape(_ shape: (any Shape)?) -> Self {
+        self.shadowShape = shape
+        return self
+    }
+    
     fileprivate var shadowShapeObservation: KeyValueObservation? {
         get { getAssociatedValue("shadowShapeObservation") }
         set { setAssociatedValue(newValue, key: "shadowShapeObservation") }
@@ -162,6 +442,13 @@ extension CALayer {
     @objc open var border: BorderConfiguration {
         get { configurations.border }
         set { configurations.border = newValue }
+    }
+    
+    /// Sets the border of the layer.
+    @discardableResult
+    public func border(_ border: BorderConfiguration) -> Self {
+        self.border = border
+        return self
     }
     
     fileprivate var borderLayer: BorderLayer? {
@@ -438,7 +725,7 @@ extension CALayer {
     /**
      Inserts the specified layer at the specified index and constraints it to the layer.
      
-     The properties `bounds`, `cornerRadius`, `cornerCurve` and `maskedCorners` of the specified layer will be constraint. To remove the constraints use `removeConstraints()`.
+     The properties [bounds](https://developer.apple.com/documentation/quartzcore/calayer/bounds), [cornerRadius](https://developer.apple.com/documentation/quartzcore/calayer/cornerradius), [cornerCurve](https://developer.apple.com/documentation/quartzcore/calayer/cornerCurve) and [maskedCorners](https://developer.apple.com/documentation/quartzcore/calayer/maskedCorners) of the specified layer will be constraint. To remove the constraints use ``removeConstraints()``.
      
      - Parameters:
         - layer: The layer to be added.
@@ -454,7 +741,7 @@ extension CALayer {
     /**
      Constraints the layer to the specified layer.
      
-     The properties `bounds`, `cornerRadius`, `cornerCurve` and `maskedCorners` will be constraint to the specified layer. To remove the constraints use `removeConstraints()`.
+     The properties [bounds](https://developer.apple.com/documentation/quartzcore/calayer/bounds), [cornerRadius](https://developer.apple.com/documentation/quartzcore/calayer/cornerradius), [cornerCurve](https://developer.apple.com/documentation/quartzcore/calayer/cornerCurve) and [maskedCorners](https://developer.apple.com/documentation/quartzcore/calayer/maskedCorners) will be constraint to the specified layer. To remove the constraints use ``removeConstraints()``.
      
      - Parameters:
         - layer: The layer to constraint to.
@@ -528,23 +815,24 @@ extension CALayer {
     }
     
     /// A rendered image of the layer.
-    @objc open var renderedImage: NSUIImage {
+    @objc open var renderedImage: CGImage? {
+        var scale: CGFloat = 1.0
         #if os(macOS)
-        let btmpImgRep =
-            NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(frame.width), pixelsHigh: Int(frame.height), bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 32)
-        let ctx = NSGraphicsContext(bitmapImageRep: btmpImgRep!)
-        let cgContext = ctx!.cgContext
-        render(in: cgContext)
-        let cgImage = cgContext.makeImage()
-        let nsimage = NSImage(cgImage: cgImage!, size: CGSize(width: frame.width, height: frame.height))
-        return nsimage
+        scale = parentView?.window?.backingScaleFactor ??  NSScreen.main?.backingScaleFactor ?? 1.0
         #else
-        UIGraphicsBeginImageContextWithOptions(frame.size, isOpaque, 0)
-        render(in: UIGraphicsGetCurrentContext()!)
-        let outputImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return outputImage!
+        scale = parentView?.window?.windowScene?.screen.scale ?? 1.0
         #endif
+        let width = Int(bounds.width * scale)
+        let height = Int(bounds.height * scale)
+        guard width > 0, height > 0 else { return nil }
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
+        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: colorSpace, bitmapInfo: bitmapInfo) else {
+            return nil
+        }
+        context.scaleBy(x: scale, y: scale)
+        render(in: context)
+        return context.makeImage()
     }
     
     /**
