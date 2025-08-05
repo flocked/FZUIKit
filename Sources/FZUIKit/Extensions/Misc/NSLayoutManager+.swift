@@ -59,7 +59,7 @@ extension NSLayoutManager {
         return boundingRect
     }
     
-    internal func getTextLines(range: NSRange? = nil, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
+    internal func textLines(for range: NSRange? = nil, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
         guard let textStorage = textStorage, let textContainer = textContainers.first else { return [] }
         
         var textLines: [TextLine] = []

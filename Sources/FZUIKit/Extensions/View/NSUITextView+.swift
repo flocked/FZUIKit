@@ -62,22 +62,19 @@ public extension NSUITextView {
     
     /**
      The text lines of the text view.
-         
-     The text view needs to have a layout manager, text container and text storage, or else an empty array is returned.
-     
+              
      - Parameters:
-        - string: The string for the text lines.
         - onlyVisible: A Boolean value indicating whether to only return visible text lines.
         - useMaximumNumberOfLines: A Boolean value indicating whether to only include text lines upto the line specified by ``maximumNumberOfLines``.
      */
     func textLines(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
-        getTextLines(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
+        layoutManager(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines).textLines()
     }
         
     /**
      The text lines for the specified string.
          
-     An empty array is returned, if the text view's string value isn't containing the string.
+     An empty array is returned, if the text view's `string` isn't containing the specified string.
 
      - Parameters:
         - string: The string for the text lines.
@@ -92,7 +89,7 @@ public extension NSUITextView {
     /**
      The text lines for the specified string range.
          
-     An empty array is returned, if the text view's string value isn't containing the range.
+     An empty array is returned, if the text view's `string` isn't containing the range.
          
      - Parameters:
         - range: The string range for the text lines.
@@ -101,7 +98,21 @@ public extension NSUITextView {
      */
     func textLines(for range: Range<String.Index>, onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
         let range = range.clamped(to: string.startIndex..<string.endIndex)
-        return getTextLines(range: NSRange(range, in: string), onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
+        return textLines(for: NSRange(range, in: string), onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
+    }
+    
+    /**
+     The text lines for the specified range.
+         
+     An empty array is returned, if the text view's `string` isn't containing the range.
+
+     - Parameters:
+        - range: The range for the text lines.
+        - onlyVisible: A Boolean value indicating whether to only return visible text lines.
+        - useMaximumNumberOfLines: A Boolean value indicating whether to only include text lines upto the line specified by ``maximumNumberOfLines``.
+     */
+    func textLines(for range: NSRange, onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
+        layoutManager(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines).textLines(for: range)
     }
         
     /// The frame of the string at the range.
@@ -321,20 +332,6 @@ public extension NSUITextView {
     func typingAttributes(_ attributes: (inout [NSAttributedString.Key: Any])->()) -> Self {
         attributes(&typingAttributes)
         return self
-    }
-    
-    internal func getTextLines(range: NSRange? = nil, onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
-        let layoutManager = layoutManager(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
-        var glyphRange = NSRange(location: 0, length: layoutManager.textStorage!.length)
-        if let range = range {
-            glyphRange =  layoutManager.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
-        }
-        var textLines: [TextLine] = []
-        layoutManager.enumerateLineFragments(forGlyphRange: glyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
-            guard rect != .zero else { return }
-            textLines.append(.init(frame: rect, textFrame: usedRect, text: String(self.string[glyphRange]), textRange: Range(glyphRange, in: self.string)!))
-        }
-        return textLines
     }
     
     internal func layoutManager(onlyVisible: Bool, useMaximumNumberOfLines: Bool) -> NSLayoutManager {

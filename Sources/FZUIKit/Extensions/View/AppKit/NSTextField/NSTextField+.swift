@@ -355,24 +355,26 @@ public extension NSTextField {
         }
         return isTruncating
     }
-        
+    
     /**
      The text lines of the text field.
          
-     - Parameter onlyVisible: A Boolean value indicating whether to only return visible text lines.
+     - Parameters:
+        - onlyVisible: A Boolean value indicating whether to only return visible text lines.
+        - useMaximumNumberOfLines: A Boolean value indicating whether to only include text lines upto the line specified by ``maximumNumberOfLines``.
      */
-    func textLines(onlyVisible: Bool = true) -> [TextLine] {
-        getTextLines(onlyVisible: onlyVisible)
+    func textLines(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
     }
                 
     /**
      The text lines for the specified string.
          
-     An empty array is returned, if the text field's string value isn't containing the string.
+     An empty array is returned, if the text field's `stringValue` isn't containing the specified string.
 
      - Parameters:
         - string: The string for the text lines.
         - onlyVisible: A Boolean value indicating whether to only return visible text lines.
+        - useMaximumNumberOfLines: A Boolean value indicating whether to only include text lines upto the line specified by ``maximumNumberOfLines``.
      */
     func textLines(for string: String, onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
         guard let range = stringValue.range(of: string) else { return [] }
@@ -382,29 +384,30 @@ public extension NSTextField {
     /**
      The text lines for the specified string range.
          
-     An empty array is returned, if the text field's string value isn't containing the range.
+     An empty array is returned, if the text field's `stringValue` isn't containing the range.
          
      - Parameters:
         - range: The string range for the text lines.
         - onlyVisible: A Boolean value indicating whether to only return visible text lines.
+        - useMaximumNumberOfLines: A Boolean value indicating whether to only include text lines upto the line specified by ``maximumNumberOfLines``.
      */
     func textLines(for range: Range<String.Index>, onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
         let range = range.clamped(to: stringValue.startIndex..<stringValue.endIndex)
-        return getTextLines(range: NSRange(range, in: stringValue), onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
+        return textLines(for: NSRange(range, in: stringValue), onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
     }
-        
-    internal func getTextLines(range: NSRange? = nil, onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
-        let layoutManager = layoutManager(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
-        var glyphRange = NSRange(location: 0, length: layoutManager.textStorage!.length)
-        if let range = range {
-            glyphRange =  layoutManager.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
-        }
-        var textLines: [TextLine] = []
-        layoutManager.enumerateLineFragments(forGlyphRange: glyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
-            guard rect != .zero else { return }
-            textLines.append(.init(frame: rect, textFrame: usedRect, text: String(self.stringValue[glyphRange]), textRange: Range(glyphRange, in: self.stringValue)!))
-        }
-        return textLines
+    
+    /**
+     The text lines for the specified range.
+         
+     An empty array is returned, if the text field's `stringValue` isn't containing the range.
+
+     - Parameters:
+        - range: The range for the text lines.
+        - onlyVisible: A Boolean value indicating whether to only return visible text lines.
+        - useMaximumNumberOfLines: A Boolean value indicating whether to only include text lines upto the line specified by ``maximumNumberOfLines``.
+     */
+    func textLines(for range: NSRange, onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
+        layoutManager(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines).textLines(for: range)
     }
         
     /// The frame of the string at the range.
