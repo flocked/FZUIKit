@@ -481,22 +481,20 @@ protocol TextLocationProvider {
 extension NSTextField: TextLocationProvider {
     /// A Boolean value indicating whether the specified location is inside the text of text field.
    public func isLocationInsideText(_ location: CGPoint) -> Bool {
-        guard bounds.contains(location) else { return false }
-        if let editor = currentEditor() as? NSTextView,
-           let layoutManager = editor.layoutManager,
-           let textContainer = editor.textContainer {
-            let containerPoint = CGPoint(x: location.x - editor.textContainerOrigin.x, y: location.y - editor.textContainerOrigin.y)
-            let glyphIndex = layoutManager.glyphIndex(for: containerPoint, in: textContainer)
-            return layoutManager.boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: textContainer).contains(containerPoint)
-        } else {
-            let textStorage = NSTextStorage(attributedString: attributedStringValue)
-            let layoutManager = NSLayoutManager()
-            let textContainer = NSTextContainer(size: bounds.size).lineFragmentPadding(2.0).maximumNumberOfLines(maximumNumberOfLines).lineBreakMode(lineBreakMode)
-            layoutManager.addTextContainer(textContainer)
-            textStorage.addLayoutManager(layoutManager)
-            let glyphIndex = layoutManager.glyphIndex(for: location, in: textContainer)
-            return layoutManager.boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: textContainer).contains(location)
-        }
+       guard bounds.contains(location) else { return false }
+       var location = location
+       let layoutManager: NSLayoutManager
+       let textContainer: NSTextContainer
+       if let editor = currentEditor() as? NSTextView, let _layoutManager = editor.layoutManager, let _textContainer = editor.textContainer {
+           layoutManager = _layoutManager
+           textContainer = _textContainer
+           location -= editor.textContainerOrigin
+       } else {
+           layoutManager = self.layoutManager()
+           textContainer = layoutManager.textContainers.first!
+       }
+       let glyphIndex = layoutManager.glyphIndex(for: location, in: textContainer)
+       return layoutManager.boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: textContainer).contains(location)
     }
 }
 
