@@ -11,31 +11,7 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
-
-public extension String {
-    /// Creates a bezier path for the string with the specified font.
-    func bezierPath(font: NSUIFont) -> NSUIBezierPath {
-        let attributedString = NSAttributedString(string: self, attributes: [.font: font])
-        return NSUIBezierPath(attributedString: attributedString)
-    }
-}
-
-public extension NSAttributedString {
-    /// Creates a bezier path for the attributed string.
-    func bezierPath() -> NSUIBezierPath {
-        let cgPath = CGPath(attributedString: self)
-        return NSUIBezierPath(cgPath: cgPath)
-    }
-}
-
-@available(macOS 12, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
-public extension AttributedString {
-    /// Creates a bezier path for the attributed string.
-    func bezierPath() -> NSUIBezierPath {
-        let cgPath = CGPath(attributedString: NSAttributedString(self))
-        return NSUIBezierPath(cgPath: cgPath)
-    }
-}
+import FZSwiftUtils
 
 public extension NSUIBezierPath {
     /// Creates and returns a new bezier path for the specified string and font.
@@ -46,35 +22,58 @@ public extension NSUIBezierPath {
 
     /// Creates and returns a new bezier path for the specified attributed string.
     convenience init(attributedString: NSAttributedString) {
-        let cgPath = CGPath(attributedString: attributedString)
-        self.init(cgPath: cgPath)
+        self.init(cgPath: CGPath(attributedString: attributedString))
     }
 
     /// Creates and returns a new bezier path for the specified attributed string.
     @available(macOS 12, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
     convenience init(attributedString: AttributedString) {
-        let cgPath = CGPath(attributedString: NSAttributedString(attributedString))
+        self.init(cgPath: CGPath(attributedString: NSAttributedString(attributedString)))
+    }
+}
+
+public extension String {
+    /// Creates a bezier path for the string with the specified font.
+    func bezierPath(font: NSUIFont) -> NSUIBezierPath {
+        NSUIBezierPath(string: self, font: font)
+    }
+}
+
+public extension NSAttributedString {
+    /// Creates a bezier path for the attributed string.
+    func bezierPath() -> NSUIBezierPath {
+        NSUIBezierPath(attributedString: self)
+    }
+}
+
+@available(macOS 12, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+public extension AttributedString {
+    /// Creates a bezier path for the attributed string.
+    func bezierPath() -> NSUIBezierPath {
+        NSUIBezierPath(attributedString: self)
+    }
+}
+
+extension NSUIBezierPath {
+    convenience init?(glyph: UInt32, font: NSUIFont) {
+        self.init(glyph: CGGlyph(glyph & 0xFFFF), font: font)
+    }
+    
+    convenience init?(glyph: CGGlyph, font: NSUIFont) {
+        guard let cgPath = CTFontCreatePathForGlyph(font as CTFont, glyph, nil) else { return nil }
         self.init(cgPath: cgPath)
     }
 }
 
-/// A Core Graphics type.
-public protocol CoreGraphicsType { }
-
-extension CGPath: CoreGraphicsType { }
-
-extension CGPath {
-    /// The `BezierPath` representation of the path.
-    public var bezierPath: NSUIBezierPath {
-        NSUIBezierPath(cgPath: self)
+public extension CFType where Self: CGPath {
+    /// Creates and returns a path for the specified character and font.
+    init(character: Character, font: NSUIFont) {
+        self.init(string: String(character), font: font)
     }
-}
-
-public extension CoreGraphicsType where Self: CGPath {
+    
     /// Creates and returns a path for the specified string and font.
     init(string: String, font: NSUIFont) {
-        let attributedString = NSAttributedString(string: string, attributes: [.font: font])
-        self.init(attributedString: attributedString)
+        self.init(attributedString: NSAttributedString(string: string, attributes: [.font: font]))
     }
 
     /// Creates and returns a new path for the specified attributed string.
@@ -110,7 +109,7 @@ public extension CoreGraphicsType where Self: CGPath {
     }
 }
 
-public extension CTRun {
+fileprivate extension CTRun {
     var font: CTFont {
         let key = Unmanaged.passUnretained(kCTFontAttributeName).toOpaque()
         let attributes = CTRunGetAttributes(self)
@@ -129,5 +128,7 @@ public extension CTRun {
         return glyphs
     }
 }
+
+
 
 #endif

@@ -12,6 +12,7 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import FZSwiftUtils
 
 extension NSLayoutManager {
     /**
@@ -67,6 +68,7 @@ extension NSLayoutManager {
             glyphRange =  self.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
         }
         let maximumNumberOfLines = textContainer.maximumNumberOfLines
+        defer { textContainer.maximumNumberOfLines = maximumNumberOfLines }
         if useMaximumNumberOfLines {
             textContainer.maximumNumberOfLines = 0
         }
@@ -74,8 +76,34 @@ extension NSLayoutManager {
             guard rect != .zero else { return }
             textLines.append(.init(frame: rect, textFrame: usedRect, text: String(textStorage.string[glyphRange]), textRange: Range(glyphRange, in: textStorage.string)!))
         }
-        textContainer.maximumNumberOfLines = maximumNumberOfLines
         return textContainer.maximumNumberOfLines > 0 ? Array(textLines[safe: 0..<textContainer.maximumNumberOfLines]) : textLines
+    }
+}
+
+extension NSLayoutManager {
+    /// Returns the bezier paths for each character in the layout manager.
+    func characterBezierPaths() -> [NSUIBezierPath] {
+        guard let textContainer = textContainers.first, let textStorage = textStorage else { return [] }
+        ensureLayout(for: textContainer)
+        var bezierPaths: [NSUIBezierPath] = []
+        for glyphIndex in glyphRange(for: textContainer) {
+            guard let font = textStorage.attribute(.font, at: glyphIndex, effectiveRange: nil) as? NSUIFont, let glyphPath = NSUIBezierPath(glyph: glyph(at: glyphIndex), font: font) else { continue }
+            let location = location(forGlyphAt: glyphIndex)
+            #if os(macOS)
+            glyphPath.transform(using: AffineTransform(translationByX: location.x, byY: location.y))
+            #else
+            glyphPath.apply(.init().translatedBy(x: location.x, y: location.y))
+            #endif
+            bezierPaths += glyphPath
+        }
+        return bezierPaths
+    }
+    
+    /// Returns the bezier path for the text in the layout manager.
+    func textBezierPath() -> NSUIBezierPath {
+        characterBezierPaths().reduce(into: .init()) {
+            $0.append($1)
+        }
     }
 }
 

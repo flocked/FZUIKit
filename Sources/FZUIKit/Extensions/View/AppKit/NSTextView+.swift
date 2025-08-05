@@ -99,32 +99,6 @@ extension NSTextView {
         return scrollView
     }
         
-    /// The maximum number of lines that the text view can display.
-    public var maximumNumberOfLines: Int {
-        get { textContainer?.maximumNumberOfLines ?? 0 }
-        set { textContainer?.maximumNumberOfLines = newValue }
-    }
-        
-    /// Sets the maximum number of lines that the text view can display.
-    @discardableResult
-    public func maximumNumberOfLines(_ maximumNumberOfLines: Int) -> Self {
-        self.maximumNumberOfLines = maximumNumberOfLines
-        return self
-    }
-        
-    /// The behavior of the last line inside the text view.
-    public var lineBreakMode: NSLineBreakMode {
-        get { textContainer?.lineBreakMode ?? .byWordWrapping }
-        set { textContainer?.lineBreakMode = newValue }
-    }
-        
-    /// Sets the behavior of the last line inside the text view.
-    @discardableResult
-    public func lineBreakMode(_ lineBreakMode: NSLineBreakMode) -> Self {
-        self.lineBreakMode = lineBreakMode
-        return self
-    }
-        
     /// The minimum numbers of characters needed when the user edits the string value.
     public var minimumNumberOfCharacters: Int? {
         get { getAssociatedValue("minimumNumberOfCharacters") }
@@ -424,12 +398,8 @@ extension NSTextView {
                 
     /// The attributed string.
     public var attributedString: NSAttributedString! {
-        set {
-            let len = textStorage?.length ?? 0
-            let range = NSRange(location: 0, length: len)
-            textStorage?.replaceCharacters(in: range, with: newValue)
-        }
-        get { textStorage?.copy() as? NSAttributedString }
+        get { attributedString() }
+        set { textStorage?.setAttributedString(newValue) }
     }
         
     /// Sets the attributed text.
@@ -439,135 +409,10 @@ extension NSTextView {
         return self
     }
         
-    /// The range of characters selected in the text view.
-    public var selectedStringRange: Range<String.Index> {
-        get { Range(selectedRange, in: string)! }
-        set { selectedStringRanges = [newValue] }
-    }
-        
-    /// Sets the range of characters selected in the text view.
-    @discardableResult
-    public func selectedStringRange(_ range: Range<String.Index>) -> Self {
-        selectedStringRange = range
-        return self
-    }
-        
-    /// The ranges of characters selected in the text view.
-    public var selectedStringRanges: [Range<String.Index>] {
-        get { selectedRanges.compactMap({$0.rangeValue}).compactMap({ Range($0, in: string) }) }
-        set { selectedRanges = newValue.compactMap({NSRange($0, in: string).nsValue}) }
-    }
-        
-    /// Sets the ranges of characters selected in the text view.
-    @discardableResult
-    public func selectedStringRanges(_ ranges: [Range<String.Index>]) -> Self {
-        selectedStringRanges = ranges
-        return self
-    }
-        
-    /// The fonts of the selected text.
-    public var selectionFonts: [NSFont] {
-        get {
-            guard let textStorage = textStorage else { return [] }
-            var fonts: [NSFont] = []
-            for range in selectedRanges.compactMap({$0.rangeValue}) {
-                textStorage.enumerateAttribute(.font, in: range, using: { font, range, fu in
-                    if let font = font as? NSFont {
-                        fonts.append(font)
-                    }
-                })
-            }
-            return fonts
-        }
-        set {
-            guard let textStorage = textStorage else { return }
-            for (index, range) in selectedRanges.compactMap({$0.rangeValue}).enumerated() {
-                if let font = newValue[safe: index] ?? newValue.last {
-                    textStorage.addAttribute(.font, value: font, range: range)
-                }
-            }
-        }
-    }
-        
-    var selectionHasStrikethrough: Bool {
-        guard let textStorage = textStorage else { return false }
-        var selectionHasStrikethrough = false
-        for range in selectedRanges.compactMap({$0.rangeValue}) {
-            textStorage.enumerateAttribute(.strikethroughStyle, in: range, using: { strikethrough, range, fu in
-                if let strikethrough = strikethrough as? Int, strikethrough != 0 {
-                    selectionHasStrikethrough = true
-                }
-            })
-        }
-        return selectionHasStrikethrough
-    }
-        
-    var selectionHasUnderline: Bool {
-        guard let textStorage = textStorage else { return false }
-        var selectionHasUnderline = false
-        for range in selectedRanges.compactMap({$0.rangeValue}) {
-            textStorage.enumerateAttribute(.underlineStyle, in: range, using: { underline, range, fu in
-                if let underline = underline as? Int, underline != 0 {
-                    selectionHasUnderline = true
-                }
-            })
-        }
-        return selectionHasUnderline
-    }
-        
-    var typingIsUnderline: Bool {
-        if let underline = typingAttributes[.underlineStyle] as? Int, underline != 0 {
-            return true
-        }
-        return false
-    }
-        
-    var typingIsStrikethrough: Bool {
-        if let underline = typingAttributes[.strikethroughStyle] as? Int, underline != 0 {
-            return true
-        }
-        return false
-    }
-        
-    /// Selects all text.
-    public func selectAll() {
-        select(string)
-    }
-        
-    /// Selects the specified string.
-    public func select(_ string: String) {
-        guard let range = string.range(of: string), !selectedStringRanges.contains(range) else { return }
-        selectedStringRanges.append(range)
-    }
-        
-    /// Selects the specified range.
-    public func select(_ range: Range<String.Index>) {
-        guard !selectedStringRanges.contains(range) else { return }
-        selectedStringRanges.append(range)
-    }
-        
-    /// Selects the specified range.
-    public func select(_ range: ClosedRange<String.Index>) {
-        select(range.lowerBound..<range.upperBound)
-    }
-        
     /// A Boolean value indicating whether the text view should stop editing when the user clicks outside the text view.
     public var endsEditingOnOutsideClick: Bool {
-        get { mouseDownMonitor != nil }
-        set {
-            guard newValue != endsEditingOnOutsideClick else { return }
-            if newValue {
-                mouseDownMonitor = .local(for: .leftMouseDown) { [weak self] event in
-                    guard let self = self, self.endsEditingOnOutsideClick, self.isFirstResponder else { return event }
-                    if self.bounds.contains(event.location(in: self)) == false {
-                        self.resignAsFirstResponder()
-                    }
-                    return event
-                }
-            } else {
-                mouseDownMonitor = nil
-            }
-        }
+        get { firstResponderResignClickCount != 0 }
+        set { firstResponderResignClickCount = newValue ? 1 : 0 }
     }
         
     /// Sets the Boolean value indicating whether the text view should stop editing when the user clicks outside the text view.
@@ -575,11 +420,6 @@ extension NSTextView {
     public func endsEditingOnOutsideClick(_ endsEditing: Bool) -> Self {
         self.endsEditingOnOutsideClick = endsEditing
         return self
-    }
-        
-    var mouseDownMonitor: NSEvent.Monitor? {
-        get { getAssociatedValue("mouseDownMonitor") }
-        set { setAssociatedValue(newValue, key: "mouseDownMonitor") }
     }
         
     /// The action to perform when the user presses the escape key.
@@ -647,13 +487,37 @@ extension NSTextView {
         actionOnEscapeKeyDown = escapeAction
         return self
     }
-        
-    var textViewDelegate: TextViewDelegate? {
+    
+    /**
+     Returns the bezier paths for each character in the text view.
+     
+     - Parameters:
+        - onlyVisible: A Boolean value indicating whether to include only the visible characters.
+        - useMaximumNumberOfLines: A Boolean value indicating whether to include only characters up to the line specified by ``maximumNumberOfLines``.
+     */
+    public func characterBezierPaths(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [NSBezierPath] {
+        layoutManager(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines).characterBezierPaths()
+    }
+    
+    /**
+     Returns the bezier path for the text in the text view.
+     
+     - Parameters:
+        - onlyVisible: A Boolean value indicating whether to include only the visible characters.
+        - useMaximumNumberOfLines: A Boolean value indicating whether to include only characters up to the line specified by ``maximumNumberOfLines``.
+     */
+    public func bezierPath(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> NSBezierPath {
+        characterBezierPaths(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines).reduce(into: .init()) {
+            $0.append($1)
+        }
+    }
+            
+    fileprivate var textViewDelegate: TextViewDelegate? {
         get { getAssociatedValue("textViewDelegate") }
         set { setAssociatedValue(newValue, key: "textViewDelegate") }
     }
         
-    func setupTextViewDelegate() {
+    fileprivate func setupTextViewDelegate() {
         if !actionOnEscapeKeyDown.needsDelegate && !actionOnEnterKeyDown.needsDelegate && !editingHandlers.needsObservation && minimumNumberOfCharacters == nil && maximumNumberOfCharacters == nil && !allowedCharacters.needsDelegate {
             textViewDelegate = nil
         } else if textViewDelegate == nil {
@@ -661,7 +525,7 @@ extension NSTextView {
         }
     }
         
-    class TextViewDelegate: NSObject, NSTextViewDelegate {
+    fileprivate class TextViewDelegate: NSObject, NSTextViewDelegate {
         var editingStartString: String
         var editingPreviousString = ""
         weak var delegate: NSTextViewDelegate?

@@ -374,9 +374,9 @@ public extension NSTextField {
         - string: The string for the text lines.
         - onlyVisible: A Boolean value indicating whether to only return visible text lines.
      */
-    func textLines(for string: String, onlyVisible: Bool = true) -> [TextLine] {
+    func textLines(for string: String, onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
         guard let range = stringValue.range(of: string) else { return [] }
-        return textLines(for: range, onlyVisible: onlyVisible)
+        return textLines(for: range, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
     }
         
     /**
@@ -388,15 +388,13 @@ public extension NSTextField {
         - range: The string range for the text lines.
         - onlyVisible: A Boolean value indicating whether to only return visible text lines.
      */
-    func textLines(for range: Range<String.Index>, onlyVisible: Bool = true) -> [TextLine] {
-        guard range.clamped(to: stringValue.startIndex..<stringValue.endIndex) == range else { return [] }
-        return getTextLines(range: NSRange(range, in: stringValue), onlyVisible: onlyVisible)
+    func textLines(for range: Range<String.Index>, onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
+        let range = range.clamped(to: stringValue.startIndex..<stringValue.endIndex)
+        return getTextLines(range: NSRange(range, in: stringValue), onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
     }
         
     internal func getTextLines(range: NSRange? = nil, onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
         let layoutManager = layoutManager(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
-            
-            
         var glyphRange = NSRange(location: 0, length: layoutManager.textStorage!.length)
         if let range = range {
             glyphRange =  layoutManager.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
@@ -429,25 +427,45 @@ public extension NSTextField {
         guard let range = stringValue.range(of: string) else { return nil }
         return boundingRect(for: range)
     }
+    
+    /**
+     Returns the bezier paths for each character in the text field.
+     
+     - Parameters:
+        - onlyVisible: A Boolean value indicating whether to include only the visible characters.
+        - useMaximumNumberOfLines: A Boolean value indicating whether to include only characters up to the line specified by  [maximumNumberOfLines](https://developer.apple.com/documentation/appkit/nstextfield/maximumnumberoflines).
+     */
+    func characterBezierPaths(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [NSBezierPath] {
+        layoutManager(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines).characterBezierPaths()
+    }
+    
+    /**
+     Returns the bezier path for the text in the text field.
+     
+     - Parameters:
+        - onlyVisible: A Boolean value indicating whether to include only the visible characters.
+        - useMaximumNumberOfLines: A Boolean value indicating whether to include only characters up to the line specified by  [maximumNumberOfLines](https://developer.apple.com/documentation/appkit/nstextfield/maximumnumberoflines).
+     */
+    func bezierPath(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> NSBezierPath {
+        characterBezierPaths().reduce(into: .init()) {
+            $0.append($1)
+        }
+    }
         
     internal func layoutManager(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> NSLayoutManager {
         var size = bounds.size
         if let cell {
-            let rect = cell.drawingRect(forBounds: bounds)
-            size = cell.cellSize(forBounds: rect)
+            size = cell.cellSize(forBounds: cell.drawingRect(forBounds: bounds))
         }
         if !onlyVisible {
             size.height = .greatestFiniteMagnitude
         }
         let textStorage = NSTextStorage(attributedString: attributedStringValue)
-            
         let layoutManager = NSLayoutManager()
         let textContainer = NSTextContainer(size: size)
-        textContainer.size = size
-            
         textContainer.lineBreakMode = lineBreakMode
         textContainer.maximumNumberOfLines = useMaximumNumberOfLines ? maximumNumberOfLines : 0
-        textContainer.lineFragmentPadding = 0.0
+        textContainer.lineFragmentPadding = 2.0
         layoutManager.addTextContainer(textContainer)
         textStorage.addLayoutManager(layoutManager)
         layoutManager.ensureLayout(for: textContainer)

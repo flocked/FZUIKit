@@ -225,10 +225,7 @@ extension NSTextField {
     /// A Boolean value indicating whether the text field should stop editing when the user clicks outside the text field.
     public var endsEditingOnOutsideClick: Bool {
         get { firstResponderResignClickCount > 0 }
-        set {
-            guard newValue != endsEditingOnOutsideClick else { return }
-            firstResponderResignClickCount = newValue ? 1 : 0
-        }
+        set { firstResponderResignClickCount = newValue ? 1 : 0 }
     }
         
     /// Sets the Boolean value indicating whether the text field should stop editing when the user clicks outside the text field.

@@ -14,6 +14,11 @@ import UIKit
 #endif
 
 extension CGPath {
+    /// The `BezierPath` representation of the path.
+    public var bezierPath: NSUIBezierPath {
+        NSUIBezierPath(cgPath: self)
+    }
+    
     public func trimmedPath(from start: CGFloat, to end: CGFloat) -> CGPath {
         let mutablePath = CGMutablePath()
         let length = length()
