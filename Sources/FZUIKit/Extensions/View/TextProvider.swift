@@ -180,20 +180,42 @@ public extension TextLineProvider {
     func textBezierPath(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> NSUIBezierPath {
         layoutManager(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines).textBezierPath()
     }
+    
+    func layoutManager(string: String? = nil, attributedString: NSAttributedString? = nil, size: CGSize, maxLines: Int? = nil, lineBreakMode: NSLineBreakMode? = nil, font: NSUIFont?, onlyVisible: Bool, useMaximumNumberOfLines: Bool) -> NSLayoutManager {
+        calculationLayoutManager.update(string: string, attributedString: attributedString, size: size, maxLines: maxLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
+        return calculationLayoutManager
+    }
+    
+    fileprivate var calculationLayoutManager: NSLayoutManager {
+        getAssociatedValue("calculationLayoutManager") {
+            let layoutManager = NSLayoutManager()
+            let textStorage = NSTextStorage(string: "")
+            let textContainer = NSTextContainer(size: CGSize(10, 10))
+            layoutManager.addTextContainer(textContainer)
+            textStorage.addLayoutManager(layoutManager)
+            layoutManager.ensureLayout(for: textContainer)
+            #if os(macOS)
+            layoutManager.replaceTextStorage(textStorage)
+            #endif
+            return layoutManager
+        }
+    }
 }
 
 extension NSUITextView {
     func layoutManager(onlyVisible: Bool, useMaximumNumberOfLines: Bool) -> NSLayoutManager {
         #if os(macOS)
         if onlyVisible, useMaximumNumberOfLines, let layoutManager = layoutManager, layoutManager.textStorage != nil, !layoutManager.textContainers.isEmpty {
+            layoutManager.ensureLayout(for: layoutManager.textContainers[0])
             return layoutManager
         }
-        return NSLayoutManager(string: string, attributedString: attributedString(), size: bounds.size, maxLines: maximumNumberOfLines, lineBreakMode: lineBreakMode, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
+        return layoutManager(string: string, attributedString: attributedString(), size: bounds.size, maxLines: maximumNumberOfLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
         #else
         if onlyVisible, useMaximumNumberOfLines, layoutManager.textStorage != nil, !layoutManager.textContainers.isEmpty {
+            layoutManager.ensureLayout(for: layoutManager.textContainers[0])
             return layoutManager
         }
-        return NSLayoutManager(string: text, attributedString: attributedText, size: bounds.size, maxLines: maximumNumberOfLines, lineBreakMode: lineBreakMode, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
+        return layoutManager(string: text, attributedString: attributedText, size: bounds.size, maxLines: maximumNumberOfLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
         #endif
     }
 }
@@ -201,46 +223,43 @@ extension NSUITextView {
 #if os(macOS)
 extension NSTextField {
     func layoutManager(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> NSLayoutManager {
-        NSLayoutManager(string: stringValue, attributedString: attributedStringValue, size: bounds.size, maxLines: maximumNumberOfLines, lineBreakMode: lineBreakMode, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
+        layoutManager(string: stringValue, attributedString: attributedStringValue, size: bounds.size, maxLines: maximumNumberOfLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
     }
 }
 #elseif canImport(UIKit)
 extension UITextField {
     func layoutManager(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> NSLayoutManager {
-        NSLayoutManager(string: text, attributedString: attributedText, size: bounds.size, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
+        layoutManager(string: text, attributedString: attributedText, size: bounds.size, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
     }
 }
 
 extension UILabel {
     func layoutManager(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> NSLayoutManager {
-        NSLayoutManager(string: text, attributedString: attributedText, size: bounds.size, maxLines: numberOfLines, lineBreakMode: lineBreakMode, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
+        layoutManager(string: text, attributedString: attributedText, size: bounds.size, maxLines: numberOfLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
     }
 }
 #endif
 
 fileprivate extension NSLayoutManager {
-    convenience init(string: String? = nil, attributedString: NSAttributedString? = nil, size: CGSize, maxLines: Int? = nil, lineBreakMode: NSLineBreakMode? = nil, onlyVisible: Bool, useMaximumNumberOfLines: Bool) {
-        self.init()
-        var size = size
-        if !onlyVisible {
-            size.height = .greatestFiniteMagnitude
-        }
-        let textStorage: NSTextStorage
-        if let attributedString = attributedString {
-            textStorage = NSTextStorage(attributedString: attributedString)
-        } else {
-            textStorage = NSTextStorage(string: string ?? "")
-        }
-        let textContainer = NSTextContainer(size: size)
+    func update(string: String? = nil, attributedString: NSAttributedString? = nil, size: CGSize, maxLines: Int? = nil, lineBreakMode: NSLineBreakMode? = nil, font: NSUIFont?, onlyVisible: Bool, useMaximumNumberOfLines: Bool) {
+        let textContainer = textContainers[0]
+        let textStorage = textStorage!
+        textContainer.size = onlyVisible ? size : size.height(.greatestFiniteMagnitude)
         textContainer.lineBreakMode = lineBreakMode ?? textContainer.lineBreakMode
         textContainer.maximumNumberOfLines = useMaximumNumberOfLines ? maxLines ?? textContainer.maximumNumberOfLines : 0
-        textContainer.lineFragmentPadding = 2.0
-        addTextContainer(textContainer)
-        textStorage.addLayoutManager(self)
+        if let attributedString = attributedString, attributedString != textStorage {
+            textStorage.setAttributedString(attributedString)
+            appliedFont = nil
+        } else if let string = string, string != textStorage.string || font != appliedFont {
+            textStorage.setAttributedString(NSAttributedString(string: string, attributes: font != nil ? [.font: font!] : nil))
+            appliedFont = font
+        }
         ensureLayout(for: textContainer)
-        #if os(macOS)
-        replaceTextStorage(textStorage)
-        #endif
+    }
+    
+    var appliedFont: NSUIFont? {
+        get { getAssociatedValue("appliedFont") }
+        set { setAssociatedValue(newValue, key: "appliedFont") }
     }
 }
 #endif

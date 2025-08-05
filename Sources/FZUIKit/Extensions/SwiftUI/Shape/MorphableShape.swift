@@ -16,7 +16,7 @@ public struct MorphableShape: Shape {
         get { return self.controlPoints }
     }
     
-    init(controlPoints: VectorArray<Double>) {
+    public init(controlPoints: VectorArray<Double>) {
         self.controlPoints = controlPoints
     }
 

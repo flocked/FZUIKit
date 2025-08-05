@@ -98,7 +98,6 @@ public struct TextLine {
         self.textFrame = textFrame
         self.text = text
         self.textRange = textRange
-        var currentFont: (font: NSFont, range: NSRange)?
         self.characters = !fontValues.isEmpty ? range.indexed().compactMap { index, glyphIndex in
             var glyphBounds = glyphFrames[index]
             guard let font = fontValues.value(at: glyphIndex) as? NSUIFont else { return nil }
