@@ -430,6 +430,10 @@ extension NSTextView {
         case endEditing
         /// Ends editing the text and resets it to the the state before editing.
         case endEditingAndReset
+        /// Deletes the text.
+        case delete
+        /// Resets the text to the the state before editing.
+        case reset
             
         var needsDelegate: Bool {
             switch self {
@@ -554,6 +558,12 @@ extension NSTextView {
                     return true
                 case .endEditing:
                     textView.resignAsFirstResponder()
+                case .delete:
+                    textView.string = ""
+                    return false
+                case .reset:
+                    textView.string = editingStartString
+                    return false
                 case .none:
                     break
                 }
@@ -564,6 +574,7 @@ extension NSTextView {
                 case .none: break
                 }
             default: break
+                
             }
             return delegate?.textView?(textView, doCommandBy: commandSelector) ?? true
         }
