@@ -5,8 +5,15 @@
 //  Created by Florian Zand on 15.10.24.
 //
 
-import Foundation
+#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
+import FZSwiftUtils
 
+/*
 /// A representation of a text line.
 public struct TextLine {
     /// The frame of the text line.
@@ -18,17 +25,94 @@ public struct TextLine {
     /// The frame of the text.
     public let textFrame: CGRect
     
-    /// The range of the string.
-    public let textRange: Range<String.Index>
+    /// The range of the text.
+    public let textRange: NSRange
     
-    /// The range of the string.
-    public let textNSRange: NSRange
+    /// The frames of each character in the line.
+    public let characterFrames: [CGRect]
     
-    init(frame: CGRect, textFrame: CGRect, text: String, textRange: Range<String.Index>, textNSRange: NSRange) {
+    init?(frame: CGRect, textFrame: CGRect, text: String, range: NSRange, characterFrames: [CGRect] = []) {
+        guard frame != .zero else { return nil }
+        self.frame = frame
+        self.textFrame = textFrame
+        self.text = text
+        self.textRange = range
+        self.characterFrames = characterFrames
+    }
+}
+*/
+
+/// A representation of a text line.
+public struct TextLine {
+    /// The frame of the text line.
+    public let frame: CGRect
+    
+    /// The text of the line.
+    public let text: String
+    
+    /// The characters of the line.
+    public let characters: [LineCharacter]
+    
+    /// The frame of the text.
+    public let textFrame: CGRect
+    
+    /// The range of the text.
+    public let textRange: NSRange
+    
+    /**
+     The bezier path of the text.
+     
+     It only returns a bezier path for the text if the text line includes ``characters``.
+     
+     To include characters for text lines, set `includeCharacters` of  ``TextLineProvider/textLines(includeCharacters:onlyVisible:useMaximumNumberOfLines:)``
+     
+     */
+    public var textBezierPath: NSUIBezierPath {
+        characters.reduce(into: .init()) { $0.append($1.bezierPath) }
+    }
+    
+    /// A character in a text line.
+    public struct LineCharacter {
+        /// The character.
+        let character: Character
+        /// The frame of the character.
+        let frame: CGRect
+        /// The bezier path of the character.
+        let bezierPath: NSUIBezierPath
+        /// The range of the character.
+        let range: NSRange
+        
+        init(_ character: Character, frame: CGRect, bezierPath: NSUIBezierPath, index: Int) {
+            self.character = character
+            self.frame = frame
+            self.bezierPath = bezierPath
+            self.range = NSRange(location: index, length: 1)
+        }
+    }
+    
+    init?(frame: CGRect, textFrame: CGRect, range: NSRange, glyphFrames: [CGRect], manager: NSLayoutManager, storage: NSTextStorage, mappings: [CGFloat: CGFloat], fontValues: [(range: NSRange, value: Any?)]) {
+        guard frame != .zero else { return nil }
+        let textRange = manager.characterRange(forGlyphRange: range, actualGlyphRange: nil)
+        let text = String(storage.string[textRange])
         self.frame = frame
         self.textFrame = textFrame
         self.text = text
         self.textRange = textRange
-        self.textNSRange = textNSRange
+        var currentFont: (font: NSFont, range: NSRange)?
+        self.characters = !fontValues.isEmpty ? range.indexed().compactMap { index, glyphIndex in
+            var glyphBounds = glyphFrames[index]
+            guard let font = fontValues.value(at: glyphIndex) as? NSUIFont else { return nil }
+            glyphBounds.origin.y = mappings[glyphBounds.y]! + font.ascender
+            guard let glyphPath = NSUIBezierPath(glyph: manager.cgGlyph(at: glyphIndex), font: font, location: glyphBounds.origin) else { return nil }
+            return .init(text[index], frame: glyphBounds, bezierPath: glyphPath, index: glyphIndex)
+        } : []
     }
 }
+
+extension Sequence where Element == TextLine {
+    /// The bezier path of the text lines.
+    public var bezierPath: NSUIBezierPath {
+        reduce(into: .init()) { $0.append($1.textBezierPath) }
+    }
+}
+#endif

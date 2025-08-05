@@ -49,7 +49,7 @@ extension NSView {
                             _location = event.location(in: superview)
                         }
                         if let hitView = view.hitTest(_location), hitView !== view {
-                            if let textProvider = hitView as? TextLocationProvider {
+                            if let textProvider = hitView as? TextLineProvider {
                                 if textProvider.isLocationInsideText(view.convert(location, to: hitView)) {
                                     return nil
                                 }

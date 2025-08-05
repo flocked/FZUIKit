@@ -491,30 +491,6 @@ extension NSTextView {
         actionOnEscapeKeyDown = escapeAction
         return self
     }
-    
-    /**
-     Returns the bezier paths for each character in the text view.
-     
-     - Parameters:
-        - onlyVisible: A Boolean value indicating whether to include only the visible characters.
-        - useMaximumNumberOfLines: A Boolean value indicating whether to include only characters up to the line specified by ``maximumNumberOfLines``.
-     */
-    public func characterBezierPaths(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [NSBezierPath] {
-        layoutManager(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines).characterBezierPaths()
-    }
-    
-    /**
-     Returns the bezier path for the text in the text view.
-     
-     - Parameters:
-        - onlyVisible: A Boolean value indicating whether to include only the visible characters.
-        - useMaximumNumberOfLines: A Boolean value indicating whether to include only characters up to the line specified by ``maximumNumberOfLines``.
-     */
-    public func bezierPath(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> NSBezierPath {
-        characterBezierPaths(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines).reduce(into: .init()) {
-            $0.append($1)
-        }
-    }
             
     fileprivate var textViewDelegate: TextViewDelegate? {
         get { getAssociatedValue("textViewDelegate") }
@@ -639,17 +615,6 @@ extension NSTextView {
                 self.textView?.delegate = self
             }
         }
-    }
-}
-
-extension NSTextView: TextLocationProvider {
-    /// A Boolean value indicating whether the specified location is inside the text of text view.
-    public func isLocationInsideText(_ location: CGPoint) -> Bool {
-        guard bounds.contains(location) else { return false }
-        guard let layoutManager = layoutManager, let textContainer = textContainer else { return false  }
-        let containerPoint = CGPoint(x: location.x - textContainerOrigin.x, y: location.y - textContainerOrigin.y)
-        let glyphIndex = layoutManager.glyphIndex(for: containerPoint, in: textContainer)
-        return layoutManager.boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: textContainer).contains(containerPoint)
     }
 }
 #endif

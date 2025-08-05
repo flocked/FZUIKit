@@ -60,93 +60,6 @@ public extension NSUITextView {
         return self
     }
     
-    /// Returns the number of visible lines.
-    var numberOfVisibleLines: Int {
-        textLines().count
-    }
-        
-    /// Returns the total number of lines, including the hidden ones and ignoring the ``maximumNumberOfLines``.
-    var totalNumberOfLines: Int {
-        textLines(onlyVisible: false, useMaximumNumberOfLines: false).count
-    }
-    
-    /**
-     The text lines of the text view.
-              
-     - Parameters:
-        - onlyVisible: A Boolean value indicating whether to only return visible text lines.
-        - useMaximumNumberOfLines: A Boolean value indicating whether to only include text lines upto the line specified by ``maximumNumberOfLines``.
-     */
-    func textLines(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
-        layoutManager(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines).textLines()
-    }
-        
-    /**
-     The text lines for the specified string.
-         
-     An empty array is returned, if the text view's `string` isn't containing the specified string.
-
-     - Parameters:
-        - string: The string for the text lines.
-        - onlyVisible: A Boolean value indicating whether to only return visible text lines.
-        - useMaximumNumberOfLines: A Boolean value indicating whether to only include text lines upto the line specified by ``maximumNumberOfLines``.
-     */
-    func textLines(for string: String, onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
-        guard let range = self.string.range(of: string) else { return [] }
-        return textLines(for: range, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
-    }
-        
-    /**
-     The text lines for the specified string range.
-         
-     An empty array is returned, if the text view's `string` isn't containing the range.
-         
-     - Parameters:
-        - range: The string range for the text lines.
-        - onlyVisible: A Boolean value indicating whether to only return visible text lines.
-        - useMaximumNumberOfLines: A Boolean value indicating whether to only include text lines upto the line specified by ``maximumNumberOfLines``.
-     */
-    func textLines(for range: Range<String.Index>, onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
-        let range = range.clamped(to: string.startIndex..<string.endIndex)
-        return textLines(for: NSRange(range, in: string), onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
-    }
-    
-    /**
-     The text lines for the specified range.
-         
-     An empty array is returned, if the text view's `string` isn't containing the range.
-
-     - Parameters:
-        - range: The range for the text lines.
-        - onlyVisible: A Boolean value indicating whether to only return visible text lines.
-        - useMaximumNumberOfLines: A Boolean value indicating whether to only include text lines upto the line specified by ``maximumNumberOfLines``.
-     */
-    func textLines(for range: NSRange, onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
-        layoutManager(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines).textLines(for: range)
-    }
-        
-    /// The frame of the string at the range.
-    func boundingRect(for range: Range<String.Index>) -> CGRect? {
-        var boundingRect: CGRect? = nil
-        #if os(macOS)
-        guard let layoutManager = layoutManager else { return nil }
-        #endif
-        let range = range.clamped(to: string.startIndex..<string.endIndex)
-        layoutManager.enumerateEnclosingRects(forGlyphRange:  NSRange(range, in: string), withinSelectedGlyphRange:  NSRange(range, in: string), in: layoutManager.textContainers.first!) { rect, stop in
-            boundingRect = rect
-            stop.pointee = true
-        }
-        boundingRect?.origin.x += 2
-        boundingRect?.origin.y += 2
-        return boundingRect
-    }
-        
-    /// The frame of the string.
-    func boundingRect(for string: String) -> CGRect? {
-        guard let range = self.string.range(of: string) else { return nil }
-        return boundingRect(for: range)
-    }
-    
     /// The range of characters selected in the text view.
     var selectedStringRange: Range<String.Index> {
         get { Range(selectedRange, in: string)! }
@@ -342,39 +255,6 @@ public extension NSUITextView {
     func typingAttributes(_ attributes: (inout [NSAttributedString.Key: Any])->()) -> Self {
         attributes(&typingAttributes)
         return self
-    }
-    
-    internal func layoutManager(onlyVisible: Bool, useMaximumNumberOfLines: Bool) -> NSLayoutManager {
-        #if os(macOS)
-        if onlyVisible, useMaximumNumberOfLines, let layoutManager = layoutManager, layoutManager.textStorage != nil, !layoutManager.textContainers.isEmpty {
-            return layoutManager
-        }
-        #else
-        if onlyVisible, useMaximumNumberOfLines, layoutManager.textStorage != nil, !layoutManager.textContainers.isEmpty {
-            return layoutManager
-        }
-        #endif
-        var size = bounds.size
-        if !onlyVisible {
-            size.height = .greatestFiniteMagnitude
-        }
-        #if os(macOS)
-        let textStorage = NSTextStorage(attributedString: attributedString())
-        #else
-        let textStorage = NSTextStorage(attributedString: attributedText)
-        #endif
-        let layoutManager = NSLayoutManager()
-        let textContainer = NSTextContainer(size: size)
-        textContainer.lineBreakMode = lineBreakMode
-        textContainer.maximumNumberOfLines = useMaximumNumberOfLines ? maximumNumberOfLines : 0
-        textContainer.lineFragmentPadding = 2.0
-        layoutManager.addTextContainer(textContainer)
-        textStorage.addLayoutManager(layoutManager)
-        layoutManager.ensureLayout(for: textContainer)
-        #if os(macOS)
-        layoutManager.replaceTextStorage(textStorage)
-        #endif
-        return layoutManager
     }
         
     #if os(macOS)

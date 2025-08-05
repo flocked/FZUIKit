@@ -40,71 +40,188 @@ extension NSLayoutManager {
         }
     }
     
-    /// The frame of the specified string.
+    /// The bounding rectangle of the specified string.
     public func boundingRect(for string: String) -> CGRect? {
         guard let range = textStorage?.string.range(of: string) else { return nil }
         return boundingRect(for: range)
     }
     
-    /// The frame of the string at the specified range.
+    /// The bounding rectangle of the string at the specified range.
     public func boundingRect(for range: Range<String.Index>) -> CGRect? {
-        var boundingRect: CGRect? = nil
-        guard let string = textStorage?.string, let textContainer = textContainers.first, range.clamped(to: string.startIndex..<string.endIndex) == range else { return nil }
-        enumerateEnclosingRects(forGlyphRange:  NSRange(range, in: string), withinSelectedGlyphRange:  NSRange(range, in: string), in: textContainer) { rect, stop in
-            boundingRect = rect
-            stop.pointee = true
+        guard let string = textStorage?.string else { return nil }
+        let range = range.clamped(to: string.startIndex..<string.endIndex)
+        return boundingRect(for: NSRange(range, in: string))
+    }
+    
+    /// The bounding rectangle of the string at the specified range.
+    public func boundingRect(for range: NSRange) -> CGRect? {
+        guard let textContainer = textContainers.first else { return nil }
+        ensureLayout(for: textContainer)
+        var boundingRect: CGRect = .zero
+        enumerateLineFragments(forGlyphRange: glyphRange(forCharacterRange: range, actualCharacterRange: nil)) { rect, usedRect, _, range, _ in
+            boundingRect = boundingRect.union(usedRect)
         }
-        boundingRect?.origin.x += 2
-        boundingRect?.origin.y += 2
         return boundingRect
     }
     
     /**
-     The text lines for the specified range.
-         
+     Returns the bounding rectangle for the glyph at the specified index.
+     
      - Parameters:
-        - range: The range for the text lines.
-        - useMaximumNumberOfLines: A Boolean value indicating whether to only include text lines upto the line specified by text container's `maximumNumberOfLines`.
+        - glyphIndex: The glyph for which to return the bounding rectangle.
+        - textContainer: The text container in which the glyphs are laid out.
      */
-    internal func textLines(for range: NSRange? = nil, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
-        guard let textStorage = textStorage, let textContainer = textContainers.first else { return [] }
-        var textLines: [TextLine] = []
-        let maximumNumberOfLines = textContainer.maximumNumberOfLines
-        defer { textContainer.maximumNumberOfLines = maximumNumberOfLines }
-        if useMaximumNumberOfLines {
-            textContainer.maximumNumberOfLines = 0
+    public func boundingRect(forGlyphAt glyphIndex: Int, in textContainer: NSTextContainer? = nil) -> CGRect {
+        if let textContainer = textContainer ?? textContainers.first {
+            return boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: textContainer)
         }
-        let glyphRange = glyphRange(forCharacterRange: range ?? NSRange(location: 0, length: textStorage.length), actualCharacterRange: nil)
-        enumerateLineFragments(forGlyphRange: glyphRange) { (rect, usedRect, textContainer, range, stop) in
-            guard rect != .zero else { return }
-            textLines += .init(frame: rect, textFrame: usedRect, text: String(textStorage.string[range]), textRange: Range(range, in: textStorage.string)!, textNSRange: range)
-        }
-        return textContainer.maximumNumberOfLines > 0 ? Array(textLines[safe: 0..<textContainer.maximumNumberOfLines]) : textLines
-    }
-
-    /// Returns the bezier paths for each character in the layout manager.
-    internal func characterBezierPaths() -> [NSUIBezierPath] {
-        guard let textContainer = textContainers.first, let textStorage = textStorage else { return [] }
-        ensureLayout(for: textContainer)
-        var bezierPaths: [NSUIBezierPath] = []
-        for glyphIndex in glyphRange(for: textContainer) {
-            guard let font = textStorage.attribute(.font, at: glyphIndex, effectiveRange: nil) as? NSUIFont, let glyphPath = NSUIBezierPath(glyph: glyph(at: glyphIndex), font: font) else { continue }
-            let location = location(forGlyphAt: glyphIndex)
-            #if os(macOS)
-            glyphPath.transform(using: AffineTransform(translationByX: location.x, byY: location.y))
-            #else
-            glyphPath.apply(.init().translatedBy(x: location.x, y: location.y))
-            #endif
-            bezierPaths += glyphPath
-        }
-        return bezierPaths
+        return lineFragmentRect(forGlyphAt: glyphIndex, effectiveRange: nil).origin(location(forGlyphAt: glyphIndex)).width(0)
     }
     
-    /// Returns the bezier path for the text in the layout manager.
-    internal func textBezierPath() -> NSUIBezierPath {
-        characterBezierPaths().reduce(into: .init()) {
-            $0.append($1)
+    /**
+     Returns the bounding position for the glyph at the specified index.
+     
+     - Parameter glyphIndex: The glyph for which to return the bounding position.
+     */
+    public func boundingPosition(forGlyphAt glyphIndex: Int) -> CGPoint {
+        return location(forGlyphAt: glyphIndex).yValue(lineFragmentRect(forGlyphAt: glyphIndex, effectiveRange: nil).y)
+    }
+    
+    /// The text lines in the layout manager.
+    func textLines(includeCharacters: Bool = false) -> [TextLine] {
+        guard let textContainer = textContainers.first else { return [] }
+        return textLines(glyphRange: glyphRange(for: textContainer), includeCharacters: includeCharacters)
+    }
+    
+    /**
+     The text lines for the specified range.
+     
+     - Parameter range: The range for the text lines.
+     */
+    func textLines(for range: NSRange, includeCharacters: Bool = false) -> [TextLine] {
+        textLines(glyphRange: glyphRange(forCharacterRange: range, actualCharacterRange: nil), includeCharacters: includeCharacters)
+    }
+    
+    /**
+     Returns the text lines lying wholly or partially within the specified rectangle.
+     
+     - Parameter bounds: The bounding rectangle for which to return text lines.
+     */
+    func textLines(forBoundingRect bounds: CGRect, includeCharacters: Bool = false) -> [TextLine] {
+        guard let textContainer = textContainers.first else { return [] }
+        return textLines(glyphRange: glyphRange(forBoundingRect: bounds, in: textContainer), includeCharacters: includeCharacters)
+    }
+    
+    /**
+     The text lines including the specified strig.
+     
+     - Parameter string: The string for the text lines.
+     */
+    func textLines(for string: String, includeCharacters: Bool = false) -> [TextLine] {
+        guard let textStorage = textStorage, let range = textStorage.string.range(of: string) else { return [] }
+        return textLines(for: range, includeCharacters: includeCharacters)
+    }
+    
+    /**
+     The text lines for the specified range.
+     
+     - Parameter range: The range for the text lines.
+     */
+    func textLines(for range: Range<String.Index>, includeCharacters: Bool = false) -> [TextLine] {
+        guard let textStorage = textStorage else { return [] }
+        let range = range.clamped(to: textStorage.string.startIndex..<textStorage.string.endIndex)
+        return textLines(for: NSRange(range, in: textStorage.string), includeCharacters: includeCharacters)
+    }
+    
+    private func textLines(glyphRange: NSRange, includeCharacters: Bool = false) -> [TextLine] {
+        guard let textContainer = textContainers.first, let textStorage = textStorage else { return [] }
+        ensureLayout(for: textContainer)
+        var yValues: Set<CGFloat> = []
+        var lines: [(rect: CGRect, usedRect: CGRect, glyphRange: NSRange, glyphFrames: [CGRect])] = []
+        enumerateLineFragments(forGlyphRange: glyphRange) { rect, usedRect, textContainer, range, stop in
+            if includeCharacters {
+                let glyphBounds = range.map({ self.boundingRect(forGlyphAt: $0, in: textContainer) })
+                glyphBounds.forEach({ yValues.insert($0.y) })
+                lines += (rect, usedRect, range, glyphBounds)
+            } else {
+                lines += (rect, usedRect, range, [])
+            }
         }
+        let yValuesSorted = yValues.sorted()
+        let yValuesMapped = Dictionary(uniqueKeysWithValues: zip(yValuesSorted, yValuesSorted.reversed() ))
+        return lines.compactMap({ .init(frame: $0.rect, textFrame: $0.usedRect, range: $0.glyphRange, glyphFrames: $0.glyphFrames, manager: self, storage: textStorage, mappings: yValuesMapped, fontValues: includeCharacters ? textStorage.allAttributeValues(for: .font) : []) })
+    }
+    
+    /// The bezier path of the text in the layout manager.
+    func textBezierPath() -> NSUIBezierPath {
+        characterBezierPaths().combined()
+    }
+    
+    /// The bezier paths of the text lines in the layout manager.
+    internal func textLineBezierPaths() -> [NSUIBezierPath] {
+        lineBezierPaths().map({ $0.combined() })
+    }
+    
+    /// The bezier paths of the characters in the text of the layout manager.
+    internal func characterBezierPaths() -> [NSUIBezierPath] {
+        lineBezierPaths().flatMap({ $0 })
+    }
+    
+    private func lineBezierPaths() -> [[NSUIBezierPath]] {
+        guard let textContainer = textContainers.first, let textStorage = textStorage else { return [] }
+        ensureLayout(for: textContainer)
+        var glyphLocations: [(index: Int, location: CGPoint)] = []
+        enumerateLineFragments(forGlyphRange: glyphRange(for: textContainer)) { lineFrame, textFrame, textContainer, range, stop in
+            glyphLocations += range.map({ ($0, self.boundingRect(forGlyphAt: $0).origin) })
+        }
+        let yValues = glyphLocations.map({$0.location.y}).uniqued().sorted()
+        let yValuesMapped = Dictionary(uniqueKeysWithValues: zip(yValues, yValues.reversed()))
+        let fonts = textStorage.allAttributeValues(for: .font)
+        let padding = textContainer.lineFragmentPadding / 2.0
+        return glyphLocations.reduce(into: [CGFloat: [NSUIBezierPath]]()) { dic, value in
+            var location = value.location
+            guard let font = fonts.value(at: value.index) as? NSUIFont else { return }
+            location.y = yValuesMapped[location.y]! + font.ascender - padding
+            guard let glyphPath = NSUIBezierPath(glyph: self.cgGlyph(at: value.index), font: font, location: location) else { return }
+            dic[location.y, default: []] += glyphPath
+        }.sorted(by: \.key).map({ $0.value })
+    }
+    
+    /// A Boolean value indicating whether the specified location is inside the text of text field.
+    func isLocationInsideText(_ location: CGPoint) -> Bool {
+        guard let textContainer = textContainers.first else { return false }
+        let glyphIndex = glyphIndex(for: location, in: textContainer)
+        return boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: textContainer).contains(location)
+    }
+    
+    func lineFragments(forGlyphRange glyphRange: NSRange) -> [(rect: CGRect, usedRect: CGRect, textContainer: NSTextContainer, glyphRange: NSRange)] {
+        var lineFragments: [(rect: CGRect, usedRect: CGRect, textContainer: NSTextContainer, glyphRange: NSRange)] = []
+        enumerateLineFragments(forGlyphRange: glyphRange) { rect, usedRect, textContainer, glyphRange, _ in
+            lineFragments += (rect, usedRect, textContainer, glyphRange)
+        }
+        return lineFragments
+    }
+}
+
+extension NSAttributedString {
+    func allAttributeValues(for attrName: NSAttributedString.Key, range: NSRange? = nil) -> [(range: NSRange, value: Any?)] {
+        var result: [(range: NSRange, value: Any?)] = []
+        let fullRange = range ?? NSRange(location: 0, length: length)
+        var index = fullRange.lowerBound
+        while index < fullRange.upperBound {
+            var effectiveRange = NSRange()
+            let value = attribute(attrName, at: index, longestEffectiveRange: &effectiveRange, in: fullRange)
+            result.append((effectiveRange, value))
+            index = effectiveRange.upperBound
+        }
+
+        return result
+    }
+}
+
+extension [(range: NSRange, value: Any?)] {
+    func value(at location: Int) -> Any? {
+        first(where: { NSLocationInRange(location, $0.range) })?.value
     }
 }
 

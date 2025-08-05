@@ -530,6 +530,14 @@ public extension NSUIBezierPath {
         return transform
     }
     #endif
+    
+    static func + (lhs: NSUIBezierPath, rhs: NSUIBezierPath) -> NSUIBezierPath {
+        [lhs, rhs].combined()
+    }
+    
+    static func += (lhs: inout NSUIBezierPath, rhs: NSUIBezierPath) {
+        lhs.append(rhs)
+    }
 }
 
 #if os(macOS)
@@ -667,4 +675,11 @@ fileprivate extension CGPath {
     }
     
     static let ellipseCoefficient: CGFloat = 1.28195
+}
+
+extension Sequence where Element: NSUIBezierPath {
+    /// A bezier path from all elements of the sequence.
+    public func combined() -> NSUIBezierPath {
+        reduce(into: .init()) { $0.append($1) }
+    }
 }

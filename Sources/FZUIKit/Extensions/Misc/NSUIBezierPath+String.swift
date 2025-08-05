@@ -55,13 +55,18 @@ public extension AttributedString {
 }
 
 extension NSUIBezierPath {
-    convenience init?(glyph: UInt32, font: NSUIFont) {
-        self.init(glyph: CGGlyph(glyph & 0xFFFF), font: font)
+    convenience init?(glyph: CGGlyph, font: NSUIFont, location: CGPoint) {
+        self.init(glyph: glyph, font: font, transform: CGAffineTransform(translationX: location.x, y: location.y))
     }
     
-    convenience init?(glyph: CGGlyph, font: NSUIFont) {
-        guard let cgPath = CTFontCreatePathForGlyph(font as CTFont, glyph, nil) else { return nil }
-        self.init(cgPath: cgPath)
+    convenience init?(glyph: CGGlyph, font: NSUIFont, transform: CGAffineTransform? = nil) {
+        if let transform = transform {
+            guard let cgPath = CTFontCreatePathForGlyph(font as CTFont, glyph, withUnsafePointer(to: transform, { $0 })) else { return nil }
+            self.init(cgPath: cgPath)
+        } else {
+            guard let cgPath = CTFontCreatePathForGlyph(font as CTFont, glyph, nil) else { return nil }
+            self.init(cgPath: cgPath)
+        }
     }
 }
 
