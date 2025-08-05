@@ -195,16 +195,6 @@ public extension NSTextField {
             }
         }
     }
-                
-    /// Returns the number of visible lines.
-    var numberOfVisibleLines: Int {
-        textLines().count
-    }
-        
-    /// Returns the total number of lines, including the hidden ones and ignoring the ``maximumNumberOfLines``.
-    var totalNumberOfLines: Int {
-        getTextLines(onlyVisible: false, useMaximumNumberOfLines: false).count
-    }
 
     /**
      A Boolean value indicating whether the text field truncates the text that does not fit within the bounds.
@@ -356,6 +346,16 @@ public extension NSTextField {
         return isTruncating
     }
     
+    /// Returns the number of visible lines.
+    var numberOfVisibleLines: Int {
+        textLines().count
+    }
+        
+    /// Returns the total number of lines, including the hidden ones and ignoring the ``maximumNumberOfLines``.
+    var totalNumberOfLines: Int {
+        textLines(onlyVisible: false, useMaximumNumberOfLines: false).count
+    }
+    
     /**
      The text lines of the text field.
          
@@ -364,6 +364,7 @@ public extension NSTextField {
         - useMaximumNumberOfLines: A Boolean value indicating whether to only include text lines upto the line specified by ``maximumNumberOfLines``.
      */
     func textLines(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
+        layoutManager(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines).textLines()
     }
                 
     /**

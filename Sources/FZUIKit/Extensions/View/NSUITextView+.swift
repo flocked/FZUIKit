@@ -60,6 +60,16 @@ public extension NSUITextView {
         return self
     }
     
+    /// Returns the number of visible lines.
+    var numberOfVisibleLines: Int {
+        textLines().count
+    }
+        
+    /// Returns the total number of lines, including the hidden ones and ignoring the ``maximumNumberOfLines``.
+    var totalNumberOfLines: Int {
+        textLines(onlyVisible: false, useMaximumNumberOfLines: false).count
+    }
+    
     /**
      The text lines of the text view.
               
