@@ -59,30 +59,31 @@ extension NSLayoutManager {
         return boundingRect
     }
     
+    /**
+     The text lines for the specified range.
+         
+     - Parameters:
+        - range: The range for the text lines.
+        - useMaximumNumberOfLines: A Boolean value indicating whether to only include text lines upto the line specified by text container's `maximumNumberOfLines`.
+     */
     internal func textLines(for range: NSRange? = nil, useMaximumNumberOfLines: Bool = true) -> [TextLine] {
         guard let textStorage = textStorage, let textContainer = textContainers.first else { return [] }
-        
         var textLines: [TextLine] = []
-        var glyphRange = NSRange(location: 0, length: textStorage.length)
-        if let range = range {
-            glyphRange =  self.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
-        }
         let maximumNumberOfLines = textContainer.maximumNumberOfLines
         defer { textContainer.maximumNumberOfLines = maximumNumberOfLines }
         if useMaximumNumberOfLines {
             textContainer.maximumNumberOfLines = 0
         }
-        enumerateLineFragments(forGlyphRange: glyphRange) { (rect, usedRect, textContainer, glyphRange, stop) in
+        let glyphRange = glyphRange(forCharacterRange: range ?? NSRange(location: 0, length: textStorage.length), actualCharacterRange: nil)
+        enumerateLineFragments(forGlyphRange: glyphRange) { (rect, usedRect, textContainer, range, stop) in
             guard rect != .zero else { return }
-            textLines.append(.init(frame: rect, textFrame: usedRect, text: String(textStorage.string[glyphRange]), textRange: Range(glyphRange, in: textStorage.string)!))
+            textLines += .init(frame: rect, textFrame: usedRect, text: String(textStorage.string[range]), textRange: Range(range, in: textStorage.string)!, textNSRange: range)
         }
         return textContainer.maximumNumberOfLines > 0 ? Array(textLines[safe: 0..<textContainer.maximumNumberOfLines]) : textLines
     }
-}
 
-extension NSLayoutManager {
     /// Returns the bezier paths for each character in the layout manager.
-    func characterBezierPaths() -> [NSUIBezierPath] {
+    internal func characterBezierPaths() -> [NSUIBezierPath] {
         guard let textContainer = textContainers.first, let textStorage = textStorage else { return [] }
         ensureLayout(for: textContainer)
         var bezierPaths: [NSUIBezierPath] = []
@@ -100,7 +101,7 @@ extension NSLayoutManager {
     }
     
     /// Returns the bezier path for the text in the layout manager.
-    func textBezierPath() -> NSUIBezierPath {
+    internal func textBezierPath() -> NSUIBezierPath {
         characterBezierPaths().reduce(into: .init()) {
             $0.append($1)
         }

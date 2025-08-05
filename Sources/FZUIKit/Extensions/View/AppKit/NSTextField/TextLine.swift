@@ -21,10 +21,14 @@ public struct TextLine {
     /// The range of the string.
     public let textRange: Range<String.Index>
     
-    init(frame: CGRect, textFrame: CGRect, text: String, textRange: Range<String.Index>) {
+    /// The range of the string.
+    public let textNSRange: NSRange
+    
+    init(frame: CGRect, textFrame: CGRect, text: String, textRange: Range<String.Index>, textNSRange: NSRange) {
         self.frame = frame
         self.textFrame = textFrame
         self.text = text
         self.textRange = textRange
+        self.textNSRange = textNSRange
     }
 }
