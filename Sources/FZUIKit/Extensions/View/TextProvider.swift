@@ -208,17 +208,9 @@ public extension TextLineProvider {
 extension NSUITextView {
     func layoutManager(onlyVisible: Bool, useMaximumNumberOfLines: Bool) -> NSLayoutManager {
         #if os(macOS)
-        if onlyVisible, useMaximumNumberOfLines, let layoutManager = layoutManager, layoutManager.textStorage != nil, !layoutManager.textContainers.isEmpty {
-            layoutManager.ensureLayout(for: layoutManager.textContainers[0])
-            return layoutManager
-        }
-        return layoutManager(string: string, attributedString: attributedString(), maxLines: maximumNumberOfLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
+        layoutManager(string: string, attributedString: attributedString(), maxLines: maximumNumberOfLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
         #else
-        if onlyVisible, useMaximumNumberOfLines, layoutManager.textStorage != nil, !layoutManager.textContainers.isEmpty {
-            layoutManager.ensureLayout(for: layoutManager.textContainers[0])
-            return layoutManager
-        }
-        return layoutManager(string: text, attributedString: attributedText, maxLines: maximumNumberOfLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
+        layoutManager(string: text, attributedString: attributedText, maxLines: maximumNumberOfLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
         #endif
     }
 }
