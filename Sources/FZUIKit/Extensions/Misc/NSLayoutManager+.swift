@@ -136,20 +136,23 @@ extension NSLayoutManager {
     private func textLines(glyphRange: NSRange, includeCharacters: Bool = false) -> [TextLine] {
         guard let textContainer = textContainers.first, let textStorage = textStorage else { return [] }
         ensureLayout(for: textContainer)
-        var yValues: Set<CGFloat> = []
-        var lines: [(rect: CGRect, usedRect: CGRect, glyphRange: NSRange, glyphFrames: [CGRect])] = []
-        enumerateLineFragments(forGlyphRange: glyphRange) { rect, usedRect, textContainer, range, stop in
-            if includeCharacters {
-                let glyphBounds = range.map({ self.boundingRect(forGlyphAt: $0, in: textContainer) })
-                glyphBounds.forEach({ yValues.insert($0.y) })
-                lines += (rect, usedRect, range, glyphBounds)
-            } else {
-                lines += (rect, usedRect, range, [])
-            }
+        var lines: [TextLine] = []
+        let padding = textContainer.lineFragmentPadding
+        let height = textContainer.size.height
+        let fontValues = includeCharacters ? textStorage.allAttributeValues(for: .font) : []
+        enumerateLineFragments(forGlyphRange: glyphRange) { frame, textFrame, textContainer, range, stop in
+            let textRange = self.characterRange(forGlyphRange: range, actualGlyphRange: nil)
+            let text = String(textStorage.string[textRange])
+            let characters: [TextLine.LineCharacter] = includeCharacters ? range.indexed().compactMap { index, glyphIndex in
+                var frame = self.boundingRect(forGlyphAt: glyphIndex, in: textContainer)
+                frame.origin.y = height - frame.origin.y - frame.height + padding + self.textOffset.y
+                frame.origin.x += self.textOffset.x
+                guard let font = fontValues.value(at: glyphIndex) as? NSUIFont, let glyphPath = NSUIBezierPath(glyph: self.cgGlyph(at: glyphIndex), font: font, location: frame.origin) else { return nil }
+                return .init(text[index], frame: frame, bezierPath: glyphPath, index: glyphIndex)
+            } : []
+            lines += TextLine(frame: frame, textFrame: textFrame, textRange: textRange, text: text, characters: characters)
         }
-        let yValuesSorted = yValues.sorted()
-        let yValuesMapped = Dictionary(uniqueKeysWithValues: zip(yValuesSorted, yValuesSorted.reversed() ))
-        return lines.compactMap({ .init(frame: $0.rect, textFrame: $0.usedRect, range: $0.glyphRange, glyphFrames: $0.glyphFrames, manager: self, storage: textStorage, mappings: yValuesMapped, fontValues: includeCharacters ? textStorage.allAttributeValues(for: .font) : []) })
+        return lines
     }
     
     /// The bezier path of the text in the layout manager.
@@ -159,32 +162,31 @@ extension NSLayoutManager {
     
     /// The bezier paths of the text lines in the layout manager.
     internal func textLineBezierPaths() -> [NSUIBezierPath] {
-        lineBezierPaths().map({ $0.combined() })
+        characterBezierPathsByLine().map({ $0.combined() })
     }
     
     /// The bezier paths of the characters in the text of the layout manager.
     internal func characterBezierPaths() -> [NSUIBezierPath] {
-        lineBezierPaths().flatMap({ $0 })
+        characterBezierPathsByLine().flatMap({ $0 })
     }
-    
-    private func lineBezierPaths() -> [[NSUIBezierPath]] {
+
+    private func characterBezierPathsByLine() -> [[NSUIBezierPath]] {
         guard let textContainer = textContainers.first, let textStorage = textStorage else { return [] }
         ensureLayout(for: textContainer)
-        var glyphLocations: [(index: Int, location: CGPoint)] = []
-        enumerateLineFragments(forGlyphRange: glyphRange(for: textContainer)) { lineFrame, textFrame, textContainer, range, stop in
-            glyphLocations += range.map({ ($0, self.boundingRect(forGlyphAt: $0).origin) })
-        }
-        let yValues = glyphLocations.map({$0.location.y}).uniqued().sorted()
-        let yValuesMapped = Dictionary(uniqueKeysWithValues: zip(yValues, yValues.reversed()))
         let fonts = textStorage.allAttributeValues(for: .font)
-        let padding = textContainer.lineFragmentPadding / 2.0
-        return glyphLocations.reduce(into: [CGFloat: [NSUIBezierPath]]()) { dic, value in
-            var location = value.location
-            guard let font = fonts.value(at: value.index) as? NSUIFont else { return }
-            location.y = yValuesMapped[location.y]! + font.ascender - padding
-            guard let glyphPath = NSUIBezierPath(glyph: self.cgGlyph(at: value.index), font: font, location: location) else { return }
-            dic[location.y, default: []] += glyphPath
-        }.sorted(by: \.key).map({ $0.value })
+        let padding = textContainer.lineFragmentPadding
+        let height = textContainer.size.height
+        var lines: [[NSUIBezierPath]] = []
+        enumerateLineFragments(forGlyphRange: glyphRange(for: textContainer)) { lineFrame, textFrame, textContainer, range, stop in
+            lines += range.compactMap({ glyphIndex in
+                guard let font = fonts.value(at: glyphIndex) as? NSUIFont else { return nil }
+                var frame = self.boundingRect(forGlyphAt: glyphIndex)
+                frame.origin.y = height - frame.y - frame.height + padding + self.textOffset.y
+                frame.origin.x += self.textOffset.x
+                return NSUIBezierPath(glyph: self.cgGlyph(at: glyphIndex), font: font, location: frame.origin)
+            })
+        }
+        return lines
     }
     
     /// A Boolean value indicating whether the specified location is inside the text of text field.
@@ -194,12 +196,9 @@ extension NSLayoutManager {
         return boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: textContainer).contains(location)
     }
     
-    func lineFragments(forGlyphRange glyphRange: NSRange) -> [(rect: CGRect, usedRect: CGRect, textContainer: NSTextContainer, glyphRange: NSRange)] {
-        var lineFragments: [(rect: CGRect, usedRect: CGRect, textContainer: NSTextContainer, glyphRange: NSRange)] = []
-        enumerateLineFragments(forGlyphRange: glyphRange) { rect, usedRect, textContainer, glyphRange, _ in
-            lineFragments += (rect, usedRect, textContainer, glyphRange)
-        }
-        return lineFragments
+    var textOffset: CGPoint {
+        get { getAssociatedValue("textOffset") ?? .zero }
+        set { setAssociatedValue(newValue, key: "textOffset") }
     }
 }
 

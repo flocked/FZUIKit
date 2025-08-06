@@ -181,24 +181,27 @@ public extension TextLineProvider {
         layoutManager(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines).textBezierPath()
     }
     
-    func layoutManager(string: String? = nil, attributedString: NSAttributedString? = nil, size: CGSize, maxLines: Int? = nil, lineBreakMode: NSLineBreakMode? = nil, font: NSUIFont?, onlyVisible: Bool, useMaximumNumberOfLines: Bool) -> NSLayoutManager {
+    func layoutManager(string: String? = nil, attributedString: NSAttributedString? = nil, maxLines: Int? = nil, lineBreakMode: NSLineBreakMode? = nil, font: NSUIFont?, onlyVisible: Bool, useMaximumNumberOfLines: Bool) -> NSLayoutManager {
+        var size = bounds.size
+        #if os(macOS)
+        let titleRect = (self as? NSTextField)?.textRect ?? bounds
+        calculationLayoutManager.textOffset = titleRect.origin
+        if titleRect.height > bounds.height {
+            calculationLayoutManager.textOffset.y += (bounds.height - titleRect.height) / 2.0
+        }
+        size = titleRect.size
+        #endif
         calculationLayoutManager.update(string: string, attributedString: attributedString, size: size, maxLines: maxLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
         return calculationLayoutManager
     }
     
+    fileprivate var calculateTextStorage: NSTextStorage {
+        get { getAssociatedValue("calculateTextStorage", initialValue: NSTextStorage(string: "")) }
+        set { setAssociatedValue(newValue, key: "calculateTextStorage") }
+    }
+    
     fileprivate var calculationLayoutManager: NSLayoutManager {
-        getAssociatedValue("calculationLayoutManager") {
-            let layoutManager = NSLayoutManager()
-            let textStorage = NSTextStorage(string: "")
-            let textContainer = NSTextContainer(size: CGSize(10, 10))
-            layoutManager.addTextContainer(textContainer)
-            textStorage.addLayoutManager(layoutManager)
-            layoutManager.ensureLayout(for: textContainer)
-            #if os(macOS)
-            layoutManager.replaceTextStorage(textStorage)
-            #endif
-            return layoutManager
-        }
+        getAssociatedValue("calculationLayoutManager", initialValue: NSLayoutManager(textStorage: calculateTextStorage))
     }
 }
 
@@ -209,13 +212,13 @@ extension NSUITextView {
             layoutManager.ensureLayout(for: layoutManager.textContainers[0])
             return layoutManager
         }
-        return layoutManager(string: string, attributedString: attributedString(), size: bounds.size, maxLines: maximumNumberOfLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
+        return layoutManager(string: string, attributedString: attributedString(), maxLines: maximumNumberOfLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
         #else
         if onlyVisible, useMaximumNumberOfLines, layoutManager.textStorage != nil, !layoutManager.textContainers.isEmpty {
             layoutManager.ensureLayout(for: layoutManager.textContainers[0])
             return layoutManager
         }
-        return layoutManager(string: text, attributedString: attributedText, size: bounds.size, maxLines: maximumNumberOfLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
+        return layoutManager(string: text, attributedString: attributedText, maxLines: maximumNumberOfLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
         #endif
     }
 }
@@ -223,19 +226,19 @@ extension NSUITextView {
 #if os(macOS)
 extension NSTextField {
     func layoutManager(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> NSLayoutManager {
-        layoutManager(string: stringValue, attributedString: attributedStringValue, size: bounds.size, maxLines: maximumNumberOfLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
+        layoutManager(string: stringValue, attributedString: attributedStringValue, maxLines: maximumNumberOfLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
     }
 }
 #elseif canImport(UIKit)
 extension UITextField {
     func layoutManager(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> NSLayoutManager {
-        layoutManager(string: text, attributedString: attributedText, size: bounds.size, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
+        layoutManager(string: text, attributedString: attributedText, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
     }
 }
 
 extension UILabel {
     func layoutManager(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> NSLayoutManager {
-        layoutManager(string: text, attributedString: attributedText, size: bounds.size, maxLines: numberOfLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
+        layoutManager(string: text, attributedString: attributedText, maxLines: numberOfLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
     }
 }
 #endif
@@ -260,6 +263,18 @@ fileprivate extension NSLayoutManager {
     var appliedFont: NSUIFont? {
         get { getAssociatedValue("appliedFont") }
         set { setAssociatedValue(newValue, key: "appliedFont") }
+    }
+    
+    convenience init(textStorage: NSTextStorage) {
+        self.init()
+        let textContainer = NSTextContainer(size: CGSize(100, 100))
+        textContainer.lineFragmentPadding = 2.0
+        addTextContainer(textContainer)
+        textStorage.addLayoutManager(self)
+        ensureLayout(for: textContainer)
+        #if os(macOS)
+        replaceTextStorage(textStorage)
+        #endif
     }
 }
 #endif

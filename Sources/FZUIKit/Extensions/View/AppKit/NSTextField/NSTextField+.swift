@@ -198,8 +198,8 @@ public extension NSTextField {
 
     /**
      A Boolean value indicating whether the text field truncates the text that does not fit within the bounds.
-         
-     When the value of this property is `true`, the text field truncates text and adds an ellipsis character to the last visible line when the text does not fit. The value in the `lineBreakMode` property must be `byWordWrapping` or `byCharWrapping` for this option to have any effect.
+
+     When the value of this property is `true`, the text field truncates text and adds an ellipsis character to the last visible line when the text does not fit. The value of the property [lineBreakMode](https://developer.apple.com/documentation/appkit/nstextcontainer/linebreakmode)  must be [byWordWrapping](https://developer.apple.com/documentation/appkit/nslinebreakmode/bywordwrapping) or [byCharWrapping](https://developer.apple.com/documentation/appkit/nslinebreakmode/bycharwrapping) for this option to have any effect.
      */
     var truncatesLastVisibleLine: Bool {
         get { cell?.truncatesLastVisibleLine ?? false }
@@ -216,9 +216,9 @@ public extension NSTextField {
     /**
      A Boolean value indicating whether the text field wraps text whose length that exceeds the text field’s frame.
          
-     To specify the maximum numbers of lines for wrapping, use `maximumNumberOfLines`.
+     To specify the maximum numbers of lines for wrapping, use [maximumNumberOfLines](https://developer.apple.com/documentation/appkit/nstextfield/maximumnumberoflines).
          
-     When the value of this property is `true`, the text field wraps text and makes the cell non-scrollable. If the text of the text field is an attributed string value, you must explicitly set the paragraph style line break mode. Setting the value of this property to `true` is equivalent to setting the `lineBreakMode` property to `byWordWrapping`.
+     When the value of this property is `true`, the text field wraps text and makes the cell non-scrollable. If the text of the text field is an attributed string value, you must explicitly set the paragraph style line break mode. Setting the value of this property to `true` is equivalent to setting the [lineBreakMode](https://developer.apple.com/documentation/appkit/nstextcontainer/linebreakmode) property to [byWordWrapping](https://developer.apple.com/documentation/appkit/nslinebreakmode/bywordwrapping).
      */
     var wraps: Bool {
         get { cell?.wraps ?? false }
@@ -344,6 +344,11 @@ public extension NSTextField {
             }
         }
         return isTruncating
+    }
+    
+    /// The rectangle of the text.
+    var textRect: CGRect {
+        cell?.titleRect(forBounds: bounds) ?? bounds
     }
 }
 #endif

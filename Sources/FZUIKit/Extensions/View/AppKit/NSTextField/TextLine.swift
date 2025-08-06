@@ -90,21 +90,12 @@ public struct TextLine {
         }
     }
     
-    init?(frame: CGRect, textFrame: CGRect, range: NSRange, glyphFrames: [CGRect], manager: NSLayoutManager, storage: NSTextStorage, mappings: [CGFloat: CGFloat], fontValues: [(range: NSRange, value: Any?)]) {
-        guard frame != .zero else { return nil }
-        let textRange = manager.characterRange(forGlyphRange: range, actualGlyphRange: nil)
-        let text = String(storage.string[textRange])
+    init(frame: CGRect, textFrame: CGRect, textRange: NSRange, text: String, characters: [LineCharacter]) {
         self.frame = frame
         self.textFrame = textFrame
         self.text = text
         self.textRange = textRange
-        self.characters = !fontValues.isEmpty ? range.indexed().compactMap { index, glyphIndex in
-            var glyphBounds = glyphFrames[index]
-            guard let font = fontValues.value(at: glyphIndex) as? NSUIFont else { return nil }
-            glyphBounds.origin.y = mappings[glyphBounds.y]! + font.ascender
-            guard let glyphPath = NSUIBezierPath(glyph: manager.cgGlyph(at: glyphIndex), font: font, location: glyphBounds.origin) else { return nil }
-            return .init(text[index], frame: glyphBounds, bezierPath: glyphPath, index: glyphIndex)
-        } : []
+        self.characters = characters
     }
 }
 
