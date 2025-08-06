@@ -181,15 +181,15 @@ public extension TextLineProvider {
         layoutManager(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines).textBezierPath()
     }
     
-    func layoutManager(string: String? = nil, attributedString: NSAttributedString? = nil, maxLines: Int? = nil, lineBreakMode: NSLineBreakMode? = nil, font: NSUIFont?, onlyVisible: Bool, useMaximumNumberOfLines: Bool) -> NSLayoutManager {
+    fileprivate func layoutManager(string: String? = nil, attributedString: NSAttributedString? = nil, maxLines: Int? = nil, lineBreakMode: NSLineBreakMode? = nil, font: NSUIFont?, onlyVisible: Bool, useMaximumNumberOfLines: Bool) -> NSLayoutManager {
         var size = bounds.size
         #if os(macOS)
-        let titleRect = (self as? NSTextField)?.textRect ?? bounds
-        calculationLayoutManager.textOffset = titleRect.origin
-        if titleRect.height > bounds.height {
-            calculationLayoutManager.textOffset.y += (bounds.height - titleRect.height) / 2.0
+        let textRect = (self as? NSTextField)?.textRect ?? bounds
+        size = textRect.size
+        calculationLayoutManager.textOffset = textRect.origin
+        if textRect.height > bounds.height {
+            calculationLayoutManager.textOffset.y += (bounds.height - textRect.height) / 2.0
         }
-        size = titleRect.size
         #endif
         if self is NSUITextView {
             calculationLayoutManager.textContainers[0].lineFragmentPadding = 5.0
@@ -209,7 +209,7 @@ public extension TextLineProvider {
     }
 }
 
-extension NSUITextView {
+fileprivate extension NSUITextView {
     func layoutManager(onlyVisible: Bool, useMaximumNumberOfLines: Bool) -> NSLayoutManager {
         #if os(macOS)
         layoutManager(string: string, attributedString: attributedString(), maxLines: maximumNumberOfLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
@@ -220,19 +220,19 @@ extension NSUITextView {
 }
 
 #if os(macOS)
-extension NSTextField {
+fileprivate extension NSTextField {
     func layoutManager(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> NSLayoutManager {
         layoutManager(string: stringValue, attributedString: attributedStringValue, maxLines: maximumNumberOfLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
     }
 }
 #elseif canImport(UIKit)
-extension UITextField {
+fileprivate extension UITextField {
     func layoutManager(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> NSLayoutManager {
         layoutManager(string: text, attributedString: attributedText, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
     }
 }
 
-extension UILabel {
+fileprivate extension UILabel {
     func layoutManager(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> NSLayoutManager {
         layoutManager(string: text, attributedString: attributedText, maxLines: numberOfLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
     }
@@ -263,7 +263,7 @@ fileprivate extension NSLayoutManager {
     
     convenience init(textStorage: NSTextStorage) {
         self.init()
-        let textContainer = NSTextContainer(size: CGSize(100, 100))
+        let textContainer = NSTextContainer(size: .zero)
         textContainer.lineFragmentPadding = 2.0
         addTextContainer(textContainer)
         textStorage.addLayoutManager(self)
