@@ -191,6 +191,10 @@ public extension TextLineProvider {
         }
         size = titleRect.size
         #endif
+        if self is NSUITextView {
+            calculationLayoutManager.textContainers[0].lineFragmentPadding = 5.0
+            calculationLayoutManager.textOffset.y -= 2.0
+        }
         calculationLayoutManager.update(string: string, attributedString: attributedString, size: size, maxLines: maxLines, lineBreakMode: lineBreakMode, font: font, onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
         return calculationLayoutManager
     }
