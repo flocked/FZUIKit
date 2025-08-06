@@ -64,7 +64,7 @@ public struct TextLine {
      
      It only returns a bezier path for the text if the text line includes ``characters``.
      
-     To include characters for text lines, set `includeCharacters` of  ``TextLineProvider/textLines(includeCharacters:onlyVisible:useMaximumNumberOfLines:)``
+     To include characters for text lines, set `includeCharacters` of  ``TextProvider/textLines(includeCharacters:onlyVisible:useMaximumNumberOfLines:)``
      
      */
     public var textBezierPath: NSUIBezierPath {

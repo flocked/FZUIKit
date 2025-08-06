@@ -1,5 +1,5 @@
 //
-//  TextLineProvider.swift
+//  TextProvider.swift
 //  
 //
 //  Created by Florian Zand on 05.08.25.
@@ -13,44 +13,25 @@ import UIKit
 #endif
 
 /// A view that provides text.
-public protocol TextLineProvider: NSUIView {
-    var numberOfVisibleLines: Int { get }
-    var totalNumberOfLines: Int { get }
-    
-    func textLines(includeCharacters: Bool, onlyVisible: Bool, useMaximumNumberOfLines: Bool) -> [TextLine]
-    func textLines(forBoundingRect bounds: CGRect, includeCharacters: Bool, onlyVisible: Bool, useMaximumNumberOfLines: Bool) -> [TextLine]
-    func textLines(for string: String, includeCharacters: Bool, onlyVisible: Bool, useMaximumNumberOfLines: Bool) -> [TextLine]
-    func textLines(for range: Range<String.Index>, includeCharacters: Bool, onlyVisible: Bool, useMaximumNumberOfLines: Bool) -> [TextLine]
-    func textLines(for range: NSRange, includeCharacters: Bool, onlyVisible: Bool, useMaximumNumberOfLines: Bool) -> [TextLine]
-    
-    func boundingRect(for range: Range<String.Index>) -> CGRect?
-    func boundingRect(for range: NSRange) -> CGRect?
-    func boundingRect(for string: String) -> CGRect?
-    
-    func characterBezierPaths(onlyVisible: Bool, useMaximumNumberOfLines: Bool) -> [NSUIBezierPath]
-    func textLineBezierPaths(onlyVisible: Bool, useMaximumNumberOfLines: Bool) -> [NSUIBezierPath]
-    func textBezierPath(onlyVisible: Bool, useMaximumNumberOfLines: Bool) -> NSUIBezierPath
-    
-    func isLocationInsideText(_ location: CGPoint) -> Bool
-}
+public protocol TextProvider: NSUIView { }
 
-extension NSUITextField: TextLineProvider, TextLineProviderImplementation { }
-extension NSUITextView: TextLineProvider, TextLineProviderImplementation { }
+extension NSUITextField: TextProvider, TextProviderImplementation { }
+extension NSUITextView: TextProvider, TextProviderImplementation { }
 #if canImport(UIKit)
-extension UILabel: TextLineProvider, TextLineProviderImplementation { }
+extension UILabel: TextProvider, TextProviderImplementation { }
 #endif
 
-fileprivate protocol TextLineProviderImplementation {
+fileprivate protocol TextProviderImplementation {
     func layoutManager(onlyVisible: Bool, useMaximumNumberOfLines: Bool) -> NSLayoutManager
 }
 
-extension TextLineProvider {
+extension TextProvider {
     func layoutManager(onlyVisible: Bool = true, useMaximumNumberOfLines: Bool = true) -> NSLayoutManager {
-        (self as! TextLineProviderImplementation).layoutManager(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
+        (self as! TextProviderImplementation).layoutManager(onlyVisible: onlyVisible, useMaximumNumberOfLines: useMaximumNumberOfLines)
     }
 }
 
-public extension TextLineProvider {
+public extension TextProvider {
     /// A Boolean value indicating whether the specified location is inside the text.
     func isLocationInsideText(_ location: CGPoint) -> Bool {
         guard bounds.contains(location) else { return false }
