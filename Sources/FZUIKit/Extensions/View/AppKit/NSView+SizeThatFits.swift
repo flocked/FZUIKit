@@ -11,8 +11,6 @@ import AppKit
 import FZSwiftUtils
 
 public extension NSViewProtocol {
-    
-    
     func sizeThatFits(width: CGFloat) -> CGSize {
         sizeThatFits(in: CGSize(width, NSView.noIntrinsicMetric))
     }

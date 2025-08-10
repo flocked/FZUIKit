@@ -28,16 +28,9 @@ extension NSLayoutManager {
     /// Sets the text containers of the layout manager.
     @discardableResult
     public func textContainers(_ textContainers: [NSTextContainer]) -> Self {
-        textContainersWritable = textContainers
+        self.textContainers.forEach({ removeTextContainer($0) })
+        textContainers.forEach({ addTextContainer($0) })
         return self
-    }
-    
-    fileprivate var textContainersWritable: [NSTextContainer] {
-        get { textContainers }
-        set {
-            textContainers.forEach({ removeTextContainer($0) })
-            newValue.forEach({ addTextContainer($0) })
-        }
     }
     
     /// The bounding rectangle of the specified string.
@@ -88,7 +81,7 @@ extension NSLayoutManager {
     }
     
     /// The text lines in the layout manager.
-    func textLines(includeCharacters: Bool = false) -> [TextLine] {
+    public func textLines(includeCharacters: Bool = false) -> [TextLine] {
         guard let textContainer = textContainers.first else { return [] }
         return textLines(glyphRange: glyphRange(for: textContainer), includeCharacters: includeCharacters)
     }
@@ -98,7 +91,7 @@ extension NSLayoutManager {
      
      - Parameter range: The range for the text lines.
      */
-    func textLines(for range: NSRange, includeCharacters: Bool = false) -> [TextLine] {
+    public func textLines(for range: NSRange, includeCharacters: Bool = false) -> [TextLine] {
         textLines(glyphRange: glyphRange(forCharacterRange: range, actualCharacterRange: nil), includeCharacters: includeCharacters)
     }
     
@@ -107,7 +100,7 @@ extension NSLayoutManager {
      
      - Parameter bounds: The bounding rectangle for which to return text lines.
      */
-    func textLines(forBoundingRect bounds: CGRect, includeCharacters: Bool = false) -> [TextLine] {
+    public func textLines(forBoundingRect bounds: CGRect, includeCharacters: Bool = false) -> [TextLine] {
         guard let textContainer = textContainers.first else { return [] }
         return textLines(glyphRange: glyphRange(forBoundingRect: bounds, in: textContainer), includeCharacters: includeCharacters)
     }
@@ -117,7 +110,7 @@ extension NSLayoutManager {
      
      - Parameter string: The string for the text lines.
      */
-    func textLines(for string: String, includeCharacters: Bool = false) -> [TextLine] {
+    public func textLines(for string: String, includeCharacters: Bool = false) -> [TextLine] {
         guard let textStorage = textStorage, let range = textStorage.string.range(of: string) else { return [] }
         return textLines(for: range, includeCharacters: includeCharacters)
     }
@@ -127,7 +120,7 @@ extension NSLayoutManager {
      
      - Parameter range: The range for the text lines.
      */
-    func textLines(for range: Range<String.Index>, includeCharacters: Bool = false) -> [TextLine] {
+    public func textLines(for range: Range<String.Index>, includeCharacters: Bool = false) -> [TextLine] {
         guard let textStorage = textStorage else { return [] }
         let range = range.clamped(to: textStorage.string.startIndex..<textStorage.string.endIndex)
         return textLines(for: NSRange(range, in: textStorage.string), includeCharacters: includeCharacters)
@@ -156,17 +149,17 @@ extension NSLayoutManager {
     }
     
     /// The bezier path of the text in the layout manager.
-    func textBezierPath() -> NSUIBezierPath {
+    public func textBezierPath() -> NSUIBezierPath {
         characterBezierPaths().combined()
     }
     
     /// The bezier paths of the text lines in the layout manager.
-    internal func textLineBezierPaths() -> [NSUIBezierPath] {
+    public func textLineBezierPaths() -> [NSUIBezierPath] {
         characterBezierPathsByLine().map({ $0.combined() })
     }
     
     /// The bezier paths of the characters in the text of the layout manager.
-    internal func characterBezierPaths() -> [NSUIBezierPath] {
+    public func characterBezierPaths() -> [NSUIBezierPath] {
         characterBezierPathsByLine().flatMap({ $0 })
     }
 
@@ -183,6 +176,7 @@ extension NSLayoutManager {
                 var frame = self.boundingRect(forGlyphAt: glyphIndex)
                 frame.origin.y = height - frame.y - frame.height + padding + self.textOffset.y
                 frame.origin.x += self.textOffset.x
+                guard CGRect(.zero, textContainer.size).intersects(frame) else { return nil }
                 return NSUIBezierPath(glyph: self.cgGlyph(at: glyphIndex), font: font, location: frame.origin)
             })
         }
@@ -190,7 +184,7 @@ extension NSLayoutManager {
     }
     
     /// A Boolean value indicating whether the specified location is inside the text of text field.
-    func isLocationInsideText(_ location: CGPoint) -> Bool {
+    public func isLocationInsideText(_ location: CGPoint) -> Bool {
         guard let textContainer = textContainers.first else { return false }
         let glyphIndex = glyphIndex(for: location, in: textContainer)
         return boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: textContainer).contains(location)
@@ -202,7 +196,7 @@ extension NSLayoutManager {
     }
 }
 
-extension NSAttributedString {
+fileprivate extension NSAttributedString {
     func allAttributeValues(for attrName: NSAttributedString.Key, range: NSRange? = nil) -> [(range: NSRange, value: Any?)] {
         var result: [(range: NSRange, value: Any?)] = []
         let fullRange = range ?? NSRange(location: 0, length: length)

@@ -14,15 +14,15 @@ extension NSTextField {
     /**
      A Boolean value that determines whether the text field reduces the text’s font size to fit the title string into the text field’s bounding rectangle.
 
-     Normally, the text field draws the text with the font you specify in the `font` property. If this property is true, and the text in the `stringValue` property exceeds the text field’s bounding rectangle, the text field reduces the font size until the text fits or it has scaled the font down to the minimum font size. The default value for this property is `false`. If you change it to `true`, be sure that you also set an appropriate minimum font scale by modifying the ``AppKit/NSTextField/adjustsFontSizeToFitWidth`` property. This autoshrinking behavior is only intended for use with a single-line text field.
+     Normally, the text field draws the text with the font you specify in the `font` property. If this property is `true`, and the text in the `stringValue` property exceeds the text field’s bounding rectangle, the text field reduces the font size until the text fits or it has scaled the font down to the minimum font size.
+     
+     The default value for this property is `false`. If you change it to `true`, be sure that you also set an appropriate minimum font scale by modifying the ``AppKit/NSTextField/adjustsFontSizeToFitWidth`` property. This autoshrinking behavior is only intended for use with a single-line text field.
 
      - Note: If you you set this property to `true`, ``automaticallyResizesToFit`` is set to `false`.
-     - Note: This property isn't working with `NSSearchField`.
      */
     public var adjustsFontSizeToFitWidth: Bool {
         get { getAssociatedValue("adjustsFontSizeToFitWidth", initialValue: false) }
         set {
-            guard !(self is NSSearchField) else { return }
             guard newValue != adjustsFontSizeToFitWidth else { return }
             setAssociatedValue(newValue, key: "adjustsFontSizeToFitWidth")
             setupFontAdjustment()
@@ -37,13 +37,10 @@ extension NSTextField {
      The minimum scale factor for the text field’s text.
 
      If the ``adjustsFontSizeToFitWidth`` is `true`, use this property to specify the smallest multiplier for the current font size that yields an acceptable font size for the text field’s text. If you specify a value of `0` for this property, the text field doesn’t scale the text down. The default value of this property is `0`.
-
-     - Note: This property isn't working with `NSSearchField`.
      */
     public var minimumScaleFactor: CGFloat {
         get { getAssociatedValue("minimumScaleFactor", initialValue: 0.0) }
         set {
-            guard !(self is NSSearchField) else { return }
             let newValue = newValue.clamped(to: 0.0...1.0)
             guard newValue != minimumScaleFactor else { return }
             setAssociatedValue(newValue, key: "minimumScaleFactor")

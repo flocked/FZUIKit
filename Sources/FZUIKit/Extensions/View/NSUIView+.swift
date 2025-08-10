@@ -625,6 +625,75 @@ extension NSUIView {
         guard depth >= 0 else { return }
         printHierarchy(level: 0, depth: depth, predicate: predicate, includeDetails: includeDetails)
     }
+    
+    /**
+     A Boolean value indicating whether the view is effectively visible within its window.
+
+     This property does not check if the window itself is visible or onscreen. It only determines whether the view is visible within the window.
+
+     The visibility determination considers the following factors:
+     - The view must be associated with a `window`.
+     - The view's `isHidden` must be `false`.
+     - The view's `alphaValue` must be larger than `0.0`.
+     - The view's `visibleRect` must not be empty.
+     - If the view has a layer, the layer's `isHidden` must be `false` and `opacity` must be larger than `0.0`.
+     - All of the view's superviews in the hierarchy must also be effectively visible.
+     */
+    @objc open var isVisible: Bool {
+        window != nil && isVisibleInHierarchy
+    }
+
+    private var isVisibleInHierarchy: Bool {
+        #if os(macOS)
+        !isHidden && alphaValue > 0.0 && !bounds.isEmpty && layer?.isVisible ?? true && isVisibleInSuperview
+        #else
+        !isHidden && alpha > 0.0 && !bounds.isEmpty && layer.isVisible && isVisibleInSuperview
+        #endif
+    }
+
+    private var isVisibleInSuperview: Bool {
+        guard let superview = superview else { return true }
+        return !frame.intersection(superview.bounds).isEmpty && superview.isVisibleInHierarchy
+    }
+    
+    /**
+     Resizes and repositions the view to it's superview using the specified scale.
+
+     - Parameter option: The option for resizing and repositioning the view.
+     */
+    @objc open func resizeAndRepositionInSuperview(using option: CALayerContentsGravity) {
+        guard let superview = superview else { return }
+        switch option {
+        case .resize:
+            frame.size = superview.bounds.size
+        case .resizeAspect:
+            frame.size = frame.size.scaled(toFit: superview.bounds.size)
+        case .resizeAspectFill:
+            frame.size = frame.size.scaled(toFill: superview.bounds.size)
+        default:
+            break
+        }
+        switch option {
+        case .bottom:
+            frame.bottom = superview.bounds.bottom
+        case .bottomLeft:
+            frame.origin = .zero
+        case .bottomRight:
+            frame.bottomRight = superview.bounds.bottomRight
+        case .left:
+            frame.left = superview.bounds.left
+        case .right:
+            frame.right = superview.bounds.right
+        case .topLeft:
+            frame.topLeft = superview.bounds.topLeft
+        case .top:
+            frame.top = superview.bounds.top
+        case .topRight:
+            frame.topRight = superview.bounds.topRight
+        default:
+            center = superview.bounds.center
+        }
+    }
 
     private func printHierarchy(level: Int, depth: Int, predicate: (NSUIView) -> Bool, includeDetails: Bool) {
         let string = includeDetails ? "\(self)" : "\(type(of: self))"
@@ -702,6 +771,12 @@ fileprivate extension [Gradient.ColorStop] {
             to += self[safe: stops.count...].map({ $0.transparent })
         }
         return (from, to)
+    }
+}
+
+fileprivate extension CALayer {
+    var isVisible: Bool {
+        !isHidden && opacity > 0.0
     }
 }
 #endif

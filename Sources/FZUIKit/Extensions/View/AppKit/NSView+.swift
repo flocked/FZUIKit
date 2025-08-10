@@ -330,7 +330,7 @@ extension NSView {
 
      Using this property turns the view into a layer-backed view.
 
-     The default value is `all`, which results in a view with all corners rounded to the value specified at ``cornerRadius``.
+     The default value is `all`, which results in a view with all corners rounded to the radius specified at ``cornerRadius``.
      */
     @objc open var roundedCorners: CACornerMask {
         get { layer?.maskedCorners.toAll ?? .all }
@@ -559,71 +559,6 @@ extension NSView {
         nextResponder as? NSViewController ?? (nextResponder as? NSView)?.parentController
     }
 
-    /**
-     A Boolean value indicating whether the view is effectively visible within its window.
-
-     This property does not check if the window itself is visible or onscreen. It only determines whether the view is visible within the window.
-
-     The visibility determination considers the following factors:
-     - The view must be associated with a `window`.
-     - The view's `isHidden` must be `false`.
-     - The view's `alphaValue` must be larger than `0.0`.
-     - The view's `visibleRect` must not be empty.
-     - If the view has a layer, the layer's `isHidden` must be `false` and `opacity` must be larger than `0.0`.
-     - All of the view's superviews in the hierarchy must also be effectively visible.
-     */
-    @objc open var isVisible: Bool {
-        window != nil && isVisibleInHierarchy
-    }
-
-    private var isVisibleInHierarchy: Bool {
-        !isHidden && alphaValue > 0.0 && !bounds.isEmpty && layer?.isVisible ?? true && isVisibleInSuperview
-    }
-
-    private var isVisibleInSuperview: Bool {
-        guard let superview = superview else { return true }
-        return !frame.intersection(superview.bounds).isEmpty && superview.isVisibleInHierarchy
-    }
-
-    /**
-     Resizes and repositions the view to it's superview using the specified scale.
-
-     - Parameter option: The option for resizing and repositioning the view.
-     */
-    @objc open func resizeAndRepositionInSuperview(using option: CALayerContentsGravity) {
-        guard let superview = superview else { return }
-        switch option {
-        case .resize:
-            frame.size = superview.bounds.size
-        case .resizeAspect:
-            frame.size = frame.size.scaled(toFit: superview.bounds.size)
-        case .resizeAspectFill:
-            frame.size = frame.size.scaled(toFill: superview.bounds.size)
-        default:
-            break
-        }
-        switch option {
-        case .bottom:
-            frame.bottom = superview.bounds.bottom
-        case .bottomLeft:
-            frame.origin = .zero
-        case .bottomRight:
-            frame.bottomRight = superview.bounds.bottomRight
-        case .left:
-            frame.left = superview.bounds.left
-        case .right:
-            frame.right = superview.bounds.right
-        case .topLeft:
-            frame.topLeft = superview.bounds.topLeft
-        case .top:
-            frame.top = superview.bounds.top
-        case .topRight:
-            frame.topRight = superview.bounds.topRight
-        default:
-            center = superview.bounds.center
-        }
-    }
-
     /// Sets the text for the view’s tooltip.
     @discardableResult
     @objc open func toolTip(_ toolTip: String?) -> Self {
@@ -746,13 +681,28 @@ public extension NSView.AutoresizingMask {
     static let all: NSView.AutoresizingMask = [.height, .width, .minYMargin, .minXMargin, .maxXMargin, .maxYMargin]
 }
 
-fileprivate extension CALayer {
-    var isVisible: Bool {
-        !isHidden && opacity > 0.0
-    }
-}
-
 extension NSViewProtocol {
+    /**
+     The background color of the view.
+     
+     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     */
+    public var backgroundColor: NSColor? {
+        get { layer?.configurations.backgroundColor }
+        set { optionalLayer?.configurations.backgroundColor = newValue }
+    }
+    
+    /**
+     Sets the background color of the view.
+     
+     Using this property turns the view into a layer-backed view.
+     */
+    @discardableResult
+    public func backgroundColor(_ color: NSUIColor?) -> Self {
+        backgroundColor = color
+        return self
+    }
+    
     /// Scrolls the enclosing scroll view to the top.
     public func scrollToTop() {
         enclosingScrollView?.animator(isProxy()).scrollToTop()
@@ -771,31 +721,6 @@ extension NSViewProtocol {
     /// Scrolls the enclosing scroll view to the right.
     public func scrollToRight() {
         enclosingScrollView?.animator(isProxy()).scrollToRight()
-    }
-}
-
-fileprivate extension BorderConfiguration {
-    var values: [Any] {
-        get { [width, color as Any, dash.phase, dash.pattern, insets.top, insets.leading, insets.bottom, insets.trailing] }
-        set {
-            width = newValue[0] as! CGFloat
-            color = newValue[1] as? NSColor
-            dash.phase = newValue[2] as! CGFloat
-            dash.pattern = newValue[3] as! [CGFloat]
-            insets = .init(top: newValue[4] as! CGFloat, leading: newValue[5] as! CGFloat, bottom: newValue[6] as! CGFloat, trailing: newValue[7] as! CGFloat)
-        }
-    }
-}
-
-fileprivate extension ShadowConfiguration {
-    var values: [Any] {
-        get { [offset.x, offset.y, opacity, radius, color as Any] }
-        set {
-            offset = .init(newValue[0] as! CGFloat, newValue[1] as! CGFloat)
-            opacity = newValue[2] as! CGFloat
-            radius = newValue[3] as! CGFloat
-            color = newValue[4] as? NSColor
-        }
     }
 }
 

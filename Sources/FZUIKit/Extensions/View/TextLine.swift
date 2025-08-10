@@ -13,35 +13,6 @@ import UIKit
 #endif
 import FZSwiftUtils
 
-/*
-/// A representation of a text line.
-public struct TextLine {
-    /// The frame of the text line.
-    public let frame: CGRect
-    
-    /// The text of the line.
-    public let text: String
-    
-    /// The frame of the text.
-    public let textFrame: CGRect
-    
-    /// The range of the text.
-    public let textRange: NSRange
-    
-    /// The frames of each character in the line.
-    public let characterFrames: [CGRect]
-    
-    init?(frame: CGRect, textFrame: CGRect, text: String, range: NSRange, characterFrames: [CGRect] = []) {
-        guard frame != .zero else { return nil }
-        self.frame = frame
-        self.textFrame = textFrame
-        self.text = text
-        self.textRange = range
-        self.characterFrames = characterFrames
-    }
-}
-*/
-
 /// A representation of a text line.
 public struct TextLine {
     /// The frame of the text line.
@@ -74,13 +45,13 @@ public struct TextLine {
     /// A character in a text line.
     public struct LineCharacter {
         /// The character.
-        let character: Character
+        public let character: Character
         /// The frame of the character.
-        let frame: CGRect
+        public let frame: CGRect
         /// The bezier path of the character.
-        let bezierPath: NSUIBezierPath
+        public let bezierPath: NSUIBezierPath
         /// The range of the character.
-        let range: NSRange
+        public let range: NSRange
         
         init(_ character: Character, frame: CGRect, bezierPath: NSUIBezierPath, index: Int) {
             self.character = character

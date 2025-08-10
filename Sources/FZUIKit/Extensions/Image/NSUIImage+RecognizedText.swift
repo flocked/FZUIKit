@@ -45,7 +45,6 @@ public extension CGImage {
                 completion(.failure(error ?? NSUIImage.TextRecognizionErrors.unableToRecognizeText))
             }
         }
-
         do {
             try requestHandler.perform([request])
         } catch {

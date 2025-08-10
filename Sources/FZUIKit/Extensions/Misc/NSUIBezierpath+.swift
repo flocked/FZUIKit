@@ -167,7 +167,7 @@ public extension NSBezierPath {
      */
     @available(macOS 11.0, *)
     private convenience init?(symbolName: String, symbolConfiguration: NSImage.SymbolConfiguration) {
-        guard let representation = NSImage(systemSymbolName: symbolName)?.withSymbolConfiguration(symbolConfiguration)?.representations.first, representation.responds(to: NSSelectorFromString("outlinePath")), let path = representation.value(forKeySafely: "outlinePath") as? NSBezierPath else { return nil }
+        guard let representation = NSImage(systemSymbolName: symbolName)?.withSymbolConfiguration(symbolConfiguration)?.representations.first, let path = representation.value(forKeySafely: "outlinePath") as? NSBezierPath else { return nil }
         self.init(cgPath: path.cgPath)
     }
 

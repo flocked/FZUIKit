@@ -498,21 +498,10 @@ extension NSTextField {
     class DoubleClickEditGestureRecognizer: NSGestureRecognizer {
         var isSelectableEditableState: (isSelectable: Bool, isEditable: Bool)?
         var observation: KeyValueObservation?
-        var textField: NSTextField? {
-            view as? NSTextField
-        }
             
         init(_ view: NSTextField) {
             super.init(target: nil, action: nil)
             reattachesAutomatically = true
-            observation = view.observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
-                guard let self = self, let view = self.textField else { return }
-                if let isSelectableEditableState = self.isSelectableEditableState, !view.isFirstResponder {
-                    view.isSelectable = isSelectableEditableState.isSelectable
-                    view.isEditable = isSelectableEditableState.isEditable
-                    self.isSelectableEditableState = nil
-                }
-            }
         }
             
         required init?(coder: NSCoder) {
@@ -520,21 +509,21 @@ extension NSTextField {
         }
             
         override func mouseDown(with event: NSEvent) {
-            if let textField = textField, !textField.isEditable, event.clickCount == 2, !textField.isFirstResponder {
+            if let textField = view as? NSTextField, !textField.isEditable, event.clickCount == 2, !textField.isFirstResponder {
                 isSelectableEditableState = (textField.isSelectable, textField.isEditable)
                 textField.isSelectable = true
                 textField.isEditable = true
                 textField.makeFirstResponder()
-                /*
-                 guard let editor = textField.currentEditor() as? NSTextView else { return }
-                 let localPoint = textField.convert(event.location(in: textField), to: editor)
-                 let charIndex = editor.characterIndexForInsertion(at: localPoint)
-                 let range = NSRange(location: charIndex, length: 0)
-                 let current = editor.selectedRange
-                 editor.selectedRange = range
-                  */
+                observation = textField.observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
+                    guard let self = self, let view = self.view as? NSTextField else { return }
+                    if let isSelectableEditableState = self.isSelectableEditableState, !view.isFirstResponder {
+                        view.isSelectable = isSelectableEditableState.isSelectable
+                        view.isEditable = isSelectableEditableState.isEditable
+                        self.isSelectableEditableState = nil
+                        self.observation = nil
+                    }
+                }
             }
-            super.mouseDown(with: event)
         }
     }
 }

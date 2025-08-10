@@ -63,10 +63,11 @@ public extension NSUIImage {
     /// The symbol name of the image.
     @available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
     var symbolName: String? {
+        guard isSymbolImage else { return nil }
         #if os(macOS)
-        getAssociatedValue("symbolName", initialValue: String(describing: self).matches(between: "symbol = ", and: ">").first?.string)
+        return representations.first?.value(forKeyPathSafely: "vectorGlyph.name") as? String
         #else
-        getAssociatedValue("symbolName", initialValue: String(describing: self).matches(between: "system: ", and: ") {").first?.string)
+        return value(forKeyPathSafely: "content.vectorGlyph.name") as? String
         #endif
     }
 
