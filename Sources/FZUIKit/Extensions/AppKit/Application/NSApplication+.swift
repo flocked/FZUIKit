@@ -86,6 +86,38 @@ public extension NSApplication {
             }
         }
     }
+    
+    /// The handler that provides the dock menu.
+    var menuProvider: (()->(NSMenu?))? {
+        get { getAssociatedValue("menuProvider") }
+        set {
+            guard let delegate = delegate as? NSObject else { return }
+            setAssociatedValue(newValue, key: "menuProvider")
+            try? menuProviderHook?.revert()
+            menuProviderHook = nil
+            guard let newValue = newValue else { return }
+            do {
+                if delegate.responds(to: #selector(NSApplicationDelegate.applicationDockMenu(_:))) {
+                    menuProviderHook = try delegate.hook(#selector(NSApplicationDelegate.applicationDockMenu(_:)), closure: {
+                        original, object, selector, application in
+                        newValue() ?? original(object, selector, application)
+                    } as @convention(block) ((AnyObject, Selector, NSApplication) -> NSMenu?, AnyObject, Selector, NSApplication) -> NSMenu?)
+                } else {
+                    menuProviderHook = try delegate.addMethod(#selector(NSApplicationDelegate.applicationDockMenu(_:)), closure: {
+                        object, application in
+                        newValue()
+                    } as @convention(block) (AnyObject, NSApplication) -> NSMenu?)
+                }
+            } catch {
+                Swift.print(error)
+            }
+        }
+    }
+    
+    private var menuProviderHook: Hook? {
+        get { getAssociatedValue("menuProviderHook") }
+        set { setAssociatedValue(newValue, key: "menuProviderHook") }
+    }
         
     /// Handlers for the application.
     struct Handlers {
@@ -102,7 +134,6 @@ public extension NSApplication {
         get { getAssociatedValue("handlers", initialValue: Handlers()) }
         set {
             setAssociatedValue(newValue, key: "handlers")
-   
             if let isHidden = newValue.isHidden {
                 notificationTokens[NSApplication.didHideNotification] = NotificationCenter.default.observe(NSApplication.didHideNotification) { _ in
                     isHidden(true)

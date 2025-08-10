@@ -21,8 +21,8 @@ public enum LaunchAtLogin {
 	public static var isEnabled: Bool {
 		get { SMAppService.mainApp.status == .enabled }
 		set {
+            guard newValue != isEnabled else { return }
 			observable.objectWillChange.send()
-
 			do {
 				if newValue {
 					if SMAppService.mainApp.status == .enabled {

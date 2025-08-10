@@ -17,6 +17,7 @@ open class ContentConfigurationView: NSView {
     private var trackingArea: TrackingArea?
     private var firstResponderObservation: KeyValueObservation?
     private var appearanceObservation: KeyValueObservation?
+    private var _isDescendantFirstResponder = false
 
     /**
      Creates a content configuration view with the specified configuration.
@@ -145,17 +146,11 @@ open class ContentConfigurationView: NSView {
     /// The active state of the view.
     private var activeState: NSViewConfigurationState.ActiveState {
         if isObserving {
-            return isActive ? _isDescendantFirstResponder ? .focused : .active : .inactive
+            return window?.isKeyWindow == true ? _isDescendantFirstResponder ? .focused : .active : .inactive
         }
-        return isActive ? isDescendantFirstResponder ? .focused : .active : .inactive
+        return window?.isKeyWindow == true ? isDescendantFirstResponder ? .focused : .active : .inactive
     }
-    
-    private var isActive: Bool {
-        window?.isKeyWindow ?? false
-    }
-    
-    private var _isDescendantFirstResponder = false
-    
+
     /**
      The hovering state of the view.
 
@@ -222,7 +217,7 @@ open class ContentConfigurationView: NSView {
                 let isFirstResponder = self.isDescendantFirstResponder
                 guard self._isDescendantFirstResponder != isFirstResponder else { return }
                 self._isDescendantFirstResponder = isFirstResponder
-                guard self.isActive else { return }
+                guard self.window?.isKeyWindow == true else { return }
                 setNeedsAutomaticUpdateConfiguration()
             }
             appearanceObservation = observeChanges(for: \.effectiveAppearance) { [weak self] _, _ in
@@ -231,17 +226,17 @@ open class ContentConfigurationView: NSView {
         }
     }
     
-    public override func updateTrackingAreas() {
+    open override func updateTrackingAreas() {
         super.updateTrackingAreas()
         trackingArea?.update()
     }
     
-    public override func mouseEntered(with event: NSEvent) {
+    open override func mouseEntered(with event: NSEvent) {
         super.mouseEntered(with: event)
         isHovered = true
     }
     
-    public override func mouseExited(with event: NSEvent) {
+    open override func mouseExited(with event: NSEvent) {
         super.mouseExited(with: event)
         isHovered = false
     }
