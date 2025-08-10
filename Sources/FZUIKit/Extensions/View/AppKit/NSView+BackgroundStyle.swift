@@ -13,10 +13,10 @@ import SwiftUI
 public extension NSControl {
     /**
      The background style of the control.
-     
-     The background style describes the surface the view is drawn onto in the draw(withFrame:in:) method. A control may draw differently based on background characteristics. For example, a text cell might decide to render its text white, if the backgroundStyle is `emphasized`. A rating-style level indicator might draw its stars white instead of gray.
+          
+     The background style describes the surface the view is drawn onto in the [draw(withFrame:in:)](https://developer.apple.com/documentation/appkit/nscell/draw(withframe:in:)) method. A control may draw differently based on background characteristics. For example, a text cell might decide to render its text white, if the backgroundStyle is [emphasized](https://developer.apple.com/documentation/appkit/nsview/backgroundstyle/emphasized). A rating-style level indicator might draw its stars white instead of gray.
      */
-    var backgroundStyle: NSView.BackgroundStyle {
+    var backgroundStyle: BackgroundStyle {
         get { cell?.backgroundStyle ?? .normal }
         set { cell?.backgroundStyle = newValue }
     }
@@ -26,11 +26,11 @@ extension NSView {
     /**
      Updates the background style of the view and all nested subviews to the specified style.
      
-     It updates the background style of `NSControl`, `NSTableCellView` and all views that implement ``setBackgroundStyle(_:)``.
+     It updates the background style of [NSControl](https://developer.apple.com/documentation/appkit/nscontrol), [NSTableCellView](https://developer.apple.com/documentation/appkit/nstablecellview) and all views that implement ``setBackgroundStyle(_:)``.
           
      - Parameter backgroundStyle: The background style to apply.
      */
-    @objc open func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
+    @objc open func setBackgroundStyle(_ backgroundStyle: BackgroundStyle) {
         if let view = self as? NSTableCellView {
             view.backgroundStyle = backgroundStyle
         } else {
@@ -38,15 +38,16 @@ extension NSView {
             if #available(macOS 12.0, *), let view = self as? NSImageView {
                 view.updateSymbolConfiguration()
             }
-            subviews.forEach({  $0.setBackgroundStyle(backgroundStyle)  })
+            subviews.forEach({ $0.setBackgroundStyle(backgroundStyle) })
             /*
             let selector = NSSelectorFromString("_setBackgroundStyleForSubtree:")
-            guard let method = Self.instanceMethod(for: selector) else { return }
-            subviews.forEach({
-                if $0.responds(to: selector) {
-                    unsafeBitCast(method, to: (@convention(c) (AnyObject, Selector, BackgroundStyle) -> ()).self)($0, selector, backgroundStyle)
+            for subview in subviews {
+                if subview.responds(to: selector), let method = class_getInstanceMethod(object_getClass(subview), selector) {
+                    typealias ClosureType = @convention(c) (AnyObject, Selector, BackgroundStyle) -> Void
+                    let function = unsafeBitCast(method_getImplementation(method), to: ClosureType.self)
+                    function(subview, selector, backgroundStyle)
                 }
-            })
+            }
              */
         }
     }
