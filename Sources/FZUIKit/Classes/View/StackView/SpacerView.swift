@@ -160,7 +160,7 @@ fileprivate extension NSUIStackView {
             #else
             let selector = #selector(setter: UIStackView.axis)
             #endif
-            try hook(selector, closure: { original, object, selector, orientation in
+            orientationHook = try hook(selector, closure: { original, object, selector, orientation in
                 let oldValue = object.orientation
                 original(object, selector, orientation)
                 guard orientation != oldValue else { return }
