@@ -51,7 +51,7 @@ extension NSView {
                         }
                         if let hitView = view.hitTest(_location), hitView !== view {
                             if let textProvider = hitView as? TextProvider {
-                                if textProvider.isLocationInsideText(view.convert(location, to: hitView)) {
+                                if textProvider.isLocationOnText(view.convert(location, to: hitView)) {
                                     return nil
                                 }
                             } else {

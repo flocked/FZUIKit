@@ -26,10 +26,10 @@ fileprivate protocol TextProviderImplementation: TextProvider {
 }
 
 public extension TextProvider {
-    /// A Boolean value indicating whether the specified location is inside the text.
-    func isLocationInsideText(_ location: CGPoint) -> Bool {
+    /// A Boolean value indicating whether the specified location lies on or inside the text.
+    func isLocationOnText(_ location: CGPoint) -> Bool {
         guard bounds.contains(location) else { return false }
-        return layoutManager().isLocationInsideText(location)
+        return layoutManager().isLocationOnText(location)
     }
     
     /// The number of visible lines.

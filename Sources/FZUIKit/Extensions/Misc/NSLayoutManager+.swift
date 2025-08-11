@@ -183,11 +183,11 @@ extension NSLayoutManager {
         return lines
     }
     
-    /// A Boolean value indicating whether the specified location is inside the text of text field.
-    public func isLocationInsideText(_ location: CGPoint) -> Bool {
-        guard let textContainer = textContainers.first else { return false }
+    /// A Boolean value indicating whether the specified location lies on or inside the text of the layout manager.
+    public func isLocationOnText(_ location: CGPoint, of textContainer: NSTextContainer? = nil) -> Bool {
+        guard let textContainer = textContainer ?? textContainers.first, textContainers.contains(textContainer) else { return false }
         let glyphIndex = glyphIndex(for: location, in: textContainer)
-        return boundingRect(forGlyphRange: NSRange(location: glyphIndex, length: 1), in: textContainer).contains(location)
+        return boundingRect(forGlyphAt: glyphIndex).contains(location)
     }
     
     var textOffset: CGPoint {
@@ -207,7 +207,6 @@ fileprivate extension NSAttributedString {
             result.append((effectiveRange, value))
             index = effectiveRange.upperBound
         }
-
         return result
     }
 }
