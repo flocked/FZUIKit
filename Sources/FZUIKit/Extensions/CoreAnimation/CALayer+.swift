@@ -627,8 +627,8 @@ extension CALayer {
                     let colors = layer.parentView?.dynamicColors.gradientColors ?? (layer.colors as? [CGColor])?.compactMap(\.nsUIColor) ?? []
                     let locations = layer.locations?.map { CGFloat($0.floatValue) } ?? []
                     _gradient?.stops = zip(colors, locations).map({ .init(color: $0.0, location: $0.1) })
-                    _gradient?.startPoint = .init(layer.startPoint)
-                    _gradient?.endPoint = .init(layer.endPoint)
+                    _gradient?.startPoint = .init(layer.startPoint.x, layer.startPoint.y)
+                    _gradient?.endPoint = .init(layer.endPoint.x, layer.endPoint.y)
                     _gradient?.type = .init(layer.type)
                 } else if let gradient = _gradient {
                     _gradient?.colors = layer.parentView?.dynamicColors.gradientColors ?? gradient.colors
@@ -1144,13 +1144,13 @@ fileprivate extension CAGradientLayer {
             let colors = (colors as? [CGColor])?.compactMap(\.nsUIColor) ?? []
             let locations = locations?.compactMap { CGFloat($0.floatValue) } ?? []
             let stops = zip(colors, locations).map({ Gradient.ColorStop(color: $0.0, location: $0.1) })
-            return Gradient(stops: stops, startPoint: .init(startPoint), endPoint: .init(endPoint), type: .init(type))
+            return Gradient(stops: stops, startPoint: .init(startPoint.x, startPoint.y), endPoint: .init(endPoint.x, endPoint.y), type: .init(type))
         }
         set {
             colors = newValue.stops.compactMap(\.color.cgColor)
             locations = newValue.stops.compactMap { NSNumber($0.location) }
-            startPoint = newValue.startPoint.point
-            endPoint = newValue.endPoint.point
+            startPoint = .init(newValue.startPoint.x, newValue.startPoint.y)
+            endPoint = .init(newValue.endPoint.x, newValue.endPoint.y)
             type = newValue.type.gradientLayerType
         }
     }

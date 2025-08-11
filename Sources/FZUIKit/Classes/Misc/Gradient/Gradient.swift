@@ -12,6 +12,7 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import FZSwiftUtils
 
 /// A color gradient.
 public struct Gradient: Hashable {
@@ -19,10 +20,10 @@ public struct Gradient: Hashable {
     public var stops: [ColorStop] = []
     
     /// The start point of the gradient.
-    public var startPoint: Point = .top
+    public var startPoint: FractionalPoint = .top
     
     /// The end point of the gradient.
-    public var endPoint: Point = .bottom
+    public var endPoint: FractionalPoint = .bottom
     
     /// The type of gradient.
     public var type: GradientType = .linear
@@ -65,13 +66,13 @@ public struct Gradient: Hashable {
     
     /// Returns the gradient with the specified start point.
     @discardableResult
-    public func startPoint(_ startPoint: Point) -> Self {
+    public func startPoint(_ startPoint: FractionalPoint) -> Self {
         Self(stops: stops, startPoint: startPoint, endPoint: endPoint, type: type)
     }
     
     /// Returns the gradient with the specified end point.
     @discardableResult
-    public func endPoint(_ endPoint: Point) -> Self {
+    public func endPoint(_ endPoint: FractionalPoint) -> Self {
         Self(stops: stops, startPoint: startPoint, endPoint: endPoint, type: type)
     }
     
@@ -92,7 +93,7 @@ public struct Gradient: Hashable {
         - endPoint: The end point of the gradient.
         - type: The type of gradient.
      */
-    public init(colors: [NSUIColor], startPoint: Point = .top, endPoint: Point = .bottom, type: GradientType = .linear) {
+    public init(colors: [NSUIColor], startPoint: FractionalPoint = .top, endPoint: FractionalPoint = .bottom, type: GradientType = .linear) {
         stops = colors.stops
         self.startPoint = startPoint
         self.endPoint = endPoint
@@ -108,7 +109,7 @@ public struct Gradient: Hashable {
         - endPoint: The end point of the gradient.
         - type: The type of gradient.
      */
-    public init(stops: [ColorStop], startPoint: Point = .top, endPoint: Point = .bottom, type: GradientType = .linear) {
+    public init(stops: [ColorStop], startPoint: FractionalPoint = .top, endPoint: FractionalPoint = .bottom, type: GradientType = .linear) {
         self.stops = stops
         self.startPoint = startPoint
         self.endPoint = endPoint
@@ -119,12 +120,12 @@ public struct Gradient: Hashable {
      Returns a gradient for the specified preset.
      
      - Parameters:
-     - preset: The gradient preset.
+        - preset: The gradient preset.
         - startPoint: The start point of the gradient.
         - endPoint: The end point of the gradient.
         - type: The type of gradient.
      */
-    public init(preset: Preset, startPoint: Point = .top, endPoint: Point = .bottom, type: GradientType = .linear) {
+    public init(preset: Preset, startPoint: FractionalPoint = .top, endPoint: FractionalPoint = .bottom, type: GradientType = .linear) {
         stops = preset.colors.stops
         self.startPoint = startPoint
         self.endPoint = endPoint
@@ -132,47 +133,47 @@ public struct Gradient: Hashable {
     }
     
     /// A linear gradient with the specified colors.
-    public static func linear(_ colors: [NSUIColor], startPoint: Point = .top, endPoint: Point = .bottom) -> Self {
+    public static func linear(_ colors: [NSUIColor], startPoint: FractionalPoint = .top, endPoint: FractionalPoint = .bottom) -> Self {
         Self(colors: colors, startPoint: startPoint, endPoint: endPoint, type: .linear)
     }
     
     /// A linear gradient with the specified color stops.
-    public static func linear(_ stops: [ColorStop], startPoint: Point = .top, endPoint: Point = .bottom) -> Self {
+    public static func linear(_ stops: [ColorStop], startPoint: FractionalPoint = .top, endPoint: FractionalPoint = .bottom) -> Self {
         Self(stops: stops, startPoint: startPoint, endPoint: endPoint, type: .linear)
     }
     
     /// A linear gradient with the specified preset.
-    public static func linear(_ preset: Preset, startPoint: Point = .top, endPoint: Point = .bottom) -> Self {
+    public static func linear(_ preset: Preset, startPoint: FractionalPoint = .top, endPoint: FractionalPoint = .bottom) -> Self {
         Self(preset: preset, startPoint: startPoint, endPoint: endPoint, type: .linear)
     }
     
     /// A conic gradient with the specified colors.
-    public static func conic(_ colors: [NSUIColor], startPoint: Point = .top, endPoint: Point = .bottom) -> Self {
+    public static func conic(_ colors: [NSUIColor], startPoint: FractionalPoint = .top, endPoint: FractionalPoint = .bottom) -> Self {
         Self(colors: colors, startPoint: startPoint, endPoint: endPoint, type: .conic)
     }
     
     /// A conic gradient with the specified color stops.
-    public static func conic(_ stops: [ColorStop], startPoint: Point = .top, endPoint: Point = .bottom) -> Self {
+    public static func conic(_ stops: [ColorStop], startPoint: FractionalPoint = .top, endPoint: FractionalPoint = .bottom) -> Self {
         Self(stops: stops, startPoint: startPoint, endPoint: endPoint, type: .conic)
     }
     
     /// A conic gradient with the specified preset.
-    public static func conic(_ preset: Preset, startPoint: Point = .top, endPoint: Point = .bottom) -> Self {
+    public static func conic(_ preset: Preset, startPoint: FractionalPoint = .top, endPoint: FractionalPoint = .bottom) -> Self {
         Self(preset: preset, startPoint: startPoint, endPoint: endPoint, type: .conic)
     }
     
     /// A radial gradient with the specified colors.
-    public static func radial(_ colors: [NSUIColor], startPoint: Point = .top, endPoint: Point = .bottom) -> Self {
+    public static func radial(_ colors: [NSUIColor], startPoint: FractionalPoint = .top, endPoint: FractionalPoint = .bottom) -> Self {
         Self(colors: colors, startPoint: startPoint, endPoint: endPoint, type: .radial)
     }
     
     /// A radial gradient with the specified color stops.
-    public static func radial(_ stops: [ColorStop], startPoint: Point = .top, endPoint: Point = .bottom) -> Self {
+    public static func radial(_ stops: [ColorStop], startPoint: FractionalPoint = .top, endPoint: FractionalPoint = .bottom) -> Self {
         Self(stops: stops, startPoint: startPoint, endPoint: endPoint, type: .radial)
     }
     
     /// A radial gradient with the specified preset.
-    public static func radial(_ preset: Preset, startPoint: Point = .top, endPoint: Point = .bottom) -> Self {
+    public static func radial(_ preset: Preset, startPoint: FractionalPoint = .top, endPoint: FractionalPoint = .bottom) -> Self {
         Self(preset: preset, startPoint: startPoint, endPoint: endPoint, type: .radial)
     }
     
@@ -246,63 +247,6 @@ public extension Gradient {
             self.color = color
             self.location = location
         }
-    }
-    
-    /// Point in a gradient.
-    struct Point: Hashable, CustomStringConvertible {
-        /// X.
-        public var x: CGFloat
-        /// Y.
-        public var y: CGFloat
-        
-        public var description: String {
-            "[x: \(x), y: \(y)]"
-        }
-        
-        public init(x: CGFloat, y: CGFloat) {
-            self.x = x
-            self.y = y
-        }
-        
-        public init(_ x: CGFloat, _ y: CGFloat) {
-            self.x = x
-            self.y = y
-        }
-        
-        public init(_ xy: CGFloat) {
-            self.x = xy
-            self.y = xy
-        }
-        
-        init(_ point: CGPoint) {
-            x = point.x
-            y = point.y
-        }
-        
-        var point: CGPoint {
-            CGPoint(x, y)
-        }
-        
-        public static var left = Point(x: 0.0, y: 0.5)
-        public static var center = Point(x: 0.5, y: 0.5)
-        public static var right = Point(x: 1.0, y: 0.5)
-        #if os(macOS)
-        public static var bottomLeft = Point(x: 0.0, y: 0.0)
-        public static var bottom = Point(x: 0.5, y: 0.0)
-        public static var bottomRight = Point(x: 1.0, y: 0.0)
-        
-        public static var topLeft = Point(x: 0.0, y: 1.0)
-        public static var top = Point(x: 0.5, y: 1.0)
-        public static var topRight = Point(x: 1.0, y: 1.0)
-        #else
-        public static var bottomLeft = Point(x: 0.0, y: 1.0)
-        public static var bottom = Point(x: 0.5, y: 1.0)
-        public static var bottomRight = Point(x: 1.0, y: 1.0)
-        
-        public static var topLeft = Point(x: 0.0, y: 0.0)
-        public static var top = Point(x: 0.5, y: 0.0)
-        public static var topRight = Point(x: 1.0, y: 0.0)
-        #endif
     }
 }
 

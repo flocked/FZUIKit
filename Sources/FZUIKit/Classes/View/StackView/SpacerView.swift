@@ -80,7 +80,7 @@ open class SpacerView: NSUIView {
         update()
     }
     
-    public override func layoutSubviews() {
+    open override func layoutSubviews() {
         super.layoutSubviews()
         guard let stackView = stackView, stackView.axis != orientation else { return }
         update()
