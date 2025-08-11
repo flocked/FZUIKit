@@ -47,7 +47,7 @@ extension NSMenuItem {
 }
 
 /// A keyboard shortcut.
-public struct KeyboardShortcut: Hashable, ExpressibleByStringLiteral, ExpressibleByNilLiteral, CustomStringConvertible {
+public struct KeyboardShortcut: Hashable, ExpressibleByStringLiteral, ExpressibleByNilLiteral, CustomStringConvertible, Codable {
     /// The key of the shortcut.
     public var key: Key?
     
@@ -361,7 +361,7 @@ public struct KeyboardShortcut: Hashable, ExpressibleByStringLiteral, Expressibl
 
 extension KeyboardShortcut {
     /// The key of a shortcut.
-    public struct Key: Hashable, ExpressibleByIntegerLiteral, CustomStringConvertible {
+    public struct Key: Hashable, ExpressibleByIntegerLiteral, CustomStringConvertible, Codable {
         /// The key code.
         public let rawValue: UInt16
         
