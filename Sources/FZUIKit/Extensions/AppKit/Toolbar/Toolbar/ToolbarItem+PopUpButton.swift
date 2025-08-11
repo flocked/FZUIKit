@@ -124,11 +124,12 @@ extension Toolbar {
         public var actionBlock: ((_ item: Toolbar.PopUpButton)->())? {
             didSet {
                 if let actionBlock = actionBlock {
-                    item.actionBlock = { _ in
+                    button.actionBlock = { [weak self] _ in
+                        guard let self = self else { return }
                         actionBlock(self)
                     }
                 } else {
-                    item.actionBlock = nil
+                    button.actionBlock = nil
                 }
             }
         }

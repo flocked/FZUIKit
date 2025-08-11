@@ -139,11 +139,12 @@ extension Toolbar {
         public var actionBlock: ((_ item: Toolbar.SegmentedControl)->())? {
             didSet {
                 if let actionBlock = actionBlock {
-                    item.actionBlock = { _ in
+                    segmentedControl.actionBlock = { [weak self] _ in
+                        guard let self = self else { return }
                         actionBlock(self)
                     }
                 } else {
-                    item.actionBlock = nil
+                    segmentedControl.actionBlock = nil
                 }
             }
         }
