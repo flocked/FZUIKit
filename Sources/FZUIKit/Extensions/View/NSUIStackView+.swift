@@ -14,54 +14,83 @@ import UIKit
 #endif
 
 extension NSUIStackView {
-    /// Reverses the order of the arranged subviews.
-    @objc open func reverseArrangedSubviews() {
-        let arrangedViews = arrangedSubviews.reversed()
-        for arrangedView in arrangedViews {
-            removeArrangedSubview(arrangedView)
-            addArrangedSubview(arrangedView)
-        }
+    /// Sets the distribution of the stack view.
+    @discardableResult
+    @objc open func distribution(_ distribution: Distribution) -> Self {
+        self.distribution = distribution
+        return self
     }
-
-    /// Removes all arranged subviews.
-    @objc open func removeAllArrangedSubviews() {
-        arrangedSubviews.forEach { self.removeArrangedSubview($0) }
+    
+    /// Sets the minimum spacing between adjacent views in the stack view.
+    @discardableResult
+    @objc open func spacing(_ spacing: CGFloat) -> Self {
+        self.spacing = spacing
+        return self
     }
-
-    /**
-     Adds the specified views to the end of the arranged subviews list.
-
-     - Parameter views: The views to add to the end of the arrangedSubviews array.
-     */
-    @objc open func addArrangedSubviews(_ views: [NSUIView]) {
-        views.forEach({ addArrangedSubview($0) })
+    
+    #if os(macOS)
+    /// Sets the horizontal or vertical layout direction of the stack view.
+    @discardableResult
+    @objc open func orientation(_ orientation: NSUserInterfaceLayoutOrientation) -> Self {
+        self.orientation = orientation
+        return self
     }
-
-    /**
-     Adds the provided views to the array of arranged subviews at the specified index.
-
-     - Parameters:
-        - views: The views to be added to the array of arranged views managed by the stack.
-        - index: The index where the stack inserts the new view in its `arrangedSubviews` array.
-     */
-    @objc open func insertArrangedSubviews(_ views: [NSUIView], at index: Int) {
-        guard index >= 0, index < arrangedSubviews.count else { return }
-        views.reversed().forEach({ insertArrangedSubview($0, at: index) })
+    
+    /// Sets the view alignment within the stack view.
+    @discardableResult
+    @objc open func alignment(_ alignment: NSLayoutConstraint.Attribute) -> Self {
+        self.alignment = alignment
+        return self
     }
-
-    /**
-     Removes the provided views from the stack’s array of arranged subviews.
-
-     - Parameter views: The views to be removed from the array of views arranged by the stack.
-     */
-    @objc open func removeArrangedSubviews(_ views: [NSUIView]) {
-        views.filter({arrangedSubviews.contains($0)}).forEach({ removeArrangedSubview($0) })
+    
+    /// Sets the geometric padding, inside the stack view, surrounding its views.
+    @discardableResult
+    @objc open func edgeInsets(_ insets: NSEdgeInsets) -> Self {
+        self.edgeInsets = insets
+        return self
     }
-
+    
+    /// Sets the Boolean value indicating whether the stack view removes hidden views from its view hierarchy.
+    @discardableResult
+    @objc open func detachesHiddenViews(_ detaches: Bool) -> Self {
+        self.detachesHiddenViews = detaches
+        return self
+    }
+    #else
+    /// Sets the axis along which the arranged views lay out.
+    @discardableResult
+    @objc open func axis(_ axis: NSLayoutConstraint.Axis) -> Self {
+        self.axis = axis
+        return self
+    }
+    
+    /// Sets the view alignment within the stack view.
+    @discardableResult
+    @objc open func alignment(_ alignment: Alignment) -> Self {
+        self.alignment = alignment
+        return self
+    }
+    
+    /// Sets the Boolean value that determines whether the stack view lays out its arranged views relative to its layout margins.
+    @discardableResult
+    @objc open func isLayoutMarginsRelativeArrangement(_ isLayoutMarginsRelativeArrangement: Bool) -> Self {
+        self.isLayoutMarginsRelativeArrangement = isLayoutMarginsRelativeArrangement
+        return self
+    }
+    
+    /// Sets the Boolean value that determines whether the vertical spacing between views is measured from their baselines.
+    @discardableResult
+    @objc open func isBaselineRelativeArrangement(_ isBaselineRelativeArrangement: Bool) -> Self {
+        self.isBaselineRelativeArrangement = isBaselineRelativeArrangement
+        return self
+    }
+    #endif
+    
     /// The array of views arranged by the stack view.
     @objc open var arrangedViews: [NSUIView] {
         get { arrangedSubviews }
         set {
+            let newValue = newValue.uniqued()
             guard newValue != arrangedSubviews else { return }
             newValue.difference(from: arrangedSubviews).forEach {
                 switch $0 {
@@ -87,9 +116,22 @@ extension NSUIStackView {
         arrangedViews = views()
         return self
     }
-}
 
-extension NSUIStackView {
+    /// Removes the custom spacing for all arranged subviews.
+    @objc open func removeCustomSpacings() -> Void {
+        arrangedSubviews.forEach({ removeCustomSpacing(after: $0) })
+    }
+
+    /// Removes the custom spacing for the specified arranged subview.
+    @objc open func removeCustomSpacing(after view: NSUIView) {
+        guard arrangedSubviews.contains(view) else { return }
+        #if os(macOS)
+        setCustomSpacing(NSStackView.useDefaultSpacing, after: view)
+        #else
+        setCustomSpacing(UIStackView.spacingUseDefault, after: view)
+        #endif
+    }
+
     #if os(macOS)
     /**
      Creates and returns a stack view with the specified views.
@@ -142,4 +184,73 @@ extension NSUIStackView {
         }
     }
 }
+
+#if os(macOS)
+extension NSStackView {
+    /// Sets the delegate object for the stack view.
+    @discardableResult
+    @objc open func delegate(_ delegate: NSStackViewDelegate?) -> Self {
+        self.delegate = delegate
+        return self
+    }
+    
+    /// The handlers of the stack view.
+    public var handlers: Handlers {
+        get { getAssociatedValue("handlers") ?? Handlers() }
+        set {
+            setAssociatedValue(newValue, key: "handlers")
+            if newValue.willDetach == nil && newValue.didReattach == nil {
+                handlersDelegate?.delegateObservation = nil
+                delegate = handlersDelegate?.delegate
+                handlersDelegate = nil
+            } else if handlersDelegate == nil {
+                handlersDelegate = .init(for: self)
+            }
+        }
+    }
+    
+    /// Handlers of a stack view.
+    public struct Handlers {
+        /// The handler that gets called when the stack view is about to automatically detach one or more of its views.
+        public var willDetach: (([NSUIView])->())?
+        
+        /// The handler that gets called when the stack view has automatically reattached one or more previously-detached views.
+        public var didReattach: (([NSUIView])->())?
+
+    }
+    
+    private var handlersDelegate: Delegate? {
+        get { getAssociatedValue("handlersDelegate") }
+        set { setAssociatedValue(newValue, key: "handlersDelegate") }
+    }
+    
+    private class Delegate: NSObject, NSStackViewDelegate {
+        var delegateObservation: KeyValueObservation?
+        weak var delegate: NSStackViewDelegate?
+        weak var stackView: NSUIStackView?
+        
+        func stackView(_ stackView: NSStackView, didReattach views: [NSView]) {
+            delegate?.stackView?(stackView, didReattach: views)
+            stackView.handlers.didReattach?(views)
+        }
+        
+        func stackView(_ stackView: NSStackView, willDetach views: [NSView]) {
+            delegate?.stackView?(stackView, willDetach: views)
+            stackView.handlers.willDetach?(views)
+        }
+        
+        init(for stackView: NSUIStackView) {
+            super.init()
+            delegate = stackView.delegate
+            self.stackView = stackView
+            stackView.delegate = self
+            delegateObservation = stackView.observeChanges(for: \.delegate) { [weak self] old, new in
+                guard let self = self, new !== self else { return }
+                self.delegate = new
+                self.stackView?.delegate = self
+            }
+        }
+    }
+}
+#endif
 #endif

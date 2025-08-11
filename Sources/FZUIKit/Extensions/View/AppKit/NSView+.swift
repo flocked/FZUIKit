@@ -98,6 +98,13 @@ extension NSView {
         set { optionalLayer?.maskShape = newValue }
     }
     
+    /// Sets the shape that is used for masking the view.
+    @discardableResult
+    public func maskShape(_ shape: (any Shape)?) -> Self {
+        self.maskShape = shape
+        return self
+    }
+    
     /**
      The view whose inverse alpha channel is used to mask a view’s content.
 
@@ -404,8 +411,16 @@ extension NSView {
         get { layer?.shadowShape }
         set { optionalLayer?.shadowShape = newValue }
     }
+    
+    /// Sets the shape of the shadow.
+    @discardableResult
+    public func shadowShape(_ shape: (any Shape)?) -> Self {
+        self.shadowShape = shape
+        return self
+    }
 
     func setupShadowShapeView() {
+        guard !(self is ShadowShapeView) else { return }
         if shadowShape == nil || maskShape == nil || !outerShadow.isVisible {
             shadowShapeView?.removeFromSuperview()
             shadowShapeView = nil
@@ -416,13 +431,14 @@ extension NSView {
         shadowShapeView?.shadowShape = shadowShape
     }
 
-    var shadowShapeView: ShadowShapeView? {
+    private var shadowShapeView: ShadowShapeView? {
         get { getAssociatedValue("shadowShapeView") }
         set { setAssociatedValue(newValue, key: "shadowShapeView") }
     }
 
-    class ShadowShapeView: NSUIView {
+    private class ShadowShapeView: NSUIView {
         var viewObservation: KeyValueObserver<NSUIView>?
+        var superviewObservation: KeyValueObservation?
         weak var view: NSUIView?
 
         init(for view: NSUIView) {
@@ -432,6 +448,7 @@ extension NSView {
             viewObservation?.add(\.superview) { [weak self] old, new in
                 guard let self = self else { return }
                 self.removeFromSuperview()
+                self.setupSuperviewObservation()
                 new?.addSubview(self, positioned: .below, relativeTo: self.view)
             }
             viewObservation?.add(\.isHidden) { [weak self] old, new in
@@ -450,6 +467,14 @@ extension NSView {
             isHidden = view.isHidden
             alphaValue = view.alphaValue
             view.superview?.addSubview(self, positioned: .below, relativeTo: view)
+            setupSuperviewObservation()
+        }
+        
+        private func setupSuperviewObservation() {
+            superviewObservation = view?.superview?.observeChanges(for: \.subviews) { [weak self] old, mew in
+                guard let self = self, let view = self.view, let superview = view.superview else { return }
+                superview.addSubview(self, positioned: .below, relativeTo: view)
+            }
         }
 
         required init?(coder: NSCoder) {

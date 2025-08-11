@@ -478,8 +478,8 @@ extension CALayer {
         set { (self as? CAGradientLayer ?? _gradientLayer)?.colors = newValue }
     }
     
-    var _gradientLayer: GradientLayer? {
-        firstSublayer(type: GradientLayer.self)
+    private var _gradientLayer: CAGradientLayer? {
+        firstSublayer(named: "_gradientLayer") as? CAGradientLayer
     }
     
     class Configurations {
@@ -643,13 +643,15 @@ extension CALayer {
                     if let layer = layer as? CAGradientLayer {
                         layer._gradient = newValue
                     } else {
-                        if layer._gradientLayer == nil {
-                            let gradientLayer = GradientLayer()
+                        if let gradientLayer = layer._gradientLayer {
+                            gradientLayer._gradient = newValue
+                        } else {
+                            let gradientLayer = CAGradientLayer().name("_gradientLayer")
                             layer.addSublayer(withConstraint: gradientLayer)
                             gradientLayer.sendToBack()
-                            gradientLayer.zPosition = -CGFloat(Float.greatestFiniteMagnitude)
+                            gradientLayer.zPosition = -CGFloat.greatestFiniteMagnitude
+                            gradientLayer._gradient = newValue
                         }
-                        layer._gradientLayer?._gradient = newValue
                     }
                 } else {
                     if let layer = layer as? CAGradientLayer {
@@ -796,12 +798,12 @@ extension CALayer {
         superLayerObservation = nil
     }
     
-    var superLayerObservation: KeyValueObservation? {
+    private var superLayerObservation: KeyValueObservation? {
         get { getAssociatedValue("superLayerObservation") }
         set { setAssociatedValue(newValue, key: "superLayerObservation") }
     }
     
-    var layerObserver: KeyValueObserver<CALayer>? {
+    private var layerObserver: KeyValueObserver<CALayer>? {
         get { getAssociatedValue("layerObserver") }
         set { setAssociatedValue(newValue, key: "layerObserver") }
     }
@@ -879,6 +881,18 @@ extension CALayer {
      */
     public func firstSublayer<V: CALayer>(type _: V.Type, depth: Int = 0) -> V? {
         firstSublayer(where: { $0 is V }, depth: depth) as? V
+    }
+    
+    /**
+     The first sublayer with the specified name.
+     
+     - Parameters:
+        - name: The name of layer to match.
+        - depth: The maximum depth. As example a value of `0` returns the first sublayer matching of the receiver's sublayers and a value of `1` returns the first sublayer matching of the receiver's sublayers or any of their sublayers. To return the first sublayer matching of all sublayers use `max`.
+     - Returns: The first sublayer that matches the specified name, or `nil` if no sublayer matches.
+     */
+    public func firstSublayer(named name: String, depth: Int = 0) -> CALayer? {
+        firstSublayer(where: { $0.name == name }, depth: depth)
     }
     
     /**

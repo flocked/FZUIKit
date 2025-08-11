@@ -25,6 +25,8 @@ open class SpacerView: NSUIView {
     private weak var stackView: NSUIStackView?
     fileprivate var orientation: NSUIUserInterfaceLayoutOrientation = .horizontal
     private var constraint: NSLayoutConstraint?
+    var observation: KeyValueObservation?
+    var arrangedViewsObservations: [ObjectIdentifier: KeyValueObservation] = [:]
     
     /// The length of the spacer.
     open var length: CGFloat? = nil {
@@ -52,6 +54,15 @@ open class SpacerView: NSUIView {
         constraint?.activate(false)
         stackView = newSuperview as? NSUIStackView
         stackView?.swizzleOrientation()
+        observation = stackView?.observeChanges(for: \.arrangedSubviews) { [weak self] old, new in
+            guard let self = self else { return }
+            for view in new {
+                self.arrangedViewsObservations[view.objectID] = view.observeChanges(for: \.isHidden) { old, new in
+                    
+                }
+            }
+            self.arrangedViewsObservations
+        }
         super.viewWillMove(toSuperview: newSuperview)
     }
     
@@ -149,6 +160,44 @@ open class SpacerView: NSUIView {
 }
 
 fileprivate extension NSUIStackView {
+    var arrangedSubviewsObservations: [ObjectIdentifier: KeyValueObservation] {
+        get { getAssociatedValue("arrangedSubviewsObservations") ?? [:] }
+        set { setAssociatedValue(newValue, key: "arrangedSubviewsObservations") }
+    }
+    
+    var arrangedSubviewsObservation: KeyValueObservation? {
+        get { getAssociatedValue("arrangedSubviewsObservation") }
+        set { setAssociatedValue(newValue, key: "arrangedSubviewsObservation") }
+    }
+    
+    func updateSpacerSpacing() {
+        for (index, view) in arrangedSubviews.indexed() {
+            #if os(macOS)
+            setCustomSpacing(arrangedSubviews[safe: index+1] is SpacerView ? 0.0 : NSUIStackView.useDefaultSpacing, after: view)
+            #else
+            setCustomSpacing(arrangedSubviews[safe: index+1] is SpacerView ? 0.0 : NSUIStackView.spacingUseDefault, after: view)
+            #endif
+        }
+    }
+    
+    func setupArrangedSubviews() {
+        for view in arrangedSubviews {
+            arrangedSubviewsObservations[view.objectID] = view.observeChanges(for: \.isHidden) { [weak self] old, new in
+                guard let self = self else { return }
+                self.updateSpacerSpacing()
+            }
+        }
+    }
+    
+    func observeArrangedSubviews() {
+        guard arrangedSubviewsObservation == nil else { return }
+        arrangedSubviewsObservation = observeChanges(for: \.arrangedSubviews) { [weak self] old, new in
+            guard let self = self else { return }
+            self.setupArrangedSubviews()
+        }
+    }
+    
+    
     func swizzleOrientation() {
         guard orientationHook == nil else { return }
         do {
