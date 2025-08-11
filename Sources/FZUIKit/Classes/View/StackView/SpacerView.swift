@@ -118,7 +118,7 @@ open class SpacerView: NSUIView {
         
     private func updateFlexibleSpacers(exclude: Bool = false) {
         guard let stackView = stackView else { return }
-        var spacerViews = stackView.arrangedSubviews.compactMap({ $0 as? Self }).filter({ $0.length == nil })
+        var spacerViews = stackView.arrangedSubviews.compactMap({ $0 as? Self }).filter({ $0.length == nil && stackView.subviews.contains($0) })
         spacerViews.forEach({ $0.constraint?.activate(false) })
         if exclude {
             spacerViews = spacerViews.filter({ $0 != self })
