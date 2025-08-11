@@ -12,16 +12,12 @@ import AppKit
 public extension NSBox {
     /// Returns a horizontal line with the specified width.
     static func horizontalLine(width: CGFloat = 1.0) -> NSBox {
-        let box = NSBox(frame: NSRect(origin: .zero, size: NSSize(width: width, height: 1)))
-        box.boxType = .separator
-        return box
+        NSBox(frame: NSRect(origin: .zero, size: NSSize(width: width, height: 1))).type(.separator)
     }
 
     /// Returns a vertical line with the specified height.
     static func verticalLine(height: CGFloat = 1.0) -> NSBox {
-        let box = NSBox(frame: NSRect(origin: .zero, size: NSSize(width: 1, height: height)))
-        box.boxType = .separator
-        return box
+        NSBox(frame: NSRect(origin: .zero, size: NSSize(width: 1, height: height))).type(.separator)
     }
         
     /// Sets the color of the box’s background when the receiver is a custom box with a simple line border.

@@ -119,6 +119,16 @@ public extension NSLayoutConstraint {
     }
 }
 
+extension NSUILayoutPriority: ExpressibleByFloatLiteral, ExpressibleByIntegerLiteral {
+    public init(floatLiteral value: Float) {
+        self.init(value)
+    }
+    
+    public init(integerLiteral value: Int) {
+        self.init(Float(value))
+    }
+}
+
 public extension Collection where Element: NSLayoutConstraint {
     /// Activates the constraints and returns itself.
     @discardableResult func activate() -> Self {

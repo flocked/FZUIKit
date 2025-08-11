@@ -7,21 +7,24 @@
 
 #if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif os(iOS) || os(tvOS)
-    import UIKit
+import UIKit
 #endif
+import FZSwiftUtils
 
 /**
- A flexible spacer view for `NSStackView`, `UIStackView` and ``StackView`` that expands along the major axis of it's containing stack view.
+ A flexible spacer view for [NSStackView](https://developer.apple.com/documentation/appkit/nsstackview), [UIStackView](https://developer.apple.com/documentation/uikit/uistackview) and ``StackView`` that expands along the major axis of it's containing stack view.
  
- The spacer view expands as much as it can inside stack views. For example, when placed within an horizontal stack view, the spacer expands horizontally as much as the stack view allows, moving sibling views out of the way, within the limits of the stack view’s size.
+ If you provide ``length``, the spacer view has a fixed length along the major axis of it's containing stack view.
+ 
+ Otherwise the spacer view expands as much as it can inside stack views. For example, when placed within an horizontal stack view, the spacer expands horizontally as much as the stack view allows, moving sibling views out of the way, within the limits of the stack view’s size.
  */
 open class SpacerView: NSUIView {
     
-    weak var stackView: NSUIStackView? = nil
-    var orientation: NSUIUserInterfaceLayoutOrientation = .horizontal
-    var constraint: NSLayoutConstraint? = nil
+    private weak var stackView: NSUIStackView?
+    fileprivate var orientation: NSUIUserInterfaceLayoutOrientation = .horizontal
+    private var constraint: NSLayoutConstraint?
     
     /// The length of the spacer.
     open var length: CGFloat? = nil {
@@ -29,9 +32,8 @@ open class SpacerView: NSUIView {
             guard oldValue != length else { return }
             let needsUpdate = oldValue == nil && constraint != nil
             update()
-            if needsUpdate {
-                updateSpacers()
-            }
+            guard needsUpdate else { return }
+            updateFlexibleSpacers()
         }
     }
     
@@ -43,75 +45,85 @@ open class SpacerView: NSUIView {
     }
       
     #if os(macOS)
-    public override func viewWillMove(toSuperview newSuperview: NSUIView?) {
+    open override func viewWillMove(toSuperview newSuperview: NSView?) {
         if let stackView = stackView, newSuperview != stackView, length == nil, constraint != nil {
-            updateSpacers(exclude: true)
+            updateFlexibleSpacers(exclude: true)
         }
         constraint?.activate(false)
         stackView = newSuperview as? NSUIStackView
+        stackView?.swizzleOrientation()
         super.viewWillMove(toSuperview: newSuperview)
     }
     
-    public override func viewDidMoveToSuperview() {
+    open override func viewDidMoveToSuperview() {
         super.viewDidMoveToSuperview()
         update()
     }
     
-    public override func layout() {
+    open override func layout() {
         super.layout()
-        if let stackView = stackView, stackView.orientation != orientation {
-            update()
-        }
+        guard let stackView = stackView, stackView.orientation != orientation else { return }
+        update()
     }
     #else
-    public override func willMove(toSuperview newSuperview: UIView?) {
+    open override func willMove(toSuperview newSuperview: UIView?) {
         if let stackView = stackView, newSuperview != stackView, length == nil, constraint != nil {
-            updateSpacers(exclude: true)
+            updateFlexibleSpacers(exclude: true)
         }
         constraint?.activate(false)
         stackView = newSuperview as? NSUIStackView
         super.willMove(toSuperview: newSuperview)
     }
     
-    public override func didMoveToSuperview() {
+    open override func didMoveToSuperview() {
         super.didMoveToSuperview()
         update()
     }
     
     public override func layoutSubviews() {
         super.layoutSubviews()
-        if let stackView = stackView, stackView.axis != orientation {
-            update()
-        }
+        guard let stackView = stackView, stackView.axis != orientation else { return }
+        update()
     }
     #endif
     
-    func update() {
+    fileprivate func update() {
         guard let stackView = self.stackView else { return }
-        orientation = stackView._orientation
+        orientation = stackView.orientation
         if let length = length {
             constraint?.activate(false)
             if orientation == .horizontal {
-                constraint = widthAnchor.constraint(greaterThanOrEqualToConstant: length).priority(.init(rawValue: 50)).activate()
+                constraint = widthAnchor.constraint(lessThanOrEqualToConstant: length).priority(50).activate()
             } else {
-                constraint = heightAnchor.constraint(greaterThanOrEqualToConstant: length).priority(.init(rawValue: 50)).activate()
+                constraint = heightAnchor.constraint(lessThanOrEqualToConstant: length).priority(50).activate()
             }
         } else {
-            updateSpacers()
+            updateFlexibleSpacers()
+        }
+        if orientation == .horizontal {
+            setContentHuggingPriority(50, for: .horizontal)
+            setContentHuggingPriority(.defaultHigh, for: .vertical)
+            setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
+            setContentCompressionResistancePriority(50, for: .horizontal)
+        } else {
+            setContentHuggingPriority(.defaultHigh, for: .horizontal)
+            setContentHuggingPriority(50, for: .vertical)
+            setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+            setContentCompressionResistancePriority(50, for: .vertical)
         }
     }
         
-    func updateSpacers(exclude: Bool = false) {
+    private func updateFlexibleSpacers(exclude: Bool = false) {
         guard let stackView = stackView else { return }
-        var spacerViews = stackView.subviews(type: SpacerView.self).filter({ stackView.arrangedViews.contains($0) && $0.length == nil })
+        var spacerViews = stackView.arrangedSubviews.compactMap({ $0 as? Self }).filter({ $0.length == nil })
         spacerViews.forEach({ $0.constraint?.activate(false) })
         if exclude {
             spacerViews = spacerViews.filter({ $0 != self })
         }
-        guard spacerViews.count >= 2 else { return }
+        guard spacerViews.count > 1 else { return }
         var view = spacerViews.removeFirst()
         for spacerView in spacerViews {
-            if stackView._orientation == .horizontal {
+            if stackView.orientation == .horizontal {
                 view.constraint = view.widthAnchor.constraint(equalTo: spacerView.widthAnchor).activate()
             } else {
                 view.constraint = view.heightAnchor.constraint(equalTo: spacerView.heightAnchor).activate()
@@ -120,37 +132,49 @@ open class SpacerView: NSUIView {
         }
     }
     
-    /// Creates a spacer.
+    /// Creates a spacer view.
     public init() {
         super.init(frame: .zero)
-        initalSetup()
     }
     
-    /// Creates a spacer with the specified length.
+    /// Creates a spacer view with the specified length.
     public init(length: CGFloat) {
         super.init(frame: .zero)
-        initalSetup()
-        self.length = length
+        defer { self.length = length }
     }
     
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
-        initalSetup()
-    }
-    
-    func initalSetup() {
-        setContentHuggingPriority(.init(rawValue: 50), for: .vertical)
-        setContentHuggingPriority(.init(rawValue: 50), for: .horizontal)
     }
 }
 
 fileprivate extension NSUIStackView {
-    var _orientation: NSUIUserInterfaceLayoutOrientation {
-        #if os(macOS)
-        orientation
-        #else
-        axis
-        #endif
+    func swizzleOrientation() {
+        guard orientationHook == nil else { return }
+        do {
+            #if os(macOS)
+            orientationHook = try hookAfter(set: \.orientation, uniqueValues: true) { object, old, value in
+                object.arrangedViews.compactMap({ $0 as? SpacerView }).forEach({ $0.update() })
+            }
+            #else
+            orientationHook = try hookAfter(set: \.axis, uniqueValues: true) { object, old, value in
+                object.arrangedViews.compactMap({ $0 as? SpacerView }).forEach({ $0.update() })
+            }
+            #endif
+        } catch {
+            Swift.print(error)
+        }
     }
+    
+    var orientationHook: Hook? {
+        get { getAssociatedValue("orientationHook") }
+        set { setAssociatedValue(newValue, key: "orientationHook") }
+    }
+    
+    #if canImport(UIKit)
+    var orientation: NSUIUserInterfaceLayoutOrientation {
+        axis
+    }
+    #endif
 }
 #endif

@@ -38,7 +38,7 @@ extension NSAnimationContext {
      - Returns: The animation group.
      */
     @discardableResult
-    public class func animate(duration: TimeInterval = 0.25, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = true, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimator {
+    public class func animate(withDuration duration: TimeInterval = 0.25, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = true, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimator {
         .init(duration: duration, timingFunction: timingFunction, allowsImplicitAnimation: allowsImplicitAnimation, changes: changes).completion(completion).starting()
     }
     
