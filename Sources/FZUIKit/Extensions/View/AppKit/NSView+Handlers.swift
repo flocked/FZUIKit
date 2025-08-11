@@ -44,6 +44,7 @@ extension NSView {
                     menuProviderHook = try hook(#selector(NSView.menu(for:)), closure: {
                         original, view, selector, event in
                         let location = event.location(in: view)
+                        /*
                         var _location = location
                         if let superview = view.superview {
                             _location = event.location(in: superview)
@@ -57,6 +58,7 @@ extension NSView {
                                 return nil
                             }
                         }
+                        */
                         return view._menuProvider?(location) ?? nil
                     } as @convention(block) ((NSView, Selector, NSEvent) -> NSMenu?, NSView, Selector, NSEvent) -> NSMenu?)
                 } catch {
