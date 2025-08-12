@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 23.02.23.
 //
 
-#if compiler(>=5.5)
+#if compiler(>=6.0)
 #if os(macOS) || os(iOS)
 import FZSwiftUtils
 import WebKit
