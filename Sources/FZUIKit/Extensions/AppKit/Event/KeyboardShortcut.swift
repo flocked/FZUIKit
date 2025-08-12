@@ -48,16 +48,18 @@ extension NSMenuItem {
 
 /// A keyboard shortcut.
 public struct KeyboardShortcut: Hashable, ExpressibleByStringLiteral, ExpressibleByNilLiteral, CustomStringConvertible, Codable {
-    /// The key of the shortcut.
+    /// The key equivalent that the user presses in conjunction with any specified modifier keys to activate the shortcut.
     public var key: Key?
     
-    /// The modifier flags of the shortcut.
+    static let none = Self(modifierFlags: [])
+    
+    /// The modifier keys that the user presses in conjunction with ``key` to activate the shortcut.
     public var modifierFlags: NSEvent.ModifierFlags = [] {
         didSet { modifierFlags = modifierFlags.monitor }
     }
     
     
-    /// Creates a keyboard shortcut with the specified key and modifier flags.
+    /// Creates a new keyboard shortcut with the given key and set of modifier flags.
     public init(key: Key, modifierFlags: NSEvent.ModifierFlags = []) {
         self.key = key
         self.modifierFlags = modifierFlags

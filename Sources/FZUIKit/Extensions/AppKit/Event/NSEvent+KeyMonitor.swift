@@ -9,6 +9,7 @@
 
 import AppKit
 import Combine
+import FZSwiftUtils
 
 extension NSEvent {
     /// A keyboard shortcut monitor.
@@ -16,9 +17,32 @@ extension NSEvent {
         
         /// The keyboard shortcut monitored.
         public var shortcut: KeyboardShortcut {
+            get { _shortcut }
+            set {
+                name = nil
+                _shortcut = newValue
+            }
+        }
+        
+        
+        private var _shortcut: KeyboardShortcut {
             didSet { updateMonitor() }
         }
         
+        /// The global name to observe to update the keyboard shortcut automatically.
+        public var name: KeyboardShortcut.Name? {
+            didSet {
+                guard oldValue != name else { return }
+                shortcutObservation = nil
+                _shortcut = name?.shortcut ?? nil
+                guard let name = name else { return }
+                shortcutObservation = .init(KeyboardShortcut.didChangeKeyboardShortcutNotification) { [weak self] notification in
+                    guard let self = self, (notification.object as? String) == name.rawValue else { return }
+                    self._shortcut = name.shortcut ?? nil
+                }
+            }
+        }
+                
         /// The key event type monitored.
         public let keyEventType: KeyEventType
         
@@ -46,7 +70,8 @@ extension NSEvent {
         private let isLocal: Bool
         private var _isActive = false
         private var previousFlags: NSEvent.ModifierFlags = []
-        
+        private var shortcutObservation: NotificationToken?
+
         /**
          Returns a local keyboard monitor for the specified keyboard shortcut and handler.
          
@@ -59,6 +84,20 @@ extension NSEvent {
          */
         public static func local(for shortcut: KeyboardShortcut, type: KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> (NSEvent?))) -> KeyMonitor {
             .init(for: shortcut, isLocal: true, type: type, handler: handler)
+        }
+        
+        /**
+         Returns a local keyboard monitor for the keyboard shortcut with the specified name and handler.
+         
+         Return either the event to the handler, or `nil` to stop the dispatching of the event.
+         
+         - Parameters:
+            - name: The name of the keyboard shortcut to monitor.
+            - type: The key event type to monitor (either `keyDown`, `keyUp` or `all`).
+            - handler: The handler that is called when the keyboard shortcut is pressed.
+         */
+        public static func local(for name: KeyboardShortcut.Name, type: KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> (NSEvent?))) -> KeyMonitor {
+            .init(for: name, isLocal: true, type: type, handler: handler)
         }
         
         /**
@@ -78,6 +117,22 @@ extension NSEvent {
         }
         
         /**
+         Returns a local keyboard monitor for the keyboard shortcut with the specified name and handler.
+         
+         - Parameters:
+            - name: The name of the keyboard shortcut to monitor.
+            - type: The key event type to monitor (either `keyDown`, `keyUp` or `all`).
+            - handler: The handler that is called when the keyboard shortcut is pressed.
+         */
+        public static func local(for name: KeyboardShortcut.Name, type: KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> ())) -> KeyMonitor {
+            let handler: ((_ event: NSEvent) -> (NSEvent?)) = {
+                handler($0)
+                return $0
+            }
+            return .init(for: name, isLocal: true, type: type, handler: handler)
+        }
+        
+        /**
          Returns a global keyboard monitor for the specified keyboard shortcut and handler.
          
          - Parameters:
@@ -89,8 +144,25 @@ extension NSEvent {
             .init(for: shortcut, isLocal: false, type: type, handler: handler)
         }
         
+        /**
+         Returns a global keyboard monitor for the keyboard shortcut with the specified name and handler.
+         
+         - Parameters:
+            - name: The name of the keyboard shortcut to monitor.
+            - type: The key event type to monitor (either `keyDown`, `keyUp` or `all`).
+            - handler: The handler that is called when the keyboard shortcut is pressed.
+         */
+        public static func global(for name: KeyboardShortcut.Name, type: KeyEventType = .keyDown, handler: @escaping ((_ event: NSEvent) -> ())) -> KeyMonitor {
+            .init(for: name, isLocal: false, type: type, handler: handler)
+        }
+        
+        private convenience init(for name: KeyboardShortcut.Name, isLocal: Bool, type: KeyEventType, handler: Any) {
+            self.init(for: name.shortcut ?? nil, isLocal: isLocal, type: type, handler: handler)
+            defer { self.name = name }
+        }
+        
         private init(for shortcut: KeyboardShortcut, isLocal: Bool, type: KeyEventType, handler: Any) {
-            self.shortcut = shortcut
+            self._shortcut = shortcut
             self.isLocal = isLocal
             self.keyEventType = type
             super.init()
@@ -162,7 +234,9 @@ extension NSEvent {
         
         private func updateMonitor() {
             guard isActive, shortcut.key != nil || !shortcut.modifierFlags.isEmpty else { return }
+            removeMonitor()
             previousFlags = NSEvent.modifierFlags
+            guard shortcut != .none else { return }
             let mask = shortcut.key != nil ? keyEventType.mask : .flagsChanged
             if isLocal {
                 monitor = NSEvent.addLocalMonitorForEvents(matching: mask, handler: handler as! ((NSEvent) -> (NSEvent?)))
@@ -174,6 +248,10 @@ extension NSEvent {
         /// Stops monitoring the keyboard shortcut.
         public func stop() {
             _isActive = false
+            removeMonitor()
+        }
+        
+        private func removeMonitor() {
             guard let monitor = monitor else { return }
             NSEvent.removeMonitor(monitor)
             self.monitor = nil
