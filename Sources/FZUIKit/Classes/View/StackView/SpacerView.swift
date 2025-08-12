@@ -156,16 +156,14 @@ fileprivate extension NSUIStackView {
         guard orientationHook == nil else { return }
         do {
             #if os(macOS)
-            let selector = #selector(setter: NSStackView.orientation)
-            #else
-            let selector = #selector(setter: UIStackView.axis)
-            #endif
-            orientationHook = try hook(selector, closure: { original, object, selector, orientation in
-                let oldValue = object.orientation
-                original(object, selector, orientation)
-                guard orientation != oldValue else { return }
+            orientationHook = try hookAfter(set: \.orientation, uniqueValues: true) { object, old, new in
                 object.arrangedViews.compactMap({ $0 as? SpacerView }).forEach({ $0.update() })
-            } as @convention(block) ((NSUIStackView, Selector, Orientation) -> Void, NSUIStackView, Selector, Orientation) -> Void)
+            }
+            #else
+            orientationHook = try hookAfter(set: \.orientation, uniqueValues: true) { object, old, new in
+                object.arrangedViews.compactMap({ $0 as? SpacerView }).forEach({ $0.update() })
+            }
+            #endif
         } catch {
             Swift.print(error)
         }
