@@ -129,6 +129,25 @@ public extension NSSegmentedControl {
             }
         }
     }
+    
+    /**
+     Selects the next segment.
+     
+     The next segment is the one to the right of the currently selected segment. For the last segment, the selection wraps back to the beginning of the control.
+     */
+    func selectNextSegment() {
+        (cell as? NSSegmentedCell)?.makeNextSegmentKey()
+    }
+    
+    /**
+     Selects the previous segment.
+     
+     The previous segment is the one to the left of the currently selected segment. For the first segment, the selection wraps around to the last segment of the control.
+     */
+    func selectPreviousSegment() {
+        (cell as? NSSegmentedCell)?.makePreviousSegmentKey()
+    }
+    
     /**
      A Boolean value indicating whether to select a segment exclusively on right click.
      

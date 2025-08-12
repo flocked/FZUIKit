@@ -269,6 +269,28 @@ extension NSMenu {
         return nil
     }
     
+    /**
+     Returns the index of the first menu item in the menu that has a given represented object, searching recursively through submenus.
+          
+     - Parameters:
+        - representedObject: A represented object of the menu.
+        - depth: The number of submenu levels to match. Use `0` for only top-level items and `.max` for unlimited depth.
+     - Returns: The first matching item, or `nil` if none is found.
+     */
+    func firstItem(withRepresentedObject representedObject: Any?, depth: Int = .max) -> NSMenuItem? {
+        let index = indexOfItem(withRepresentedObject: representedObject)
+        if index != -1 {
+            return items[index]
+        } else if depth > 0 {
+            for item in items {
+                if let item = item.submenu?.firstItem(withRepresentedObject: representedObject, depth: depth - 1) {
+                    return item
+                }
+            }
+        }
+        return nil
+    }
+    
     /// The submenus of the menu.
     @objc open var submenus: [NSMenu] {
         items.compactMap({ $0.submenu })
