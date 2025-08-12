@@ -420,10 +420,6 @@ extension NSUIView {
         self.border = border
         return self
     }
-    
-    func sdsds() {
-        
-    }
 
     #if os(macOS)
     /// Sets the outer shadow of the view.

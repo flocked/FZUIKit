@@ -26,10 +26,6 @@ public extension CGColor {
         return converted(to: colorSpace, intent: intent, options: options)
     }
 
-    func sdsds() {
-        converted(to: .deviceRGB)
-    }
-
     /// Returns the RGBA (red, green, blue, alpha) components of the color.
     func rgbaComponents() -> RGBAComponents? {
         var color = self

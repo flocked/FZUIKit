@@ -17,6 +17,11 @@ extension NSControl {
         return self
     }
     
+    /// Dragging image componentss for drag and drop support.
+    public var draggingImageComponents: [NSDraggingImageComponent] {
+        cell?.draggingImageComponents(withFrame: bounds, in: self) ?? []
+    }
+    
     /// Sets the font.
     @discardableResult
     public func font(_ font: NSFont?) -> Self {
