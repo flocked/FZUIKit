@@ -138,7 +138,7 @@ public extension NSSegmentedControl {
         get { selectsExclusivelyOnRightClickHook != nil }
         set {
             guard newValue != selectsExclusivelyOnRightClick else { return }
-            if selectsExclusivelyOnRightClick {
+            if newValue {
                 do {
                     selectsExclusivelyOnRightClickHook = try hook(#selector(NSView.rightMouseDown(with:)), closure: { original, view, sel, event in
                         if view.trackingMode == .selectAny, let index = view.indexOfSegment(at: event.location(in: view)) {
