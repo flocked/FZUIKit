@@ -320,24 +320,15 @@ public extension NSUIView {
         set { setAssociatedValue(newValue, key: "constraintBoundsObservation") }
     }
         
-#if os(macOS)
+    #if os(macOS)
     /**
      Adds a view to the end of the receiver’s list of subviews and autoresizes it.
      
-     - Parameter view: The view to be added. After being added, this view appears on top of any other subviews.
-     */
-    func addSubview(withAutoresizing view: NSView) {
-        addSubview(withAutoresizing: view, mode: .full)
-    }
-    
-    /**
-     Adds a view to the end of the receiver’s list of subviews and autoresizes it to the receiver.
-     
      - Parameters:
         - view: The view to be added. After being added, this view appears on top of any other subviews.
-        - mode: The mode for autoresizing the subview..
+        - mode: The mode for autoresizing the subview.
      */
-    func addSubview(withAutoresizing view: NSUIView, mode: ConstraintMode) {
+    func addSubview(withAutoresizing view: NSView, _ mode: ConstraintMode = .full) {
         view.translatesAutoresizingMaskIntoConstraints = true
         addSubview(view)
         view.autoresize(to: view, using: mode)
@@ -349,14 +340,21 @@ public extension NSUIView {
      - Parameters:
         - view: The view to insert.
         - index: The index of insertation.
-        - mode: The mode for autoresizing the subview..
+        - mode: The mode for autoresizing the subview.
      */
-    func insertSubview(withAutoresizing view: NSUIView, _ mode: ConstraintMode, to index: Int) {
+    func insertSubview(withAutoresizing view: NSUIView, to index: Int, _ mode: ConstraintMode) {
         guard index >= 0 else { return }
-        addSubview(withAutoresizing: view, mode: mode)
+        addSubview(withAutoresizing: view, mode)
         moveSubview(view, to: index)
     }
     
+    /**
+     Autoresizes the view to the specified other view.
+     
+     - Parameters:
+        - view: The view to autoresize to.
+        - mode: The mode for autoresizing the view.
+     */
     func autoresize(to view: NSView, using mode: ConstraintMode) {
         translatesAutoresizingMaskIntoConstraints = true
         switch mode {
@@ -378,7 +376,7 @@ public extension NSUIView {
             autoresizingMask = .all
         }
     }
-#endif
+    #endif
 }
 
 /// The Objective-C class for ``NSUIView/ConstraintMode``.
