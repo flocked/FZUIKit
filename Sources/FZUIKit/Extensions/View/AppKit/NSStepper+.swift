@@ -9,17 +9,33 @@
 
 import AppKit
 public extension NSStepper {
-    /// Sets the stepper’s minimum value.
+    /// Sets the minimum value of the stepper.
     @discardableResult
     func minValue(_ minValue: Double) -> Self {
         self.minValue = minValue
         return self
     }
     
-    /// Sets the stepper’s maximum value.
+    /// Sets the maximum value of the stepper.
     @discardableResult
     func maxValue(_ maxValue: Double) -> Self {
         self.maxValue = maxValue
+        return self
+    }
+    
+    /// The range of the stepper.
+    var range: ClosedRange<Double> {
+        get { minValue...maxValue }
+        set {
+            minValue = newValue.lowerBound
+            maxValue = newValue.upperBound
+        }
+    }
+    
+    /// Sets the range of the stepper.
+    @discardableResult
+    func range(_ range: ClosedRange<Double>) -> Self {
+        self.range = range
         return self
     }
     
