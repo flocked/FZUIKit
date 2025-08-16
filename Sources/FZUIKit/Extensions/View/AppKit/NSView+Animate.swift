@@ -21,7 +21,7 @@ import SwiftUI
       - Returns: The animation group.
       */
      @discardableResult
-     public static func animate(timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimator {
+     public static func animate(timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = true, changes: @escaping () -> Void, completion: (() -> Void)? = nil) -> NSAnimator {
          NSAnimationContext.animate(timingFunction: timingFunction, allowsImplicitAnimation: allowsImplicitAnimation, changes: changes, completion: completion)
      }
      

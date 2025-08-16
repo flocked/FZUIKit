@@ -173,7 +173,7 @@ public class NSAnimator: NSObject {
         - allowsImplicitAnimation: A Boolean value indicating whether animations are enabled for animations that occur as a result of another property change.
         - changes: The closure containing the changes to animate.
      */
-    public init(duration: TimeInterval = 0.25, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = false, changes: @escaping () -> Void) {
+    public init(duration: TimeInterval = 0.25, timingFunction: CAMediaTimingFunction? = nil, allowsImplicitAnimation: Bool = true, changes: @escaping () -> Void) {
         NSAnimationContext.swizzleAll()
         super.init()
         animationDuration = duration
@@ -198,7 +198,7 @@ public class NSAnimator: NSObject {
         - allowsImplicitAnimation: A Boolean value indicating whether animations are enabled for animations that occur as a result of another property change.
         - changes: The closure containing the changes to animate.
      */
-    public init(spring: CASpringAnimation, allowsImplicitAnimation: Bool = false, changes: @escaping ()->()) {
+    public init(spring: CASpringAnimation, allowsImplicitAnimation: Bool = true, changes: @escaping ()->()) {
         NSAnimationContext.swizzleAll()
         super.init()
         self.spring = spring
