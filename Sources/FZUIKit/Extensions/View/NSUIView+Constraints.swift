@@ -432,33 +432,4 @@ extension NSUIView.ConstraintMode: ReferenceConvertible {
         description
     }
 }
-
-extension NSUIView {
-    enum ConstraintModeAlt {
-        case full
-        case insets(NSDirectionalEdgeInsets)
-        case position(Position, CGFloat)
-        
-        public enum Position: Int, Hashable, Codable {
-            /// Top.
-            case top
-            /// Top leading.
-            case topLeading
-            /// Top trailing.
-            case topTrailing
-            /// Center.
-            case center
-            /// Leading.
-            case leading
-            /// Trailing.
-            case trailing
-            /// Bottom.
-            case bottom
-            /// Bottom leading.
-            case bottomLeading
-            /// Bottom trailing.
-            case bottomTrailing
-        }
-    }
-}
 #endif
