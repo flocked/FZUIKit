@@ -17,9 +17,18 @@ extension NSControl {
         return self
     }
     
-    /// Dragging image componentss for drag and drop support.
-    public var draggingImageComponents: [NSDraggingImageComponent] {
-        cell?.draggingImageComponents(withFrame: bounds, in: self) ?? []
+    /// Sets the Boolean value indicating whether the receiver ignores multiple clicks made in rapid succession.
+    @discardableResult
+    public func ignoresMultiClick(_ ignores: Bool) -> Self {
+        self.ignoresMultiClick = ignores
+        return self
+    }
+    
+    /// Sets the Boolean value indicating whether the receiver refuses the first responder role.
+    @discardableResult
+    public func refusesFirstResponder(_ refuses: Bool) -> Self {
+        self.refusesFirstResponder = refuses
+        return self
     }
     
     /// Sets the font.
@@ -65,13 +74,6 @@ extension NSControl {
         return self
     }
     
-    /// Sets the tag identifying the receiver (not the tag of the receiver’s cell).
-    @discardableResult
-    public func tag(_ tag: Int) -> Self {
-        self.tag = tag
-        return self
-    }
-    
     /// Sets the size of the control.
     @discardableResult
     public func controlSize(_ size: ControlSize) -> Self {
@@ -105,6 +107,11 @@ extension NSControl {
     public func formatter(_ formatter: Formatter?) -> Self {
         self.formatter = formatter
         return self
+    }
+    
+    /// Dragging image componentss for drag and drop support.
+    public var draggingImageComponents: [NSDraggingImageComponent] {
+        cell?.draggingImageComponents(withFrame: bounds, in: self) ?? []
     }
 }
 

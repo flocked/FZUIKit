@@ -412,7 +412,8 @@ public extension NSMenuItem {
     @available(macOS 13.0, *)
     @discardableResult
     func view<Content: View>(@ViewBuilder _ view: () -> Content, sizingOptions: NSHostingSizingOptions, showsHighlight: Bool = true) -> Self {
-        self.view(view, sizingOptions: sizingOptions, showsHighlight: showsHighlight)
+        self.view = NSMenuItemHostingView(rootView: view(), showsHighlight: showsHighlight, sizingOptions: sizingOptions)
+        return self
     }
     
     /// A help tag for the menu item.

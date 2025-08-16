@@ -594,18 +594,21 @@ extension NSView {
     /**
      Sets the view’s tag that you use to identify the view within your app.
 
-     - Parameter tag: The tag for the view, or `nil` to use the view's original tag.
+     - Parameter tag: The tag for the view.
      */
     @discardableResult
-    public func tag(_ tag: Int?) -> Self {
-        revertHooks(for: #selector(getter: NSView.tag))
-        guard let tag = tag else { return self }
-        do {
-            try hook(#selector(getter: NSView.tag), closure: { original, object, sel in
-                return tag
-            } as @convention(block) ((NSView, Selector) -> Int, NSView, Selector) -> Int)
-        } catch {
-            Swift.print(error)
+    public func tag(_ tag: Int) -> Self {
+        if let control = self as? NSControl {
+            control.tag = tag
+        } else {
+            revertHooks(for: #selector(getter: NSView.tag))
+            do {
+                try hook(#selector(getter: NSView.tag), closure: { original, object, sel in
+                    return tag
+                } as @convention(block) ((NSView, Selector) -> Int, NSView, Selector) -> Int)
+            } catch {
+                Swift.print(error)
+            }
         }
         return self
     }

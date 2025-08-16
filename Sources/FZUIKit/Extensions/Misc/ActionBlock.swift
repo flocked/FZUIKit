@@ -28,14 +28,21 @@ extension NSGestureRecognizer: TargetActionProvider { }
 extension NSColorPanel: TargetActionProvider { }
 
 extension TargetActionProvider {
-    /// Sends the `action` message to the `target` if it responds to the selector.
-    public func performAction() {
-        let target = target ?? self
-        guard let action = action, target.responds(to: action) else { return }
-        if let self = self as? NSControl {
-            self.sendAction(action, to: target)
+    /**
+     Sends the `action` message to the `target` if it responds to the selector.
+     
+     - Returns: `true` if the message was successfully sent; otherwise, `false`.
+     */
+    @discardableResult
+    public func performAction() -> Bool {
+        guard let action = action else { return false }
+        if let control = self as? NSControl {
+            return control.sendAction(action, to: target)
         } else {
+            let target = target ?? self
+            guard target.responds(to: action) else { return false }
             _ = target.perform(action)
+            return true
         }
     }
 }
