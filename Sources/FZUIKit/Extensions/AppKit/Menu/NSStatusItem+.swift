@@ -11,6 +11,40 @@ import FZSwiftUtils
 import SwiftUI
 
 extension NSStatusItem {
+    /// Sets the text of the status item.
+    @discardableResult
+    public func text(_ text: String?) -> Self {
+        button?.title = text ?? ""
+        return self
+    }
+    
+    /// Sets the image of the status item.
+    @discardableResult
+    public func image(_ image: NSImage?) -> Self {
+        button?.image = image
+        return self
+    }
+    
+    /// Sets the symbol image of the status item.
+    @available(macOS 11.0, *)
+    @discardableResult
+    public func symbolImage(_ symbolName: String?) -> Self {
+        if let symbolName = symbolName {
+            button?.image = .symbol(symbolName)
+        } else {
+            button?.image = nil
+        }
+        return self
+    }
+    
+    /// Sets the symbol configuration of the status item.
+    @available(macOS 11.0, *)
+    @discardableResult
+    public func symbolConfiguration(_ configuration: NSImage.SymbolConfiguration?) -> Self {
+        button?.symbolConfiguration = configuration
+        return self
+    }
+    
     /// The view of the status item.
     public var view: NSView? {
         get { button?.subviews.first(where: { $0.isStatusItemView }) }
@@ -235,25 +269,18 @@ extension NSStatusItem {
     
     /// A status item with the specified text.
     public static func text(_ text: String) -> NSStatusItem {
-        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        item.button?.title = text
-        return item
+        .variableWidth.text(text)
     }
     
     /// A status item with the specified image.
     public static func image(_ image: NSImage) -> NSStatusItem {
-        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        item.button?.image = image
-        return item
+        .variableWidth.image(image)
     }
     
     /// A status item with the specified symbol image.
     @available(macOS 11.0, *)
     public static func symbolImage(_ symbolName: String, symbolConfiguration: NSImage.SymbolConfiguration? = nil) -> NSStatusItem {
-        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-        item.button?.image = NSImage(systemSymbolName: symbolName)
-        item.button?.symbolConfiguration = symbolConfiguration
-        return item
+        .squareWidth.symbolImage(symbolName).symbolConfiguration(symbolConfiguration)
     }
     
     /// A status item with the specified view.
@@ -271,7 +298,7 @@ extension NSStatusItem {
         .variableWidth.view(view)
     }
     
-    func updateAction() {
+    fileprivate func updateAction() {
         var mask: NSEvent.EventTypeMask = []
         if onClick != nil || popover != nil { mask.insert(.leftMouseUp) }
         if onRightClick != nil || rightClickMenu != nil || rightClickPopover != nil { mask.insert(.rightMouseUp) }
@@ -341,22 +368,22 @@ extension NSStatusItem {
         }
     }
     
-    var leftClickMenu: NSMenu? {
+    fileprivate var leftClickMenu: NSMenu? {
         get { getAssociatedValue("leftClickMenu") }
         set { setAssociatedValue(newValue, key: "leftClickMenu") }
     }
     
-    var menuObservation: KeyValueObservation? {
+    fileprivate var menuObservation: KeyValueObservation? {
         get { getAssociatedValue("menuObservation") }
         set { setAssociatedValue(newValue, key: "menuObservation") }
     }
     
-    var isUpdatingMenu: Bool {
+    fileprivate var isUpdatingMenu: Bool {
         get { getAssociatedValue("isUpdatingMenu") ?? false }
         set { setAssociatedValue(newValue, key: "isUpdatingMenu") }
     }
     
-    class MenuProvider: NSMenu, NSMenuDelegate {
+    fileprivate class MenuProvider: NSMenu, NSMenuDelegate {
         var menuProvider: (()->(NSMenu?))
         var providedMenu: NSMenu?
         
