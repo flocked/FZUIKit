@@ -7,6 +7,7 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
 extension NSProgressIndicator {
     /**
@@ -118,6 +119,40 @@ extension NSProgressIndicator {
         let progressIndicator = NSProgressIndicator.bar(width: width, size: size, isDisplayedWhenStopped: isDisplayedWhenStopped)
         progressIndicator.observedProgress = progress
         return progressIndicator
+    }
+    
+    /// The color of the progress indicator.
+    public var color: NSColor {
+        get { _color ?? .controlAccentColor }
+        set {
+            guard newValue != color else { return }
+            _color = newValue != .controlAccentColor ? newValue : nil
+            contentFilters.removeAll(where: { $0.name == "CIHueAdjust" || $0.name == "CIColorClamp" } )
+            if style == .spinning {
+                let rgb = newValue.rgbaComponents()
+                contentFilters += CIFilter(name: "CIColorClamp", parameters: ["inputMinComponents": CIVector(x: rgb.red, y: rgb.green, z: rgb.blue, w: 0.0), "inputMaxComponents": CIVector(x: rgb.red, y: rgb.green, z: rgb.blue, w: 1.0)])
+            } else {
+                guard newValue != .controlAccentColor else { return }
+                let baseHue = NSColor.controlAccentColor.usingColorSpace(.deviceRGB)?.hueComponent ?? 0
+                let targetHue = newValue.usingColorSpace(.deviceRGB)?.hueComponent ?? 0
+                let delta = (targetHue - baseHue).truncatingRemainder(dividingBy: 1)
+                let shortest = delta > 0.5 ? delta - 1 : (delta < -0.5 ? delta + 1 : delta)
+                let angle = Double(shortest * 2 * .pi)
+                contentFilters += CIFilter(name: "CIHueAdjust", parameters: [kCIInputAngleKey: angle])
+            }
+        }
+    }
+    
+    /// Sets the color of the progress indicator.
+    @discardableResult
+    public func color(_ color: NSColor) -> Self {
+        self.color = color
+        return self
+    }
+    
+    fileprivate var _color: NSColor? {
+        get { getAssociatedValue("_color") }
+        set { setAssociatedValue(newValue, key: "_color") }
     }
 }
 
