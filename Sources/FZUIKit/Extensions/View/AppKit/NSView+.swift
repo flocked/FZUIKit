@@ -621,12 +621,9 @@ extension NSView {
         - index: The index of insertation.
      */
     @objc open func insertSubview(_ view: NSUIView, at index: Int) {
-        guard index >= 0 else { return }
-        guard index <= subviews.count else {
-            addSubview(view)
-            return
-        }
-        subviews.insert(view, at: index)
+        guard index >= 0, subviews.firstIndex(of: view) != index else { return }
+        view.removeFromSuperview()
+        index <= subviews.count ? addSubview(view) : subviews.insert(view, at: index)
     }
 
     /**
