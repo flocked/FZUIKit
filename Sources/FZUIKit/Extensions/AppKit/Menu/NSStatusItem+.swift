@@ -18,6 +18,13 @@ extension NSStatusItem {
         return self
     }
     
+    /// Sets the attributed text of the status item.
+    @discardableResult
+    public func attributedText(_ attributedText: NSAttributedString?) -> Self {
+        button?.attributedTitle = attributedText ?? .init(string: "")
+        return self
+    }
+    
     /// Sets the image of the status item.
     @discardableResult
     public func image(_ image: NSImage?) -> Self {
@@ -45,32 +52,27 @@ extension NSStatusItem {
         return self
     }
     
-    /// The view of the status item.
-    public var view: NSView? {
-        get { button?.subviews.first(where: { $0.isStatusItemView }) }
-        set {
-            guard newValue != view, let button = button else { return }
-            button.subviews.removeAll(where: { $0.isStatusItemView })
-            guard let newValue = newValue else { return }
-            newValue.isStatusItemView = true
-            button.addSubview(newValue)
-        }
+    /// Sets the tooltip of the status item.
+    @discardableResult
+    public func toolTip(_ toolTip: String?) -> Self {
+        button?.toolTip = toolTip
+        return self
     }
     
     /// Sets the view of the status item.
     @discardableResult
     public func view(_ view: NSView?) -> Self {
-        self.view = view
+        _view = view
         return self
     }
     
     /// Sets the `SwiftUI` view of the status item.
     @discardableResult
     public func view<Content: View>(_ view: Content) -> Self {
-        if let hostingView = self.view as? NSHostingView<Content> {
+        if let hostingView = _view as? NSHostingView<Content> {
             hostingView.rootView = view
         } else {
-            self.view = NSHostingView(rootView: view)
+            _view = NSHostingView(rootView: view)
         }
         return self
     }
@@ -79,6 +81,17 @@ extension NSStatusItem {
     @discardableResult
     public func view<Content: View>(@ViewBuilder _ content: () -> Content) -> Self {
         view(content())
+    }
+    
+    fileprivate var _view: NSView? {
+        get { button?.subviews.first(where: { $0.isStatusItemView }) }
+        set {
+            guard newValue != view, let button = button else { return }
+            button.subviews.removeAll(where: { $0.isStatusItemView })
+            guard let newValue = newValue else { return }
+            newValue.isStatusItemView = true
+            button.addSubview(newValue)
+        }
     }
     
     /**
@@ -270,6 +283,11 @@ extension NSStatusItem {
     /// A status item with the specified text.
     public static func text(_ text: String) -> NSStatusItem {
         .variableWidth.text(text)
+    }
+    
+    /// A status item with the specified attributed text.
+    public static func attributedText(_ attributedText: NSAttributedString) -> NSStatusItem {
+        .variableWidth.attributedText(attributedText)
     }
     
     /// A status item with the specified image.
