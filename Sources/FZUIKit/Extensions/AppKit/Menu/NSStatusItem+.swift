@@ -62,17 +62,17 @@ extension NSStatusItem {
     /// Sets the view of the status item.
     @discardableResult
     public func view(_ view: NSView?) -> Self {
-        _view = view
+        self.view = view
         return self
     }
     
     /// Sets the `SwiftUI` view of the status item.
     @discardableResult
     public func view<Content: View>(_ view: Content) -> Self {
-        if let hostingView = _view as? NSHostingView<Content> {
+        if let hostingView = self.view as? NSHostingView<Content> {
             hostingView.rootView = view
         } else {
-            _view = NSHostingView(rootView: view)
+            self.view = NSHostingView(rootView: view)
         }
         return self
     }
@@ -83,15 +83,15 @@ extension NSStatusItem {
         view(content())
     }
     
-    fileprivate var _view: NSView? {
-        get { button?.subviews.first(where: { $0.isStatusItemView }) }
-        set {
-            guard newValue != view, let button = button else { return }
-            button.subviews.removeAll(where: { $0.isStatusItemView })
-            guard let newValue = newValue else { return }
-            newValue.isStatusItemView = true
-            button.addSubview(newValue)
+    /// Sets the content configuration of the status item.
+    @discardableResult
+    public func view(_ contentConfiguration: NSContentConfiguration) -> Self {
+        if let contentView = view as? ContentConfigurationView {
+            contentView.contentConfiguration = contentConfiguration
+        } else {
+            view = ContentConfigurationView(configuration: contentConfiguration)
         }
+        return self
     }
     
     /**
@@ -304,6 +304,11 @@ extension NSStatusItem {
     /// A status item with the specified view.
     public static func view(_ view: NSView) -> NSStatusItem {
         .variableWidth.view(view)
+    }
+    
+    /// A status item with the specified content configuration.
+    public static func view(_ contentConfiguration: NSContentConfiguration) -> NSStatusItem {
+        .variableWidth.view(contentConfiguration)
     }
     
     /// A status item with the specified `SwiftUI` view.
