@@ -614,35 +614,12 @@ public extension NSMenuItem {
     func removeFromMenu() {
         menu?.removeItem(self)
     }
-    
-    /// The estimate width of the item.
-    internal var estimatedWidth: CGFloat {
-        if let view = view {
-            return view.frame.width
-        }
-
-        var titleWidth = 0.0
-        if let attributed = attributedTitle {
-            titleWidth = attributed.size().width
-        } else {
-            titleWidth = (title as NSString).size(withAttributes: [.font: font ?? NSFont.menuFont(ofSize: 0)]).width
-        }
-
-        var imageWidth = 0.0
-        if let image = image {
-            imageWidth = image.size.width + 6
-        }
-
-        let alternateWidth = alternateItem?.estimatedWidth ?? 0.0
-        let width = titleWidth + imageWidth + 30
-        return max(width, alternateWidth)
-    }
         
-    internal func setupMenuDelegateProxy() {
+    private func setupMenuDelegateProxy() {
         menu?.setupDelegateProxy()
         if !needsDelegateProxy {
             menuObservation = nil
-        } else {
+        } else if menuObservation == nil {
             menuObservation = observeChanges(for: \.menu) { old, new in
                 old?.setupDelegateProxy()
                 new?.setupDelegateProxy()
@@ -651,103 +628,51 @@ public extension NSMenuItem {
     }
     
     internal var needsDelegateProxy: Bool {
-        alternateItem != nil || updateHandler != nil || visibility != .always
+        (alternateItem != nil || updateHandler != nil || visibility != .always)
     }
     
-    internal var menuObservation: KeyValueObservation? {
+    private var menuObservation: KeyValueObservation? {
         get { getAssociatedValue("menuObservation") }
         set { setAssociatedValue(newValue, key: "menuObservation") }
-    }
-    
-    /// The width of the item.
-    internal var width: CGFloat? {
-        guard let menu = menu else { return nil }
-        return (title as NSString).size(withAttributes: [.font:menu.font]).width
     }
 }
 
 @available(macOS 14.0, *)
 public extension NSMenuItem {
-    static func palette(
-        images: [NSImage],
-        titles: [String] = [],
-        selectionMode: NSMenu.SelectionMode = .selectAny,
-        onSelectionChange: ((IndexSet) -> Void)? = nil
-    ) -> NSMenuItem {
-        let paletteItem = NSMenuItem()
-        let menu = NSMenu()
-        menu.presentationStyle = .palette
-        for (index, image) in images.enumerated() {
-            let item = NSMenuItem(image: image)
-            item.title = titles[safe: index] ?? ""
-            item.image = image
-            menu.addItem(item)
-        }
-        paletteItem.submenu = menu
-        return paletteItem
-    }
-    
-    static func palette(
-        symbolImages: [String],
-        titles: [String] = [],
-        selectionMode: NSMenu.SelectionMode = .selectAny,
-        onSelectionChange: ((IndexSet) -> Void)? = nil
-    ) -> NSMenuItem {
-        let paletteItem = NSMenuItem()
-        let menu = NSMenu()
-        menu.presentationStyle = .palette
-        let images = symbolImages.compactMap({NSImage(systemSymbolName: $0)})
-        for (index, image) in images.enumerated() {
-            let item = NSMenuItem(image: image)
-            item.title = titles[safe: index] ?? ""
-            menu.addItem(item)
-        }
-        paletteItem.submenu = menu
-        return paletteItem
+    /**
+     Creates a palette style menu item displaying user-selectable color tags that tint using the specified palette items.
+     
+     This factory method creates a presentation style menu item as a selectable number of tags that display as colored circles or images. If `image` is `nil`, a solid circle of color displays. If `image` isn’t `nil`, the `image` displays.
+     .
+     This code creates a menu item with a group header and a palette menu. The palette menu display a solid circle for each color you pass into the colors parameter and adds a checkmark to the middle of the circle when you select the item. You can also optionally pass in a closure that executes when any selection changes.
+     
+     - Parameters:
+        - items: The items to display.
+        - image: The image the system displays for the menu items.
+        - onImage: The image the system displays for the selected menu items.
+        - selectionMode: The selection mode of the menu.
+        - onSelectionChange: The closure to invoke when someone selects the menu item.
+     */
+    public static func palette(_ items: [NSMenu.PaletteItem], image: NSImage? = nil, onImage: NSImage? = nil, selectionMode: NSMenu.SelectionMode = .automatic, onSelectionChange: ((NSMenu) -> Void)? = nil) -> NSMenuItem {
+        NSMenuItem("").submenu(.palette(items, image: image, onImage: onImage, selectionMode: selectionMode, onSelectionChange: onSelectionChange))
     }
     
     /**
-     Creates a palette style menu item displaying user-selectable color tags that tint using the specified array of colors.
+     Creates a palette style menu item displaying user-selectable color tags that tint using the specified palette items.
+     
+     This factory method creates a presentation style menu item as a selectable number of tags that display as colored circles or images. If `symbolImage` is `nil`, a solid circle of color displays. If `symbolImage` isn’t `nil`, the `symbolImage` displays.
+     .
+     This code creates a menu item with a group header and a palette menu. The palette menu display a solid circle for each color you pass into the colors parameter and adds a checkmark to the middle of the circle when you select the item. You can also optionally pass in a closure that executes when any selection changes.
      
      - Parameters:
-        - colors: The display colors for the menu items.
-        - titles: The menu item titles.
-        - template: The image the system displays for the menu items.
-        - selectionMode:
+        - items: The items to display.
+        - image: The image the system displays for the menu items.
+        - onImage: The image the system displays for the selected menu items.
+        - selectionMode: The selection mode of the menu.
         - onSelectionChange: The closure to invoke when someone selects the menu item.
-     
-     - Returns: A menu item that presents with a palette.
      */
-    static func palette(
-        colors: [NSColor],
-        titles: [String] = [],
-        template: NSImage? = nil,
-        offStateTemplate: NSImage? = nil,
-        selectionMode: NSMenu.SelectionMode = .selectAny,
-        onSelectionChange: (([NSColor]) -> Void)? = nil
-    ) -> NSMenuItem {
-        let paletteItem = NSMenuItem()
-        let menu: NSMenu
-        if let offStateTemplate = offStateTemplate {
-            menu = .palette(colors: colors, titles: titles) { menu in
-                guard let onSelectionChange = onSelectionChange else { return }
-                let indexes = menu.selectedItems.compactMap({menu.items.firstIndex(of:$0)})
-                let colors = indexes.compactMap({colors[safe: $0]})
-                onSelectionChange(colors)
-            }
-            menu.items.forEach({$0.onStateImage = template})
-            menu.items.forEach({$0.offStateImage = offStateTemplate})
-        } else {
-            menu = .palette(colors: colors, titles: titles, template: template) { menu in
-                guard let onSelectionChange = onSelectionChange else { return }
-                let indexes = menu.selectedItems.compactMap({menu.items.firstIndex(of:$0)})
-                let colors = indexes.compactMap({colors[safe: $0]})
-                onSelectionChange(colors)
-            }
-        }
-        menu.selectionMode = selectionMode
-        paletteItem.submenu = menu
-        return paletteItem
+    public static func palette(_ items: [NSMenu.PaletteItem], symbolImage symbolName: String, onImage: String? = nil, selectionMode: NSMenu.SelectionMode = .automatic, onSelectionChange: ((NSMenu) -> Void)? = nil) -> NSMenuItem {
+        NSMenuItem("").submenu(.palette(items, symbolImage: symbolName, onImage: onImage, selectionMode: selectionMode, onSelectionChange: onSelectionChange))
     }
 }
 #endif

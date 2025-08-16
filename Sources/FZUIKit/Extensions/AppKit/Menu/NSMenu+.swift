@@ -602,6 +602,93 @@ extension NSMenu {
     }
 }
 
+@available(macOS 14.0, *)
+public extension NSMenu {
+    /**
+     Creates a palette style menu displaying user-selectable color tags that tint using the specified palette items.
+     
+     This factory method creates a presentation style menu as a selectable number of tags that display as colored circles or images. If `image` is `nil`, a solid circle of color displays. If `image` isn’t `nil`, the `image` displays.
+     .
+     This code creates a menu with a group header and a palette menu. The palette menu display a solid circle for each color you pass into the colors parameter and adds a checkmark to the middle of the circle when you select the item. You can also optionally pass in a closure that executes when any selection changes.
+     
+     - Parameters:
+        - items: The items to display.
+        - image: The image the system displays for the menu items.
+        - onImage: The image the system displays for the selected menu items.
+        - selectionMode: The selection mode of the menu.
+        - onSelectionChange: The closure to invoke when someone selects the menu item.
+     */
+    public static func palette(_ items: [PaletteItem], image: NSImage? = nil, onImage: NSImage? = nil, selectionMode: SelectionMode = .automatic, onSelectionChange: ((NSMenu) -> Void)? = nil) -> NSMenu {
+        let menu = NSMenu.palette(colors: items.map({$0.color}), titles: items.map({$0.title}), template: image, onSelectionChange: onSelectionChange)
+        menu.selectionMode = selectionMode
+        items.indexed().forEach({
+            if let image = $0.element.image {
+                menu.items[safe: $0.index]?.image = image
+            }
+            if let onImage = $0.element.onImage {
+                menu.items[safe: $0.index]?.onStateImage = onImage
+            }
+        })
+        if let onImage = onImage {
+            menu.items.forEach({ $0.onStateImage = onImage })
+        }
+        return menu
+    }
+    
+    /**
+     Creates a palette style menu displaying user-selectable color tags that tint using the specified palette items.
+     
+     This factory method creates a presentation style menu as a selectable number of tags that display as colored circles or images. If `symbolImage` is `nil`, a solid circle of color displays. If `symbolImage` isn’t `nil`, the `symbolImage` displays.
+     .
+     This code creates a menu with a group header and a palette menu. The palette menu display a solid circle for each color you pass into the colors parameter and adds a checkmark to the middle of the circle when you select the item. You can also optionally pass in a closure that executes when any selection changes.
+     
+     - Parameters:
+        - items: The items to display.
+        - image: The image the system displays for the menu items.
+        - onImage: The image the system displays for the selected menu items.
+        - selectionMode: The selection mode of the menu.
+        - onSelectionChange: The closure to invoke when someone selects the menu item.
+     */
+    public static func palette(_ items: [PaletteItem], symbolImage symbolName: String, onImage: String? = nil, selectionMode: SelectionMode = .automatic, onSelectionChange: ((NSMenu) -> Void)? = nil) -> NSMenu {
+        if let onImage = onImage {
+            return palette(items, image: .symbol(symbolName), onImage: .symbol(onImage), selectionMode: selectionMode, onSelectionChange: onSelectionChange)
+        }
+        return palette(items, image: .symbol(symbolName), selectionMode: selectionMode, onSelectionChange: onSelectionChange)
+    }
+    
+    /// A palette item for a palette menu.
+    public struct PaletteItem {
+        let color: NSColor
+        let title: String
+        let image: NSImage?
+        let onImage: NSImage?
+        private init(color: NSColor = .black, title: String? = nil, image: NSImage? = nil, onImage: NSImage? = nil) {
+            self.color = color
+            self.title = title ?? ""
+            self.image = image
+            self.onImage = onImage
+        }
+        
+        /// A Palette item with the specified color and title.
+        public static func color(_ color: NSColor, title: String? = nil) -> Self {
+            Self(color: color, title: title)
+        }
+        
+        /// A Palette item with the specified image and title.
+        public static func image(_ image: NSImage, color: NSColor? = nil, title: String? = nil, onImage: NSImage? = nil) -> Self {
+            Self(color: color ?? .black, title: title, image: image, onImage: onImage)
+        }
+        
+        /// A Palette item with the specified symbol image and title.
+        public static func symbol(_ symbolName: String, color: NSColor? = nil, title: String? = nil, onImage: String? = nil) -> Self {
+            if let onImage = onImage {
+                return Self(color: color ?? .black, title: title, image: .symbol(symbolName), onImage: .symbol(onImage))
+            }
+            return Self(color: color ?? .black, title: title, image: .symbol(symbolName))
+        }
+    }
+}
+
 fileprivate extension [NSMenuItem] {
     func withAlternates() -> [NSMenuItem] {
         flatMap { if let alternate = $0.alternateItem, !alternate.keyEquivalentModifierMask.isEmpty { return [$0, alternate] } else { return [$0] } }.uniqued()
