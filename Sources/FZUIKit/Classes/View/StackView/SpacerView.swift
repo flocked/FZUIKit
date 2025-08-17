@@ -160,7 +160,7 @@ fileprivate extension NSUIStackView {
                 object.arrangedViews.compactMap({ $0 as? SpacerView }).forEach({ $0.update() })
             }
             #else
-            orientationHook = try hookAfter(set: \.orientation, uniqueValues: true) { object, old, new in
+            orientationHook = try hookAfter(set: \.axis, uniqueValues: true) { object, old, new in
                 object.arrangedViews.compactMap({ $0 as? SpacerView }).forEach({ $0.update() })
             }
             #endif
