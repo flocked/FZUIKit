@@ -9,9 +9,9 @@
 
 #if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif os(iOS) || os(tvOS)
-    import UIKit
+import UIKit
 #endif
 import FZSwiftUtils
 
@@ -395,12 +395,12 @@ open class StackView: NSUIView {
         init(_ view: NSUIView, observation: KeyValueObservation?) {
             if let spacer = view as? SpacerView {
                 if let length = spacer.length {
-                   sizing = .fixed(length)
+                    sizing = .fixed(length)
                 } else {
                     sizing = .equal
                 }
             } else {
-               sizing = .automatic
+                sizing = .automatic
             }
             self.observation = observation
         }
