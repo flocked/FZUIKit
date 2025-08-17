@@ -10,6 +10,7 @@ import Foundation
 import QuartzCore
 import simd
 
+/// A vector with `x`, `y`, `z` and `w` value.
 public struct CGVector4 {
     var storage: simd_double4
     
@@ -75,12 +76,6 @@ public extension simd_double4 {
 public extension simd_float4 {
     init(_ vector: CGVector4) {
         self.init(Float(vector.x), Float(vector.y), Float(vector.z), Float(vector.w))
-    }
-}
-
-extension CGVector4: Interpolatable {
-    public func lerp(to: CGVector4, fraction: CGFloat) -> CGVector4 {
-        CGVector4(storage.lerp(to: to.storage, fraction: Double(fraction)))
     }
 }
 

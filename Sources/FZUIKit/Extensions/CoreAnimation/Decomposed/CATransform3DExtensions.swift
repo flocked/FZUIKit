@@ -405,18 +405,4 @@ public extension CATransform3D {
     }
 }
 
-// MARK: - CATransform3D Extensions
-
-extension CATransform3D.DecomposedTransform: Interpolatable {
-    public func lerp(to: Self, fraction: Double) -> Self {
-        CATransform3D.DecomposedTransform(storage.lerp(to: to.storage, fraction: Double(fraction)))
-    }
-}
-
-extension CATransform3D: Interpolatable {
-    public func lerp(to: Self, fraction: CGFloat) -> Self {
-        CATransform3D(_decomposed().lerp(to: to._decomposed(), fraction: Double(fraction)).recomposed())
-    }
-}
-
 #endif

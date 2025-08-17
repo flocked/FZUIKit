@@ -20,8 +20,7 @@ public extension WKWebView {
      */
     @discardableResult
     func load(_ url: URL) -> WKNavigation? {
-        let request = URLRequest(url: url)
-        return load(request)
+        load(URLRequest(url: url))
     }
 
     /**
@@ -39,7 +38,7 @@ public extension WKWebView {
         return load(url)
     }
 
-    /// Fetches all stored cookies asynchronously and delivers them to the specified completion handler.
+    /// Fetches all stored cookies asynchronously and returns them to the specified completion handler.
     func cookies(completion: @escaping ([HTTPCookie])->()) {
         configuration.websiteDataStore.httpCookieStore.getAllCookies {
             completion($0)

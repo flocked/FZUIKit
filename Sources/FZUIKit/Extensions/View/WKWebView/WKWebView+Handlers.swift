@@ -1,5 +1,5 @@
 //
-//  FZWebView.swift
+//  WKWebView+Handlers.swift
 //
 //
 //  Created by Florian Zand on 23.02.23.
@@ -12,7 +12,6 @@ import WebKit
 
 @available(macOS 11.3, iOS 14.5, *)
 extension WKWebView {
-    
     /// The handlers of a web view.
     public struct Handlers {
         

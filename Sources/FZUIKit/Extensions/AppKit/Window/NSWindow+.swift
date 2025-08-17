@@ -344,6 +344,7 @@ extension NSWindow {
         return self
     }
     
+    /*
     /**
      The size of the window’s content view.
      
@@ -360,6 +361,7 @@ extension NSWindow {
         self.contentSize = size
         return self
     }
+    */
     
     /// Sets the origin of the window’s frame rectangle in screen coordinates.
     @discardableResult

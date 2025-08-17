@@ -61,12 +61,6 @@ public extension simd_quatd {
     }
 }
 
-extension CGQuaternion: Interpolatable {
-    public func lerp(to: CGQuaternion, fraction: CGFloat) -> CGQuaternion {
-        CGQuaternion(storage.lerp(to: to.storage, fraction: Double(fraction)))
-    }
-}
-
 private let accuracy: Double = 0.0001
 
 extension CGQuaternion: Equatable {

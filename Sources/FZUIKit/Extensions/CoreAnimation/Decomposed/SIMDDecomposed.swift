@@ -372,23 +372,6 @@ public extension matrix_double4x4 {
     }
 }
 
-extension matrix_double4x4.DecomposedTransform: Interpolatable {
-    public func lerp(to: Self, fraction: Double) -> Self {
-        matrix_double4x4.DecomposedTransform(translation: translation.lerp(to: to.translation, fraction: fraction),
-                                             scale: scale.lerp(to: to.scale, fraction: fraction),
-                                             rotation: rotation.lerp(to: to.rotation, fraction: fraction),
-                                             eulerAngles: eulerAngles.lerp(to: to.eulerAngles, fraction: fraction),
-                                             skew: skew.lerp(to: to.skew, fraction: fraction),
-                                             perspective: perspective.lerp(to: to.perspective, fraction: fraction))
-    }
-}
-
-extension matrix_double4x4: Interpolatable {
-    public func lerp(to: Self, fraction: Double) -> Self {
-        decomposed().lerp(to: to.decomposed(), fraction: Double(fraction)).recomposed()
-    }
-}
-
 // MARK: - matrix_float4x4 Support
 
 public extension matrix_float4x4 {
@@ -659,23 +642,6 @@ public extension matrix_float4x4 {
 
             return recomposed
         }
-    }
-}
-
-extension matrix_float4x4.DecomposedTransform: Interpolatable {
-    public func lerp(to: Self, fraction: Float) -> Self {
-        matrix_float4x4.DecomposedTransform(translation: translation.lerp(to: to.translation, fraction: fraction),
-                                            scale: scale.lerp(to: to.scale, fraction: fraction),
-                                            rotation: rotation.lerp(to: to.rotation, fraction: fraction),
-                                            eulerAngles: eulerAngles.lerp(to: to.eulerAngles, fraction: fraction),
-                                            skew: skew.lerp(to: to.skew, fraction: fraction),
-                                            perspective: perspective.lerp(to: to.perspective, fraction: fraction))
-    }
-}
-
-extension matrix_float4x4: Interpolatable {
-    public func lerp(to: Self, fraction: Float) -> Self {
-        decomposed().lerp(to: to.decomposed(), fraction: fraction).recomposed()
     }
 }
 

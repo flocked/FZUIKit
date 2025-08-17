@@ -129,12 +129,12 @@ public extension AVAsset {
     func animatedImage(uniqueFrames: Bool = true, duration: CGFloat? = nil) -> NSUIImage? {
         let images = videoFrames(unique: uniqueFrames).compactMap({$0.nsUIImage})
         if let duration = duration {
-            return NSUIImage.animatedImage(images: images, duration: duration)
+            return NSUIImage.animatedImage(with: images, duration: duration)
         }
         if #available(macOS 12, iOS 15, tvOS 15, watchOS 8, *), let duration = timeDuration?.seconds {
-            return NSUIImage.animatedImage(images: images, duration: duration)
+            return NSUIImage.animatedImage(with: images, duration: duration)
         }
-        return NSUIImage.animatedImage(images: images, duration: self.duration.timeDuration.seconds)
+        return NSUIImage.animatedImage(with: images, duration: self.duration.timeDuration.seconds)
     }
     #endif
 }

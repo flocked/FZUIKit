@@ -18,13 +18,15 @@ public extension NSUIImage {
     #if os(macOS)
     /**
      Creates and returns an animated image from an existing set of images.
+     
+     All images included in the animated image should share the same size and scale.
 
      - Parameters:
         - images: The images to be used.
         - duration: The animation duration.
         - loopCount: The number of times that an animated image should play before stopping. A value of `0` indicates that the animated image doesn't stop.
      */
-    static func animatedImage(images: [NSUIImage], duration: TimeInterval, loopCount: Int = 0) -> NSUIImage? {
+    static func animatedImage(with images: [NSUIImage], duration: TimeInterval, loopCount: Int = 0) -> NSUIImage? {
         guard let gifData = NSUIImage.gifData(from: images, duration: duration, loopCount: loopCount) else { return nil }
         return NSUIImage(data: gifData)
     }
@@ -73,7 +75,7 @@ public extension NSUIImage {
         guard let images = try? imageSource.images().collect().compactMap({$0.nsUIImage}), images.count > 1 else { return nil }
         let duration = duration ?? imageSource.animationDuration ?? (Double(imageSource.count) * ImageSource.defaultFrameDuration)
         let loopCount = loopCount ?? imageSource.properties()?.loopCount ?? 0
-        return animatedImage(images: images, duration: duration, loopCount: loopCount)
+        return animatedImage(with: images, duration: duration, loopCount: loopCount)
     }
         
     /**

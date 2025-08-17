@@ -12,6 +12,7 @@ import QuartzCore
 import simd
 import FZSwiftUtils
 
+/// A vector with `x`, `y` and `z` value.
 public struct CGVector3 {
     var storage: simd_double3
     
@@ -84,12 +85,6 @@ public extension simd_double3 {
 public extension simd_float3 {
     init(_ vector: CGVector3) {
         self.init(Float(vector.x), Float(vector.y), Float(vector.z))
-    }
-}
-
-extension CGVector3: Interpolatable {
-    public func lerp(to: CGVector3, fraction: CGFloat) -> CGVector3 {
-        CGVector3(storage.lerp(to: to.storage, fraction: Double(fraction)))
     }
 }
 
