@@ -52,7 +52,7 @@ public extension Color {
     }
 }
 
-public extension CFType where Self == CGColor {
+public extension CGType where Self == CGColor {
     /// Creates a color using the CMYB components.
     init(_ cmybComponents: CMYBComponents) {
         self = NSUIColor(cmybComponents).cgColor

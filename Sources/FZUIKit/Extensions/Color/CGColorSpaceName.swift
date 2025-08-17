@@ -199,7 +199,7 @@ public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
     }
 }
 
-extension CFType where Self == CGColorSpace {
+extension CGType where Self == CGColorSpace {
     /// Creates a color space with the specified name.
     public init?(name: CGColorSpaceName) {
         guard let space = name.colorSpace else { return nil }

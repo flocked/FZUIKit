@@ -300,7 +300,7 @@ extension CGImage {
     #endif
 }
 
-extension CFType where Self == CGImage {
+extension CGType where Self == CGImage {
     /// Creates an image with the specified size.
     public init(size: CGSize) {
         let context = CGContext(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!

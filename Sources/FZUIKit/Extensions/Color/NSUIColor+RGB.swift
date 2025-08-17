@@ -243,7 +243,7 @@ public extension Color {
     }
 }
 
-public extension CFType where Self == CGColor {
+public extension CGType where Self == CGColor {
     /// Creates a color using the RGBA components.
     init(_ rgbaComponents: RGBAComponents) {
         self.init(red: rgbaComponents.red, green: rgbaComponents.green, blue: rgbaComponents.blue, alpha: rgbaComponents.alpha)
