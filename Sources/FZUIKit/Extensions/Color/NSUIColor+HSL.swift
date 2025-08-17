@@ -195,7 +195,7 @@ public extension Color {
     }
 }
 
-public extension CGType where Self == CGColor {
+public extension CFType where Self == CGColor {
     /// Creates a color using the HSLA components.
     init(_ hslaComponents: HSLAComponents) {
         self = NSUIColor(hslaComponents).cgColor

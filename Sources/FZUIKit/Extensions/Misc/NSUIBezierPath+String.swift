@@ -70,7 +70,7 @@ extension NSUIBezierPath {
     }
 }
 
-public extension CGType where Self: CGPath {
+public extension CFType where Self: CGPath {
     /// Creates and returns a path for the specified character and font.
     init(character: Character, font: NSUIFont) {
         self.init(string: String(character), font: font)

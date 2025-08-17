@@ -223,7 +223,7 @@ public extension Color {
     }
 }
 
-public extension CGType where Self == CGColor {
+public extension CFType where Self == CGColor {
     /// Creates a color using the HSBA components.
     init(_ hsbaComponents: HSBAComponents) {
         self = NSUIColor(hsbaComponents).cgColor
