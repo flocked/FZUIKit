@@ -52,7 +52,7 @@ public extension NSImage {
     func preparingForDisplay() -> NSImage? {
         guard let source = ImageSource(image: self) else { return nil }
         let options = imageOptionsForDisplaying()
-        if let cgImage = source.getImage(options: options) {
+        if let cgImage = source.image(options: options) {
             return NSImage(cgImage: cgImage)
         }
         return nil
@@ -146,7 +146,7 @@ public extension NSImage {
     func preparingThumbnail(of size: CGSize) -> NSImage? {
         guard let source = ImageSource(image: self) else { return nil }
         let options = thumbnailOptions(for: size)
-        if let cgImage = source.getThumbnail(options: options) {
+        if let cgImage = source.thumbnail(options: options) {
             return NSImage(cgImage: cgImage)
         }
         return nil
