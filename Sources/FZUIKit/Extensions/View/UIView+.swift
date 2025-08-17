@@ -271,6 +271,34 @@ extension UIView {
         }
     }
     
+    /**
+     An array representing the subviews of the view.
+     
+     Assigning a new array will:
+     - Remove subviews not in the new array
+     - Insert new subviews.
+     - Reorder existing subviews.
+     */
+    public var orderedSubviews: [UIView] {
+        get { subviews }
+        set {
+            guard subviews != newValue else { return }
+            subviews.filter({ !newValue.contains($0) }).forEach({ $0.removeFromSuperview() })
+            for (targetIndex, desiredView) in newValue.enumerated() {
+                if targetIndex < subviews.count {
+                    if subviews[targetIndex] == desiredView { continue }
+                    if let currentIndex = subviews.firstIndex(of: desiredView) {
+                        exchangeSubview(at: targetIndex, withSubviewAt: currentIndex)
+                    } else {
+                        insertSubview(desiredView, at: targetIndex)
+                    }
+                } else {
+                    addSubview(desiredView)
+                }
+            }
+        }
+    }
+    
     func setupTraitObservation() {
         if !viewHandlers.needsTraitObservation && !dynamicColors.needsObserving {
             traitObserverView?.removeFromSuperview()

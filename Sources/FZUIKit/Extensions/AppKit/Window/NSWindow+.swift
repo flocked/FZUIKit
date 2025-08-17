@@ -10,14 +10,14 @@ import AppKit
 import FZSwiftUtils
 
 extension NSWindow {
-    /// Repositions the window above the other specified window.
-    @objc open func order(above window: NSWindow) {
-        order(.above, relativeTo: window.windowNumber)
-    }
-    
     /// Repositions the window below the other specified window.
     @objc open func order(below window: NSWindow) {
         order(.below, relativeTo: window.windowNumber)
+    }
+    
+    /// Repositions the window above the other specified window.
+    @objc open func order(above window: NSWindow) {
+        order(.above, relativeTo: window.windowNumber)
     }
     
     /// Repositions the window’s origin with an offset from the specified frame.
@@ -725,6 +725,22 @@ extension NSWindow {
         willChangeValue(for: keyPath)
         self[keyPath: writable] = nil
         didChangeValue(for: keyPath)
+    }
+}
+
+extension Collection where Element == NSWindow {
+    /// Repositions the windows in the order of the collection.
+    public func order(firstIsFront: Bool = true) {
+        guard count > 1 else { return }
+        var current = first!
+        for window in dropFirst() {
+            if firstIsFront {
+                window.order(below: current)
+            } else {
+                window.order(above: current)
+            }
+            current = window
+        }
     }
 }
 #endif
