@@ -27,7 +27,7 @@ extension WKWebView {
         public func string(completion: @escaping (_ htmlString: String?) -> Void) {
             evalute("document.body.innerHTML", completion: completion)
         }
-        
+                
         /// The element with the specified identifier.
         public func element(id: String) -> Element {
             Element(self, id: id)
