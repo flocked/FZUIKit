@@ -75,6 +75,7 @@ class HTMLStringLoadingTask: NSObject {
     }
 }
 
+@available(macOS 11.3, iOS 14.5, *)
 extension HTMLStringLoadingTask {
     /// Returns a html string loading task for the specified url request.
     public static func loadString(for request: URLRequest, handler: @escaping (_ htmlString: String?)->()) -> HTMLStringLoadingTask {
