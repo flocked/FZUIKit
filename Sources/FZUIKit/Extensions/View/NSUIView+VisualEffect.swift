@@ -76,6 +76,16 @@ extension NSUIView {
 class BackgroundVisualEffectView: NSUIVisualEffectView {
     var observer: KeyValueObserver<NSUIVisualEffectView>!
 
+    #if os(macOS)
+    override var acceptsFirstResponder: Bool {
+        false
+    }
+    
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        return nil
+    }
+    #endif
+        
     init() {
         #if os(macOS)
         super.init(frame: .zero)

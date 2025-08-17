@@ -10,6 +10,7 @@ import WebKit
 import FZSwiftUtils
 
 /// Loads the html string of a website asynchronous.
+@available(macOS 11.3, iOS 14.5, *)
 class HTMLStringLoadingTask: NSObject {
     
     /// The state of the html string loading.
@@ -51,6 +52,9 @@ class HTMLStringLoadingTask: NSObject {
     private init(request: URLRequest, handler: @escaping (String?)->()) {
         self.request = request
         super.init()
+        webview.handlers.didFinishNavigation = { navigation in
+            navigation
+        }
         loadingObservation = webview.observeChanges(for: \.isLoading) { [weak self] oldValue, newValue in
             guard let self = self, self.state == .running else { return }
             if !newValue {
