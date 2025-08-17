@@ -165,10 +165,10 @@ open class TextFormatter: Formatter {
         if validationHandler?(string) == false {
             return false
         }
-        if let minimumCharacters = minimumNumberOfCharacters, string.length < minimumCharacters {
+        if let minimumCharacters = minimumNumberOfCharacters, string.count < minimumCharacters {
             return false
         }
-        if let maximumCharacters = maximumNumberOfCharacters, string.length > maximumCharacters {
+        if let maximumCharacters = maximumNumberOfCharacters, string.count > maximumCharacters {
             return false
         }
         if allowedCharacters != .all, !allowedCharacters.isValid(string) {
@@ -178,5 +178,4 @@ open class TextFormatter: Formatter {
         return true
     }
 }
-
 #endif
