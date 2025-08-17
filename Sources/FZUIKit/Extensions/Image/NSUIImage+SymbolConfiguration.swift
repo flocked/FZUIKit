@@ -322,7 +322,8 @@ extension NSUIImage.SymbolConfiguration {
     var pointSize: CGFloat? {
         get { value(forKey: "pointSize") ?? 0.0 }
         set {
-            setIvarValue(Double(newValue), of: "_pointSize")
+            let newValue = newValue != nil ? Double(newValue!) : nil
+            setIvarValue(newValue, of: "_pointSize")
             guard newValue != nil else { return }
             textStyle = nil
         }
