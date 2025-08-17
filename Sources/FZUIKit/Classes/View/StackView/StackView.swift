@@ -54,10 +54,10 @@ open class StackView: NSUIView {
     open var arrangedSubviews: [NSUIView] = [] {
         didSet {
             guard oldValue != arrangedSubviews else { return }
-            setupManagedViews(previous: oldValue)
+            setupArrangedSubviews(previous: oldValue)
         }
     }
-    
+        
     /// The spacing between views in the stack view.
     open var spacing: CGFloat = 6 {
         didSet {
@@ -74,17 +74,25 @@ open class StackView: NSUIView {
         }
     }
     
+    open var distribution: Distribution = .fill {
+        didSet {
+            guard oldValue != distribution else { return }
+            layoutArrangedSubviews()
+        }
+    }
+
+    
     /// Sets the distribution for all arranged subviews. The default value is `fill`.
     open func setDistribution(_ distribution: Distribution) {
         // arrangedSubviews.filter({$0 as? SpacerView == nil}).forEach({ setDistribution(distribution, for: $0) })
-        arrangedSubviews.forEach({ setDistribution(distribution, for: $0) })
+        self.distribution = distribution
     }
 
     /// Sets the distribution for an arranged subview. The default value is `fill`.
     open func setDistribution(_ distribution: Distribution, for arrangedSubview: NSUIView) {
         guard arrangedSubviews.contains(arrangedSubview) else { return }
-        guard arrangedViewOptions[arrangedSubview.id]?.distribution != distribution else { return }
-        arrangedViewOptions[arrangedSubview.id]?.distribution = distribution
+        guard arrangedViewOptions[arrangedSubview.objectID]?.distribution != distribution else { return }
+        arrangedViewOptions[arrangedSubview.objectID]?.distribution = distribution
         layoutArrangedSubviews()
     }
     
@@ -97,14 +105,14 @@ open class StackView: NSUIView {
     open func setSizing(_ sizing: Sizing, for  arrangedSubview: NSUIView) {
         guard arrangedSubviews.contains(arrangedSubview) else { return }
         guard !(arrangedSubview is SpacerView) else { return }
-        guard arrangedViewOptions[arrangedSubview.id]?.sizing != sizing else { return }
-        arrangedViewOptions[arrangedSubview.id]?.sizing = sizing
+        guard arrangedViewOptions[arrangedSubview.objectID]?.sizing != sizing else { return }
+        arrangedViewOptions[arrangedSubview.objectID]?.sizing = sizing
         layoutArrangedSubviews()
     }
     
     /// Applies custom spacing after the specified view.
     open func setCustomSpacing(_ spacing: CGFloat?, after view: NSUIView) {
-        arrangedViewOptions[view.id]?.spacing = spacing
+        arrangedViewOptions[view.objectID]?.spacing = spacing
     }
     
     #if os(macOS)
@@ -135,7 +143,7 @@ open class StackView: NSUIView {
         super.init(frame: .zero)
         layoutMargins = .zero
         arrangedSubviews = views
-        setupManagedViews()
+        setupArrangedSubviews()
     }
     
     /**
@@ -202,7 +210,7 @@ open class StackView: NSUIView {
         var sizes: [CGSize] = []
         var baselineOffsets: [CGFloat] = []
         for view in views {
-            let distribution = arrangedViewOptions[view.id]?.distribution ?? .fill
+            let distribution = arrangedViewOptions[view.objectID]?.distribution ?? .fill
             if orientation == .horizontal, distribution == .firstBaseline {
                 baselineOffsets.append(0-view.firstBaselineOffset.y)
             }
@@ -232,25 +240,21 @@ open class StackView: NSUIView {
     }
     #endif
     
-    private var arrangedViewOptions: [Int: ArrangedView] = [:]
+    private var arrangedViewOptions: [ObjectIdentifier: ArrangedView] = [:]
     
-    
-    private func setupManagedViews(previous: [NSUIView] = []) {
-        let removedViews = previous.compactMap({ !arrangedSubviews.contains($0) ?  $0 : nil })
-        let newViews = arrangedSubviews.compactMap({ !previous.contains($0) ?  $0 : nil })
-        
-        removedViews.forEach { view in
+    private func setupArrangedSubviews(previous: [NSUIView] = []) {
+        let diff = previous.difference(to: arrangedSubviews)
+        diff.removed.forEach { view in
             view.removeFromSuperview()
-            arrangedViewOptions[view.id] = nil
+            arrangedViewOptions[view.objectID] = nil
         }
-
-        newViews.forEach { view in
-            view.translatesAutoresizingMaskIntoConstraints = false
-            let observation = view.observeChanges(for: \.isHidden, handler: { [weak self] old, new in
-                guard let self = self, old != new else { return }
+        diff.added.forEach { view in
+            let observation = view.observeChanges(for: \.isHidden) { [weak self] old, new in
+                guard let self = self else { return }
                 self.layoutArrangedSubviews()
-            })
-            arrangedViewOptions[view.id] = .init(view, observation: observation)
+            }
+            arrangedViewOptions[view.objectID] = .init(view, observation: observation)
+            view.translatesAutoresizingMaskIntoConstraints = false
             addSubview(view)
         }
         layoutArrangedSubviews()
@@ -266,7 +270,7 @@ open class StackView: NSUIView {
         let arrangedSubviews = arrangedSubviews.filter({!$0.isHidden})
         guard !arrangedSubviews.isEmpty, let calculation = calculateSizes() else { return }
         var offsetTracker: CGFloat = orientation == .horizontal ? layoutMargins.left : layoutMargins.bottom
-        let totalSpacing = arrangedSubviews[safe: 0..<arrangedSubviews.count-1].compactMap({ arrangedViewOptions[$0.id]?.spacing ?? spacing }).sum()
+        let totalSpacing = arrangedSubviews[safe: 0..<arrangedSubviews.count-1].compactMap({ arrangedViewOptions[$0.objectID]?.spacing ?? spacing }).sum()
         let total = calculation.fixedValueSum + totalSpacing
         var width = bounds.size.width
         if orientation == .horizontal {
@@ -281,13 +285,13 @@ open class StackView: NSUIView {
             let layoutValue: CGFloat = orientation == .horizontal ? width : height
             var ratio: CGFloat = 1
             var size: CGSize?
-            switch arrangedViewOptions[arrangedSubview.id]!.sizing {
+            switch arrangedViewOptions[arrangedSubview.objectID]!.sizing {
             case .percentage(let percentage):
                 ratio = percentage / 100
             case .equal:
                 ratio = (1.0 - calculation.percentageLossSum) / calculation.equalSizeCount
             case .fixed, .automatic:
-                size = arrangedViewOptions[arrangedSubview.id]!.calculatedSize
+                size = arrangedViewOptions[arrangedSubview.objectID]!.calculatedSize
             }
             var viewFrame: CGRect = .zero
             viewFrame.origin.x = orientation == .horizontal ? offsetTracker : 0
@@ -299,7 +303,7 @@ open class StackView: NSUIView {
                 viewFrame.size.height = orientation == .horizontal ? arrangedSubview.frame.height.clamped(max: height) : layoutValue * ratio
             }
             arrangedSubview.frame = viewFrame
-            offsetTracker += (orientation == .horizontal ? viewFrame.width : viewFrame.height) + (arrangedViewOptions[arrangedSubview.id]!.spacing ?? spacing)
+            offsetTracker += (orientation == .horizontal ? viewFrame.width : viewFrame.height) + (arrangedViewOptions[arrangedSubview.objectID]!.spacing ?? spacing)
         }
         layoutDistributions()
     }
@@ -311,22 +315,18 @@ open class StackView: NSUIView {
         let availableSpace = bounds.inset(by: layoutMargins).size
         var calculation = LayoutCalculation()
         for arrangedSubview in arrangedSubviews {
-            switch arrangedViewOptions[arrangedSubview.id]!.sizing {
+            switch arrangedViewOptions[arrangedSubview.objectID]!.sizing {
             case .equal:
                 calculation.equalSizeCount += 1
             case .fixed(let value):
                 calculation.fixedValueSum += value
                 let isSpacer = arrangedSubview as? SpacerView != nil
-                arrangedViewOptions[arrangedSubview.id]!.calculatedSize = orientation == .horizontal ? CGSize(value, isSpacer ? 0 : arrangedSubview.frame.height) : CGSize(isSpacer ? 0 : arrangedSubview.frame.width, value)
+                arrangedViewOptions[arrangedSubview.objectID]!.calculatedSize = orientation == .horizontal ? CGSize(value, isSpacer ? 0 : arrangedSubview.frame.height) : CGSize(isSpacer ? 0 : arrangedSubview.frame.width, value)
             case .automatic:
-                #if os(macOS)
-                var fittingSize = systemLayoutSizeFitting(availableSpace)
-                #else
-                var fittingSize = arrangedSubview.sizeThatFits(availableSpace)
-                #endif
+                var fittingSize = arrangedSubview.systemLayoutSizeFitting(availableSpace)
                 fittingSize = fittingSize.width <= 0 || fittingSize.height <= 0 ? arrangedSubview.bounds.size : fittingSize
                 calculation.fixedValueSum += orientation == .horizontal ? fittingSize.width : fittingSize.height
-                arrangedViewOptions[arrangedSubview.id]!.calculatedSize = fittingSize
+                arrangedViewOptions[arrangedSubview.objectID]!.calculatedSize = fittingSize
             case .percentage(let percentage):
                 calculation.percentageLossSum += percentage
             }
@@ -338,7 +338,7 @@ open class StackView: NSUIView {
         if orientation == .horizontal {
             var baselineOffsets: [CGFloat] = []
             for arrangedSubview in arrangedSubviews {
-                switch arrangedViewOptions[arrangedSubview.id]!.distribution {
+                switch arrangedViewOptions[arrangedSubview.objectID]!.distribution ?? distribution {
                 case .center:
                     arrangedSubview.center.y = bounds.center.y
                 case .leading:
@@ -364,13 +364,13 @@ open class StackView: NSUIView {
             }
             let baselineOffset = 0 - (baselineOffsets.min() ?? 0)
             for arrangedSubview in arrangedSubviews {
-                if arrangedViewOptions[arrangedSubview.id]?.distribution == .firstBaseline {
+                if arrangedViewOptions[arrangedSubview.objectID]?.distribution == .firstBaseline {
                     arrangedSubview.frame.origin.y += baselineOffset + layoutMargins.bottom
                 }
             }
         } else {
             for arrangedSubview in arrangedSubviews {
-                switch arrangedViewOptions[arrangedSubview.id]!.distribution {
+                switch arrangedViewOptions[arrangedSubview.objectID]!.distribution ?? distribution {
                 case .center:
                     arrangedSubview.center.x = bounds.center.x
                 case .leading:
@@ -388,7 +388,7 @@ open class StackView: NSUIView {
     private class ArrangedView {
         let observation: KeyValueObservation?
         var sizing: Sizing
-        var distribution: Distribution = .fill
+        var distribution: Distribution?
         var spacing: CGFloat? = nil
         var calculatedSize: CGSize = .zero
         
@@ -438,12 +438,6 @@ extension StackView {
         public static func buildExpression(_ expr: NSUIView?) -> [NSUIView] {
             expr.map { [$0] } ?? []
         }
-    }
-}
-
-fileprivate extension NSUIView {
-    var id: Int {
-        ObjectIdentifier(self).hashValue
     }
 }
 #endif

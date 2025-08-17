@@ -156,14 +156,13 @@ fileprivate extension NSUIStackView {
         guard orientationHook == nil else { return }
         do {
             #if os(macOS)
-            orientationHook = try hookAfter(set: \.orientation, uniqueValues: true) { object, old, new in
-                object.arrangedViews.compactMap({ $0 as? SpacerView }).forEach({ $0.update() })
-            }
+            let keyPath: WritableKeyPath<NSStackView, Orientation> = \.orientation
             #else
-            orientationHook = try hookAfter(set: \.axis, uniqueValues: true) { object, old, new in
+            let keyPath: WritableKeyPath<NSUIStackView, Orientation> = \.axis
+            #endif
+            orientationHook = try hookAfter(set: keyPath, uniqueValues: true) { object, old, new in
                 object.arrangedViews.compactMap({ $0 as? SpacerView }).forEach({ $0.update() })
             }
-            #endif
         } catch {
             Swift.print(error)
         }
@@ -181,7 +180,7 @@ fileprivate extension NSUIStackView {
     #endif
     
     #if canImport(UIKit)
-    var orientation: NSUIUserInterfaceLayoutOrientation {
+    var orientation: NSLayoutConstraint.Axis {
         axis
     }
     #endif
