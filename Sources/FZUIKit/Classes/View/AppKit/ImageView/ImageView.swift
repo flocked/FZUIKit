@@ -904,7 +904,6 @@ open class ImageView: NSControl {
             default:
                 imageView.center = bounds.center
             }
-            containerView.frame = containerView.frame.clamped(to: bounds)
             containerView.frame.origin.x = imageView.frame.x.clamped(min: 0)
             containerView.frame.origin.y = imageView.frame.y.clamped(min: 0)
             containerView.frame.size.width = imageView.frame.size.width.clamped(max: bounds.width)
