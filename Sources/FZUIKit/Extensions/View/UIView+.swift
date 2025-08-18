@@ -26,7 +26,7 @@ extension UIView {
     /**
      The anchor point for the view’s position along the z axis.
      
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator().anchorPointZ`.
+     The value can be animated.
      
      The default value is `0.0`.
      */

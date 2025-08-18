@@ -18,12 +18,12 @@ import SwiftUI
  ```swift
  NSAnimationGroup {
     NSAnimator(duration: 4.0) {
-        view.animator().backgroundColor = .red
-        view.animator().frame.size.width = 200
+        view.backgroundColor = .red
+        view.frame.size.width = 200
     }.repeats(2)
     NSAnimator(duration: 2.0) {
-        view.animator().backgroundColor = .blue
-        view.animator().frame.size.width = 100
+        view.backgroundColor = .blue
+        view.frame.size.width = 100
     }.delay(1.0)
  }
  ```

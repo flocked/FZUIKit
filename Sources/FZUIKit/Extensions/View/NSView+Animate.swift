@@ -77,7 +77,6 @@ import SwiftUI
      @discardableResult
      public static func performWithoutAnimation(_ changes: @escaping () -> Void) -> NSAnimator {
          NSAnimationContext.performWithoutAnimation(changes)
-         // CATransaction.performNonAnimated(changes)
      }
      
      /**
@@ -88,12 +87,12 @@ import SwiftUI
       ```swift
       NSView.animate {
         NSView.animate(withDuration: 4.0) {
-             view.animator().backgroundColor = .red
-             view.animator().frame.size.width = 200
+             view.backgroundColor = .red
+             view.frame.size.width = 200
          }.repeats(2)
         NSView.animate(withDuration: 2.0) {
-             view.animator().backgroundColor = .blue
-             view.animator().frame.size.width = 100
+             view.backgroundColor = .blue
+             view.frame.size.width = 100
          }.delay(1.0)
       }
       ```

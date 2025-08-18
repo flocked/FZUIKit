@@ -244,7 +244,7 @@ public class NSAnimator: NSObject {
             self.state = .running
             NSAnimationContext.runAnimationGroup { context in
                 context.duration = 0.0
-                context.allowsImplicitAnimation = true
+                context.allowsImplicitAnimation = false
                 changes()
             } completionHandler: { self.finish(nextAnimation) }
         }

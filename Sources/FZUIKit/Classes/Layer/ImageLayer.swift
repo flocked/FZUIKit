@@ -285,7 +285,7 @@ open class ImageLayer: CALayer {
                     displayingSymbolImage = image
                 }
             }
-            CATransaction.performNonAnimated {
+            CATransaction.disabledActions {
                 #if os(macOS)
                 self.contents = image.scaledLayerContents
                 #else
@@ -293,7 +293,7 @@ open class ImageLayer: CALayer {
                 #endif
             }
         } else {
-            CATransaction.performNonAnimated {
+            CATransaction.disabledActions {
                 self.contents = nil
             }
         }

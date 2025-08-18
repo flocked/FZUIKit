@@ -508,7 +508,7 @@ extension CALayer {
                         } else {
                             _border.color = color.withAlpha(0.0)
                         }
-                        CATransaction.performNonAnimated {
+                        CATransaction.disabledActions {
                             setupBorder()
                         }
                     }
@@ -554,7 +554,7 @@ extension CALayer {
                     if layer.resolvedColor(for: newValue.resolvedColor()) == nil, _shadow.color?.isVisible == true {
                         newValue.color = .clear
                     } else if !_shadow.isVisible, let color = newValue.resolvedColor() {
-                        CATransaction.performNonAnimated {
+                        CATransaction.disabledActions {
                             if let parentView = layer.parentView {
                                 layer.shadowColor = color.resolvedColor(for: parentView).withAlpha(0.0).cgColor
                             } else {
@@ -587,7 +587,7 @@ extension CALayer {
                     if layer.resolvedColor(for: newValue.resolvedColor()) == nil, _innerShadow.color?.isVisible == true {
                         newValue.color = .clear
                     } else if !_innerShadow.isVisible, let color = newValue.resolvedColor() {
-                        CATransaction.performNonAnimated {
+                        CATransaction.disabledActions {
                             if let parentView = layer.parentView {
                                 layer.innerShadowLayer?.shadowColor  = color.resolvedColor(for: parentView).withAlpha(0.0).cgColor
                             } else {
@@ -610,7 +610,7 @@ extension CALayer {
                     if layer.resolvedColor(for: newValue) == nil, layer.backgroundColor?.alpha ?? 0.0 > 0.0 {
                         newValue = .clear
                     } else if layer.backgroundColor?.alpha ?? 1.0 <= 0.0, let color = newValue {
-                        CATransaction.performNonAnimated {
+                        CATransaction.disabledActions {
                             layer.backgroundColor = color.withAlpha(0.0).cgColor
                         }
                     }

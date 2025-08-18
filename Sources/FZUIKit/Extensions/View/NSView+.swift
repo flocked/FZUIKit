@@ -143,7 +143,9 @@ extension NSView {
 
      Changing the value of this property changes the front-to-back ordering of views onscreen. Higher values place the view visually closer to the viewer than views with lower values. This can affect the visibility of views whose frame rectangles overlap.
 
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     Using this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
      */
     @objc open var zPosition: CGFloat {
         get { layer?.zPosition ?? 0.0 }
@@ -167,9 +169,11 @@ extension NSView {
     /**
      The three-dimensional transform to apply to the view.
 
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator().transform3D`.
-
+     Using this property turns the view into a layer-backed view.
+     
      The default value is `CATransform3DIdentity`, which results in a view with no transformation.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
      */
     @objc open var transform3D: CATransform3D {
         get { layer?.transform ?? CATransform3DIdentity }
@@ -710,7 +714,9 @@ extension NSViewProtocol {
     /**
      The background color of the view.
      
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     Using this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
      */
     public var backgroundColor: NSColor? {
         get { layer?.configurations.backgroundColor }

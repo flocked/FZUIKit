@@ -9,15 +9,11 @@
 import QuartzCore
 
 public extension CATransaction {
-    /// Runs the specified closure without any animations.
-    static func performNonAnimated(_ changes: () -> Void) {
-        perform(duration: 0.0, disableActions: true, changes: changes)
-    }
-
     /// Runs the specified closure with disabled actions.
     static func disabledActions(_ changes: () -> Void) {
         CATransaction.begin()
         CATransaction.disableActions = true
+        CATransaction.animationDuration = 0.0
         changes()
         CATransaction.commit()
     }
@@ -32,12 +28,11 @@ public extension CATransaction {
         - changes: The closure containing the changes to animate
         - completion: A closure to execute after the animation completes.
      */
-    static func perform(duration: CGFloat = 0.25, timingFunction: CAMediaTimingFunction? = nil, disableActions: Bool = false, changes: () -> Void, completion: (() -> Void)? = nil) {
+    static func perform(duration: CGFloat = 0.25, timingFunction: CAMediaTimingFunction? = nil, changes: () -> Void, completion: (() -> Void)? = nil) {
         CATransaction.begin()
         CATransaction.completionHandler = completion
         CATransaction.animationDuration = duration
         CATransaction.timingFunction = timingFunction
-        CATransaction.disableActions = disableActions
         changes()
         CATransaction.commit()
     }
