@@ -106,7 +106,7 @@ public extension NSUIView {
          */
         case insets(top: CGFloat?, leading: CGFloat?, bottom: CGFloat?, trailing: CGFloat?)
         /// The view's frame is constraint to the specified position of the other view.
-        case positioned(Position, padding: CGPoint)
+        case positioned(Position, padding: CGPoint = .zero)
         
         /// The view's frame is constraint to the edges of the other view with the specified insets.
         public static func insets(_ insets: NSDirectionalEdgeInsets) -> ConstraintMode {
@@ -116,11 +116,6 @@ public extension NSUIView {
         /// The view's frame is constraint to the specified position of the other view.
         public static func positioned(_ position: Position, padding: CGFloat) -> Self {
             .positioned(position, padding: CGPoint(padding, padding))
-        }
-        
-        /// The view's frame is constraint to the specified position of the other view.
-        public static func positioned(_ position: Position) -> Self {
-            .positioned(position, padding: .zero)
         }
         
         /// The position of the view inside another view.
@@ -149,13 +144,25 @@ public extension NSUIView {
     /**
      Adds a view to the end of the receiver’s list of subviews and constraits it's frame to the receiver.
      
-     - Parameters:
-        - view: The view to be added. After being added, this view appears on top of any other subviews.
-        - mode: The mode for constraining the subview's frame.
+     - Parameter view: The view to be added. After being added, this view appears on top of any other subviews.
      - Returns: The layout constraints in the following order: `leading`, `bottom`, `trailing` and `top`.
      */
     @discardableResult
-    @objc func addSubview(withConstraint view: NSUIView, _ mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
+    @objc func addSubview(withConstraint view: NSUIView) -> [NSLayoutConstraint] {
+        addSubview(withConstraint: view, .full)
+    }
+    
+    /**
+     Adds a view to the end of the receiver’s list of subviews and constraits it's frame to the receiver using the specified mode.
+     
+     - Parameters:
+        - view: The view to be added. After being added, this view appears on top of any other subviews.
+        - mode: The mode for constraining the subview's frame.
+     
+     - Returns: The layout constraints in the following order: `leading`, `bottom`, `trailing` and `top`.
+     */
+    @discardableResult
+    @objc func addSubview(withConstraint view: NSUIView, _ mode: ConstraintMode) -> [NSLayoutConstraint] {
         addSubview(view)
         return view.constraint(to: self, mode)
     }
@@ -166,12 +173,26 @@ public extension NSUIView {
      - Parameters:
         - view: The view to insert.
         - index: The index of insertation.
+     
+     - Returns: The layout constraints in the following order: `leading`, `bottom`, `trailing` and `top`.
+     */
+    @discardableResult
+    @objc func insertSubview(withConstraint view: NSUIView, at index: Int) -> [NSLayoutConstraint] {
+        insertSubview(withConstraint: view, .full, at: index)
+    }
+    
+    /**
+     Inserts the view to the end of the receiver’s list of subviews and constraits it's frame to the receiver using the specified mode.
+     
+     - Parameters:
+        - view: The view to insert.
+        - index: The index of insertation.
         - mode: The mode for constraining the subview's frame.
      
      - Returns: The layout constraints in the following order: `leading`, `bottom`, `trailing` and `top`.
      */
     @discardableResult
-    @objc func insertSubview(withConstraint view: NSUIView, at index: Int,  _ mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
+    @objc func insertSubview(withConstraint view: NSUIView, _ mode: ConstraintMode, at index: Int) -> [NSLayoutConstraint] {
         guard index >= 0 else { return [] }
         insertSubview(view, at: index)
         return view.constraint(to: self, mode)
@@ -201,11 +222,10 @@ public extension NSUIView {
      */
     @discardableResult
     @objc func constraint(to view: NSUIView, usingConstraints: Bool = true, _ mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
-        usingConstraints ? constraintUsingConstraints(to: view, mode: mode) : constraintUsingObservation(to: view, mode: mode)
+        usingConstraints ? constraintUsingConstraints(to: view, mode) : constraintUsingObservation(to: view, mode)
     }
     
-    fileprivate func constraintUsingConstraints(to view: NSUIView, mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
-        translatesAutoresizingMaskIntoConstraints = false
+    fileprivate func constraintUsingConstraints(to view: NSUIView, _ mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
         let constants: [CGFloat]
         switch mode {
         case .absolute:
@@ -233,46 +253,50 @@ public extension NSUIView {
         case .full: frame = view.bounds
         default: break
         }
+        translatesAutoresizingMaskIntoConstraints = false
         var constraints: [NSLayoutConstraint] = []
         switch mode {
         case let .insets(top, leading, bottom, trailing):
             if let top = top {
-                constraints += topAnchor.constraint(equalTo: view.topAnchor, constant: top)
+                constraints.append(topAnchor.constraint(equalTo: view.topAnchor, constant: top))
             }
             if let leading = leading {
-                constraints += leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: leading)
+                constraints.append(leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: leading))
             }
             if let bottom = bottom {
-                constraints += bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: bottom)
+                constraints.append(bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: bottom))
             }
             if let trailing = trailing {
-                constraints += trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: trailing)
+                constraints.append(trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: trailing))
             }
         case let .positioned(position, padding):
             switch position {
             case .top, .topLeading, .topTrailing:
-                constraints += topAnchor.constraint(equalTo: view.topAnchor, constant: padding.x)
+                constraints.append(topAnchor.constraint(equalTo: view.topAnchor, constant: padding.x))
             case .bottom, .bottomLeading, .bottomTrailing:
-                constraints += bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -padding.x)
+                constraints.append(bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -padding.x))
             case .center, .leading, .trailing:
-                constraints += centerYAnchor.constraint(equalTo: view.centerYAnchor)
+                constraints.append(centerYAnchor.constraint(equalTo: view.centerYAnchor))
             }
             switch position {
             case .leading, .bottomLeading, .topLeading:
-                constraints += leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding.y)
+                constraints.append(leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: padding.y))
             case .trailing, .bottomTrailing, .topTrailing:
-                constraints += trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding.y)
+                constraints.append(trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -padding.y))
             case .center, .bottom, .top:
-                constraints += centerXAnchor.constraint(equalTo: view.centerXAnchor)
+                constraints.append(centerXAnchor.constraint(equalTo: view.centerXAnchor))
             }
         default:
-            constraints = [leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: constants[0], multiplier:  multipliers[0]), bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: constants[1], multiplier:  multipliers[1]), trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: constants[2], multiplier:  multipliers[2]), topAnchor.constraint(equalTo: view.topAnchor, constant: constants[3], multiplier:  multipliers[3])]
+            constraints = [leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: constants[0], multiplier:  multipliers[0]),
+                           bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: constants[1], multiplier:  multipliers[1]),
+                           trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: constants[2], multiplier:  multipliers[2]),
+                           topAnchor.constraint(equalTo: view.topAnchor, constant: constants[3], multiplier:  multipliers[3]),]
         }
         constraints.activate()
         return constraints
     }
     
-    fileprivate func constraintUsingObservation(to view: NSUIView, mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
+    fileprivate func constraintUsingObservation(to view: NSUIView, _ mode: ConstraintMode = .full) -> [NSLayoutConstraint] {
         constraintDeinitObservation = view.observeDeinit { [weak self] in
             guard let self = self else { return }
             self.constraintBoundsObservation = nil
@@ -320,15 +344,24 @@ public extension NSUIView {
         set { setAssociatedValue(newValue, key: "constraintBoundsObservation") }
     }
         
-    #if os(macOS)
+#if os(macOS)
     /**
      Adds a view to the end of the receiver’s list of subviews and autoresizes it.
      
+     - Parameter view: The view to be added. After being added, this view appears on top of any other subviews.
+     */
+    func addSubview(withAutoresizing view: NSView) {
+        addSubview(withAutoresizing: view, mode: .full)
+    }
+    
+    /**
+     Adds a view to the end of the receiver’s list of subviews and autoresizes it to the receiver.
+     
      - Parameters:
         - view: The view to be added. After being added, this view appears on top of any other subviews.
-        - mode: The mode for autoresizing the subview.
+        - mode: The mode for autoresizing the subview..
      */
-    func addSubview(withAutoresizing view: NSView, _ mode: ConstraintMode = .full) {
+    func addSubview(withAutoresizing view: NSUIView, mode: ConstraintMode) {
         view.translatesAutoresizingMaskIntoConstraints = true
         addSubview(view)
         view.autoresize(to: view, using: mode)
@@ -340,21 +373,14 @@ public extension NSUIView {
      - Parameters:
         - view: The view to insert.
         - index: The index of insertation.
-        - mode: The mode for autoresizing the subview.
+        - mode: The mode for autoresizing the subview..
      */
-    func insertSubview(withAutoresizing view: NSUIView, to index: Int, _ mode: ConstraintMode) {
+    func insertSubview(withAutoresizing view: NSUIView, _ mode: ConstraintMode, to index: Int) {
         guard index >= 0 else { return }
-        addSubview(withAutoresizing: view, mode)
+        addSubview(withAutoresizing: view, mode: mode)
         moveSubview(view, to: index)
     }
     
-    /**
-     Autoresizes the view to the specified other view.
-     
-     - Parameters:
-        - view: The view to autoresize to.
-        - mode: The mode for autoresizing the view.
-     */
     func autoresize(to view: NSView, using mode: ConstraintMode) {
         translatesAutoresizingMaskIntoConstraints = true
         switch mode {
@@ -376,7 +402,7 @@ public extension NSUIView {
             autoresizingMask = .all
         }
     }
-    #endif
+#endif
 }
 
 /// The Objective-C class for ``NSUIView/ConstraintMode``.
