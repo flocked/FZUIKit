@@ -104,15 +104,17 @@ public extension NSBitmapImageRep {
     
     ///Changing the frame duration of a bitmap representation is normally not saved, which prevents changing the animation duration. This fixes it.
     private func swizzleFrameDurationUpdate() {
-        guard !isMethodHooked(#selector(self.setProperty(_:withValue:))) else { return }
+        guard !isMethodHooked(#selector(setProperty(_:withValue:))) else { return }
         let _currentFrame = currentFrame
         do {
-            try hook(#selector(self.setProperty(_:withValue:)), closure: { original, object, sel, property, value in
+            try hook(#selector(setProperty(_:withValue:)), closure: { original, object, sel, property, value in
                 original(object, sel, property, value)
                 if property == .currentFrameDuration, let value = value as? TimeInterval {
                     object._currentFrameDuration = value
                 } else if property == .currentFrame {
                     original(object, sel, .currentFrameDuration, object._currentFrameDuration)
+                } else {
+                    original(object, sel, property, value)
                 }
             } as @convention(block) (
                 (NSBitmapImageRep, Selector, NSBitmapImageRep.PropertyKey, Any?) -> Void,

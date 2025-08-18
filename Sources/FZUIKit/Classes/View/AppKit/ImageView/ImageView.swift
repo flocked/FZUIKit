@@ -102,7 +102,6 @@ open class ImageView: NSControl {
     }
     
     func imagesUpdated() {
-        
         containerView.isHidden = imagesCount == 0
         overlayContentView.isHidden = containerView.isHidden
         stopAnimating()
@@ -172,7 +171,7 @@ open class ImageView: NSControl {
         didSet {
             guard oldValue != imageScaling else { return }
             imageView.imageScaling = imageScaling.nsImageScaling
-            layout()
+            setNeedsLayout()
         }
     }
     
@@ -208,7 +207,7 @@ open class ImageView: NSControl {
         didSet {
             guard oldValue != imageAlignment else { return }
             imageView.imageAlignment = imageAlignment
-            layout()
+            setNeedsLayout()
         }
     }
     
@@ -877,7 +876,6 @@ open class ImageView: NSControl {
         
         overlayContentView.frame = bounds
         containerView.addSubview(overlayContentView)
-        cell = imageView.cell        
     }
     
     open override func layout() {
@@ -906,10 +904,11 @@ open class ImageView: NSControl {
             default:
                 imageView.center = bounds.center
             }
+            containerView.frame = containerView.frame.clamped(to: bounds)
             containerView.frame.origin.x = imageView.frame.x.clamped(min: 0)
             containerView.frame.origin.y = imageView.frame.y.clamped(min: 0)
-            containerView.frame.size.width = imageView.frame.size.width.clamped(to: 0...bounds.width)
-            containerView.frame.size.height = imageView.frame.size.height.clamped(to: 0...bounds.height)
+            containerView.frame.size.width = imageView.frame.size.width.clamped(max: bounds.width)
+            containerView.frame.size.height = imageView.frame.size.height.clamped(max: bounds.height)
         } else {
             imageView.frame = bounds
             containerView.frame = imageView.imageBounds
@@ -930,11 +929,6 @@ open class ImageView: NSControl {
             overlayContentView.frame = containerView.bounds
             didChangeValue(for: \.imageBounds)
         }
-    }
-    
-    open override class var cellClass: AnyClass? {
-        get { NSImageView.cellClass }
-        set { }
     }
     
     open override func updateTrackingAreas() {
@@ -995,7 +989,7 @@ open class ImageView: NSControl {
             imageView.image = displayingImage
         }
         if oldImageSize != imageView.image?.size || cropImagesToNonTransparent {
-            layout()
+            setNeedsLayout()
         }
 
     }

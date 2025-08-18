@@ -161,7 +161,7 @@ extension CALayer {
 fileprivate extension CALayer {
     @objc func swizzled_action(forKey event: String) -> (any CAAction)? {
         var action = swizzled_action(forKey: event)
-        if action == nil, Self.animatableKeys.contains(event) {
+        if action == nil, NSAnimationContext.hasActiveGrouping, Self.animatableKeys.contains(event) {
             action = CABasicAnimation(keyPath: event)
         }
         if let animation = NSAnimationContext.current.animator, let action = action as? CAAnimation, let new = action.copy() as? CAAnimation {

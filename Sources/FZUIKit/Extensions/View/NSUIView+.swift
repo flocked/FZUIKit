@@ -575,6 +575,13 @@ extension NSUIView {
         return self
     }
     #endif
+    
+    /// Sets the Boolean indicating whether the view displays its content when facing away from the viewer.
+    @discardableResult
+    public func isDoubleSided(_ isDoubleSided: Bool) -> Self {
+        optionalLayer?.isDoubleSided = isDoubleSided
+        return self
+    }
 
     /**
      Prints the hierarchy of the view and its subviews to the console.
