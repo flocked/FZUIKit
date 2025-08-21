@@ -299,12 +299,9 @@ public extension NSSegmentedControl {
      - Parameters:
         - switching: The tracking behavior of the segmented control.
         - style: The visual style of the segmented control.
-        - segments: An array of segments.
+        - segments: The segments of the segmented control.
      */
-    convenience init(
-        switching: NSSegmentedControl.SwitchTracking = .selectOne,
-        style: NSSegmentedControl.Style = .automatic,
-        segments: [NSSegment]) {
+    convenience init(switching: SwitchTracking = .selectOne, style: Style = .automatic, segments: [NSSegment]) {
             self.init(frame: .zero)
             segmentStyle = style
             trackingMode = switching
@@ -318,18 +315,11 @@ public extension NSSegmentedControl {
      - Parameters:
         - switching: The tracking behavior of the segmented control.
         - style: The visual style of the segmented control.
-        - segments: The segments.
+        - segments: The segments of the segmented control.
      */
-    convenience init(
-        switching: NSSegmentedControl.SwitchTracking = .selectOne,
-        style: NSSegmentedControl.Style = .automatic,
-        @Builder segments: () -> [NSSegment]) {
-            self.init(frame: .zero)
-            segmentStyle = style
-            trackingMode = switching
-            self.segments = segments()
-            sizeToFit()
-        }
+    convenience init(switching: SwitchTracking = .selectOne, style: Style = .automatic, @Builder segments: () -> [NSSegment]) {
+        self.init(switching: switching, style: style, segments: segments())
+    }
     
     /**
      The selected segments.

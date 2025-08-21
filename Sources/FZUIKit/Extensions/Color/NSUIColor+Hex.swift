@@ -88,11 +88,10 @@ public extension NSUIColor {
 
     /// Returns a hex string representing the color (e.g. `#112233`)
     var hexString: String {
-        let color = hex
         if rgbaComponents().alpha == 1.0 {
-            return "#" + String(format: "%06x", color)
+            return "#" + String(format: "%06x", hex)
         } else {
-            return "#" + String(format: "#%08x", color)
+            return "#" + String(format: "#%08x", hex)
         }
     }
 }
