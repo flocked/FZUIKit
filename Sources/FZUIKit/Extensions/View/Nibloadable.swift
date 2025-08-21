@@ -45,7 +45,7 @@ public protocol Nibloadable: NSObject {
     /**
      Initalizes the object from the main storyboard.
      
-     - Parameters: identifier: The storyboard identifier of the object, or `nil` to use the object's class name as identifier.
+     - Parameter identifier: The storyboard identifier of the object, or `nil` to use the object's class name as identifier.
      
      - Returns: The initalized object.
      */

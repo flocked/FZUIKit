@@ -152,13 +152,6 @@ extension NSMenu {
         items.reversed().forEach({ insertItem($0, at: index) })
     }
     
-    /// Adds the specified menu item to the end of the menu.
-    @discardableResult
-    public static func += (_ menu: NSMenu, _ item: NSMenuItem) -> NSMenu {
-        menu.addItem(item)
-        return menu
-    }
-    
     /**
      Returns all menu items in the menu and its submenus up to a given depth.
      

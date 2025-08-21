@@ -48,8 +48,8 @@ extension View {
      Masks this view using the inverse alpha channel of a given view.
      
      - Parameters:
-     - alignment: The alignment for `mask` in relation to this view. Default is `.center`.
-     - mask: The view whose alpha the rendering system inversely applies to the specified view.
+        - alignment: The alignment for `mask` in relation to this view. Default is `.center`.
+        - mask: The view whose alpha the rendering system inversely applies to the specified view.
      */
     @ViewBuilder func reverseMask<Mask: View>(
         alignment: Alignment = .center,
