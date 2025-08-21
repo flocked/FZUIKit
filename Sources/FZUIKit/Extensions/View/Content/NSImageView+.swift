@@ -328,7 +328,7 @@ extension NSImageView {
             var cellSize = reservedLayoutSize
             if cellSize.width == 0 || cellSize.height == 0 {
                 if image.isSymbolImage {
-                    let symbolSize = CGSize(width: 24, height: 24)
+                    let symbolSize = CGSize(width: 36, height: 16)
                     if cellSize.width == 0 { cellSize.width = symbolSize.width }
                     if cellSize.height == 0 { cellSize.height = symbolSize.height }
                 } else {

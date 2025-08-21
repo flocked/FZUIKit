@@ -33,15 +33,15 @@ extension NSUIGestureRecognizer {
     /// Moves the gesture recognizer to the front of its view’s gesture recognizers, making it the first to receive event handling.
     func moveToFront() {
         guard let view = view else { return }
-        let reattaches = reattachesAutomatically
-        reattachesAutomatically = false
-        defer { reattachesAutomatically = reattaches }
         #if os(macOS)
         var gestureRecognizers = view.gestureRecognizers
         #else
         var gestureRecognizers = view.gestureRecognizers ?? []
         #endif
-        guard let index = gestureRecognizers.firstIndex(where: { $0 === self }) else { return }
+        guard gestureRecognizers.first != self, let index = gestureRecognizers.firstIndex(where: { $0 === self }) else { return }
+        let reattaches = reattachesAutomatically
+        reattachesAutomatically = false
+        defer { reattachesAutomatically = reattaches }
         gestureRecognizers.remove(at: index)
         view.gestureRecognizers = self + gestureRecognizers
     }
@@ -49,15 +49,15 @@ extension NSUIGestureRecognizer {
     /// Moves the gesture recognizer to the back of its view’s gesture recognizers, making it the last to receive event handling.
     func moveToBack() {
         guard let view = view else { return }
-        let reattaches = reattachesAutomatically
-        reattachesAutomatically = false
-        defer { reattachesAutomatically = reattaches }
         #if os(macOS)
         var gestureRecognizers = view.gestureRecognizers
         #else
         var gestureRecognizers = view.gestureRecognizers ?? []
         #endif
-        guard let index = gestureRecognizers.firstIndex(where: { $0 === self }) else { return }
+        guard gestureRecognizers.last != self, let index = gestureRecognizers.firstIndex(where: { $0 === self }) else { return }
+        let reattaches = reattachesAutomatically
+        reattachesAutomatically = false
+        defer { reattachesAutomatically = reattaches }
         gestureRecognizers.remove(at: index)
         view.gestureRecognizers = gestureRecognizers + self
     }
@@ -88,7 +88,7 @@ extension NSUIGestureRecognizer {
                 reattachViewObservation = observeChanges(for: \.view) { [weak self] old, new in
                     guard let self = self else { return }
                     if new == nil, let old = old {
-                        DispatchQueue.background.async(after: 0.5) { [weak self] in
+                        DispatchQueue.background.async(after: 0.2) { [weak self] in
                             guard let self = self else { return }
                             old.addGestureRecognizer(self)
                         }
@@ -112,5 +112,4 @@ extension NSUIGestureRecognizer {
         set { setAssociatedValue(newValue, key: "reattachViewObservation") }
     }
 }
-
 #endif

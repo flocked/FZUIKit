@@ -16,7 +16,7 @@ public extension NSNib {
      - Parameter nibName: The name of the nib file, without any leading path information. Inclusion of the .nib extension on the nib file name is optional.
      - Returns: The initialized `NSNib` object or `nil` if there were errors during initialization or the nib file could not be located.
      */
-    convenience init?(nibNamed nibName: NSNib.Name) {
+    convenience init?(nibNamed nibName: Name) {
         self.init(nibNamed: nibName, bundle: nil)
     }
 
@@ -28,7 +28,7 @@ public extension NSNib {
      - Parameter nibName: The name of the nib file, without any leading path information. Inclusion of the .nib extension on the nib file name is optional.
      - Returns: The initialized `NSNib` object or `nil` if there were errors during initialization or the nib file could not be located.
      */
-    convenience init?(_ nibName: NSNib.Name) {
+    convenience init?(_ nibName: Name) {
         self.init(nibNamed: nibName, bundle: nil)
     }
 
