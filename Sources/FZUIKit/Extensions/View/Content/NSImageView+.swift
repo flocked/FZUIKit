@@ -297,7 +297,11 @@ extension NSImageView {
         set {
             if newValue != nil, let cell = cell as? NSImageCell, !(cell is ReservedLayoutImageCell) {
                 do {
+                    wantsLayer = true
+                    let layer = layer
                     self.cell = try cell.archiveBasedCopy(as: ReservedLayoutImageCell.self)
+                    layer?.delegate = self as? any CALayerDelegate
+                    self.layer = layer
                 } catch {
                     Swift.print(error)
                 }
