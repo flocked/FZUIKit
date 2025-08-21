@@ -276,4 +276,100 @@ extension NSImageView {
         transition(CATransition(type, subtype: transitionAnimation.subtype, duration: transitionDuration))
     }
 }
+
+@available(macOS 11.0, *)
+extension NSImageView {
+    /**
+     The layout size that the system reserves for the image, and then centers the image within.
+     
+     Use this property to ensure:
+     - Consistent horizontal alignment for images across adjacent content views, even when the images vary in width.
+     - Consistent height for content views, even when the images vary in height.
+     
+     The reserved layout size only affects the amount of space for the image, and its positioning within that space. It doesn’t affect the size of the image.
+     
+     The default value is `zero`. A width or height of zero means that the system uses the default behavior for that dimension:
+     - The system centers symbol images inside a predefined reserved layout size that scales with the content size category.
+     - Nonsymbol images use a reserved layout size equal to the actual size of the displayed image.
+     */
+    public var reservedLayoutSize: CGSize? {
+        get { (cell as? ReservedLayoutImageCell)?.reservedLayoutSize }
+        set {
+            if newValue != nil, let cell = cell as? NSImageCell, !(cell is ReservedLayoutImageCell) {
+                do {
+                    self.cell = try cell.archiveBasedCopy(as: ReservedLayoutImageCell.self)
+                } catch {
+                    Swift.print(error)
+                }
+            }
+            (cell as? ReservedLayoutImageCell)?.reservedLayoutSize = newValue
+        }
+    }
+    
+    /// Sets the layout size that the system reserves for the image, and then centers the image within.
+    @discardableResult
+    public func reservedLayoutSize(_ size: CGSize?) -> Self {
+        reservedLayoutSize = size
+        return self
+    }
+    
+    private class ReservedLayoutImageCell: NSImageCell {
+        var reservedLayoutSize: CGSize? = .zero
+        var symbolConfiguration: NSImage.SymbolConfiguration? {
+            if #available(macOS 12.0, *) {
+                return (controlView as? NSImageView)?.symbolConfiguration ?? image?.symbolConfiguration
+            } else {
+                return (controlView as? NSImageView)?.symbolConfiguration
+            }
+        }
+
+        override var cellSize: NSSize {
+            guard let reservedLayoutSize = reservedLayoutSize, let image = image else { return super.cellSize }
+            var cellSize = reservedLayoutSize
+            if cellSize.width == 0 || cellSize.height == 0 {
+                if image.isSymbolImage {
+                    let symbolSize = CGSize(width: 24, height: 24)
+                    if cellSize.width == 0 { cellSize.width = symbolSize.width }
+                    if cellSize.height == 0 { cellSize.height = symbolSize.height }
+                } else {
+                    if cellSize.width == 0 { cellSize.width = image.size.width }
+                    if cellSize.height == 0 { cellSize.height = image.size.height }
+                }
+            }
+            return cellSize
+        }
+        
+        override func draw(withFrame cellFrame: NSRect, in controlView: NSView) {
+            guard reservedLayoutSize != nil, let image = image else {
+                super.draw(withFrame: cellFrame, in: controlView)
+                return
+            }
+            let reservedSize = cellSize
+            var imageRect: CGRect = CGRect(.zero, image.size)
+            switch imageAlignment {
+            case .alignLeft, .alignTopLeft, .alignBottomLeft:
+                imageRect.origin.x = cellFrame.origin.x
+            case .alignRight, .alignTopRight, .alignBottomRight:
+                imageRect.origin.x = cellFrame.maxX - reservedSize.width
+            case .alignCenter, .alignTop, .alignBottom:
+                imageRect.origin.x = cellFrame.midX - (reservedSize.width / 2.0)
+            default:
+                imageRect.origin.x = cellFrame.origin.x
+            }
+            switch imageAlignment {
+            case .alignBottom, .alignBottomLeft, .alignBottomRight:
+                imageRect.origin.y = cellFrame.origin.y
+            case .alignTop, .alignTopLeft, .alignTopRight:
+                imageRect.origin.y = cellFrame.maxY - reservedSize.height
+            case .alignCenter, .alignLeft, .alignRight:
+                imageRect.origin.y = cellFrame.midY - (reservedSize.height / 2.0)
+            default:
+                imageRect.origin.y = cellFrame.origin.y
+            }
+            imageRect.origin.x += (reservedSize.width - image.size.width) / 2
+            imageRect.origin.y += (reservedSize.height - image.size.height) / 2
+            image.draw(in: imageRect)
+        }
+    }
+}
 #endif

@@ -25,8 +25,8 @@ open class ImageView: NSControl {
     // MARK: - Specifying the image
     
     /// The image displayed in the image view.
-   @IBInspectable open var image: NSImage? {
-       get { images.count == 1 ? images.first : animatedImage?.image }
+    @IBInspectable open var image: NSImage? {
+        get { images.count == 1 ? images.first : animatedImage?.image }
         set {
             guard newValue != image else { return }
             if let newImage = newValue {
@@ -45,14 +45,14 @@ open class ImageView: NSControl {
     open override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
         return false
     }
-        
+    
     /// Sets the image displayed in the image view.
     @discardableResult
     open func image(_ image: NSImage?) -> Self {
         self.image = image
         return self
     }
-
+    
     /// The images displayed by the image view.
     open var images: [NSImage] = [] {
         didSet {
@@ -143,6 +143,33 @@ open class ImageView: NSControl {
     @available(macOS 13.0, *)
     open func symbolConfiguration(_ symbolConfiguration: ImageSymbolConfiguration?) -> Self {
         imageSymbolConfiguration = symbolConfiguration
+        return self
+    }
+    
+    /**
+     The layout size that the system reserves for the image, and then centers the image within.
+     
+     Use this property to ensure:
+     - Consistent horizontal alignment for images across adjacent content views, even when the images vary in width.
+     - Consistent height for content views, even when the images vary in height.
+     
+     The reserved layout size only affects the amount of space for the image, and its positioning within that space. It doesn’t affect the size of the image.
+     
+     The default value is `zero`. A width or height of zero means that the system uses the default behavior for that dimension:
+     - The system centers symbol images inside a predefined reserved layout size that scales with the content size category.
+     - Nonsymbol images use a reserved layout size equal to the actual size of the displayed image.
+     */
+    @available(macOS 11.0, *)
+    public var reservedLayoutSize: CGSize? {
+        get { imageView.reservedLayoutSize }
+        set { imageView.reservedLayoutSize = newValue }
+    }
+    
+    /// Sets the layout size that the system reserves for the image, and then centers the image within.
+    @discardableResult
+    @available(macOS 11.0, *)
+    public func reservedLayoutSize(_ size: CGSize?) -> Self {
+        reservedLayoutSize = size
         return self
     }
         
@@ -1073,16 +1100,6 @@ open class ImageView: NSControl {
     open override var baselineOffsetFromBottom: CGFloat {
         imageView.baselineOffsetFromBottom
     }
-    
-    /*
-    open override var firstBaselineAnchor: NSLayoutYAxisAnchor {
-        get { imageView.firstBaselineAnchor }
-    }
-    
-    open override var lastBaselineAnchor: NSLayoutYAxisAnchor {
-        get { imageView.lastBaselineAnchor }
-    }
-     */
     
     open override func hitTest(_ point: NSPoint) -> NSView? {
         let view = super.hitTest(point)

@@ -37,14 +37,14 @@ extension NSUIControl {
     
     /// Sets the vertical alignment of content within the control’s bounds.
     @discardableResult
-    public func contentVerticalAlignment(_ alignment: UIControl.ContentVerticalAlignment) -> Self {
+    public func contentVerticalAlignment(_ alignment: ContentVerticalAlignment) -> Self {
         self.contentVerticalAlignment = alignment
         return self
     }
     
     /// Sets the horizontal alignment of content within the control’s bounds.
     @discardableResult
-    public func contentHorizontalAlignment(_ alignment: UIControl.ContentHorizontalAlignment) -> Self {
+    public func contentHorizontalAlignment(_ alignment: ContentHorizontalAlignment) -> Self {
         self.contentHorizontalAlignment = alignment
         return self
     }

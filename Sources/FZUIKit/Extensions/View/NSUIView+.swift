@@ -563,7 +563,7 @@ extension NSUIView {
 
     /// Sets the first nondefault tint color value in the view’s hierarchy, ascending from and starting with the view itself.
     @discardableResult
-    @objc open func tintColor(_ color: UIColor!) -> Self {
+    @objc open func tintColor(_ color: UIColor?) -> Self {
         tintColor = color
         return self
     }
