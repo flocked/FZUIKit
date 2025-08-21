@@ -33,8 +33,8 @@ public extension NSTextField {
          
      - Parameter string: The string value of the text field.
      */
-    static func label(_ stringValue: String = "") -> NSTextField {
-        NSTextField(labelWithString: stringValue).backgroundColor(nil)
+    static func label(_ stringValue: String = "") -> Self {
+        Self(labelWithString: stringValue).backgroundColor(nil)
     }
         
     /**
