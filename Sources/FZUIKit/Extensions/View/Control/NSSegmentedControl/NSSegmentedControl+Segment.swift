@@ -9,7 +9,7 @@
 
 import AppKit
 
-/// A segment of a `NSSegmentedControl`.
+/// A segment of a [NSSegmentedControl](https://developer.apple.com/documentation/appkit/nssegmentedcontrol).
 public class NSSegment: NSObject, ExpressibleByStringLiteral {
     internal weak var segmentedControl: NSSegmentedControl?
     private weak var toolbarItem: Toolbar.SegmentedControl?
@@ -82,7 +82,7 @@ public class NSSegment: NSObject, ExpressibleByStringLiteral {
     /**
      The width of the segment.
      
-     The default value is `0` and indicates that the segment is sized automatically to fit the available space.
+     The default value is `0`, which indicates that the segment is sized automatically to fit the available space.
      */
     public var width: CGFloat = 0 {
         didSet {
@@ -137,6 +137,16 @@ public class NSSegment: NSObject, ExpressibleByStringLiteral {
         return self
     }
     
+    /// Sets the symbol image of the segment.
+    @available(macOS 11.0, *)
+    public func symbolImage(_ symbolName: String?) -> Self {
+        if let symbolName = symbolName {
+            return image(.symbol(symbolName))
+        } else {
+            return image(nil)
+        }
+    }
+    
     /// Sets the image scaling of the segment.
     @discardableResult
     public func imageScaling(_ imageScaling: NSImageScaling) -> Self {
@@ -153,7 +163,7 @@ public class NSSegment: NSObject, ExpressibleByStringLiteral {
     
     /// Sets the menu of the segment with the specified menu items.
     @discardableResult
-    public func menu(@MenuBuilder _ items: @escaping () -> [NSMenuItem]) -> Self {
+    public func menu(@MenuBuilder _ items: () -> [NSMenuItem]) -> Self {
         self.menu = NSMenu(items)
         return self
     }

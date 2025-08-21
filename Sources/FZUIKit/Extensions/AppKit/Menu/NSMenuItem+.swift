@@ -462,7 +462,7 @@ public extension NSMenuItem {
     
     /// Sets the menu item’s menu.
     @discardableResult
-    func menu(@MenuBuilder _ items: @escaping () -> [NSMenuItem]) -> Self {
+    func menu(@MenuBuilder _ items: () -> [NSMenuItem]) -> Self {
         menu = NSMenu().items(items)
         return self
     }
@@ -476,7 +476,7 @@ public extension NSMenuItem {
     
     /// The submenu of the menu item.
     @discardableResult
-    func submenu(@MenuBuilder _ items: @escaping () -> [NSMenuItem]) -> Self {
+    func submenu(@MenuBuilder _ items: () -> [NSMenuItem]) -> Self {
         submenu = NSMenu().items(items)
         return self
     }
@@ -653,7 +653,7 @@ public extension NSMenuItem {
         - selectionMode: The selection mode of the menu.
         - onSelectionChange: The closure to invoke when someone selects the menu item.
      */
-    public static func palette(_ items: [NSMenu.PaletteItem], image: NSImage? = nil, onImage: NSImage? = nil, selectionMode: NSMenu.SelectionMode = .automatic, onSelectionChange: ((NSMenu) -> Void)? = nil) -> NSMenuItem {
+    static func palette(_ items: [NSMenu.PaletteItem], image: NSImage? = nil, onImage: NSImage? = nil, selectionMode: NSMenu.SelectionMode = .automatic, onSelectionChange: ((NSMenu) -> Void)? = nil) -> NSMenuItem {
         NSMenuItem("").submenu(.palette(items, image: image, onImage: onImage, selectionMode: selectionMode, onSelectionChange: onSelectionChange))
     }
     
@@ -671,7 +671,7 @@ public extension NSMenuItem {
         - selectionMode: The selection mode of the menu.
         - onSelectionChange: The closure to invoke when someone selects the menu item.
      */
-    public static func palette(_ items: [NSMenu.PaletteItem], symbolImage symbolName: String, onImage: String? = nil, selectionMode: NSMenu.SelectionMode = .automatic, onSelectionChange: ((NSMenu) -> Void)? = nil) -> NSMenuItem {
+    static func palette(_ items: [NSMenu.PaletteItem], symbolImage symbolName: String, onImage: String? = nil, selectionMode: NSMenu.SelectionMode = .automatic, onSelectionChange: ((NSMenu) -> Void)? = nil) -> NSMenuItem {
         NSMenuItem("").submenu(.palette(items, symbolImage: symbolName, onImage: onImage, selectionMode: selectionMode, onSelectionChange: onSelectionChange))
     }
 }

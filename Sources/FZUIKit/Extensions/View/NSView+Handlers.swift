@@ -22,7 +22,7 @@ extension NSView {
     
     /// Sets the menu with the specified items.
     @discardableResult
-    public func menu(@MenuBuilder _ items: @escaping () -> [NSMenuItem]) -> Self {
+    public func menu(@MenuBuilder _ items: () -> [NSMenuItem]) -> Self {
         self.menu = NSMenu(items)
         return self
     }
