@@ -88,10 +88,10 @@ extension NSUIGestureRecognizer {
                 reattachViewObservation = observeChanges(for: \.view) { [weak self] old, new in
                     guard let self = self else { return }
                     if new == nil, let old = old {
-                        DispatchWorkItem { [weak self] in
+                        DispatchQueue.background.async(after: 0.5) { [weak self] in
                             guard let self = self else { return }
                             old.addGestureRecognizer(self)
-                        }.perform(after: 0.5)
+                        }
                     }
                 }
             } else {
