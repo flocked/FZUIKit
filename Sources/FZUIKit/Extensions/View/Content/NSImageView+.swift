@@ -423,7 +423,7 @@ extension NSImageView {
 }
 
 @available(macOS 11.0, *)
-fileprivate struct SymbolFont: Hashable, Codable {
+public struct SymbolFont: Hashable, Codable {
     let size: CGFloat
     let scale: Int
     let weight: CGFloat
@@ -435,5 +435,15 @@ fileprivate struct SymbolFont: Hashable, Codable {
     }
     
     static let `default` = Self(13.0, .default, .regular)
+}
+
+@available(macOS 11.0, *)
+extension NSTextField {
+    public static let symbolSizes: [SymbolFont: CGSize] = {
+        if let url = Bundle.module.url(forResource: "fontSizes"), let data = try? Data(contentsOf: url), let sizes = try? JSONDecoder().decode([SymbolFont: CGSize].self, from: data) {
+            return sizes
+        }
+        return [.default : CGSize(25.0, 20.0)]
+    }()
 }
 #endif
