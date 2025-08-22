@@ -293,20 +293,21 @@ extension NSImageView {
      - Nonsymbol images use a reserved layout size equal to the actual size of the displayed image.
      */
     public var reservedLayoutSize: CGSize? {
-        get { (cell as? ReservedLayoutImageCell)?.reservedLayoutSize }
+        get { reservedLayoutCell?.reservedLayoutSize }
         set {
-            if newValue != nil, let cell = cell as? NSImageCell, !(cell is ReservedLayoutImageCell) {
+            if newValue != nil, let cell = cell as? NSImageCell, reservedLayoutCell == nil {
                 do {
                     wantsLayer = true
                     let layer = layer
                     self.cell = try cell.archiveBasedCopy(as: ReservedLayoutImageCell.self)
                     layer?.delegate = self as? any CALayerDelegate
                     self.layer = layer
+                    reservedLayoutCell?.setupObservations(for: self)
                 } catch {
                     Swift.print(error)
                 }
             }
-            (cell as? ReservedLayoutImageCell)?.reservedLayoutSize = newValue
+            reservedLayoutCell?.reservedLayoutSize = newValue
         }
     }
     
@@ -317,22 +318,24 @@ extension NSImageView {
         return self
     }
     
+    private var reservedLayoutCell: ReservedLayoutImageCell? {
+        cell as? ReservedLayoutImageCell
+    }
+    
     private class ReservedLayoutImageCell: NSImageCell {
         var reservedLayoutSize: CGSize? = .zero
-        var symbolConfiguration: NSImage.SymbolConfiguration? {
-            if #available(macOS 12.0, *) {
-                return (controlView as? NSImageView)?.symbolConfiguration ?? image?.symbolConfiguration
-            } else {
-                return (controlView as? NSImageView)?.symbolConfiguration
-            }
-        }
+        
+        var lastSymbolFont: SymbolFont = .default
+        var symbolSize = CGSize(25.0, 20.0)
+        var observations: [KeyValueObservation] = []
+        var needsSymbolSizeUpdate = false
 
         override var cellSize: NSSize {
             guard let reservedLayoutSize = reservedLayoutSize, let image = image else { return super.cellSize }
             var cellSize = reservedLayoutSize
             if cellSize.width == 0 || cellSize.height == 0 {
                 if image.isSymbolImage {
-                    let symbolSize = CGSize(width: 36, height: 16)
+                    updateSymbolSize()
                     if cellSize.width == 0 { cellSize.width = symbolSize.width }
                     if cellSize.height == 0 { cellSize.height = symbolSize.height }
                 } else {
@@ -374,6 +377,63 @@ extension NSImageView {
             imageRect.origin.y += (reservedSize.height - image.size.height) / 2
             image.draw(in: imageRect)
         }
+        
+        func updateSymbolSize() {
+            guard needsSymbolSizeUpdate else { return }
+            let symbolFont = symbolFont
+            needsSymbolSizeUpdate = false
+            guard symbolFont != lastSymbolFont else { return }
+            lastSymbolFont = symbolFont
+            symbolSize = Self.symbolSizes[symbolFont] ?? Self.symbolSizes[.default]!
+        }
+        
+        static let symbolSizes: [SymbolFont: CGSize] = {
+            if let url = Bundle.module.url(forResource: "fontSizes"), let data = try? Data(contentsOf: url), let sizes = try? JSONDecoder().decode([SymbolFont: CGSize].self, from: data) {
+                return sizes
+            }
+            return [.default : CGSize(25.0, 20.0)]
+        }()
+        
+        func setupObservations(for imageView: NSImageView) {
+            observations += imageView.observeChanges(for: \.image) { [weak self] old, new in
+                guard let self = self, old != new else { return }
+                self.needsSymbolSizeUpdate = true
+            }
+            observations += imageView.observeChanges(for: \.symbolConfiguration) { [weak self] old, new in
+                guard let self = self else { return }
+                self.needsSymbolSizeUpdate = true
+            }
+        }
+        
+        var symbolConfiguration: NSImage.SymbolConfiguration? {
+            if #available(macOS 12.0, *) {
+                return (controlView as? NSImageView)?.symbolConfiguration ?? image?.symbolConfiguration
+            } else {
+                return (controlView as? NSImageView)?.symbolConfiguration
+            }
+        }
+        
+        var symbolFont: SymbolFont {
+            if let configuration = symbolConfiguration {
+                return SymbolFont(configuration.pointSize, configuration.scale, configuration.weight)
+            }
+            return .default
+        }
     }
+}
+
+@available(macOS 11.0, *)
+fileprivate struct SymbolFont: Hashable, Codable {
+    let size: CGFloat
+    let scale: Int
+    let weight: CGFloat
+    
+    init(_ size: CGFloat, _ scale: NSImage.SymbolScale, _ weight: NSFont.Weight) {
+        self.size = size
+        self.scale = scale.rawValue
+        self.weight = (weight == .unspecified ? .regular : weight).rawValue
+    }
+    
+    static let `default` = Self(13.0, .default, .regular)
 }
 #endif

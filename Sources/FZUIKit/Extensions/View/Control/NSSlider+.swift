@@ -183,7 +183,11 @@ public extension NSSlider {
     fileprivate func convertToExtendedCell() {
         guard extendedCell == nil, let sliderCell = cell as? NSSliderCell else { return }
         do {
+            wantsLayer = true
+            let layer = layer
             cell = try sliderCell.archiveBasedCopy(as: ExtendedSliderCell.self)
+            layer?.delegate = self as? any CALayerDelegate
+            self.layer = layer
         } catch {
             debugPrint(error)
         }

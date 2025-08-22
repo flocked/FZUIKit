@@ -42,9 +42,9 @@ extension NSUIImage.SymbolConfiguration {
     /// Returns the symbol configuration with the specified symbol scale.
     public func scale(_ scale: NSUIImage.SymbolScale?) -> NSUIImage.SymbolConfiguration {
         if #available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *) {
-            return applying(NSUIImage.SymbolConfiguration(scale: scale ?? .unspecified))
+            return applying(NSUIImage.SymbolConfiguration(scale: scale ?? .default))
         } else {
-            return copied().scale(scale ?? .unspecified)
+            return copied().scale(scale ?? .default)
         }
     }
     
@@ -566,9 +566,6 @@ public extension UIImage {
 public extension NSImage.SymbolScale {
     /// The default scale variant that matches the system usage.
     static var `default`: NSImage.SymbolScale { NSImage.SymbolScale(rawValue: -1)! }
-    
-    /// An unspecified scale.
-    static var unspecified: NSImage.SymbolScale { NSImage.SymbolScale(rawValue: 0)! }
 }
 
 public extension NSFont.Weight {
