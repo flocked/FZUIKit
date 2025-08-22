@@ -353,7 +353,7 @@ extension NSUIImage.SymbolConfiguration {
     var weight: NSUISymbolWeight {
         get {
             #if os(macOS)
-            guard let weight: Double = value(forKey: "weight") else { return .regular }
+            guard let weight: Double = value(forKey: "weight") else { return .unspecified }
             return NSUISymbolWeight(rawValue: weight)
             #else
             guard let rawValue: Int = value(forKey: "weight") else { return .unspecified }
