@@ -655,35 +655,12 @@ extension NSFont.Weight {
 @available(macOS 11.0, *)
 extension NSImage.SymbolConfiguration {
     class func symbolWeight(for fontWeight: NSFont.Weight) -> NSFont.Weight {
-        let cls = NSImage.SymbolConfiguration.self
-        let selector = NSSelectorFromString("_symbolWeightForFontWeight:")
         typealias Function = @convention(c) (AnyObject, Selector, NSFont.Weight) -> NSFont.Weight
-
-        if let function = classMethod(for: selector, function: Function.self) {
-            Swift.print("GGGGG", function(cls, selector, fontWeight).rawValue)
-            return function(cls, selector, fontWeight)
-        }
-        
-        if cls.responds(to: selector) {
-            
-            
-            let method = class_getClassMethod(object_getClass(cls), selector)
-            let imp = method_getImplementation(method!)
-            let function = unsafeBitCast(imp, to: Function.self)
-            return function(cls, selector, fontWeight)
-        }
-        return fontWeight
+        let selector = NSSelectorFromString("_symbolWeightForFontWeight:")
+        return classMethod(for: selector, as: Function.self)?(self, selector, fontWeight) ?? fontWeight
     }
 }
 #endif
-
-extension NSObject {
-    class func classMethod<F>(for selector: Selector, function: F.Type) -> F? {
-        guard responds(to: selector), let method = class_getClassMethod(object_getClass(self), selector) else { return nil }
-        let imp = method_getImplementation(method)
-        return unsafeBitCast(imp, to: F.self)
-    }
-}
 
 @available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension NSUIFont.TextStyle {
