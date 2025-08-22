@@ -332,8 +332,8 @@ extension NSImageView {
     private class ReservedLayoutImageCell: NSImageCell {
         var reservedLayoutSize: CGSize? = .zero
         
-        var lastSymbolFont: SymbolFont = .default
-        var symbolSize = CGSize(25.0, 20.0)
+        var lastSymbolConfiguration: NSImage.SymbolConfiguration = .default
+        var symbolSize = NSImageView.reservedLayoutSize(for: .default)
         var observations: [KeyValueObservation] = []
         var needsSymbolSizeUpdate = false
 
@@ -393,19 +393,12 @@ extension NSImageView {
         
         func updateSymbolSize() {
             guard needsSymbolSizeUpdate else { return }
-            let symbolFont = symbolFont
             needsSymbolSizeUpdate = false
-            guard symbolFont != lastSymbolFont else { return }
-            lastSymbolFont = symbolFont
-            symbolSize = Self.symbolSizes[symbolFont] ?? Self.symbolSizes[.default]!
+            let configuration = (controlView as? NSImageView)?.currentSymbolConfiguration ?? .default
+            guard configuration != lastSymbolConfiguration else { return }
+            lastSymbolConfiguration = configuration
+            symbolSize = NSImageView.reservedLayoutSize(for: configuration)
         }
-        
-        static let symbolSizes: [SymbolFont: CGSize] = {
-            if let url = Bundle.module.url(forResource: "fontSizes"), let data = try? Data(contentsOf: url), let sizes = try? JSONDecoder().decode([SymbolFont: CGSize].self, from: data) {
-                return sizes
-            }
-            return [.default : CGSize(25.0, 20.0)]
-        }()
         
         func setupObservations(for imageView: NSImageView) {
             observations += imageView.observeChanges(for: \.image) { [weak self] old, new in
@@ -417,36 +410,40 @@ extension NSImageView {
                 self.needsSymbolSizeUpdate = true
             }
         }
-        
-        var symbolConfiguration: NSImage.SymbolConfiguration? {
-            if #available(macOS 12.0, *) {
-                return (controlView as? NSImageView)?.symbolConfiguration ?? image?.symbolConfiguration
-            } else {
-                return (controlView as? NSImageView)?.symbolConfiguration
-            }
+    }
+}
+
+@available(macOS 11.0, *)
+fileprivate extension NSImageView {
+    static func reservedLayoutSize(for configuration: NSImage.SymbolConfiguration) -> CGSize {
+        if let size = symbolConfigurationSizes[configuration] {
+            return size
         }
-        
-        var symbolFont: SymbolFont {
-            if let configuration = symbolConfiguration {
-                return SymbolFont(configuration.pointSize, configuration.scale, configuration.weight)
-            }
-            return .default
+        guard let imageSize = NSImage.symbol("theatermasks", withConfiguration: configuration)?.size else {
+            return CGSize(33.0, 22.0)
+        }
+        symbolConfigurationSizes[configuration] = imageSize
+        return imageSize
+    }
+    
+    static var symbolConfigurationSizes: [NSImage.SymbolConfiguration: CGSize] {
+        get { getAssociatedValue("symbolConfigurationSizes", initialValue: [.default: NSImage.symbol("theatermasks", withConfiguration: .default)!.size]) }
+        set { setAssociatedValue(newValue, key: "symbolConfigurationSizes") }
+    }
+    
+    var currentSymbolConfiguration: NSImage.SymbolConfiguration {
+        if #available(macOS 12.0, *) {
+            return symbolConfiguration ?? image?.symbolConfiguration ?? .default
+        } else {
+            return symbolConfiguration ?? .default
         }
     }
 }
 
 @available(macOS 11.0, *)
-fileprivate struct SymbolFont: Hashable, Codable {
-    let size: CGFloat
-    let scale: Int
-    let weight: CGFloat
-    
-    init(_ size: CGFloat, _ scale: NSImage.SymbolScale, _ weight: NSFont.Weight) {
-        self.size = size
-        self.scale = scale.rawValue
-        self.weight = (weight == .unspecified ? .regular : weight).rawValue
-    }
-    
-    static let `default` = Self(13.0, .default, .regular)
+fileprivate extension NSImage.SymbolConfiguration {
+    static let `default` = NSImage.SymbolConfiguration(textStyle: .body)
 }
+
+
 #endif

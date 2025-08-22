@@ -485,7 +485,7 @@ public struct ImageSymbolConfiguration: Hashable {
 
         if let symbolScale = scale?.nsUI {
             if let _configuration = configuration, font == nil {
-                configuration = _configuration.scale(symbolScale)
+                configuration = _configuration + .scale(symbolScale)
             } else if configuration == nil {
                 configuration = .init(scale: symbolScale)
             }

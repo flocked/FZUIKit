@@ -24,9 +24,9 @@ extension NSUIImage.SymbolConfiguration {
     
     #if os(macOS)
     /// Creates a configuration object with the specified weight information.
-    public convenience init(weight: NSUISymbolWeight = .regular) {
+    public convenience init(weight: NSUISymbolWeight) {
         self.init()
-        guard weight != .regular else { return }
+        guard weight != .unspecified else { return }
         self.weight = weight
     }
     
@@ -35,6 +35,105 @@ extension NSUIImage.SymbolConfiguration {
     }
     #endif
     
+    /// Creates a configuration object with the specified point-size information.
+    public static func pointSize(_ pointSize: CGFloat) -> NSUIImage.SymbolConfiguration {
+        #if os(macOS)
+        .init(pointSize: pointSize, weight: .unspecified)
+        #else
+        .init(pointSize: pointSize)
+        #endif
+    }
+    
+    /// Creates a configuration object with the specified point-size and weight information.
+    public static func pointSize(_ pointSize: CGFloat, weight: NSUISymbolWeight) -> NSUIImage.SymbolConfiguration {
+        .init(pointSize: pointSize, weight: weight)
+    }
+    
+    /// Creates a configuration object with the specified point-size, weight, and scale information.
+    public static func pointSize(_ pointSize: CGFloat, weight: NSUISymbolWeight = .regular, scale: NSUIImage.SymbolScale) -> NSUIImage.SymbolConfiguration {
+        .init(pointSize: pointSize, weight: weight, scale: scale)
+    }
+    
+    /// Creates a configuration object with the specified font text style information.
+    public static func textStyle(_ textStyle: NSUIFontTextStyle) -> NSUIImage.SymbolConfiguration {
+        .init(textStyle: textStyle)
+    }
+    
+    /// Creates a configuration object with the specified font text style and scale information.
+    public static func textStyle(_ textStyle: NSUIFontTextStyle, scale: NSUIImageSymbolScale) -> NSUIImage.SymbolConfiguration {
+        .init(textStyle: textStyle, scale: scale)
+    }
+    
+    #if canImport(UIKit)
+    /// Creates a configuration object with the specified font information.
+    public static func font(_ font: UIFont) -> UIImage.SymbolConfiguration {
+        .init(font: font)
+    }
+
+    /// Creates a configuration object with the specified font and scale information.
+    public static func font(_ font: UIFont, scale: UIImage.SymbolScale) -> UIImage.SymbolConfiguration {
+        .init(font: font, scale: scale)
+    }
+    #endif
+    
+    /// Creates a configuration object with the specified scale information.
+    public static func scale(_ scale: NSUIImageSymbolScale) -> NSUIImage.SymbolConfiguration {
+        .init(scale: scale)
+    }
+    
+    /// Creates a configuration object with the specified weight information.
+    public static func weight(_ weight: NSUISymbolWeight) -> NSUIImage.SymbolConfiguration {
+        .init(weight: weight)
+    }
+    
+    /// Creates a color configuration with a color scheme from a palette of multiple colors.
+    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+    public static func palette(_ colors: [NSUIColor]) -> NSUIImage.SymbolConfiguration {
+        .init(paletteColors: colors)
+    }
+    
+    /// Creates a color configuration with a color scheme that originates from one color.
+    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+    public static func monochrome(_ color: NSUIColor) -> NSUIImage.SymbolConfiguration {
+        if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
+            return .preferringMonochrome() + .palette([color])
+        } else {
+            return .palette([color])
+        }
+    }
+    
+    /// Creates a color configuration with a color scheme that originates from one color.
+    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+    public static func hierarchical(_ primary: NSUIColor) -> NSUIImage.SymbolConfiguration {
+        .init(hierarchicalColor: primary)
+    }
+    
+    /// Creates a multi color configuration with the specified primary color.
+    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+    public static func multicolor(_ primary: NSUIColor) -> NSUIImage.SymbolConfiguration {
+        .preferringMulticolor() + .palette([primary])
+    }
+    
+    /// Creates a color configuration with a color scheme from a palette of multiple colors.
+    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+    public static func palette(_ primary: NSUIColor, _ secondary: NSUIColor? = nil, _ tertiary: NSUIColor? = nil) -> NSUIImage.SymbolConfiguration {
+        .init(paletteColors: [primary, secondary, tertiary].nonNil )
+    }
+    
+    /// Returns a configuration object that applies the right configuration values on top of the left object’s values.
+    @available(macOS 12.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+    public static func + (lhs: NSUIImage.SymbolConfiguration, rhs: NSUIImage.SymbolConfiguration) -> NSUIImage.SymbolConfiguration {
+        lhs.applying(rhs)
+    }
+    
+    /// Applies the right configuration values on top of the left object’s values.
+    @available(macOS 12.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+    public static func += (lhs: inout NSUIImage.SymbolConfiguration, rhs: NSUIImage.SymbolConfiguration) {
+        lhs = lhs.applying(rhs)
+    }
+    
+    
+    /*
     private func copied() -> NSUIImage.SymbolConfiguration {
         copy() as! NSUIImage.SymbolConfiguration
     }
@@ -126,73 +225,22 @@ extension NSUIImage.SymbolConfiguration {
         copy.prefersMulticolor = prefersMulticolor
         return copy
     }
-    
-    /// A symbol configuration with the specified text style, symbol weight and symbol scale.
-    static func font(_ textStyle: NSUIFont.TextStyle, weight: NSUISymbolWeight = .regular, scale: NSUIImage.SymbolScale = .default) -> NSUIImage.SymbolConfiguration {
-        .init(textStyle: textStyle, weight: weight, scale: scale)
-    }
-    
-    /// A symbol configuration with system font with specified point size, symbol weight, and symbol scale.
-    static func font(pointSize: CGFloat, weight: NSUISymbolWeight = .regular, scale: NSUIImage.SymbolScale = .default) -> NSUIImage.SymbolConfiguration {
-        .init(pointSize: pointSize, weight: weight, scale: scale)
-    }
-    
-    /// A symbol configuration with the specified symbol scale.
-    static func scale(_ scale: NSUIImage.SymbolScale) -> NSUIImage.SymbolConfiguration {
-        .init(scale: scale)
-    }
-    
-    /// A symbol configuration with the specified symbol weight.
-    static func weight(_ weight: NSUISymbolWeight) -> NSUIImage.SymbolConfiguration {
-        .init(weight: weight)
-    }
+    */
 }
 
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension NSUIImage.SymbolConfiguration {
-    @available(macOS 12.0, *)
-    static func color(_ color: ColorConfiguration) -> NSUIImage.SymbolConfiguration {
-        color.symbolConfiguration
-    }
-    
-    /// A multicolor symbol configuration with the specified color.
-    @available(macOS 12.0, *)
-    static func monochrome(_ color: NSUIColor) -> NSUIImage.SymbolConfiguration {
-        .color(.monochrome(color))
-    }
-    
-    /// A hierarchical symbol configuration with the specified color.
-    static func hierarchical(_ primary: NSUIColor) -> NSUIImage.SymbolConfiguration {
-        .init(hierarchicalColor: primary)
-    }
-    
-    /// A multicolor symbol configuration with the specified color.
-    static func multicolor(_ primary: NSUIColor, secondary: NSUIColor? = nil, _ tertiary: NSUIColor? = nil) -> NSUIImage.SymbolConfiguration {
-        .palette(primary, secondary, tertiary) + .preferringMulticolor()
-    }
-    
-    /// A palette symbol configuration with the specified colors.
-    static func palette(_ primary: NSUIColor, _ secondary: NSUIColor? = nil, _ tertiary: NSUIColor? = nil) -> NSUIImage.SymbolConfiguration {
-        .init(paletteColors: [primary, secondary, tertiary].nonNil )
-    }
-    
-    /// Returns a configuration object that applies the right configuration values on top of the left object’s values.
-    public static func + (lhs: NSUIImage.SymbolConfiguration, rhs: NSUIImage.SymbolConfiguration) -> NSUIImage.SymbolConfiguration {
-        lhs.applying(rhs)
-    }
-    
-    /// Applies the right configuration values on top of the left object’s values.
-    public static func += (lhs: inout NSUIImage.SymbolConfiguration, rhs: NSUIImage.SymbolConfiguration) {
-        lhs = lhs.applying(rhs)
-    }
-    
-    public static func && (lhs: NSUIImage.SymbolConfiguration, rhs: NSUIImage.SymbolConfiguration) -> NSUIImage.SymbolConfiguration {
-        lhs.applying(rhs)
-    }
+
 }
 
+/*
 @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension NSUIImage.SymbolConfiguration {
+ @available(macOS 12.0, *)
+ static func color(_ color: ColorConfiguration) -> NSUIImage.SymbolConfiguration {
+     color.symbolConfiguration
+ }
+ 
     /// Returns the symbol configuration with the specified color configuration.
     public func color(_ colorConfiguration: ColorConfiguration) -> NSUIImage.SymbolConfiguration {
         applying(colorConfiguration.symbolConfiguration)
@@ -310,6 +358,7 @@ extension NSUIImage.SymbolConfiguration {
         }
     }
 }
+*/
 
 @available(macOS 11.0, iOS 13.0, *)
 extension NSUIImage.SymbolConfiguration {
