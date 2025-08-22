@@ -411,7 +411,7 @@ extension NSUIImage.SymbolConfiguration {
         }
         set {
             #if os(macOS)
-            setIvarValue(Double(newValue.symbolWeight.rawValue), of: "_weight")
+            setIvarValue(Double(newValue.symbolWeight().rawValue), of: "_weight")
             #else
             setIvarValue(newValue.rawValue, of: "_weight")
             #endif
@@ -621,20 +621,6 @@ public extension NSFont.Weight {
     /// An unspecified font weight.
     static var unspecified: Self { Self(rawValue: .greatestFiniteMagnitude) }
 }
-
-@available(macOS 12.0, *)
-extension NSImage.SymbolConfiguration {
-    static func _preferringHierarchical() -> NSImage.SymbolConfiguration {
-        if #available(macOS 13.0, *) {
-            return NSImage.SymbolConfiguration.preferringHierarchical()
-        } else {
-            let configuration = NSImage.SymbolConfiguration()
-            configuration.setValue(safely: 1, forKey: "paletteType")
-            configuration.setValue(safely: 2, forKey: "renderingStyle")
-            return configuration
-        }
-    }
-}
 #endif
 
 @available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
@@ -653,7 +639,14 @@ extension NSUIImage.SymbolScale {
 #if os(macOS)
 @available(macOS 11.0, *)
 extension NSFont.Weight {
-    var symbolWeight: NSFont.Weight {
+    /**
+     Provides the corresponding symbol weight for this font weight.
+     
+     When placing symbols adjacent to text, use this method to find the appropriate symbol weight to match the weight of the text. Similarly, if you want to display a symbol with a particular weight, you can use fontWeight() to look up the matching font weight for adjacent text.
+     
+     - Returns: The UIImage.SymbolWeight that most closely coordinates with the provided font weight.
+     */
+    public func symbolWeight() -> NSFont.Weight {
         NSFont.Weight(NSImage.SymbolConfiguration.symbolWeight(for: self) ?? rawValue)
     }
 }
@@ -677,13 +670,15 @@ extension NSImage.SymbolConfiguration {
 #endif
 
 @available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
-fileprivate extension NSUIFont.TextStyle {
-    var pointSize: CGFloat {
-        NSUIFont.systemFont(self).pointSize
+extension NSUIFont.TextStyle {
+    /// The point size for the font with the text style.
+    public var pointSize: CGFloat {
+        NSUIFont.preferredFont(forTextStyle: self).pointSize
     }
     
-    var weight: NSUIFont.Weight? {
-        NSUIFont.systemFont(self).fontDescriptor.weight
+    /// The font weight for the font with the text style.
+    public var weight: NSUIFont.Weight? {
+        NSUIFont.preferredFont(forTextStyle: self).fontDescriptor.weight
     }
     
     #if canImport(UIKit)
