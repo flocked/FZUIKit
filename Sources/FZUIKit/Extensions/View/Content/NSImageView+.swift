@@ -311,6 +311,13 @@ extension NSImageView {
         }
     }
     
+    /**
+     The system standard layout dimension for reserved layout size.
+     
+     Setting the ``reservedLayoutSize`` width or height to this constant results in using the system standard value for a symbol image for that dimension, even when the image is not a symbol image.
+     */
+    public static let standardDimension: CGFloat = -CGFloat.greatestFiniteMagnitude
+    
     /// Sets the layout size that the system reserves for the image, and then centers the image within.
     @discardableResult
     public func reservedLayoutSize(_ size: CGSize?) -> Self {
@@ -333,14 +340,20 @@ extension NSImageView {
         override var cellSize: NSSize {
             guard let reservedLayoutSize = reservedLayoutSize, let image = image else { return super.cellSize }
             var cellSize = reservedLayoutSize
-            if cellSize.width == 0 || cellSize.height == 0 {
-                if image.isSymbolImage {
+            if cellSize.width == 0 || cellSize.width == NSImageView.standardDimension {
+                if cellSize.width == NSImageView.standardDimension ||  image.isSymbolImage {
                     updateSymbolSize()
-                    if cellSize.width == 0 { cellSize.width = symbolSize.width }
-                    if cellSize.height == 0 { cellSize.height = symbolSize.height }
+                    cellSize.width = symbolSize.width
                 } else {
-                    if cellSize.width == 0 { cellSize.width = image.size.width }
-                    if cellSize.height == 0 { cellSize.height = image.size.height }
+                    cellSize.width = image.size.width
+                }
+            }
+            if cellSize.height == 0 || cellSize.height == NSImageView.standardDimension {
+                if cellSize.height == NSImageView.standardDimension || image.isSymbolImage {
+                    updateSymbolSize()
+                    cellSize.height = symbolSize.height
+                } else {
+                    cellSize.height = image.size.height
                 }
             }
             return cellSize
