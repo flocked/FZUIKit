@@ -30,7 +30,8 @@ extension NSUIImage.SymbolConfiguration {
         self.weight = weight
     }
     
-    static var unspecified: NSUIImage.SymbolConfiguration {
+    /// A symbol configuration object that contains unspecified values for all attributes.
+    public class var unspecified: NSUIImage.SymbolConfiguration {
         .init()
     }
     #endif
@@ -647,27 +648,42 @@ extension NSFont.Weight {
      - Returns: The UIImage.SymbolWeight that most closely coordinates with the provided font weight.
      */
     public func symbolWeight() -> NSFont.Weight {
-        NSFont.Weight(NSImage.SymbolConfiguration.symbolWeight(for: self) ?? rawValue)
+        NSImage.SymbolConfiguration.symbolWeight(for: self)
     }
 }
 
 @available(macOS 11.0, *)
 extension NSImage.SymbolConfiguration {
-    class func symbolWeight(for fontWeight: NSFont.Weight) -> Double? {
-        let fontWeight = Double(fontWeight.rawValue)
+    class func symbolWeight(for fontWeight: NSFont.Weight) -> NSFont.Weight {
         let cls = NSImage.SymbolConfiguration.self
         let selector = NSSelectorFromString("_symbolWeightForFontWeight:")
+        typealias Function = @convention(c) (AnyObject, Selector, NSFont.Weight) -> NSFont.Weight
+
+        if let function = classMethod(for: selector, function: Function.self) {
+            Swift.print("GGGGG", function(cls, selector, fontWeight).rawValue)
+            return function(cls, selector, fontWeight)
+        }
+        
         if cls.responds(to: selector) {
-            typealias Function = @convention(c) (AnyObject, Selector, Double) -> Double
+            
+            
             let method = class_getClassMethod(object_getClass(cls), selector)
             let imp = method_getImplementation(method!)
             let function = unsafeBitCast(imp, to: Function.self)
             return function(cls, selector, fontWeight)
         }
-        return nil
+        return fontWeight
     }
 }
 #endif
+
+extension NSObject {
+    class func classMethod<F>(for selector: Selector, function: F.Type) -> F? {
+        guard responds(to: selector), let method = class_getClassMethod(object_getClass(self), selector) else { return nil }
+        let imp = method_getImplementation(method)
+        return unsafeBitCast(imp, to: F.self)
+    }
+}
 
 @available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension NSUIFont.TextStyle {
