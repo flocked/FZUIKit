@@ -1127,6 +1127,19 @@ open class ImageView: NSControl {
         isSelectable == .byImage ? overlayContentView.frame : bounds
     }
     
+    public override class var cellClass: AnyClass? {
+        get { ImageViewCell.self }
+        set { }
+    }
+    
+    class ImageViewCell: NSCell {
+        override var backgroundStyle: NSView.BackgroundStyle {
+            didSet {
+                (controlView as? ImageView)?.imageView.backgroundStyle = backgroundStyle
+            }
+        }
+    }
+    
     class AnimatedImage {
         
         struct Frame {
