@@ -269,11 +269,9 @@ public extension AVPlayer {
     internal func setupItemPlaybackEndedObservation() {
         if isLooping || itemHandlers.playedToEnd != nil {
             observeNotifications(for: .AVPlayerItemDidPlayToEndTime) { [weak self] in
-                Swift.print("DIDEND")
                 guard let self = self else { return }
                 self.itemHandlers.playedToEnd?()
                 if self.isLooping {
-                    Swift.print("ISLOP")
                     self.currentItem?.seek(to: CMTime.zero, completionHandler: nil)
                 }
             }
