@@ -23,26 +23,27 @@ public extension NSTableRowView {
         return nil
     }
 
-    /// The table view that displays the row view.
+    /// The enclosing table view that displays the row view.
     var tableView: NSTableView? {
         firstSuperview(for: NSTableView.self)
     }
 
     /// The row index of the row, or `nil` if the row isn't displayed in a table view.
     var row: Int? {
-        tableView?.row(for: self)
+        guard let row = tableView?.row(for: self), row >= 0 else { return nil }
+        return row
     }
 
     /// The next row view,  or `nil` if there isn't a next row view or the row isn't displayed in a table view.
-    var nextRowView: Self? {
+    var nextRowView: NSTableRowView? {
         guard let tableView = tableView, let row = row, row < tableView.numberOfRows - 1 else { return nil }
-        return tableView.rowView(atRow: row + 1, makeIfNecessary: false) as? Self
+        return tableView.rowView(atRow: row + 1, makeIfNecessary: false)
     }
 
     /// The previous row view,  or `nil` if there isn't a next row view or the row isn't displayed in a table view.
-    var previousRowView: Self? {
+    var previousRowView: NSTableRowView? {
         guard let tableView = tableView, let row = row, row > 0 else { return nil }
-        return tableView.rowView(atRow: row - 1, makeIfNecessary: false) as? Self
+        return tableView.rowView(atRow: row - 1, makeIfNecessary: false)
     }
 
     /// A Boolean value indicating whether the row is displaying row actions.
