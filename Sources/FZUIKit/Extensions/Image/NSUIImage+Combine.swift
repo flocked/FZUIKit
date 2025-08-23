@@ -89,7 +89,8 @@ extension NSUIImage {
     
     private static func combined(images: [NSUIImage], vertical: Bool, alignment: Int) -> NSUIImage? {
         guard images.count > 1 else { return images.first }
-        let rects = vertical ? images.map({$0.size}).alignVertically(at: .init(rawValue: alignment)!) : images.map({$0.size}).alignHorizontally(at: .init(rawValue: alignment)!)
+        
+        let rects = vertical ? images.map({CGRect(.zero, $0.size)}).alignVertically(at: .init(rawValue: alignment)!) : images.map({CGRect(.zero, $0.size)}).alignHorizontally(at: .init(rawValue: alignment)!)
         #if os(macOS)
         let finalImage = NSUIImage(size: rects.union().size)
         finalImage.lockFocus()
