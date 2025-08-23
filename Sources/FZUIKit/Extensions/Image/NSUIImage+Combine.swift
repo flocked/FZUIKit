@@ -86,7 +86,7 @@ extension NSUIImage {
         /// Trailing.
         case right
     }
-    
+        
     private static func combined(images: [NSUIImage], vertical: Bool, alignment: Int) -> NSUIImage? {
         guard images.count > 1 else { return images.first }
         

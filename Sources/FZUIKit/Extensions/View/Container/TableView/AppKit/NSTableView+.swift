@@ -107,7 +107,7 @@ public extension NSTableView {
 
     /// Returns the row indexes currently visible.
     func visibleRowIndexes() -> IndexSet {
-        IndexSet(rows(in: visibleRect).array)
+        IndexSet(rows(in: visibleRect).values)
     }
 
     /// Returns the row views currently visible.
