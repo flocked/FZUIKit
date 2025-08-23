@@ -149,14 +149,14 @@ extension Toolbar {
         }
         
         /**
-         The handler that gets called to validate the toolbar item.
+         The handler that is called to validate the toolbar item.
          
          The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
          */
         public var validateHandler: ((Toolbar.Button)->())?
         
         /**
-         Sets the handler that gets called to validate the toolbar item.
+         Sets the handler that is called to validate the toolbar item.
          
          The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
          */
@@ -166,7 +166,7 @@ extension Toolbar {
             return self
         }
         
-        /// The handler that gets called when the user clicks the toolbar item.
+        /// The handler that is called when the user clicks the toolbar item.
         public var actionBlock: ((_ item: Toolbar.Button)->())? {
             didSet {
                 if let actionBlock = actionBlock {
@@ -180,7 +180,7 @@ extension Toolbar {
             }
         }
         
-        /// Sets the handler that gets called when the user clicks the toolbar item.
+        /// Sets the handler that is called when the user clicks the toolbar item.
         @discardableResult
         public func onAction(_ action: ((_ item: Toolbar.Button)->())?) -> Self {
             actionBlock = action
@@ -227,7 +227,7 @@ extension Toolbar {
          - Parameters:
             - identifier: The item identifier.
             - title: The title of the button.
-            - action: The handler that gets called when the user clicks the button.
+            - action: The handler that is called when the user clicks the button.
          */
         public init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, action: ((_ item: Toolbar.Button)->())? = nil) {
             self.button = NSButton.toolbar(title).translatesAutoresizingMaskIntoConstraints(false)
@@ -244,7 +244,7 @@ extension Toolbar {
             - identifier: The item identifier.
             - title: The title of the button.
             - image: The image of the button.
-            - action: The handler that gets called when the user clicks the button.
+            - action: The handler that is called when the user clicks the button.
          */
         public init(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, image: NSImage, action: ((_ item: Toolbar.Button)->())? = nil) {
             self.button = NSButton.toolbar(title ?? "", image: image).translatesAutoresizingMaskIntoConstraints(false)
@@ -261,7 +261,7 @@ extension Toolbar {
             - identifier: The item identifier.
             - title: The title of the button.
             - symbolName: The name for the symbol image of the button.
-            - action: The handler that gets called when the user clicks the button.
+            - action: The handler that is called when the user clicks the button.
          */
         @available(macOS 11.0, *)
         public init?(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, symbolName: String, action: ((_ item: Toolbar.Button)->())? = nil) {
@@ -279,7 +279,7 @@ extension Toolbar {
          - Parameters:
             - identifier: The item identifier.
             - button: The button.
-            - action: The handler that gets called when the user clicks the button.
+            - action: The handler that is called when the user clicks the button.
          */
         public init(_ identifier: NSToolbarItem.Identifier? = nil, button: NSButton, action: ((_ item: Toolbar.Button)->())? = nil) {
             self.button = button

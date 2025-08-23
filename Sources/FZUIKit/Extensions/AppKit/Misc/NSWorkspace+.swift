@@ -13,25 +13,25 @@ import UniformTypeIdentifiers
 public extension NSWorkspace {
     /// Handlers for the workspace.
     struct Handlers {
-        /// Handler that gets called whenever the application hides/unhides.
+        /// Handler that is called whenever the application hides/unhides.
         public var isHidden: ((Bool)->())?
-        /// Handler that gets called whenever the active space changed.
+        /// Handler that is called whenever the active space changed.
         public var activeSpaceChanged: (()->())?
-        /// Handler that gets called whenever the device wakes from sleep.
+        /// Handler that is called whenever the device wakes from sleep.
         public var didWake: (()->())?
-        /// Handler that gets called whenever the device is about to sleep
+        /// Handler that is called whenever the device is about to sleep
         public var willSleep: (()->())?
-        /// Handler that gets called whenever a new device mounts.
+        /// Handler that is called whenever a new device mounts.
         public var willPowerOff: (()->())?
-        /// Handler that gets called whenever the Finder is about to unmount a device.
+        /// Handler that is called whenever the Finder is about to unmount a device.
         public var didMount: (()->())?
-        /// Handler that gets called whenever the Finder is about to unmount a device.
+        /// Handler that is called whenever the Finder is about to unmount a device.
         public var willUnmount: ((URL)->())?
-        /// Handler that gets called whenever the Finder unmounts a device.
+        /// Handler that is called whenever the Finder unmounts a device.
         public var didUnmount: ((URL)->())?
-        /// Handler that gets called whenever the device’s screen goes to sleep.
+        /// Handler that is called whenever the device’s screen goes to sleep.
         public var screensDidSleep: (()->())?
-        /// Handler that gets called whenever the device’s screens wake.
+        /// Handler that is called whenever the device’s screens wake.
         public var screensDidWake: (()->())?
     }
     

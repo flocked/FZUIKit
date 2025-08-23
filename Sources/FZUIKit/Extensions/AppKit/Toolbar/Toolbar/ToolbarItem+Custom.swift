@@ -24,14 +24,14 @@ extension Toolbar {
         }
         
         /**
-         The handler that gets called to validate the toolbar item.
+         The handler that is called to validate the toolbar item.
          
          The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
          */
         public var validateHandler: ((Toolbar.CustomItem)->())?
         
         /**
-         Sets the handler that gets called to validate the toolbar item.
+         Sets the handler that is called to validate the toolbar item.
          
          The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
          */

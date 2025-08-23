@@ -69,7 +69,7 @@ public struct TextConfiguration {
      */
     public var isEditable: Bool = false
     /**
-     The edit handler that gets called when editing of the text ended.
+     The edit handler that is called when editing of the text ended.
      
      It only gets called, if `isEditable` is true.
      */

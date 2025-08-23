@@ -33,10 +33,10 @@ extension Toolbar {
             case didEnd
         }
         
-        /// The handler that gets called when the user changes the text of the search field.
+        /// The handler that is called when the user changes the text of the search field.
         open var handler: ((_ stringValue: String, _ state: SearchState) -> Void)?
         
-        /// Sets the handler that gets called when the user changes the text of the search field.
+        /// Sets the handler that is called when the user changes the text of the search field.
         @discardableResult
         open func onSearch(_ action: ((_ stringValue: String, _ state: SearchState) -> Void)?) -> Self {
             handler = action
@@ -185,14 +185,14 @@ extension Toolbar {
         }
         
         /**
-         The handler that gets called to validate the toolbar item.
+         The handler that is called to validate the toolbar item.
          
          The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
          */
         public var validateHandler: ((Toolbar.Search)->())?
         
         /**
-         Sets the handler that gets called to validate the toolbar item.
+         Sets the handler that is called to validate the toolbar item.
          
          The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
          */
@@ -210,7 +210,7 @@ extension Toolbar {
          - Parameters:
             - identifier: The item identifier.
             - preferredWidth: The preferred width of the search field item.
-            - handler: The handler that gets called when the user changes the text of the search field.
+            - handler: The handler that is called when the user changes the text of the search field.
          */
         public init(_ identifier: NSToolbarItem.Identifier? = nil, preferredWidth: CGFloat? = nil, handler: ((_ stringValue: String, _ state: SearchState) -> Void)? = nil) {
             super.init(identifier)

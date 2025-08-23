@@ -519,7 +519,7 @@ public extension NSMenuItem {
         return self
     }
     
-    /// The handler that gets called to update the item before it gets displayed.
+    /// The handler that is called before the menu item is displayed allowing you to update it.
     var updateHandler: ((_ item: NSMenuItem)->())? {
         get { getAssociatedValue("updateHandler") }
         set {
@@ -528,7 +528,7 @@ public extension NSMenuItem {
         }
     }
     
-    /// Sets the handler that gets called to update the item before it gets displayed.
+    /// Sets the handler that is called to update the item before it gets displayed allowing you to update it.
     @discardableResult
     func updateHandler(_ handler: ((_ item: NSMenuItem)->())?) -> Self {
         self.updateHandler = handler

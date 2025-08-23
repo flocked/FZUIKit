@@ -118,14 +118,14 @@ extension Toolbar {
         }
         
         /**
-         The handler that gets called to validate the toolbar item.
+         The handler that is called to validate the toolbar item.
          
          The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
          */
         public var validateHandler: ((Toolbar.SegmentedControl)->())?
         
         /**
-         Sets the handler that gets called to validate the toolbar item.
+         Sets the handler that is called to validate the toolbar item.
          
          The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
          */
@@ -135,7 +135,7 @@ extension Toolbar {
             return self
         }
         
-        /// The handler that gets called when the user clicks the toolbar item.
+        /// The handler that is called when the user clicks the toolbar item.
         public var actionBlock: ((_ item: Toolbar.SegmentedControl)->())? {
             didSet {
                 if let actionBlock = actionBlock {
@@ -149,7 +149,7 @@ extension Toolbar {
             }
         }
         
-        /// Sets the handler that gets called when the user clicks the toolbar item.
+        /// Sets the handler that is called when the user clicks the toolbar item.
         @discardableResult
         public func onAction(_ action: ((_ item: Toolbar.SegmentedControl)->())?) -> Self {
             actionBlock = action

@@ -435,7 +435,7 @@ extension WKDownload {
              /// The handler that returns the current HTTP cookies when the web view finishes loading a website.
              public var cookies: ((_ cookies: [HTTPCookie]) -> Void)?
             
-             /// The handler that gets called when the webview did finish loading a url.
+             /// The handler that is called when the webview did finish loading a url.
              public var didFinish: ((_ url: URL?)->())?
          }
         
@@ -447,11 +447,11 @@ extension WKDownload {
              public var downloadLocation: ((_ response: URLResponse, _ suggestedFilename: String) -> (URL?))?
              /// The handler that handles the authenticate challenge for a download.
              public var authenticate: ((_ download: WKDownload, _ challenge: URLAuthenticationChallenge) -> (disposition: URLSession.AuthChallengeDisposition, credential: URLCredential?))?
-             /// The handler that gets called whenever a download starts.
+             /// The handler that is called whenever a download starts.
              public var didStart: ((WKDownload) -> Void)?
-             /// The handler that gets called whenever a download finishes.
+             /// The handler that is called whenever a download finishes.
              public var didFinish: ((WKDownload) -> Void)?
-             /// The handler that gets called whenever a download failed and determines whether a failed download should be tried downloading again.
+             /// The handler that is called whenever a download failed and determines whether a failed download should be tried downloading again.
              public var didFail: ((_ download: WKDownload, _ error: Error, _ resumeData: Data?) -> (Bool))?
          }
 

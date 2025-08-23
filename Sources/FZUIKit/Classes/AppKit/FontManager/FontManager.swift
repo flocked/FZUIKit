@@ -39,7 +39,7 @@ public class FontManager: NSObject {
         }
     }
         
-    /// The handler that gets called whenever the selected font changes.
+    /// The handler that is called whenever the selected font changes.
     public var selectedFontHandler: ((NSFont?)->())?
     
     /// The available font families.

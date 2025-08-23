@@ -70,7 +70,7 @@ extension NSAlert {
     }
     
     /**
-     The handler that gets called when the user clicks the help button.
+     The handler that is called when the user clicks the help button.
      
      To show the help button, set `showsHelp` to `true`.
      
@@ -90,7 +90,7 @@ extension NSAlert {
         }
     }
     
-    /// Sets the handler that gets called when the user clicks the help button.
+    /// Sets the handler that is called when the user clicks the help button.
     @discardableResult
     public func helpHandler(_ handler: (()->())?) -> Self {
         self.helpHandler = handler

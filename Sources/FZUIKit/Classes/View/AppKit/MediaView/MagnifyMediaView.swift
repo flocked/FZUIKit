@@ -88,13 +88,13 @@ open class MagnifyMediaView: NSView {
         return self
     }
         
-    /// The handler that gets called when the status of the media asset changes.
+    /// The handler that is called when the status of the media asset changes.
     open var assetStatusHandler: ((AVPlayerItem.Status)->())? {
         get { mediaView.assetStatusHandler }
         set { mediaView.assetStatusHandler = newValue }
     }
         
-    /// Sets the handler that gets called when the status of the media asset changes.
+    /// Sets the handler that is called when the status of the media asset changes.
     @discardableResult
     open func assetStatusHandler(_ handler: ((AVPlayerItem.Status)->())?) -> Self {
         assetStatusHandler = handler

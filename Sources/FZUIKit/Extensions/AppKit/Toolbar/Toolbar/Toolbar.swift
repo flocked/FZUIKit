@@ -359,13 +359,13 @@ open class Toolbar: NSObject {
     
     /// Toolbar item handlers.
     public struct ItemHandlers {
-        /// Handler that gets called when the selected item changed.
+        /// Handler that is called when the selected item changed.
         public var selectionChanged: ((_ selectedItem: ToolbarItem?) -> Void)?
         /// Handler that determines whether an item can be inserted.
         public var canInsert: ((_ item: ToolbarItem, _ index: Int) -> Bool)?
-        /// Handler that gets called when a item will be added.
+        /// Handler that is called when a item will be added.
         public var willAdd: ((_ item: ToolbarItem) -> Void)?
-        /// Handler that gets called when a item did remove.
+        /// Handler that is called when a item did remove.
         public var didRemove: ((_ item: ToolbarItem) -> Void)?
     }
     

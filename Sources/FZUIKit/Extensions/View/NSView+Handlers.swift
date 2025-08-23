@@ -492,28 +492,28 @@ extension NSView {
     
     /// The handlers for the window state.
     public struct WindowHandlers {
-        /// The handler that gets called before the window of the view changes.
+        /// The handler that is called before the window of the view changes.
         public var willMoveToWindow: ((NSWindow?) -> Void)?
         
-        /// The handler that gets called when the window of the view changes.
+        /// The handler that is called when the window of the view changes.
         public var window: ((NSWindow?) -> Void)?
         
-        /// The handler that gets called when `isKey` changed.
+        /// The handler that is called when `isKey` changed.
         public var isKey: ((Bool) -> Void)?
         
-        /// The handler that gets called when `isMain` changed.
+        /// The handler that is called when `isMain` changed.
         public var isMain: ((Bool) -> Void)?
         
-        /// The handler that gets called when `isMain` changed.
+        /// The handler that is called when `isMain` changed.
         public var isMiniaturize: ((Bool) -> Void)?
         
-        /// The handler that gets called when the screen changed.
+        /// The handler that is called when the screen changed.
         public var screen: ((NSScreen?)->())?
         
-        /// The handler that gets called when the bounds rectangle changed.
+        /// The handler that is called when the bounds rectangle changed.
         public var bounds: ((CGRect)->())?
         
-        /// The handler that gets called when the frame rectangle changed.
+        /// The handler that is called when the frame rectangle changed.
         public var frame: ((CGRect)->())?
         
         var needsObservation: Bool {
@@ -523,27 +523,27 @@ extension NSView {
     
     /// The handlers for the view.
     public struct ViewHandlers {
-        /// The handler that gets called before the superview changed.
+        /// The handler that is called before the superview changed.
         public var willMoveToSuperview: ((NSView?) -> Void)?
-        /// The handler that gets called when the superview changed.
+        /// The handler that is called when the superview changed.
         public var superview: ((NSView?) -> Void)?
-        /// The handler that gets called when the bounds rectangle changed.
+        /// The handler that is called when the bounds rectangle changed.
         public var bounds: ((CGRect)->())?
-        /// The handler that gets called when the frame rectangle changed.
+        /// The handler that is called when the frame rectangle changed.
         public var frame: ((CGRect)->())?
-        /// The handler that gets called when `isHidden` changed.
+        /// The handler that is called when `isHidden` changed.
         public var isHidden: ((Bool)->())?
-        /// The handler that gets called when the view is resized by the user.
+        /// The handler that is called when the view is resized by the user.
         public var isLiveResizing: ((Bool)->())?
-        /// The handler that gets called when the alpha value changed.
+        /// The handler that is called when the alpha value changed.
         public var alphaValue: ((CGFloat)->())?
-        /// The handler that gets called when the effective appearance changed.
+        /// The handler that is called when the effective appearance changed.
         public var effectiveAppearance: ((NSAppearance)->())?
-        /// The handler that gets called when the view is the first responder.
+        /// The handler that is called when the view is the first responder.
         public var isFirstResponder: ((Bool)->())?
-        /// The handler that gets called when the background style changed.
+        /// The handler that is called when the background style changed.
         public var backgroundStyle: ((BackgroundStyle)->())?
-        /// The handler that gets called when the subviews changed.
+        /// The handler that is called when the subviews changed.
         public var subviews: ((_ subviews: [NSView])->())?
         
         var needsObserverView: Bool {
@@ -553,11 +553,11 @@ extension NSView {
     
     /// The handlers for keyboard events.
     public struct KeyHandlers {
-        /// The handler that gets called when the user has pressed a key.
+        /// The handler that is called when the user has pressed a key.
         public var keyDown: ((_ event: NSEvent) -> ())?
-        /// The handler that gets called when the user has released a key.
+        /// The handler that is called when the user has released a key.
         public var keyUp: ((_ event: NSEvent) -> ())?
-        /// The handler that gets called when the user pressed or released a modifier key (Shift, Control, and so on).
+        /// The handler that is called when the user pressed or released a modifier key (Shift, Control, and so on).
         public var flagsChanged: ((_ event: NSEvent) -> ())?
         /// The handler that determinates if the view should handle the key down event.
         public var shouldKeyDown: ((_ event: NSEvent) -> (Bool))?
@@ -592,49 +592,49 @@ extension NSView {
         /// Option when the `entered`, `exited` and `moved` mouse handlers are active. The default value is `inKeyWindow`.
         public var active: ActiveOption = .inKeyWindow
         
-        /// The handler that gets called when the mouse entered the view.
+        /// The handler that is called when the mouse entered the view.
         public var entered: ((NSEvent) -> ())?
         
-        /// The handler that gets called when the mouse inside the view moved.
+        /// The handler that is called when the mouse inside the view moved.
         public var moved: ((NSEvent) -> ())?
         
-        /// The handler that gets called when the mouse exited the view.
+        /// The handler that is called when the mouse exited the view.
         public var exited: ((NSEvent) -> ())?
         
-        /// The handler that gets called when the mouse is hovering (is inside) the view.
+        /// The handler that is called when the mouse is hovering (is inside) the view.
         public var isHovering: ((Bool) -> ())?
         
-        /// The handler that gets called when the user clicked the left mouse button.
+        /// The handler that is called when the user clicked the left mouse button.
         public var leftDown: ((NSEvent) -> ())?
         
-        /// The handler that gets called when the user released the left mouse button.
+        /// The handler that is called when the user released the left mouse button.
         public var leftUp: ((NSEvent) -> ())?
         
-        /// The handler that gets called when the user moved the mouse with the left button pressed.
+        /// The handler that is called when the user moved the mouse with the left button pressed.
         public var leftDragged: ((NSEvent) -> ())?
         
-        /// The handler that gets called when the user clicked the right mouse button.
+        /// The handler that is called when the user clicked the right mouse button.
         public var rightDown: ((NSEvent) -> ())?
         
-        /// The handler that gets called when the user released the right mouse button.
+        /// The handler that is called when the user released the right mouse button.
         public var rightUp: ((NSEvent) -> ())?
         
-        /// The handler that gets called when the user moved the mouse with the right button pressed.
+        /// The handler that is called when the user moved the mouse with the right button pressed.
         public var rightDragged: ((NSEvent) -> ())?
         
-        /// The handler that gets called when the user clicked a mouse button other than the left or right one.
+        /// The handler that is called when the user clicked a mouse button other than the left or right one.
         public var otherDown: ((NSEvent) -> ())?
         
-        /// The handler that gets called when the user released a mouse button other than the left or right one.
+        /// The handler that is called when the user released a mouse button other than the left or right one.
         public var otherUp: ((NSEvent) -> ())?
         
-        /// The handler that gets called when the user moved the mouse with a button other than the left or right one pressed.
+        /// The handler that is called when the user moved the mouse with a button other than the left or right one pressed.
         public var otherDragged: ((NSEvent) -> ())?
         
-        /// The handler that gets called when the user is performing a pinch gesture.
+        /// The handler that is called when the user is performing a pinch gesture.
         public var magnify: ((NSEvent) -> ())?
         
-        /// The handler that gets called when the user is performing a rotation gesture.
+        /// The handler that is called when the user is performing a rotation gesture.
         public var rotate: ((NSEvent) -> ())?
         
         /// The handler that determinates if the view should handle the mouse down event.

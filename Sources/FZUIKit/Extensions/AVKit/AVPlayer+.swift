@@ -89,7 +89,7 @@ public extension AVPlayer {
         return .isStopped
     }
     
-    /// The handler that gets called when the playback state changes.
+    /// The handler that is called when the playback state changes.
     var stateHandler: ((State)->())? {
         get { getAssociatedValue("stateHandler") }
         set {
@@ -230,15 +230,15 @@ public extension AVPlayer {
     
     /// The handlers for the item current item.
     struct ItemHandlers {
-        /// The handler that gets called when the current item did play to the end time.
+        /// The handler that is called when the current item did play to the end time.
         public var playedToEnd: (()->())?
-        /// The handler that gets called when the current item failed to play to the end time.
+        /// The handler that is called when the current item failed to play to the end time.
         public var failedToPlayToEnd: (()->())?
-        /// The handler that gets called when the playback of the current item available.
+        /// The handler that is called when the playback of the current item available.
         public var playbackStalled: (()->())?
-        /// The handler that gets called when a new error log for the current item is available.
+        /// The handler that is called when a new error log for the current item is available.
         public var newErrorLog: (()->())?
-        /// The handler that gets called when a new network access log for the current item is available.
+        /// The handler that is called when a new network access log for the current item is available.
         public var newAccessLog: (()->())?
     }
     

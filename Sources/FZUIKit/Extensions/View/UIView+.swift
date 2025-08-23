@@ -248,13 +248,13 @@ extension UIView {
     
     /// Handlers for the view.
     public struct ViewHandlers {
-        /// The handler that gets called when the trait collection changes.
+        /// The handler that is called when the trait collection changes.
         public var trait: ((UITraitCollection)->())?
         
-        /// The handler that gets called when the user interface style changes.
+        /// The handler that is called when the user interface style changes.
         public var userInterfaceStyle: ((UIUserInterfaceStyle)->())?
         
-        /// The handler that gets called when the active appearance changes.
+        /// The handler that is called when the active appearance changes.
         public var activeAppearance: ((UIUserInterfaceActiveAppearance)->())?
         
         var needsTraitObservation: Bool {

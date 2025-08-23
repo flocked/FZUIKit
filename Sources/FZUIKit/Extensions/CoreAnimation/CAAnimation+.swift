@@ -10,7 +10,7 @@ import FZSwiftUtils
 import QuartzCore
 
 extension CAAnimation {
-    /// A handler that gets called after the animation started.
+    /// A handler that is called after the animation started.
     public var onStart: (() -> Void)? {
         get { getAssociatedValue("didStart") }
         set {
@@ -19,7 +19,7 @@ extension CAAnimation {
         }
     }
 
-    /// A handler that gets called after the animation stoped.
+    /// A handler that is called after the animation stoped.
     public var onStop: (() -> Void)? {
         get { getAssociatedValue("didFinish") }
         set {

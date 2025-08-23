@@ -183,12 +183,12 @@ open class MediaView: NSControl {
         }
     }
         
-    /// The handler that gets called when the status of the media asset changes.
+    /// The handler that is called when the status of the media asset changes.
     open var assetStatusHandler: ((AVPlayerItem.Status)->())? = nil {
         didSet { setupAssetStatusHandler() }
     }
         
-    /// Sets the handler that gets called when the status of the media asset changes.
+    /// Sets the handler that is called when the status of the media asset changes.
     @discardableResult
     open func assetStatusHandler(_ handler: ((AVPlayerItem.Status)->())?) -> Self {
         assetStatusHandler = handler

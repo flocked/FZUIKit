@@ -57,7 +57,7 @@ public extension NSCollectionView {
      - Parameters:
         - layout: The new layout object for the collection view.
         - animated: A Boolean value indicating whether the collection view should animate changes from the current layout to the new layout.
-        - completion: The completion handler that gets called when the layout transition finishes
+        - completion: The completion handler that is called when the layout transition finishes
      */
     func setCollectionViewLayout(_ layout: NSCollectionViewLayout, animated: Bool, completion: (() -> Void)? = nil) {
         setCollectionViewLayout(layout, animationDuration: animated ? 0.25 : 0.0, completion: completion)
@@ -69,7 +69,7 @@ public extension NSCollectionView {
      - Parameters:
         - layout: The new layout object for the collection view.
         - animationDuration: The duration for the collection view animating changes from the current layout to the new layout. Specify a value of `0.0` to make the change without animations.
-        - completion: The completion handler that gets called when the layout transition finishes
+        - completion: The completion handler that is called when the layout transition finishes
      */
     func setCollectionViewLayout(_ layout: NSCollectionViewLayout, animationDuration: CGFloat, completion: (() -> Void)? = nil) {
         if animationDuration > 0.0 {
@@ -374,7 +374,7 @@ public extension NSCollectionView {
 }
 
 extension NSCollectionView {
-    /// The handler that gets called when the collection view is double clicked.
+    /// The handler that is called when the collection view is double clicked.
     public var doubleClickHandler: ((_ indexPath: IndexPath?)->())? {
         get { getAssociatedValue("doubleClickHandler") }
         set {
@@ -396,5 +396,91 @@ extension NSCollectionView {
         set { setAssociatedValue(newValue, key: "doubleClickGesture") }
     }
 }
+
+extension NSCollectionView {
+    public enum Direction {
+        case left
+        case right
+        case bottom
+        case top
+    }
+    
+    public func closedItem(toItemAt indexPath: IndexPath, at direction: Direction, searchRadius: Int = 10) -> IndexPath? {
+        guard let center = layoutAttributesForItem(at: indexPath)?.frame.center else { return nil }
+
+        let candidateIndexPaths = (direction == .bottom || direction == .right) ?
+            indexPaths(after: indexPath, amount: searchRadius) :
+            indexPaths(before: indexPath, amount: searchRadius)
+        
+        
+        let candidates = candidateIndexPaths.compactMap {
+            if let attr = layoutAttributesForItem(at: $0) {
+                return (center: attr.frame.center, indexPath: $0)
+            } else { return nil }
+        }
+
+        // Find closest candidate in the specified direction
+        var closest: (indexPath: IndexPath, distance: CGFloat)?
+
+        for (candidateCenter, candidateIndexPath) in candidates {
+            switch direction {
+            case .left where candidateCenter.x >= center.x: continue
+            case .right where candidateCenter.x <= center.x: continue
+            case .top where candidateCenter.y >= center.y: continue
+            case .bottom where candidateCenter.y <= center.y: continue
+            default: break
+            }
+            let distance = candidateCenter.distance(to: center)
+            if closest == nil || distance < closest!.distance {
+                closest = (candidateIndexPath, distance)
+            }
+        }
+
+        return closest?.indexPath
+    }
+
+    func indexPaths(before indexPath: IndexPath, amount: Int = 10) -> [IndexPath] {
+        nextIndexPaths(for: indexPath, amount: amount, after: false)
+    }
+    
+    func indexPaths(after indexPath: IndexPath, amount: Int = 10) -> [IndexPath] {
+        nextIndexPaths(for: indexPath, amount: amount, after: true)
+    }
+    
+    private func nextIndexPaths(for indexPath: IndexPath, amount: Int, after: Bool) -> [IndexPath] {
+        guard amount > 0 else { return [] }
+        var result: [IndexPath] = []
+        var section = indexPath.section
+        let step = after ? 1 : -1
+        var item = indexPath.item + step
+        var sectionItemsCount = numberOfItems(inSection: section)
+        while result.count < amount {
+            if let count = (section >= 0 ? sectionItemsCount : nil),
+               item >= 0 {
+                result.append(IndexPath(item: item, section: section))
+                item = item + step
+            } else {
+                guard let prev = nextNonEmptySection(for: section, after: after) else { break }
+                section = prev
+                sectionItemsCount = numberOfItems(inSection: section)
+                item = after ? 0 : sectionItemsCount - 1
+            }
+        }
+        return result
+    }
+        
+    private func nextNonEmptySection(for section: Int, after: Bool) -> Int? {
+        let numberOfSections = numberOfSections
+        var section = after ? section + 1 : section - 1
+        while section >= 0 && section < numberOfSections {
+            if numberOfItems(inSection: section) > 0 {
+                return section
+            }
+            section = after ? section + 1 : section - 1
+        }
+        return nil
+    }
+}
+
 
 #endif

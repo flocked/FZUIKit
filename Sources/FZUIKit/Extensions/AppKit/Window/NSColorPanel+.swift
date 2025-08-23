@@ -57,7 +57,7 @@ extension NSColorPanel {
         set { setTarget(newValue) }
     }
     
-    /// The handler that gets called when the color changes.
+    /// The handler that is called when the color changes.
     public var colorHandler: ((NSColor)->())? {
         get { getAssociatedValue("colorHandler") }
         set {
@@ -73,7 +73,7 @@ extension NSColorPanel {
         }
     }
     
-    /// Sets the handler that gets called when the color changes.
+    /// Sets the handler that is called when the color changes.
     @discardableResult
     public func colorHandler(_ handler: ((NSColor)->())?) -> Self {
         self.colorHandler = handler

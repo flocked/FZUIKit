@@ -41,7 +41,7 @@ extension NSColorWell {
         return self
     }
         
-    /// Handler that gets called when the color changes.
+    /// Handler that is called when the color changes.
     public var colorHandler: ((_ color: NSColor)->())? {
         get { getAssociatedValue("colorHandler") }
         set {
@@ -57,7 +57,7 @@ extension NSColorWell {
         }
     }
     
-    /// Sets the handler that gets called when the color changes.
+    /// Sets the handler that is called when the color changes.
     @discardableResult
     public func colorHandler(_ handler: ((NSColor)->())?) -> Self {
         self.colorHandler = handler

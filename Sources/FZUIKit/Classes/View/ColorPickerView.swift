@@ -40,7 +40,7 @@ open class ColorPickerView: NSView {
         }
     }
 
-    /// The handler that gets called when the selection changes.
+    /// The handler that is called when the selection changes.
     open var selectionAction: (()->())? = nil
 
     /// The size of the color items.

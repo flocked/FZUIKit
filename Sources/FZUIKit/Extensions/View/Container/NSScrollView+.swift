@@ -878,17 +878,17 @@ extension NSScrollView {
     
     /// The handlers for the scroll view.
     public struct Handlers {
-        /// The handler that gets called at the beginning of a user-initiated magnify gesture.
+        /// The handler that is called at the beginning of a user-initiated magnify gesture.
         public var userWillStartMagnify: (()->())?
-        /// The handler that gets called at the end of a user-initiated magnify gesture.
+        /// The handler that is called at the end of a user-initiated magnify gesture.
         public var userDidEndMagnify: (()->())?
-        /// The handler that gets called at the beginning of a user-initiated scroll (gesture scroll or scroller tracking).
+        /// The handler that is called at the beginning of a user-initiated scroll (gesture scroll or scroller tracking).
         public var userWillStartScroll: (()->())?
-        /// The handler that gets called after the clipview bounds origin changed due to a user-initiated scroll.
+        /// The handler that is called after the clipview bounds origin changed due to a user-initiated scroll.
         public var userDidScroll: (()->())?
-        /// The handler that gets called at the end of a user-initiated scroll (gesture scroll or scroller tracking).
+        /// The handler that is called at the end of a user-initiated scroll (gesture scroll or scroller tracking).
         public var userDidEndScroll: (()->())?
-        /// The handler that gets called when the visible rectangle of the document view changes.
+        /// The handler that is called when the visible rectangle of the document view changes.
         public var documentVisibleRect: ((CGRect)->())?
     }
     

@@ -142,29 +142,29 @@ extension NSWindow {
     
     /// Handlers for the window.
     public struct Handlers {
-        /// The handler that gets called when the window’s key state changes.
+        /// The handler that is called when the window’s key state changes.
         public var isKey: ((Bool)->())?
-        /// The handler that gets called when the window’s main state changes.
+        /// The handler that is called when the window’s main state changes.
         public var isMain: ((Bool)->())?
-        /// The handler that gets called when the window’s first responder changes.
+        /// The handler that is called when the window’s first responder changes.
         public var firstResponder: ((NSResponder?)->())?
-        /// The handler that gets called when the window’s frame changes.
+        /// The handler that is called when the window’s frame changes.
         public var frame: ((CGRect)->())?
-        /// The handler that gets called when the user is resizing the window.
+        /// The handler that is called when the user is resizing the window.
         public var isLiveResizing: ((Bool)->())?
-        /// The handler that gets called when the appearance changes.
+        /// The handler that is called when the appearance changes.
         public var effectiveAppearance: ((NSAppearance)->())?
-        /// The handler that gets called when the window’s fullscreen state changes.
+        /// The handler that is called when the window’s fullscreen state changes.
         public var isFullScreen: ((Bool)->())?
-        /// The handler that gets called when the style mask changes.
+        /// The handler that is called when the style mask changes.
         public var styleMask: ((StyleMask)->())?
-        /// The handler that gets called when the window’s active space state changes.
+        /// The handler that is called when the window’s active space state changes.
         public var isOnActiveSpace: ((Bool)->())?
-        /// The handler that gets called when the screen changes.
+        /// The handler that is called when the screen changes.
         public var screen: ((NSScreen?)->())?
-        /// The handler that gets called when the is visibility state changes.
+        /// The handler that is called when the is visibility state changes.
         public var isVisible: ((Bool)->())?
-        /// The handler that gets called when the is visibility state changes.
+        /// The handler that is called when the is visibility state changes.
         public var isMiniaturized: ((Bool)->())?
         
         /// The tab handlers for the window.
@@ -172,15 +172,15 @@ extension NSWindow {
         
         /// Tab handlers for the window.
         public struct TabHandlers {
-            /// The handler that gets called when the tab windows changes.
+            /// The handler that is called when the tab windows changes.
             public var windows: (([NSWindow]?)->())?
-            /// The handler that gets called when the selected tab changes.
+            /// The handler that is called when the selected tab changes.
             public var selected: ((NSWindow?)->())?
-            /// The handler that gets called when the tab selection state changes.
+            /// The handler that is called when the tab selection state changes.
             public var isSelected: ((Bool)->())?
-            /// The handler that gets called when the tab bar visibilty changes.
+            /// The handler that is called when the tab bar visibilty changes.
             public var isTabBarVisible: ((Bool)->())?
-            /// The handler that gets called when the tab overview visibilty changes.
+            /// The handler that is called when the tab overview visibilty changes.
             public var isOverviewVisible: ((Bool)->())?
         }
     }

@@ -211,10 +211,10 @@ extension NSStackView {
     
     /// Handlers of a stack view.
     public struct Handlers {
-        /// The handler that gets called when the stack view is about to automatically detach one or more of its views.
+        /// The handler that is called when the stack view is about to automatically detach one or more of its views.
         public var willDetach: (([NSUIView])->())?
         
-        /// The handler that gets called when the stack view has automatically reattached one or more previously-detached views.
+        /// The handler that is called when the stack view has automatically reattached one or more previously-detached views.
         public var didReattach: (([NSUIView])->())?
 
     }

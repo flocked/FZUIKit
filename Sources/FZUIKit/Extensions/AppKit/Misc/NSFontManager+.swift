@@ -10,7 +10,7 @@ import AppKit
 import FZSwiftUtils
 
 extension NSFontManager {
-    /// The handler that gets called when the selected font changes.
+    /// The handler that is called when the selected font changes.
     public var selectedFontHandler: ((NSFont?)->())? {
         get { getAssociatedValue("selectedFontHandler") }
         set {

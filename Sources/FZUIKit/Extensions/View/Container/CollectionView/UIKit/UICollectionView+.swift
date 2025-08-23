@@ -100,9 +100,9 @@ extension UICollectionView {
      The handlers get called whenever the collection view is displaying new cells.
      */
     public struct DisplayingItemsHandlers {
-        /// Handler that gets called whenever cells start getting displayed.
+        /// Handler that is called whenever cells start getting displayed.
         var isDisplaying: (([IndexPath]) -> Void)?
-        /// Handler that gets called whenever cells end getting displayed.
+        /// Handler that is called whenever cells end getting displayed.
         var didEndDisplaying: (([IndexPath]) -> Void)?
     }
 

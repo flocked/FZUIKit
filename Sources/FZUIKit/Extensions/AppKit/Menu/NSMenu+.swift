@@ -25,8 +25,8 @@ extension NSMenu {
      Initializes and returns a menu having the specified title and menu items.
      
      - Parameters:
-        - items: The menu items for the menu.
-        - title: The title to assign to the menu.
+     - items: The menu items for the menu.
+     - title: The title to assign to the menu.
      
      - Returns: The initialized `NSMenu` object.
      */
@@ -145,8 +145,8 @@ extension NSMenu {
      Inserts menu items into the menu at a specific location.
      
      - Parameters:
-        - items: The menu items to insert.
-        - index: An integer index identifying the location of the menu item in the menu.
+     - items: The menu items to insert.
+     - index: An integer index identifying the location of the menu item in the menu.
      */
     public func insertItems(_ items: [NSMenuItem], at index: Int) {
         items.reversed().forEach({ insertItem($0, at: index) })
@@ -169,8 +169,8 @@ extension NSMenu {
      Returns all menu items that satisfy a given predicate, searching up to a given submenu depth.
      
      - Parameters:
-        - predicate: A closure that returns `true` for items to include.
-        - depth: The number of submenu levels to match. Use `0` for only top-level items and `.max` for unlimited depth.
+     - predicate: A closure that returns `true` for items to include.
+     - depth: The number of submenu levels to match. Use `0` for only top-level items and `.max` for unlimited depth.
      */
     @objc open func items(where predicate: (NSMenuItem) -> Bool, depth: Int) -> [NSMenuItem] {
         items(depth: depth).filter(predicate)
@@ -180,8 +180,8 @@ extension NSMenu {
      Returns all menu items of a specific item type in the menu and its submenus.
      
      - Parameters:
-        - type: The subclass type of `NSMenuItem` to filter.
-        - depth: The number of submenu levels to match. Use `0` for only top-level items and `.max` for unlimited depth.
+     - type: The subclass type of `NSMenuItem` to filter.
+     - depth: The number of submenu levels to match. Use `0` for only top-level items and `.max` for unlimited depth.
      */
     public func items<V: NSMenuItem>(type _: V.Type, depth: Int = 0) -> [V] {
         items(depth: depth).compactMap { $0 as? V }
@@ -191,8 +191,8 @@ extension NSMenu {
      Returns the first menu item with the specific item type, searching recursively through submenus.
      
      - Parameters:
-        - type: The subclass type of `NSMenuItem` to search for.
-        - depth: The number of submenu levels to match. Use `0` for only top-level items and `.max` for unlimited depth.
+     - type: The subclass type of `NSMenuItem` to search for.
+     - depth: The number of submenu levels to match. Use `0` for only top-level items and `.max` for unlimited depth.
      - Returns: The first matching item, or `nil` if none is found.
      */
     public func firstItem<V: NSMenuItem>(type _: V.Type, depth: Int = .max) -> V? {
@@ -203,8 +203,8 @@ extension NSMenu {
      Returns the first menu item that satisfies a given predicate, searching recursively through submenus.
      
      - Parameters:
-        - predicate: A closure that returns `true` for the item to find.
-        - depth: The number of submenu levels to match. Use `0` for only top-level items and `.max` for unlimited depth.
+     - predicate: A closure that returns `true` for the item to find.
+     - depth: The number of submenu levels to match. Use `0` for only top-level items and `.max` for unlimited depth.
      - Returns: The first matching item, or `nil` if none is found.
      */
     @objc open func firstItem(where predicate: (NSMenuItem) -> Bool, depth: Int) -> NSMenuItem? {
@@ -224,8 +224,8 @@ extension NSMenu {
      Returns the first menu item with the specified title, searching recursively through submenus.
      
      - Parameters:
-        - title: The title to match.
-        - depth: The number of submenu levels to check. Use `0` for only top-level items and `.max` for unlimited depth.
+     - title: The title to match.
+     - depth: The number of submenu levels to check. Use `0` for only top-level items and `.max` for unlimited depth.
      - Returns: The first matching item, or `nil` if none is found.
      */
     @objc open func firstItem(withTitle title: String, depth: Int = .max) -> NSMenuItem? {
@@ -245,8 +245,8 @@ extension NSMenu {
      Returns the first menu item with the specified tag, searching recursively through submenus.
      
      - Parameters:
-        - tag: The tag to match.
-        - depth: The number of submenu levels to check. Use `0` for only top-level items and `.max` for unlimited depth.
+     - tag: The tag to match.
+     - depth: The number of submenu levels to check. Use `0` for only top-level items and `.max` for unlimited depth.
      - Returns: The first matching item, or `nil` if none is found.
      */
     @objc open func firstItem(withTag tag: Int, depth: Int = .max) -> NSMenuItem? {
@@ -264,10 +264,10 @@ extension NSMenu {
     
     /**
      Returns the index of the first menu item in the menu that has a given represented object, searching recursively through submenus.
-          
+     
      - Parameters:
-        - representedObject: A represented object of the menu.
-        - depth: The number of submenu levels to match. Use `0` for only top-level items and `.max` for unlimited depth.
+     - representedObject: A represented object of the menu.
+     - depth: The number of submenu levels to match. Use `0` for only top-level items and `.max` for unlimited depth.
      - Returns: The first matching item, or `nil` if none is found.
      */
     func firstItem(withRepresentedObject representedObject: Any?, depth: Int = .max) -> NSMenuItem? {
@@ -307,8 +307,8 @@ extension NSMenu {
      Returns all submenus that satisfy a given predicate, searching up to a given submenu depth.
      
      - Parameters:
-        - predicate: A closure that returns `true` for menus to include.
-        - depth: The number of submenu levels to match. Use `0` for only top-level submenus and `.max` for unlimited depth.
+     - predicate: A closure that returns `true` for menus to include.
+     - depth: The number of submenu levels to match. Use `0` for only top-level submenus and `.max` for unlimited depth.
      */
     @objc open func submenus(where predicate: (NSMenu) -> Bool, depth: Int) -> [NSMenu] {
         submenus(depth: depth).filter(predicate)
@@ -318,8 +318,8 @@ extension NSMenu {
      Returns all submenus of a specific menu type, searching up to a given submenu depth.
      
      - Parameters:
-        - type: The subclass type of `NSMenu` to filter.
-        - depth: The number of submenu levels to match. Use `0` for only top-level submenus and `.max` for unlimited depth.
+     - type: The subclass type of `NSMenu` to filter.
+     - depth: The number of submenu levels to match. Use `0` for only top-level submenus and `.max` for unlimited depth.
      */
     public func submenus<V: NSMenu>(type _: V.Type, depth: Int = 0) -> [V] {
         submenus(depth: depth).compactMap { $0 as? V }
@@ -329,8 +329,8 @@ extension NSMenu {
      Returns the first submenu with the specified title.
      
      - Parameters:
-        - title: The title of the menu.
-        - depth: The number of submenu levels to match. Use `0` for only top-level submenus and `.max` for unlimited depth.
+     - title: The title of the menu.
+     - depth: The number of submenu levels to match. Use `0` for only top-level submenus and `.max` for unlimited depth.
      */
     @objc open func submenu(withTitle title: String, depth: Int = 0) -> NSMenu? {
         firstSubmenu(where: { $0.title == title }, depth: depth)
@@ -338,10 +338,10 @@ extension NSMenu {
     
     /**
      Returns the first submenu with the specific menu type, searching recursively through submenus.
-
+     
      - Parameters:
-        - type: The subclass type of `NSMenu` to search for.
-        - depth: The number of submenu levels to match. Use `0` for only top-level submenus and `.max` for unlimited depth.
+     - type: The subclass type of `NSMenu` to search for.
+     - depth: The number of submenu levels to match. Use `0` for only top-level submenus and `.max` for unlimited depth.
      */
     public func firstSubmenu<V: NSMenu>(type _: V.Type, depth: Int = .max) -> V? {
         submenus(where: { $0 is V }, depth: depth).first as? V
@@ -351,8 +351,8 @@ extension NSMenu {
      Returns the first submenu that satisfies a given predicate, searching recursively through submenus.
      
      - Parameters:
-        - predicate: A closure that returns `true` for the submenu to find.
-        - depth: The number of submenu levels to match. Use `0` for only top-level submenus and `.max` for unlimited depth.
+     - predicate: A closure that returns `true` for the submenu to find.
+     - depth: The number of submenu levels to match. Use `0` for only top-level submenus and `.max` for unlimited depth.
      */
     @objc open func firstSubmenu(where predicate: (NSMenu) -> Bool, depth: Int) -> NSMenu? {
         let submenus = items.compactMap({ $0.submenu })
@@ -370,7 +370,7 @@ extension NSMenu {
     
     /**
      A Boolean value indicating whether the menu should auto update it's width.
-          
+     
      If set to `true`, the menu width is automatically updated to the width of the items including the item's ``AppKit/NSMenuItem/alternateItem``.
      
      Setting this property to `true`, prevents the menu width from increasing if an ``AppKit/NSMenuItem/alternateItem`` is displayed that is wider than the current menu width.
@@ -415,34 +415,52 @@ extension NSMenu {
     
     /**
      Pops up the menu at the specified location using a specified font.
-
+     
      Displays the menu as a pop-up menu. The top left corner of the specified item (if specified, item must be present in the menu) is positioned at the specified location in the specified view, interpreted in the view’s own coordinate system.
      
      If `item` is `nil`, the menu is positioned such that the top left of the menu content frame is at the given location.
-          
+     
      If `view` is `nil`, the location is interpreted in the screen coordinate system. This allows you to pop up a menu disconnected from any window.
-
+     
      - Parameters:
-        - item: The menu item to be positioned at the specified location in the view.
-        - location: The location in the view coordinate system to display the menu item.
-        - view: The view to display the menu item over.
-        - font: The font for the menu.
+     - item: The menu item to be positioned at the specified location in the view.
+     - location: The location in the view coordinate system to display the menu item.
+     - view: The view to display the menu item over.
+     - font: The font for the menu.
      - Returns: `true` if menu tracking ended because an item was selected, and `false` if menu tracking was cancelled for any reason.
      */
     @discardableResult
     public func popUp(positioning item: NSMenuItem? = nil, at location: CGPoint, in view: NSView? = nil, with font: NSFont) -> Bool {
-        handlers.font = { includeSubmenus in
-            includeSubmenus = true
-            return font
+        handlers.update = { [weak self] menu in
+            guard let self = self else { return }
+            self.updateFonts(to: font)
         }
         handlers.didClose = { [weak self] in
             guard let self = self else { return }
-            self.handlers.font = nil
+            self.updateFonts(to: nil)
             self.handlers.didClose = nil
         }
         return popUp(positioning: item, at: location, in: view)
     }
     
+    private func updateFonts(to font: NSFont?) {
+        if let font = font {
+            (self + submenus(depth: .max)).forEach {
+                mappedFonts[ObjectIdentifier($0)] = $0.font
+                $0.font = font
+            }
+        } else {
+            (self + submenus(depth: .max)).forEach {
+                $0.font = mappedFonts[ObjectIdentifier($0)]
+            }
+            mappedFonts = [:]
+        }
+    }
+    
+    private var mappedFonts: [ObjectIdentifier: NSFont] {
+        get { getAssociatedValue("mappedFonts") ?? [:] }
+        set { setAssociatedValue(newValue, key: "mappedFonts")} 
+    }
     
     /**
      Pops up the menu at the current mouse location in the specified view.
@@ -611,7 +629,7 @@ public extension NSMenu {
         - selectionMode: The selection mode of the menu.
         - onSelectionChange: The closure to invoke when someone selects the menu item.
      */
-    public static func palette(_ items: [PaletteItem], image: NSImage? = nil, onImage: NSImage? = nil, selectionMode: SelectionMode = .automatic, onSelectionChange: ((NSMenu) -> Void)? = nil) -> NSMenu {
+    static func palette(_ items: [PaletteItem], image: NSImage? = nil, onImage: NSImage? = nil, selectionMode: SelectionMode = .automatic, onSelectionChange: ((NSMenu) -> Void)? = nil) -> NSMenu {
         let menu = NSMenu.palette(colors: items.map({$0.color}), titles: items.map({$0.title}), template: image, onSelectionChange: onSelectionChange)
         menu.selectionMode = selectionMode
         items.indexed().forEach({
@@ -642,7 +660,7 @@ public extension NSMenu {
         - selectionMode: The selection mode of the menu.
         - onSelectionChange: The closure to invoke when someone selects the menu item.
      */
-    public static func palette(_ items: [PaletteItem], symbolImage symbolName: String, onImage: String? = nil, selectionMode: SelectionMode = .automatic, onSelectionChange: ((NSMenu) -> Void)? = nil) -> NSMenu {
+    static func palette(_ items: [PaletteItem], symbolImage symbolName: String, onImage: String? = nil, selectionMode: SelectionMode = .automatic, onSelectionChange: ((NSMenu) -> Void)? = nil) -> NSMenu {
         if let onImage = onImage {
             return palette(items, image: .symbol(symbolName), onImage: .symbol(onImage), selectionMode: selectionMode, onSelectionChange: onSelectionChange)
         }
@@ -650,7 +668,7 @@ public extension NSMenu {
     }
     
     /// A palette item for a palette menu.
-    public struct PaletteItem {
+    struct PaletteItem {
         let color: NSColor
         let title: String
         let image: NSImage?

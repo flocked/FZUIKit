@@ -117,7 +117,7 @@ extension NSPasteboard {
     /**
      Observes changes to the pasteboard.
      
-     - Parameter handler: The handler that gets called whenenver the pasteboard changes.
+     - Parameter handler: The handler that is called whenenver the pasteboard changes.
      - Returns: The ``PasteboardObservation`` object for the observation.
      
      */

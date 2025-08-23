@@ -31,7 +31,7 @@ extension Toolbar {
             public var items: (() -> ([Any]))?
             
             
-            /// The handler that gets called when the sharing service is selected for the current item.
+            /// The handler that is called when the sharing service is selected for the current item.
             public var didSelect: ((_ service: NSSharingService?) -> Void)?
             
             /**
@@ -44,13 +44,13 @@ extension Toolbar {
             /// The handler that provides the delegate for the selected sharing service.
             public var delegate: ((_ service: NSSharingService) -> (NSSharingServiceDelegate?))?
             
-            /// The handler that gets called when items are about to share.
+            /// The handler that is called when items are about to share.
             public var willShare: ((_ items: [Any], _ service: NSSharingService) -> ())?
             
-            /// The handler that gets called when items did share.
+            /// The handler that is called when items did share.
             public var didShare: ((_ items: [Any], _ service: NSSharingService) -> ())?
             
-            /// The handler that gets called when items did fail to share.
+            /// The handler that is called when items did fail to share.
             public var didFailToShare: ((_ items: [Any], _ service: NSSharingService, _ error: any Error) -> ())?
         }
         
@@ -93,14 +93,14 @@ extension Toolbar {
         }
         
         /**
-         The handler that gets called to validate the toolbar item.
+         The handler that is called to validate the toolbar item.
          
          The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
          */
         public var validateHandler: ((Toolbar.SharingServicePicker)->())?
         
         /**
-         Sets the handler that gets called to validate the toolbar item.
+         Sets the handler that is called to validate the toolbar item.
          
          The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
          */
@@ -110,7 +110,7 @@ extension Toolbar {
             return self
         }
         
-        /// The handler that gets called when the user clicks the toolbar item.
+        /// The handler that is called when the user clicks the toolbar item.
         public var actionBlock: ((_ item: Toolbar.SharingServicePicker)->())? {
             didSet {
                 if let actionBlock = actionBlock {
@@ -123,7 +123,7 @@ extension Toolbar {
             }
         }
         
-        /// Sets the handler that gets called when the user clicks the toolbar item.
+        /// Sets the handler that is called when the user clicks the toolbar item.
         @discardableResult
         public func onAction(_ action: ((_ item: Toolbar.SharingServicePicker)->())?) -> Self {
             actionBlock = action

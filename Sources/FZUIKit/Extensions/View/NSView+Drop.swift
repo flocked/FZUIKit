@@ -66,7 +66,7 @@ extension NSView {
         public var canDrop: ((_ info: DropInfo) -> NSDragOperation)?
         
         /**
-         The handler that gets called when a drop is valid.
+         The handler that is called when a drop is valid.
          
          A handler that notifies your view about the validity of a potential drop operation.
          
@@ -92,14 +92,14 @@ extension NSView {
          */
         public var hasValidDrop: (( _ isValid: Bool) -> ())?
         
-        /// The handler that gets called when the user did drop the content from the pasteboard to your view.
+        /// The handler that is called when the user did drop the content from the pasteboard to your view.
         public var didDrop: ((_ info: DropInfo) -> ())?
         
-        /// The handler that gets called when a mouse drag containing pasteboard content enters the view.
+        /// The handler that is called when a mouse drag containing pasteboard content enters the view.
         public var dropEntered: ((_ info: DropInfo) -> ())?
         
         /**
-         The handler that gets called when a mouse drag containing pasteboard content moves within the view's `bounds`.
+         The handler that is called when a mouse drag containing pasteboard content moves within the view's `bounds`.
          
          Similar to ``AppKit/NSView/DropHandlers-swift.struct/canDrop`` the handler determines whether the user can drop the content from the pasteboard to your view.
          
@@ -109,10 +109,10 @@ extension NSView {
          */
         public var dropUpdated: ((_ info: DropInfo) -> NSDragOperation)?
 
-        /// The handler that gets called when a mouse drag containing pasteboard content exits the view.
+        /// The handler that is called when a mouse drag containing pasteboard content exits the view.
         public var dropExited: ((_ info: DropInfo)->())?
         
-        /// The handler that gets called after a drop session ended.
+        /// The handler that is called after a drop session ended.
         public var dropEnded: ((_ info: DropInfo) -> ())?
         
         /**
@@ -123,7 +123,7 @@ extension NSView {
         public var updatesPeriodic = true
         
         /**
-         The handler that gets called when the dragging images should be changed.
+         The handler that is called when the dragging images should be changed.
          
          While you may update the dragging images of ``DropInfo`` at any time, it is recommended to wait until this method is called before updating the dragging images.
          
@@ -196,9 +196,9 @@ extension NSView {
         public struct SpringLoading {
             /// The handler that determines the spring loading options for the content.
             public var options: ((_ info: DropInfo) -> (NSSpringLoadingOptions))?
-            /// The handler that gets called when the spring loading activation state changed.
+            /// The handler that is called when the spring loading activation state changed.
             public var activated: ((_ activated: Bool) -> ())?
-            /// The handler that gets called when the spring loading highlight state changed.
+            /// The handler that is called when the spring loading highlight state changed.
             public var highlightChanged: ((_ highlight: NSSpringLoadingHighlight) -> ())?
         }
 

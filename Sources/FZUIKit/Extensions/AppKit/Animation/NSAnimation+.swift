@@ -34,15 +34,15 @@ extension NSAnimation {
     
     /// The handlers for an animation.
     public struct Handlers {
-        /// The handler that gets called when animation is stopped before it completes its run.
+        /// The handler that is called when animation is stopped before it completes its run.
         public var didStop: (()->())?
-        /// The handler that gets called when animation completes its run.
+        /// The handler that is called when animation completes its run.
         public var didEnd: (()->())?
         /// The handler that determinates if the animation should start.
         public var shouldStart: (()->(Bool))?
         /// The handler for a custom curve value for the current progress value.
         public var valueForProgress: ((Progress)->(Float))?
-        /// The handler that gets called when animation reaches a specific progress mark.
+        /// The handler that is called when animation reaches a specific progress mark.
         public var didReachProgressMark: ((Progress)->())?
 
         var needsDelegate: Bool {

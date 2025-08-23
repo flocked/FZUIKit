@@ -121,11 +121,11 @@ public extension NSApplication {
         
     /// Handlers for the application.
     struct Handlers {
-        /// Handler that gets called whenever the application becomes active/inactive.
+        /// Handler that is called whenever the application becomes active/inactive.
         public var isActive: ((Bool)->())?
-        /// Handler that gets called whenever the application hides/unhides.
+        /// Handler that is called whenever the application hides/unhides.
         public var isHidden: ((Bool)->())?
-        /// Handler that gets called whenever the configuration of the displays attached to the computer is changed.
+        /// Handler that is called whenever the configuration of the displays attached to the computer is changed.
         public var didChangeScreenParameters: (()->())?
     }
         

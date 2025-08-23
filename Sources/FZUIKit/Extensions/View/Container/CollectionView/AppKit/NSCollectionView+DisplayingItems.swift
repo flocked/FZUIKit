@@ -47,9 +47,9 @@ extension NSCollectionView {
      The handlers get called whenever the collection view is displaying new items.
      */
     public struct DisplayingItemsHandlers {
-        /// Handler that gets called whenever items start getting displayed.
+        /// Handler that is called whenever items start getting displayed.
         public var isDisplaying: (([IndexPath]) -> Void)?
-        /// Handler that gets called whenever items end getting displayed.
+        /// Handler that is called whenever items end getting displayed.
         public var didEndDisplaying: (([IndexPath]) -> Void)?
     }
 

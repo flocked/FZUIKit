@@ -49,7 +49,7 @@ extension NSView {
         public var canDrag: ((_ mouseLocation: CGPoint) -> ([PasteboardWriting]?))?
         /// An optional image used for dragging. If `nil`, a rendered image of the view is used.
         public var dragImage: ((_ screenLocation: CGPoint, _ content: PasteboardWriting) -> ((image: NSImage?, imageFrame: CGRect?)))?
-        /// The handler that gets called when the user did drag the content to a supported destination.
+        /// The handler that is called when the user did drag the content to a supported destination.
         public var didDrag: ((_ dragSession: DraggingSession, _ dragOperation: NSDragOperation) -> ())?
         
         public var dragUpdated: ((_ dragSession: DraggingSession) -> ())?

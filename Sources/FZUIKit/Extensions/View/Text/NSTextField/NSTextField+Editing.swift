@@ -13,16 +13,16 @@ extension NSTextField {
                 
     /// Handlers for editing the text of a text field.
     public struct EditingHandler {
-        /// Handler that gets called whenever editing the text did begin.
+        /// Handler that is called whenever editing the text did begin.
         public var didBegin: (() -> Void)?
             
         /// Handler that determines whether the text should change. If you provide ``AppKit/NSTextField/minimumNumberOfCharacters``, ``AppKit/NSTextField/maximumNumberOfCharacters`` or ``AppKit/NSTextField/allowedCharacters-swift.property`` the handler is called after checking the string against the specified property conditions.
         public var shouldEdit: ((String) -> (Bool))?
             
-        /// Handler that gets called whenever the text did change.
+        /// Handler that is called whenever the text did change.
         public var didEdit: (() -> Void)?
             
-        /// Handler that gets called whenever editing the text did end.
+        /// Handler that is called whenever editing the text did end.
         public var didEnd: (() -> Void)?
             
         var needsSwizzle: Bool {

@@ -13,21 +13,21 @@ import SwiftUI
 extension NSPopover {
     /// Handlers for a popover.
     public struct Handlers {
-        /// Handler that gets called whenever the popover is about to show.
+        /// Handler that is called whenever the popover is about to show.
         public var willShow: (() -> Void)?
-        /// Handler that gets called whenever the popover did show.
+        /// Handler that is called whenever the popover did show.
         public var didShow: (() -> Void)?
-        /// Handler that gets called whenever the popover is about to close.
+        /// Handler that is called whenever the popover is about to close.
         public var willClose: (() -> Void)?
-        /// Handler that gets called whenever the popover did close.
+        /// Handler that is called whenever the popover did close.
         public var didClose: (() -> Void)?
         /// Handler that determines whether the popover should close.
         public var shouldClose: (() -> (Bool))?
-        /// Handler that gets called whenever the popover did detach.
+        /// Handler that is called whenever the popover did detach.
         public var didDetach: (() -> Void)?
         /// Handler that determines whether the popover should detach.
         public var shouldDetach: (() -> (Bool))?
-        /// The handler that gets called when the appearance changes.
+        /// The handler that is called when the appearance changes.
         public var effectiveAppearance: ((NSAppearance)->())?
         
         var needsSwizzle: Bool {

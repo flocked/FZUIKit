@@ -102,11 +102,11 @@ extension NSDraggingSession {
 
 /// Handlers of a dragging source.
 public struct NSDraggingSourceHandlers {
-    /// The handler that gets called when the dragging source will begin a drag.
+    /// The handler that is called when the dragging source will begin a drag.
     public var willBegin: ((_ session: NSDraggingSession, _ screenLocation: CGPoint)->())?
-    /// The handler that gets called when the drag of the dragging source did move to a new location.
+    /// The handler that is called when the drag of the dragging source did move to a new location.
     public var didUpdate: ((_ session: NSDraggingSession, _ screenLocation: CGPoint)->())?
-    /// The handler that gets called when the drag of the dragging source did end.
+    /// The handler that is called when the drag of the dragging source did end.
     public var didEnd: ((_ session: NSDraggingSession, _ screenLocation: CGPoint, _  operation: NSDragOperation)->())?
 }
 

@@ -14,35 +14,19 @@ import FZSwiftUtils
 extension NSMenu {
     /// The handlers for the menu.
     public struct Handlers {
-        /// The handlers that gets called when the menu will open.
+        /// The handlers that is called when the menu will open.
         public var willOpen: (()->())?
-        /// The handlers that gets called when the menu did close.
+        /// The handlers that is called when the menu did close.
         public var didClose: (()->())?
-        /// The handlers that gets called when the menu will open.
+        /// The handlers that is called when the menu is about to highlight a given item.
         public var willHighlight: ((NSMenuItem?)->())?
-        /// The handler that gets called when the appearance changes.
+        /// The handler that is called when the appearance changed.
         public var effectiveAppearance: ((NSAppearance)->())?
-        /**
-         The handler that gets called before the menu is displayed.
-         
-         The handler lets you update the menu before it's displayed.
-         */
+        /// The handler that is called before the menu is displayed allowing you to update it.
         public var update: ((_ menu: NSMenu)->())?
-        /**
-         The handler that provides the font for the menu.
-         
-         - Parameter includeSubmenus: Set this property to `true`, if  the returned font should be used for all submenus.
-         - Returns: The font for the menu.
-         */
-        public var font: ((_ includeSubmenus: inout Bool)->(NSFont?))?
 
         var needsDelegate: Bool {
-            willOpen != nil ||
-            didClose != nil ||
-            willHighlight != nil ||
-            effectiveAppearance != nil ||
-            update != nil ||
-            font != nil
+            willOpen != nil || didClose != nil || willHighlight != nil || effectiveAppearance != nil || update != nil
         }
     }
     
@@ -89,8 +73,6 @@ extension NSMenu {
         var eventObserver: CFRunLoopObserver?
         var delegateObservation: KeyValueObservation?
         var menuMinimumWidth: CGFloat?
-        var includeSubmenuFonts = false
-        var mappedFonts: [ObjectIdentifier: NSFont] = [:]
 
         init(_ menu: NSMenu) {
             self.delegate = menu.delegate
@@ -107,20 +89,9 @@ extension NSMenu {
             guard menu.delegate === self else { return }
             menu.handlers.willOpen?()
             delegate?.menuWillOpen?(menu)
-            includeSubmenuFonts = false
-            guard let menuFont = menu.handlers.font?(&includeSubmenuFonts) else { return }
-            (menu + (includeSubmenuFonts ? menu.submenus(depth: .max) : [])).forEach({
-                mappedFonts[ObjectIdentifier($0)] = $0.font
-                $0.font = menuFont
-            })
         }
         
         func menuDidClose(_ menu: NSMenu) {
-            if menu.handlers.font != nil {
-                (menu + (includeSubmenuFonts ? menu.submenus(depth: .max) : [])).forEach({
-                    $0.font = mappedFonts[ObjectIdentifier($0)]
-                })
-            }
             menu.items = menu.items.withoutAlternates()
             guard menu.delegate === self else { return }
             menu.handlers.didClose?()
@@ -129,7 +100,6 @@ extension NSMenu {
                 CFRunLoopObserverInvalidate(eventObserver)
                 eventObserver = nil
             }
-            mappedFonts = [:]
             if let minimumWidth = menuMinimumWidth {
                 menu.minimumWidth = minimumWidth
                 menuMinimumWidth = nil

@@ -249,7 +249,7 @@ extension NSStatusItem {
         case isReleased
     }
     
-    /// The handler that gets called when the mouse is clicking and holding the item.
+    /// The handler that is called when the mouse is clicking and holding the item.
     public var onMouseHold: ((_ state: MouseClickState)->())? {
         get { getAssociatedValue("onMouseHold") }
         set { setAssociatedValue(newValue, key: "onMouseHold")
@@ -257,7 +257,7 @@ extension NSStatusItem {
         }
     }
     
-    /// The handler that gets called when the mouse is right clicking and holding the item.
+    /// The handler that is called when the mouse is right clicking and holding the item.
     public var onRightMouseHold: ((MouseClickState)->())? {
         get { getAssociatedValue("onRightMouseHold") }
         set { setAssociatedValue(newValue, key: "onRightMouseHold")

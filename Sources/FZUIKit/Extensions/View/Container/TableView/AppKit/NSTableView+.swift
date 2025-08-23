@@ -460,7 +460,7 @@ extension NSTableView {
 }
 
 extension NSTableView {
-    /// The handler that gets called when the table view is double clicked.
+    /// The handler that is called when the table view is double clicked.
     public var doubleClickHandler: ((_ row: Int?)->())? {
         get { getAssociatedValue("doubleClickHandler") }
         set {

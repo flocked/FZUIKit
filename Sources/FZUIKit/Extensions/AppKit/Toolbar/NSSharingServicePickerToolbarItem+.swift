@@ -16,7 +16,7 @@ extension NSSharingServicePickerToolbarItem {
         /// The handler that determines the items to share.
         public var items: (()->([Any]))?
         
-        /// The handler that gets called when the sharing service is selected for the current item.
+        /// The handler that is called when the sharing service is selected for the current item.
         public var didSelect: ((_ selected: NSSharingService?)->())?
         
         /**
@@ -30,13 +30,13 @@ extension NSSharingServicePickerToolbarItem {
         /// The handler that provides the delegate for the selected sharing service.
         public var delegate: ((_ service: NSSharingService) -> (NSSharingServiceDelegate?))?
         
-        /// The handler that gets called when items are about to share.
+        /// The handler that is called when items are about to share.
         public var willShare: ((_ items: [Any], _ service: NSSharingService) -> ())?
         
-        /// The handler that gets called when items did share.
+        /// The handler that is called when items did share.
         public var didShare: ((_ items: [Any], _ service: NSSharingService) -> ())?
         
-        /// The handler that gets called when items did fail to share.
+        /// The handler that is called when items did fail to share.
         public var didFailToShare: ((_ items: [Any], _ service: NSSharingService, _ error: any Error) -> ())?
         
         var needsDelegate: Bool {
