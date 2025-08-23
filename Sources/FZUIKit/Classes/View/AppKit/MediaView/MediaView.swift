@@ -200,7 +200,7 @@ open class MediaView: NSControl {
             if item.status == .readyToPlay {
                 self.assetStatusHandler?(.readyToPlay)
             } else {
-                item.statusHandler = { [weak self] status in
+                item.handlers.status = { [weak self] status in
                     guard let self = self else { return }
                     self.assetStatusHandler?(status)
                 }

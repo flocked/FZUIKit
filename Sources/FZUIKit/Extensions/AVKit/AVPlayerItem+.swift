@@ -11,24 +11,61 @@ import FZSwiftUtils
 import Combine
 
 public extension AVPlayerItem {
-    /// The current playback percentage (between `0.0` and `1.0`).
-    var playbackPercentage: Double {
-        get { currentTime().seconds / duration.seconds }
-        set { seek(toPercentage: newValue.clamped(to: 0...1.0)) }
+    /// Handlers for a player item.
+    struct Handlers {
+        /// The handler that is called when the item did play to the end time.
+        public var playedToEnd: (()->())?
+        /// The handler that is called when the item failed to play to the end time.
+        public var failedToPlayToEnd: (()->())?
+        /// The handler that is called when the playback of the item available.
+        public var playbackStalled: (()->())?
+        /// The handler that is called when a new error log for the item is available.
+        public var newErrorLog: (()->())?
+        /// The handler that is called when a new network access log for the item is available.
+        public var newAccessLog: (()->())?
+        /// The handler that gets called whenever the status of the item changes.
+        public var status: ((Status)->())?
     }
     
-    /// The handler that gets changed when the status of the item changes.
-    var statusHandler: ((Status)->())? {
-        get { getAssociatedValue("statusHandler") }
-        set { setAssociatedValue(newValue, key: "statusHandler")
-            if let statusHandler = newValue {
-                observeChanges(for: \.status) { old, new in
-                    statusHandler(new)
+    /// The handlers of the item.
+    var handlers: Handlers {
+        get { getAssociatedValue("handlers") ?? Handlers() }
+        set {
+            setAssociatedValue(newValue, key: "handlers")
+            observe(AVPlayerItem.failedToPlayToEndTimeNotification, handler: handlers.failedToPlayToEnd)
+            observe(AVPlayerItem.newAccessLogEntryNotification, handler: handlers.newAccessLog)
+            observe(AVPlayerItem.newErrorLogEntryNotification, handler: handlers.newErrorLog)
+            observe(AVPlayerItem.playbackStalledNotification, handler: handlers.playbackStalled)
+            if let handler = handlers.status {
+                statusObservation = observeChanges(for: \.status) { old, new in
+                    handler(new)
                 }
             } else {
                 statusObservation = nil
             }
         }
+    }
+    
+    private func observe(_ name: Notification.Name, handler: (()->())?) {
+        if let handler = handler {
+            handlerNotificationTokens[name] = .init(name, object: self) { [weak self] notification in
+                guard let self = self else { return }
+                handler()
+            }
+        } else {
+            handlerNotificationTokens[name] = nil
+        }
+    }
+    
+    private var handlerNotificationTokens: [Notification.Name : NotificationToken] {
+        get { getAssociatedValue("handlerNotificationTokens") ?? [:] }
+        set { setAssociatedValue(newValue, key: "handlerNotificationTokens") }
+    }
+    
+    /// The current playback percentage (between `0.0` and `1.0`).
+    var playbackPercentage: Double {
+        get { currentTime().seconds / duration.seconds }
+        set { seek(toPercentage: newValue.clamped(to: 0...1.0)) }
     }
     
     private var statusObservation: KeyValueObservation? {
