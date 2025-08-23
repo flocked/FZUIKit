@@ -19,33 +19,6 @@ extension NSView {
     }
 
     /**
-     The coordinate of the baseline for the topmost line of text in the view.
-
-     For views with multiple lines of text, this represents the baseline of the top row of text.
-     */
-    @objc open var firstBaselineOffset: CGPoint {
-        get {
-            guard firstBaselineOffsetFromTop != 0 else { return frame.origin }
-            return CGPoint(frame.x, frame.maxY - firstBaselineOffsetFromTop - 0.5)
-        }
-        set { frame.origin = CGPoint(newValue.x, newValue.y - firstBaselineOffsetFromBottom) }
-    }
-
-    var firstBaselineOffsetFromBottom: CGFloat {
-        frame.height - firstBaselineOffsetFromTop - 0.5
-    }
-
-    /**
-     The coordinate of the baseline for the bottommost line of text in the view.
-
-     For views with multiple lines of text, this represents the baseline of the bottom row of text.
-     */
-    @objc open var lastBaselineOffset: CGPoint {
-        get { CGPoint(frame.x, frame.y + lastBaselineOffsetFromBottom - 0.5) }
-        set { frame.origin = CGPoint(newValue.x, newValue.y - lastBaselineOffsetFromBottom - 0.5) }
-    }
-
-    /**
      Embeds the view in a scroll view and returns that scroll view.
 
      If the view is already emedded in a scroll view, it will return that.

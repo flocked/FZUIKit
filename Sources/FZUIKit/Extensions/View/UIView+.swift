@@ -200,52 +200,6 @@ extension UIView {
         set { layer.shadowShape = newValue }
     }
     
-    /**
-     The distance (in points) between the top of the view’s alignment rectangle and its topmost baseline.
-     
-     For views with multiple lines of text, this represents the baseline of the top row of text.
-     
-     - Note: For views of type `UITextField` or `UITextView`, auto layout has to be enabled, or `nil` is returned.
-     */
-    public var firstBaselineOffsetFromTop: CGFloat? {
-        if self is UITextField {
-            return value(forKeySafely: "_firstBaselineOffsetFromTop") as? CGFloat
-        } else if self is UITextView {
-            return value(forKeySafely: "_firstBaselineOffsetFromTop") as? CGFloat
-        } else if self is UILabel {
-            return value(forKeySafely: "_firstBaselineOffsetFromTop") as? CGFloat
-        }
-        return nil
-    }
-    
-    /**
-     The distance (in points) between the bottom of the view’s alignment rectangle and its bottommost baseline.
-     
-     For views of type `UITextField` or `UITextView`, auto layout has to be enabled, or `nil` is returned.
-     */
-    public var lastBaselineOffsetFromBottom: CGFloat? {
-        if self is UITextField {
-            return value(forKeySafely: "_lastBaselineOffsetFromBottom") as? CGFloat
-        } else if self is UITextView {
-            return value(forKeySafely: "_lastBaselineOffsetFromBottom") as? CGFloat
-        } else if self is UILabel {
-            return value(forKeySafely: "_baselineOffsetFromBottom") as? CGFloat
-        }
-        return nil
-    }
-    
-    /**
-     The coordinate of the baseline for the topmost line of text in the view.
-     
-     For views with multiple lines of text, this represents the baseline of the top row of text.
-     
-     - Note: For views of type `UITextField` or `UITextView`, auto layout has to be enabled, or else `0` is returned.
-     */
-    public var firstBaselineOffset: CGPoint {
-        guard firstBaselineOffsetFromTop ?? 0.0 != 0 else { return frame.origin }
-        return CGPoint(frame.x, frame.y + frame.height - (firstBaselineOffsetFromTop ?? 0.0) - 0.5)
-    }
-    
     /// Handlers for the view.
     public struct ViewHandlers {
         /// The handler that is called when the trait collection changes.

@@ -20,6 +20,59 @@ extension NSUIView {
         #endif
         return layer
     }
+    
+    /**
+     The coordinate of the baseline for the topmost line of text in the view in its superview’s coordinate system.
+     
+     For views with multiple lines of text, this represents the baseline of the top row of text.
+
+     Adjusting the property moves the view so that the topmost line of text is at the specified coordinate.
+     */
+    @objc open var firstBaselineOffset: CGPoint {
+        get {
+            guard firstBaselineOffsetFromTop != 0 else { return frame.origin }
+            return CGPoint(frame.x, frame.maxY - firstBaselineOffsetFromTop - 0.5)
+        }
+        set { frame.origin = CGPoint(newValue.x, newValue.y - firstBaselineOffsetFromBottom) }
+    }
+
+    private var firstBaselineOffsetFromBottom: CGFloat {
+        frame.height - firstBaselineOffsetFromTop - 0.5
+    }
+
+    /**
+     The coordinate of the baseline for the bottommost line of text in the view in its superview’s coordinate system.
+     
+     For views with multiple lines of text, this represents the baseline of the bottom row of text.
+
+     Adjusting this property moves the view so that the bottommost line of text is at the specified coordinate.
+     */
+    @objc open var lastBaselineOffset: CGPoint {
+        get { CGPoint(frame.x, frame.y + lastBaselineOffsetFromBottom - 0.5) }
+        set { frame.origin = CGPoint(newValue.x, newValue.y - lastBaselineOffsetFromBottom - 0.5) }
+    }
+    
+    #if canImport(UIKit)
+    /**
+     The distance (in points) between the top of the view’s alignment rectangle and its topmost baseline.
+     
+     The default value of this property is `0`. For views that contain text or other content whose layout benefits from having a custom baseline, this property provides the correct distance between the top of the view’s alignment rectangle and the baseline of the top row of text.
+     
+     - Note: For views of type `UITextField` or `UITextView`, auto layout has to be enabled, or `nil` is returned.
+     */
+    public var firstBaselineOffsetFromTop: CGFloat {
+        value(forKeySafely: "_firstBaselineOffsetFromTop") as? CGFloat ?? 0.0
+    }
+    
+    /**
+     The distance (in points) between the bottom of the view’s alignment rectangle and its bottommost baseline.
+     
+     The default value of this property is `0`. For views that contain text or other content whose layout benefits from having a custom baseline, this property provides the correct distance between the bottom of the view’s alignment rectangle and the baseline of the bottom row of text.
+     */
+    public var lastBaselineOffsetFromBottom: CGFloat {
+        value(forKeySafely: "_lastBaselineOffsetFromBottom") as? CGFloat ?? 0.0
+    }
+    #endif
 
     /// The level of the view from the most outer `superview`. A value of `0` indicates that there isn't a superview.
     @objc open var viewLevel: Int {
