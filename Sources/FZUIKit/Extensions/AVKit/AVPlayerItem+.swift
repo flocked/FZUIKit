@@ -22,8 +22,8 @@ public extension AVPlayerItem {
         get { getAssociatedValue("statusHandler") }
         set { setAssociatedValue(newValue, key: "statusHandler")
             if let statusHandler = newValue {
-                statusObservation = publisher(for: \.status).sink { status in
-                    statusHandler(status)
+                observeChanges(for: \.status) { old, new in
+                    statusHandler(new)
                 }
             } else {
                 statusObservation = nil
@@ -31,7 +31,7 @@ public extension AVPlayerItem {
         }
     }
     
-    internal var statusObservation: AnyCancellable? {
+    private var statusObservation: KeyValueObservation? {
         get { getAssociatedValue("statusObservation") }
         set { setAssociatedValue(newValue, key: "statusObservation") }
     }

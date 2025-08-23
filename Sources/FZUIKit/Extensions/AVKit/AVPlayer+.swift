@@ -115,9 +115,9 @@ public extension AVPlayer {
         }
     }
     
-    internal func callStateHandler() {
+    private func callStateHandler() {
         guard let stateHandler = stateHandler else { return }
-        let state = self.state
+        let state = state
         if state != previousState {
             stateHandler(state)
             previousState = state
@@ -224,7 +224,8 @@ public extension AVPlayer {
         set {
             guard newValue != isLooping else { return }
             setAssociatedValue(newValue, key: "isLooping")
-            setupItemPlaybackEndedObservation()
+            setupCurrentItemObservation()
+            setupPlaybackEndedObservation()
         }
     }
     
@@ -240,6 +241,10 @@ public extension AVPlayer {
         public var newErrorLog: (()->())?
         /// The handler that is called when a new network access log for the current item is available.
         public var newAccessLog: (()->())?
+        
+        var needsObservation: Bool {
+            playedToEnd != nil || failedToPlayToEnd != nil || playbackStalled != nil || newErrorLog != nil || newAccessLog != nil
+        }
     }
     
     /// Handlers for the item current item.
@@ -247,43 +252,64 @@ public extension AVPlayer {
         get { getAssociatedValue("itemHandlers", initialValue: ItemHandlers()) }
         set {
             setAssociatedValue(newValue, key: "itemHandlers")
-            observeNotifications(for: .AVPlayerItemFailedToPlayToEndTime, handler: itemHandlers.failedToPlayToEnd)
-            observeNotifications(for: .AVPlayerItemNewAccessLogEntry, handler: itemHandlers.newAccessLog)
-            observeNotifications(for: .AVPlayerItemNewErrorLogEntry, handler: itemHandlers.newErrorLog)
-            observeNotifications(for: .AVPlayerItemPlaybackStalled, handler: itemHandlers.playbackStalled)
-            setupItemPlaybackEndedObservation()
+            setupCurrentItemObservation()
+            setupHandlerObservations()
         }
     }
     
-    internal func observeNotifications(for name: Notification.Name, handler: (()->())?) {
-        if let handler = handler {
-            itemNotificationTokens[name] = NotificationCenter.default.observe(name, object: self, queue: nil, using: { [weak self] notification in
-                guard let self = self, let playerItem = notification.object as? AVPlayerItem, playerItem == currentItem else { return }
+    private func setupHandlerObservations() {
+        observe(AVPlayerItem.failedToPlayToEndTimeNotification, handler: itemHandlers.failedToPlayToEnd)
+        observe(AVPlayerItem.newAccessLogEntryNotification, handler: itemHandlers.newAccessLog)
+        observe(AVPlayerItem.newErrorLogEntryNotification, handler: itemHandlers.newErrorLog)
+        observe(AVPlayerItem.playbackStalledNotification, handler: itemHandlers.playbackStalled)
+        setupPlaybackEndedObservation()
+    }
+    
+    private func observe(_ name: Notification.Name, handler: (()->())?) {
+        if let handler = handler, let currentItem = currentItem {
+            itemNotificationTokens[name] = .init(name, object: currentItem) { [weak self] notification in
+                guard let self = self else { return }
                 handler()
-            })
+            }
         } else {
             itemNotificationTokens[name] = nil
         }
     }
     
-    internal func setupItemPlaybackEndedObservation() {
+    private func setupPlaybackEndedObservation() {
         if isLooping || itemHandlers.playedToEnd != nil {
-            observeNotifications(for: .AVPlayerItemDidPlayToEndTime) { [weak self] in
+            observe(AVPlayerItem.didPlayToEndTimeNotification) { [weak self] in
                 guard let self = self else { return }
                 self.itemHandlers.playedToEnd?()
-                if self.isLooping {
-                    self.currentItem?.seek(to: CMTime.zero, completionHandler: nil)
-                }
+                guard self.isLooping else { return }
+                self.currentItem?.seek(to: CMTime.zero, completionHandler: nil)
             }
         } else {
-            observeNotifications(for: .AVPlayerItemDidPlayToEndTime, handler: nil)
+            observe(AVPlayerItem.didPlayToEndTimeNotification, handler: nil)
         }
         actionAtItemEnd = isLooping ? .none : .pause
     }
     
-    internal var itemNotificationTokens: [Notification.Name : NotificationToken] {
-        get { getAssociatedValue("itemNotificationTokens", initialValue: [:]) }
+    private var itemNotificationTokens: [Notification.Name : NotificationToken] {
+        get { getAssociatedValue("itemNotificationTokens") ?? [:] }
         set { setAssociatedValue(newValue, key: "itemNotificationTokens") }
+    }
+    
+    private func setupCurrentItemObservation() {
+        if !itemHandlers.needsObservation && !isLooping {
+            currentItemObservation = nil
+        } else if currentItemObservation == nil {
+            currentItemObservation = observeChanges(for: \.currentItem) { [weak self] old, new in
+                guard let self = self else { return }
+                self.setupHandlerObservations()
+                self.setupPlaybackEndedObservation()
+            }
+        }
+    }
+    
+    private var currentItemObservation: KeyValueObservation? {
+        get { getAssociatedValue("currentItemObservation") }
+        set { setAssociatedValue(newValue, key: "currentItemObservation") }
     }
     
     /// The handler that gets changed when the status of the current item changes.
@@ -291,20 +317,19 @@ public extension AVPlayer {
         get { getAssociatedValue("itemStatusHandler") }
         set { setAssociatedValue(newValue, key: "itemStatusHandler")
             if let statusHandler = newValue {
-                currentItemObservation = observeChanges(for: \.currentItem) { old, new in
-                    guard old != new else { return }
-                    new?.statusHandler = statusHandler
+                itemStatusObservation = observeChanges(for: \.currentItem?.status) { old, new in
+                    guard old != new, let new = new else { return }
+                    statusHandler(new)
                 }
-                currentItem?.statusHandler = statusHandler
             } else {
-                currentItem?.statusHandler = nil
+                itemStatusObservation = nil
             }
         }
     }
     
-    var currentItemObservation: KeyValueObservation? {
-        get { getAssociatedValue("currentItemObservation") }
-        set { setAssociatedValue(newValue, key: "currentItemObservation") }
+    private var itemStatusObservation: KeyValueObservation? {
+        get { getAssociatedValue("itemStatusObservation") }
+        set { setAssociatedValue(newValue, key: "itemStatusObservation") }
     }
 }
 
