@@ -86,8 +86,8 @@ extension AVPlayerView {
         }
     }
     
-    func firstMediaURL(for urls: [URL]) -> URL? {
-        return urls.first(where: {
+    private func firstMediaURL(for urls: [URL]) -> URL? {
+        urls.first(where: {
             if #available(macOS 11.0, *) {
                 if let contentType = $0.contentType, contentType.conforms(toAny: droppableMedia.compactMap({$0.contentType})) {
                     return true
@@ -114,12 +114,8 @@ extension AVPlayerView {
                 
         let overlayView = NSView()
         overlayView.clipsToBounds = true
-        if let contentOverlayView = self.contentOverlayView {
-            contentOverlayView.addSubview(overlayView)
-        } else {
-            addSubview(overlayView)
-        }
         overlayView.frame = videoBounds
+        (contentOverlayView ?? self).addSubview(overlayView)
         setAssociatedValue(overlayView, key: "resizingContentOverlayView")
         videoBoundsObservation = observeChanges(for: \.videoBounds, handler: { [weak self] old, new in
             guard let self = self, old != new else { return }
@@ -128,7 +124,7 @@ extension AVPlayerView {
         return overlayView
     }
     
-    var videoBoundsObservation: KeyValueObservation? {
+    private var videoBoundsObservation: KeyValueObservation? {
         get { getAssociatedValue("videoBoundsObservation") }
         set { setAssociatedValue(newValue, key: "videoBoundsObservation") }
     }

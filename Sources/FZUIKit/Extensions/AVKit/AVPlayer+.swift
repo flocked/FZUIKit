@@ -229,25 +229,28 @@ public extension AVPlayer {
         }
     }
     
-    /// The handlers for the item current item.
+    /// The handlers for the current item of the player.
     struct ItemHandlers {
         /// The handler that is called when the current item did play to the end time.
-        public var playedToEnd: (()->())?
+        public var playedToEnd: ((_ item: AVPlayerItem)->())?
         /// The handler that is called when the current item failed to play to the end time.
-        public var failedToPlayToEnd: (()->())?
+        public var failedToPlayToEnd: ((_ item: AVPlayerItem)->())?
         /// The handler that is called when the playback of the current item available.
-        public var playbackStalled: (()->())?
+        public var playbackStalled: ((_ item: AVPlayerItem)->())?
         /// The handler that is called when a new error log for the current item is available.
-        public var newErrorLog: (()->())?
+        public var newErrorLog: ((_ item: AVPlayerItem)->())?
         /// The handler that is called when a new network access log for the current item is available.
-        public var newAccessLog: (()->())?
+        public var newAccessLog: ((_ item: AVPlayerItem)->())?
+        /// The handler that is called whenever the status of the current item changes.
+        public var status: ((_ item: AVPlayerItem, _ status: AVPlayerItem.Status)->())?
+
         
         var needsObservation: Bool {
-            playedToEnd != nil || failedToPlayToEnd != nil || playbackStalled != nil || newErrorLog != nil || newAccessLog != nil
+            playedToEnd != nil || failedToPlayToEnd != nil || playbackStalled != nil || newErrorLog != nil || newAccessLog != nil || status != nil
         }
     }
     
-    /// Handlers for the item current item.
+    /// The handlers for the current item of the player.
     var itemHandlers: ItemHandlers {
         get { getAssociatedValue("itemHandlers", initialValue: ItemHandlers()) }
         set {
@@ -263,13 +266,21 @@ public extension AVPlayer {
         observe(AVPlayerItem.newErrorLogEntryNotification, handler: itemHandlers.newErrorLog)
         observe(AVPlayerItem.playbackStalledNotification, handler: itemHandlers.playbackStalled)
         setupPlaybackEndedObservation()
+        if let handler = itemHandlers.status, let currentItem = currentItem {
+            itemStatusObservation = currentItem.observeChanges(for: \.status) { [weak self] old, new in
+                guard let self = self else { return }
+                handler(currentItem, new)
+            }
+        } else {
+            itemStatusObservation = nil
+        }
     }
     
-    private func observe(_ name: Notification.Name, handler: (()->())?) {
+    private func observe(_ name: Notification.Name, handler: ((_ item: AVPlayerItem)->())?) {
         if let handler = handler, let currentItem = currentItem {
             itemNotificationTokens[name] = .init(name, object: currentItem) { [weak self] notification in
                 guard let self = self else { return }
-                handler()
+                handler(currentItem)
             }
         } else {
             itemNotificationTokens[name] = nil
@@ -278,9 +289,9 @@ public extension AVPlayer {
     
     private func setupPlaybackEndedObservation() {
         if isLooping || itemHandlers.playedToEnd != nil {
-            observe(AVPlayerItem.didPlayToEndTimeNotification) { [weak self] in
+            observe(AVPlayerItem.didPlayToEndTimeNotification) { [weak self] item in
                 guard let self = self else { return }
-                self.itemHandlers.playedToEnd?()
+                self.itemHandlers.playedToEnd?(item)
                 guard self.isLooping else { return }
                 self.currentItem?.seek(to: CMTime.zero, completionHandler: nil)
             }

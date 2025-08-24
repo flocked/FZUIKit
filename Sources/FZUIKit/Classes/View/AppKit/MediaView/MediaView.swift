@@ -605,7 +605,13 @@ open class MediaView: NSControl {
         
     /// The handler that is called whenever the playback reached to the end time.
     open var playbackReachedEndHandler: (() -> Void)? {
-        didSet { player.itemHandlers.playedToEnd = playbackReachedEndHandler }
+        didSet {
+            if let handler = playbackReachedEndHandler {
+                player.itemHandlers.playedToEnd = { _ in handler() }
+            } else {
+                player.itemHandlers.playedToEnd = nil
+            }
+        }
     }
 
     /// The handler that is called whenever the playback position changes.
