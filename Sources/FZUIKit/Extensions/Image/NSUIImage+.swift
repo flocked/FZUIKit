@@ -16,12 +16,14 @@ public extension NSUIImage {
     #if os(macOS)
     /**
      Creates an system symbol image with the specified name.
+     
+     To look up the names of system symbol images, download the SF Symbols app from [Apple Design Resources](https://developer.apple.com/design/resources/).
 
      - Parameters:
         - systemName: The name of the system symbol image.
         - description: The accessibility description for the symbol image, if any.
      */
-    @available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+    @available(macOS 11.0, *)
     static func symbol(_ systemName: String, accessibilityDescription description: String? = nil) -> NSUIImage? {
         NSImage(systemSymbolName: systemName, accessibilityDescription: description)
     }
@@ -29,14 +31,38 @@ public extension NSUIImage {
     /**
      Creates an system symbol image with the specified name and configuration.
      
+     To look up the names of system symbol images, download the SF Symbols app from [Apple Design Resources](https://developer.apple.com/design/resources/).
+     
      - Parameters:
         - systemName: The name of the system symbol image.
         - description: The accessibility description for the symbol image, if any.
         - configuration: The image configuration the system applies to the image.
      */
-    @available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+    @available(macOS 11.0, *)
     static func symbol(_ systemName: String, withConfiguration configuration: SymbolConfiguration) -> NSImage? {
         NSImage(systemSymbolName: systemName)?.withSymbolConfiguration(configuration)
+    }
+    
+    /**
+     Creates an system symbol image with the specified name, variable value and configuration.
+     
+     The `value` parameter is valid for symbols that support variable rendering.
+     
+     To look up the names of system symbol images, download the SF Symbols app from [Apple Design Resources](https://developer.apple.com/design/resources/).
+
+     - Parameters:
+        - systemName: The name of the system symbol image.
+        - variableValue: The value the system uses to customize the symbol’s content, between `0` and `1`.
+        - description: The accessibility description for the symbol image, if any.
+        - configuration: The image configuration the system applies to the image.
+     */
+    @available(macOS 13.0, *)
+    static func symbol(_ systemName: String, variableValue: Double, accessibilityDescription description: String? = nil, configuration: SymbolConfiguration? = nil) -> NSUIImage? {
+        let image = NSImage(systemSymbolName: systemName, variableValue: variableValue, accessibilityDescription: description)
+        if let configuration = configuration {
+            return image?.withSymbolConfiguration(configuration)
+        }
+        return image
     }
     #else
     /**
@@ -57,6 +83,19 @@ public extension NSUIImage {
      */
     static func symbol(_ systemName: String, withConfiguration configuration: Configuration) -> UIImage? {
         UIImage(systemName: systemName, withConfiguration: configuration)
+    }
+    
+    /**
+     Creates an system symbol image with the specified name variable value and configuration.
+     
+     - Parameters:
+        - systemName: The name of the system symbol image.
+        - variableValue: The value the system uses to customize the symbol’s content, between `0` and `1`.
+        - configuration: The image configuration the system applies to the image.
+     */
+    @available(iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+    static func symbol(_ systemName: String, variableValue: Double, configuration: Configuration) -> UIImage? {
+        UIImage(systemName: systemName, variableValue: variableValue, configuration: configuration)
     }
     #endif
     
