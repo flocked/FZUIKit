@@ -86,7 +86,7 @@ public extension NSUIImage {
     }
     
     /**
-     Creates an system symbol image with the specified name variable value and configuration.
+     Creates an system symbol image with the specified name, variable value and configuration.
      
      - Parameters:
         - systemName: The name of the system symbol image.
