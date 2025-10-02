@@ -242,7 +242,11 @@ open class Toolbar: NSObject {
         }
     }
     
-    /// The currenlty displayed items in the toolbar, in order.
+    /**
+     The currenlty displaying items in the toolbar, in order.
+     
+     Use this with great caution if ``allowsUserCustomization`` is enabled as it will override any customizations the user has made.
+     */
     open var displayingItems: [ToolbarItem] {
         get {
             items.filter({ item in toolbar.items.contains(where: {$0.itemIdentifier == item.identifier}) })
@@ -262,14 +266,14 @@ open class Toolbar: NSObject {
         }
     }
     
-    /// Sets the displayed items in the toolbar.
+    /// Sets the displaying items in the toolbar.
     @discardableResult
     open func displayingItems(_ items: [ToolbarItem]) -> Self {
         displayingItems = items
         return self
     }
     
-    /// Sets the displayed items in the toolbar.
+    /// Sets the displaying items in the toolbar.
     @discardableResult
     open func displayingItems(@Builder items: () -> [ToolbarItem]) -> Self {
         displayingItems = items()
@@ -278,7 +282,7 @@ open class Toolbar: NSObject {
     
     /// The currenlty visible items in the toolbar that aren't in the overflow menu.
     open var visibleItems: [ToolbarItem] {
-        toolbar.visibleItems?.compactMap { item in self.items.first(where: { $0.item == item }) } ?? []
+        toolbar.visibleItems?.compactMap { item in items.first(where: { $0.item == item }) } ?? []
     }
     
     /**
@@ -321,6 +325,17 @@ open class Toolbar: NSObject {
         toolbar.customizationPaletteIsRunning
     }
     
+    /**
+     A Boolean value indicating whether or not the user is allowed to change display modes at run time.
+     
+     This functionality is independent of customizing the order of the items themselves. Only disable when the functionality or legibility of your toolbar could not be improved by another display mode. The user’s selection will be persisted using the toolbar’s identifier when autosavesConfiguration is enabled. The default is `true` for apps linked on macOS 15.0 and above.
+     */
+    @available(macOS 15.0, *)
+    public var allowsDisplayModeCustomization: Bool {
+        get { toolbar.value(forKey: "allowsDisplayModeCustomization") ?? true }
+        set { toolbar.setValue(safely: newValue, forKey: "allowsDisplayModeCustomization") }
+    }
+    
     /// A Boolean value indicating whether the toolbar autosaves its configuration.
     open var autosavesConfiguration: Bool {
         get { toolbar.autosavesConfiguration }
@@ -352,6 +367,19 @@ open class Toolbar: NSObject {
      */
     open func setConfiguration(_ configuration: [String : Any]) {
         toolbar.setConfiguration(configuration)
+    }
+    
+    /**
+     Validates the toolbar’s visible items during a window update.
+     
+     Typically, you override this method and use it to customize the validation process. The default implementation calls the ``ToolbarItem/validate()`` method of each visible item in the toolbar, including items that have their ``ToolbarItem/autovalidates`` property set to `false`. If you override this method, call super at some point during your implementation.
+          
+     The toolbar doesn’t validate its content for some events, including [leftMouseDragged](https://developer.apple.com/documentation/appkit/nsevent/eventtype/leftmousedragged), [rightMouseDragged](https://developer.apple.com/documentation/appkit/nsevent/eventtype/rightmousedragged), [otherMouseDragged](https://developer.apple.com/documentation/appkit/nsevent/eventtype/othermousedragged), [mouseEntered](https://developer.apple.com/documentation/appkit/nsevent/eventtype/mouseentered), [mouseExited](https://developer.apple.com/documentation/appkit/nsevent/eventtype/mouseexited), [scrollWheel](https://developer.apple.com/documentation/appkit/nsevent/eventtype/scrollwheel), [cursorUpdate](https://developer.apple.com/documentation/appkit/nsevent/eventtype/cursorupdate) and [keyDown](https://developer.apple.com/documentation/appkit/nsevent/eventtype/keydown). In addition, the toolbar defers validation for [keyUp](https://developer.apple.com/documentation/appkit/nsevent/eventtype/keyup) and [FlagsChanged](https://developer.apple.com/documentation/appkit/nsevent/eventtype/Flagschanged) events until a pause of 0.85 seconds occurs or the window processes an event other than [keyUp](https://developer.apple.com/documentation/appkit/nsevent/eventtype/keyup) or [FlagsChanged](https://developer.apple.com/documentation/appkit/nsevent/eventtype/Flagschanged). So a rapid sequence of key events doesn’t trigger any validation.
+     
+     To trigger validation for all toolbars, call the app’s [setWindowsNeedUpdate(_:)](https://developer.apple.com/documentation/appkit/nsapplication/setwindowsneedupdate(_:)) method with a value of true.
+     */
+    open func validateVisibleItems() {
+        toolbar._validateVisibleItems()
     }
     
     /// Toolbar item handlers.
@@ -426,6 +454,14 @@ open class Toolbar: NSObject {
             self.toolbar = toolbar
         }
         
+        override func validateVisibleItems() {
+            toolbar?.validateVisibleItems()
+        }
+        
+        func _validateVisibleItems() {
+            super.validateVisibleItems()
+        }
+        
         override var selectedItemIdentifier: NSToolbarItem.Identifier? {
             willSet {
                 toolbar?.willChangeValue(for: \.selectedItem) }
@@ -491,7 +527,7 @@ extension Toolbar {
 }
 
 extension NSToolbar {
-    /// Returns the ``Toolbar`` representation of toolbar if it is managed by it.
+    /// Returns the ``Toolbar`` representation of the toolbar if it is managed by it.
     public var managed: Toolbar? {
         (delegate as? Toolbar.Delegate)?.toolbar
     }
