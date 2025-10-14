@@ -23,17 +23,17 @@ open class Toolbar: NSObject {
     private var states: [String: State] = [:]
 
     /// The state of the toolbar.
-    public var state: State = .default
+    var state: State = .default
     
     /// Sets the state of the toolbar.
     @discardableResult
-    public func state(_ state: State) -> Self {
+    func state(_ state: State) -> Self {
         self.state = state
         return self
     }
     
     /// The state for the specified state name,
-    public subscript(name: String) -> State {
+    subscript(name: String) -> State {
         get { states[name, default: .init(name)] }
         set {
             states[name] = newValue
