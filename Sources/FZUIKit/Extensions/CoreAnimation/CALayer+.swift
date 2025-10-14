@@ -481,7 +481,7 @@ extension CALayer {
     private var _gradientLayer: CAGradientLayer? {
         firstSublayer(named: "_gradientLayer") as? CAGradientLayer
     }
-    
+
     class Configurations {
         var border: BorderConfiguration {
             get {

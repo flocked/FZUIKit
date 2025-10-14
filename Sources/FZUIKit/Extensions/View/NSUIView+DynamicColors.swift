@@ -15,19 +15,13 @@ import FZSwiftUtils
 
 extension NSUIView {
     struct DynamicColors {
-        private class WeakView {
-            weak var view: NSUIView?
-            init(_ view: NSUIView) {
-                self.view = view
-            }
-        }
         private var colors: [ReferenceWritableKeyPath<CALayer, CGColor?>: NSUIColor] = [:]
-        private let _view: WeakView
-        private var view: NSUIView? { _view.view }
+        private let _view: Weak<NSUIView>
+        private var view: NSUIView? { _view.object }
         private var _gradientColors: [NSUIColor] = []
         
         fileprivate init(view: NSUIView) {
-            self._view = WeakView(view)
+            self._view = Weak<NSUIView>(view)
         }
         
         var needsObserving: Bool {

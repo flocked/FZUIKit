@@ -540,8 +540,15 @@ extension NSWindow {
     }
 }
 
+extension NSToolbar {
+    var itemIdentifiers_: [NSToolbarItem.Identifier] {
+        get { value(forKey: "itemIdentifiers") ?? [] }
+        set { setValue(safely: newValue, forKey: "itemIdentifiers")  }
+    }
+}
+
 extension Toolbar {
-    public struct State: ExpressibleByStringLiteral {
+    struct State: ExpressibleByStringLiteral {
         /// The name of the state.
         public let name: String
         /// The displaying toolbar items..

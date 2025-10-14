@@ -43,9 +43,6 @@ extension Toolbar {
         }
         
         func updateAutodetectSplitView(toolbar: Toolbar? = nil) {
-            Swift.print("updateAutodetectSplitView", toolbar != nil, toolbar?.attachedWindow != nil, toolbar?.attachedWindow?.contentView != nil, toolbar?.attachedWindow?.contentView?.firstSuperview(for: NSSplitView.self) != nil, toolbar?.attachedWindow?.contentView is NSSplitView)
-            (toolbar?.attachedWindow?.contentView?.subviews(depth: .max) ?? []).forEach({Swift.print($0)})
-
             guard autodetectsSplitView else { return }
             if let splitView = (toolbar ?? self.toolbar)?.attachedWindow?.contentView?.subviews(type: NSSplitView.self, depth: .max).first {
                 separatorItem.splitView = splitView

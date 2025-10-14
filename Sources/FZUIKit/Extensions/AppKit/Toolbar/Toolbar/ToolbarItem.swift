@@ -105,7 +105,7 @@ open class ToolbarItem: NSObject {
     /**
      A Boolean value indicating whether the item is currently visible in the toolbar, and not in the overflow menu.
      
-     The value of this property is true when the item is visible in the toolbar, and false when it isn’t in the toolbar or is present in the toolbar’s overflow menu. This property is key-value observing (KVO) compliant.
+     The value of this property is `true` when the item is visible in the toolbar, and `false` when it isn’t in the toolbar or is present in the toolbar’s overflow menu.
      */
     @available(macOS 12.0, *)
     open var isVisible: Bool { item.isVisible }
