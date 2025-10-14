@@ -82,7 +82,7 @@ public extension NSSegmentedControl {
      
      - Parameter segment:The index of the segment whose font you want to get.
      */
-    func font(forSegment segment: Int) -> NSFont? {
+    internal func font(forSegment segment: Int) -> NSFont? {
         segmentViews[safe: segment]?.value(forKeySafely: "font") as? NSFont
     }
     
@@ -93,7 +93,7 @@ public extension NSSegmentedControl {
         - font: The label for the segment.
         - index: The index of the segment whose label you want to set.
      */
-    func setFont(_ font: NSFont, forSegment segment: Int) {
+    internal func setFont(_ font: NSFont, forSegment segment: Int) {
         segmentViews[safe: segment]?.setValue(safely: font, forKey: "font")
     }
     

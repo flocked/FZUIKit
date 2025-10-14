@@ -101,7 +101,7 @@ public class NSSegment: NSObject, ExpressibleByStringLiteral {
     }
     
     /// The font of the segment.
-    public var font: NSFont = .system {
+    var font: NSFont = .system {
         didSet {
             guard let index = index else { return }
             segmentedControl?.setFont(font, forSegment: index)
@@ -209,7 +209,7 @@ public class NSSegment: NSObject, ExpressibleByStringLiteral {
     
     /// Sets the font of the segment.
     @discardableResult
-    public func font(_ font: NSFont) -> Self {
+    func font(_ font: NSFont) -> Self {
         self.font = font
         return self
     }
