@@ -61,7 +61,7 @@ public extension NSUIView {
     internal func setupDragResizeGesture() {
         if isMovableByViewBackground != .off {
             if panGesture == nil {
-                panGesture = NSUIPanGestureRecognizer { [weak self] gesture in
+                let gesture = NSUIPanGestureRecognizer { [weak self] gesture in
                     guard let self = self else { return }
                     let velocity = gesture.velocity(in: self)
                     switch gesture.state {
@@ -106,7 +106,13 @@ public extension NSUIView {
                         break
                     }
                 }
-                addGestureRecognizer(panGesture!)
+                gesture.handlers.shouldBegin = { [weak self] in
+                    guard let self = self, let superview = self.superview else { return false }
+                    let location = gesture.location(in: superview)
+                    return self.hitTest(location)?.isInteractive ?? false == false
+                }
+                panGesture = gesture
+                addGestureRecognizer(gesture)
             }
         } else {
             if let panGesture = panGesture {
@@ -114,6 +120,15 @@ public extension NSUIView {
                 self.panGesture = nil
             }
         }
+    }
+
+    private var isInteractive: Bool {
+        if self is NSUIControl { return true }
+        if self is NSScrollView { return true }
+        if self is NSUITextView { return true }
+        if self is NSTableView { return true }
+        if self is NSUICollectionView { return true }
+        return false
     }
 
     private var dragPoint: CGPoint {

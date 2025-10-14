@@ -135,6 +135,10 @@ open class SpacerView: NSUIView {
         }
     }
     
+    open override func hitTest(_ point: NSPoint) -> NSView? {
+        return nil
+    }
+    
     /// Creates a spacer view.
     public init() {
         super.init(frame: .zero)
