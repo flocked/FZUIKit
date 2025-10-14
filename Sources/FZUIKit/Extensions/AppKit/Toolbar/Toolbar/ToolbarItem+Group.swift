@@ -41,7 +41,6 @@ extension Toolbar {
         /// Sets the subitems of the grouped toolbar item.
         @discardableResult
         open func subitems(_ items: [ToolbarItem]) -> Self {
-            items[0].isSelectable
             subitems = items
             return self
         }

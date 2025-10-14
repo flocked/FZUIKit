@@ -243,6 +243,11 @@ extension NSControl.ControlSize {
         case .small: return .small
         case .mini: return .mini
         case .large: return .large
+        case .extraLarge:
+            if #available(macOS 14.0, *) {
+                return .extraLarge
+            }
+            return .large
         @unknown default: return .regular
         }
     }

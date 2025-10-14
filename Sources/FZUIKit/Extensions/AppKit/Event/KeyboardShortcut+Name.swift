@@ -17,7 +17,7 @@ public extension KeyboardShortcut {
      
      Whenever ``shortcut`` gets updated, a ``didChangeKeyboardShortcutNotification`` notification is posted with the name as object of the notification.
      */
-    public struct Name: Hashable, RawRepresentable, Codable {
+    struct Name: Hashable, RawRepresentable, Codable {
         /// The name of the shortcut.
         public let rawValue: String
         
@@ -30,7 +30,7 @@ public extension KeyboardShortcut {
             nonmutating set {
                 guard newValue != shortcut else { return }
                 Self.shortcuts[rawValue] = newValue
-                NotificationCenter.default.post(name: KeyboardShortcut.didChangeKeyboardShortcutNotification, object: rawValue, userInfo: ["keyboardShortcut" : newValue])
+                NotificationCenter.default.post(name: KeyboardShortcut.didChangeKeyboardShortcutNotification, object: rawValue, userInfo: ["keyboardShortcut" : newValue as Any])
             }
         }
         
@@ -67,7 +67,7 @@ public extension KeyboardShortcut {
     }
     
     /// A notification that a keyboard shortcut has changed.
-    public static let didChangeKeyboardShortcutNotification = Notification.Name("keyboardShortcutDidChange")
+    static let didChangeKeyboardShortcutNotification = Notification.Name("keyboardShortcutDidChange")
 }
 
 extension Notification.Name {

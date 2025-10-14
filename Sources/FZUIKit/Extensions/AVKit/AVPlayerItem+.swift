@@ -49,7 +49,7 @@ public extension AVPlayerItem {
     private func observe(_ name: Notification.Name, handler: (()->())?) {
         if let handler = handler {
             handlerNotificationTokens[name] = .init(name, object: self) { [weak self] notification in
-                guard let self = self else { return }
+                guard self != nil else { return }
                 handler()
             }
         } else {

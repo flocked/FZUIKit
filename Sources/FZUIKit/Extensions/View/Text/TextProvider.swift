@@ -169,8 +169,6 @@ public extension TextProvider {
         if self is NSUITextView {
             calculationLayoutManager.textContainers[0].lineFragmentPadding = 5.0
             calculationLayoutManager.textOffset.y -= 2.0
-            self
-            calculationLayoutManager
         }
         
         let textContainer = calculationLayoutManager.textContainers[0]

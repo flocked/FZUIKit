@@ -151,7 +151,7 @@ fileprivate class DraggingGestureRecognizer: NSGestureRecognizer, NSDraggingSour
     }
     
     func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
-        context == .withinApplication ? .all : view?.dragHandlers.allowedDragOperationsOutsideApp ?? []
+        context == .withinApplication ? .every : view?.dragHandlers.allowedDragOperationsOutsideApp ?? []
     }
 
     func draggingSession(_ session: NSDraggingSession, willBeginAt screenPoint: NSPoint) {

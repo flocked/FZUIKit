@@ -108,7 +108,12 @@ public extension NSSegmentedControl {
     
     /// Returns the index of the segment at the specified location.
     func indexOfSegment(at location: CGPoint) -> Int? {
-        segmentViews.firstIndex(where: { $0.frame.contains(location) })
+        guard segmentCount > 0 else { return nil }
+        let segmentViews = segmentViews
+        if !segmentViews.isEmpty {
+            return segmentViews.firstIndex(where: { $0.frame.contains(location) })
+        }
+        return segmentFrameCell?.indexOfSegment(at: location)
     }
     
     /**
@@ -184,6 +189,37 @@ public extension NSSegmentedControl {
     internal var selectsExclusivelyOnRightClickHook: Hook? {
         get { getAssociatedValue("selectsExclusivelyOnRightClickHook") }
         set { setAssociatedValue(newValue, key: "selectsExclusivelyOnRightClickHook") }
+    }
+    
+    private var segmentFrameCell: SegmentFrameCell? {
+        if let cell = cell as? SegmentFrameCell {
+            return cell
+        }
+        guard let cell = cell as? NSSegmentedCell else { return nil }
+        do {
+            let cell = try cell.archiveBasedCopy(as: SegmentFrameCell.self)
+            self.cell = cell
+            if cell.segmentFrames.isEmpty {
+                needsDisplay = true
+            }
+            return cell
+        } catch {
+            Swift.print(error)
+            return nil
+        }
+    }
+    
+    private class SegmentFrameCell: NSSegmentedCell {
+        var segmentFrames: [Int: CGRect] = [:]
+        
+        func indexOfSegment(at location: CGPoint) -> Int? {
+            segmentFrames.first(where: { $0.value.contains(location) })?.key
+        }
+        
+        override func drawSegment(_ segment: Int, inFrame frame: NSRect, with controlView: NSView) {
+            segmentFrames[segment] = frame
+            super.drawSegment(segment, inFrame: frame, with: controlView)
+        }
     }
 }
 #endif

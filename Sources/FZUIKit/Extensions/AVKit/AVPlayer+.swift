@@ -268,7 +268,7 @@ public extension AVPlayer {
         setupPlaybackEndedObservation()
         if let handler = itemHandlers.status, let currentItem = currentItem {
             itemStatusObservation = currentItem.observeChanges(for: \.status) { [weak self] old, new in
-                guard let self = self else { return }
+                guard self != nil else { return }
                 handler(currentItem, new)
             }
         } else {
@@ -279,7 +279,7 @@ public extension AVPlayer {
     private func observe(_ name: Notification.Name, handler: ((_ item: AVPlayerItem)->())?) {
         if let handler = handler, let currentItem = currentItem {
             itemNotificationTokens[name] = .init(name, object: currentItem) { [weak self] notification in
-                guard let self = self else { return }
+                guard self != nil else { return }
                 handler(currentItem)
             }
         } else {
