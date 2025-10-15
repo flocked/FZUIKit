@@ -89,4 +89,70 @@ open class FZScrollView: NSScrollView {
         spaceKeyZoomFactor = 0.3
     }
 }
+
+/**
+ A custom NSScrollView subclass that enforces its documentView to always
+ match the size of the scroll view's viewport (contentView).
+
+ This replicates the resizing behavior requested in the original Canvas setup,
+ making the document view stretch to fit the visible area.
+ */
+open class AutosizingScrollView: NSScrollView {
+    
+    private var documentLayoutConstraints: [NSLayoutConstraint] = []
+
+    public init() {
+        super.init(frame: .zero)
+        setupScrollView()
+    }
+    
+    public override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        setupScrollView()
+    }
+
+    required public init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupScrollView()
+    }
+
+    private func setupScrollView() {
+        translatesAutoresizingMaskIntoConstraints = false
+        hasVerticalScroller = true
+        hasHorizontalScroller = true
+        autohidesScrollers = true
+        allowsMagnification = true
+        minMagnification = 1.0
+        maxMagnification = 3.0
+        drawsBackground = false
+        mouseClickZoomFactor = 0.5
+        keyDownZoomFactor = 0.3
+        spaceKeyZoomFactor = 0.3
+    }
+
+    open override var documentView: NSView? {
+        didSet {
+            guard oldValue != documentView else { return }
+            documentLayoutConstraints.activate(false)
+            guard let newDocumentView = documentView else { return }
+            newDocumentView.translatesAutoresizingMaskIntoConstraints = false
+            documentLayoutConstraints = [
+            newDocumentView.widthAnchor.constraint(equalTo: contentView.widthAnchor),
+            newDocumentView.heightAnchor.constraint(equalTo: contentView.heightAnchor),
+            newDocumentView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            newDocumentView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+             newDocumentView.topAnchor.constraint(equalTo: contentView.topAnchor),
+             newDocumentView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)].activate()
+        }
+    }
+    
+    open override var fittingSize: NSSize {
+        documentView?.fittingSize ?? super.fittingSize
+    }
+    
+    open override var intrinsicContentSize: NSSize {
+        documentView?.intrinsicContentSize ?? super.intrinsicContentSize
+    }
+}
+
 #endif

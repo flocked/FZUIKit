@@ -14,7 +14,7 @@ import FZSwiftUtils
 open class MagnifyMediaView: NSView {
         
     let mediaView = MediaView()
-    let scrollView = FZScrollView()
+    let scrollView = AutosizingScrollView()
         
     /// The player for media assets.
     public var player: AVPlayer {
