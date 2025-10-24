@@ -57,7 +57,7 @@ public extension NSAppearance {
      The following appearances are light: ``aqua``, ``vibrantLight``, ``accessibilityHighContrastAqua`` and ``accessibilityHighContrastVibrantLight``.
      */
     var isLight: Bool {
-        [.aqua, .vibrantLight, .accessibilityHighContrastAqua, .accessibilityHighContrastVibrantLight].contains(name)
+        bestMatch(from: [.darkAqua, .aqua]) == .aqua
     }
 
     /**
