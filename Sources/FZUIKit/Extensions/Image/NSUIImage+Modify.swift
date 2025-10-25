@@ -10,16 +10,44 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import FZSwiftUtils
 
 public extension NSUIImage {
     /// Returns the image resized to fit the specified size.
-    func resized(toFit size: CGSize) -> NSUIImage {
-        resized(to: self.size.scaled(toFit: size))
+    func resized(toFit targetSize: CGSize) -> NSUIImage {
+        resized(to: size.scaled(toFit: targetSize))
     }
 
     /// Returns the image resized to fill the specified size.
-    func resized(toFill size: CGSize) -> NSUIImage {
-        resized(to: self.size.scaled(toFill: size))
+    func resized(toFill targetSize: CGSize) -> NSUIImage {
+        let scale = max(targetSize.width / size.width, targetSize.height / size.height)
+        let scaledSize = size * scale
+        let x = (targetSize.width - scaledSize.width) / 2
+        let y = (targetSize.height - scaledSize.height) / 2
+        let drawRect = NSRect(x: x, y: y, width: scaledSize.width, height: scaledSize.height)
+        #if os(macOS)
+        let newImage = NSImage(size: targetSize)
+        newImage.cacheMode = .never
+        newImage.lockFocus()
+        NSGraphicsContext.current?.imageInterpolation = .default
+        defer { newImage.unlockFocus() }
+        draw(in: drawRect, from: .zero, operation: .copy, fraction: 1.0, respectFlipped: true, hints: [.interpolation: NSImageInterpolation.high])
+        return newImage
+        #elseif os(iOS) || os(tvOS)
+        let format = UIGraphicsImageRendererFormat.default()
+        format.scale = self.scale
+        format.opaque = false
+        let renderer = UIGraphicsImageRenderer(size: targetSize, format: format)
+        return renderer.image { _ in
+            self.draw(in: drawRect)
+        }
+        #else
+        UIGraphicsBeginImageContextWithOptions(targetSize, false, 0.0)
+        draw(in: drawRect)
+        let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return resizedImage ?? self
+        #endif
     }
 
     /// Returns the image resized to the specified width while maintaining the aspect ratio.
@@ -117,7 +145,6 @@ public extension NSUIImage {
         transform.concat()
         draw(in: imageBounds, from: NSRect.zero, operation: NSCompositingOperation.copy, fraction: 1.0)
         rotatedImage.unlockFocus()
-
         return rotatedImage
     }
 

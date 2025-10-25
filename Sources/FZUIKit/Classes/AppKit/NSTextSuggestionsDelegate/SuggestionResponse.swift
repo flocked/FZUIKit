@@ -6,6 +6,12 @@
 //
 
 /*
+ var phase: NSSuggestionItemResponse<SuggestionItemType>.Phase
+ Describes the phase of results. In other words, whether this batch of items represents an intermediate set of results–and more are coming, or whether these results are complete/final. Defaults to .final.
+ var preferredHighlight: NSSuggestionItemResponse<SuggestionItemType>.Highlight
+ */
+
+/*
 #if os(macOS)
 import Foundation
 import FZSwiftUtils

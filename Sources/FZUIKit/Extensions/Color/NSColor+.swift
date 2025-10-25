@@ -108,6 +108,34 @@ public extension NSColor {
         type == .componentBased && !String(describing: self).contains("customDynamic")
     }
     
+    /// The name of the color.
+    var colorName: String? {
+        try? NSObject.catchException {
+            colorNameComponent
+        }
+    }
+    
+    /// The localized version of the color name.
+    var localizedColorName: String? {
+        try? NSObject.catchException {
+            localizedColorNameComponent
+        }
+    }
+    
+    /// The catalog containing the color’s name.
+    var catalogName: String? {
+        try? NSObject.catchException {
+            catalogNameComponent
+        }
+    }
+    
+    /// The localized version of the catalog name containing the color.
+    var localizedCatalogName: String? {
+        try? NSObject.catchException {
+            localizedCatalogNameComponent
+        }
+    }
+    
     /// Supported color spaces for displaying a color.
     internal static let supportedColorSpaces: [NSColorSpace] = [.deviceRGB, .sRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .displayP3]
 }
