@@ -20,11 +20,7 @@ public extension NSUIImage {
 
     /// Returns the image resized to fill the specified size.
     func resized(toFill targetSize: CGSize) -> NSUIImage {
-        let scale = max(targetSize.width / size.width, targetSize.height / size.height)
-        let scaledSize = size * scale
-        let x = (targetSize.width - scaledSize.width) / 2
-        let y = (targetSize.height - scaledSize.height) / 2
-        let drawRect = NSRect(x: x, y: y, width: scaledSize.width, height: scaledSize.height)
+        let drawRect = size.scaled(toFill: targetSize).rect.center(targetSize.rect.center)
         #if os(macOS)
         let newImage = NSImage(size: targetSize)
         newImage.cacheMode = .never
@@ -79,7 +75,7 @@ public extension NSUIImage {
         scaledImage.cacheMode = .never
         scaledImage.lockFocus()
         NSGraphicsContext.current?.imageInterpolation = .default
-        draw(in: NSRect(x: 0, y: 0, width: size.width, height: size.height), from: .zero, operation: .copy, fraction: 1.0)
+        draw(in: size.rect, from: .zero, operation: .copy, fraction: 1.0)
         scaledImage.unlockFocus()
         return scaledImage
     }
@@ -89,7 +85,7 @@ public extension NSUIImage {
         let image = NSImage(size: size)
         image.lockFocus()
 
-        let frame = NSRect(origin: .zero, size: size)
+        let frame = size.rect
         NSBezierPath(ovalIn: frame).addClip()
         draw(at: .zero, from: frame, operation: .sourceOver, fraction: 1)
 
@@ -99,7 +95,7 @@ public extension NSUIImage {
 
     /// Returns the image rounded with the specified corner radius.
     func rounded(cornerRadius: CGFloat) -> NSImage {
-        let rect = NSRect(origin: NSPoint.zero, size: size)
+        let rect = size.rect
         if
             let cgImage = cgImage,
             let context = CGContext(data: nil,
@@ -154,7 +150,7 @@ public extension NSUIImage {
         opacityImage.cacheMode = .never
         opacityImage.lockFocus()
         NSGraphicsContext.current?.imageInterpolation = .default
-        draw(in: CGRect(origin: .zero, size: size), from: .zero, operation: .sourceOver, fraction: value)
+        draw(in: size.rect, from: .zero, operation: .sourceOver, fraction: value)
         opacityImage.unlockFocus()
         return opacityImage
     }
@@ -176,7 +172,7 @@ public extension NSUIImage {
         NSGraphicsContext.saveGraphicsState()
         NSGraphicsContext.current = context
         path.addClip()
-        draw(at: .zero, from: NSRect(origin: .zero, size: size), operation: .sourceOver, fraction: 1.0)
+        draw(at: .zero, from: size.rect, operation: .sourceOver, fraction: 1.0)
         NSGraphicsContext.restoreGraphicsState()
         let finalImage = NSImage(size: size)
         finalImage.addRepresentation(bitmapRep)
@@ -194,11 +190,11 @@ public extension NSUIImage {
         format.opaque = false
         let renderer = UIGraphicsImageRenderer(size: size, format: format)
         return renderer.image { _ in
-            self.draw(in: CGRect(origin: .zero, size: size))
+            self.draw(in: size.rect)
         }
         #else
         UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
-        draw(in: CGRect(origin: .zero, size: size))
+        draw(in: size.rect)
         let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return resizedImage ?? self
@@ -207,7 +203,7 @@ public extension NSUIImage {
 
     /// Returns the image rotated to the specified degree.
     func rotated(degrees: Float) -> NSUIImage {
-        var newSize = CGRect(origin: CGPoint.zero, size: size).applying(CGAffineTransform(rotationAngle: CGFloat(degrees))).size
+        var newSize = size.rect.applying(CGAffineTransform(rotationAngle: CGFloat(degrees))).size
         newSize.width = floor(newSize.width)
         newSize.height = floor(newSize.height)
 
@@ -263,7 +259,7 @@ public extension NSUIImage {
             height: size.height * scaleFactor
         )
 
-        let newRect = CGRect(origin: .zero, size: scaledImageSize)
+        let newRect = scaledImageSize.rect
         let renderer = UIGraphicsImageRenderer(size: newRect.size)
 
         let scaledImage = renderer.image { _ in
@@ -276,7 +272,7 @@ public extension NSUIImage {
     /// Returns the image with the specified opacity value.
     func withOpacity(_ value: CGFloat) -> NSUIImage {
         UIGraphicsImageRenderer(size: size, format: imageRendererFormat).image { _ in
-            draw(in: CGRect(origin: .zero, size: size), blendMode: .normal, alpha: value)
+            draw(in: size.rect, blendMode: .normal, alpha: value)
         }
     }
     #endif

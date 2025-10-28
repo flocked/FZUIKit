@@ -41,12 +41,12 @@ public extension NSImage {
     /// Returns the image types supported by `NSImage`.
     @available(macOS 11.0, *)
     static var imageContentTypes: [UTType] {
-        imageTypes.compactMap({UTType($0)})
+        imageTypes.compactMap({ UTType($0) })
     }
 
     /// A `cgImage` represenation of the image.
     var cgImage: CGImage? {
-        if let image = self.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+        if let image = cgImage(forProposedRect: nil, context: nil, hints: nil) {
             return image
         }
         guard let imageData = tiffRepresentation else { return nil }
@@ -68,16 +68,37 @@ public extension NSImage {
         let images = representations.compactMap({$0 as? NSBitmapImageRep}).flatMap({$0.getImages()})
         guard !images.isEmpty else { return nil }
         let types = Set(images.compactMap { $0.utType })
-        let outputType = types.count == 1 ? (types.first ?? kUTTypeTIFF) : kUTTypeTIFF
-        guard let mutableData = CFDataCreateMutable(nil, 0), let destination = CGImageDestinationCreateWithData(mutableData, outputType, images.count, nil) else { return nil }
+        let outputType = types.first ?? kUTTypeTIFF
+        let mutableData = NSMutableData()
+        guard let destination = CGImageDestinationCreateWithData(mutableData as CFMutableData, outputType, images.count, nil) else { return nil }
         images.forEach { CGImageDestinationAddImage(destination, $0, nil) }
         guard CGImageDestinationFinalize(destination) else { return nil }
         return CGImageSourceCreateWithData(mutableData, nil)
     }
+    
+    private func bestImages(for size: CGSize? = nil) -> CGImageSource? {
+        let bitmapImageReps = representations.compactMap({ $0 as? NSBitmapImageRep })
+        if let cgImages = bitmapImageReps.first(where: { $0.isAnimated })?.cgImages {
+            let mutableData = NSMutableData()
+            let outputType = cgImages.lazy.compactMap({$0.utType}).first ?? kUTTypeGIF
+            guard let destination = CGImageDestinationCreateWithData(mutableData as CFMutableData, outputType, cgImages.count, nil) else { return nil }
+            cgImages.forEach { CGImageDestinationAddImage(destination, $0, nil) }
+            guard CGImageDestinationFinalize(destination) else { return nil }
+            return CGImageSourceCreateWithData(mutableData, nil)
+        } else if let data = bitmapImageReps.lazy.compactMap({$0.tiffRepresentation}).first {
+            return CGImageSourceCreateWithData(data as CFData, nil)
+        } else if let cgImage = bitmapImageReps.lazy.compactMap({$0.cgImage}).first {
+            let mutableData = NSMutableData()
+            guard let destination = CGImageDestinationCreateWithData(mutableData as CFMutableData, cgImage.utType ?? kUTTypeTIFF, 1, nil) else { return nil }
+            CGImageDestinationAddImage(destination, cgImage, nil)
+            guard CGImageDestinationFinalize(destination) else { return nil }
+            return CGImageSourceCreateWithData(mutableData, nil)
+        }
+        return nil
+    }
 
-    typealias ImageOrientation = ImageSource.ImageProperties.Orientation
     /// The image orientation.
-    var orientation: ImageOrientation {
+    var orientation: CGImagePropertyOrientation {
         ImageSource(image: self)?.properties()?.orientation ?? .up
     }
 }
@@ -110,16 +131,31 @@ public extension NSImage {
         layerContents(forContentsScale: recommendedLayerContentsScale(0.0))
     }
     
-    /// Returns an object scaled to the specified screen that may be used as the contents of a layer.
+    /// Returns an object scaled to the specified screen that can be used as the contents of a layer.
     func scaledLayerContents(for screen: NSScreen) -> Any {
         layerContents(forContentsScale: recommendedLayerContentsScale(screen.backingScaleFactor))
+    }
+    
+    /// Returns an object scaled to the specified window that can be used as the contents of a layer.
+    func scaledLayerContents(for window: NSWindow) -> Any {
+        layerContents(forContentsScale: recommendedLayerContentsScale(window.backingScaleFactor))
+    }
+    
+    /// Returns an object scaled to the specified view window that can be used as the contents of a layer.
+    func scaledLayerContents(for view: NSView) -> Any {
+        layerContents(forContentsScale: recommendedLayerContentsScale(view.window?.backingScaleFactor ?? 0.0))
+    }
+    
+    /// An image object scaled to the specified layer that can be used as the contents of the layer.
+    func scaledLayerContents(for layer: CALayer) -> Any {
+        layerContents(forContentsScale: recommendedLayerContentsScale(layer.parentView?.window?.backingScaleFactor ?? 0.0))
     }
 }
 
 public extension NSImage {
     /// The bitmap representation of the image
     var bitmapImageRep: NSBitmapImageRep? {
-        if let representation = representations.compactMap({$0 as? NSBitmapImageRep}).first {
+        if let representation = representations.lazy.compactMap({$0 as? NSBitmapImageRep}).first {
             return representation
         } else if let cgImage = cgImage {
             let imageRep = NSBitmapImageRep(cgImage: cgImage)
@@ -128,13 +164,6 @@ public extension NSImage {
         }
         return nil
     }
-
-    /**
-     Returns a data object that contains the specified image in TIFF format.
-
-     - Returns: A data object containing the TIFF data, or `nil` if there was a problem generating the data. This function may return `nil` if the image has no data or if the underlying `CGImageRef` contains data in an unsupported bitmap format.
-     */
-    func tiffData() -> Data? { tiffRepresentation }
     
     /**
      Returns a data object that contains the specified image in TIFF format.
@@ -143,21 +172,22 @@ public extension NSImage {
 
      - Returns: A data object containing the TIFF data, or `nil` if there was a problem generating the data. This function may return `nil` if the image has no data or if the underlying `CGImageRef` contains data in an unsupported bitmap format.
      */
-    func tiffData(compression: NSBitmapImageRep.TIFFCompression) -> Data? { bitmapImageRep?.tiffData(compression: compression) }
+    func tiffData(compression: NSBitmapImageRep.TIFFCompression = .none) -> Data? { compression == .none ? tiffRepresentation : bitmapImageRep?.tiffData(compression: compression)
+    }
 
     /**
      Returns a data object that contains the specified image in PNG format.
 
      - Returns: A data object containing the PNG data, or `nil` if there was a problem generating the data. This function may return `nil` if the image has no data or if the underlying `CGImageRef` contains data in an unsupported bitmap format.
      */
-    func pngData() -> Data? { bitmapImageRep?.pngData }
-
+    func pngData() -> Data? { bitmapImageRep?.pngData() }
+    
     /**
-     Returns a data object that contains the image in JPEG format.
+     Returns a data object that contains the specified image in BMP format.
 
-     - Returns: A data object containing the JPEG data, or `nil` if there’s a problem generating the data. This function may return `nil` if the image has no data or if the underlying `CGImageRef` contains data in an unsupported bitmap format.
+     - Returns: A data object containing the PNG data, or `nil` if there was a problem generating the data. This function may return `nil` if the image has no data or if the underlying `CGImageRef` contains data in an unsupported bitmap format.
      */
-    func jpegData() -> Data? { bitmapImageRep?.jpegData }
+    func bmpData() -> Data? { bitmapImageRep?.bmpData() }
 
     /**
      Returns a data object that contains the image in JPEG format.
@@ -166,10 +196,9 @@ public extension NSImage {
 
      - Returns: A data object containing the JPEG data, or `nil` if there’s a problem generating the data. This function may return `nil` if the image has no data or if the underlying `CGImageRef` contains data in an unsupported bitmap format.
      */
-    func jpegData(compressionQuality: Double) -> Data? {
+    func jpegData(compressionQuality: Double = 1.0) -> Data? {
         bitmapImageRep?.jpegData(compressionFactor: compressionQuality)
     }
-
 
     /**
      Returns the image flipped.

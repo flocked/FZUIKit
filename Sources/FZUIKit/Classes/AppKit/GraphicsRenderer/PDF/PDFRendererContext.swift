@@ -1,5 +1,5 @@
 //
-//  PDFGraphicsRendererContext.swift
+//  GraphicsPDFRendererContext.swift
 //  
 //
 //  Created by Florian Zand on 02.03.25.
@@ -9,7 +9,7 @@
 import AppKit
 
 /// The drawing environment for a PDF renderer.
-public final class PDFGraphicsRendererContext: GraphicsRendererContext {
+public final class GraphicsPDFRendererContext: GraphicsRendererContext {
     private var hasOpenPage: Bool = false
     
     /**
@@ -20,7 +20,7 @@ public final class PDFGraphicsRendererContext: GraphicsRendererContext {
     public let context: NSGraphicsContext
     
     /// The drawing configuration of the context.
-    public let format: PDFGraphicsRendererFormat
+    public let format: GraphicsPDFRendererFormat
     
     /**
      The bounds of the PDF context for the current page.
@@ -129,12 +129,12 @@ public final class PDFGraphicsRendererContext: GraphicsRendererContext {
         NSGraphicsContext.restoreGraphicsState()
     }
     
-    init(context: NSGraphicsContext, format: PDFGraphicsRendererFormat) {
+    init(context: NSGraphicsContext, format: GraphicsPDFRendererFormat) {
         self.context = context
         self.format = format
     }
     
-    init?(url: URL, format: PDFGraphicsRendererFormat) {
+    init?(url: URL, format: GraphicsPDFRendererFormat) {
         var bounds = format.renderingBounds
         guard let consumer = CGDataConsumer(url: url as CFURL), let context = CGContext(consumer: consumer, mediaBox: &bounds, format.documentInfo.dictionary) else { return nil }
         self.context = NSGraphicsContext(cgContext: context, flipped: format.isFlipped)
@@ -142,16 +142,12 @@ public final class PDFGraphicsRendererContext: GraphicsRendererContext {
     }
     
     let data = NSMutableData()
-    init?(format: PDFGraphicsRendererFormat) {
+    init?(format: GraphicsPDFRendererFormat) {
         var bounds = format.renderingBounds
         guard let consumer = CGDataConsumer(data: data), let context = CGContext(consumer: consumer, mediaBox: &bounds, format.documentInfo.dictionary) else { return nil }
         self.context = NSGraphicsContext(cgContext: context, flipped: format.isFlipped)
         self.format = format
     }
-    
-    /*
-     if let consumer = CGDataConsumer(data: data), let context = CGContext(consumer: consumer, mediaBox: &rect, format.documentInfo.dictionary)
-     */
 }
 
 #endif

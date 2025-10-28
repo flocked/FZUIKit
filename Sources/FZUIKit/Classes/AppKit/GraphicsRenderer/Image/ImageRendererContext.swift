@@ -24,35 +24,33 @@ public final class ImageGraphicsRendererContext: GraphicsRendererContext {
     /**
      The current state of the drawing context, expressed as an object that manages image data in your app.
      
-     Use this property to access the current Core Graphics context as a `NSImage` object while providing drawing instructions for one of the drawing methods in `NSGraphicsImageRenderer`.
+     Use this property to access the current Core Graphics context as a `NSImage` object while providing drawing instructions for one of the drawing methods in ``ImageGraphicsRenderer``.
      */
     public var currentImage: NSImage {
         let image = NSImage(size: format.bounds.size)
         image.addRepresentation(bitmapRep)
-        // return cgContext.makeImage()!.nsImage
         return image
     }
     
     func beginRendering() {
-        format.isRendering = true
         NSGraphicsContext.saveGraphicsState()
         NSGraphicsContext.current = context
         context.saveGraphicsState()
     }
     
     func endRendering() {
-        format.isRendering = false
         context.restoreGraphicsState()
         NSGraphicsContext.restoreGraphicsState()
     }
     
     init?(format: ImageGraphicsRendererFormat) {
         self.format = format
-        let size = format.renderingBounds.size
+        let size = format.bounds.size
         let hasAlpha = !format.isOpaque
-        guard let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(size.width * format.scale), pixelsHigh: Int(size.height * format.scale), bitsPerSample: 8, samplesPerPixel: hasAlpha ? 4 : 3, hasAlpha: hasAlpha, isPlanar: false, colorSpaceName: .deviceRGB, bitmapFormat: [], bytesPerRow: 0, bitsPerPixel: 0) else { return nil }
-        bitmapRep = rep.converting(to: format.preferredRange.colorSpace, renderingIntent: .default) ?? rep
+        guard let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(size.width * format.scale), pixelsHigh: Int(size.height * format.scale), bitsPerSample: 8, samplesPerPixel: hasAlpha ? 4 : 3, hasAlpha: hasAlpha, isPlanar: false, colorSpaceName: format.preferredRange.colorSpace, bitmapFormat: [], bytesPerRow: 0, bitsPerPixel: 0) else { return nil }
+        bitmapRep = rep
         guard let context = NSGraphicsContext(bitmapImageRep: bitmapRep) else { return nil }
+        
         self.context = context
         if format.scale != 1.0 {
             cgContext.scaleBy(x: format.scale, y: format.scale)

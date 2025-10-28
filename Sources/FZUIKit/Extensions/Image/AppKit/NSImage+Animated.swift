@@ -20,6 +20,11 @@ public extension NSImage {
     var framesCount: Int {
         bitmapImageRep?.frameCount ?? ImageSource(image: self)?.count ?? 1
     }
+    
+    var currentFrameIndex: Int {
+        get { bitmapImageRep?.currentFrame ?? 0 }
+        set { }
+    }
 
     /// The animation duration of an animated (e.g. GIF) image.
     var animationDuration: TimeInterval {

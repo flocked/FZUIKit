@@ -10,11 +10,11 @@ import AppKit
 import FZSwiftUtils
 
 /// A graphics renderer for creating PDFs.
-public class PDFGraphicsRenderer: GraphicsRenderer {
-    public typealias Context = PDFGraphicsRendererContext
+public class GraphicsPDFRenderer: GraphicsRenderer {
+    public typealias Context = GraphicsPDFRendererContext
     
     /// The format used to create the graphics renderer.
-    public let format: PDFGraphicsRendererFormat
+    public let format: GraphicsPDFRendererFormat
     
     /**
      Creates a PDF from a set of drawing instructions and saves it to a specified URL.
@@ -61,7 +61,7 @@ public class PDFGraphicsRenderer: GraphicsRenderer {
     }
     
     func runDrawingActions(forContext cgContext: CGContext, drawingActions: (_ context: Context) -> Void, completionActions: ((_ context: Context) -> Void)? = nil) {
-        let context = PDFGraphicsRendererContext(context: NSGraphicsContext(cgContext: cgContext, flipped: format.isFlipped), format: format)
+        let context = GraphicsPDFRendererContext(context: NSGraphicsContext(cgContext: cgContext, flipped: format.isFlipped), format: format)
         context.beginRendering()
         drawingActions(context)
         completionActions?(context)
@@ -83,7 +83,7 @@ public class PDFGraphicsRenderer: GraphicsRenderer {
         - format: A ``NSGraphicsImageGraphicsRendererFormat`` object that encapsulates the format used to create the renderer context.
      - Returns: An initialized image renderer.
      */
-    public init(bounds: NSRect, format: PDFGraphicsRendererFormat) {
+    public init(bounds: NSRect, format: GraphicsPDFRendererFormat) {
         self.format = format
         format.bounds = bounds
     }
@@ -111,7 +111,7 @@ public class PDFGraphicsRenderer: GraphicsRenderer {
         - format: A ``NSGraphicsImageGraphicsRendererFormat`` object that encapsulates the format used to create the renderer context.
      - Returns: An initialized image renderer.
      */
-    public init(size: CGSize, format: PDFGraphicsRendererFormat) {
+    public init(size: CGSize, format: GraphicsPDFRendererFormat) {
         self.format = format
         format.bounds = CGRect(.zero, size)
     }

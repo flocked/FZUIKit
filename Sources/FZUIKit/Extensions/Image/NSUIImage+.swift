@@ -251,6 +251,15 @@ public extension NSUIImage {
         return pngData() == image.pngData()
         #endif
     }
+    
+    /// The memory size of the image.
+    var memorySize: DataSize {
+        guard let cgImage = cgImage else { return .zero }
+        let instanceSize = MemoryLayout<NSUIImage>.size(ofValue: self)
+        let pixmapSize = cgImage.height * cgImage.bytesPerRow
+        let totalSize = instanceSize + pixmapSize
+        return .bytes(totalSize)
+    }
 }
 
 extension Collection where Element == NSUIImage {

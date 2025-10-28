@@ -15,7 +15,7 @@ import AppKit
  
  The image renderer format object contains properties that determine the attributes of the underlying Core Graphics contexts that the image renderer creates. Use the `default()` static method to create an image renderer format instance optimized for the current device.
  */
-public class ImageGraphicsRendererFormat: GraphicsRendererFormat {
+public final class ImageGraphicsRendererFormat: GraphicsRendererFormat {
     
     /**
      The display scale of the image renderer context.
@@ -54,68 +54,112 @@ public class ImageGraphicsRendererFormat: GraphicsRendererFormat {
      
      If the graphics renderer itself creates a format object, the bounds are set to those provided to the renderer as part of the initializer.
      */
-    public internal(set) var bounds: CGRect {
-        get { isRendering ? renderingBounds : .zero }
-        set { renderingBounds = newValue }
-    }
+    public internal(set) var bounds: CGRect = .zero
     
-    var renderingBounds: CGRect = .zero
-    var isRendering: Bool = false
-
     /**
-     Returns a format that represents the highest fidelity that the current device supports.
+     Creates a image render format with the specified values.
      
-     The returned format object always represents the device's highest fidelity, regardless of the actual fidelity currently employed by the device. A graphics renderer uses this method to create a format at initialization time if you use an initializer that does not have a format argument.
-     
-     This property doesn't always return a format that's optimized for the current configuration of the main screen. If you're rendering content for immediate display, it's recommended that you use ``preferred()`` instead of this property.
+     - Parameters:
+        - scale: The display scale of the image renderer context. The default value is `0.0` and equal to the scale of the [main](https://developer.apple.com/documentation/appkit/nsscreen/main) screen.
+        - isOpaque: A Boolean value that indicates whether the underlying Core Graphics context has an alpha channel.
+        - isFlipped: A Boolean value indicating the graphics context’s flipped state.
+        - preferredRange: The preferred color range of the image renderer context.
      */
-    public static func `default`() -> Self {
-        let maxScale = NSScreen.screens.map { $0.backingScaleFactor }.max() ?? 1.0
-        //let supportsHDR = NSScreen.screens.contains { $0.maximumExtendedDynamicRangeColorComponentValue > 1.0 }
-        return Self(scale: maxScale, isOpaque: false, preferredRange: .standard)
-    }
-    
-    /// Returns the most suitable format for the main screen’s current configuration.
-    public static func preferred() -> Self {
-        let scale = NSScreen.main?.backingScaleFactor ?? 1.0
-        // let supportsHDR = NSScreen.main?.maximumExtendedDynamicRangeColorComponentValue ?? 1.0 > 1.0
-        return Self(scale: scale, isOpaque: false, preferredRange: .extended)
-    }
-    
-    /// Creates an image renderer format with the specified `scale`, `isOpaque`, `isFlipped` and `preferredRange`.
-    public required init(scale: CGFloat = 1.0, isOpaque: Bool = false, isFlipped: Bool = false, preferredRange: Range = .standard) {
+    public init(scale: CGFloat = 1.0, isOpaque: Bool = false, isFlipped: Bool = false, preferredRange: Range = .standard) {
         self.scale = scale
         self.isOpaque = isOpaque
         self.isFlipped = isFlipped
         self.preferredRange = preferredRange
     }
+    
+    /// Creates the most suitable format for rendering on the specified screen.
+    public init(for screen: NSScreen) {
+        scale = screen.backingScaleFactor
+        guard let colorSpace = screen.colorSpace else { return }
+        preferredRange = colorSpace.displayP3Capable ? .extended : .standard
+    }
+    
+    /**
+     Creates the most suitable format for rendering on the specified window.
+     
+     It uses the most suitable format based on the window's screen, otherwise of the [main](https://developer.apple.com/documentation/appkit/nsscreen/main) screen.
+     */
+    public init(for window: NSWindow) {
+        let screen = window.screen ?? NSScreen.main
+        scale = screen?.backingScaleFactor ?? 1.0
+        preferredRange = (screen?.colorSpace?.displayP3Capable ?? false) ? .extended : .standard
+    }
+    
+    /**
+     Creates the most suitable format for rendering on the specified view.
+     
+     It uses the most suitable format based on the view's screen, otherwise of the [main](https://developer.apple.com/documentation/appkit/nsscreen/main) screen.
+     */
+    public init(for view: NSView) {
+        let screen = view.window?.screen ?? NSScreen.main
+        scale = screen?.backingScaleFactor ?? 1.0
+        preferredRange = (screen?.colorSpace?.displayP3Capable ?? false) ? .extended : .standard
+    }
+
+    /// Returns the most suitable format for the main screen’s current configuration.
+    public static func preferred() -> ImageGraphicsRendererFormat {
+        let screen = NSScreen.main ?? NSScreen.screens.first
+        return ImageGraphicsRendererFormat(for: screen!)
+    }
+    
+    /**
+     Returns a format that represents the highest fidelity the current device supports.
+     
+     The returned format always represents the device’s highest fidelity, regardless of the actual fidelity currently employed by the device. A graphics renderer uses this method to create a format at initialization time if you use an initializer that does not have a format argument.
+     
+     This property doesn’t always return a format that’s optimized for the current configuration of the main screen. If you’re rendering content for immediate display, it’s recommended that you use ``preferred()`` instead of this property.
+     */
+    public static func `default`() -> ImageGraphicsRendererFormat {
+        let format = ImageGraphicsRendererFormat.preferred()
+        format.isOpaque = false
+        format.preferredRange = .extended
+        return format
+    }
 }
 
 extension ImageGraphicsRendererFormat {
     /// Constants that specify the color range of the image renderer context.
-    public enum Range: Int, Hashable {
+    public enum Range: Int {
         /// The system automatically chooses the image renderer context’s pixel format according to the color range of its content.
-        case automatic
+        case automatic = 0
         /// The image renderer context supports wide color.
         case extended
-        /**
-         The image renderer context doesn’t support extended colors.
-         
-         If you draw wide-color content into an image renderer context that uses the standard color range, you may lose color information. The system matches the colors to the standard range of their corresponding color space.
-         */
+        /// The image renderer context doesn’t support extended colors.
         case standard
         
-        var colorSpace: NSColorSpace {
+        var colorSpace: NSColorSpaceName {
             switch self {
-            case .standard:
-                return .sRGB
-            case .extended:
-                return .extendedSRGB
             case .automatic:
+                if let screenColorSpace = (NSScreen.main ?? NSScreen.screens.first)?.colorSpace,
+                   screenColorSpace.colorSpaceModel == .rgb,
+                   screenColorSpace.displayP3Capable {
+                    return .deviceRGB
+                } else {
+                    return .genericRGB
+                }
+            case .extended:
                 return .deviceRGB
+            case .standard:
+                return .genericRGB
             }
         }
     }
+}
+
+private extension NSColorSpace {
+    var displayP3Capable: Bool {
+        guard let cgSpace = self.cgColorSpace else { return false }
+        return cgSpace.name == CGColorSpace.displayP3 as CFString
+    }
+}
+
+extension NSColorSpaceName {
+    static let genericRGB = NSColorSpaceName(rawValue: "NSCalibratedRGBColorSpace")
 }
 
 #endif

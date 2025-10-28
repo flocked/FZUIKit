@@ -130,7 +130,7 @@ public extension NSUIImage {
         guard !images.isEmpty else { return nil }
         let data = NSMutableData()
         guard let destination = CGImageDestinationCreateWithData(data as CFMutableData, kUTTypeGIF, images.count, nil) else { return nil }
-        let gifProperties = [kCGImagePropertyGIFDictionary as String: [kCGImagePropertyGIFLoopCount as String: loopCount]].cfDictionary
+        let gifProperties = [kCGImagePropertyGIFDictionary as String: [kCGImagePropertyGIFLoopCount as String: loopCount, kCGImagePropertyGIFHasGlobalColorMap: false]].cfDictionary
         let frameProperties = [kCGImagePropertyGIFDictionary as String: [kCGImagePropertyGIFDelayTime as String: frameDuration, kCGImagePropertyGIFUnclampedDelayTime as String: frameDuration]].cfDictionary
         CGImageDestinationSetProperties(destination, gifProperties)
         for image in images.compactMap({$0.cgImage}) {

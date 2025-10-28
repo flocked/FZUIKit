@@ -1,5 +1,5 @@
 //
-//  PDFGraphicsRendererFormat.swift
+//  GraphicsPDFRendererFormat.swift
 //  
 //
 //  Created by Florian Zand on 02.03.25.
@@ -9,7 +9,7 @@
 import AppKit
 
 /// A set of drawing attributes that represents the configuration of a PDF renderer context.
-public class PDFGraphicsRendererFormat: GraphicsRendererFormat {
+public class GraphicsPDFRendererFormat: GraphicsRendererFormat {
     var renderingBounds: CGRect = .zero
     var isRendering: Bool = false
     
