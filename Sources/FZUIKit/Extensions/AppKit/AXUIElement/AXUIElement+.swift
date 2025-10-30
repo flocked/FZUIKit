@@ -513,8 +513,8 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
         - maxDepth: The maximum depth of children to include.
         - maxChildren: The maximum amount of children to include for each element.
      */
-    public func visualDescription(options: DescriptionOptions = .detailed, attributes: [AXAttribute] = [], maxDepth: Int = .max, maxChildren: Int = .max) -> String {
-        strings(maxDepth: maxDepth, maxChildren: maxChildren, options: options, attributes: attributes).joined(separator: "\n")
+    public func visualDescription(options: DescriptionOptions = .detailed, attributes: [AXAttribute] = [], maxDepth: Int = .max, maxChildren: Int = .max, useShort: Bool = false) -> String {
+        strings(maxDepth: maxDepth, maxChildren: maxChildren, options: options, attributes: attributes, useSort: useShort).joined(separator: "\n")
     }
     
     /// Options for a description of an accessibility object.
@@ -570,19 +570,19 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
         public let rawValue: Int
     }
     
-    func strings(level: Int = 0, maxDepth: Int, maxChildren: Int, options: DescriptionOptions, attributes: [AXAttribute]) -> [String] {
+    func strings(level: Int = 0, maxDepth: Int, maxChildren: Int, options: DescriptionOptions, attributes: [AXAttribute], useSort: Bool) -> [String] {
         var strings: [String] = []
-        strings += (String(repeating: "  ", count: level) + string(level: level+1, maxDepth: maxDepth, options: options, attributes: attributes))
+        strings += (String(repeating: "  ", count: level) + string(level: level+1, maxDepth: maxDepth, options: options, attributes: attributes, useShort: useSort))
         if level+1 <= maxDepth {
             var childs = children.collect()
             childs = childs[safe: 0..<(maxChildren)]
-            childs.forEach({ strings += $0.strings(level: level+1, maxDepth: maxDepth, maxChildren: maxChildren, options: options, attributes: attributes) })
+            childs.forEach({ strings += $0.strings(level: level+1, maxDepth: maxDepth, maxChildren: maxChildren, options: options, attributes: attributes, useSort: useSort) })
         }
         return strings
     }
     
-    func string(level: Int, maxDepth: Int = .max, options: DescriptionOptions, attributes: [AXAttribute]) -> String {
-        Self.useShort = false
+    func string(level: Int, maxDepth: Int = .max, options: DescriptionOptions, attributes: [AXAttribute], useShort: Bool) -> String {
+        Self.useShort = useShort
         let intendString = String(repeating: "  ", count: level) + "- "
         let id = hashValue
         let role = values.role?.rawValue ?? "AXUnknown"
