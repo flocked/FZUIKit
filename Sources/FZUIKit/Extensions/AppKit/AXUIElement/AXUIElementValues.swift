@@ -112,7 +112,7 @@ public class AXUIElementValues {
 
     /// UI elements for which the current element serves as a title.
     public var servesAsTitleForUIElements: [AXUIElement] {
-        (element[.serves] as [AXUIElement]?) ?? []
+        (element[.servesAsTitle] as [AXUIElement]?) ?? []
     }
 
     /// UI elements that are linked to the accessibility element.

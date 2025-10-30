@@ -66,6 +66,7 @@ public extension AXUIElement {
             try AXUIElementCopyAttributeNames(self, &names).throwIfError("attributes")
             return (names! as [AnyObject]).map { AXAttribute(rawValue: $0 as! String) }
         } catch {
+            Swift.print(error)
             return []
         }
     }
@@ -543,7 +544,7 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
         - maxDepth: The maximum depth of children to include.
         - maxChildren: The maximum amount of children to include for each element.
      */
-    public func visualDescription(options: DescriptionOptions = .detailed, attributes: [AXAttribute] = [], maxDepth: Int? = nil, maxChildren: Int? = nil) -> String {
+    public func visualDescription(options: DescriptionOptions = .detailed, attributes: [AXAttribute] = [], maxDepth: Int = .max, maxChildren: Int = .max) -> String {
         strings(maxDepth: maxDepth, maxChildren: maxChildren, options: options, attributes: attributes).joined(separator: "\n")
     }
     
@@ -600,18 +601,18 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
         public let rawValue: Int
     }
     
-    func strings(level: Int = 0, maxDepth: Int?, maxChildren: Int?, options: DescriptionOptions, attributes: [AXAttribute]) -> [String] {
+    func strings(level: Int = 0, maxDepth: Int, maxChildren: Int, options: DescriptionOptions, attributes: [AXAttribute]) -> [String] {
         var strings: [String] = []
         strings += (String(repeating: "  ", count: level) + string(level: level+1, maxDepth: maxDepth, options: options, attributes: attributes))
-        if level+1 <= maxDepth ?? .max {
+        if level+1 <= maxDepth {
             var childs = children.collect()
-            childs = childs[safe: 0..<(maxChildren ?? childs.count)]
+            childs = childs[safe: 0..<(maxChildren)]
             childs.forEach({ strings += $0.strings(level: level+1, maxDepth: maxDepth, maxChildren: maxChildren, options: options, attributes: attributes) })
         }
         return strings
     }
     
-    func string(level: Int, maxDepth: Int?, options: DescriptionOptions, attributes: [AXAttribute]) -> String {
+    func string(level: Int, maxDepth: Int = .max, options: DescriptionOptions, attributes: [AXAttribute]) -> String {
         Self.useShort = true
         let intendString = String(repeating: "  ", count: level) + "- "
         let id = hashValue
@@ -742,6 +743,7 @@ public extension AXUIElement {
         let element: AXUIElement
         var roles: [AXRole] = []
         var subroles: [AXSubrole] = []
+        var attributes: [AXAttribute] = []
         var maxDepth: Int = 0
         var filter: ((AXUIElement)->(Bool))?
         
@@ -776,6 +778,18 @@ public extension AXUIElement {
         /// The subroles of the children.
         public func subroles(_ subroles: AXSubrole...) -> Self {
             self.subroles(subroles)
+        }
+        
+        /// The attributes of the children.
+        public func attributes(_ attributes: AXAttribute...) -> Self {
+            self.attributes(attributes)
+        }
+        
+        /// The attributes of the children.
+        public func attributes(_ attributes: [AXAttribute]) -> Self {
+            var sequence = self
+            sequence.attributes = attributes
+            return sequence
         }
         
         /// Includes the children of each child.
@@ -838,6 +852,10 @@ public extension AXUIElement {
         if !subroles.isEmpty {
             results = results.filter({ if let subrole = $0.element.subrole { return subroles.contains(subrole) } else { return false } } )
         }
+        if !attributes.isEmpty {
+            results = results.filter({ $0.element.attributes.contains(any: attributes) })
+        }
+        
         if let filter = filter {
             results = results.filter({ filter($0.element)  })
         }

@@ -114,6 +114,28 @@ public enum AXError: Error {
             self = .unknown(code)
         }
     }
+    
+    var rawValue: Int32? {
+        switch self {
+        case .failure: return -25200
+        case .illegalArgument: return -25201
+        case .invalidUIElement: return -25202
+        case .invalidUIElementObserver: return -25203
+        case .cannotComplete: return -25204
+        case .attributeUnsupported: return -25205
+        case .actionUnsupported: return -25206
+        case .notificationUnsupported: return -25207
+        case .notImplemented: return -25208
+        case .notificationAlreadyRegistered: return -25209
+        case .notificationNotRegistered: return  -25210
+        case .apiDisabled: return -25211
+        case .noValue: return  -25212
+        case .parameterizedAttributeUnsupported: return -25213
+        case .notEnoughPrecision: return -25214
+        case .unknown(let aXError): return aXError.rawValue
+        default: return nil
+        }
+    }
 }
 
 extension ApplicationServices.AXError {
@@ -129,4 +151,5 @@ extension ApplicationServices.AXError {
         throw error
     }
 }
+
 #endif
