@@ -582,7 +582,7 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
     }
     
     func string(level: Int, maxDepth: Int = .max, options: DescriptionOptions, attributes: [AXAttribute]) -> String {
-        Self.useShort = true
+        Self.useShort = false
         let intendString = String(repeating: "  ", count: level) + "- "
         let id = hashValue
         let role = values.role?.rawValue ?? "AXUnknown"

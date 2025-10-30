@@ -101,19 +101,6 @@ final class AXNotificationObserver {
         }
 
         try AXObserverCreate(pid, callback, &_observer).throwIfError()
-        
-        /*
-         let callback: AXObserverCallbackWithInfo = { _, element, _, userInfo, refcon in
-             precondition(refcon != nil)
-             Unmanaged<NotificationSubscription>
-                 .fromOpaque(refcon!).takeUnretainedValue()
-                 .receive(target: element)
-         }
-
-        // try AXObserverCreate(pid, callback, &_observer).throwIfError()
-         try AXObserverCreateWithInfoCallback(pid, callback, &_observer).throwIfError()
-         */
-
         CFRunLoopAddSource(CFRunLoopGetCurrent(), AXObserverGetRunLoopSource(_observer!), .defaultMode)
         return _observer!
     }

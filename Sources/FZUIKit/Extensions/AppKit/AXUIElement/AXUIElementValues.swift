@@ -658,7 +658,7 @@ public class AXUIElementValues {
 
     /// The document or file associated with a UI element.
     public var document: String? {
-        element[.document]
+        element[.document] ?? parent?.values.document
     }
 
     /// The UI element that allows incrementing a value, such as a stepper.
