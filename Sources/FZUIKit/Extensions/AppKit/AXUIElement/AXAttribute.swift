@@ -207,6 +207,22 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     public static let columnHeaderUIElements = AXAttribute(kAXColumnHeaderUIElementsAttribute)
     /// Represents the index or position of a specific element within a collection.
     public static let index = AXAttribute(kAXIndexAttribute)
+    /// Represents the number of rows in a table-like UI element.
+    public static let rowCount = AXAttribute(kAXRowCountAttribute)
+    /// Represents the number of columns in a table-like UI element.
+    public static let columnCount = AXAttribute(kAXColumnCountAttribute)
+    /// Indicates whether the rows or cells are ordered by row.
+    public static let isOrderedByRow = AXAttribute(kAXOrderedByRowAttribute)
+    /// Represents the currently selected cells in a table-like UI element.
+    public static let selectedCells = AXAttribute(kAXSelectedCellsAttribute)
+    /// Represents the currently visible cells in a table-like UI element.
+    public static let visibleCells = AXAttribute(kAXVisibleCellsAttribute)
+    /// Represents the UI elements that serve as row headers in a table-like UI element.
+    public static let rowHeaderUIElements = AXAttribute(kAXRowHeaderUIElementsAttribute)
+    /// Represents the range of row indices in a table-like UI element.
+    public static let rowIndexRange = AXAttribute(kAXRowIndexRangeAttribute)
+    /// Represents the range of column indices in a table-like UI element.
+    public static let columnIndexRange = AXAttribute(kAXColumnIndexRangeAttribute)
     
     // MARK: - Outline attributes
     /// Represents whether a particular row or group is in a disclosed or expanded state.
@@ -247,6 +263,8 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     public static let header = AXAttribute(kAXHeaderAttribute)
     /// Indicates whether a UI element's content has been edited or modified.
     public static let isEdited = AXAttribute(kAXEditedAttribute)
+    /// Indicates whether the UI element is editable.
+    public static let isEditable = AXAttribute(kAXIsEditableAttribute)
     /// Represents the set of tabs in a UI element, such as a tab view or window.
     public static let tabs = AXAttribute(kAXTabsAttribute)
     /// Represents a button that shows additional content when clicked.
@@ -316,22 +334,6 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     
     // MARK: - Other
     
-    /// Represents the number of rows in a table-like UI element.
-    public static let rowCount = AXAttribute(kAXRowCountAttribute)
-    /// Represents the number of columns in a table-like UI element.
-    public static let columnCount = AXAttribute(kAXColumnCountAttribute)
-    /// Indicates whether the rows or cells are ordered by row.
-    public static let isOrderedByRow = AXAttribute(kAXOrderedByRowAttribute)
-    /// Represents the currently selected cells in a table-like UI element.
-    public static let selectedCells = AXAttribute(kAXSelectedCellsAttribute)
-    /// Represents the currently visible cells in a table-like UI element.
-    public static let visibleCells = AXAttribute(kAXVisibleCellsAttribute)
-    /// Represents the UI elements that serve as row headers in a table-like UI element.
-    public static let rowHeaderUIElements = AXAttribute(kAXRowHeaderUIElementsAttribute)
-    /// Represents the range of row indices in a table-like UI element.
-    public static let rowIndexRange = AXAttribute(kAXRowIndexRangeAttribute)
-    /// Represents the range of column indices in a table-like UI element.
-    public static let columnIndexRange = AXAttribute(kAXColumnIndexRangeAttribute)
     /// Represents the horizontal units used in a ruler or measurement UI element.
     public static let horizontalUnits = AXAttribute(kAXHorizontalUnitsAttribute)
     /// Represents the vertical units used in a ruler or measurement UI element.
@@ -346,13 +348,11 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     public static let text = AXAttribute(kAXTextAttribute)
     /// Represents the currently visible text of a UI element.
     public static let visibleText = AXAttribute(kAXVisibleTextAttribute)
-    /// Indicates whether the UI element is editable.
-    public static let isEditable = AXAttribute(kAXIsEditableAttribute)
     /// Represents the titles of all columns in a table-like UI element.
     public static let columnTitles = AXAttribute(kAXColumnTitlesAttribute)
 
 
-    static let boolAttributes: [AXAttribute] = [.isBusy, .isEdited, .isMainWindow, .isModal, .isHidden, .isEnabled, .isExpanded, .isFocused, .isSelected, .isDisclosed, .isFrontmost, .isMinimized, .isApplicationRunning, .isAlternateUIVisible, .isEnhancedUserInterface, .isFullScreen, .isOrderedByRow, .isEditable, .manualAccessibility, .servesAsTitle, .valueWraps]
+    static let boolAttributes: [AXAttribute] = [.isBusy, .isEdited, .isMainWindow, .isModal, .isHidden, .isEnabled, .isExpanded, .isFocused, .isSelected, .isDisclosed, .isFrontmost, .isMinimized, .isApplicationRunning, .isAlternateUIVisible, .isEnhancedUserInterface, .isFullScreen, .isOrderedByRow, .isEditable, .manualAccessibility, .valueWraps]
 }
 
 extension AXAttribute: CustomStringConvertible {

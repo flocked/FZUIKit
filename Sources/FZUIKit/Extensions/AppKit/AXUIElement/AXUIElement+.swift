@@ -26,27 +26,46 @@ public extension AXUIElement {
         self.application(pid: application.processIdentifier)
     }
     
-    /// Creates and returns the accessibility object for the application with the specified localized name.
+    /// Creates and returns the accessibility object for the running application with the specified localized name.
     static func application(named name: String) -> AXUIElement? {
         guard let runningApplication = NSRunningApplication.runningApplications(named: name).first else { return nil}
         return application(runningApplication)
     }
     
-    /// Creates and returns the accessibility object for the application with the specified bundle identifier.
+    /// Creates and returns the accessibility object for the running application with the specified bundle identifier.
     static func application(bundleIdentifier: String) -> AXUIElement? {
         guard let runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier).first else { return nil}
         return application(runningApplication)
     }
 
-    /// Creates and returns the accessibility object for the application with the specified process ID.
+    /// Creates and returns the accessibility object for the running application with the specified process ID.
     static func application(pid: pid_t) -> AXUIElement {
         precondition(pid >= 0)
         return AXUIElementCreateApplication(pid)
     }
-    
+        
     /// Creates and returns the accessibility object at the specified position in top-left relative screen coordinates.
-    static func getElementAtPosition(_ position: CGPoint) -> AXUIElement? {
-        systemWide.getElementAtPosition(position)
+    static func element(atScreenPosition position: CGPoint) -> AXUIElement? {
+        systemWide.element(atScreenPosition: position)
+    }
+    
+    /// Returns the element at the specified position in top-left relative screen coordinates.
+    func element(atScreenPosition position: CGPoint) -> AXUIElement? {
+        DispatchQueue.main.syncSafely {
+            do {
+                var element: AXUIElement?
+                try AXUIElementCopyElementAtPosition(self, Float(position.x), Float(position.y), &element).throwIfError("getElementAtPosition(\(position))")
+                return element!
+            } catch {
+                return nil
+            }
+        }
+    }
+    
+    /// Returns the element at the specified position in the elements coordinate system.
+    func element(at position: CGPoint) -> AXUIElement? {
+        guard let frame: CGRect = self[.frame] else { return nil }
+        return element(atScreenPosition: CGPoint(x: frame.x + position.x, y: frame.y + (frame.height - position.y)))
     }
 
     /// A Boolean value indicating whether the object is valid.
@@ -61,13 +80,15 @@ public extension AXUIElement {
 
     /// Returns an array of all attributes supported by the object.
     var attributes: [AXAttribute] {
-        do {
-            var names: CFArray?
-            try AXUIElementCopyAttributeNames(self, &names).throwIfError("attributes")
-            return (names! as [AnyObject]).map { AXAttribute(rawValue: $0 as! String) }
-        } catch {
-            Swift.print(error)
-            return []
+        DispatchQueue.main.syncSafely {
+            do {
+                var names: CFArray?
+                try AXUIElementCopyAttributeNames(self, &names).throwIfError("attributes")
+                return (names! as [AnyObject]).map { AXAttribute(rawValue: $0 as! String) }
+            } catch {
+                Swift.print(error)
+                return []
+            }
         }
     }
     
@@ -99,12 +120,14 @@ public extension AXUIElement {
 
     /// Returns an array of all parameterized attributes supported by the object.
     var parameterizedAttributes: [AXParameterizedAttribute] {
-        do {
-            var names: CFArray?
-            try AXUIElementCopyParameterizedAttributeNames(self, &names).throwIfError("parameterizedAttributes")
-            return (names! as [AnyObject]).map { AXParameterizedAttribute(rawValue: $0 as! String) }
-        } catch {
-            return []
+        DispatchQueue.main.syncSafely {
+            do {
+                var names: CFArray?
+                try AXUIElementCopyParameterizedAttributeNames(self, &names).throwIfError("parameterizedAttributes")
+                return (names! as [AnyObject]).map { AXParameterizedAttribute(rawValue: $0 as! String) }
+            } catch {
+                return []
+            }
         }
     }
     
@@ -115,12 +138,14 @@ public extension AXUIElement {
 
     /// Returns the count of the array of tne specified attribute.
     func count(of attribute: AXAttribute) -> Int {
-        do {
-            var count = 0
-            try AXUIElementGetAttributeValueCount(self, attribute.rawValue as CFString, &count).throwIfError("count() of `\(attribute)`")
-            return count
-        } catch {
-            return 0
+        DispatchQueue.main.syncSafely {
+            do {
+                var count = 0
+                try AXUIElementGetAttributeValueCount(self, attribute.rawValue as CFString, &count).throwIfError("count() of `\(attribute)`")
+                return count
+            } catch {
+                return 0
+            }
         }
     }
 
@@ -138,19 +163,20 @@ public extension AXUIElement {
 
     /// Returns the value for the specified attribute.
     func get<Value>(_ attribute: AXAttribute) throws -> Value? {
-        precondition(Thread.isMainThread)
-        var value: AnyObject?
-        let code = AXUIElementCopyAttributeValue(self, attribute.rawValue as CFString, &value)
-        if let error = AXError(code: code) {
-            switch error {
-            case .attributeUnsupported, .noValue, .cannotComplete:
-                return nil
-            default:
-                AXLogger.print(error, "get(\(attribute))")
-                throw error
+        try DispatchQueue.main.syncSafely {
+            var value: AnyObject?
+            let code = AXUIElementCopyAttributeValue(self, attribute.rawValue as CFString, &value)
+            if let error = AXError(code: code) {
+                switch error {
+                case .attributeUnsupported, .noValue, .cannotComplete:
+                    return nil
+                default:
+                    AXLogger.print(error, "get(\(attribute))")
+                    throw error
+                }
             }
+            return try unpack(value!) as? Value
         }
-        return try unpack(value!) as? Value
     }
 
     /// Returns the value for the specified attribute.
@@ -161,44 +187,34 @@ public extension AXUIElement {
 
     /// Returns the value for the specified parameterized attribute and parameter.
     func get<Value, Parameter>(_ attribute: AXParameterizedAttribute, with parameter: Parameter) throws -> Value? {
-        precondition(Thread.isMainThread)
-
-        guard let param = pack(parameter) else {
-            let error = AXError.packFailure(parameter)
-            AXLogger.print(error, "get(\(attribute), with:): pack failure", ["param": String(reflecting: parameter)])
-            throw error
-        }
-
-        var value: AnyObject?
-        let code = AXUIElementCopyParameterizedAttributeValue(self, attribute.rawValue as CFString, param, &value)
-        if let error = AXError(code: code) {
-            switch error {
-            case .attributeUnsupported, .parameterizedAttributeUnsupported, .noValue, .cannotComplete:
-                return nil
-            default:
-                AXLogger.print(error, "(parameterized) get(\(attribute))", ["parameter": String(reflecting: param)])
+        try DispatchQueue.main.syncSafely {
+            guard let param = pack(parameter) else {
+                let error = AXError.packFailure(parameter)
+                AXLogger.print(error, "get(\(attribute), with:): pack failure", ["param": String(reflecting: parameter)])
                 throw error
             }
+            
+            var value: AnyObject?
+            let code = AXUIElementCopyParameterizedAttributeValue(self, attribute.rawValue as CFString, param, &value)
+            if let error = AXError(code: code) {
+                switch error {
+                case .attributeUnsupported, .parameterizedAttributeUnsupported, .noValue, .cannotComplete:
+                    return nil
+                default:
+                    AXLogger.print(error, "(parameterized) get(\(attribute))", ["parameter": String(reflecting: param)])
+                    throw error
+                }
+            }
+            return try unpack(value!) as? Value
         }
-        return try unpack(value!) as? Value
     }
 
     private func get(_ attributes: [AXAttribute]) throws -> [Any] {
-        precondition(Thread.isMainThread)
-        let cfAttributes = attributes.map(\.rawValue) as CFArray
-        var values: CFArray?
-        try AXUIElementCopyMultipleAttributeValues(self, cfAttributes, AXCopyMultipleAttributeOptions(), &values).throwIfError("get(\(attributes))")
-        return try (values! as [AnyObject]).map(unpack)
-    }
-    
-    /// Returns the element at the specified position in top-left relative screen coordinates.
-    internal func getElementAtPosition(_ position: CGPoint) -> AXUIElement? {
-        do {
-            var element: AXUIElement?
-            try AXUIElementCopyElementAtPosition(self, Float(position.x), Float(position.y), &element).throwIfError("getElementAtPosition(\(position))")
-            return element!
-        } catch {
-            return nil
+        try DispatchQueue.main.syncSafely {
+            let cfAttributes = attributes.map(\.rawValue) as CFArray
+            var values: CFArray?
+            try AXUIElementCopyMultipleAttributeValues(self, cfAttributes, AXCopyMultipleAttributeOptions(), &values).throwIfError("get(\(attributes))")
+            return try (values! as [AnyObject]).map(unpack)
         }
     }
 
@@ -264,26 +280,28 @@ public extension AXUIElement {
 
     /// A Boolean value indicating whether the specificed attribute is settable.
     func isSettable(_ attribute: AXAttribute) -> Bool {
-        precondition(Thread.isMainThread)
-        do {
-            var settable: DarwinBoolean = false
-            try AXUIElementIsAttributeSettable(self, attribute.rawValue as CFString, &settable).throwIfError("isSettable(\(attribute))")
-            return settable.boolValue
-        } catch {
-            return false
+        DispatchQueue.main.syncSafely {
+            do {
+                var settable: DarwinBoolean = false
+                try AXUIElementIsAttributeSettable(self, attribute.rawValue as CFString, &settable).throwIfError("isSettable(\(attribute))")
+                return settable.boolValue
+            } catch {
+                return false
+            }
         }
     }
 
     /// Sets the specified attribute to the specified value.
     func set<Value>(_ attribute: AXAttribute, to value: Value) throws {
-        precondition(Thread.isMainThread)
-        guard let value = pack(value) else {
-            let error = AXError.packFailure(value)
-            AXLogger.print(error, "set(\(attribute)): pack failure", ["value": String(reflecting: value)])
-            throw error
+        try DispatchQueue.main.syncSafely {
+            guard let value = pack(value) else {
+                let error = AXError.packFailure(value)
+                AXLogger.print(error, "set(\(attribute)): pack failure", ["value": String(reflecting: value)])
+                throw error
+            }
+            
+            try AXUIElementSetAttributeValue(self, attribute.rawValue as CFString, value).throwIfError("set(\(attribute))", ["value": String(reflecting: value)])
         }
-        
-        try AXUIElementSetAttributeValue(self, attribute.rawValue as CFString, value).throwIfError("set(\(attribute))", ["value": String(reflecting: value)])
     }
 
     /// Sets the specified attribute to the specified value.
@@ -397,86 +415,37 @@ public extension AXUIElement {
         allParents.count
     }
 
-    /*
-    /**
-     Returns the children of the object.
-
-     - Parameters:
-        - role: The role of the children, or `nil` for all children.
-        - subrole: The subrole of the children, or `nil` for all children.
-     */
-    func children(role: AXRole? = nil, subrole: AXSubrole? = nil) -> [AXUIElement] {
-        children(maxDepth: nil, role: role, subrole: subrole)
-    }
-
-    /**
-     Returns all children of the object recursively.
-
-     - Parameters:
-        - maxDepth: The maximum depth of recursion.
-        - role: The role of the children, or `nil` for all children.
-        - subrole: The subrole of the children, or `nil` for all children.
-     */
-    func allChildren(maxDepth: Int, role: AXRole? = nil, subrole: AXSubrole? = nil) -> [AXUIElement] {
-        children(maxDepth: maxDepth, role: role, subrole: subrole)
-    }
-    
-    /**
-     Returns all children of the object recursively.
-
-     - Parameters:
-        - role: The role of the children, or `nil` for all children.
-        - subrole: The subrole of the children, or `nil` for all children.
-     */
-    func allChildren(role: AXRole? = nil, subrole: AXSubrole? = nil) -> [AXUIElement] {
-        children(maxDepth: .max, role: role, subrole: subrole)
-    }
-    
-    internal func children(level: Int = 0, maxDepth: Int?, role: AXRole? = nil, subrole: AXSubrole?) -> [AXUIElement] {
-        let next = level+1 <= maxDepth ?? 0
-        let children: [AXUIElement] = (try? get(.children)) ?? []
-        var results: [AXUIElement] = []
-        for child in children {
-            results.append(child)
-            if next {
-                results.append(contentsOf: child.children(level: level+1, maxDepth: maxDepth, role: role, subrole: subrole))
-            }
-        }
-        if let role = role {
-            results = results.filter({ $0.role == role })
-        }
-        if let subrole = subrole {
-            results = results.filter({ $0.subrole == subrole })
-        }
-        return results
-    }
-     */
-    
     /// Returns an array of all the actions the element can perform.
     var actions: [AXAction] {
-        do {
-            var names: CFArray?
-            try AXUIElementCopyActionNames(self, &names).throwIfError()
-            guard let names = names as? [String] else {
-                throw AXError.actionUnsupported
+        DispatchQueue.main.syncSafely {
+            do {
+                var names: CFArray?
+                try AXUIElementCopyActionNames(self, &names).throwIfError()
+                guard let names = names as? [String] else {
+                    throw AXError.actionUnsupported
+                }
+                return names.compactMap({ AXAction($0, try? actionDescription($0)) })
+            } catch {
+                AXLogger.print(error, "actions")
+                return []
             }
-            return names.compactMap({ AXAction($0, try? actionDescription($0)) })
-        } catch {
-            AXLogger.print(error, "actions")
-            return []
         }
     }
     
     /// Returns a localized description for the specified action.
     internal func actionDescription(_ action: String) throws -> String {
-        var desc: CFString?
-        try AXUIElementCopyActionDescription(self, action as CFString, &desc).throwIfError()
-        return desc! as String
+        try DispatchQueue.main.syncSafely {
+            var desc: CFString?
+            try AXUIElementCopyActionDescription(self, action as CFString, &desc).throwIfError()
+            return desc! as String
+        }
     }
     
     /// Performs the specified action.
     func perform(_ action: AXAction) throws {
-        try AXUIElementPerformAction(self, action.rawValue as CFString).throwIfError()
+        try DispatchQueue.main.syncSafely {
+            try AXUIElementPerformAction(self, action.rawValue as CFString).throwIfError()
+        }
     }
     
     /**
@@ -488,14 +457,14 @@ public extension AXUIElement {
      */
     func replaceText(in range: NSRange, with replacement: String) throws {
         guard var selection = values.selectedTextRange,
-            let selectionStartLine = values.lineForIndex(selection.location)
+              let selectionStartLine = values.line(forIndex: selection.location)
         else { return }
 
         try set(.selectedTextRange, to: range.cfRange)
         try set(.selectedText, to: replacement)
 
         // Adjust and restore the original selection.
-        if let lineRange = values.rangeForLine(selectionStartLine),
+        if let lineRange = values.range(forLine: selectionStartLine),
             selection.location >= lineRange.location + lineRange.length {
             selection.location = lineRange.location + lineRange.length - 1
         }

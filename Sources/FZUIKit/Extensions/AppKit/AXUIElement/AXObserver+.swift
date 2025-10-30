@@ -12,22 +12,24 @@ import ApplicationServices
 public extension AXObserver {
     /// Registers the observer to receive notifications from the specified accessibility object.
     func add(notification: AXNotification, element: AXUIElement, context: AnyObject) throws {
-        precondition(Thread.isMainThread)
-        let notification = notification.rawValue as CFString
-        let context = Unmanaged.passUnretained(context).toOpaque()
-        let result = AXObserverAddNotification(self, element, notification, context)
-        if let error = AXError(code: result), case .notificationAlreadyRegistered = error {
-            throw error
+        try DispatchQueue.main.syncSafely {
+            let notification = notification.rawValue as CFString
+            let context = Unmanaged.passUnretained(context).toOpaque()
+            let result = AXObserverAddNotification(self, element, notification, context)
+            if let error = AXError(code: result), case .notificationAlreadyRegistered = error {
+                throw error
+            }
         }
     }
 
     /// Removes the specified notification from the observer for the specified accessibility object.
     func remove(notification: AXNotification, element: AXUIElement) throws {
-        precondition(Thread.isMainThread)
-        let notification = notification.rawValue as CFString
-        let result = AXObserverRemoveNotification(self, element, notification)
-        if let error = AXError(code: result), case .notificationNotRegistered = error {
-            throw error
+        try DispatchQueue.main.syncSafely {
+            let notification = notification.rawValue as CFString
+            let result = AXObserverRemoveNotification(self, element, notification)
+            if let error = AXError(code: result), case .notificationNotRegistered = error {
+                throw error
+            }
         }
     }
 }

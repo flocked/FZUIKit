@@ -65,13 +65,15 @@ public class AXUIElementValues {
     
     /// The window identifier for the accessibility element.
     public var windowID: CGWindowID? {
-        do {
-            var windowId = CGWindowID(0)
-            try _AXUIElementGetWindow(element, &windowId).throwIfError("windowId()")
-            return windowId
-        } catch {
-            AXLogger.print(error, "windowId")
-            return nil
+        DispatchQueue.main.syncSafely {
+            do {
+                var windowId = CGWindowID(0)
+                try _AXUIElementGetWindow(element, &windowId).throwIfError("windowId()")
+                return windowId
+            } catch {
+                AXLogger.print(error, "windowId")
+                return nil
+            }
         }
     }
 
@@ -266,6 +268,11 @@ public class AXUIElementValues {
     /// A Boolean value indicating whether the window or element is minimized.
     public var isMinimized: Bool? {
         element[.isMinimized]
+    }
+    
+    /// A Boolean value indicating whether the window or element is fullscreen.
+    public var isFullScreen: Bool? {
+        element[.isFullScreen]
     }
 
     /// The button that closes the window or element.
@@ -477,6 +484,45 @@ public class AXUIElementValues {
         (element[.index] as NSNumber?)?.intValue
     }
     
+    /// A Boolean value indicating whether the rows or cells are ordered by row.
+    public var isOrderedByRow: Bool? {
+        element[.isOrderedByRow]
+    }
+    
+    /// The the number of rows in a table-like UI element.
+    public var rowCount: Int? {
+        element[.rowCount]
+    }
+    
+    /// The the number of columns in a table-like UI element.
+    public var columnCount: Int? {
+        element[.columnCount]
+    }
+    
+    /// The the currently selected cells in a table-like UI element.
+    public var selectedCells: [AXUIElement]? {
+        element[.selectedCells]
+    }
+    
+    /// The the currently visible cells in a table-like UI element.
+    public var visibleCells: [AXUIElement]? {
+        element[.visibleCells]
+    }
+    /// The the UI elements that serve as row headers in a table-like UI element.
+    public var rowHeaderUIElements: [AXUIElement]? {
+        element[.rowHeaderUIElements]
+    }
+    
+    /// The the range of row indices in a table-like UI element.
+    public var rowIndexRange: NSRange? {
+        element[.rowIndexRange]
+    }
+    
+    /// The range of column indices in a table-like UI element.
+    public var columnIndexRange: NSRange? {
+        element[.columnIndexRange]
+    }
+    
     // MARK: - Outline attributes
     /// A Boolean value indicating whether a particular row or group is in a disclosed or expanded state.
     public var isDisclosed: Bool? {
@@ -560,6 +606,11 @@ public class AXUIElementValues {
     /// A Boolean value indicating whether a UI element's content has been edited or modified.
     public var isEdited: Bool? {
         element[.isEdited]
+    }
+    
+    /// A Boolean value indicating whether the UI element is editable.
+    public var isEditable: Bool? {
+        element[.isEditable]
     }
     
     /// The set of tabs in a UI element, such as a tab view or window.
@@ -682,76 +733,76 @@ public class AXUIElementValues {
     // MARK: - Text suite parameterized attributes
 
     /// The line corresponding to a specific index in the text.
-    public func lineForIndex(_ index: Int) -> Int? {
+    public func line(forIndex index: Int) -> Int? {
         try? element.get(.lineForIndex, with: index)
     }
 
     /// The range of characters that form a specific line in the text.
-    public func rangeForLine(_ line: Int) -> NSRange? {
+    public func range(forLine line: Int) -> NSRange? {
         (try? element.get(.rangeForLine, with: line) as CFRange?)?.nsRange
     }
 
     /// The string corresponding to a specific character range.
-    public func stringForRange(_ range: NSRange) -> String? {
+    public func string(forRange range: NSRange) -> String? {
         try? element.get(.stringForRange, with: range.cfRange)
     }
     
     /// The character range corresponding to a specific position in the text.
-    public func rangeForPosition(_ position: CGPoint) -> NSRange? {
+    public func range(forPosition position: CGPoint) -> NSRange? {
         try? element.get(.rangeForPosition, with: position)
     }
 
     /// The character range corresponding to a specific index in the text.
-    public func rangeForIndex(_ index: Int) -> NSRange? {
+    public func range(forIndex index: Int) -> NSRange? {
         (try? element.get(.rangeForIndex, with: index) as CFRange?)?.nsRange
     }
 
     /// The bounds (position and size) of a specific character range.
-    public func boundsForRange(_ range: NSRange) -> CGRect? {
+    public func bounds(forRange range: NSRange) -> CGRect? {
         try? element.get(.boundsForRange, with: range.cfRange)
     }
 
     /// The RTF content corresponding to a character range.
-    public func rtfForRange(_ range: NSRange) -> Data? {
+    public func rtf(forRange range: NSRange) -> Data? {
         try? element.get(.rtfForRange, with: range.cfRange)
     }
 
     /// The attributed string corresponding to a specific character range.
-    public func attributedStringForRange(_ range: NSRange) -> NSAttributedString? {
+    public func attributedString(forRange range: NSRange) -> NSAttributedString? {
         try? element.get(.attributedStringForRange, with: range.cfRange)
     }
 
     /// The style range for a specific index in the text.
-    public func styleRangeForIndex(_ index: Int) -> NSRange? {
+    public func styleRange(forIndex index: Int) -> NSRange? {
         (try? element.get(.styleRangeForIndex, with: index) as CFRange?)?.nsRange
     }
     
     // MARK: - Cell-based table parameterized attributes
 
     /// A specific cell based on its column and row indices.
-    public func cellForColumnAndRow(column: Int, row: Int) -> AXUIElement? {
+    public func cell(forColumn column: Int, row: Int) -> AXUIElement? {
         try? element.get(.cellForColumnAndRow, with: [column, row])
     }
     
     // MARK: - Layout area parameterized attributes
 
     /// The layout point corresponding to a specific screen point.
-    public func layoutPointForScreenPoint(_ screenPoint: CGPoint) -> CGPoint? {
+    public func layoutPoint(forScreenPoint screenPoint: CGPoint) -> CGPoint? {
         try? element.get(.layoutPointForScreenPoint, with: screenPoint)
     }
 
     /// The layout size corresponding to a specific screen size.
-    public func layoutSizeForScreenSize(_ screenSize: CGSize) -> CGSize? {
+    public func layoutSize(forScreenSize screenSize: CGSize) -> CGSize? {
         try? element.get(.layoutSizeForScreenSize, with: screenSize)
     }
 
     /// The screen point corresponding to a specific layout point.
-    public func screenPointForLayoutPoint(_ layoutPoint: CGPoint) -> CGPoint? {
+    public func screenPoint(forLayoutPoint layoutPoint: CGPoint) -> CGPoint? {
         try? element.get(.screenPointForLayoutPoint, with: layoutPoint)
     }
 
     /// The screen size corresponding to a specific layout size.
-    public func screenSizeForLayoutSize(_ layoutSize: CGSize) -> CGSize? {
+    public func screenSize(forLayoutPoint layoutSize: CGSize) -> CGSize? {
         try? element.get(.screenSizeForLayoutSize, with: layoutSize)
     }
     

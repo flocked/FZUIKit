@@ -25,6 +25,9 @@ public enum AXError: Error {
 
     /// Invalid process id.
     case invalidPid(pid_t)
+    
+    /// The current thread isn't the main thread.
+    case notMainThread
 
     /// A system error occurred, such as the failure to allocate an object.
     case failure
