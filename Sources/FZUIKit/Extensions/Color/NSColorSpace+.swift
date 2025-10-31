@@ -11,11 +11,11 @@ import AppKit
 extension NSColorSpace {
     /// Initializes and returns a color space object initialized from a `CGColorSpace` with the specified name.
     public convenience init?(name: CGColorSpaceName) {
-        guard let colorSpace = name.colorSpace else { return nil }
-        self.init(cgColorSpace: colorSpace)
+        guard let cgColorSpace = CGColorSpace(name: name) else { return nil }
+        self.init(cgColorSpace: cgColorSpace)
     }
     
-    /// Returns the color space extended linearized.
+    /// Returns the color space linearized.
     @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public var linearized: NSColorSpace? {
         guard let colorSpace = cgColorSpace?.linearized else { return nil }

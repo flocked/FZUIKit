@@ -513,8 +513,8 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
         - maxDepth: The maximum depth of children to include.
         - maxChildren: The maximum amount of children to include for each element.
      */
-    public func visualDescription(options: DescriptionOptions = .detailed, attributes: [AXAttribute] = [], maxDepth: Int = .max, maxChildren: Int = .max, useShort: Bool = false) -> String {
-        strings(maxDepth: maxDepth, maxChildren: maxChildren, options: options, attributes: attributes, useSort: useShort).joined(separator: "\n")
+    public func visualDescription(options: DescriptionOptions = .detailed, attributes: [AXAttribute] = [], maxDepth: Int = .max, maxChildren: Int = .max) -> String {
+        strings(maxDepth: maxDepth, maxChildren: maxChildren, options: options, attributes: attributes).joined(separator: "\n")
     }
     
     /// Options for a description of an accessibility object.
@@ -570,19 +570,19 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
         public let rawValue: Int
     }
     
-    func strings(level: Int = 0, maxDepth: Int, maxChildren: Int, options: DescriptionOptions, attributes: [AXAttribute], useSort: Bool) -> [String] {
+    func strings(level: Int = 0, maxDepth: Int, maxChildren: Int, options: DescriptionOptions, attributes: [AXAttribute]) -> [String] {
         var strings: [String] = []
-        strings += (String(repeating: "  ", count: level) + string(level: level+1, maxDepth: maxDepth, options: options, attributes: attributes, useShort: useSort))
+        strings += (String(repeating: "  ", count: level) + string(level: level+1, maxDepth: maxDepth, options: options, attributes: attributes))
         if level+1 <= maxDepth {
             var childs = children.collect()
             childs = childs[safe: 0..<(maxChildren)]
-            childs.forEach({ strings += $0.strings(level: level+1, maxDepth: maxDepth, maxChildren: maxChildren, options: options, attributes: attributes, useSort: useSort) })
+            childs.forEach({ strings += $0.strings(level: level+1, maxDepth: maxDepth, maxChildren: maxChildren, options: options, attributes: attributes) })
         }
         return strings
     }
     
-    func string(level: Int, maxDepth: Int = .max, options: DescriptionOptions, attributes: [AXAttribute], useShort: Bool) -> String {
-        Self.useShort = useShort
+    func string(level: Int, maxDepth: Int = .max, options: DescriptionOptions, attributes: [AXAttribute]) -> String {
+        Self.useShort = true
         let intendString = String(repeating: "  ", count: level) + "- "
         let id = hashValue
         let role = values.role?.rawValue ?? "AXUnknown"
@@ -630,7 +630,7 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
         }
         
         if options.contains(.value), let value = values.value {
-            strings.append(intendString + "value: \(value)\(isSettable(.value) ? " [RW]" : "")")
+            strings.append(intendString + "value: \(value)\(isSettable(.value) ? " [Writable]" : "")")
         }
         
         let skipping = options.attributes
@@ -649,9 +649,9 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
                 if let value = attribute.value as? [AXUIElement] {
                     valueString = "\(value.compactMap({ $0.shortDescription }))"
                 }
-                strings += (intendString + "\(key): \(valueString)\(isSettable(attribute.key) ? " [RW]" : "")")
+                strings += (intendString + "\(key): \(valueString)\(isSettable(attribute.key) ? " [Writable]" : "")")
             }
-           // strings += attributeValues.sorted(by: \.key.rawValue).compactMap({ intendString + "\($0.key): \($0.value)\(isSettable($0.key) ? " [RW]" : "")" })
+           // strings += attributeValues.sorted(by: \.key.rawValue).compactMap({ intendString + "\($0.key): \($0.value)\(isSettable($0.key) ? " [Writable]" : "")" })
         }
         
         if options.contains(.parameterizedAttributes) {

@@ -13,7 +13,7 @@ import FZSwiftUtils
 public class AXUIElementValues {
     let element: AXUIElement
     
-    /// The primary purpose or type of the accessibility element.
+    /// The primary purpose or type of the element.
     public var role: AXRole? {
         element[.role]
     }
@@ -28,27 +28,28 @@ public class AXUIElementValues {
         element[.roleDescription]
     }
 
-    /// The title or label of the accessibility element.
+    /// The title or label of the element.
     public var title: String? {
-        element[.title]
+        get { element[.title] }
+        set { element[.title] = newValue }
     }
 
-    /// A descriptive text about the accessibility element.
+    /// A descriptive text about the element.
     public var description: String? {
         element[.description]
     }
 
-    /// Contains additional contextual help text for the accessibility element.
+    /// Contains additional contextual help text for the element.
     public var help: String? {
         element[.help]
     }
 
-    /// A unique identifier for the accessibility element.
+    /// A unique identifier for the element.
     public var identifier: String? {
         element[.identifier]
     }
     
-    /// The process ID associated with this accessibility object.
+    /// The process ID associated with this element.
     public var pID: pid_t? {
         do {
             var pid: pid_t = -1
@@ -63,7 +64,7 @@ public class AXUIElementValues {
         }
     }
     
-    /// The window identifier for the accessibility element.
+    /// The window identifier for the element.
     public var windowID: CGWindowID? {
         DispatchQueue.main.syncSafely {
             do {
@@ -77,12 +78,12 @@ public class AXUIElementValues {
         }
     }
 
-    /// The parent element of the accessibility element.
+    /// The parent element of the element.
     public var parent: AXUIElement? {
         element[.parent]
     }
 
-    /// The child elements of the accessibility element.
+    /// The child elements of the element.
     public var children: [AXUIElement] {
         (element[.children] as [AXUIElement]?) ?? []
     }
@@ -97,85 +98,90 @@ public class AXUIElementValues {
         (element[.visibleChildren] as [AXUIElement]?) ?? []
     }
 
-    /// The window that contains the accessibility element.
+    /// The window that contains the element.
     public var window: AXUIElement? {
         element[.window]
     }
 
-    /// The highest-level UI element containing the element.
+    /// The highest-level element containing the element.
     public var topLevelUIElement: AXUIElement? {
         element[.topLevelUIElement]
     }
 
-    /// The UI element that serves as the title for the accessibility element.
+    /// The element that serves as the title for the element.
     public var titleUIElement: AXUIElement? {
         element[.titleUIElement]
     }
 
-    /// UI elements for which the current element serves as a title.
+    /// elements for which the current element serves as a title.
     public var servesAsTitleForUIElements: [AXUIElement] {
         (element[.servesAsTitle] as [AXUIElement]?) ?? []
     }
 
-    /// UI elements that are linked to the accessibility element.
+    /// elements that are linked to the element.
     public var linkedUIElements: [AXUIElement] {
         (element[.linkedUIElements] as [AXUIElement]?) ?? []
     }
 
-    /// UI elements that share focus with the accessibility element.
+    /// elements that share focus with the element.
     public var sharedFocusElements: [AXUIElement] {
         (element[.sharedFocusElements] as [AXUIElement]?) ?? []
     }
     
     // MARK: - Visual state attributes
-    /// A Boolean value indicating whether the UI element is enabled and can be interacted with.
+    /// A Boolean value indicating whether the element is enabled and can be interacted with.
     public var isEnabled: Bool? {
-        element[.isEnabled]
+        get { element[.isEnabled] }
+        set { element[.isEnabled] = newValue }
     }
     
-    /// A Boolean value indicating whether the UI element currently has keyboard focus.
+    /// A Boolean value indicating whether the element currently has keyboard focus.
     public var isFocused: Bool? {
-        element[.isFocused]
+        get { element[.isFocused] }
+        set { element[.isFocused] = newValue }
     }
 
-    /// The position of the accessibility element on the screen.
+    /// The position of the element on the screen.
     public var position: CGPoint? {
-        element[.position]
+        get { element[.position] }
+        set { element[.position] = newValue }
     }
 
-    /// The size (width and height) of the accessibility element.
+    /// The size (width and height) of the element.
     public var size: CGSize? {
-        element[.size]
+        get { element[.size] }
+        set { element[.size] = newValue }
     }
 
-    /// The frame of the accessibility element.
+    /// The frame of the element.
     public var frame: CGRect? {
-        element[.frame]
+        get { element[.frame] }
+        set { element[.frame] = newValue }
     }
     
     // MARK: - Value attributes
 
-    /// The current value of the accessibility element.
+    /// The current value of the element.
     public var value: Any? {
         element[.value]
     }
     
-    /// The current string value of the accessibility element.
+    /// The current string value of the element.
     public var stringValue: String? {
         element[.value]
     }
     
-    /// The current integer value of the accessibility element.
+    /// The current integer value of the element.
     public var integerValue: Int? {
         element[.value]
     }
     
-    /// The current double value of the accessibility element.
+    /// The current double value of the element.
     public var doubleValue: Double? {
         element[.value]
     }
     
-    /// The current boolean value of the accessibility element.
+    /// The current boolean value of the element.
     public var boolValue: Bool? {
         element[.value]
     }
@@ -202,7 +208,8 @@ public class AXUIElementValues {
 
     /// A Boolean value indicating whether the value cycles back to the minimum when incremented beyond the maximum, and vice versa.
     public var valueWraps: Bool? {
-        element[.valueWraps]
+        get { element[.valueWraps] }
+        set { element[.valueWraps] = newValue }
     }
 
     /// A list of predefined values that the element can take.
@@ -212,12 +219,13 @@ public class AXUIElementValues {
 
     /// The placeholder text displayed in the element when no value is set.
     public var placeholderValue: String? {
-        element[.placeholderValue]
+        get { element[.placeholderValue] }
+        set { element[.placeholderValue] = newValue }
     }
     
     // MARK: - Text-specific attributes
     
-    /// The currently selected text in the accessibility element.
+    /// The currently selected text in the element.
     public var selectedText: String? {
         get { element[.selectedText] }
         set { element[.selectedText] = newValue }
@@ -244,12 +252,12 @@ public class AXUIElementValues {
         (element[.numberOfCharacters] as NSNumber?)?.intValue
     }
 
-    /// Other UI elements that share the same text as the current element.
+    /// Other elements that share the same text as the current element.
     public var sharedTextUIElements: [AXUIElement] {
         (element[.sharedTextUIElements] as [AXUIElement]?) ?? []
     }
 
-    /// The character range shared across multiple UI elements.
+    /// The character range shared across multiple elements.
     public var sharedCharacterRange: NSRange? {
         (element[.sharedCharacterRange] as CFRange?)?.nsRange
     }
@@ -260,19 +268,22 @@ public class AXUIElementValues {
     }
     
     // MARK: - Window, sheet, or drawer-specific attributes
-    /// A Boolean value indicating whether the window represented by this accessibility object is the main application window.
+    /// A Boolean value indicating whether the window represented by this element is the main application window.
     public var isMainWindow: Bool? {
-        element[.isMainWindow]
+        get { element[.isMainWindow] }
+        set { element[.isMainWindow] = newValue }
     }
     
     /// A Boolean value indicating whether the window or element is minimized.
     public var isMinimized: Bool? {
-        element[.isMinimized]
+        get { element[.isMinimized] }
+        set { element[.isMinimized] = newValue }
     }
     
     /// A Boolean value indicating whether the window or element is fullscreen.
     public var isFullScreen: Bool? {
-        element[.isFullScreen]
+        get { element[.isFullScreen] }
+        set { element[.isFullScreen] = newValue }
     }
 
     /// The button that closes the window or element.
@@ -370,14 +381,16 @@ public class AXUIElementValues {
         (element[.windows] as [AXUIElement]?) ?? []
     }
     
-    /// A Boolean value indicating whether the application represented by this accessibility object is active.
+    /// A Boolean value indicating whether the application represented by this element is active.
     public var isFrontmost: Bool? {
-        element[.isFrontmost]
+        get { element[.isFrontmost] }
+        set { element[.isFrontmost] = newValue }
     }
     
     /// A Boolean value indicating whether the element or window is hidden.
     public var isHidden: Bool? {
-        element[.isHidden]
+        get { element[.isHidden] }
+        set { element[.isHidden] = newValue }
     }
 
     /// The primary window of the application.
@@ -387,10 +400,10 @@ public class AXUIElementValues {
 
     /// The window that currently has focus.
     public var focusedWindow: AXUIElement? {
-        element[.focusedWindow]
+        get { element[.focusedWindow] }
     }
 
-    /// The UI element that currently has focus.
+    /// The element that currently has focus.
     public var focusedUIElement: AXUIElement? {
         element[.focusedUIElement]
     }
@@ -402,79 +415,80 @@ public class AXUIElementValues {
     
     // MARK: - Date/time-specific attributes
 
-    /// The hour input field in a time-related UI element.
+    /// The hour input field in a time-related element.
     public var hourField: AXUIElement? {
         element[.hourField]
     }
 
-    /// The minute input field in a time-related UI element.
+    /// The minute input field in a time-related element.
     public var minuteField: AXUIElement? {
         element[.minuteField]
     }
 
-    /// The second input field in a time-related UI element.
+    /// The second input field in a time-related element.
     public var secondField: AXUIElement? {
         element[.secondField]
     }
 
-    /// The AM/PM input field in a time-related UI element.
+    /// The AM/PM input field in a time-related element.
     public var ampmField: AXUIElement? {
         element[.ampmField]
     }
 
-    /// The day input field in a date-related UI element.
+    /// The day input field in a date-related element.
     public var dayField: AXUIElement? {
         element[.dayField]
     }
 
-    /// The month input field in a date-related UI element.
+    /// The month input field in a date-related element.
     public var monthField: AXUIElement? {
         element[.monthField]
     }
 
-    /// The year input field in a date-related UI element.
+    /// The year input field in a date-related element.
     public var yearField: AXUIElement? {
         element[.yearField]
     }
     
     // MARK: - Table, outline, or browser-specific attributes
     
-    /// The collection of rows in a table-like UI element.
+    /// The collection of rows in a table-like element.
     public var rows: [AXUIElement] {
         (element[.rows] as [AXUIElement]?) ?? []
     }
 
-    /// The rows that are currently visible in a table-like UI element.
+    /// The rows that are currently visible in a table-like element.
     public var visibleRows: [AXUIElement] {
         (element[.visibleRows] as [AXUIElement]?) ?? []
     }
 
-    /// The rows that are currently selected in a table-like UI element.
+    /// The rows that are currently selected in a table-like element.
     public var selectedRows: [AXUIElement] {
-        (element[.selectedRows] as [AXUIElement]?) ?? []
+        get { (element[.selectedRows] as [AXUIElement]?) ?? [] }
+        set { element[.selectedRows] = newValue }
     }
 
-    /// The collection of columns in a table-like UI element.
+    /// The collection of columns in a table-like element.
     public var columns: [AXUIElement] {
         (element[.columns] as [AXUIElement]?) ?? []
     }
 
-    /// The columns that are currently visible in a table-like UI element.
+    /// The columns that are currently visible in a table-like element.
     public var visibleColumns: [AXUIElement] {
         (element[.visibleColumns] as [AXUIElement]?) ?? []
     }
 
-    /// The columns that are currently selected in a table-like UI element.
+    /// The columns that are currently selected in a table-like element.
     public var selectedColumns: [AXUIElement] {
         (element[.selectedColumns] as [AXUIElement]?) ?? []
     }
 
-    /// The sort order for the rows in a table-like UI element (e.g., ascending or descending).
+    /// The sort order for the rows in a table-like element (e.g., ascending or descending).
     public var sortDirection: Int? {
         (element[.sortDirection] as NSNumber?)?.intValue
     }
 
-    /// The UI elements that serve as column headers in a table-like UI element.
+    /// The elements that serve as column headers in a table-like element.
     public var columnHeaderUIElements: [AXUIElement] {
         (element[.columnHeaderUIElements] as [AXUIElement]?) ?? []
     }
@@ -489,36 +503,36 @@ public class AXUIElementValues {
         element[.isOrderedByRow]
     }
     
-    /// The the number of rows in a table-like UI element.
+    /// The the number of rows in a table-like element.
     public var rowCount: Int? {
         element[.rowCount]
     }
     
-    /// The the number of columns in a table-like UI element.
+    /// The the number of columns in a table-like element.
     public var columnCount: Int? {
         element[.columnCount]
     }
     
-    /// The the currently selected cells in a table-like UI element.
+    /// The the currently selected cells in a table-like element.
     public var selectedCells: [AXUIElement]? {
         element[.selectedCells]
     }
     
-    /// The the currently visible cells in a table-like UI element.
+    /// The the currently visible cells in a table-like element.
     public var visibleCells: [AXUIElement]? {
         element[.visibleCells]
     }
-    /// The the UI elements that serve as row headers in a table-like UI element.
+    /// The the elements that serve as row headers in a table-like element.
     public var rowHeaderUIElements: [AXUIElement]? {
         element[.rowHeaderUIElements]
     }
     
-    /// The the range of row indices in a table-like UI element.
+    /// The the range of row indices in a table-like element.
     public var rowIndexRange: NSRange? {
         element[.rowIndexRange]
     }
     
-    /// The range of column indices in a table-like UI element.
+    /// The range of column indices in a table-like element.
     public var columnIndexRange: NSRange? {
         element[.columnIndexRange]
     }
@@ -526,7 +540,8 @@ public class AXUIElementValues {
     // MARK: - Outline attributes
     /// A Boolean value indicating whether a particular row or group is in a disclosed or expanded state.
     public var isDisclosed: Bool? {
-        element[.isDisclosed]
+        get { element[.isDisclosed] }
+        set { element[.isDisclosed] = newValue }
     }
 
     /// The rows that are currently disclosed or expanded in a hierarchical list.
@@ -552,24 +567,24 @@ public class AXUIElementValues {
         element[.matteHole]
     }
 
-    /// The UI element contained within a matte or overlay, such as content in a modal.
+    /// The element contained within a matte or overlay, such as content in a modal.
     public var matteContentUIElement: AXUIElement? {
         element[.matteContentUIElement]
     }
     
     // MARK: - Ruler-specific attributes
 
-    /// The UI elements that act as markers in a measurement or graph.
+    /// The elements that act as markers in a measurement or graph.
     public var markerUIElements: [AXUIElement] {
         (element[.markerUIElements] as [AXUIElement]?) ?? []
     }
 
-    /// The units of measurement used in a UI element, such as pixels, inches, or degrees.
+    /// The units of measurement used in the element, such as pixels, inches, or degrees.
     public var units: String? {
         element[.units]
     }
 
-    /// A description or label for the unit of measurement used in a UI element.
+    /// A description or label for the unit of measurement used in the element.
     public var unitDescription: String? {
         element[.unitDescription]
     }
@@ -584,17 +599,17 @@ public class AXUIElementValues {
         element[.markerTypeDescription]
     }
 
-    /// The horizontal scroll bar of a UI element.
+    /// The horizontal scroll bar of the element.
     public var horizontalScrollBar: AXUIElement? {
         element[.horizontalScrollBar]
     }
 
-    /// The vertical scroll bar of a UI element.
+    /// The vertical scroll bar of the element.
     public var verticalScrollBar: AXUIElement? {
         element[.verticalScrollBar]
     }
 
-    /// The orientation of a UI element, such as horizontal or vertical.
+    /// The orientation of the element, such as horizontal or vertical.
     public var orientation: String? {
         element[.orientation]
     }
@@ -603,17 +618,19 @@ public class AXUIElementValues {
     public var header: AXUIElement? {
         element[.header]
     }
-    /// A Boolean value indicating whether a UI element's content has been edited or modified.
+    /// A Boolean value indicating whether the element's content has been edited or modified.
     public var isEdited: Bool? {
-        element[.isEdited]
+        get { element[.isEdited] }
+        set { element[.isEdited] = newValue }
     }
     
-    /// A Boolean value indicating whether the UI element is editable.
+    /// A Boolean value indicating whether the element is editable.
     public var isEditable: Bool? {
-        element[.isEditable]
+        get { element[.isEditable] }
+        set { element[.isEditable] = newValue }
     }
     
-    /// The set of tabs in a UI element, such as a tab view or window.
+    /// The set of tabs in the element, such as a tab view or window.
     public var tabs: [AXUIElement] {
         (element[.tabs] as [AXUIElement]?) ?? []
     }
@@ -623,45 +640,47 @@ public class AXUIElementValues {
         element[.overflowButton]
     }
 
-    /// The name of a file associated with a UI element, such as in a file picker.
+    /// The name of a file associated with the element, such as in a file picker.
     public var filename: String? {
         element[.filename]
     }
-    /// A Boolean value indicating whether a collapsible UI element is expanded or not.
+    /// A Boolean value indicating whether a collapsible element is expanded or not.
     public var isExpanded: Bool? {
-        element[.isExpanded]
+        get { element[.isExpanded] }
+        set { element[.isExpanded] = newValue }
     }
-    /// A Boolean value indicating whether a UI element or item is selected.
+    /// A Boolean value indicating whether the element or item is selected.
     public var isSelected: Bool? {
-        element[.isSelected]
+        get { element[.isSelected] }
+        set { element[.isSelected] = newValue }
     }
 
-    /// The splitter bars used to resize UI elements, such as in a split view.
+    /// The splitter bars used to resize elements, such as in a split view.
     public var splitters: [AXUIElement] {
         (element[.splitters] as [AXUIElement]?) ?? []
     }
 
-    /// The contents of a UI element, such as text in a text field or items in a list.
+    /// The contents of the element, such as text in a text field or items in a list.
     public var contents: [AXUIElement] {
         (element[.contents] as [AXUIElement]?) ?? []
     }
 
-    /// The next available content in a UI element, such as in a paginated view.
+    /// The next available content in the element, such as in a paginated view.
     public var nextContents: AXUIElement? {
         element[.nextContents]
     }
 
-    /// The previous available content in a UI element, such as in a paginated view.
+    /// The previous available content in the element, such as in a paginated view.
     public var previousContents: AXUIElement? {
         element[.previousContents]
     }
 
-    /// The document or file associated with a UI element.
+    /// The document or file associated with the element.
     public var document: String? {
         element[.document] ?? parent?.values.document
     }
 
-    /// The UI element that allows incrementing a value, such as a stepper.
+    /// The element that allows incrementing a value, such as a stepper.
     public var incrementor: AXUIElement? {
         element[.incrementor]
     }
@@ -681,17 +700,17 @@ public class AXUIElementValues {
         element[.columnTitle]
     }
 
-    /// The URL associated with a UI element, such as a link in a browser.
+    /// The URL associated with the element, such as a link in a browser.
     public var url: URL? {
         element[.url]
     }
 
-    /// The UI elements used for labeling content or sections.
+    /// The elements used for labeling content or sections.
     public var labelUIElements: [AXUIElement] {
         (element[.labelUIElements] as [AXUIElement]?) ?? []
     }
 
-    /// The value associated with a label in a UI element.
+    /// The value associated with a label in the element.
     public var labelValue: String? {
         element[.labelValue]
     }
@@ -702,14 +721,15 @@ public class AXUIElementValues {
     }
     /// A Boolean value indicating whether an application is currently running.
     public var isApplicationRunning: Bool? {
-        element[.isApplicationRunning]
+        get { element[.isApplicationRunning] }
+        set { element[.isApplicationRunning] = newValue }
     }
 
     /// The currently focused application in the system.
     public var focusedApplication: AXUIElement? {
         element[.focusedApplication]
     }
-    /// A Boolean value indicating whether a UI element is busy performing a task.
+    /// A Boolean value indicating whether the element is busy performing a task.
     public var isBusy: Bool? {
         element[.isBusy]
     }

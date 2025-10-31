@@ -5,20 +5,48 @@
 //  Created by Florian Zand on 09.03.25.
 //
 
-#if os(macOS)
-import AppKit
-#elseif canImport(UIKit)
-import UIKit
-#endif
+import CoreGraphics
+import FZSwiftUtils
 
 extension CGColorSpace {
-    /// The color space that represents a calibrated or device-dependent RGB color space.
-    public static let deviceRGB = "kCGColorSpaceDeviceRGB" as CFString
-    /// The color space that represents a calibrated or device-dependent CMYK color space.
-    public static let deviceCMYK = "kCGColorSpaceDeviceCMYK" as CFString
-    /// The color space that represents a calibrated or device-dependent gray color space.
-    public static let deviceGray = "kCGColorSpaceDeviceGray" as CFString
-
+    /// Creates a device-dependent RGB color space.
+    public static var deviceRGB: CGColorSpace {
+        CGColorSpaceCreateDeviceRGB()
+    }
+    
+    /// Creates a device-dependent CMYK color space.
+    public static var deviceCMYK: CGColorSpace {
+        CGColorSpaceCreateDeviceCMYK()
+    }
+    
+    /// Creates a device-dependent grayscale color space.
+    public static var deviceGray: CGColorSpace {
+        CGColorSpaceCreateDeviceGray()
+    }
+    
+    /// A Boolean value indicating whether the color space uses an extended range.
+    public var usesExtendedRange: Bool {
+        CGColorSpaceUsesExtendedRange(self)
+    }
+    
+    /// A Boolean value indicating whether the color space uses the ITU-R BT.2100 transfer function.
+    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
+    public var usesITUR_2100TF: Bool {
+        CGColorSpaceUsesITUR_2100TF(self)
+    }
+    
+    /// A Boolean value indicating whether the color space uses a PQ (Perceptual Quantizer) transfer function.
+    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+    public var isPQBased: Bool {
+        CGColorSpaceIsPQBased(self)
+    }
+    
+    /// A Boolean value indicating whether the color space uses a HLG (Hybrid Log-Gamma) transfer function.
+    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+    public var isHLGBased: Bool {
+        CGColorSpaceIsHLGBased(self)
+    }
+    
     /// Returns the color space linearized.
     @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public var linearized: CGColorSpace? {
@@ -31,10 +59,22 @@ extension CGColorSpace {
         CGColorSpaceCreateExtendedLinearized(self)
     }
 
-    /// Returns the color space extended.
+    /// Returns the color space with an extended range.
     @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public var extended: CGColorSpace? {
         CGColorSpaceCreateExtended(self)
+    }
+    
+    /// Returns the color space with a standard range.
+    @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+    public var standardRange: CGColorSpace {
+        CGColorSpaceCreateCopyWithStandardRange(self)
+    }
+    
+    /// The base color space of a derived color space, or itself if no base exists.
+    @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, *)
+    public var base: CGColorSpace {
+        CGColorSpaceCopyBaseColorSpace(self)
     }
 
     /// Returns the available system color spaces for the specified model
@@ -56,6 +96,15 @@ extension CGColorSpace {
         default: break
         }
         return names.map({ $0 as CFString }).compactMap({ CGColorSpace(name: $0) })
+    }
+}
+
+public extension CFType where Self == CGColorSpace {
+    /// Creates a color space with the specified color sync profie.
+    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+    init?(colorSyncProfile: ColorSyncProfile?, options: CFDictionary? = nil) {
+        guard let colorSpace = CGColorSpaceCreateWithColorSyncProfile(colorSyncProfile, options) else { return nil }
+        self = colorSpace
     }
 }
 

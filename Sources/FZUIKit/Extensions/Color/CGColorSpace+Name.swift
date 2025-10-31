@@ -1,16 +1,20 @@
 //
-//  CGColorSpaceName.swift
-//  
+//  CGColorSpace+Name.swift
+//
 //
 //  Created by Florian Zand on 09.03.25.
 //
 
-#if os(macOS)
-import AppKit
-#elseif canImport(UIKit)
-import UIKit
-#endif
+import CoreGraphics
 import FZSwiftUtils
+
+extension CFType where Self == CGColorSpace {
+    /// Creates a color space with the specified name.
+    public init?(name: CGColorSpaceName) {
+        guard let space = CGColorSpace(name: name.rawValue as CFString) else { return nil }
+        self = space
+    }
+}
 
 /// Constants that specify color space names.
 public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
@@ -46,17 +50,6 @@ public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
         self.model = model
     }
     
-    var colorSpace: CGColorSpace? {
-        CGColorSpace(name: rawValue as CFString)
-    }
-    
-    #if os(macOS)
-    var nsColorSpace: NSColorSpace? {
-        guard let colorSpace = colorSpace else { return nil }
-        return NSColorSpace(cgColorSpace: colorSpace)
-    }
-    #endif
-    
     // MARK: - RGB color spaces
     
     /// The Academy Color Encoding System color space with a linear transfer function.
@@ -66,7 +59,7 @@ public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
     public static let adobeRGB1998 = Self(CGColorSpace.adobeRGB1998)
     
     /// The color space that represents a calibrated or device-dependent RGB color space.
-    public static let deviceRGB = Self(CGColorSpace.deviceRGB)
+    public static let deviceRGB = Self("kCGColorSpaceDeviceRGB")
     
     /// The extended linear sRGB color space.
     public static let extendedLinearSRGB = Self(CGColorSpace.extendedLinearSRGB)
@@ -115,7 +108,7 @@ public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
     // MARK: - Grayscale color spaces
     
     /// The color space that represents a calibrated or device-dependent gray color space.
-    public static let deviceGray = Self(CGColorSpace.deviceGray, model: .monochrome, components: 1)
+    public static let deviceGray = Self("kCGColorSpaceDeviceGray" as CFString, model: .monochrome, components: 1)
     
     /// The extended range grayscale color space.
     public static let extendedGray = Self(CGColorSpace.extendedGray, model: .monochrome, components: 1)
@@ -174,7 +167,7 @@ public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
     public static let genericCMYK = Self(CGColorSpace.genericCMYK, model: .cmyk, components: 4)
     
     /// The color space that represents a calibrated or device-dependent CMYK color space.
-    public static let deviceCMYK = Self(CGColorSpace.deviceCMYK, model: .cmyk, components: 4)
+    public static let deviceCMYK = Self("kCGColorSpaceDeviceCMYK" as CFString, model: .cmyk, components: 4)
     
     /// The generic CIE Lab color space.
     public static let genericLab = Self(CGColorSpace.genericLab, model: .lab)
@@ -196,13 +189,5 @@ public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
         }
         let modalColorSpaces = Dictionary(grouping: colorSpaceNames, by: \.model.rawValue)
         return modalColorSpaces.keys.sorted(.smallestFirst).flatMap({ (modalColorSpaces[$0] ?? []).sorted(by: \.rawValue) })
-    }
-}
-
-extension CFType where Self == CGColorSpace {
-    /// Creates a color space with the specified name.
-    public init?(name: CGColorSpaceName) {
-        guard let space = name.colorSpace else { return nil }
-        self = space
     }
 }
