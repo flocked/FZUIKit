@@ -68,6 +68,79 @@ public extension NSAppearance {
     var isDark: Bool {
         !isLight
     }
+    
+    /*
+    internal func performAsCurrentDrawing(_ block: () -> Void) {
+        if #available(macOS 11.0, *) {
+            performAsCurrentDrawingAppearance(block)
+        } else {
+            let current = NSAppearance.current
+            NSAppearance.current = self
+            block()
+            NSAppearance.current = current
+        }
+    }
+     */
+    
+    /**
+     Sets the appearance to be the active drawing appearance and returns teh value of the specified block.
+     
+     This method saves and restores the previous current appearance.
+     
+     - Parameter block: The block to invoke after setting the appearance to be the current drawing appearance.
+     - Returns: The value that the `block` returns.
+     */
+    @_disfavoredOverload
+    func performAsCurrentDrawingAppearance<V>(_ block: () -> V) -> V {
+         var result: V?
+        if #available(macOS 11.0, *) {
+            performAsCurrentDrawingAppearance {
+                result = block()
+            }
+        } else {
+            let current = NSAppearance.current
+            NSAppearance.current = self
+            result = block()
+            NSAppearance.current = current
+        }
+         return result!
+     }
+    
+    /**
+     Sets the appearance to be the active drawing appearance and returns teh value of the specified block.
+     
+     This method saves and restores the previous current appearance.
+     
+     - Parameter block: The block to invoke after setting the appearance to be the current drawing appearance.
+     - Returns: The value that the `block` returns.
+     */
+    @_disfavoredOverload
+    func performAsCurrentDrawingAppearance<V>(_ block: () throws -> V) throws -> V {
+        let result: Result<V, Error> = performAsCurrentDrawingAppearance {
+            do {
+                return .success(try block())
+            } catch {
+                return .failure(error)
+            }
+        }
+        switch result {
+        case .success(let value):
+            return value
+        case .failure(let error):
+            throw error
+        }
+      }
+    
+    internal static func current() -> NSAppearance {
+        if #available(macOS 11.0, *) {
+            return .currentDrawing()
+        }
+        return .current
+    }
+}
+
+extension NSAppearance {
+    
 }
 
 extension NSAppearance: Codable {

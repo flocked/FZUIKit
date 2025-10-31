@@ -25,6 +25,18 @@ public extension CGColor {
         guard let colorSpace = CGColorSpace(name: colorSpaceName) else { return nil }
         return converted(to: colorSpace, intent: intent, options: options)
     }
+    
+    /**
+     Creates a new color in a different color space that matches the provided color.
+
+     - Parameters:
+        - colorSpaceName: The name of the color space.
+        - intent: The mechanism to use to match the color when the color is outside the gamut of the new color space.
+     - Returns: A new color in the destination color space that matches (or closely approximates) the source color.
+     */
+    func converted(to colorSpace: CGColorSpace, intent: CGColorRenderingIntent = .defaultIntent) -> CGColor? {
+        converted(to: colorSpace, intent: intent, options: nil)
+    }
 
     /// Returns the RGBA (red, green, blue, alpha) components of the color.
     func rgbaComponents() -> RGBAComponents? {

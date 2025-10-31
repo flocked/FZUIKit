@@ -67,6 +67,9 @@ public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
     /// The extended range sRGB color space.
     public static let extendedSRGB = Self(CGColorSpace.extendedSRGB)
     
+    /// The generic RGB color space.
+    public static let genericRGB = Self("kCGColorSpaceGenericRGB")
+    
     /// The generic linear RGB color space.
     public static let genericRGBLinear = Self(CGColorSpace.genericRGBLinear)
     
@@ -115,6 +118,9 @@ public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
     
     /// The extended linear grayscale color space.
     public static let extendedLinearGray = Self(CGColorSpace.extendedLinearGray, model: .monochrome, components: 1)
+    
+    /// The generic grayscale color space.
+    public static let genericGray = Self("kCGColorSpaceGenericGray" as CFString, model: .monochrome, components: 1)
     
     /// The generic grayscale color space with a gamma of 2.2.
     public static let genericGrayGamma2_2 = Self(CGColorSpace.genericGrayGamma2_2, model: .monochrome, components: 1)
@@ -191,3 +197,11 @@ public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
         return modalColorSpaces.keys.sorted(.smallestFirst).flatMap({ (modalColorSpaces[$0] ?? []).sorted(by: \.rawValue) })
     }
 }
+
+/*
+ Generic RGB colorspace NSCalibratedRGBColorSpace kCGColorSpaceGenericRGB
+ Device CMYK colorspace NSDeviceCMYKColorSpace kCGColorSpaceDeviceCMYK
+ Device Gray colorspace NSDeviceWhiteColorSpace kCGColorSpaceDeviceGray
+ Generic Gray colorspace NSCalibratedWhiteColorSpace kCGColorSpaceGenericGray
+
+ */

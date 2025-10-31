@@ -47,30 +47,13 @@ public extension NSColor {
      - Returns: A color for the appearance and color space.
      */
     func resolvedColor(for appearance: NSAppearance? = nil, colorSpace: NSColorSpace?) -> NSColor? {
-        var color: NSColor?
-        if type == .catalog {
-            if let colorSpace = colorSpace {
-                if #available(macOS 11.0, *) {
-                    let appearance = appearance ?? .currentDrawing()
-                    appearance.performAsCurrentDrawingAppearance {
-                        color = self.usingColorSpace(colorSpace)
-                    }
-                } else {
-                    let appearance = appearance ?? .current
-                    let current = NSAppearance.current
-                    NSAppearance.current = appearance
-                    color = usingColorSpace(colorSpace)
-                    NSAppearance.current = current
-                }
-            } else {
-                for supportedColorSpace in Self.supportedColorSpaces {
-                    if let color = resolvedColor(for: appearance, colorSpace: supportedColorSpace) {
-                        return color
-                    }
-                }
+        guard type == .catalog else { return nil }
+        if let colorSpace = colorSpace {
+            return (appearance ?? .current()).performAsCurrentDrawingAppearance {
+                usingColorSpace(colorSpace)
             }
         }
-        return color
+        return Self.supportedColorSpaces.lazy.compactMap({ self.resolvedColor(for: appearance, colorSpace: $0) }).first
     }
     
     
@@ -90,12 +73,7 @@ public extension NSColor {
     func withSupportedColorSpace() -> NSColor? {
         guard type == .componentBased || type == .catalog else { return nil }
         guard !Self.supportedColorSpaces.contains(colorSpace) else { return self }
-        for supportedColorSpace in Self.supportedColorSpaces {
-            if let supportedColor = usingColorSpace(supportedColorSpace) {
-                return supportedColor
-            }
-        }
-        return nil
+        return Self.supportedColorSpaces.lazy.compactMap({ self.usingColorSpace($0) }).first
     }
     
     /// A `CIColor` representation of the color, or `nil` if the color cannot be accurately represented as `CIColor`.
