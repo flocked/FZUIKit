@@ -19,7 +19,7 @@ public protocol Nibloadable: NSObject {
     /**
      Initalizes the object from the nib named as the object class.
      
-     - Returns: The initalized object.
+     - Returns: The initialized object.
      */
     static func loadFromNib() -> Self?
     
@@ -27,7 +27,7 @@ public protocol Nibloadable: NSObject {
      Initalizes the object from the specified nib.
      
      - Parameter nib: The nib which holds the object.
-     - Returns: The initalized object.
+     - Returns: The initialized object.
      */
     static func loadFromNib(_ nib: NSUINib) -> Self?
     
@@ -38,7 +38,7 @@ public protocol Nibloadable: NSObject {
         - name: The name of the nib file, without any leading path information.
         - bundle: The bundle containing the nib file.
 
-     - Returns: The initalized object.
+     - Returns: The initialized object.
      */
     static func loadFromNib(named name: String, bundle: Bundle) -> Self?
     
@@ -47,7 +47,7 @@ public protocol Nibloadable: NSObject {
      
      - Parameter identifier: The storyboard identifier of the object, or `nil` to use the object's class name as identifier.
      
-     - Returns: The initalized object.
+     - Returns: The initialized object.
      */
     static func loadFromStoryboard(identifier: String?) -> Self?
     
@@ -58,7 +58,7 @@ public protocol Nibloadable: NSObject {
         - storyboard: The storyboard which holds the object.
         - identifier: The storyboard identifier of the object, or `nil` to use the object's class name as identifier.
      
-     - Returns: The initalized object.
+     - Returns: The initialized object.
      */
     static func loadFromStoryboard(_ storyboard: NSUIStoryboard, identifier: String?) -> Self?
     
@@ -70,7 +70,7 @@ public protocol Nibloadable: NSObject {
         - bundle: The bundle containing the storyboard file.
         - identifier: The storyboard identifier of the object, or `nil` to use the object's class name as identifier.
      
-     - Returns: The initalized object.
+     - Returns: The initialized object.
      */
     static func loadFromStoryboard(named name: String, bundle: Bundle, identifier: String?) -> Self?
     

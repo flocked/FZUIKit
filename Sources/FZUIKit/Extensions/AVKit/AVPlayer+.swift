@@ -414,7 +414,7 @@ extension AVPlayer {
     }
      ```
      
-     To stop the observation, either call ``invalidate()```, or deinitalize the object.
+     To stop the observation, either call ``invalidate()```, or deinitialize the object.
      */
     public func addPlaybackObserver(timeInterval: TimeInterval, queue: dispatch_queue_t = .main, handler: @escaping (_ time: TimeDuration)->()) -> AVPlayerTimeObservation {
         AVPlayerTimeObservation(self, interval: timeInterval, queue: queue, handler: handler)
@@ -431,7 +431,7 @@ extension AVPlayer {
     // handle playback
 }
  ```
- To stop the observation, either call ``invalidate()```, or deinitalize the object.
+ To stop the observation, either call ``invalidate()```, or deinitialize the object.
  */
 public class AVPlayerTimeObservation {
     weak var player: AVPlayer?

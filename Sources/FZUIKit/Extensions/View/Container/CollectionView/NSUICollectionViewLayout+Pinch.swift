@@ -59,7 +59,7 @@ extension NSUICollectionView {
     
     class ColumnInteractionGestureRecognizer: NSUIMagnificationGestureRecognizer {
         
-        var initalColumns: Int = 0
+        var initialColumns: Int = 0
         var displayingIndexPaths: [IndexPath] = []
         
         #if os(macOS)
@@ -126,13 +126,13 @@ extension NSUICollectionView {
                 guard isPinchable else { return }
                 switch state {
                 case .began:
-                    initalColumns = columns
+                    initialColumns = columns
                 // displayingIndexPaths = collectionView?.displayingIndexPaths() ?? []
                 case .changed:
                     #if os(macOS)
-                    columns = initalColumns + Int((magnification/(-0.5)).rounded())
+                    columns = initialColumns + Int((magnification/(-0.5)).rounded())
                     #else
-                    columns = initalColumns + Int((scale/(-0.5)).rounded())
+                    columns = initialColumns + Int((scale/(-0.5)).rounded())
                     #endif
                 // scrollToDisplayingIndexPaths()
                 default: break

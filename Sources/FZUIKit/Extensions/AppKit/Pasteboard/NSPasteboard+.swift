@@ -128,7 +128,7 @@ extension NSPasteboard {
     /**
      An object that observes changes to a pasteboard.
      
-     To stop the observation of the property, either call ``invalidate()``, or deinitalize the object.
+     To stop the observation of the property, either call ``invalidate()``, or deinitialize the object.
      */
     public class PasteboardObservation {
         /// The pasteboard that is observered.

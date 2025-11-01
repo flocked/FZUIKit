@@ -35,12 +35,12 @@ public extension KeyboardShortcut {
         }
         
         static var shortcuts: [String: KeyboardShortcut] {
-            get { Defaults.shared["shortcuts", initalValue: [:]] }
+            get { Defaults.shared["shortcuts", initialValue: [:]] }
             set { Defaults.shared["shortcuts"] = newValue }
         }
         
         private static var didSetupInitial: [String: Bool] {
-            get { Defaults.shared["didSetupInitial", initalValue: [:]] }
+            get { Defaults.shared["didSetupInitial", initialValue: [:]] }
             set { Defaults.shared["didSetupInitial"] = newValue }
         }
         

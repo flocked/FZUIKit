@@ -213,7 +213,7 @@ extension NSAlert {
      If you want to reset all supressions, remove all keys from the set.
      */
     public static var supressionKeys: Set<String> {
-        get { Defaults.shared.get("AlertSupressions", initalValue: []) }
+        get { Defaults.shared.get("AlertSupressions", initialValue: []) }
         set { Defaults.shared.set(newValue, for: "AlertSupressions") }
     }
     
