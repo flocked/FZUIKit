@@ -188,7 +188,7 @@ fileprivate extension CALayer {
         guard !didSwizzleActionForKey else { return }
         didSwizzleActionForKey = true
         do {
-            _ = try Swizzle(CALayer.self) {
+            try CALayer.swizzle {
                 #selector(CALayer.action(forKey:)) <-> #selector(CALayer.swizzled_action(forKey:))
             }
         } catch {
@@ -207,7 +207,7 @@ extension AnimatablePropertyProvider {
         guard !didSwizzleAnimationForKey else { return }
         didSwizzleAnimationForKey = true
         do {
-            _ = try Swizzle(NSView.self) {
+            try NSView.swizzle {
                 #selector(NSView.defaultAnimation(forKey:)) <~> #selector(NSObject.swizzledDefaultAnimation(forKey:))
                 #selector(NSView.animation(forKey:)) <-> #selector(NSObject.swizzledAnimation(forKey:))
             }

@@ -109,7 +109,7 @@ public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
     public static let linearDisplayP3 = Self(CGColorSpace.linearDisplayP3)
     
     // MARK: - Grayscale color spaces
-    
+        
     /// The color space that represents a calibrated or device-dependent gray color space.
     public static let deviceGray = Self("kCGColorSpaceDeviceGray" as CFString, model: .monochrome, components: 1)
     
@@ -130,15 +130,19 @@ public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
     
     // MARK: - ITUR color spaces
     
+    /// The ITU-R BT.2020 color space.
+    public static let itur_2020 = Self(CGColorSpace.itur_2020)
+    
+    /// The linear ITU-R BT.2020 color space.
+    @available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, *)
+    public static let linearITUR_2020 = Self(CGColorSpace.linearITUR_2020)
+    
     /// The extended range ITU-R BT.2020 color space.
     @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public static let extendedITUR_2020 = Self(CGColorSpace.extendedITUR_2020)
     
     /// The extended linear ITU-R BT.2020 color space.
     public static let extendedLinearITUR_2020 = Self(CGColorSpace.extendedLinearITUR_2020)
-    
-    /// The ITU-R BT.2020 color space.
-    public static let itur_2020 = Self(CGColorSpace.itur_2020)
     
     /// The ITU-R BT.2020 color space with an sRGB transfer function.
     @available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, *)
@@ -162,10 +166,6 @@ public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
     /// The ITU-R BT.709 color space with Perceptual Quantizer (PQ) transfer function.
     @available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, *)
     public static let itur_709_PQ = Self(CGColorSpace.itur_709_PQ)
-    
-    /// The linear ITU-R BT.2020 color space.
-    @available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, *)
-    public static let linearITUR_2020 = Self(CGColorSpace.linearITUR_2020)
     
     // MARK: - Remaining color spaces
     

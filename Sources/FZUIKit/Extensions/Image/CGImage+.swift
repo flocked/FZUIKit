@@ -55,16 +55,11 @@ public extension CGImage {
     
     /// A Boolean value that determines if the image is lazily loaded.
     var isLazyLoaded: Bool {
-        let description = (CFCopyDescription(self) as String)
-        if let match = try? NSRegularExpression(pattern: "\\((IP|DP)\\)")
-            .firstMatch(in: description, range: NSRange(description.startIndex..., in: description)) {
-            if let range = Range(match.range(at: 1), in: description) {
-                let provider = String(description[range])
-                switch provider {
-                case "IP": return true
-                case "DP": return false
-                default: break
-                }
+        if let match = cfDescription.firstMatch(pattern: "\\((IP|DP)\\)")?.string {
+            switch match {
+            case "(IP)": return true
+            case "(DP)": return false
+            default: break
             }
         }
         return utType != nil
@@ -73,8 +68,8 @@ public extension CGImage {
     /// A Boolean value that determines if the image has alpha information.
     var hasAlpha: Bool {
         switch alphaInfo {
-        case .none, .noneSkipFirst, .noneSkipLast: return false
-        default: return true
+        case .premultipliedFirst, .premultipliedLast, .last, .first, .alphaOnly: return true
+        default: return false
         }
     }
 }

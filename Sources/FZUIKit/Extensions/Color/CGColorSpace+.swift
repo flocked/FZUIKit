@@ -29,6 +29,11 @@ extension CGColorSpace {
         CGColorSpaceUsesExtendedRange(self)
     }
     
+    /// A Boolean value indicating wheter the color space is linearized.
+    public var isLinearized: Bool {
+        (name as? String)?.contains("Linear") == true
+    }
+    
     /// A Boolean value indicating whether the color space uses the ITU-R BT.2100 transfer function.
     @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public var usesITUR_2100TF: Bool {
@@ -50,25 +55,40 @@ extension CGColorSpace {
     /// Returns the color space linearized.
     @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public var linearized: CGColorSpace? {
-        CGColorSpaceCreateLinearized(self)
+        if name as? String == "kCGColorSpaceGenericRGB" {
+            return CGColorSpace(name: .genericRGBLinear)
+        }
+        return CGColorSpaceCreateLinearized(self)
+    }
+    
+    /// Returns the color space non-linearized.
+    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
+    public var nonLinearized: CGColorSpace? {
+        guard let name = name as? String, isLinearized else { return nil }
+        return CGColorSpace(name: name.removingOccurrences(of: "Linear") as CFString)
     }
 
-    /// Returns the color space extended linearized.
+    /// Returns the color space with an extended range and linearized.
     @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public var extendedLinearized: CGColorSpace? {
         CGColorSpaceCreateExtendedLinearized(self)
     }
-
-    /// Returns the color space with an extended range.
-    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
-    public var extended: CGColorSpace? {
-        CGColorSpaceCreateExtended(self)
-    }
     
+    public enum ColorRange {
+        case standard
+        case extended
+    }
+        
     /// Returns the color space with a standard range.
     @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
     public var standardRange: CGColorSpace {
         CGColorSpaceCreateCopyWithStandardRange(self)
+    }
+
+    /// Returns the color space with an extended range.
+    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
+    public var extendedRange: CGColorSpace? {
+        CGColorSpaceCreateExtended(self)
     }
     
     /// The base color space of a derived color space, or itself if no base exists.
