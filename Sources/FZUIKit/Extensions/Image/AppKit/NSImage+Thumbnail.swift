@@ -216,8 +216,8 @@ public extension NSImage {
 
     fileprivate func imageOptionsForDisplaying(subsampleFactor: ImageSource.ImageOptions.SubsampleFactor = .factor4) -> ImageSource.ImageOptions {
         var options = ImageSource.ImageOptions()
-        options.shouldCache = true
-        options.shouldDecodeImmediately = true
+        options.caches = true
+        options.decodesImmediately = true
         options.subsampleFactor = subsampleFactor
         return options
     }
@@ -225,9 +225,9 @@ public extension NSImage {
     fileprivate func thumbnailOptions(for size: CGSize) -> ImageSource.ThumbnailOptions {
         var options = ImageSource.ThumbnailOptions()
         options.maxSize = Int(max(size.width, size.height))
-        options.shouldCache = true
-        options.shouldDecodeImmediately = true
-        options.createOption = .always
+        options.caches = true
+        options.decodesImmediately = true
+        options.creationPolicy = .always
         return options
     }
 }
