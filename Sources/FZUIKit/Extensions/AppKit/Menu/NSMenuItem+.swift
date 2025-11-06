@@ -32,6 +32,19 @@ public extension NSMenuItem {
      
      - Parameters:
         - title: The title of the menu item.
+        - action: The action selector to be associated with the menu item.
+     
+     - Returns: An instance of `NSMenuItem`.
+     */
+    convenience init(_ title: String, action selector: Selector) {
+      self.init(title: title, action: selector, keyEquivalent: "")
+    }
+    
+    /**
+     Initializes and returns a menu item with the specified title.
+     
+     - Parameters:
+        - title: The title of the menu item.
         - action: The action handler.
      
      - Returns: An instance of `NSMenuItem`.
