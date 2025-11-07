@@ -11,7 +11,7 @@ import FZSwiftUtils
 
 /// Information for a window.
 public struct CGWindowInfo: Hashable {
-    /// The window ID, a unique value within the user session representing the window.
+    /// The window identifier, a unique value within the user session representing the window.
     public let windowNumber: CGWindowID
     
     /// The name of the window.
@@ -36,19 +36,19 @@ public struct CGWindowInfo: Hashable {
     
     /// The window’s frame rectangle in screen coordinates.
     public let frame: CGRect
-
+    
     /// The alpha value of the window.
     public let alpha: CGFloat
-
+    
     /// An estimate of the memory currently used by the window and its supporting data structures.
     public let memoryUsage: DataSize
-
+    
     /// The sharing state of the window.
     public let sharingState: CGWindowSharingType
     
     /// The backing store type of the window.
     public let backingStore: CGWindowBackingType
-
+    
     /// A Boolean value indicating whether the window's backing store is in video memory.
     public let backingStoreIsInVideoMemory: Bool
     
@@ -67,11 +67,39 @@ public struct CGWindowInfo: Hashable {
         Self.onScreen(above: windowNumber, excludingDesktop: excludeDesktop)
     }
     
-    /// Creates a window info for the specified window identifier.
-    public init?(windowID: CGWindowID) {
+    /**
+     Returns a refreshed copy of this window’s information.
+     
+     Use this method to retrieve the most recent state of the window represented by this instance.
+     
+     The returned information may be identical to the current instance if no window properties have changed.
+     
+     If the window no longer exists, this method returns `nil`.
+     */
+    public func refreshed() -> Self? {
+        .init(windowNumber: windowNumber)
+    }
+    
+    /**
+     Creates a window information for the specified window number.
+     
+     - Parameter windowNumber: The number identifying the window.
+     - Returns: A `CGWindowInfo` instance describing the specified window, or `nil` if the window is no longer available or the window number is invalid.
+     */
+    public init?(windowNumber: CGWindowID) {
         guard let dict = (CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID) as? [[CFString: Any]] ?? [])
-            .first(where: { $0[typed: kCGWindowNumber] == windowID }) else { return nil }
+            .first(where: { $0[typed: kCGWindowNumber] == windowNumber }) else { return nil }
         self.init(dict)
+    }
+    
+    /**
+     Creates a window information for the specified window.
+     
+     - Parameter window: The window whose system-level information to retrieve.
+     - Returns: A `CGWindowInfo` instance describing the specified window, or `nil` if the window is no longer available.
+     */
+    public init?(window: NSWindow) {
+        self.init(windowNumber: CGWindowID(window.windowNumber))
     }
     
     init?(_ dict: [CFString: Any]) {
@@ -191,19 +219,19 @@ extension CGWindowInfo {
     }
     
     /**
-     Returns information for all windows on screen above the specified window.
+     Returns information for all windows on screen above the window with the specified window identifier.
 
      - Parameters:
-        - windowID: The reference window identifier.
+        - windowNumber: The reference window identifier.
         - includingWindow: A Boolean value indicating whether the reference window should be included in the results.
         - excludingDesktop: A Boolean value indicating whether to exclude desktop-related windows.
      - Returns: An array of window information objects describing windows above the specified one.
      */
-    public static func onScreen(above windowID: CGWindowID, includingWindow: Bool = false, excludingDesktop: Bool = true) -> [CGWindowInfo] {
+    public static func onScreen(above windowNumber: CGWindowID, includingWindow: Bool = false, excludingDesktop: Bool = true) -> [CGWindowInfo] {
         var option: CGWindowListOption = .optionOnScreenAboveWindow
         option[.excludeDesktopElements] = excludingDesktop
         option[.optionIncludingWindow] = includingWindow
-        return fetch(option, relativeTo: windowID)
+        return fetch(option, relativeTo: windowNumber)
     }
     
     /**
@@ -220,19 +248,19 @@ extension CGWindowInfo {
     }
     
     /**
-     Returns information for all windows on screen below the specified window.
+     Returns information for all windows on screen below the window with the specified window identifier.
 
      - Parameters:
-        - windowID: The reference window identifier.
+        - windowNumber: The reference window identifier.
         - includingWindow: A Boolean value indicating whether the reference window should be included in the results.
         - excludingDesktop: A Boolean value indicating whether to exclude desktop-related windows.
      - Returns: An array of window information objects describing windows below the specified one.
      */
-    public static func onScreen(below windowID: CGWindowID, includingWindow: Bool = false, excludingDesktop: Bool = true) -> [CGWindowInfo] {
+    public static func onScreen(below windowNumber: CGWindowID, includingWindow: Bool = false, excludingDesktop: Bool = true) -> [CGWindowInfo] {
         var option: CGWindowListOption = .optionOnScreenBelowWindow
         option[.excludeDesktopElements] = excludingDesktop
         option[.optionIncludingWindow] = includingWindow
-        return fetch(option, relativeTo: windowID)
+        return fetch(option, relativeTo: windowNumber)
     }
     
     /**
@@ -251,8 +279,7 @@ extension CGWindowInfo {
     // MARK: - Private
     
     private static func fetch(_ options: CGWindowListOption, relativeTo windowID: CGWindowID? = nil) -> [CGWindowInfo] {
-        (CGWindowListCopyWindowInfo(options, windowID ?? kCGNullWindowID) as? [[CFString: Any]])?
-            .compactMap(CGWindowInfo.init) ?? []
+        (CGWindowListCopyWindowInfo(options, windowID ?? kCGNullWindowID) as? [[CFString: Any]])?.compactMap(CGWindowInfo.init) ?? []
     }
 }
 
@@ -293,9 +320,16 @@ extension CGWindowInfo: CustomStringConvertible, CustomDebugStringConvertible {
     }
 }
 
+extension NSWindow {
+    /// Returns system-level information about the window.
+    public var info: CGWindowInfo? {
+        CGWindowInfo(window: self)
+    }
+}
+
 extension NSRunningApplication {
     /// Returns information for all windows belonging to this application.
-    public func windows() -> [CGWindowInfo] {
+    public var windows: [CGWindowInfo] {
         CGWindowInfo.forApplication(self)
     }
 }
