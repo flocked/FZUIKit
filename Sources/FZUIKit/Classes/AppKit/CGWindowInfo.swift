@@ -237,27 +237,11 @@ extension CGWindowInfo {
 }
 
 extension CGWindowInfo: CustomStringConvertible, CustomDebugStringConvertible {
-    private var ownerString: String {
-        if let name = ownerName {
-            return "\(ownerPID) (\(name))"
-        }
-        return "\(ownerPID)"
-    }
-    
-    private var windowString: String {
-        if let name = name {
-            return "\(windowNumber) (\(name))"
-        }
-        return "\(windowNumber)"
+    public var description: String {
+        "(window: \(windowString), owner: \(ownerString), frame: \(frame), isOnScreen: \(isOnScreen))"
     }
     
     public var debugDescription: String {
-                """
-                (window: \(windowNumber), owner: \(ownerString), frame: \(frame), isOnScreen: \(isOnScreen))
-                """
-    }
-    
-    public var description: String {
         """
         CGWindowInfo(
             windowNumber: \(windowNumber),
@@ -274,6 +258,20 @@ extension CGWindowInfo: CustomStringConvertible, CustomDebugStringConvertible {
             memoryUsage: \(memoryUsage.string()) (\(memoryUsage.bytes) bytes)
         )
         """
+    }
+    
+    private var ownerString: String {
+        if let name = ownerName {
+            return "\(ownerPID) (\(name))"
+        }
+        return "\(ownerPID)"
+    }
+    
+    private var windowString: String {
+        if let name = name {
+            return "\(windowNumber) (\(name))"
+        }
+        return "\(windowNumber)"
     }
 }
 
