@@ -108,7 +108,7 @@ public struct CGWindowInfo: Hashable {
               let windowLayer: Int = dict[typed: kCGWindowLayer],
               let frameDict = dict[kCGWindowBounds] as? NSDictionary as CFDictionary?,
               let frame = CGRect(dictionaryRepresentation: frameDict),
-              let sharingState = CGWindowSharingType(rawValue: dict[typed: kCGWindowSharingState] ?? 11),
+              let sharingState = CGWindowSharingType(rawValue: dict[typed: kCGWindowSharingState] ?? 111),
               let alpha: CGFloat = dict[typed: kCGWindowAlpha],
               let ownerPID: pid_t = dict[typed: kCGWindowOwnerPID],
               let memoryUsage: Int = dict[typed: kCGWindowMemoryUsage]
@@ -147,7 +147,7 @@ extension CGWindowInfo {
         return fetch(option)
     }
     
-    // MARK: - Application and Process
+    // MARK: - Application and Process Windows
     
     /**
      Returns information for all windows belonging to the specified application.
@@ -306,15 +306,15 @@ extension CGWindowInfo: CustomStringConvertible, CustomDebugStringConvertible {
     }
     
     private var ownerString: String {
-        if let name = ownerName?.withQuotes {
-            return "\(ownerPID) (\(name))"
+        if let name = ownerName {
+            return "\(ownerPID) (\"\(name)\")"
         }
         return "\(ownerPID)"
     }
     
     private var windowString: String {
-        if let name = name?.withQuotes {
-            return "\(windowNumber) (\(name))"
+        if let name = name {
+            return "\(windowNumber) (\"\(name)\")"
         }
         return "\(windowNumber)"
     }
@@ -351,12 +351,6 @@ extension CGWindowSharingType: CustomStringConvertible, Hashable {
         case .readWrite: return "readWrite"
         default: return "none"
         }
-    }
-}
-
-fileprivate extension String {
-    var withQuotes: String {
-        "\"\(self)\""
     }
 }
 #endif
