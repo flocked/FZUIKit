@@ -112,9 +112,8 @@ public struct CGWindowInfo: Hashable {
               let alpha: CGFloat = dict[typed: kCGWindowAlpha],
               let ownerPID: pid_t = dict[typed: kCGWindowOwnerPID],
               let memoryUsage: Int = dict[typed: kCGWindowMemoryUsage]
-        else {
-            return nil
-        }
+        else { return nil }
+        
         self.windowNumber = windowNumber
         self.frame = frame
         self.ownerPID = ownerPID
@@ -334,7 +333,7 @@ extension NSRunningApplication {
     }
 }
 
-extension CGWindowBackingType: CustomStringConvertible, Hashable {
+extension CGWindowBackingType: CustomStringConvertible, Hashable, Codable {
     public var description: String {
         switch self {
         case .backingStoreRetained: return "retained"
@@ -344,7 +343,7 @@ extension CGWindowBackingType: CustomStringConvertible, Hashable {
     }
 }
 
-extension CGWindowSharingType: CustomStringConvertible, Hashable {
+extension CGWindowSharingType: CustomStringConvertible, Hashable, Codable {
     public var description: String {
         switch self {
         case .readOnly: return "readOnly"
