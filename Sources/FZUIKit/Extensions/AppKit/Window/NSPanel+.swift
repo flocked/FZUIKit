@@ -9,48 +9,55 @@
 import AppKit
 
 extension NSPanel {
-    /// A Boolean value indicating whether the panel is a Utility panel.
-    @objc open var isUtility: Bool {
-        get { styleMask.contains(.utilityWindow) }
-        set { styleMask[.utilityWindow] = newValue }
+    /**
+     Represents the type of an panel.
+     
+     The panel type determines the visual style and behavior of a panel, such as floating above other windows or having a heads-up display appearance.
+    */
+    public enum PanelType {
+        /// A standard panel.
+        case regular
+        /// A utility panel that floats above standard windows, typically used for tool palettes or inspectors.
+        case utility
+        /// A heads-up display (`HUD`) panel with a dark translucent style, often used for overlay controls.
+        case hud
     }
     
-    /// Sets the Boolean value indicating whether the panel is a Utility panel.
-    @discardableResult
-    @objc open func isUtility(_ isUtility: Bool) -> Self {
-        self.isUtility = isUtility
-        return self
-    }
-    
-    /// A Boolean value indicating whether the panel is non active.
-    @objc open var isNonActive: Bool {
-        get { styleMask.contains(.nonactivatingPanel) }
-        set { styleMask[.nonactivatingPanel] = newValue }
-    }
-    
-    /// Sets the Boolean value indicating whether the panel is non active.
-    @discardableResult
-    @objc open func isNonActive(_ isNonActive: Bool) -> Self {
-        self.isNonActive = isNonActive
-        return self
-    }
-    
-    /// A Boolean value indicating whether the panel is a HUD panel.
-    @objc open var isHUD: Bool {
-        get { styleMask.contains(.hudWindow) }
+    /**
+     The panel type (either `regular`, `utility` or `hud`).
+     
+     The panel type determines the visual style and behavior of the panel, such as floating above other windows or having a heads-up display appearance.
+     */
+    public var type: PanelType {
+        get { styleMask.contains(.utilityWindow) ? styleMask.contains(.hudWindow) ? .hud : .utility : .regular }
         set {
-            if newValue {
-                styleMask.insert([.utilityWindow, .hudWindow])
-            } else {
+            switch newValue {
+            case .hud: styleMask.insert([.utilityWindow, .hudWindow])
+            case .utility:
+                styleMask.insert(.utilityWindow)
                 styleMask.remove(.hudWindow)
+            case .regular: styleMask.remove([.utilityWindow, .hudWindow])
             }
         }
     }
     
-    /// Sets the Boolean value indicating whether the panel is a HUD panel.
+    /// Sets the panel type.
     @discardableResult
-    @objc open func isHUD(_ isHUD: Bool) -> Self {
-        self.isHUD = isHUD
+    public func type(_ type: PanelType) -> Self {
+        self.type = type
+        return self
+    }
+    
+    /// A Boolean value indicating whether the panel does activate its owning application.
+    @objc open var activatesApp: Bool {
+        get { !styleMask.contains(.nonactivatingPanel) }
+        set { styleMask[.nonactivatingPanel] = !newValue }
+    }
+    
+    /// Sets the Boolean value indicating whether the panel does activate its owning application.
+    @discardableResult
+    @objc open func activatesApp(_ activates: Bool) -> Self {
+        self.activatesApp = activates
         return self
     }
 }
