@@ -98,12 +98,23 @@ public extension NSScreen {
     }
 
     /**
-     Returns the screen that contains a point.
+     Returns the screen that contains a point in screen coordinates.
 
      - Parameter point: The point which the screen should contain.
      */
     static func screen(at point: NSPoint) -> NSScreen? {
-        NSScreen.screens.first(where: { NSMouseInRect(point, $0.frame, false) })
+        screens.first(where: { NSMouseInRect(point, $0.frame, false) })
+    }
+    
+    /**
+     Returns the screen for the specified frame rectangle in screen coordinates.
+     
+     - Parameter frame: The frame rectangle in screen coordinates.
+     */
+    static func screen(for frame: CGRect) -> NSScreen? {
+        screens.max {
+            $0.frame.intersection(frame).area < $1.frame.intersection(frame).area
+        }
     }
 
     /// Enables screen sleep and returns a Boolean value indicating whether enabling succeeded.

@@ -140,6 +140,71 @@ extension NSWindow {
         return self
     }
     
+    public enum FullscreenTilingBehaviour {
+        /**
+         The system determines whether the window can participate in full-screen tiling.
+         
+         This is the default behavior. Most resizable windows that are not panels or sheets will automatically support tiling.
+         */
+        case `default`
+        
+        /**
+         Explicitly allows the window to participate in full-screen tiling (Split View).
+         
+         Use this for custom or nonstandard windows that would not otherwise qualify for tiling.
+         */
+        case allows
+        
+        /**
+         Explicitly disallows the window from participating in full-screen tiling.
+         
+         Use this for utility panels, inspectors, or other windows that should not appear in Split View or allow other windows to tile alongside them.
+         */
+        case disallows
+    }
+    
+    var fullscreenTilingBehaviour: FullscreenTilingBehaviour {
+        get { collectionBehavior.contains(.fullScreenAllowsTiling) ? .allows : collectionBehavior.contains(.fullScreenDisallowsTiling) ? .disallows : .default }
+        set {
+            switch newValue {
+            case .allows:
+                collectionBehavior.insert(.fullScreenAllowsTiling)
+                collectionBehavior.remove(.fullScreenDisallowsTiling)
+            case .disallows:
+                collectionBehavior.remove(.fullScreenAllowsTiling)
+                collectionBehavior.insert(.fullScreenDisallowsTiling)
+            case .default:
+                collectionBehavior.remove([.fullScreenAllowsTiling, .fullScreenDisallowsTiling])
+            }
+        }
+    }
+    
+    public enum FullscreenSupport {
+        /// The window can enter full-screen mode.
+        case regular
+        /// The window displays on the same space as the full screen window.
+        case auxiliary
+        /// The window doesn’t support full-screen mode.
+        case none
+    }
+    
+    public var fullscreenSupport: FullscreenSupport {
+        get { collectionBehavior.contains(.fullScreenPrimary) ? .regular : collectionBehavior.contains(.fullScreenAuxiliary) ? .auxiliary : .none }
+        set {
+            collectionBehavior[.fullScreenNone] = newValue == .none
+            collectionBehavior[.fullScreenPrimary] = newValue == .regular
+            collectionBehavior[.fullScreenAuxiliary] = newValue == .auxiliary
+        }
+    }
+    
+    @objc open var participatesInCycle: Bool {
+        get { !collectionBehavior.contains(.ignoresCycle) }
+        set {
+            collectionBehavior[.ignoresCycle] = !newValue
+            collectionBehavior[.participatesInCycle] = newValue
+        }
+    }
+    
     /// Handlers for the window.
     public struct Handlers {
         /// The handler that is called when the window’s key state changes.
@@ -726,6 +791,20 @@ extension NSWindow {
         self[keyPath: writable] = nil
         didChangeValue(for: keyPath)
     }
+}
+
+extension NSWindow.Level {
+    /// Creates a window level for the specified key.
+    public init(_ windowLevelKey: CGWindowLevelKey) {
+        self.init(rawValue: Int(CGWindowLevelForKey(windowLevelKey)))
+    }
+    
+    /// The level for the desktop.
+    public static let desktop = Self(.desktopWindow)
+    /// The level for desktop icons.
+    public static let desktopIcons = Self(.desktopIconWindow)
+    /// The level for the cursor.
+    public static let cursor = Self(.cursorWindow)
 }
 
 extension Collection where Element == NSWindow {
