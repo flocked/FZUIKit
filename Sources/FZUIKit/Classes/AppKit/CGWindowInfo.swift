@@ -244,16 +244,13 @@ extension CGWindowInfo: CustomStringConvertible, CustomDebugStringConvertible {
     public var debugDescription: String {
         """
         CGWindowInfo(
-            windowNumber: \(windowNumber),
-            name: \(name?.withQuotes ?? "-"),
-            ownerName: \(ownerName?.withQuotes ?? "-"),
-            ownerPID: \(ownerPID),
-            isOnScreen: \(isOnScreen),
+            window: \(windowString),
+            owner: \(ownerString),
             frame: \(frame),
+            isOnScreen: \(isOnScreen),
             alpha: \(alpha),
             windowLayer: \(windowLayer),
-            backingStore: \(backingStore),
-            backingStoreIsInVideoMemory: \(backingStoreIsInVideoMemory),
+            backingStore: \(backingStore), isInVideoMemory: \(backingStoreIsInVideoMemory),
             sharingState: \(sharingState),
             memoryUsage: \(memoryUsage.string()) (\(memoryUsage.bytes) bytes)
         )
@@ -261,14 +258,14 @@ extension CGWindowInfo: CustomStringConvertible, CustomDebugStringConvertible {
     }
     
     private var ownerString: String {
-        if let name = ownerName {
+        if let name = ownerName?.withQuotes {
             return "\(ownerPID) (\(name))"
         }
         return "\(ownerPID)"
     }
     
     private var windowString: String {
-        if let name = name {
+        if let name = name?.withQuotes {
             return "\(windowNumber) (\(name))"
         }
         return "\(windowNumber)"
