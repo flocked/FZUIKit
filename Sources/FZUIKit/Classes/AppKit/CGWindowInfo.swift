@@ -251,7 +251,7 @@ extension CGWindowInfo: CustomStringConvertible {
             backingStore: \(backingStore),
             backingStoreIsInVideoMemory: \(backingStoreIsInVideoMemory),
             sharingState: \(sharingState),
-            memoryUsage: \(memoryUsage.string())
+            memoryUsage: \(memoryUsage.string()) (\(memoryUsage.bytes) bytes)
         )
         """
     }
