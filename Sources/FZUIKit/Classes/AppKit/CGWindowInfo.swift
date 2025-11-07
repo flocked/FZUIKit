@@ -10,7 +10,7 @@ import AppKit
 import FZSwiftUtils
 
 /// Information for a window.
-public struct CGWindowInfo: Hashable {
+public struct CGWindowInfo: Hashable, Identifiable {
     /// The window identifier, a unique value within the user session representing the window.
     public let windowNumber: CGWindowID
     
@@ -55,6 +55,10 @@ public struct CGWindowInfo: Hashable {
     /// The screen of the window.
     public var screen: NSScreen? {
         .screen(for: frame)
+    }
+    
+    public var id: CGWindowID {
+        windowNumber
     }
     
     /// Returns all windows below this window.
