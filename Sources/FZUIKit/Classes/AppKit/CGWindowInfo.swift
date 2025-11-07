@@ -40,8 +40,8 @@ public struct CGWindowInfo: Hashable {
     /// The alpha value of the window.
     public let alpha: CGFloat
 
-    /// An estimate of the memory currently used by the window and its supporting data structures (in bytes).
-    public let memoryUsage: Int
+    /// An estimate of the memory currently used by the window and its supporting data structures.
+    public let memoryUsage: DataSize
 
     /// The sharing state of the window.
     public let sharingState: CGWindowSharingType
@@ -96,7 +96,7 @@ public struct CGWindowInfo: Hashable {
         self.backingStore = backingStore
         self.sharingState = sharingState
         self.alpha = alpha
-        self.memoryUsage = memoryUsage
+        self.memoryUsage = .bytes(memoryUsage)
         self.backingStoreIsInVideoMemory = dict[typed: kCGWindowBackingLocationVideoMemory] ?? false
         self.ownerName = dict[typed: kCGWindowOwnerName]
     }
@@ -251,7 +251,7 @@ extension CGWindowInfo: CustomStringConvertible {
             backingStore: \(backingStore),
             backingStoreIsInVideoMemory: \(backingStoreIsInVideoMemory),
             sharingState: \(sharingState),
-            memoryUsage: \(memoryUsage) bytes
+            memoryUsage: \(memoryUsage.string())
         )
         """
     }
