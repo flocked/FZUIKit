@@ -236,13 +236,33 @@ extension CGWindowInfo {
     }
 }
 
-extension CGWindowInfo: CustomStringConvertible {
+extension CGWindowInfo: CustomStringConvertible, CustomDebugStringConvertible {
+    private var ownerString: String {
+        if let name = ownerName?.withQuotes {
+            return "\(ownerPID) (\(name))"
+        }
+        return "\(ownerPID)"
+    }
+    
+    private var windowString: String {
+        if let name = name?.withQuotes {
+            return "\(windowNumber) (\(name))"
+        }
+        return "\(windowNumber)"
+    }
+    
+    public var debugDescription: String {
+                """
+                (window: \(windowNumber), owner: \(ownerString), frame: \(frame), isOnScreen: \(isOnScreen))
+                """
+    }
+    
     public var description: String {
         """
         CGWindowInfo(
             windowNumber: \(windowNumber),
-            name: \(name ?? "-"),
-            ownerName: \(ownerName ?? "-"),
+            name: \(name?.withQuotes ?? "-"),
+            ownerName: \(ownerName?.withQuotes ?? "-"),
             ownerPID: \(ownerPID),
             isOnScreen: \(isOnScreen),
             frame: \(frame),
@@ -268,7 +288,7 @@ extension CGWindowBackingType: CustomStringConvertible, Hashable {
     public var description: String {
         switch self {
         case .backingStoreRetained: return "retained"
-        case .backingStoreNonretained: return "nonretained"
+        case .backingStoreNonretained: return "nonRetained"
         default: return "buffered"
         }
     }
@@ -281,6 +301,12 @@ extension CGWindowSharingType: CustomStringConvertible, Hashable {
         case .readWrite: return "readWrite"
         default: return "none"
         }
+    }
+}
+
+fileprivate extension String {
+    var withQuotes: String {
+        "\"\(self)\""
     }
 }
 #endif
