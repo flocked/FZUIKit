@@ -238,14 +238,14 @@ extension CGWindowInfo {
 
 extension CGWindowInfo: CustomStringConvertible, CustomDebugStringConvertible {
     private var ownerString: String {
-        if let name = ownerName?.withQuotes {
+        if let name = ownerName {
             return "\(ownerPID) (\(name))"
         }
         return "\(ownerPID)"
     }
     
     private var windowString: String {
-        if let name = name?.withQuotes {
+        if let name = name {
             return "\(windowNumber) (\(name))"
         }
         return "\(windowNumber)"
