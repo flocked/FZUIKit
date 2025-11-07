@@ -97,6 +97,11 @@ public class AXUIElementValues {
     public var visibleChildren: [AXUIElement] {
         (element[.visibleChildren] as [AXUIElement]?) ?? []
     }
+    
+    /// The application of the element.
+    public var application: AXUIElement? {
+        role == .application ? element : parent?.values.application
+    }
 
     /// The window that contains the element.
     public var window: AXUIElement? {
