@@ -108,9 +108,9 @@ extension CGWindowInfo {
     
     /**
      Returns information for all known windows.
-
+     
      - Parameter excludingDesktop: A Boolean value indicating whether to exclude desktop-related windows,
-       such as the background picture and desktop icons.
+     such as the background picture and desktop icons.
      - Returns: An array of window information objects describing all known windows.
      */
     public static func all(excludingDesktop: Bool = true) -> [CGWindowInfo] {
@@ -123,12 +123,34 @@ extension CGWindowInfo {
     
     /**
      Returns information for all windows belonging to the specified application.
-
+     
      - Parameter application: The running application whose windows should be returned.
      - Returns: An array of window information objects belonging to the application.
      */
     public static func forApplication(_ application: NSRunningApplication) -> [CGWindowInfo] {
         forProcess(application.processIdentifier)
+    }
+    
+    /**
+     Returns information for all windows belonging to the specified application.
+
+     - Parameter application: The running application whose windows should be returned.
+     - Returns: An array of window information objects belonging to the application.
+     */
+    @_disfavoredOverload
+    public static func forApplication(_ application: NSRunningApplication?) -> [CGWindowInfo] {
+        guard let application = application else { return [] }
+        return forApplication(application)
+    }
+    
+    /**
+     Returns information for all windows belonging to applications with the specified name.
+
+     - Parameter name: The name of a running application whose windows should be returned.
+     - Returns: An array of window information objects belonging to the application with the specified name.
+     */
+    public static func forApplication(named name: String) -> [CGWindowInfo] {
+        NSRunningApplication.runningApplications(named: name).flatMap(forApplication)
     }
     
     /**
@@ -150,9 +172,7 @@ extension CGWindowInfo {
      - Returns: An array of window information objects belonging to matching applications.
      */
     public static func forBundleIdentifier(_ identifier: String) -> [CGWindowInfo] {
-        NSRunningApplication
-            .runningApplications(withBundleIdentifier: identifier)
-            .flatMap(forApplication)
+        NSRunningApplication.runningApplications(withBundleIdentifier: identifier).flatMap(forApplication)
     }
     
     // MARK: - On-Screen Windows
@@ -250,7 +270,8 @@ extension CGWindowInfo: CustomStringConvertible, CustomDebugStringConvertible {
             isOnScreen: \(isOnScreen),
             alpha: \(alpha),
             windowLayer: \(windowLayer),
-            backingStore: \(backingStore), isInVideoMemory: \(backingStoreIsInVideoMemory),
+            backingStore: \(backingStore),
+            backingStoreIsInVideoMemory: \(backingStoreIsInVideoMemory),
             sharingState: \(sharingState),
             memoryUsage: \(memoryUsage.string()) (\(memoryUsage.bytes) bytes)
         )
