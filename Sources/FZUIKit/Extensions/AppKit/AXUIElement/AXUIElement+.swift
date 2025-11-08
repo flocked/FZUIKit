@@ -94,7 +94,7 @@ public extension AXUIElement {
                 try AXUIElementCopyAttributeNames(self, &names).throwIfError("attributes")
                 return (names! as [AnyObject]).map { AXAttribute(rawValue: $0 as! String) }
             } catch {
-                Swift.print(error)
+                AXLogger.print("attributes", error, "\n  ", self)
                 return []
             }
         }
