@@ -61,6 +61,12 @@ public struct CGWindowInfo: Hashable, Identifiable {
         windowNumber
     }
     
+    /// Creates and returns the accessibility element for the window.
+    public func axUIElement() -> AXUIElement? {
+        .application(processIdentifier: ownerPID).values.windows.first(where: { $0.values.windowNumber == windowNumber })
+
+    }
+    
     /// Returns all windows below this window.
     public func windowsBelow(excludeDesktop: Bool = true) -> [Self] {
         Self.onScreen(below: windowNumber, excludingDesktop: excludeDesktop)

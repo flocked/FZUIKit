@@ -15,42 +15,50 @@ public extension AXUIElement {
     /// Returns an accessibility object that provides access to system attributes.
     static var systemWide: AXUIElement { AXUIElementCreateSystemWide() }
     
-    /// Creates and returns the accessibility object for the frontmost app, which is the app that receives key events.
+    /// Returns the accessibility object for the frontmost app, which is the app that receives key events.
     static var frontMostApplication: AXUIElement? {
-        guard let runningApplication = NSWorkspace.shared.frontmostApplication else { return nil }
-        return application(runningApplication)
+        guard let app = NSRunningApplication.frontMost else { return nil }
+        return application(app)
     }
     
-    /// Creates and returns the accessibility object for the specified running application.
+    /// Returns the accessibility object for the app that owns the currently displayed menu bar.
+    static var menuBarOwningApplication: AXUIElement? {
+        guard let app = NSRunningApplication.menuBarOwning else { return nil }
+        return application(app)
+    }
+    
+    /// Returns the accessibility object for the specified running application.
     static func application(_ application: NSRunningApplication) -> AXUIElement {
-        self.application(pid: application.processIdentifier)
+        self.application(processIdentifier: application.processIdentifier)
     }
     
-    /// Creates and returns the accessibility object for the running application with the specified localized name.
-    static func application(named name: String) -> AXUIElement? {
-        guard let runningApplication = NSRunningApplication.runningApplications(named: name).first else { return nil}
-        return application(runningApplication)
+    /// Returns the accessibility objects for the running applications.
+    static func applications() -> [AXUIElement] {
+        NSRunningApplication.runningApplications.map(application(_:))
     }
     
-    /// Creates and returns the accessibility object for the running application with the specified bundle identifier.
-    static func application(bundleIdentifier: String) -> AXUIElement? {
-        guard let runningApplication = NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier).first else { return nil}
-        return application(runningApplication)
+    /// Returns the accessibility objects for the running applications with the specified bundle identifier.
+    static func applications(withBundleIdentifier bundleIdentifier: String) -> [AXUIElement] {
+        NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier).map(application(_:))
+    }
+    
+    /// Returns the accessibility objects for the running applications with the specified name.
+    static func applications(named name: String) -> [AXUIElement] {
+        NSRunningApplication.runningApplications(named: name).map(application(_:))
     }
 
-    /// Creates and returns the accessibility object for the running application with the specified process identifier.
-    static func application(pid: pid_t) -> AXUIElement {
-        precondition(pid >= 0)
-        return AXUIElementCreateApplication(pid)
+    /// Returns the accessibility object for the running application with the specified process identifier.
+    static func application(processIdentifier: pid_t) -> AXUIElement {
+        precondition(processIdentifier >= 0)
+        return AXUIElementCreateApplication(processIdentifier)
     }
     
-    /// Creates and returns the accessibility element for the window with the specified window identifier.
+    /// Returns the accessibility element for the window with the specified window identifier.
     static func window(for windowNumber: CGWindowID) -> AXUIElement? {
-        guard let info = CGWindowInfo(windowNumber: windowNumber) else { return nil }
-        return application(pid: info.ownerPID).values.windows.first(where: { $0.values.windowID == windowNumber })
+        CGWindowInfo(windowNumber: windowNumber)?.axUIElement()
     }
         
-    /// Creates and returns the accessibility object at the specified position in top-left relative screen coordinates.
+    /// Returns the accessibility object at the specified position in top-left relative screen coordinates.
     static func element(atScreenPosition position: CGPoint) -> AXUIElement? {
         systemWide.element(atScreenPosition: position)
     }
@@ -231,45 +239,15 @@ public extension AXUIElement {
         case CFArrayGetTypeID():
             return try (value as! [AnyObject]).map(unpack)
         case AXValueGetTypeID():
-            return unpackValue(value as! AXValue)
-        default:
-            return value
-        }
-    }
-
-    private func unpackValue(_ value: AXValue) -> Any {
-        func getValue<Value>(_ value: AnyObject, type: AXValueType, result: inout Value) {
+            let value = value as! AXValue
+            let type = AXValueGetType(value)
+            guard var result = type.zeroValue else { return value }
             withUnsafeMutablePointer(to: &result) { pointer in
-                let success = AXValueGetValue(value as! AXValue, type, pointer)
+                let success = AXValueGetValue(value, type, pointer)
                 assert(success, "Failed to get value for type: \(type)")
             }
-        }
-
-        let type = AXValueGetType(value)
-        switch type {
-        case .cgPoint:
-            var result: CGPoint = .zero
-            getValue(value, type: .cgPoint, result: &result)
             return result
-        case .cgSize:
-            var result: CGSize = .zero
-            getValue(value, type: .cgSize, result: &result)
-            return result
-        case .cgRect:
-            var result: CGRect = .zero
-            getValue(value, type: .cgRect, result: &result)
-            return result
-        case .cfRange:
-            var result: CFRange = .init()
-            getValue(value, type: .cfRange, result: &result)
-            return result
-        case .axError:
-            var result: ApplicationServices.AXError = .success
-            getValue(value, type: .axError, result: &result)
-            return AXError(code: result) as Any
-        case .illegal:
-            return value
-        @unknown default:
+        default:
             return value
         }
     }
@@ -318,13 +296,13 @@ public extension AXUIElement {
     private func pack(_ value: Any) -> AnyObject? {
         switch value {
         case var value as CGPoint:
-            return AXValueCreate(AXValueType(rawValue: kAXValueCGPointType)!, &value)
+            return AXValueCreate(AXValueType.cgPoint, &value)
         case var value as CGSize:
-            return AXValueCreate(AXValueType(rawValue: kAXValueCGSizeType)!, &value)
+            return AXValueCreate(AXValueType.cgSize, &value)
         case var value as CGRect:
-            return AXValueCreate(AXValueType(rawValue: kAXValueCGRectType)!, &value)
+            return AXValueCreate(AXValueType.cgRect, &value)
         case var value as CFRange:
-            return AXValueCreate(AXValueType(rawValue: kAXValueCFRangeType)!, &value)
+            return AXValueCreate(AXValueType.cfRange, &value)
         case let value as [Any]:
             return value.compactMap(pack) as CFArray
         case let value as AXUIElement:
@@ -487,7 +465,7 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
         }
         let id = hashValue
         let role = values.role?.rawValue ?? "AXUnknown"
-        let pid = values.pID ?? 0
+        let pid = values.processIdentifier ?? 0
         if let description = values.description, description != "" {
             return "\(role) #\(id) \(description) (pid: \(pid))"
         }
@@ -497,7 +475,7 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
     public var debugDescription: String {
         let id = hashValue
         let role = values.role?.rawValue ?? "AXUnknown"
-        let pid = values.pID ?? 0
+        let pid = values.processIdentifier ?? 0
         var string = "\(role) #\(id) "
         if let subrole = values.subrole?.rawValue {
             string = "\(role)/\(subrole) #\(id) "
@@ -593,7 +571,7 @@ extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
         let id = hashValue
         let role = values.role?.rawValue ?? "AXUnknown"
         let subrole = values.subrole?.rawValue
-        let pid = values.pID
+        let pid = values.processIdentifier
         let title = values.title
         let description = values.description
         var strings: [String] = []
@@ -862,6 +840,19 @@ extension AXUIElement {
         case showDesktop
         /// Mission Control is inactive.
         case inactive
+    }
+}
+
+extension AXValueType {
+    var zeroValue: Any? {
+        switch self {
+        case .cgPoint: return CGPoint.zero
+        case .cgSize: return CGSize.zero
+        case .cgRect: return CGRect.zero
+        case .cfRange: return CFRange()
+        case .axError: return ApplicationServices.AXError.success
+        default: return nil
+        }
     }
 }
 

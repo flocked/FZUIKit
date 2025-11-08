@@ -6,7 +6,7 @@
 //
 
 #if canImport(ApplicationServices) && os(macOS)
-import Foundation
+import AppKit
 import ApplicationServices
 import FZSwiftUtils
 
@@ -50,7 +50,7 @@ public class AXUIElementValues {
     }
     
     /// The process ID associated with this element.
-    public var pID: pid_t? {
+    public var processIdentifier: pid_t? {
         do {
             var pid: pid_t = -1
             try AXUIElementGetPid(element, &pid).throwIfError()
@@ -65,7 +65,7 @@ public class AXUIElementValues {
     }
     
     /// The window identifier for the element.
-    public var windowID: CGWindowID? {
+    public var windowNumber: CGWindowID? {
         DispatchQueue.main.syncSafely {
             do {
                 var windowId = CGWindowID(0)
@@ -102,6 +102,11 @@ public class AXUIElementValues {
     public var application: AXUIElement? {
         role == .application ? element : parent?.values.application
     }
+    
+    public var runningApplication: NSRunningApplication? {
+        guard let pID = processIdentifier else { return nil }
+        return NSRunningApplication(processIdentifier: pID)
+    }
 
     /// The window that contains the element.
     public var window: AXUIElement? {
@@ -134,6 +139,7 @@ public class AXUIElementValues {
     }
     
     // MARK: - Visual state attributes
+    
     /// A Boolean value indicating whether the element is enabled and can be interacted with.
     public var isEnabled: Bool? {
         get { element[.isEnabled] }
