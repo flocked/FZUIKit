@@ -116,12 +116,12 @@ public class AXUIElementValues {
 
     /// The highest-level element containing the element.
     public var topLevelUIElement: AXUIElement? {
-        element[.topLevelUIElement]
+        element[.topLevelElement]
     }
 
     /// The element that serves as the title for the element.
-    public var titleUIElement: AXUIElement? {
-        element[.titleUIElement]
+    public var titleElement: AXUIElement? {
+        element[.titleElement]
     }
 
     /// elements for which the current element serves as a title.
@@ -130,8 +130,8 @@ public class AXUIElementValues {
     }
 
     /// elements that are linked to the element.
-    public var linkedUIElements: [AXUIElement] {
-        (element[.linkedUIElements] as [AXUIElement]?) ?? []
+    public var linkedElements: [AXUIElement] {
+        (element[.linkedElements] as [AXUIElement]?) ?? []
     }
 
     /// elements that share focus with the element.
@@ -265,8 +265,8 @@ public class AXUIElementValues {
     }
 
     /// Other elements that share the same text as the current element.
-    public var sharedTextUIElements: [AXUIElement] {
-        (element[.sharedTextUIElements] as [AXUIElement]?) ?? []
+    public var sharedTextElements: [AXUIElement] {
+        (element[.sharedTextElements] as [AXUIElement]?) ?? []
     }
 
     /// The character range shared across multiple elements.
@@ -377,8 +377,8 @@ public class AXUIElementValues {
     }
 
     /// The primary user interface element associated with the menu item.
-    public var menuItemPrimaryUIElement: AXUIElement? {
-        element[.menuItemPrimaryUIElement]
+    public var menuItemPrimaryElement: AXUIElement? {
+        element[.menuItemPrimaryElement]
     }
     
     // MARK: - Application element-specific attributes
@@ -416,8 +416,8 @@ public class AXUIElementValues {
     }
 
     /// The element that currently has focus.
-    public var focusedUIElement: AXUIElement? {
-        element[.focusedUIElement]
+    public var focusedElement: AXUIElement? {
+        element[.focusedElement]
     }
 
     /// An additional menu bar in the application.
@@ -501,8 +501,8 @@ public class AXUIElementValues {
     }
 
     /// The elements that serve as column headers in a table-like element.
-    public var columnHeaderUIElements: [AXUIElement] {
-        (element[.columnHeaderUIElements] as [AXUIElement]?) ?? []
+    public var columnHeaderElements: [AXUIElement] {
+        (element[.columnHeaderElements] as [AXUIElement]?) ?? []
     }
 
     /// The index or position of a specific element within a collection.
@@ -535,8 +535,8 @@ public class AXUIElementValues {
         element[.visibleCells]
     }
     /// The the elements that serve as row headers in a table-like element.
-    public var rowHeaderUIElements: [AXUIElement]? {
-        element[.rowHeaderUIElements]
+    public var rowHeaderElements: [AXUIElement]? {
+        element[.rowHeaderElements]
     }
     
     /// The the range of row indices in a table-like element.
@@ -580,15 +580,15 @@ public class AXUIElementValues {
     }
 
     /// The element contained within a matte or overlay, such as content in a modal.
-    public var matteContentUIElement: AXUIElement? {
-        element[.matteContentUIElement]
+    public var matteContentElement: AXUIElement? {
+        element[.matteContentElement]
     }
     
     // MARK: - Ruler-specific attributes
 
     /// The elements that act as markers in a measurement or graph.
-    public var markerUIElements: [AXUIElement] {
-        (element[.markerUIElements] as [AXUIElement]?) ?? []
+    public var markerElements: [AXUIElement] {
+        (element[.markerElements] as [AXUIElement]?) ?? []
     }
 
     /// The units of measurement used in the element, such as pixels, inches, or degrees.
@@ -718,8 +718,8 @@ public class AXUIElementValues {
     }
 
     /// The elements used for labeling content or sections.
-    public var labelUIElements: [AXUIElement] {
-        (element[.labelUIElements] as [AXUIElement]?) ?? []
+    public var labelElements: [AXUIElement] {
+        (element[.labelElements] as [AXUIElement]?) ?? []
     }
 
     /// The value associated with a label in the element.
@@ -728,8 +728,8 @@ public class AXUIElementValues {
     }
 
     /// The currently visible menu or context menu in a UI.
-    public var shownMenuUIElement: AXUIElement? {
-        element[.shownMenuUIElement]
+    public var shownMenuElement: AXUIElement? {
+        element[.shownMenuElement]
     }
     /// A Boolean value indicating whether an application is currently running.
     public var isApplicationRunning: Bool? {

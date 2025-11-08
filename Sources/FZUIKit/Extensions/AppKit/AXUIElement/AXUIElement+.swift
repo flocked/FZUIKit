@@ -859,11 +859,19 @@ extension AXValue {
         case .cgSize:  return getValue(CGSize.zero)
         case .cgRect:  return getValue(CGRect.zero)
         case .cfRange: return getValue(CFRange())
-        case .axError: return getValue(ApplicationServices.AXError.success)
+        case .axError:
+            let error = getValue(ApplicationServices.AXError.success)
+            return error == .noValue ? AXNilValue.shared : error
         case .illegal: return self
         @unknown default: return self
         }
     }
+}
+
+final class AXNilValue: CustomStringConvertible, @unchecked Sendable {
+    static let shared = AXNilValue()
+    private init() {}
+    var description: String { "nil" }
 }
 
 

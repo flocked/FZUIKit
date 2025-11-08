@@ -52,14 +52,14 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     public static let visibleChildren = AXAttribute(kAXVisibleChildrenAttribute)
     /// Represents the window that contains the accessibility element.
     public static let window = AXAttribute(kAXWindowAttribute)
-    /// Represents the highest-level UI element containing the element.
-    public static let topLevelUIElement = AXAttribute(kAXTopLevelUIElementAttribute)
-    /// Represents the UI element that serves as the title for the accessibility element.
-    public static let titleUIElement = AXAttribute(kAXTitleUIElementAttribute)
-    /// Represents UI elements for which the current element serves as a title.
+    /// Represents the highest-level element containing the element.
+    public static let topLevelElement = AXAttribute(kAXTopLevelUIElementAttribute)
+    /// Represents the element that serves as the title for the accessibility element.
+    public static let titleElement = AXAttribute(kAXTitleUIElementAttribute)
+    /// Represents elements for which the current element serves as a title.
     public static let servesAsTitle = AXAttribute(kAXServesAsTitleForUIElementsAttribute)
     /// Represents UI elements that are linked to the accessibility element.
-    public static let linkedUIElements = AXAttribute(kAXLinkedUIElementsAttribute)
+    public static let linkedElements = AXAttribute(kAXLinkedUIElementsAttribute)
     /// Represents UI elements that share focus with the accessibility element.
     public static let sharedFocusElements = AXAttribute(kAXSharedFocusElementsAttribute)
     
@@ -105,7 +105,7 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     /// Represents the total number of characters in the element's text content.
     public static let numberOfCharacters = AXAttribute(kAXNumberOfCharactersAttribute)
     /// Represents other UI elements that share the same text as the current element.
-    public static let sharedTextUIElements = AXAttribute(kAXSharedTextUIElementsAttribute)
+    public static let sharedTextElements = AXAttribute(kAXSharedTextUIElementsAttribute)
     /// Represents the character range shared across multiple UI elements.
     public static let sharedCharacterRange = AXAttribute(kAXSharedCharacterRangeAttribute)
     /// Represents the line number of the insertion point (caret) in a multi-line text element.
@@ -152,7 +152,7 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     /// Represents the character used to mark the menu item (e.g., an arrow or checkmark).
     public static let menuItemMarkChar = AXAttribute(kAXMenuItemMarkCharAttribute)
     /// Represents the primary user interface element associated with the menu item.
-    public static let menuItemPrimaryUIElement = AXAttribute(kAXMenuItemPrimaryUIElementAttribute)
+    public static let menuItemPrimaryElement = AXAttribute(kAXMenuItemPrimaryUIElementAttribute)
     
     // MARK: - Application element-specific attributes
     /// Represents the menu bar for the application or system.
@@ -168,7 +168,7 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     /// Represents the window that currently has focus.
     public static let focusedWindow = AXAttribute(kAXFocusedWindowAttribute)
     /// Represents the UI element that currently has focus.
-    public static let focusedUIElement = AXAttribute(kAXFocusedUIElementAttribute)
+    public static let focusedElement = AXAttribute(kAXFocusedUIElementAttribute)
     /// Represents an additional menu bar in the application.
     public static let extrasMenuBar = AXAttribute(kAXExtrasMenuBarAttribute)
     
@@ -204,7 +204,7 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     /// Represents the sort order for the rows in a table-like UI element (e.g., ascending or descending).
     public static let sortDirection = AXAttribute(kAXSortDirectionAttribute)
     /// Represents the UI elements that serve as column headers in a table-like UI element.
-    public static let columnHeaderUIElements = AXAttribute(kAXColumnHeaderUIElementsAttribute)
+    public static let columnHeaderElements = AXAttribute(kAXColumnHeaderUIElementsAttribute)
     /// Represents the index or position of a specific element within a collection.
     public static let index = AXAttribute(kAXIndexAttribute)
     /// Represents the number of rows in a table-like UI element.
@@ -218,7 +218,7 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     /// Represents the currently visible cells in a table-like UI element.
     public static let visibleCells = AXAttribute(kAXVisibleCellsAttribute)
     /// Represents the UI elements that serve as row headers in a table-like UI element.
-    public static let rowHeaderUIElements = AXAttribute(kAXRowHeaderUIElementsAttribute)
+    public static let rowHeaderElements = AXAttribute(kAXRowHeaderUIElementsAttribute)
     /// Represents the range of row indices in a table-like UI element.
     public static let rowIndexRange = AXAttribute(kAXRowIndexRangeAttribute)
     /// Represents the range of column indices in a table-like UI element.
@@ -238,11 +238,11 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     /// Represents the area in a matte (overlay) where content is visible, such as in a modal or dialog.
     public static let matteHole = AXAttribute(kAXMatteHoleAttribute)
     /// Represents the UI element contained within a matte or overlay, such as content in a modal.
-    public static let matteContentUIElement = AXAttribute(kAXMatteContentUIElementAttribute)
+    public static let matteContentElement = AXAttribute(kAXMatteContentUIElementAttribute)
     
     // MARK: - Ruler-specific attributes
     /// Represents the UI elements that act as markers in a measurement or graph.
-    public static let markerUIElements = AXAttribute(kAXMarkerUIElementsAttribute)
+    public static let markerElements = AXAttribute(kAXMarkerUIElementsAttribute)
     /// Represents the units of measurement used in a UI element, such as pixels, inches, or degrees.
     public static let units = AXAttribute(kAXUnitsAttribute)
     /// Provides a description or label for the unit of measurement used in a UI element.
@@ -296,11 +296,11 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     /// Represents the URL associated with a UI element, such as a link in a browser.
     public static let url = AXAttribute(kAXURLAttribute)
     /// Represents the UI elements used for labeling content or sections.
-    public static let labelUIElements = AXAttribute(kAXLabelUIElementsAttribute)
+    public static let labelElements = AXAttribute(kAXLabelUIElementsAttribute)
     /// Represents the value associated with a label in a UI element.
     public static let labelValue = AXAttribute(kAXLabelValueAttribute)
     /// Represents the currently visible menu or context menu in a UI.
-    public static let shownMenuUIElement = AXAttribute(kAXShownMenuUIElementAttribute)
+    public static let shownMenuElement = AXAttribute(kAXShownMenuUIElementAttribute)
     /// Indicates whether an application is currently running.
     public static let isApplicationRunning = AXAttribute(kAXIsApplicationRunningAttribute)
     /// Represents the currently focused application in the system.
@@ -350,6 +350,10 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     public static let visibleText = AXAttribute(kAXVisibleTextAttribute)
     /// Represents the titles of all columns in a table-like UI element.
     public static let columnTitles = AXAttribute(kAXColumnTitlesAttribute)
+    /// The sections of the element.
+    public static let sections = AXAttribute("AXSections")
+    
+    public static let childrenInNavigationOrder = AXAttribute("AXChildrenInNavigationOrder")
 
 
     static let boolAttributes: [AXAttribute] = [.isBusy, .isEdited, .isMainWindow, .isModal, .isHidden, .isEnabled, .isExpanded, .isFocused, .isSelected, .isDisclosed, .isFrontmost, .isMinimized, .isApplicationRunning, .isAlternateUIVisible, .isEnhancedUserInterface, .isFullScreen, .isOrderedByRow, .isEditable, .manualAccessibility, .valueWraps]
