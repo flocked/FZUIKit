@@ -60,6 +60,7 @@ public class AXUIElementValues {
             }
             return pid
         } catch {
+            AXLogger.print("processIdentifier", error)
             return nil
         }
     }
@@ -72,7 +73,7 @@ public class AXUIElementValues {
                 try _AXUIElementGetWindow(element, &windowId).throwIfError("windowId()")
                 return windowId
             } catch {
-                AXLogger.print(error, "windowId")
+                AXLogger.print("windowNumber", error)
                 return nil
             }
         }
@@ -765,76 +766,76 @@ public class AXUIElementValues {
 
     /// The line corresponding to a specific index in the text.
     public func line(forIndex index: Int) -> Int? {
-        try? element.get(.lineForIndex, with: index)
+        try? element.get(.lineForIndex, for: index)
     }
 
     /// The range of characters that form a specific line in the text.
     public func range(forLine line: Int) -> NSRange? {
-        (try? element.get(.rangeForLine, with: line) as CFRange?)?.nsRange
+        (try? element.get(.rangeForLine, for: line) as CFRange?)?.nsRange
     }
 
     /// The string corresponding to a specific character range.
     public func string(forRange range: NSRange) -> String? {
-        try? element.get(.stringForRange, with: range.cfRange)
+        try? element.get(.stringForRange, for: range.cfRange)
     }
     
     /// The character range corresponding to a specific position in the text.
     public func range(forPosition position: CGPoint) -> NSRange? {
-        try? element.get(.rangeForPosition, with: position)
+        try? element.get(.rangeForPosition, for: position)
     }
 
     /// The character range corresponding to a specific index in the text.
     public func range(forIndex index: Int) -> NSRange? {
-        (try? element.get(.rangeForIndex, with: index) as CFRange?)?.nsRange
+        (try? element.get(.rangeForIndex, for: index) as CFRange?)?.nsRange
     }
 
     /// The bounds (position and size) of a specific character range.
     public func bounds(forRange range: NSRange) -> CGRect? {
-        try? element.get(.boundsForRange, with: range.cfRange)
+        try? element.get(.boundsForRange, for: range.cfRange)
     }
 
     /// The RTF content corresponding to a character range.
     public func rtf(forRange range: NSRange) -> Data? {
-        try? element.get(.rtfForRange, with: range.cfRange)
+        try? element.get(.rtfForRange, for: range.cfRange)
     }
 
     /// The attributed string corresponding to a specific character range.
     public func attributedString(forRange range: NSRange) -> NSAttributedString? {
-        try? element.get(.attributedStringForRange, with: range.cfRange)
+        try? element.get(.attributedStringForRange, for: range.cfRange)
     }
 
     /// The style range for a specific index in the text.
     public func styleRange(forIndex index: Int) -> NSRange? {
-        (try? element.get(.styleRangeForIndex, with: index) as CFRange?)?.nsRange
+        (try? element.get(.styleRangeForIndex, for: index) as CFRange?)?.nsRange
     }
     
     // MARK: - Cell-based table parameterized attributes
 
     /// A specific cell based on its column and row indices.
     public func cell(forColumn column: Int, row: Int) -> AXUIElement? {
-        try? element.get(.cellForColumnAndRow, with: [column, row])
+        try? element.get(.cellForColumnAndRow, for: [column, row])
     }
     
     // MARK: - Layout area parameterized attributes
 
     /// The layout point corresponding to a specific screen point.
     public func layoutPoint(forScreenPoint screenPoint: CGPoint) -> CGPoint? {
-        try? element.get(.layoutPointForScreenPoint, with: screenPoint)
+        try? element.get(.layoutPointForScreenPoint, for: screenPoint)
     }
 
     /// The layout size corresponding to a specific screen size.
     public func layoutSize(forScreenSize screenSize: CGSize) -> CGSize? {
-        try? element.get(.layoutSizeForScreenSize, with: screenSize)
+        try? element.get(.layoutSizeForScreenSize, for: screenSize)
     }
 
     /// The screen point corresponding to a specific layout point.
     public func screenPoint(forLayoutPoint layoutPoint: CGPoint) -> CGPoint? {
-        try? element.get(.screenPointForLayoutPoint, with: layoutPoint)
+        try? element.get(.screenPointForLayoutPoint, for: layoutPoint)
     }
 
     /// The screen size corresponding to a specific layout size.
     public func screenSize(forLayoutPoint layoutSize: CGSize) -> CGSize? {
-        try? element.get(.screenSizeForLayoutSize, with: layoutSize)
+        try? element.get(.screenSizeForLayoutSize, for: layoutSize)
     }
     
     // MARK: - Level indicator attributes

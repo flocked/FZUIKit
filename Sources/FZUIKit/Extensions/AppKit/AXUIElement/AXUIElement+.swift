@@ -68,7 +68,7 @@ public extension AXUIElement {
         DispatchQueue.main.syncSafely {
             do {
                 var element: AXUIElement?
-                try AXUIElementCopyElementAtPosition(self, Float(position.x), Float(position.y), &element).throwIfError("getElementAtPosition(\(position))")
+                try AXUIElementCopyElementAtPosition(self, Float(position.x), Float(position.y), &element).throwIfError("element(atScreenPosition: \(position))")
                 return element!
             } catch {
                 return nil
@@ -155,7 +155,7 @@ public extension AXUIElement {
         DispatchQueue.main.syncSafely {
             do {
                 var count = 0
-                try AXUIElementGetAttributeValueCount(self, attribute.rawValue as CFString, &count).throwIfError("count() of `\(attribute)`")
+                try AXUIElementGetAttributeValueCount(self, attribute.rawValue as CFString, &count).throwIfError("count(of: \(attribute))")
                 return count
             } catch {
                 return 0
@@ -174,9 +174,9 @@ public extension AXUIElement {
         get { try? get(attribute) }
         set(value) { try? set(attribute, to: value) }
     }
-
+    
     /// Returns the value for the specified attribute.
-    func get<Value>(_ attribute: AXAttribute) throws -> Value? {
+    func get(_ attribute: AXAttribute) throws -> Any? {
         try DispatchQueue.main.syncSafely {
             var value: AnyObject?
             let code = AXUIElementCopyAttributeValue(self, attribute.rawValue as CFString, &value)
@@ -189,8 +189,14 @@ public extension AXUIElement {
                     throw error
                 }
             }
-            return try unpack(value!) as? Value
+            return unpack(value!)
         }
+    }
+
+    /// Returns the value for the specified attribute.
+    @_disfavoredOverload
+    func get<Value>(_ attribute: AXAttribute) throws -> Value? {
+        try get(attribute) as? Value
     }
 
     /// Returns the value for the specified attribute.
@@ -198,16 +204,11 @@ public extension AXUIElement {
         let rawValue = try get(attribute) as Value.RawValue?
         return rawValue.flatMap(Value.init(rawValue:))
     }
-
+    
     /// Returns the value for the specified parameterized attribute and parameter.
-    func get<Value, Parameter>(_ attribute: AXParameterizedAttribute, with parameter: Parameter) throws -> Value? {
+    func get(_ attribute: AXParameterizedAttribute, for parameter: Any) throws -> Any? {
         try DispatchQueue.main.syncSafely {
-            guard let param = pack(parameter) else {
-                let error = AXError.packFailure(parameter)
-                AXLogger.print(error, "get(\(attribute), with:): pack failure", ["param": String(reflecting: parameter)])
-                throw error
-            }
-            
+            let param = try tryPack(parameter, log: "get(\(attribute), for: \(parameter))")
             var value: AnyObject?
             let code = AXUIElementCopyParameterizedAttributeValue(self, attribute.rawValue as CFString, param, &value)
             if let error = AXError(code: code) {
@@ -215,52 +216,43 @@ public extension AXUIElement {
                 case .attributeUnsupported, .parameterizedAttributeUnsupported, .noValue, .cannotComplete:
                     return nil
                 default:
-                    AXLogger.print(error, "(parameterized) get(\(attribute))", ["parameter": String(reflecting: param)])
+                    AXLogger.print("get(\(attribute), for: \(param))", error)
                     throw error
                 }
             }
-            return try unpack(value!) as? Value
+            return unpack(value!)
         }
     }
 
-    private func get(_ attributes: [AXAttribute]) throws -> [Any] {
+    /// Returns the value for the specified parameterized attribute and parameter.
+    @_disfavoredOverload
+    func get<Value>(_ attribute: AXParameterizedAttribute, for parameter: Any) throws -> Value? {
+       try get(attribute, for: parameter) as? Value
+    }
+
+    func get(_ attributes: [AXAttribute]) throws -> [Any] {
         try DispatchQueue.main.syncSafely {
             let cfAttributes = attributes.map(\.rawValue) as CFArray
             var values: CFArray?
             try AXUIElementCopyMultipleAttributeValues(self, cfAttributes, AXCopyMultipleAttributeOptions(), &values).throwIfError("get(\(attributes))")
-            return try (values! as [AnyObject]).map(unpack)
+            return (values! as [AnyObject]).map(unpack)
         }
     }
 
-    private func unpack(_ value: AnyObject) throws -> Any {
-        switch CFGetTypeID(value) {
-        case AXUIElementGetTypeID():
-            return value as! AXUIElement
-        case CFArrayGetTypeID():
-            return try (value as! [AnyObject]).map(unpack)
-        case AXValueGetTypeID():
-            let value = value as! AXValue
-            let type = AXValueGetType(value)
-            guard var result = type.zeroValue else { return value }
-            withUnsafeMutablePointer(to: &result) { pointer in
-                let success = AXValueGetValue(value, type, pointer)
-                assert(success, "Failed to get value for type: \(type)")
-            }
-            return result
-        default:
-            return value
-        }
-    }
-    
-    func printAttributes(level: Int = 0) {
-        var intend = String(repeating: "  ", count: level)
-        Swift.print(intend + "\(role?.rawValue ?? "AXUnknown")")
-        intend = String(repeating: "  ", count: level+1)
-        for attribute in attributes {
-            Swift.print(intend + "- " + attribute.rawValue)
-        }
-        children.forEach({ $0.printAttributes(level: level+1) })
-    }
+    private func unpack(_ value: AnyObject) -> Any {
+          switch CFGetTypeID(value) {
+          case AXUIElementGetTypeID():
+              return value as! AXUIElement
+          case CFArrayGetTypeID():
+              return (value as! [AnyObject]).map(unpack)
+          case CFDictionaryGetTypeID():
+              return (value as! [AnyHashable: AnyObject]).mapValues(unpack)
+          case AXValueGetTypeID():
+              return (value as! AXValue).unpack()
+          default:
+              return value
+          }
+      }
 
     /// A Boolean value indicating whether the specificed attribute is settable.
     func isSettable(_ attribute: AXAttribute) -> Bool {
@@ -278,19 +270,23 @@ public extension AXUIElement {
     /// Sets the specified attribute to the specified value.
     func set<Value>(_ attribute: AXAttribute, to value: Value) throws {
         try DispatchQueue.main.syncSafely {
-            guard let value = pack(value) else {
-                let error = AXError.packFailure(value)
-                AXLogger.print(error, "set(\(attribute)): pack failure", ["value": String(reflecting: value)])
-                throw error
-            }
-            
-            try AXUIElementSetAttributeValue(self, attribute.rawValue as CFString, value).throwIfError("set(\(attribute))", ["value": String(reflecting: value)])
+            let value = try tryPack(value, log: "set(\(attribute), to: \(value)")
+            try AXUIElementSetAttributeValue(self, attribute.rawValue as CFString, value).throwIfError("set(\(attribute), to: \(value)")
         }
     }
 
     /// Sets the specified attribute to the specified value.
     func set<Value: RawRepresentable>(_ attribute: AXAttribute, to value: Value) throws {
         try set(attribute, to: value.rawValue)
+    }
+    
+    private func tryPack(_  value: Any, log: String) throws -> AnyObject {
+        guard let value = pack(value) else {
+            let error = AXError.packFailure(value)
+            AXLogger.print(log, error)
+            throw error
+        }
+        return value
     }
 
     private func pack(_ value: Any) -> AnyObject? {
@@ -303,8 +299,12 @@ public extension AXUIElement {
             return AXValueCreate(AXValueType.cgRect, &value)
         case var value as CFRange:
             return AXValueCreate(AXValueType.cfRange, &value)
+        case var value as ApplicationServices.AXError:
+            return AXValueCreate(AXValueType.axError, &value)
         case let value as [Any]:
             return value.compactMap(pack) as CFArray
+        case let value as [AnyHashable: Any]:
+            return value.mapValues(pack) as CFDictionary
         case let value as AXUIElement:
             return value
         default:
@@ -317,7 +317,7 @@ public extension AXUIElement {
     /// Returns a new publisher for a notification emitted by this element.
     func publisher(for notification: AXNotification) -> AnyPublisher<AXUIElement, Error> {
         do {
-            return try AXNotificationObserver.shared(for: pid())
+            return try AXNotificationObserver.shared(for: processIdentifier())
                 .publisher(for: notification, element: self)
                 .handleEvents(receiveCompletion: { completion in
                     if case let .failure(error) = completion {
@@ -334,7 +334,7 @@ public extension AXUIElement {
     /// Returns a observer for the specified notification that calls the specified handler-
     func observe(_ notification: AXNotification, handler: @escaping (_ element: AXUIElement)->()) -> AXNotificationToken? {
         do {
-            return try AXNotificationObserver.shared(for: pid()).observation(notification, element: self, handler: handler)
+            return try AXNotificationObserver.shared(for: processIdentifier()).observation(notification, element: self, handler: handler)
         } catch {
             return nil
         }
@@ -343,7 +343,7 @@ public extension AXUIElement {
     // MARK: Metadata
 
     /// The process ID associated with this accessibility object.
-    func pid() throws -> pid_t {
+    func processIdentifier() throws -> pid_t {
         var pid: pid_t = -1
         try AXUIElementGetPid(self, &pid).throwIfError()
         guard pid > 0 else {
@@ -410,17 +410,17 @@ public extension AXUIElement {
                 }
                 return names.compactMap({ AXAction($0, try? actionDescription($0)) })
             } catch {
-                AXLogger.print(error, "actions")
+                AXLogger.print(error, "actions", error)
                 return []
             }
         }
     }
     
     /// Returns a localized description for the specified action.
-    internal func actionDescription(_ action: String) throws -> String {
+    private func actionDescription(_ action: String) throws -> String {
         try DispatchQueue.main.syncSafely {
             var desc: CFString?
-            try AXUIElementCopyActionDescription(self, action as CFString, &desc).throwIfError()
+            try AXUIElementCopyActionDescription(self, action as CFString, &desc).throwIfError("actionDescription(\(action))")
             return desc! as String
         }
     }
@@ -843,15 +843,25 @@ extension AXUIElement {
     }
 }
 
-extension AXValueType {
-    var zeroValue: Any? {
-        switch self {
-        case .cgPoint: return CGPoint.zero
-        case .cgSize: return CGSize.zero
-        case .cgRect: return CGRect.zero
-        case .cfRange: return CFRange()
-        case .axError: return ApplicationServices.AXError.success
-        default: return nil
+extension AXValue {
+    func unpack() -> Any {
+        let type = AXValueGetType(self)
+        func getValue<T>(_ value: T) -> T {
+            var result = value
+            withUnsafeMutablePointer(to: &result) {
+                let success = AXValueGetValue(self, type, $0)
+                assert(success, "Failed to get value for type: \(type)")
+            }
+            return result
+        }
+        switch type {
+        case .cgPoint: return getValue(CGPoint.zero)
+        case .cgSize:  return getValue(CGSize.zero)
+        case .cgRect:  return getValue(CGRect.zero)
+        case .cfRange: return getValue(CFRange())
+        case .axError: return getValue(ApplicationServices.AXError.success)
+        case .illegal: return self
+        @unknown default: return self
         }
     }
 }
