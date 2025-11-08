@@ -79,10 +79,10 @@ public extension AXUIElement {
     /// A Boolean value indicating whether the object is still valid.
     var isValid: Bool {
         do {
-            _ = try get(.role) as String?
+            _ = try get(.role)
         } catch AXError.invalidUIElement, AXError.cannotComplete {
             return false
-        } catch {}
+        } catch { }
         return true
     }
 
@@ -106,24 +106,13 @@ public extension AXUIElement {
     }
 
     /**
-     Returns a dictionary of all the object's attributes and their values.
+     Returns the values of all supported attributes.
      
-     - Parameter includeNilValues: A Boolean value indicating whether to include attributes where the value is `nil`. If `true`, `nil` values are represented by ``AXNilValue``.
+     - Parameter includeNilValues: A Boolean value that determines whether attributes with `nil` values should be included in the result. If `true`, `nil` values are included and represented by ``AXNilValue``.
      */
     func attributeValues(includeNilValues: Bool = true) -> [AXAttribute: Any] {
         do {
-            let attributes = attributes
-            let values = try get(attributes)
-            guard attributes.count == values.count else {
-                throw AXError.unexpectedValueCount(values)
-            }
-            var dict = includeNilValues ? Dictionary(zip(attributes, values), uniquingKeysWith: { _, b in b }) : Dictionary(zip(attributes, values).filter({ !($0.1 is AXNilValue) }), uniquingKeysWith: { _, b in b })
-            for attribute in AXAttribute.boolAttributes {
-                if let value = dict[attribute] as? Int {
-                    dict[attribute] = value == 1
-                }
-            }
-            return dict
+            return try get(attributes, includeNilValues: includeNilValues)
         } catch {
             AXLogger.print(error, "attributeValues()")
             return [:]
@@ -339,48 +328,6 @@ public extension AXUIElement {
             selection.location = lineRange.location + lineRange.length - 1
         }
         try set(.selectedTextRange, to: selection.cfRange)
-    }
-}
-
-
-public extension AXUIElement {
-    /**
-     A Boolean value indicating whether the current process is a trusted accessibility client.
-     
-     - Parameter prompt: Indicates whether the user will be informed if the current process is untrusted. This could be used, for example, on application startup to always warn a user if accessibility is not enabled for the current process. Prompting occurs asynchronously and does not affect the return value.
-     */
-    @discardableResult
-    static func isProcessTrusted(prompt: Bool = false) -> Bool {
-        AXIsProcessTrustedWithOptions([
-            kAXTrustedCheckOptionPrompt.takeUnretainedValue(): prompt,
-        ] as CFDictionary)
-    }
-}
-
-extension AXUIElement {
-    /// Observes the state of Mission Control using the specified block.
-    public static func observeMisionControl(handler: @escaping (_ state: MissionControlState)->()) -> AXNotificationToken? {
-        guard let dock = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.dock").first else { return nil }
-        let element = AXUIElement.application(dock)
-
-        var tokens: [AXNotificationToken] = []
-        tokens += element.observe("AXExposeShowAllWindows") { _ in handler(.showAllWindows) }
-        tokens += element.observe("AXExposeShowFrontWindows") { _ in handler(.showFrontWindows) }
-        tokens += element.observe("AXExposeShowDesktop") { _ in handler(.showDesktop) }
-        tokens += element.observe("AXExposeExit")  { _ in handler(.inactive) }
-        return AXCombinedNotificationToken(tokens, "AXExposeState")
-    }
-    
-    /// The state of Mission Control.
-    public enum MissionControlState {
-        /// Mission Control shows an overview of all windows on the current space.
-        case showAllWindows
-        /// Mission Control shows all front windows.
-        case showFrontWindows
-        /// Mission Control shows the desktop.
-        case showDesktop
-        /// Mission Control is inactive.
-        case inactive
     }
 }
 

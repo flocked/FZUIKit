@@ -34,7 +34,7 @@ public extension NSApplication {
          
      - Parameter prompt: A Boolean value indicating whether the user will be informed if the current process is untrusted. This could be used, for example, on application startup to always warn a user if accessibility is not enabled for the current process. Prompting occurs asynchronously and does not affect the return value.
      */
-    func checkAccessibilityAccess(prompt: Bool = true) -> Bool {
+    func isTrustedForAccessibility(prompt: Bool = true) -> Bool {
         AXIsProcessTrustedWithOptions([
             kAXTrustedCheckOptionPrompt.takeUnretainedValue(): prompt,
         ] as CFDictionary)

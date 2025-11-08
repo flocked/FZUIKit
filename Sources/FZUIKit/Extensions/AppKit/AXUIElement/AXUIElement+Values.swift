@@ -10,6 +10,7 @@ import AppKit
 import ApplicationServices
 import FZSwiftUtils
 
+/// Provides access to the attribute values of an accessibility element.
 public class AXUIElementValues {
     let element: AXUIElement
     
@@ -860,6 +861,35 @@ public class AXUIElementValues {
     /// The clear button of a search field.
     public var clearButton: AXUIElement? {
         element[.clearButton]
+    }
+    
+    /**
+     Replaces the text `range` with the given `replacement`.
+     
+     The location of the current selection is adjusted to stay on the same line, even if the replacement is smaller than the original content.
+     
+     Note that this won't be correct for selections larger than a single character. In practice we don't need it.
+     
+     - Returns: `true` if the text has been successfully replaced, otherwise `false`.
+     */
+    @discardableResult
+    func replaceText(in range: NSRange, with replacement: String) -> Bool {
+        guard var selection = selectedTextRange, let selectionStartLine = line(forIndex: selection.location) else { return false }
+        do {
+            try element.set(.selectedTextRange, to: range.cfRange)
+            try element.set(.selectedText, to: replacement)
+            
+            // Adjust and restore the original selection.
+            if let lineRange = self.range(forLine: selectionStartLine),
+               selection.location >= lineRange.location + lineRange.length {
+                selection.location = lineRange.location + lineRange.length - 1
+            }
+            try element.set(.selectedTextRange, to: selection.cfRange)
+            return true
+        } catch {
+            AXLogger.print(error)
+            return false
+        }
     }
 
     init(_ element: AXUIElement) {

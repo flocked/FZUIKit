@@ -26,7 +26,7 @@ public extension AXUIElement {
 }
 
 public extension AXUIElement {
-    /// Returns the value for the specified attribute.
+    /// Returns the value of the specified attribute.
     func get(_ attribute: AXAttribute) throws -> Any? {
         try DispatchQueue.main.syncSafely {
             var value: AnyObject?
@@ -44,19 +44,19 @@ public extension AXUIElement {
         }
     }
 
-    /// Returns the value for the specified attribute.
+    /// Returns the value of the specified attribute.
     @_disfavoredOverload
     func get<Value>(_ attribute: AXAttribute) throws -> Value? {
         try get(attribute) as? Value
     }
 
-    /// Returns the value for the specified attribute.
+    /// Returns the value of the specified attribute.
     func get<Value: RawRepresentable>(_ attribute: AXAttribute) throws -> Value? {
         let rawValue = try get(attribute) as Value.RawValue?
         return rawValue.flatMap(Value.init(rawValue:))
     }
     
-    /// Returns the value for the specified parameterized attribute and parameter.
+    /// Returns the value of the specified parameterized attribute and parameter.
     func get(_ attribute: AXParameterizedAttribute, for parameter: Any) throws -> Any? {
         try DispatchQueue.main.syncSafely {
             let param = try pack(parameter, log: "get(\(attribute), for: \(parameter))")
@@ -77,12 +77,30 @@ public extension AXUIElement {
        try get(attribute, for: parameter) as? Value
     }
 
-    internal func get(_ attributes: [AXAttribute]) throws -> [Any] {
+    /**
+     Retrieves the values of the specified attributes.
+
+     - Parameters:
+        - attributes: The attributes to retrieve.
+        - includeNilValues: A Boolean value that determines whether attributes with `nil` values should be included in the result. If `true`, `nil` values are included and represented by ``AXNilValue``.
+     */
+    func get(_ attributes: [AXAttribute], includeNilValues: Bool = true) throws -> [AXAttribute: Any] {
         try DispatchQueue.main.syncSafely {
+            let attributes = attributes.uniqued()
             let cfAttributes = attributes.map(\.rawValue) as CFArray
-            var values: CFArray?
-            try AXUIElementCopyMultipleAttributeValues(self, cfAttributes, AXCopyMultipleAttributeOptions(), &values).throwIfError("get(\(attributes))")
-            return (values! as [AnyObject]).map(unpack)
+            var array: CFArray?
+            try AXUIElementCopyMultipleAttributeValues(self, cfAttributes, .init(), &array).throwIfError("get(\(attributes))")
+            let values = (array! as [AnyObject]).map(unpack)
+            guard attributes.count == values.count else {
+                throw AXError.unexpectedValueCount(values)
+            }
+            var dict = includeNilValues ? Dictionary(zip(attributes, values), uniquingKeysWith: { _, b in b }) : Dictionary(zip(attributes, values).filter({ !($0.1 is AXNilValue) }), uniquingKeysWith: { _, b in b })
+            for attribute in AXAttribute.boolAttributes {
+                if let value = dict[attribute] as? Int {
+                    dict[attribute] = value == 1
+                }
+            }
+            return dict
         }
     }
     
@@ -120,7 +138,7 @@ public extension AXUIElement {
           case AXValueGetTypeID():
               return (value as! AXValue).unpack()
           default:
-              return value
+              return CFGetTypeID(value) == CFNull.typeID ? AXNilValue.shared : value
           }
       }
 }
@@ -174,7 +192,8 @@ public extension AXUIElement {
     }
 }
 
-extension AXValue {
+public extension AXValue {
+    /// Unpacks the value.
     func unpack() -> Any {
         let type = AXValueGetType(self)
         func getValue<T>(_ value: T) -> T {
@@ -199,7 +218,7 @@ extension AXValue {
     }
 }
 
-/// A type that represnts `nil`
+/// A type that represnts a `nil` value for an `AXUIElement` object.
 public final class AXNilValue: CustomStringConvertible, @unchecked Sendable {
     static let shared = AXNilValue()
     private init() {}
