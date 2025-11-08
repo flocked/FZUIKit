@@ -38,10 +38,16 @@ public extension AXUIElement {
         return application(runningApplication)
     }
 
-    /// Creates and returns the accessibility object for the running application with the specified process ID.
+    /// Creates and returns the accessibility object for the running application with the specified process identifier.
     static func application(pid: pid_t) -> AXUIElement {
         precondition(pid >= 0)
         return AXUIElementCreateApplication(pid)
+    }
+    
+    /// Creates and returns the accessibility element for the window with the specified window identifier.
+    static func window(for windowNumber: CGWindowID) -> AXUIElement? {
+        guard let info = CGWindowInfo(windowNumber: windowNumber) else { return nil }
+        return application(pid: info.ownerPID).values.windows.first(where: { $0.values.windowID == windowNumber })
     }
         
     /// Creates and returns the accessibility object at the specified position in top-left relative screen coordinates.
@@ -829,6 +835,33 @@ public extension AXUIElement {
             results = results.filter({ filter($0.element)  })
         }
         return results
+    }
+}
+
+extension AXUIElement {
+    /// Observes the state of Mission Control using the specified block.
+    public static func observeMisionControl(handler: @escaping (_ state: MissionControlState)->()) -> AXNotificationToken? {
+        guard let dock = NSRunningApplication.runningApplications(withBundleIdentifier: "com.apple.dock").first else { return nil }
+        let element = AXUIElement.application(dock)
+
+        var tokens: [AXNotificationToken] = []
+        tokens += element.observe("AXExposeShowAllWindows") { _ in handler(.showAllWindows) }
+        tokens += element.observe("AXExposeShowFrontWindows") { _ in handler(.showFrontWindows) }
+        tokens += element.observe("AXExposeShowDesktop") { _ in handler(.showDesktop) }
+        tokens += element.observe("AXExposeExit")  { _ in handler(.inactive) }
+        return AXCombinedNotificationToken(tokens, "AXExposeState")
+    }
+    
+    /// The state of Mission Control.
+    public enum MissionControlState {
+        /// Mission Control shows an overview of all windows on the current space.
+        case showAllWindows
+        /// Mission Control shows all front windows.
+        case showFrontWindows
+        /// Mission Control shows the desktop.
+        case showDesktop
+        /// Mission Control is inactive.
+        case inactive
     }
 }
 

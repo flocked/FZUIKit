@@ -64,4 +64,22 @@ public class AXNotificationToken: AXNotificationReceiver {
         invalidate()
     }
 }
+
+class AXCombinedNotificationToken: AXNotificationToken {
+    let tokens: [AXNotificationToken]
+    
+    init(_ tokens: [AXNotificationToken], _ notification: AXNotification) {
+        self.tokens = tokens
+        super.init(.init(notification: notification, source: tokens[0].element!), observer: tokens[0].observer!, handler: { _ in })
+    }
+    
+    override var isActive: Bool {
+        get { tokens.first?.isActive ?? false }
+        set { tokens.forEach({ $0.isActive = newValue })}
+    }
+    
+    override func invalidate() {
+        tokens.forEach({ $0.invalidate() })
+    }
+}
 #endif

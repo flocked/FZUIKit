@@ -80,7 +80,10 @@ public struct AXSubrole: Hashable, RawRepresentable, ExpressibleByStringLiteral 
     public static let toggle = AXSubrole(rawValue: kAXToggleSubrole)
     /// A switch control, used to toggle between two states.
     public static let `switch` = AXSubrole(rawValue: kAXSwitchSubrole)
+    /// A document window.
+    public static let documentWindow = AXSubrole("AXDocumentWindow")
 
+    
     // MARK: - Dock subroles
     /// An application item in the Dock.
     public static let applicationDockItem = AXSubrole(rawValue: kAXApplicationDockItemSubrole)
