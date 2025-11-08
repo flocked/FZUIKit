@@ -352,11 +352,15 @@ public struct AXAttribute: Hashable, RawRepresentable, ExpressibleByStringLitera
     public static let columnTitles = AXAttribute(kAXColumnTitlesAttribute)
     /// The sections of the element.
     public static let sections = AXAttribute("AXSections")
-    
+    /// Represents the child elements ordered by navigation of the accessibility element.
     public static let childrenInNavigationOrder = AXAttribute("AXChildrenInNavigationOrder")
 
 
     static let boolAttributes: [AXAttribute] = [.isBusy, .isEdited, .isMainWindow, .isModal, .isHidden, .isEnabled, .isExpanded, .isFocused, .isSelected, .isDisclosed, .isFrontmost, .isMinimized, .isApplicationRunning, .isAlternateUIVisible, .isEnhancedUserInterface, .isFullScreen, .isOrderedByRow, .isEditable, .manualAccessibility, .valueWraps]
+    
+    var isBool: Bool {
+        Self.boolAttributes.contains(self)
+    }
 }
 
 extension AXAttribute: CustomStringConvertible {

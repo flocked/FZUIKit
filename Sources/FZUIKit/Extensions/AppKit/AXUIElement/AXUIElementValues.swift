@@ -115,7 +115,7 @@ public class AXUIElementValues {
     }
 
     /// The highest-level element containing the element.
-    public var topLevelUIElement: AXUIElement? {
+    public var topLevelElement: AXUIElement? {
         element[.topLevelElement]
     }
 

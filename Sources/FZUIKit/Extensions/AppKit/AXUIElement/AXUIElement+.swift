@@ -75,14 +75,8 @@ public extension AXUIElement {
             }
         }
     }
-    
-    /// Returns the element at the specified position in the elements coordinate system.
-    func element(at position: CGPoint) -> AXUIElement? {
-        guard let frame: CGRect = self[.frame] else { return nil }
-        return element(atScreenPosition: CGPoint(x: frame.x + position.x, y: frame.y + (frame.height - position.y)))
-    }
 
-    /// A Boolean value indicating whether the object is valid.
+    /// A Boolean value indicating whether the object is still valid.
     var isValid: Bool {
         do {
             _ = try get(.role) as String?
@@ -106,20 +100,24 @@ public extension AXUIElement {
         }
     }
     
-    /// Returns an array of all settable attributes supported by the object.
+    /// Returns an array of all attributes supported by the element that can be changed.
     var settableAttributes: [AXAttribute] {
-        attributes.filter({ isSettable($0) })
+        attributes.filter(isAttributeSettable)
     }
 
-    /// Returns a dictionary of all the object's attributes and their values.
-    func attributeValues() -> [AXAttribute: Any] {
+    /**
+     Returns a dictionary of all the object's attributes and their values.
+     
+     - Parameter includeNilValues: A Boolean value indicating whether to include attributes where the value is `nil`. If `true`, `nil` values are represented by ``AXNilValue``.
+     */
+    func attributeValues(includeNilValues: Bool = true) -> [AXAttribute: Any] {
         do {
             let attributes = attributes
             let values = try get(attributes)
             guard attributes.count == values.count else {
                 throw AXError.unexpectedValueCount(values)
             }
-            var dict = Dictionary(zip(attributes, values), uniquingKeysWith: { _, b in b })
+            var dict = includeNilValues ? Dictionary(zip(attributes, values), uniquingKeysWith: { _, b in b }) : Dictionary(zip(attributes, values).filter({ !($0.1 is AXNilValue) }), uniquingKeysWith: { _, b in b })
             for attribute in AXAttribute.boolAttributes {
                 if let value = dict[attribute] as? Int {
                     dict[attribute] = value == 1
@@ -149,166 +147,30 @@ public extension AXUIElement {
     var values: AXUIElementValues {
         .init(self)
     }
-
-    /// Returns the count of the array of tne specified attribute.
-    func count(of attribute: AXAttribute) -> Int {
-        DispatchQueue.main.syncSafely {
-            do {
-                var count = 0
-                try AXUIElementGetAttributeValueCount(self, attribute.rawValue as CFString, &count).throwIfError("count(of: \(attribute))")
-                return count
-            } catch {
-                return 0
-            }
-        }
-    }
-
-    /// Gets/sets the value for the specified attribute.
-    subscript<Value>(_ attribute: AXAttribute) -> Value? {
-        get { try? get(attribute) }
-        set(value) { try? set(attribute, to: value) }
-    }
-
-    /// Gets/sets the value for the specified attribute.
-    subscript<Value: RawRepresentable>(_ attribute: AXAttribute) -> Value? {
-        get { try? get(attribute) }
-        set(value) { try? set(attribute, to: value) }
-    }
     
-    /// Returns the value for the specified attribute.
-    func get(_ attribute: AXAttribute) throws -> Any? {
-        try DispatchQueue.main.syncSafely {
-            var value: AnyObject?
-            let code = AXUIElementCopyAttributeValue(self, attribute.rawValue as CFString, &value)
-            if let error = AXError(code: code) {
-                switch error {
-                case .attributeUnsupported, .noValue, .cannotComplete:
-                    return nil
-                default:
-                    AXLogger.print(error, "get(\(attribute))")
-                    throw error
-                }
-            }
-            return unpack(value!)
-        }
-    }
-
-    /// Returns the value for the specified attribute.
-    @_disfavoredOverload
-    func get<Value>(_ attribute: AXAttribute) throws -> Value? {
-        try get(attribute) as? Value
-    }
-
-    /// Returns the value for the specified attribute.
-    func get<Value: RawRepresentable>(_ attribute: AXAttribute) throws -> Value? {
-        let rawValue = try get(attribute) as Value.RawValue?
-        return rawValue.flatMap(Value.init(rawValue:))
-    }
-    
-    /// Returns the value for the specified parameterized attribute and parameter.
-    func get(_ attribute: AXParameterizedAttribute, for parameter: Any) throws -> Any? {
-        try DispatchQueue.main.syncSafely {
-            let param = try tryPack(parameter, log: "get(\(attribute), for: \(parameter))")
-            var value: AnyObject?
-            let code = AXUIElementCopyParameterizedAttributeValue(self, attribute.rawValue as CFString, param, &value)
-            if let error = AXError(code: code) {
-                switch error {
-                case .attributeUnsupported, .parameterizedAttributeUnsupported, .noValue, .cannotComplete:
-                    return nil
-                default:
-                    AXLogger.print("get(\(attribute), for: \(param))", error)
-                    throw error
-                }
-            }
-            return unpack(value!)
-        }
-    }
-
-    /// Returns the value for the specified parameterized attribute and parameter.
-    @_disfavoredOverload
-    func get<Value>(_ attribute: AXParameterizedAttribute, for parameter: Any) throws -> Value? {
-       try get(attribute, for: parameter) as? Value
-    }
-
-    func get(_ attributes: [AXAttribute]) throws -> [Any] {
-        try DispatchQueue.main.syncSafely {
-            let cfAttributes = attributes.map(\.rawValue) as CFArray
-            var values: CFArray?
-            try AXUIElementCopyMultipleAttributeValues(self, cfAttributes, AXCopyMultipleAttributeOptions(), &values).throwIfError("get(\(attributes))")
-            return (values! as [AnyObject]).map(unpack)
-        }
-    }
-
-    private func unpack(_ value: AnyObject) -> Any {
-          switch CFGetTypeID(value) {
-          case AXUIElementGetTypeID():
-              return value as! AXUIElement
-          case CFArrayGetTypeID():
-              return (value as! [AnyObject]).map(unpack)
-          case CFDictionaryGetTypeID():
-              return (value as! [AnyHashable: AnyObject]).mapValues(unpack)
-          case AXValueGetTypeID():
-              return (value as! AXValue).unpack()
-          default:
-              return value
-          }
-      }
-
     /// A Boolean value indicating whether the specificed attribute is settable.
-    func isSettable(_ attribute: AXAttribute) -> Bool {
+    func isAttributeSettable(_ attribute: AXAttribute) -> Bool {
         DispatchQueue.main.syncSafely {
             do {
                 var settable: DarwinBoolean = false
-                try AXUIElementIsAttributeSettable(self, attribute.rawValue as CFString, &settable).throwIfError("isSettable(\(attribute))")
+                try AXUIElementIsAttributeSettable(self, attribute.rawValue as CFString, &settable).throwIfError("isAttributeSettable(\(attribute))")
                 return settable.boolValue
             } catch {
                 return false
             }
         }
     }
-
-    /// Sets the specified attribute to the specified value.
-    func set<Value>(_ attribute: AXAttribute, to value: Value) throws {
-        try DispatchQueue.main.syncSafely {
-            let value = try tryPack(value, log: "set(\(attribute), to: \(value)")
-            try AXUIElementSetAttributeValue(self, attribute.rawValue as CFString, value).throwIfError("set(\(attribute), to: \(value)")
-        }
-    }
-
-    /// Sets the specified attribute to the specified value.
-    func set<Value: RawRepresentable>(_ attribute: AXAttribute, to value: Value) throws {
-        try set(attribute, to: value.rawValue)
-    }
     
-    private func tryPack(_  value: Any, log: String) throws -> AnyObject {
-        guard let value = pack(value) else {
-            let error = AXError.packFailure(value)
-            AXLogger.print(log, error)
-            throw error
-        }
-        return value
-    }
-
-    private func pack(_ value: Any) -> AnyObject? {
-        switch value {
-        case var value as CGPoint:
-            return AXValueCreate(AXValueType.cgPoint, &value)
-        case var value as CGSize:
-            return AXValueCreate(AXValueType.cgSize, &value)
-        case var value as CGRect:
-            return AXValueCreate(AXValueType.cgRect, &value)
-        case var value as CFRange:
-            return AXValueCreate(AXValueType.cfRange, &value)
-        case var value as ApplicationServices.AXError:
-            return AXValueCreate(AXValueType.axError, &value)
-        case let value as [Any]:
-            return value.compactMap(pack) as CFArray
-        case let value as [AnyHashable: Any]:
-            return value.mapValues(pack) as CFDictionary
-        case let value as AXUIElement:
-            return value
-        default:
-            return value as AnyObject
+    /// The number of elements if the attribute is an array attribute, or `nil` otherwise.
+    func count(of attribute: AXAttribute) -> Int? {
+        DispatchQueue.main.syncSafely {
+            do {
+                var count = 0
+                try AXUIElementGetAttributeValueCount(self, attribute.rawValue as CFString, &count).throwIfError("count(of: \(attribute))")
+                return count
+            } catch {
+                return nil
+            }
         }
     }
 
@@ -433,6 +295,30 @@ public extension AXUIElement {
     }
     
     /**
+     Sets the timeout value for the element used in the accessibility API.
+     
+     The default value is `0`, which makes the element use the current global timeout value.
+     
+     - Returns: `true` if the timeout value has changed successfuly, otherwise `false`.
+     */
+    @discardableResult
+    func setMessagingTimeout(_ timeoutInSeconds: Float) -> Bool {
+        AXUIElementSetMessagingTimeout(self, timeoutInSeconds) == .success
+    }
+    
+    /**
+     Sets the global timeout value used in the accessibility API.
+     
+     Setting the value to `0` resets the global timeout to its default value.
+     
+     - Returns: `true` if the timeout value has changed successfuly, otherwise `false`.
+     */
+    @discardableResult
+    static func setMessagingTimeout(_ timeoutInSeconds: Float) -> Bool {
+        AXUIElementSetMessagingTimeout(systemWide, timeoutInSeconds) == .success
+    }
+    
+    /**
      Replaces the text `range` with the given `replacement`.
      
      The location of the current selection is adjusted to stay on the same line, even if the replacement is smaller than the original content.
@@ -456,219 +342,6 @@ public extension AXUIElement {
     }
 }
 
-extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
-    static var useShort = false
-    
-    public var description: String {
-        if Self.useShort {
-            return shortDescription
-        }
-        let id = hashValue
-        let role = values.role?.rawValue ?? "AXUnknown"
-        let pid = values.processIdentifier ?? 0
-        if let description = values.description, description != "" {
-            return "\(role) #\(id) \(description) (pid: \(pid))"
-        }
-        return "\(role) #\(id) (pid: \(pid))"
-    }
-    
-    public var debugDescription: String {
-        let id = hashValue
-        let role = values.role?.rawValue ?? "AXUnknown"
-        let pid = values.processIdentifier ?? 0
-        var string = "\(role) #\(id) "
-        if let subrole = values.subrole?.rawValue {
-            string = "\(role)/\(subrole) #\(id) "
-        }
-        if let description = values.description, description != "" {
-            string += "\(description) (pid: \(pid))"
-        } else {
-            string += "(pid: \(pid))"
-        }
-        return string
-    }
-    
-    /**
-     Returns a string with a visual description of the object.
-     
-     - Parameters:
-        - options: Options for the description.
-        - attributes: The attributes to include.
-        - maxDepth: The maximum depth of children to include.
-        - maxChildren: The maximum amount of children to include for each element.
-     */
-    public func visualDescription(options: DescriptionOptions = .detailed, attributes: [AXAttribute] = [], maxDepth: Int = .max, maxChildren: Int = .max) -> String {
-        strings(maxDepth: maxDepth, maxChildren: maxChildren, options: options, attributes: attributes).joined(separator: "\n")
-    }
-    
-    /// Options for a description of an accessibility object.
-    public struct DescriptionOptions: OptionSet, Sendable {
-        /// Role of the object.
-        public static var role = Self(rawValue: 1 << 0)
-        /// Subrole of the object.
-        public static var subrole = Self(rawValue: 1 << 1)
-        /// pid of the object.
-        public static var pid = Self(rawValue: 1 << 2)
-        /// Identifier of the object.
-        public static var identifier = Self(rawValue: 1 << 3)
-        /// Description of the object.
-        public static var description = Self(rawValue: 1 << 4)
-         /// Title of the object.
-         public static var title = Self(rawValue: 1 << 5)
-         /// Value of the object.
-         public static var value = Self(rawValue: 1 << 6)
-         /// Attributes of the object.
-         public static var attributes = Self(rawValue: 1 << 7)
-         /// Parameterized attributes of the object.
-         public static var parameterizedAttributes = Self(rawValue: 1 << 8)
-         /// Actions of the object.
-         public static var actions = Self(rawValue: 1 << 9)
-         
-         /// Full description of the object.
-         public static let all: Self = [.role, .subrole, .pid, .identifier, .description, .actions, .title, .value, .parameterizedAttributes, .attributes]
-         /// Very detailed description of the object.
-         public static let detailedLong: Self = [.role, .subrole, .pid, .identifier, .description, .actions, .title, .value]
-         /// Detailed description of the object.
-         public static let detailed: Self = [.role, .subrole, .description, .title, .value]
-         /// Short description of the object.
-         public static let short: Self = [.role, .subrole, .description]
-        
-        /// Info description of the object.
-        public static let info: Self = [.role, .description, .title, .attributes, .value]
-         
-         var attributes: Set<AXAttribute> {
-             var attributes: Set<AXAttribute> = [.children, .parent]
-             if contains(.title) { attributes += .title }
-             if contains(.description) { attributes += .description }
-             if contains(.value) { attributes += .value }
-             if contains(.role) { attributes += .role }
-             if contains(.subrole) { attributes += .subrole }
-             return attributes
-         }
-         
-        /// Creates the print options.
-        public init(rawValue: Int) {
-            self.rawValue = rawValue
-        }
-
-        public let rawValue: Int
-    }
-    
-    func strings(level: Int = 0, maxDepth: Int, maxChildren: Int, options: DescriptionOptions, attributes: [AXAttribute]) -> [String] {
-        var strings: [String] = []
-        strings += (String(repeating: "  ", count: level) + string(level: level+1, maxDepth: maxDepth, options: options, attributes: attributes))
-        if level+1 <= maxDepth {
-            var childs = children.collect()
-            childs = childs[safe: 0..<(maxChildren)]
-            childs.forEach({ strings += $0.strings(level: level+1, maxDepth: maxDepth, maxChildren: maxChildren, options: options, attributes: attributes) })
-        }
-        return strings
-    }
-    
-    func string(level: Int, maxDepth: Int = .max, options: DescriptionOptions, attributes: [AXAttribute]) -> String {
-        Self.useShort = true
-        let intendString = String(repeating: "  ", count: level) + "- "
-        let id = hashValue
-        let role = values.role?.rawValue ?? "AXUnknown"
-        let subrole = values.subrole?.rawValue
-        let pid = values.processIdentifier
-        let title = values.title
-        let description = values.description
-        var strings: [String] = []
-        if options.contains([.role, .subrole]), let subrole = subrole {
-            strings.append("\(role)/\(subrole)")
-        } else if options.contains(.subrole), let subrole = subrole {
-            strings.append("\(subrole)")
-        } else if options.contains(.role) {
-            strings.append("\(role)")
-        } else {
-            strings.append("AXUIElement")
-        }
-
-        if options.contains([.title, .description]) {
-            if let title = title, title != "", let description = description, description != "" {
-                strings[0] = strings[0] + " \"\(description)\""
-                if title != description {
-                    strings.append(intendString + "title: \"\(title)\"")
-                }
-            } else if let title = title, title != "" {
-                strings[0] = strings[0] + " \"\(title)\""
-            } else if let description = description, description != "" {
-                strings[0] = strings[0] + " \"\(description)\""
-            }
-        } else if options.contains(.description), let description = description, description != "" {
-            strings[0] = strings[0] + " \"\(description)\""
-        } else if options.contains(.title), let title = title, title != "" {
-            strings[0] = strings[0] + " \"\(title)\""
-        }
-        
-        if options.contains([.identifier, .pid]), let pid = pid {
-            strings[0] = strings[0] + " (id: \(id), pid: \(pid))"
-            //strings += (intendString + "id: \(id), pid: \(pid)")
-        } else if options.contains(.identifier) {
-            strings[0] = strings[0] + " (id: \(id))"
-           // strings += (intendString + "id: \(id)")
-        } else if options.contains(.pid), let pid = pid {
-            strings[0] = strings[0] + " (pid: \(pid))"
-         //   strings += (intendString + "pid: \(pid)")
-        }
-        
-        if options.contains(.value), let value = values.value {
-            strings.append(intendString + "value: \(value)\(isSettable(.value) ? " [Writable]" : "")")
-        }
-        
-        let skipping = options.attributes
-        var attributeValues = (options.contains(.attributes) ? attributeValues() : attributes.reduce(into: [AXAttribute: Any]()) {  dict, attribute in dict[attribute] = try? get(attribute) }).filter({ !skipping.contains($0.key) && ($0.value is Optional<AXValue>) })
-        if !attributeValues.isEmpty {
-            if attributeValues[.frame] != nil {
-                attributeValues[.position] = nil
-                attributeValues[.size] = nil
-            }
-          //  strings += (intendString + "attributes:")
-        //    let intendString = "\(String(repeating: "  ", count: level+1))- "
-            for attribute in attributeValues.sorted(by: \.key.rawValue) {
-                let key = attribute.key.rawValue
-              //  key = key.replacingOccurrences(of: "AX", with: "")
-                var valueString = "\(attribute.value)"
-                if let value = attribute.value as? [AXUIElement] {
-                    valueString = "\(value.compactMap({ $0.shortDescription }))"
-                }
-                strings += (intendString + "\(key): \(valueString)\(isSettable(attribute.key) ? " [Writable]" : "")")
-            }
-           // strings += attributeValues.sorted(by: \.key.rawValue).compactMap({ intendString + "\($0.key): \($0.value)\(isSettable($0.key) ? " [Writable]" : "")" })
-        }
-        
-        if options.contains(.parameterizedAttributes) {
-            let attributes = parameterizedAttributes
-            if !attributes.isEmpty {
-                strings += (intendString + "parameterizedAttributes:")
-                let intendString = "\(String(repeating: "  ", count: level+1))- "
-                strings += attributes.compactMap({ intendString + $0.rawValue })
-            }
-        }
-        
-        if options.contains(.actions) {
-            let actions = actions
-            if !actions.isEmpty {
-                strings += (intendString + "actions:")
-                let intendString = "\(String(repeating: "  ", count: level+1))- "
-                strings += actions.compactMap({ intendString + $0.description })
-            }
-        }
-        Self.useShort = false
-        return strings.joined(separator: "\n")
-    }
-    
-    var shortDescription: String {
-        let role = role?.rawValue ?? "AXUnknown"
-        if let description = values.description, description != "" {
-            return role + " \"\(description)\""
-        } else if let title = values.title, title != "" {
-            return role + " \"\(title)\""
-        }
-        return role
-    }
-}
 
 public extension AXUIElement {
     /**
@@ -681,138 +354,6 @@ public extension AXUIElement {
         AXIsProcessTrustedWithOptions([
             kAXTrustedCheckOptionPrompt.takeUnretainedValue(): prompt,
         ] as CFDictionary)
-    }
-}
-
-
-public extension AXUIElement {
-    /// A sequence of the children of the object.
-    var children: ChildrenSequence {
-        .init(self)
-    }
-
-    /// A sequence of children.
-    struct ChildrenSequence: Sequence {
-        let element: AXUIElement
-        var roles: [AXRole] = []
-        var subroles: [AXSubrole] = []
-        var attributes: [AXAttribute] = []
-        var maxDepth: Int = 0
-        var filter: ((AXUIElement)->(Bool))?
-        
-        init(_ element: AXUIElement, filter: ((AXUIElement)->(Bool))? = nil) {
-            self.element = element
-            self.filter = filter
-        }
-
-        public func makeIterator() -> Iterator {
-            Iterator(self)
-        }
-        
-        /// The roles of the children.
-        public func roles(_ roles: [AXRole]) -> Self {
-            var sequence = self
-            sequence.roles = roles
-            return sequence
-        }
-        
-        /// The roles of the children.
-        public func roles(_ roles: AXRole...) -> Self {
-            self.roles(roles)
-        }
-        
-        /// The subroles of the children.
-        public func subroles(_ subroles: [AXSubrole]) -> Self {
-            var sequence = self
-            sequence.subroles = subroles
-            return sequence
-        }
-        
-        /// The subroles of the children.
-        public func subroles(_ subroles: AXSubrole...) -> Self {
-            self.subroles(subroles)
-        }
-        
-        /// The attributes of the children.
-        public func attributes(_ attributes: AXAttribute...) -> Self {
-            self.attributes(attributes)
-        }
-        
-        /// The attributes of the children.
-        public func attributes(_ attributes: [AXAttribute]) -> Self {
-            var sequence = self
-            sequence.attributes = attributes
-            return sequence
-        }
-        
-        /// Includes the children of each child.
-        public var recursive: Self {
-            recursive(maxDepth: .max)
-        }
-        
-        /**
-         Includes the children of each child upto the specified maximum depth.
-         
-         - Parameter maxDepth: The maximum depth of enumeration. A value of `0` enumerates only the children of the object.
-         */
-        public func recursive(maxDepth: Int) -> Self {
-            var sequence = self
-            sequence.maxDepth = maxDepth.clamped(min: 0)
-            return sequence
-        }
-        
-        /// The number of children in the sequence.
-        public var count: Int {
-            reduce(0) { count, _ in count + 1 }
-        }
-        
-        /// Iterator of a children sequence.
-        public struct Iterator: IteratorProtocol {
-            let children: [(element: AXUIElement, level: Int)]
-            var index = -1
-            
-            init(_ sequence: ChildrenSequence) {
-                children = sequence.element._children(maxDepth: sequence.maxDepth, roles: sequence.roles, subroles: sequence.subroles, filter: sequence.filter)
-            }
-
-            public mutating func next() -> AXUIElement? {
-                guard let child = children[safe: index+1] else { return nil }
-                index += 1
-                return child.element
-            }
-            
-            /// The number of levels deep the iterator is in the children hierarchy being enumerated.
-            public var level: Int {
-                children[safe: index]?.level ?? 0
-            }
-        }
-    }
-    
-    func _children(level: Int = 0, maxDepth: Int, roles: [AXRole], subroles: [AXSubrole], filter: ((AXUIElement)->(Bool))?) -> [(element: AXUIElement, level: Int)] {
-        let next = level+1 <= maxDepth
-        var children: [AXUIElement] = (try? get(.children)) ?? []
-        var results: [(element: AXUIElement, level: Int)] = []
-        for child in children {
-            results.append((child, level))
-            if next {
-                results.append(contentsOf: child._children(level: level+1, maxDepth: maxDepth, roles: roles, subroles: subroles, filter: filter))
-            }
-        }
-        if !roles.isEmpty {
-            results = results.filter({ if let role = $0.element.role { return roles.contains(role) } else { return false } } )
-            children = children.filter({ if let role = $0.role { return roles.contains(role) } else { return false } })
-        }
-        if !subroles.isEmpty {
-            results = results.filter({ if let subrole = $0.element.subrole { return subroles.contains(subrole) } else { return false } } )
-        }
-        if !attributes.isEmpty {
-            results = results.filter({ $0.element.attributes.contains(any: attributes) })
-        }
-        
-        if let filter = filter {
-            results = results.filter({ filter($0.element)  })
-        }
-        return results
     }
 }
 
@@ -842,38 +383,6 @@ extension AXUIElement {
         case inactive
     }
 }
-
-extension AXValue {
-    func unpack() -> Any {
-        let type = AXValueGetType(self)
-        func getValue<T>(_ value: T) -> T {
-            var result = value
-            withUnsafeMutablePointer(to: &result) {
-                let success = AXValueGetValue(self, type, $0)
-                assert(success, "Failed to get value for type: \(type)")
-            }
-            return result
-        }
-        switch type {
-        case .cgPoint: return getValue(CGPoint.zero)
-        case .cgSize:  return getValue(CGSize.zero)
-        case .cgRect:  return getValue(CGRect.zero)
-        case .cfRange: return getValue(CFRange())
-        case .axError:
-            let error = getValue(ApplicationServices.AXError.success)
-            return error == .noValue ? AXNilValue.shared : error
-        case .illegal: return self
-        @unknown default: return self
-        }
-    }
-}
-
-final class AXNilValue: CustomStringConvertible, @unchecked Sendable {
-    static let shared = AXNilValue()
-    private init() {}
-    var description: String { "nil" }
-}
-
 
 @_silgen_name("_AXUIElementGetWindow") @discardableResult
 func _AXUIElementGetWindow(_ axUiElement: AXUIElement, _ wid: inout CGWindowID) -> ApplicationServices.AXError

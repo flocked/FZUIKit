@@ -25,9 +25,6 @@ public enum AXError: Error {
 
     /// Invalid process id.
     case invalidPid(pid_t)
-    
-    /// The current thread isn't the main thread.
-    case notMainThread
 
     /// A system error occurred, such as the failure to allocate an object.
     case failure
@@ -137,6 +134,13 @@ public enum AXError: Error {
         case .notEnoughPrecision: return -25214
         case .unknown(let aXError): return aXError.rawValue
         default: return nil
+        }
+    }
+    
+    var valueIsNil: Bool {
+        switch self {
+        case .attributeUnsupported, .parameterizedAttributeUnsupported, .noValue, .cannotComplete: return true
+        default: return false
         }
     }
 }
