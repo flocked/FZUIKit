@@ -313,14 +313,14 @@ class DropView: NSView {
         var fileURLs = info.pasteboardContent.fileURLs
         var filtered: [URL] = []
         if !handlers.allowedFiles.extensions.isEmpty {
-            filtered = fileURLs.removeAllAndReturn(where: { handlers.allowedFiles.extensions.contains($0.pathExtension.lowercased())  })
+            filtered = fileURLs.removeAll(where: { handlers.allowedFiles.extensions.contains($0.pathExtension.lowercased())  })
         }
         if !handlers.allowedFiles.fileTypes.isEmpty {
-            filtered += fileURLs.removeAllAndReturn(where: { if let fileType = $0.fileType { return handlers.allowedFiles.fileTypes.contains(fileType) } else { return false } })
+            filtered += fileURLs.removeAll(where: { if let fileType = $0.fileType { return handlers.allowedFiles.fileTypes.contains(fileType) } else { return false } })
         }
         if #available(macOS 11.0, *) {
             if !handlers.allowedFiles.contentTypes.isEmpty {
-                filtered += fileURLs.removeAllAndReturn(where:  { $0.contentType?.conforms(toAny: handlers.allowedFiles.contentTypes) == true })
+                filtered += fileURLs.removeAll(where:  { $0.contentType?.conforms(toAny: handlers.allowedFiles.contentTypes) == true })
             }
         }
         return handlers.allowedFiles.allowsMultipleFiles ? !filtered.isEmpty : filtered.count == 1

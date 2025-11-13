@@ -197,6 +197,18 @@ extension NSImageView {
         }
     }
     
+    /// The placeholder image to be displayed when `image` is `nil`.
+    public var placeholderImage: NSImage? {
+        get { value(forKey: "placeholderImage") }
+        set { setValue(safely: newValue, forKey: "placeholderImage") }
+    }
+    
+    /// Sets the placeholder image to be displayed when `image` is `nil`.
+    @discardableResult
+    public func placeholderImage(_ o: NSImage?) -> Self {
+        self.placeholderImage = image
+        return self
+    }
     
     /// The duration of the transition animation when changing the image.
     public var transitionDuration: TimeInterval {

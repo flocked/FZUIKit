@@ -62,7 +62,7 @@ public class PasteboardContent {
             var urls = fileURLs
             var matching: [URL] = []
             for fileURLFilter in fileURLFilters {
-                matching += urls.removeAllAndReturn(where: fileURLFilter)
+                matching += urls.removeAll(where: fileURLFilter)
             }
             return matching
         }
