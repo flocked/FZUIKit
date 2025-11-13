@@ -41,7 +41,7 @@ class DashedBorderView: NSUIView {
         hostingController = NSUIHostingController(rootView: ContentView(border: configuration, cornerRadius: cornerRadius, cornerCurve: cornerCurve, roundedCorners: roundedCorners))
         addSubview(withConstraint: hostingController.view)
         update()
-        optionalLayer?.zPosition = .greatestFiniteMagnitude
+        optionalLayer?.zPosition(.greatestFiniteMagnitude)
         observation = KeyValueObserver(self)
         #if os(macOS)
         observation.add(\.superview?.layer?.cornerRadius) { [weak self] old, new in

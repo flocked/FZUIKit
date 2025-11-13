@@ -118,7 +118,7 @@ public class DashedBorderLayer: CALayer {
     func sharedInit() {
         borderedLayer.fillColor = nil
         addSublayer(borderedLayer)
-        zPosition = .greatestFiniteMagnitude
+        zPosition(.greatestFiniteMagnitude)
         /*
          lineWidth: CGFloat = 1,
          lineCap: CGLineCap = .butt,

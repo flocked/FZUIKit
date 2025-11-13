@@ -102,7 +102,7 @@ extension UIView {
      */
     @objc open var zPosition: CGFloat {
         get { layer.zPosition }
-        set { layer.zPosition = newValue }
+        set { layer.zPosition = newValue.clamped(to: -CGFloat(Float.greatestFiniteMagnitude)...CGFloat(Float.greatestFiniteMagnitude)) }
     }
     
     /// The shape that is used for masking the view.

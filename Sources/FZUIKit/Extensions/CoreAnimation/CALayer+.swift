@@ -125,36 +125,42 @@ extension CALayer {
     }
     
     /// Sets the layer’s position on the z axis.
+    @discardableResult
     public func zPosition(_ zPosition: CGFloat) -> Self {
-        self.zPosition = zPosition
+        self.zPosition = zPosition.clamped(to: -CGFloat(Float.greatestFiniteMagnitude)...CGFloat(Float.greatestFiniteMagnitude))
         return self
     }
     
     /// Sets the anchor point for the layer’s position.
+    @discardableResult
     public func anchorPoint(_ anchorPoint: CGPoint) -> Self {
         self.anchorPoint = anchorPoint
         return self
     }
     
     /// Sets the anchor point for the layer’s position along the z axis.
+    @discardableResult
     public func anchorPointZ(_ anchorPointZ: CGFloat) -> Self {
         self.anchorPointZ = anchorPointZ
         return self
     }
     
     /// Sets the scale factor applied to the layer.
+    @discardableResult
     public func contentsScale(_ contentsScale: CGFloat) -> Self {
         self.contentsScale = contentsScale
         return self
     }
     
     /// Sets transform applied to the layer’s contents.
+    @discardableResult
     public func transform(_ transform: CATransform3D) -> Self {
         self.transform = transform
         return self
     }
     
     /// Sets the transform to apply to sublayers when rendering.
+    @discardableResult
     public func sublayerTransform(_ transform: CATransform3D) -> Self {
         self.sublayerTransform = transform
         return self
@@ -162,6 +168,7 @@ extension CALayer {
     
     #if os(macOS)
     /// Sets the autoresizing mask of the layer.
+    @discardableResult
     public func autoresizingMask(_ mask: CAAutoresizingMask) -> Self {
         self.autoresizingMask = mask
         return self
@@ -169,6 +176,7 @@ extension CALayer {
     #endif
     
     /// Sets the name of the layer.
+    @discardableResult
     public func name(_ name: String?) -> Self {
         self.name = name
         return self
@@ -649,7 +657,7 @@ extension CALayer {
                             let gradientLayer = CAGradientLayer().name("_gradientLayer")
                             layer.addSublayer(withConstraint: gradientLayer)
                             gradientLayer.sendToBack()
-                            gradientLayer.zPosition = -CGFloat.greatestFiniteMagnitude
+                            gradientLayer.zPosition(-CGFloat.greatestFiniteMagnitude)
                             gradientLayer._gradient = newValue
                         }
                     }
@@ -1111,7 +1119,7 @@ fileprivate class BorderLayer: CAShapeLayer {
         super.init()
         fillColor = nil
         frame = layer.bounds
-        zPosition = .greatestFiniteMagnitude
+        zPosition(.greatestFiniteMagnitude)
         layer.addSublayer(self)
         strokeColor = layer.borderColor
         lineWidth = layer.borderWidth
