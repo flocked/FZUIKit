@@ -122,7 +122,7 @@ extension NSView {
      */
     @objc open var zPosition: CGFloat {
         get { layer?.zPosition ?? 0.0 }
-        set { optionalLayer?.zPosition = newValue.clamped(to: -CGFloat(Int.max)...CGFloat(Int.max)) }
+        set { optionalLayer?.zPosition = newValue.clamped(to: -CGFloat.greatestFiniteMagnitude...CGFloat.greatestFiniteMagnitude) }
     }
 
     /**
