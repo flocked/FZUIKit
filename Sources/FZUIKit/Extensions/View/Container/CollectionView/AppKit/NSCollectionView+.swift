@@ -18,7 +18,7 @@ public extension NSCollectionView {
         collectionView.addEnclosingScrollView()
         return collectionView
     }
-        
+    
     /**
      The frame of the item at the specified index path.
      - Parameter indexPath: The index path of the item.
@@ -27,11 +27,11 @@ public extension NSCollectionView {
     func frameForItem(at indexPath: IndexPath) -> CGRect? {
         layoutAttributesForItem(at: indexPath)?.frame
     }
-        
-
+    
+    
     /**
      The item item at the specified location.
-         
+     
      - Parameter location: The location of the item.
      - Returns: The item at the specified location or `nil` if no item is available.
      */
@@ -39,10 +39,10 @@ public extension NSCollectionView {
         guard let indexPath = indexPathForItem(at: location) else { return nil }
         return item(at: indexPath)
     }
-        
+    
     /**
      The index paths in the specified rectangle.
-         
+     
      - Parameter rect: The rectangle.
      */
     func indexPaths(in rect: CGRect) -> [IndexPath] {
@@ -50,10 +50,10 @@ public extension NSCollectionView {
         itemI = itemI.filter({$0.1?.intersects(rect) == true})
         return itemI.compactMap({$0.0})
     }
-        
+    
     /**
      Changes the collection view layout.
-         
+     
      - Parameters:
         - layout: The new layout object for the collection view.
         - animated: A Boolean value indicating whether the collection view should animate changes from the current layout to the new layout.
@@ -62,10 +62,10 @@ public extension NSCollectionView {
     func setCollectionViewLayout(_ layout: NSCollectionViewLayout, animated: Bool, completion: (() -> Void)? = nil) {
         setCollectionViewLayout(layout, animationDuration: animated ? 0.25 : 0.0, completion: completion)
     }
-
+    
     /**
      Changes the collection view layout animated.
-         
+     
      - Parameters:
         - layout: The new layout object for the collection view.
         - animationDuration: The duration for the collection view animating changes from the current layout to the new layout. Specify a value of `0.0` to make the change without animations.
@@ -82,10 +82,19 @@ public extension NSCollectionView {
             completion?()
         }
     }
-        
+    
+    /**
+     Adds the specified items to the current selection.
+     
+     - Parameter indexPaths: The index paths of the items to select.
+     */
+    func selectItems(at indexPaths: Set<IndexPath>) {
+        selectItems(at: indexPaths, scrollPosition: [])
+    }
+    
     /**
      Selects the specified items and optionally scrolls the items into position.
-         
+     
      - Parameters:
         - indexPaths: The index paths of the items to select.
         - extend: `true` if the selection should be extended, `false` if the current selection should be changed.
