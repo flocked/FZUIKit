@@ -19,19 +19,6 @@ extension NSUIGestureRecognizer {
         /// The handler that determines whether the gesture recognizer should begin.
         public var shouldBegin: (()->(Bool))?
         
-        #if os(macOS)
-        /// The handler that determines whether the gesture recognizer should process an event.
-        public var shouldAttemptToRecognizeEvent: ((NSEvent)->(Bool))?
-        #else
-        /// The handler that determines whether the gesture recognizer should receive a touchbar touch.
-        public var shouldReceivePress: ((UIPress)->(Bool))?
-        /// The handler that determines whether the gesture recognizer should receive a touchbar touch.
-        public var shouldReceiveEvent: ((UIEvent)->(Bool))?
-        #endif
-        
-        /// The handler that determines whether the gesture recognizer should receive a touchbar touch.
-        public var shouldReceiveTouch: ((NSUITouch)->(Bool))?
-        
         /// The handler that determines whether the gesture recognizer must wait to recognize it's gesture until the other gesture recognizer fails.
         public var shouldRequireFailure: ((NSUIGestureRecognizer)->(Bool))?
         
@@ -40,6 +27,20 @@ extension NSUIGestureRecognizer {
         
         /// The handler that determines whether the gesture recognizer should be allowed to recognize it's gesture simultaneously with the other one.
         public var shouldRecognizeSimultaneously: ((NSUIGestureRecognizer)->(Bool))?
+        
+        #if os(macOS)
+        /// The handler that determines whether the gesture recognizer should process an event.
+        public var shouldAttemptToRecognizeEvent: ((_ event: NSEvent)->(Bool))?
+        /// The handler that determines whether the gesture recognizer should receive a touchbar touch.
+        public var shouldReceiveTouch: ((_ touch: NSTouch)->(Bool))?
+        #else
+        /// The handler that determines whether the gesture recognizer should receive a press.
+        public var shouldReceivePress: ((_ press: UIPress)->(Bool))?
+        /// The handler that determines whether the gesture recognizer should receive a touch or press event.
+        public var shouldReceiveEvent: ((_ event: UIEvent)->(Bool))?
+        /// The handler that determines whether the gesture recognizer should receive a touch.
+        public var shouldReceiveTouch: ((_ touch: UITouch)->(Bool))?
+        #endif
         
         var needsDelegate: Bool {
             #if os(macOS)
