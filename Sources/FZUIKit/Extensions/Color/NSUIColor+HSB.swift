@@ -214,12 +214,33 @@ public struct HSBAComponents {
     public func toCGColor() -> CGColor {
         NSUIColor(self).cgColor
     }
+    
+    func hsla() -> HSLAComponents {
+        let lightness = ((2.0 - saturation) * brightness) / 2.0
+        var saturation = saturation
+        switch lightness {
+        case 0.0, 1.0:
+            saturation = 0.0
+        case 0.0 ..< 0.5:
+            saturation = (saturation * brightness) / (lightness * 2.0)
+        default:
+            saturation = (saturation * brightness) / (2.0 - lightness * 2.0)
+        }
+        return HSLAComponents(hue * 360.0, saturation, lightness, alpha)
+    }
 }
 
 public extension Color {
     /// Creates a color using the HSBA components.
     init(_ hsbaComponents: HSBAComponents) {
         self.init(hue: hsbaComponents.hue, saturation: hsbaComponents.saturation, brightness: hsbaComponents.brightness, opacity: hsbaComponents.alpha)
+    }
+}
+
+public extension CGColor {
+    /// Returns the HSBA (hue, saturation, brightness, alpha) components of the color.
+    func hsbaComponents() -> HSBAComponents? {
+        nsUIColor?.hsbaComponents() ?? rgbaComponents()?.hsba()
     }
 }
 

@@ -18,18 +18,13 @@ public extension NSUIColor {
     func cmybComponents() -> CMYBComponents {
         var cmyb = CMYBComponents(0, 0, 0, 0, 1.0)
         #if os(macOS)
-        if colorSpace == NSColorSpace.deviceCMYK {
+        if colorSpace == NSColorSpace.deviceCMYK || colorSpace == NSColorSpace.genericCMYK {
             getCyan(&cmyb.cyan, magenta: &cmyb.magenta, yellow: &cmyb.yellow, black: &cmyb.black, alpha: &cmyb.alpha)
-        } else if let color = usingColorSpace(.deviceCMYK) {
+        } else if let color = usingColorSpace(.deviceCMYK) ?? usingColorSpace(.genericCMYK) {
             color.getCyan(&cmyb.cyan, magenta: &cmyb.magenta, yellow: &cmyb.yellow, black: &cmyb.black, alpha: &cmyb.alpha)
         }
         #else
-        let components = cgColor.converted(to: CGColorSpace(name: .genericCMYK)!, intent: .defaultIntent, options: nil)?.components ?? []
-        cmyb.cyan = components[safe: 0] ?? 0.0
-        cmyb.magenta = components[safe: 1] ?? 0.0
-        cmyb.yellow = components[safe: 2] ?? 0.0
-        cmyb.black = components[safe: 3] ?? 0.0
-        cmyb.alpha = components[safe: 4] ?? 0.0
+        cmyb = cgColor.cmybComponents() ?? cmyb
         #endif
         return cmyb
     }
@@ -42,6 +37,30 @@ public extension NSUIColor {
         self.init(cgColor: CGColor(genericCMYKCyan: cmybComponents.cyan, magenta: cmybComponents.magenta, yellow: cmybComponents.yellow, black: cmybComponents.black, alpha: cmybComponents.alpha))
 
         #endif
+    }
+}
+
+public extension CGColor {
+    /// Returns the CMYB (cyan, magenta, yellow, black, alpha) components of the color.
+    func cmybComponents() -> CMYBComponents? {
+        #if os(macOS)
+        if let cmybComponents = nsUIColor?.cmybComponents() {
+            return cmybComponents
+        }
+        #endif
+        var color = self
+        if color.colorSpace?.model != .cmyk, #available(iOS 9.0, macOS 10.11, tvOS 9.0, watchOS 2.0, *) {
+            color = color.converted(to: CGColorSpaceCreateDeviceCMYK()) ?? color
+        }
+        guard color.colorSpace?.model == .cmyk, let components = color.components else { return nil }
+        switch components.count {
+        case 4:
+            return CMYBComponents(components[0], components[1], components[2], components[3], 1.0)
+        case 5:
+            return CMYBComponents(components[0], components[1], components[2], components[3],  components[4])
+        default:
+            return nil
+        }
     }
 }
 

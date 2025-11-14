@@ -195,6 +195,17 @@ public extension Color {
     }
 }
 
+public extension CGColor {
+    /**
+     Returns the HSLA (hue, saturation, lightness, alpha) components of the color.
+
+     - Note: The hue value is between 0.0 and 360.0 degree.
+     */
+    func hslaComponents() -> HSLAComponents? {
+        nsUIColor?.hslaComponents() ?? rgbaComponents()?.hsla()
+    }
+}
+
 public extension CFType where Self == CGColor {
     /// Creates a color using the HSLA components.
     init(_ hslaComponents: HSLAComponents) {

@@ -39,30 +39,6 @@ public extension CGColor {
         converted(to: colorSpace, intent: intent, options: nil)
     }
 
-    /// Returns the RGBA (red, green, blue, alpha) components of the color.
-    func rgbaComponents() -> RGBAComponents? {
-        var color = self
-        if color.colorSpace?.model != .rgb, #available(iOS 9.0, macOS 10.11, tvOS 9.0, watchOS 2.0, *) {
-            color = color.converted(to: CGColorSpaceCreateDeviceRGB(), intent: .defaultIntent, options: nil) ?? color
-        }
-        guard let components = color.components else { return nil }
-        switch components.count {
-        case 2:
-            return RGBAComponents(components[0], components[0], components[0], components[1])
-        case 3:
-            return RGBAComponents(components[0], components[1], components[2], 1.0)
-        case 4:
-            return RGBAComponents(components[0], components[1], components[2], components[3])
-        default:
-            #if os(macOS) || os(iOS) || os(tvOS)
-            let ciColor = CIColor(cgColor: color)
-            return RGBAComponents(ciColor.red, ciColor.green, ciColor.blue, ciColor.alpha)
-            #else
-            return nil
-            #endif
-        }
-    }
-
     /**
      Creates a new color object whose component values are a weighted sum of the current color object and the specified color object's.
 
@@ -220,11 +196,5 @@ public extension CGColor {
 
     internal var nsUIColor: NSUIColor? {
         NSUIColor(cgColor: self)
-    }
-}
-
-extension CGColor: CustomStringConvertible {
-    public var description: String {
-        CFCopyDescription(self) as String
     }
 }

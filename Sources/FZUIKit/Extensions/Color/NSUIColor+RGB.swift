@@ -227,6 +227,40 @@ public struct RGBAComponents: Codable, Hashable {
         self.blue = blue.clamped(to: 0.0...1.0)
         self.alpha = alpha.clamped(to: 0.0...1.0)
     }
+    
+    func hsla() -> HSLAComponents {
+        hsba().hsla()
+    }
+    
+    func hsba() -> HSBAComponents {
+          let maxV = max(red, max(green, blue))
+          let minV = min(red, min(green, blue))
+          let delta = maxV - minV
+
+          // Brightness
+          let brightness = maxV
+
+          // Saturation
+          let saturation = maxV == 0 ? 0 : delta / maxV
+
+          // Hue
+          var hue: CGFloat = 0
+
+          if delta != 0 {
+              if maxV == red {
+                  hue = (green - blue) / delta
+              } else if maxV == green {
+                  hue = 2 + (blue - red) / delta
+              } else {
+                  hue = 4 + (red - green) / delta
+              }
+
+              hue /= 6
+              if hue < 0 { hue += 1 }
+          }
+
+        return .init(hue, saturation, brightness, alpha)
+      }
 }
 
 public extension NSUIColor {
@@ -240,6 +274,35 @@ public extension Color {
     /// Creates a color using the RGBA components.
     init(_ rgbaComponents: RGBAComponents) {
         self.init(red: rgbaComponents.red, green: rgbaComponents.green, blue: rgbaComponents.blue, opacity: rgbaComponents.alpha)
+    }
+}
+
+public extension CGColor {
+    /// Returns the RGBA (red, green, blue, alpha) components of the color.
+    func rgbaComponents() -> RGBAComponents? {
+        if let rgbaComponents = nsUIColor?.rgbaComponents() {
+            return rgbaComponents
+        }
+        var color = self
+        if color.colorSpace?.model != .rgb, #available(iOS 9.0, macOS 10.11, tvOS 9.0, watchOS 2.0, *) {
+            color = color.converted(to: .deviceRGB) ?? color.converted(to: .genericRGB) ?? color
+        }
+        guard color.colorSpace?.model == .rgb, let components = color.components else { return nil }
+        switch components.count {
+        case 2:
+            return RGBAComponents(components[0], components[0], components[0], components[1])
+        case 3:
+            return RGBAComponents(components[0], components[1], components[2], 1.0)
+        case 4:
+            return RGBAComponents(components[0], components[1], components[2], components[3])
+        default:
+            #if os(macOS) || os(iOS) || os(tvOS)
+            let ciColor = CIColor(cgColor: color)
+            return RGBAComponents(ciColor.red, ciColor.green, ciColor.blue, ciColor.alpha)
+            #else
+            return nil
+            #endif
+        }
     }
 }
 
