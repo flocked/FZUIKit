@@ -29,8 +29,8 @@ extension CGColorSpace {
         CGColorSpaceUsesExtendedRange(self)
     }
     
-    /// A Boolean value indicating wheter the color space is linearized.
-    public var isLinearized: Bool {
+    /// A Boolean value indicating whether the color space is linear.
+    public var isLinear: Bool {
         (name as? String)?.contains("Linear") == true
     }
     
@@ -52,31 +52,26 @@ extension CGColorSpace {
         CGColorSpaceIsHLGBased(self)
     }
     
-    /// Returns the color space linearized.
+    /// Returns a linear version of the color space.
     @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
-    public var linearized: CGColorSpace? {
+    public var linear: CGColorSpace? {
         if name as? String == "kCGColorSpaceGenericRGB" {
             return CGColorSpace(name: .genericRGBLinear)
         }
         return CGColorSpaceCreateLinearized(self)
     }
     
-    /// Returns the color space non-linearized.
+    /// Returns a non-linear version of the color space.
     @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
-    public var nonLinearized: CGColorSpace? {
-        guard let name = name as? String, isLinearized else { return nil }
+    public var nonLinear: CGColorSpace? {
+        guard let name = name as? String, isLinear else { return nil }
         return CGColorSpace(name: name.removingOccurrences(of: "Linear") as CFString)
     }
 
-    /// Returns the color space with an extended range and linearized.
+    /// Returns a linear version of the color space with extended range.
     @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
-    public var extendedLinearized: CGColorSpace? {
+    public var extendedLinear: CGColorSpace? {
         CGColorSpaceCreateExtendedLinearized(self)
-    }
-    
-    public enum ColorRange {
-        case standard
-        case extended
     }
         
     /// Returns the color space with a standard range.
@@ -141,6 +136,17 @@ extension CGColorSpaceModel: CustomStringConvertible {
         case .pattern: return "pattern"
         case .XYZ: return "XYZ"
         default: return "unknown(\(rawValue))"
+        }
+    }
+    
+    ///The number of color components in a color space with this model.
+    public var numberOfComponents: Int {
+        switch self {
+        case .unknown: return 0
+        case .monochrome: return 1
+        case .rgb, .lab, .XYZ: return 3
+        case .cmyk: return 4
+        default: return 0
         }
     }
 }

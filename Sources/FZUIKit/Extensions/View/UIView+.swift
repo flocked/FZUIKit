@@ -16,6 +16,16 @@ extension UIView {
         next as? UIViewController ?? (next as? UIView)?.parentController
     }
     
+    /**
+     Returns the farthest descendant in the view hierarchy of the current view, including itself, that contains the specified point.
+     
+     - Parameter point: A point in the view’s local coordinate system.
+     - Returns: The view object that’s the farthest descendent of the current view and contains point. Returns `nil` if the point lies completely outside the view hierarchy of the current view.
+     */
+    public func hitTest(_ point: CGPoint) -> UIView? {
+        hitTest(point, with: nil)
+    }
+    
     /// Sets the background color of the view.
     @discardableResult
     public func backgroundColor(_ color: NSUIColor?) -> Self {

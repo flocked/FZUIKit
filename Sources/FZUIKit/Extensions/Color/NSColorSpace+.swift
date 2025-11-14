@@ -7,6 +7,7 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
 extension NSColorSpace {
     /// Initializes and returns a color space object initialized from a `CGColorSpace` with the specified name.
@@ -17,22 +18,22 @@ extension NSColorSpace {
     
     /// Returns the color space linearized.
     @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
-    public var linearized: NSColorSpace? {
-        guard let colorSpace = cgColorSpace?.linearized else { return nil }
+    public var linear: NSColorSpace? {
+        guard let colorSpace = cgColorSpace?.linear else { return nil }
         return NSColorSpace(cgColorSpace: colorSpace)
     }
     
     /// Returns the color space non-linearized.
     @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
-    public var nonLinearized: NSColorSpace {
-        guard let cgColorSpace = cgColorSpace?.nonLinearized else { return self }
+    public var nonLinear: NSColorSpace {
+        guard let cgColorSpace = cgColorSpace?.nonLinear else { return self }
         return NSColorSpace(cgColorSpace: cgColorSpace) ?? self
     }
     
     /// Returns the color space extended linearized.
     @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
-    public var extendedLinearized: NSColorSpace? {
-        guard let colorSpace = cgColorSpace?.extendedLinearized else { return nil }
+    public var extendedLinear: NSColorSpace? {
+        guard let colorSpace = cgColorSpace?.extendedLinear else { return nil }
         return NSColorSpace(cgColorSpace: colorSpace)
     }
     
@@ -50,6 +51,34 @@ extension NSColorSpace {
         return NSColorSpace(cgColorSpace: colorSpace)
     }
     
+    /// A Boolean value indicating whether the color space uses an extended range.
+    public var usesExtendedRange: Bool {
+        cgColorSpace?.usesExtendedRange ?? false
+    }
+    
+    /// A Boolean value indicating whether the color space is linear.
+    public var isLinear: Bool {
+        cgColorSpace?.isLinear ?? false
+    }
+    
+    /// A Boolean value indicating whether the color space uses the ITU-R BT.2100 transfer function.
+    @available(macOS 11.0, *)
+    public var usesITUR_2100TF: Bool {
+        cgColorSpace?.usesITUR_2100TF ?? false
+    }
+    
+    /// A Boolean value indicating whether the color space uses a PQ (Perceptual Quantizer) transfer function.
+    @available(macOS 12.0, *)
+    public var isPQBased: Bool {
+        cgColorSpace?.isPQBased ?? false
+    }
+    
+    /// A Boolean value indicating whether the color space uses a HLG (Hybrid Log-Gamma) transfer function.
+    @available(macOS 12.0, *)
+    public var isHLGBased: Bool {
+        cgColorSpace?.isHLGBased ?? false
+    }
+    
     /// The base color space of a derived color space, or itself if no base exists.
     @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, *)
     public var base: NSColorSpace {
@@ -63,49 +92,26 @@ extension NSColorSpace {
         return NSColorSpaceName(rawValue: name)
     }
     
-    /// Calibrated color space with red, green, blue, and alpha components.
-    public static var calibratedRGB: NSColorSpace {
-        NSColorSpace(name: .genericRGB) ?? .deviceRGB
-    }
-    
-    /// Calibrated color space with white and alpha components (pure white is 1.0)
-    public static var calibratedGray: NSColorSpace {
-        NSColorSpace(name: .genericGray) ?? .deviceGray
-    }
-    
     /// Returns all color spaces available on the system that are displayed in the color panel, in the order they are displayed in the color panel.
     public static func allAvailableColorSpaces() -> [NSColorSpace] {
         availableColorSpaces(with: .unknown).sorted(by: \.colorSpaceModel.rawValue)
     }
-    
-    /*
-    /// Returns the NSColorSpace with the specified name.
-    public static func named(_ name: NSColorSpaceName) -> NSColorSpace? {
-        for model in NSColorSpace.Model.allCases {
-            if let colorSpace = cachedAvailableColorSpaces(for: model).first(where: { $0.name == name }) {
-                return colorSpace
-            }
-        }
-        return nil
-    }
-    
-    private static func cachedAvailableColorSpaces(with model: Model) -> [NSColorSpace] {
-        if let spaces = cachedAvailableColorSpaces[model] {
-            return spaces
-        }
-        let spaces = NSColorSpace.availableColorSpaces(with: model)
-        cachedAvailableColorSpaces[model] = spaces
-        return spaces
-    }
-    
-    private static var cachedAvailableColorSpaces: [Model: [NSColorSpace]] {
-        get { getAssociatedValue("cachedAvailableColorSpaces") ?? [:] }
-        set { setAssociatedValue(newValue, key: "cachedAvailableColorSpaces") }
-    }
-     */
 }
 
-extension NSColorSpace.Model: CaseIterable {
+extension NSColorSpace.Model: CaseIterable, CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .gray: return "gray"
+        case .rgb: return "rgb"
+        case .cmyk: return "cmyk"
+        case .lab: return "lab"
+        case .deviceN: return "deviceN"
+        case .indexed: return "indexed"
+        case .patterned: return "patterned"
+        default: return "unknown"
+        }
+    }
+    
     public static let allCases: [Self] = [.rgb, .cmyk, .gray,.lab, .deviceN, .indexed, .patterned]
 }
 #endif

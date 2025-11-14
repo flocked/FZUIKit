@@ -50,12 +50,15 @@ extension NSUIControl {
     }
     
     /// Sets the Boolean value that determines whether the context menu interaction is the control’s primary action.
+    @available(iOS 14.0, tvOS 17.0, *)
     @discardableResult
     public func showsMenuAsPrimaryAction(_ shows: Bool) -> Self {
         showsMenuAsPrimaryAction = shows
         return self
     }
+    #endif
     
+    #if os(iOS)
     /// Sets the default text to display in the control’s tooltip.
     @available(iOS 15.0, *)
     @discardableResult

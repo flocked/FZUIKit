@@ -25,7 +25,7 @@ extension NSImage {
             var rect = $0
             rect.center = center
             rect.origin = origin
-            origin = origin.offset(x: offset.x, y: offset.y)
+            origin = origin.offset(by: offset)
             return rect
         })
         

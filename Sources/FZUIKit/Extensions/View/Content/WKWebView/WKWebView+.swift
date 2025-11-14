@@ -45,9 +45,24 @@ public extension WKWebView {
         }
     }
 
-    /// Fetches all stored cookies asynchronously.
+    /// Returns all stored cookies asynchronously.
     func cookies() async -> [HTTPCookie] {
         await configuration.websiteDataStore.httpCookieStore.allCookies()
+    }
+    
+    /// Fetches all cookies for the current webpage asynchronously and returns them to the specified completion handler.
+    func cookiesForCurrentPage(completion: @escaping ([HTTPCookie]) -> ()) {
+        guard let host = url?.host else {
+            completion([])
+            return
+        }
+        cookies { completion($0.filter { $0.domain.contains(host) }) }
+    }
+    
+    /// Returns all cookies for the current webpage asynchronously.
+    func cookiesForCurrentPage() async -> [HTTPCookie] {
+        guard let host = url?.host else { return [] }
+        return await configuration.websiteDataStore.httpCookieStore.allCookies().filter({ $0.domain.contains(host) })
     }
 }
 #endif

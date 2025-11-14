@@ -130,6 +130,7 @@ extension UIButton {
         .init(type: .contactAdd, primaryAction: primaryAction)
     }
 
+    #if os(iOS)
     /// Creates a close button to dismiss panels and views.
     public static var close: UIButton {
         .init(type: .close, primaryAction: nil)
@@ -143,6 +144,7 @@ extension UIButton {
     public static func close(primaryAction: UIAction) -> UIButton {
         .init(type: .close, primaryAction: primaryAction)
     }
+    #endif
     
     /**
      Sets the specified title.

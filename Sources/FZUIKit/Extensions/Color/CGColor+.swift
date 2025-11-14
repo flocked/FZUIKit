@@ -14,23 +14,24 @@ import SwiftUI
 
 public extension CGColor {
     /**
-     Creates a new color in a different color space that matches the provided color.
+     Creates a new color in the specified color space.
 
      - Parameters:
-        - colorSpaceName: The name of the color space.
+        - colorSpaceName: The name of the destination color space.
         - intent: The mechanism to use to match the color when the color is outside the gamut of the new color space.
-     - Returns: A new color in the destination color space that matches (or closely approximates) the source color.
+     - Returns: A new color in the destination color space that matches (or closely approximates) the current color.
      */
-    func converted(to colorSpaceName: CGColorSpaceName, intent: CGColorRenderingIntent = .defaultIntent, options: CFDictionary? = nil) -> CGColor? {
+    @_disfavoredOverload
+    func converted(to colorSpaceName: CGColorSpaceName, intent: CGColorRenderingIntent = .defaultIntent) -> CGColor? {
         guard let colorSpace = CGColorSpace(name: colorSpaceName) else { return nil }
-        return converted(to: colorSpace, intent: intent, options: options)
+        return converted(to: colorSpace, intent: intent, options: nil)
     }
     
     /**
-     Creates a new color in a different color space that matches the provided color.
+     Creates a new color in the specified color space.
 
      - Parameters:
-        - colorSpaceName: The name of the color space.
+        - colorSpace: The destination color space.
         - intent: The mechanism to use to match the color when the color is outside the gamut of the new color space.
      - Returns: A new color in the destination color space that matches (or closely approximates) the source color.
      */

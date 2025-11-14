@@ -51,6 +51,10 @@ public typealias NSUITableViewDiffableDataSource = NSTableViewDiffableDataSource
 public typealias NSUICollectionViewUpdateItem = NSCollectionViewUpdateItem
 public typealias NSUICollectionViewDelegateFlowLayout = NSCollectionViewDelegateFlowLayout
 public typealias NSUIViewProtocol = NSViewProtocol
+public typealias NSUIScrollView = NSScrollView
+public typealias NSUITableView = NSTableView
+public typealias NSUIGestureRecognizerDelegate = NSGestureRecognizerDelegate
+public typealias NSUITouch = NSTouch
 #elseif canImport(UIKit)
 import UIKit
 public typealias NSUIBezierPath = UIBezierPath
@@ -98,4 +102,8 @@ public typealias NSUICollectionViewDiffableDataSource = UICollectionViewDiffable
 public typealias NSUITableViewDiffableDataSource = UITableViewDiffableDataSource
 public typealias NSUICollectionViewUpdateItem = UICollectionViewUpdateItem
 public typealias NSUICollectionViewDelegateFlowLayout = UICollectionViewDelegateFlowLayout
+public typealias NSUIScrollView = UIScrollView
+public typealias NSUITableView = UITableView
+public typealias NSUIGestureRecognizerDelegate = UIGestureRecognizerDelegate
+public typealias NSUITouch = UITouch
 #endif

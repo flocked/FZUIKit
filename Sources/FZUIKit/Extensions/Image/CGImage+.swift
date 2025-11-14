@@ -130,16 +130,30 @@ fileprivate extension Array<(image: CGImage, hash: Int, index: Int)> {
 }
 
 extension CFType where Self == CGImage {
-    /// Creates an image with the specified size and color space.
-    public init(size: CGSize, colorSpace: CGColorSpaceName = .deviceRGB, hasAlpha: Bool = true) {
+    /**
+     Creates a new image with the specified size and color space.
+     
+     - Parameters:
+       - size: The size of the image.
+       - colorSpace: The color space to use. If `nil` the default color space is used.
+       - hasAlpha: A Boolean value indicating whether the image should include an alpha channel.
+     */
+    public init(size: CGSize, colorSpace: CGColorSpaceName? = nil, hasAlpha: Bool = true) {
         let context = CGContext(size: size, space: colorSpace, hasAlpha: hasAlpha)!
         context.clear(CGRect(.zero, size))
         self = context.makeImage()!
     }
     
-    /// Creates an image with the specified size color space and color.
-    public init(size: CGSize, colorSpace: CGColorSpaceName = .deviceRGB, color: CGColor) {
-        let context = CGContext(size: size, space: colorSpace, hasAlpha: color.alpha > 0.0)!
+    /**
+     Creates a new image filled with the specified color.
+     
+     - Parameters:
+       - size: The size of the image.
+       - colorSpace: The color space to use. If `nil` the default color space is used.
+       - color: The fill color of the image.
+     */
+    public init(size: CGSize, colorSpace: CGColorSpaceName? = nil, color: CGColor) {
+        let context = CGContext(size: size, space: colorSpace, hasAlpha: color.alpha < 1.0)!
         context.saveGState()
         context.fill(color, in: CGRect(origin: .zero, size: size))
         context.restoreGState()
@@ -151,13 +165,31 @@ extension CFType where Self == CGImage {
      
      - Parameters:
         - size: The size of the image.
-        - colorSpace: The name of the color space.
-        - hasAlpha:  A Boolean value indicating whether the image has an alpha channel.
+        - colorSpace: The name of the color space. If `nil` the default color space is used.
+        - hasAlpha: A Boolean value indicating whether the image has an alpha channel.
         - drawingHandler: A block that draws the contents of the image representation.
      */
-    public init(size: CGSize, colorSpace: CGColorSpaceName = .deviceRGB, hasAlpha: Bool = true, drawingHandler: ((CGContext) -> Void)) {
+    public init(size: CGSize, colorSpace: CGColorSpaceName? = nil, hasAlpha: Bool = true, drawingHandler: ((CGContext) -> Void)) {
         let context = CGContext(size: size, space: colorSpace, hasAlpha: hasAlpha)!
         context.saveGState()
+        drawingHandler(context)
+        context.restoreGState()
+        self = context.makeImage()!
+    }
+    
+    /**
+     Creates an image whose contents are drawn using the specified block.
+     
+     - Parameters:
+        - size: The size of the image.
+        - colorSpace: The name of the color space. If `nil` the default color space is used.
+        - color: The background color of the image.
+        - drawingHandler: A block that draws the contents of the image representation.
+     */
+    public init(size: CGSize, colorSpace: CGColorSpaceName? = nil, color: CGColor, drawingHandler: ((CGContext) -> Void)) {
+        let context = CGContext(size: size, space: colorSpace, hasAlpha: color.alpha < 1.0)!
+        context.saveGState()
+        context.fill(color, in: CGRect(origin: .zero, size: size))
         drawingHandler(context)
         context.restoreGState()
         self = context.makeImage()!

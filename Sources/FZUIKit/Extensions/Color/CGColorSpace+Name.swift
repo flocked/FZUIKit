@@ -11,44 +11,44 @@ import FZSwiftUtils
 extension CFType where Self == CGColorSpace {
     /// Creates a color space with the specified name.
     public init?(name: CGColorSpaceName) {
-        guard let space = CGColorSpace(name: name.rawValue as CFString) else { return nil }
+        guard let space = CGColorSpace(name: name.rawValue) else { return nil }
         self = space
     }
 }
 
 /// Constants that specify color space names.
 public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
-    public let rawValue: String
-    
-    /// The number of color components in a color space.
-    public let numberOfComponents: Int
+    public let rawValue: CFString
     
     /// The color space model of the color space.
     public let model: CGColorSpaceModel
     
-    public init(rawValue: String, model: CGColorSpaceModel = .rgb, numberOfComponents: Int = 3) {
-        self.rawValue = rawValue
-        self.numberOfComponents = numberOfComponents
-        self.model = model
+    ///The number of color components in the color space.
+    public var numberOfComponents: Int {
+        model.numberOfComponents
     }
     
-    public init(rawValue: String) {
+    public init(rawValue: CFString) {
         self.rawValue = rawValue
-        self.numberOfComponents = 3
         self.model = .rgb
+    }
+    
+    public init(rawValue: CFString, model: CGColorSpaceModel) {
+        self.rawValue = rawValue
+        self.model = model
     }
     
     public init(stringLiteral value: String) {
-        self.rawValue = value
-        self.numberOfComponents = 3
+        self.rawValue = value as CFString
         self.model = .rgb
     }
     
-    init(_ rawValue: CFString, model: CGColorSpaceModel = .rgb, components: Int = 3) {
-        self.rawValue = rawValue as String
-        self.numberOfComponents = components
+    init(_ rawValue: CFString, model: CGColorSpaceModel = .rgb) {
+        self.rawValue = rawValue
         self.model = model
     }
+    
+    private var _rawValue: String { rawValue as String }
     
     // MARK: - RGB color spaces
     
@@ -111,22 +111,22 @@ public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
     // MARK: - Grayscale color spaces
         
     /// The color space that represents a calibrated or device-dependent gray color space.
-    public static let deviceGray = Self("kCGColorSpaceDeviceGray" as CFString, model: .monochrome, components: 1)
+    public static let deviceGray = Self("kCGColorSpaceDeviceGray" as CFString, model: .monochrome)
     
     /// The extended range grayscale color space.
-    public static let extendedGray = Self(CGColorSpace.extendedGray, model: .monochrome, components: 1)
+    public static let extendedGray = Self(CGColorSpace.extendedGray, model: .monochrome)
     
     /// The extended linear grayscale color space.
-    public static let extendedLinearGray = Self(CGColorSpace.extendedLinearGray, model: .monochrome, components: 1)
+    public static let extendedLinearGray = Self(CGColorSpace.extendedLinearGray, model: .monochrome)
     
     /// The generic grayscale color space.
-    public static let genericGray = Self("kCGColorSpaceGenericGray" as CFString, model: .monochrome, components: 1)
+    public static let genericGray = Self("kCGColorSpaceGenericGray" as CFString, model: .monochrome)
     
     /// The generic grayscale color space with a gamma of 2.2.
-    public static let genericGrayGamma2_2 = Self(CGColorSpace.genericGrayGamma2_2, model: .monochrome, components: 1)
+    public static let genericGrayGamma2_2 = Self(CGColorSpace.genericGrayGamma2_2, model: .monochrome)
     
     /// The linear grayscale color space.
-    public static let linearGray = Self(CGColorSpace.linearGray, model: .monochrome, components: 1)
+    public static let linearGray = Self(CGColorSpace.linearGray, model: .monochrome)
     
     // MARK: - ITUR color spaces
     
@@ -167,13 +167,13 @@ public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
     @available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, *)
     public static let itur_709_PQ = Self(CGColorSpace.itur_709_PQ)
     
-    // MARK: - Remaining color spaces
-    
+    // MARK: - Other color spaces
+
     /// The generic CMYK color space.
-    public static let genericCMYK = Self(CGColorSpace.genericCMYK, model: .cmyk, components: 4)
+    public static let genericCMYK = Self(CGColorSpace.genericCMYK, model: .cmyk)
     
     /// The color space that represents a calibrated or device-dependent CMYK color space.
-    public static let deviceCMYK = Self("kCGColorSpaceDeviceCMYK" as CFString, model: .cmyk, components: 4)
+    public static let deviceCMYK = Self("kCGColorSpaceDeviceCMYK" as CFString, model: .cmyk)
     
     /// The generic CIE Lab color space.
     public static let genericLab = Self(CGColorSpace.genericLab, model: .lab)
@@ -181,9 +181,14 @@ public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
     /// The generic XYZ color space.
     public static let genericXYZ = Self(CGColorSpace.genericXYZ, model: .XYZ)
     
-    /// Returns all color space names.
-    public static var allNames: [CGColorSpaceName] {
-        var colorSpaceNames: [CGColorSpaceName] = [.acescgLinear, .adobeRGB1998, .deviceRGB, .extendedLinearSRGB, .extendedSRGB, .genericRGBLinear, .linearSRGB, .rommRGB, .sRGB, .dcip3, .displayP3, .displayP3_HLG, .extendedLinearDisplayP3, .deviceGray, .extendedGray, .extendedLinearGray, .genericGrayGamma2_2, .linearGray, .extendedLinearITUR_2020, .itur_2020, .itur_709, .genericCMYK, .deviceCMYK, .genericLab, .genericXYZ]
+    /// Returns the names of all available color spaces with the specified model.
+    public static func availableNames(with model: CGColorSpaceModel) -> [Self] {
+        availableNames.filter({ $0.model == model })
+    }
+    
+    /// Returns the names of all available color spaces.
+    public static let availableNames: [CGColorSpaceName] = {
+        var colorSpaceNames: [CGColorSpaceName] = [.acescgLinear, .adobeRGB1998, .deviceRGB, .extendedLinearSRGB, .extendedSRGB, .genericRGB, .genericRGBLinear, .linearSRGB, .rommRGB, .sRGB, .dcip3, .displayP3, .displayP3_HLG, .extendedLinearDisplayP3, .deviceGray, .extendedGray, .extendedLinearGray, .genericGray, .genericGrayGamma2_2, .linearGray, .extendedLinearITUR_2020, .itur_2020, .itur_709, .genericCMYK, .deviceCMYK, .genericLab, .genericXYZ]
         if #available(macOS 10.15.4, iOS 13.4, tvOS 13.4, watchOS 6.2, *) {
             colorSpaceNames += .displayP3_PQ
         }
@@ -191,17 +196,9 @@ public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
             colorSpaceNames += [.extendedDisplayP3, .extendedITUR_2020, .itur_2100_HLG, .itur_2100_PQ]
         }
         if #available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, *) {
-            colorSpaceNames += [.linearDisplayP3, .itur_2020_sRGBGamma, .itur_709_HLG, .itur_709_PQ, .linearITUR_2020,]
+            colorSpaceNames += [.linearDisplayP3, .itur_2020_sRGBGamma, .itur_709_HLG, .itur_709_PQ, .linearITUR_2020]
         }
         let modalColorSpaces = Dictionary(grouping: colorSpaceNames, by: \.model.rawValue)
-        return modalColorSpaces.keys.sorted(.smallestFirst).flatMap({ (modalColorSpaces[$0] ?? []).sorted(by: \.rawValue) })
-    }
+        return modalColorSpaces.keys.sorted(.smallestFirst).flatMap({ (modalColorSpaces[$0] ?? []).sorted(by: \._rawValue) })
+    }()
 }
-
-/*
- Generic RGB colorspace NSCalibratedRGBColorSpace kCGColorSpaceGenericRGB
- Device CMYK colorspace NSDeviceCMYKColorSpace kCGColorSpaceDeviceCMYK
- Device Gray colorspace NSDeviceWhiteColorSpace kCGColorSpaceDeviceGray
- Generic Gray colorspace NSCalibratedWhiteColorSpace kCGColorSpaceGenericGray
-
- */

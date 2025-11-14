@@ -29,30 +29,30 @@ public extension NSUIColor {
      
      - Returns: The new color object. This method converts the receiver's color to an equivalent one in the new color space. Although the new color might have different component values, it looks the same as the original. Returns `nil` if conversion is not possible. If the receiver's color space is the same as that specified in space, this method returns the same color object.
      */
-    func usingCGColorSpace(_ colorSpace: CGColorSpace) -> NSUIColor? {
+    @_disfavoredOverload
+    func usingColorSpace(_ space: CGColorSpace) -> NSUIColor? {
         #if os(macOS)
-        if let colorSpace = NSColorSpace(cgColorSpace: colorSpace) {
-            guard self.colorSpace != colorSpace else { return self }
-            if let color = usingColorSpace(colorSpace) {
-                return color
-            }
+        if colorSpace.cgColorSpace == space { return self }
+        if let colorSpace = NSColorSpace(cgColorSpace: space),  let color = usingColorSpace(colorSpace) {
+            return color
         }
         #endif
-        guard cgColor.colorSpace != colorSpace else { return self }
-        return cgColor.converted(to: colorSpace)?.nsUIColor
+        let cgColor = cgColor
+        guard cgColor.colorSpace != space else { return self }
+        return cgColor.converted(to: space)?.nsUIColor
     }
     
     /**
      Creates a new color representing the color of the current color in the specified color space.
      
-     - Parameter name: The name of the color space of the new.
+     - Parameter name: The name of the color space of the new color.
      
      - Returns: The new color. This method converts the receiver's color to an equivalent one in the new color space. Although the new color might have different component values, it looks the same as the original. Returns `nil` if conversion is not possible. If the receiver's color space is the same as that specified in space, this method returns the same color object.
      */
     @_disfavoredOverload
-    func usingCGColorSpace(_ name: CGColorSpaceName) -> NSUIColor? {
+    func usingColorSpace(_ name: CGColorSpaceName) -> NSUIColor? {
         guard let space = CGColorSpace(name: name) else { return nil }
-        return usingCGColorSpace(space)
+        return usingColorSpace(space)
     }
     
     /// A Boolean value indicating whether the color is light.

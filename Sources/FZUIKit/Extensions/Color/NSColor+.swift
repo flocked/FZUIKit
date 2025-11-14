@@ -56,6 +56,19 @@ public extension NSColor {
         return Self.supportedColorSpaces.lazy.compactMap({ self.resolvedColor(for: appearance, colorSpace: $0) }).first
     }
     
+    func resolvedColor(for appearance: NSAppearance) -> NSColor? {
+        guard type == .catalog else { return nil }
+        let supportedColorSpaces: [NSColorSpace] = [.deviceRGB, .sRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .displayP3]
+        for colorSpace in supportedColorSpaces {
+            if let color = appearance.performAsCurrentDrawingAppearance( {
+                usingColorSpace(colorSpace)
+            }) {
+                return color
+            }
+        }
+        return nil
+    }
+    
     
     /**
      Generates the resolved color for the specified appearance provider object (e.g. `NSView`, `NSWindow` or `NSApplication`).

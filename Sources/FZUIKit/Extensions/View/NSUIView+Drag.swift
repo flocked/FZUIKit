@@ -124,9 +124,9 @@ public extension NSUIView {
 
     private var isInteractive: Bool {
         if self is NSUIControl { return true }
-        if self is NSScrollView { return true }
+        if self is NSUIScrollView { return true }
         if self is NSUITextView { return true }
-        if self is NSTableView { return true }
+        if self is NSUITableView { return true }
         if self is NSUICollectionView { return true }
         return false
     }

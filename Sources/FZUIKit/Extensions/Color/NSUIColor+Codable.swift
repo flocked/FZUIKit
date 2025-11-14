@@ -20,7 +20,6 @@ extension NSUIColor: Codable {
     
     public func encode(to encoder: Encoder) throws {
         let dynamicColors = dynamicColors
-
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(dynamicColors.light.values, forKey: .light)
         if dynamicColors.light != dynamicColors.dark {

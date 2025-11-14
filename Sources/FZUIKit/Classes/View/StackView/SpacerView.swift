@@ -135,9 +135,15 @@ open class SpacerView: NSUIView {
         }
     }
     
+    #if os(macOS)
     open override func hitTest(_ point: NSPoint) -> NSView? {
-        return nil
+        nil
     }
+    #else
+    open override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        nil
+    }
+    #endif
     
     /// Creates a spacer view.
     public init() {
@@ -164,9 +170,13 @@ fileprivate extension NSUIStackView {
             #else
             let keyPath: WritableKeyPath<NSUIStackView, Orientation> = \.axis
             #endif
+            #if os(macOS) || os(iOS)
             orientationHook = try hookAfter(set: keyPath, uniqueValues: true) { object, old, new in
                 object.arrangedViews.compactMap({ $0 as? SpacerView }).forEach({ $0.update() })
             }
+            #else
+            try Self.swizzleOrientation()
+            #endif
         } catch {
             Swift.print(error)
         }
@@ -189,4 +199,30 @@ fileprivate extension NSUIStackView {
     }
     #endif
 }
+
+#if os(tvOS)
+fileprivate extension NSUIStackView {
+    static var didSwizzleOrientation: Bool {
+        get { getAssociatedValue("didSwizzleOrientation") ?? false }
+        set { setAssociatedValue(newValue, key: "didSwizzleOrientation") }
+    }
+    
+    static func swizzleOrientation() throws {
+        guard !didSwizzleOrientation else { return }
+        didSwizzleOrientation = true
+        try NSUIStackView.swizzle {
+            #selector(setter: UIStackView.axis) <-> #selector(setter: UIStackView.swizzledAxis)
+        }
+    }
+    
+    @objc var swizzledAxis: NSLayoutConstraint.Axis {
+        get { axis }
+        set {
+            self.swizzledAxis = newValue
+            arrangedSubviews.compactMap({ $0 as? SpacerView}).forEach({ $0.update() })
+        }
+    }
+}
 #endif
+#endif
+
