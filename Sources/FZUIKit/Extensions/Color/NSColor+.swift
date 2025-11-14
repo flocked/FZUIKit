@@ -24,11 +24,6 @@ public extension NSColor {
         })
     }
     
-    /// Returns the dynamic light and dark colors.
-    var dynamicColors: (light: NSColor, dark: NSColor) {
-        (resolvedColor(for: .aqua), resolvedColor(for: .darkAqua))
-    }
-    
     /**
      Generates the resolved color for the specified appearance.
      
@@ -87,6 +82,27 @@ public extension NSColor {
         guard type == .componentBased || type == .catalog else { return nil }
         guard !Self.supportedColorSpaces.contains(colorSpace) else { return self }
         return Self.supportedColorSpaces.lazy.compactMap({ self.usingColorSpace($0) }).first
+    }
+    
+    /**
+     Creates a new color object representing the color of the current color object in the specified color space.
+     
+     - Parameters:
+        - space: The color space of the new `NSColor` object.
+        - includeVariation: A Boolean value indicating whether to include both variations of a dynamic color (e.g. a color that has a light and dark appearance).
+     - Returns: The new `NSColor` object. This method converts the receiver’s color to an equivalent one in the new color space. Although the new color might have different component values, it looks the same as the original. Returns `nil` if conversion is not possible.
+     
+     If the receiver’s color space is the same as that specified in space, this method returns the same `NSColor` object.
+     */
+    func usingColorSpace(_ space: NSColorSpace, includeVariation: Bool) -> NSColor? {
+        guard includeVariation else { return usingColorSpace(space) }
+        let dynamic = dynamicColors
+        guard dynamic.light != dynamic.dark else { return usingColorSpace(space) }
+        let light = dynamic.light.usingColorSpace(space)
+        let dark = dynamic.dark.usingColorSpace(space)
+        guard let light = light else { return dark }
+        guard let dark = dark else { return light }
+        return NSUIColor(light: light, dark: dark)
     }
     
     /// A `CIColor` representation of the color, or `nil` if the color cannot be accurately represented as `CIColor`.

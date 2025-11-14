@@ -33,8 +33,26 @@ public extension NSUIColor {
     func usingColorSpace(_ space: CGColorSpace) -> NSUIColor? {
         #if os(macOS)
         if colorSpace.cgColorSpace == space { return self }
-        if let colorSpace = NSColorSpace(cgColorSpace: space),  let color = usingColorSpace(colorSpace) {
+        if let colorSpace = NSColorSpace(cgColorSpace: space),  let color = usingColorSpace(colorSpace, includeVariation: true) {
             return color
+        }
+        #endif
+        #if os(macOS) || os(iOS) || os(tvOS)
+        let dynamicColors = dynamicColors
+        if dynamicColors.isDynamic {
+            var light = dynamicColors.light.cgColor
+            var dark = dynamicColors.light.cgColor
+            guard light.colorSpace != space || dark.colorSpace != space else { return self }
+            if light.colorSpace != space {
+                guard let color = light.converted(to: space) else { return nil }
+                light = color
+            }
+            if dark.colorSpace != space {
+                guard let color = dark.converted(to: space) else { return nil }
+                dark = color
+            }
+            guard let light = light.nsUIColor, let dark = dark.nsUIColor else { return nil }
+            return NSUIColor(light: light, dark: dark)
         }
         #endif
         let cgColor = cgColor
@@ -83,12 +101,6 @@ public extension NSUIColor {
     
     #if os(macOS) || os(iOS) || os(tvOS)
     
-    /// A Boolean value indicating whether the color contains a different light and dark color variant.
-    var isDynamic: Bool {
-        let dyamic = self.dynamicColors
-        return dyamic.light != dyamic.dark
-    }
-    
     /**
      Creates a gradient color object that uses the specified gradient and size.
      
@@ -127,3 +139,45 @@ public extension NSUIColor {
     }
     #endif
 }
+
+#if os(macOS) || os(iOS) || os(tvOS)
+public extension NSUIColor {
+    /// Returns the dynamic light and dark color variation of the color.
+    var dynamicColors: DynamicColor {
+        #if os(macOS)
+        DynamicColor(resolvedColor(for: .aqua), resolvedColor(for: .darkAqua))
+        #else
+        DynamicColor(resolvedColor(with: .light), resolvedColor(with: .dark))
+        #endif
+    }
+    
+    /// A Boolean value indicating whether the color contains a different light and dark color variant.
+    var isDynamic: Bool {
+        dynamicColors.isDynamic
+    }
+    
+    /// The dynamic light and dark variations of a color.
+    struct DynamicColor {
+        /// The light color.
+        public let light: NSUIColor
+        
+        /// The dark color.
+        public let dark: NSUIColor
+        
+        /// A Boolean value indicating whether the light color differs to the dark color.
+        public var isDynamic: Bool {
+            light != dark
+        }
+        
+        /// The `CGColor` representation of the light and dark color.
+        public var cgColor: (light: CGColor, dark: CGColor) {
+            (light.cgColor, dark.cgColor)
+        }
+        
+        init(_ light: NSUIColor, _ dark: NSUIColor) {
+            self.light = light
+            self.dark = dark
+        }
+    }
+}
+#endif
