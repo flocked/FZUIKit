@@ -49,9 +49,9 @@ extension NSUIColor: Codable {
 
 extension Decodable where Self: NSUIColor {
     public init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        let light = try values.decode([CGFloat].self, forKey: .light)
-        if let dark = try? values.decode([CGFloat].self, forKey: .dark) {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let light: [CGFloat] = try container.decode(.light)
+        if let dark: [CGFloat] = try container.decodeIfPresent(.dark) {
             self = NSUIColor(light:  Self(light), dark: Self(dark)) as! Self
         } else {
             self = Self(light)

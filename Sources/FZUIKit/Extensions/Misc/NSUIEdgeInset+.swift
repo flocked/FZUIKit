@@ -108,11 +108,8 @@ extension NSUIEdgeInsets: Codable {
     }
 
     public init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        self = .init(top: try values.decode(CGFloat.self, forKey: .top),
-                     left: try values.decode(CGFloat.self, forKey: .left),
-                     bottom: try values.decode(CGFloat.self, forKey: .bottom),
-                     right: try values.decode(CGFloat.self, forKey: .right))
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self = .init(top: try container.decode(.top), left: try container.decode(.left), bottom: try container.decode(.bottom), right: try container.decode(.right))
     }
 }
 
