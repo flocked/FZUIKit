@@ -1082,6 +1082,7 @@ fileprivate class BorderLayer: CAShapeLayer {
             lineDashPhase = configuration.dash.phase
             lineJoin = configuration.dash.lineJoin.shapeLayerLineJoin
             lineCap = configuration.dash.lineCap.shapeLayerLineCap
+            miterLimit = configuration.dash.mitterLimit
             if oldValue.insets != configuration.insets {
                 updateFrame(update: false)
             }

@@ -66,6 +66,13 @@ public struct BorderConfiguration: Hashable {
         /// The shape of the joints between connected dash segments.
         public var lineJoin: CGLineJoin = .miter
         
+        /**
+         The miter limit used when line join is set to `mitter`.
+         
+         If ``lineJoin`` is set to `mitter`, the miter limit determines whether the dash lines should be joined with a bevel instead of a miter. The length of the miter is divided by the line width. If the result is greater than the miter limit, the dash is drawn with a bevel.
+         */
+        public var mitterLimit: CGFloat = 10.0
+        
         /// A Boolean value indicating whether the dash animates.
         public var animates: Bool = false
         
@@ -95,11 +102,12 @@ public struct BorderConfiguration: Hashable {
             }
         }
         
-        public init(pattern: [CGFloat] = [], phase: CGFloat = 0, lineCap: CGLineCap = .butt, lineJoin: CGLineJoin = .miter, animates: Bool = false, animationSpeed: AnimationSpeed = .normal) {
+        public init(pattern: [CGFloat] = [], phase: CGFloat = 0, lineCap: CGLineCap = .butt, lineJoin: CGLineJoin = .miter, mitterLimit: CGFloat = 10.0, animates: Bool = false, animationSpeed: AnimationSpeed = .normal) {
             self.pattern = pattern
             self.phase = phase
             self.lineCap = lineCap
             self.lineJoin = lineJoin
+            self.mitterLimit = mitterLimit
             self.animates = animates
             self.animationSpeed = animationSpeed
         }
@@ -174,6 +182,7 @@ extension BorderConfiguration.Dash {
         lineJoin = layer.lineJoin.cgLineJoin
         phase = layer.lineDashPhase
         pattern = layer.lineDashPattern?.compactMap({ CGFloat($0.doubleValue) }) ?? []
+        mitterLimit = layer.miterLimit
     }
 }
 
@@ -194,16 +203,13 @@ extension BorderConfiguration: Codable {
     }
     
     public init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        self = .init(color: try values.decode(Optional<NSUIColor>.self, forKey: .color),
-                     width: try values.decode(CGFloat.self, forKey: .width),
-                     dash: try values.decode(Dash.self, forKey: .width),
-                     insets: try values.decode(NSDirectionalEdgeInsets.self, forKey: .insets))
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        color = try container.decode(.color)
+        width = try container.decode(.width)
+        dash = try container.decode(.dash)
+        insets = try container.decode(.insets)
     }
 }
-
-extension CGLineCap: Codable { }
-extension CGLineJoin: Codable { }
 
 extension BorderConfiguration.Dash.AnimationSpeed: ExpressibleByFloatLiteral {
     public init(floatLiteral value: Double) {
@@ -317,6 +323,7 @@ extension BorderConfiguration: ReferenceConvertible {
                         \tphase: \(dash.phase)
                         \tlineCap: \(dash.lineCap.rawValue)
                         \tlineJoin: \(dash.lineJoin.rawValue)
+                        mitterLimit: \(dash.mitterLimit)
                         \tanimates: \(dash.animates)
                         )
                         insets: \(insets)
@@ -353,8 +360,8 @@ extension Shape {
     }
 }
 
-extension CGLineCap {
-    var shapeLayerLineCap: CAShapeLayerLineCap {
+extension CGLineCap: Codable {
+    public var shapeLayerLineCap: CAShapeLayerLineCap {
         switch self {
         case .round: return .round
         case .square: return .square
@@ -363,8 +370,8 @@ extension CGLineCap {
     }
 }
 
-extension CGLineJoin {
-    var shapeLayerLineJoin: CAShapeLayerLineJoin {
+extension CGLineJoin: Codable {
+    public var shapeLayerLineJoin: CAShapeLayerLineJoin {
         switch self {
         case .round: return .round
         case .bevel: return .bevel
@@ -373,7 +380,7 @@ extension CGLineJoin {
     }
 }
 
-extension CAShapeLayerLineJoin {
+public extension CAShapeLayerLineJoin {
     var cgLineJoin: CGLineJoin {
         switch self {
         case .round: return .round
@@ -383,7 +390,7 @@ extension CAShapeLayerLineJoin {
     }
 }
 
-extension CAShapeLayerLineCap {
+public extension CAShapeLayerLineCap {
     var cgLineCap: CGLineCap {
         switch self {
         case .round: return .round

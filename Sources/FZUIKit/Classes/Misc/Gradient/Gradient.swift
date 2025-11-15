@@ -331,4 +331,25 @@ fileprivate extension [Gradient.ColorStop] {
     }
 }
 
+public extension Gradient {
+    /**
+     Returns a `CGGradient` representation of the gradient.
+     
+     - Parameter colorSpace: The color space of the gradient, or `nil` to use the default color space.
+     */
+    func cgGradient(colorSpace: CGColorSpace? = nil) -> CGGradient? {
+        guard stops.count > 0 else { return nil }
+        return CGGradient(colorsSpace: colorSpace, colors: stops.map { $0.color.cgColor } as CFArray, locations: stops.map { $0.location })
+    }
+    
+    /**
+     Returns a `CGGradient` representation of the gradient.
+     
+     - Parameter colorSpace: The name of the color space for the gradient.
+     */
+    func cgGradient(colorSpace: CGColorSpaceName) -> CGGradient? {
+        cgGradient(colorSpace: CGColorSpace(name: colorSpace))
+    }
+}
+
 #endif

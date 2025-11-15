@@ -20,7 +20,7 @@ public class DashedBorderLayer: CALayer {
 
     /// The configuration of the border.
     public var configuration: BorderConfiguration {
-        get { BorderConfiguration(color: borderedLayer.strokeColor?.nsUIColor, width: borderedLayer.lineWidth, dash: .init(pattern: borderDashPattern, phase: borderedLayer.lineDashPhase, lineCap: borderedLayer.lineCap.cgLineCap, lineJoin: borderedLayer.lineJoin.cgLineJoin), insets: borderInsets) }
+        get { BorderConfiguration(color: borderedLayer.strokeColor?.nsUIColor, width: borderedLayer.lineWidth, dash: .init(pattern: borderDashPattern, phase: borderedLayer.lineDashPhase, lineCap: borderedLayer.lineCap.cgLineCap, lineJoin: borderedLayer.lineJoin.cgLineJoin, mitterLimit: borderedLayer.miterLimit), insets: borderInsets) }
         set {
             guard newValue != configuration else { return }
             borderedLayer.lineWidth = newValue.width
@@ -29,6 +29,7 @@ public class DashedBorderLayer: CALayer {
             borderedLayer.lineDashPhase = newValue.dash.phase
             borderedLayer.lineJoin = newValue.dash.lineJoin.shapeLayerLineJoin
             borderedLayer.lineCap = newValue.dash.lineCap.shapeLayerLineCap
+            borderedLayer.miterLimit = newValue.dash.mitterLimit
             borderInsets = newValue.insets
         }
     }

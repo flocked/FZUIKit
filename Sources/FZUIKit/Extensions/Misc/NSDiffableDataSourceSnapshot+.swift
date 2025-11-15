@@ -15,6 +15,31 @@ import UIKit
 @available(macOS 10.15.1, iOS 13.0, tvOS 13.0, *)
 public extension NSDiffableDataSourceSnapshot {
     /**
+     The items for the specified section.
+     
+     
+     
+     */
+    subscript (section: SectionIdentifierType) -> [ItemIdentifierType]? {
+        get {
+            guard sectionIdentifiers.contains(section) else { return nil }
+            return itemIdentifiers(inSection: section)
+        }
+        set {
+            if let newValue = newValue {
+                if !sectionIdentifiers.contains(section) {
+                    appendSections([section])
+                }
+                let itemsToDelete = itemIdentifiers.filter { newValue.contains($0) } + itemIdentifiers(inSection: section).filter { !newValue.contains($0) }
+                deleteItems(itemsToDelete)
+                appendItems(newValue, toSection: section)
+            } else if sectionIdentifiers.contains(section) {
+                deleteSections([section])
+            }
+        }
+    }
+    
+    /**
      Creates a snapshot with the sections and items of the specified dictionary.
 
      - Parameter sectionItems: A dictionary of sections and items to add.
@@ -36,9 +61,68 @@ public extension NSDiffableDataSourceSnapshot {
      */
     mutating func append(_ sectionItems: [SectionIdentifierType: [ItemIdentifierType]]) {
         appendSections(Array(sectionItems.keys))
-        for value in sectionItems {
-            appendItems(value.value, toSection: value.key)
+        sectionItems.forEach({ appendItems($0.value, toSection: $0.key) })
+    }
+    
+    /**
+     Adds the specified section with its item to the snapshot.
+          
+     - Parameters:
+        - sectionIdentifier: The identifier of the section to append.
+        - itemIdentifiers: An array of item identifiers to append to the section.
+     */
+    mutating func append(_ sectionIdentifier: SectionIdentifierType, with itemIdentifiers: [ItemIdentifierType]) {
+        appendSections([sectionIdentifier])
+        appendItems(itemIdentifiers, toSection: sectionIdentifier)
+    }
+    
+    /**
+     Adds the section with the specified identifier to the snapshot.
+     
+     - Parameter identifier: The identifier specifying the section to add to the snapshot.
+     */
+    mutating func append(_ identifier: SectionIdentifierType) {
+        append([identifier])
+    }
+    
+    /**
+     Adds the sections with the specified identifiers to the snapshot.
+     
+     - Parameter identifiers: An array of identifiers specifying the sections to add to the snapshot.
+     */
+    mutating func append(_ identifiers: [SectionIdentifierType]) {
+        appendSections(identifiers)
+    }
+    
+    /**
+     Adds the item with the specified identifier to the specified section of the snapshot.
+     
+     - Parameters:
+        - identifier: The identifier specifying the item to add to the snapshot.
+        - sectionIdentifier: The section to which to add the items. If no value is provided, the items are appended to the last section of the snapshot.
+     */
+    mutating func append(_ identifier: ItemIdentifierType, toSection sectionIdentifier: SectionIdentifierType? = nil) {
+        append([identifier], toSection: sectionIdentifier)
+    }
+    
+    /**
+     Adds the items with the specified identifiers to the specified section of the snapshot.
+     
+     If the snapshot doesn't contain the specified section, the section is added to the snapshot.
+     
+     All specified items that are already in the snapshot, are moved to 
+     If the snapshot already contains specified items, they are moved to the specified section.
+     
+     - Parameters:
+        - identifiers: An array of identifiers specifying the items to add to the snapshot.
+        - sectionIdentifier: The section to which to add the items. If no value is provided, the items are appended to the last section of the snapshot.
+     */
+    mutating func append(_ identifiers: [ItemIdentifierType], toSection sectionIdentifier: SectionIdentifierType? = nil) {
+        if let sectionIdentifier = sectionIdentifier, !sectionIdentifiers.contains(sectionIdentifier) {
+            appendSections([sectionIdentifier])
         }
+        deleteItems(identifiers.filter({ itemIdentifiers.contains($0) }))
+        appendItems(identifiers, toSection: sectionIdentifier)
     }
 
     /**

@@ -220,11 +220,11 @@ extension ShadowConfiguration: Codable {
     }
     
     public init(from decoder: Decoder) throws {
-        let values = try decoder.container(keyedBy: CodingKeys.self)
-        self = .init(color: try values.decode(Optional<NSUIColor>.self, forKey: .color),
-                     opacity: try values.decode(CGFloat.self, forKey: .opacity),
-                     radius: try values.decode(CGFloat.self, forKey: .radius),
-                     offset: try values.decode(CGPoint.self, forKey: .offset))
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        color = try container.decode(.color)
+        opacity = try container.decode(.opacity)
+        radius = try container.decode(.radius)
+        offset = try container.decode(.offset)
     }
 }
 
@@ -372,14 +372,6 @@ public extension NSShadow {
         }
     }
 }
-
-public extension CGContext {
-    /// Enables shadowing with color a graphics context.
-    func setShadow(_ configuration: ShadowConfiguration) {
-        setShadow(offset: configuration.offset.size, blur: configuration.opacity, color: configuration.resolvedColor()?.cgColor)
-    }
-}
-
 
 /// The Objective-C class for ``ShadowConfiguration``.
 public class __ShadowConfiguration: NSObject, NSCopying {

@@ -46,6 +46,45 @@ extension CGContext {
     public func stroke(_ color: CGColor) {
         stroke(color, in: bounds)
     }
+    
+    #if os(macOS) || os(iOS) || os(tvOS)
+    /// Enables shadowing with color a graphics context.
+    public func setShadow(_ configuration: ShadowConfiguration) {
+        setShadow(offset: configuration.offset.size, blur: configuration.opacity, color: configuration.resolvedColor()?.cgColor)
+    }
+    
+    /// Configurates the stroke with the specified border configuration.
+    public func setStroke(_ configuration: BorderConfiguration) {
+        guard configuration.width > 0.0, let color = configuration.resolvedColor()?.cgColor, color.alpha > 0.0 else { return }
+        setLineWidth(configuration.width)
+        setLineCap(configuration.dash.lineCap)
+        setLineJoin(configuration.dash.lineJoin)
+        setMiterLimit(configuration.dash.mitterLimit)
+        setLineDash(phase: configuration.dash.phase, lengths: configuration.dash.pattern)
+        setStrokeColor(color)
+    }
+    
+    public func setGradient(_ gradient: Gradient, in rect: CGRect) {
+        guard let cgGradient = gradient.cgGradient() else { return }
+        switch gradient.type {
+        case .linear:
+            drawLinearGradient(cgGradient, start: .zero, end: .zero, options: [])
+        case .radial:
+            let radius = hypot(rect.width, rect.height) / 2
+            drawRadialGradient(cgGradient, startCenter: <#T##CGPoint#>, startRadius: 0.0, endCenter: <#T##CGPoint#>, endRadius: radius, options: [])
+        case .conic:
+            if #available(macOS 14.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *) {
+                drawConicGradient(cgGradient, center: rect.center, angle: 0.0)
+            }
+        }
+    }
+    #endif
+}
+@available(macOS 14.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *)
+extension CGContext {
+    public func drawConicGradient(_ gradient: CGGradient, center: CGPoint, angle: CGFloat) {
+        CGContextDrawConicGradient(self, gradient, center, angle)
+    }
 }
 
 public extension CFType where Self == CGContext {
