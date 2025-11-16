@@ -53,19 +53,32 @@ extension CGContext {
         setShadow(offset: configuration.offset.size, blur: configuration.opacity, color: configuration.resolvedColor()?.cgColor)
     }
     
-    /// Configurates the stroke with the specified border configuration.
-    public func setStroke(_ configuration: BorderConfiguration) {
+    /// Strokes the entire context bounds using the provided configuration.
+    public func stroke(_ configuration: BorderConfiguration) {
+        stroke(configuration, in: bounds)
+    }
+    
+    /// Strokes the specified rectangle using the provided configuration.
+    public func stroke(_ configuration: BorderConfiguration, in rect: CGRect) {
         guard configuration.width > 0.0, let color = configuration.resolvedColor()?.cgColor, color.alpha > 0.0 else { return }
+        saveGState()
         setLineWidth(configuration.width)
         setLineCap(configuration.dash.lineCap)
         setLineJoin(configuration.dash.lineJoin)
         setMiterLimit(configuration.dash.mitterLimit)
         setLineDash(phase: configuration.dash.phase, lengths: configuration.dash.pattern)
         setStrokeColor(color)
+        stroke(rect)
+        restoreGState()
     }
     
-    /// Sets the specified gradient in the given rect.
-    public func setGradient(_ gradient: Gradient, in rect: CGRect) {
+    /// Draws the specified gradient in the entire context bounds.
+    public func drawGradient(_ gradient: Gradient) {
+        drawGradient(gradient, in: bounds)
+    }
+    
+    /// Draws the specified gradient in the given rect.
+    public func drawGradient(_ gradient: Gradient, in rect: CGRect) {
         guard let cgGradient = gradient.cgGradient() else { return }
         switch gradient.type {
         case .linear:
@@ -104,8 +117,8 @@ public extension CFType where Self == CGContext {
      
      - Returns: A new `CGContext` if creation succeeds, otherwise `nil`.
      */
-    init?(data: UnsafeMutableRawPointer? = nil, size: CGSize, bitsPerComponent: Int = 8, bytesPerRow: Int = 0, space: CGColorSpaceName? = nil, bitmapInfo: CGBitmapInfo) {
-        guard let context = CGContext(data: data, width: Int(size.width), height: Int(size.height), bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: space != nil ? CGColorSpace(name: space!) : nil, bitmapInfo: bitmapInfo) else { return nil }
+    init?(data: UnsafeMutableRawPointer? = nil, size: CGSize, bitsPerComponent: Int = 8, bytesPerRow: Int = 0, space: CGColorSpaceName = .genericRGB, bitmapInfo: CGBitmapInfo) {
+        guard let context = CGContext(data: data, width: Int(size.width), height: Int(size.height), bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: CGColorSpace(name: space) ?? .deviceRGB, bitmapInfo: bitmapInfo) else { return nil }
         self = context
     }
     
@@ -122,8 +135,8 @@ public extension CFType where Self == CGContext {
      
      - Returns: A new `CGContext` if creation succeeds, otherwise `nil`.
      */
-    init?(data: UnsafeMutableRawPointer? = nil, size: CGSize, bitsPerComponent: Int = 8, bytesPerRow: Int = 0, space: CGColorSpaceName? = nil, hasAlpha: Bool = true) {
-        guard let context = CGContext(data: data, width: Int(size.width), height: Int(size.height), bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: space != nil ? CGColorSpace(name: space!) : nil, bitmapInfo: hasAlpha ? .rgba : .rgb) else { return nil }
+    init?(data: UnsafeMutableRawPointer? = nil, size: CGSize, bitsPerComponent: Int = 8, bytesPerRow: Int = 0, space: CGColorSpaceName, hasAlpha: Bool = true) {
+        guard let context = CGContext(data: data, width: Int(size.width), height: Int(size.height), bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: CGColorSpace(name: space) ?? .deviceRGB, bitmapInfo: hasAlpha ? .rgba : .rgb) else { return nil }
         self = context
     }
 }
