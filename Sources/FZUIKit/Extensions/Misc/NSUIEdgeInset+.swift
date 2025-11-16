@@ -109,7 +109,10 @@ extension NSUIEdgeInsets: Codable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self = .init(top: try container.decode(.top), left: try container.decode(.left), bottom: try container.decode(.bottom), right: try container.decode(.right))
+        self = .init(top: try container.decode(.top),
+                     left: try container.decode(.left),
+                     bottom: try container.decode(.bottom),
+                     right: try container.decode(.right))
     }
 }
 
@@ -252,10 +255,10 @@ extension NSDirectionalEdgeInsets: Codable {
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        self = .init(top: try values.decode(CGFloat.self, forKey: .top),
-                     leading: try values.decode(CGFloat.self, forKey: .leading),
-                     bottom: try values.decode(CGFloat.self, forKey: .bottom),
-                     trailing: try values.decode(CGFloat.self, forKey: .trailing))
+        self = .init(top: try values.decode(.top),
+                     leading: try values.decode(.leading),
+                     bottom: try values.decode(.bottom),
+                     trailing: try values.decode(.trailing))
     }
 }
 #endif
@@ -382,9 +385,9 @@ extension EdgeInsets: Codable {
 
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        self = .init(top: try values.decode(CGFloat.self, forKey: .top),
-                     leading: try values.decode(CGFloat.self, forKey: .leading),
-                     bottom: try values.decode(CGFloat.self, forKey: .bottom),
-                     trailing: try values.decode(CGFloat.self, forKey: .trailing))
+        self = .init(top: try values.decode(.top),
+                     leading: try values.decode(.leading),
+                     bottom: try values.decode(.bottom),
+                     trailing: try values.decode(.trailing))
     }
 }

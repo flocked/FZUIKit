@@ -189,11 +189,11 @@ public class DraggingImages {
     private let session: NSDraggingSession
     var isActive: Bool = true
     
-    func enumerateDraggingItems(types: [PasteboardWriting.Type], using block: (_ item: DraggingItem, _ index: Int, _ shouldStop: inout Bool) -> Void) {
+    func enumerateDraggingItems(types: [PasteboardReading.Type], using block: (_ item: DraggingItem, _ index: Int, _ shouldStop: inout Bool) -> Void) {
         guard isActive else { return }
         
         var _shouldStop = false
-        session.enumerateDraggingItems(for: nil, classes: types.map({$0.pasteboardWritingType})) { item, index, shouldStop in
+        session.enumerateDraggingItems(for: nil, classes: types.map({$0.PasteboardReadingType.self})) { item, index, shouldStop in
             guard let _item = DraggingItem(item) else { return }
             let imageComponents = _item.imageComponents
             block(_item, index, &_shouldStop)

@@ -81,8 +81,8 @@ extension CMTimeRange: Codable {
     public init(from decoder: Decoder) throws {
         self.init()
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        start = try values.decode(CMTime.self, forKey: .start)
-        duration = try values.decode(CMTime.self, forKey: .duration)
+        start = try values.decode(.start)
+        duration = try values.decode(.duration)
     }
     
     public func encode(to encoder: Encoder) throws {

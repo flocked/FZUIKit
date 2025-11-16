@@ -20,7 +20,7 @@ extension HTTPCookie: Codable {
 extension Decodable where Self: HTTPCookie {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        let properties = try container.decode([HTTPCookiePropertyKey: String].self)
+        let properties: [HTTPCookiePropertyKey: String] = try container.decode()
         guard let cookie = HTTPCookie(properties: properties) else {
             throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid cookie properties")
         }

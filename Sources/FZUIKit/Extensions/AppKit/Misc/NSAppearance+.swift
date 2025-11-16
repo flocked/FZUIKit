@@ -169,7 +169,7 @@ extension Decodable where Self: NSAppearance {
     /// Decodes a value of the given type from a sing
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        self = .init(named: try container.decode(NSAppearance.Name.self))!
+        self = .init(named: try container.decode())!
     }
 }
 

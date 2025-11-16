@@ -64,14 +64,17 @@ extension CGContext {
         setStrokeColor(color)
     }
     
+    /// Sets the specified gradient in the given rect.
     public func setGradient(_ gradient: Gradient, in rect: CGRect) {
         guard let cgGradient = gradient.cgGradient() else { return }
         switch gradient.type {
         case .linear:
-            drawLinearGradient(cgGradient, start: .zero, end: .zero, options: [])
+            drawLinearGradient(cgGradient, start: gradient.startPoint.point(in: rect), end: gradient.endPoint.point(in: rect), options: [])
         case .radial:
+            let start = gradient.startPoint.point(in: rect)
+            let end = gradient.endPoint.point(in: rect)
             let radius = hypot(rect.width, rect.height) / 2
-            drawRadialGradient(cgGradient, startCenter: <#T##CGPoint#>, startRadius: 0.0, endCenter: <#T##CGPoint#>, endRadius: radius, options: [])
+            drawRadialGradient(cgGradient, startCenter: start, startRadius: 0.0, endCenter: end, endRadius: radius, options: [])
         case .conic:
             if #available(macOS 14.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *) {
                 drawConicGradient(cgGradient, center: rect.center, angle: 0.0)

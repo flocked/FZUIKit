@@ -72,14 +72,14 @@ public class DropInfo {
     }
     
     public func enumerateDropItems<Content: PasteboardReading>(for contentType: Content.Type = NSPasteboardItem.self, using block: @escaping (_ item: DropItem<Content>) -> ()) {
-        draggingInfo.enumerateDraggingItems(for: view, classes: [contentType.pasteboardReadingType]) { item, index, stopPointer in
+        draggingInfo.enumerateDraggingItems(for: view, classes: [Content.PasteboardReadingType.self]) { item, index, stopPointer in
             block(DropItem<Content>(item))
         }
     }
     
-    func enumerateDraggingItems(options: NSDraggingItemEnumerationOptions = [], types: [PasteboardReading.Type] = [NSPasteboardItem.self], using block: @escaping (_ draggingItem: NSDraggingItem, _ index: Int, _ shouldStop: inout Bool) -> Void) {
+    func enumerateDraggingItems(options: NSDraggingItemEnumerationOptions = [], types: [any PasteboardReading.Type] = [NSPasteboardItem.self], using block: @escaping (_ draggingItem: NSDraggingItem, _ index: Int, _ shouldStop: inout Bool) -> Void) {
         var stop = false
-        draggingInfo.enumerateDraggingItems(options: options, for: view, classes: types.map({ $0.pasteboardReadingType }), using: { item, index, stopPointer in
+        draggingInfo.enumerateDraggingItems(options: options, for: view, classes: types.map({ $0.PasteboardReadingType.self }), using: { item, index, stopPointer in
             block(item, index, &stop)
             if stop {
                 stopPointer.pointee = true

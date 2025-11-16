@@ -194,7 +194,12 @@ extension NSPasteboard.PasteboardType {
         UTType(rawValue)
     }
 }
-
+extension NSPasteboard {
+    func readObjects(for types: [PasteboardReading.Type]) -> [PasteboardReading] {
+        let values = readObjects(forClasses: types.map({$0.PasteboardReadingType})) ?? []
+        return values.compactMap({$0 as? PasteboardReading})
+    }
+}
 /*
  extension NSPasteboard {
      func readObjects(for classes: [NSPasteboardReading.Type]) -> [NSPasteboardReading] {

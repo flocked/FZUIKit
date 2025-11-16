@@ -9,57 +9,38 @@
 import AppKit
 import FZSwiftUtils
 
- /// A type that can be read from a pasteboard.
- public protocol PasteboardReading {
-     /// A representation of the content that can be read from a pasteboard.
-     var pasteboardReading: NSPasteboardReading { get }
-     
-     /// The class type used for pasteboard reading.
-     static var pasteboardReadingType: NSPasteboardReading.Type { get }
- }
+/// A type that can be read from a pasteboard.
+public protocol PasteboardReading {
+    typealias PasteboardReadingType = NSPasteboardReading
+    var pasteboardReading: NSPasteboardReading { get }
+}
 
- extension PasteboardReading where Self: NSPasteboardReading {
-     public var pasteboardReading: NSPasteboardReading {
-         self as NSPasteboardReading
-     }
-     
-     public static var pasteboardReadingType: NSPasteboardReading.Type { self }
- }
+extension PasteboardReading where Self: NSPasteboardReading {
+    public typealias PasteboardReadingType = Self
+    public var pasteboardReading: NSPasteboardReading { self }
+}
 
- extension NSString: PasteboardReading { }
- extension NSAttributedString: PasteboardReading { }
- extension NSURL: PasteboardReading { }
- extension NSColor: PasteboardReading { }
- extension NSImage: PasteboardReading { }
- extension NSSound: PasteboardReading { }
- extension NSFilePromiseReceiver: PasteboardReading { }
- extension NSPasteboardItem: PasteboardReading { }
-
- extension String: PasteboardReading {
-     public var pasteboardReading: NSPasteboardReading {
-         self as NSPasteboardReading
-     }
-     
-     public static var pasteboardReadingType: NSPasteboardReading.Type { NSString.self }
- }
-
- @available(macOS 12, *)
- extension AttributedString: PasteboardReading {
-     public var pasteboardReading: NSPasteboardReading {
-         NSAttributedString(self).pasteboardReading
-     }
-     
-     public static var pasteboardReadingType: NSPasteboardReading.Type { NSAttributedString.self }
- }
-
- extension URL: PasteboardReading {
-     public var pasteboardReading: NSPasteboardReading {
-         self as NSPasteboardReading
-     }
-     
-     public static var pasteboardReadingType: NSPasteboardReading.Type { NSURL.self }
- }
-
+extension NSString: PasteboardReading  {}
+extension NSAttributedString: PasteboardReading { }
+extension NSURL: PasteboardReading { }
+extension NSColor: PasteboardReading { }
+extension NSImage: PasteboardReading { }
+extension NSSound: PasteboardReading { }
+extension NSFilePromiseReceiver: PasteboardReading { }
+extension NSPasteboardItem: PasteboardReading { }
+extension String: PasteboardReading {
+    public typealias PasteboardReadingType = NSString
+    public var pasteboardReading: NSPasteboardReading { self as NSString }
+}
+extension URL: PasteboardReading {
+    public typealias PasteboardReadingType = NSURL
+    public var pasteboardReading: NSPasteboardReading { self as NSURL }
+}
+@available(macOS 12, *)
+extension AttributedString: PasteboardReading {
+    public typealias PasteboardReadingType = NSAttributedString
+    public var pasteboardReading: NSPasteboardReading { NSAttributedString(self) }
+}
 
  public extension Collection where Element == (any PasteboardReading) {
      /// The strings of the pasteboard content.
@@ -108,13 +89,6 @@ import FZSwiftUtils
      }
  }
 
- public extension NSPasteboard {
-     /// The current `PasteboardReading` objects of the pasteboard.
-     var content: [PasteboardReading] {
-         return readAll() + (pasteboardItems ?? [])
-     }
- }
-
 public extension NSPasteboardItem {
     /// The current `PasteboardReading` objects of the pasteboard item.
     var content: [PasteboardReading] {
@@ -131,5 +105,4 @@ public extension NSPasteboardItem {
         return readings
     }
 }
-
 #endif

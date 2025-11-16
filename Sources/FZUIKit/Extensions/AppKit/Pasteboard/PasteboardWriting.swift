@@ -7,35 +7,15 @@
 
 #if os(macOS)
 import AppKit
-
+/// A type that can be written to a pasteboard.
 public protocol PasteboardWriting {
-    /// A representation of the content that can be written to a pasteboard.
+    typealias PasteboardWritingType = NSPasteboardWriting
     var pasteboardWriting: NSPasteboardWriting { get }
-    
-    /// The class type used for pasteboard writing.
-    static var pasteboardWritingType: NSPasteboardWriting.Type { get }
 }
 
 extension PasteboardWriting where Self: NSPasteboardWriting {
-    public var pasteboardWriting: NSPasteboardWriting {
-        self as NSPasteboardWriting
-    }
-    
-    public static var pasteboardWritingType: NSPasteboardWriting.Type { self }
-}
-
-public extension NSPasteboard {
-    /**
-     Writes the specified `PasteboardWriting` objects to the pasteboard.
-     
-     - Parameter objects: An array of `PasteboardWriting` objects.
-     */
-    func write<O: Collection<PasteboardWriting>>(_ objects: O) {
-        guard objects.isEmpty == false else { return }
-        clearContents()
-        let writings = objects.compactMap(\.pasteboardWriting)
-        writeObjects(writings)
-    }
+    public typealias PasteboardWritingType = Self
+    public var pasteboardWriting: NSPasteboardWriting { self }
 }
 
 extension NSString: PasteboardWriting { }
@@ -48,28 +28,32 @@ extension NSFilePromiseProvider: PasteboardWriting { }
 extension NSPasteboardItem: PasteboardWriting { }
 
 extension String: PasteboardWriting {
-    public var pasteboardWriting: NSPasteboardWriting {
-        self as NSPasteboardWriting
-    }
-    
-    public static var pasteboardWritingType: NSPasteboardWriting.Type { NSString.self }
+    public typealias PasteboardWritingType = NSString
+    public var pasteboardWriting: NSPasteboardWriting { self as NSString }
+}
+
+extension URL: PasteboardWriting {
+    public typealias PasteboardWritingType = NSURL
+    public var pasteboardWriting: NSPasteboardWriting { self as NSURL }
 }
 
 @available(macOS 12, *)
 extension AttributedString: PasteboardWriting {
-    public var pasteboardWriting: NSPasteboardWriting {
-        NSAttributedString(self).pasteboardWriting
-    }
-    
-    public static var pasteboardWritingType: NSPasteboardWriting.Type { NSAttributedString.self }
+    public typealias PasteboardWritingType = NSAttributedString
+    public var pasteboardWriting: NSPasteboardWriting { NSAttributedString(self) }
 }
 
-extension URL: PasteboardWriting {
-    public var pasteboardWriting: NSPasteboardWriting {
-        self as NSPasteboardWriting
+public extension NSPasteboard {
+    /**
+     Writes the specified `PasteboardWriting` objects to the pasteboard.
+     
+     - Parameter objects: An array of `PasteboardWriting` objects.
+     */
+    func write(_ objects: [any PasteboardWriting]) {
+        guard objects.isEmpty == false else { return }
+        clearContents()
+        writeObjects(objects.compactMap(\.pasteboardWriting))
     }
-    
-    public static var pasteboardWritingType: NSPasteboardWriting.Type { NSURL.self }
 }
 
 public extension Collection where Element == (any PasteboardWriting) {
@@ -133,15 +117,37 @@ extension NSPasteboardItem {
     }
     
     /// Creates a pasteboard item with the specified content.
-    public convenience init(content: [PasteboardWriting]) {
+    public convenience init(content: [any PasteboardWriting]) {
         self.init()
-        tiffImage = content.images.first
-        url = content.urls.first
-        fileURL = content.fileURLs.first
-        color = content.colors.first
-        string = content.strings.first
-        attributedString = content.attributedStrings.first
-        sound = content.sounds.first
+        content.forEach({ setValue($0) })
+    }
+    
+    func setValue(_ value: PasteboardWriting) {
+        if let value = value as? String {
+            string = value
+        }
+        if let value = value as? NSImage {
+            tiffImage = value
+        } else if let value = value as? URL {
+            if value.isFileURL {
+                fileURL = value
+            } else {
+                url = value
+            }
+        } else if let value = value as? NSColor {
+            color = value
+        } else if let value = value as? NSSound {
+            sound = value
+        } else if let value = value as? NSAttributedString {
+            attributedString = value
+        } else {
+            for type in value.pasteboardWriting.writableTypes(for: .general) {
+                if let propertyList = value.pasteboardWriting.pasteboardPropertyList(forType: type) {
+                    setPropertyList(propertyList, forType: type)
+                }
+            }
+        }
     }
 }
+
 #endif

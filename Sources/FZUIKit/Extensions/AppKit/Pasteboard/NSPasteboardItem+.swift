@@ -116,6 +116,23 @@ extension NSPasteboardItem {
             }
         }
     }
+    
+    /// Sets the value for a specified type as a codable type.
+    @discardableResult
+    public func setValue<Value: Codable>(_ value: Value, forType type: NSPasteboard.PasteboardType) -> Bool {
+        do {
+            return setData(try JSONEncoder().encode(value), forType: type)
+        } catch {
+            Swift.print(error)
+            return false
+        }
+    }
+    
+    /// Returns the value for the specified type as a codable type.
+    public func value<Value: Codable>(forType type: NSPasteboard.PasteboardType) -> Value? {
+        guard let data = data(forType: type) else { return nil }
+        return try? JSONDecoder().decode(Value.self, from: data)
+    }
 }
 
 public extension Collection where Element: NSPasteboardItem {
