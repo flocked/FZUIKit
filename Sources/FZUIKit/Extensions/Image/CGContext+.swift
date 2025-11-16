@@ -112,7 +112,7 @@ public extension CFType where Self == CGContext {
        - size: The size of the bitmap context.
        - bitsPerComponent: The number of bits for each color component.
        - bytesPerRow: The number of bytes per row of the bitmap. Default is `0`, which lets Core Graphics calculate it automatically.
-       - space: A color space name for the bitmap. If `nil` the default color space is used.
+       - space: A color space name for the bitmap.
        - bitmapInfo: Bitmap information flags specifying alpha info, byte order, etc.
      
      - Returns: A new `CGContext` if creation succeeds, otherwise `nil`.
@@ -130,7 +130,7 @@ public extension CFType where Self == CGContext {
         - size: The size of the bitmap context.
         - bitsPerComponent: The number of bits for each color component.
         - bytesPerRow: The number of bytes per row of the bitmap. Default is `0`, which lets Core Graphics calculate it automatically.
-        - space: A color space name for the bitmap. If `nil` the default color space is used.
+        - space: A color space name for the bitmap.
         - hasAlpha: A Boolean value indicating whether the bitmap should include an alpha channel.
      
      - Returns: A new `CGContext` if creation succeeds, otherwise `nil`.
