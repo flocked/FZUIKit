@@ -37,18 +37,18 @@ public extension NSUIFontDescriptor {
         NSUIFont(descriptor: self, size: fontSize)
     }
     
-    /// Returns the font descriptor for the specified locale.
-    func fontDescriptor(for locale: Locale) -> NSUIFontDescriptor? {
-        guard let name = name else { return nil }
-        let fontDescriptors = CTFontCopyDefaultCascadeListForLanguages(font(size: 0)!, [locale.identifier] as CFArray
-        ) as? [NSUIFontDescriptor]
-        return fontDescriptors?.first
-    }
-    
-    func allFontDescriptors(for locale: Locale) -> [NSUIFontDescriptor] {
-        let fontDescriptors = CTFontCopyDefaultCascadeListForLanguages(font(size: 0)!, [locale.identifier] as CFArray
-        ) as? [NSUIFontDescriptor]
-        return fontDescriptors ?? []
+    /**
+     Returns an ordered list of font descriptors that the system will use as fallback fonts when the original font does not support a particular Unicode character, according to the specified locale.
+     
+     When the original font used for text layout and rendering does not support a certain Unicode character from the provided text, the system follows this list to pick a fallback font that includes the character.
+     
+     The font alternatives in the cascade list match the original font’s style, weight, and width.
+     
+     - Parameter locale: The locale for which to retrieve the font fallback list.
+     - Returns: An array of `NSFontDescriptor` objects representing the fallback fonts. Returns an empty array if no cascade list is available.
+     */
+    func fontDescriptors(for locale: Locale) -> [NSUIFontDescriptor] {
+        CTFontCopyDefaultCascadeListForLanguages(font(size: 0)!, [locale.languageCode ?? "en"] as CFArray) as? [NSUIFontDescriptor] ?? []
     }
     
     ///  The localized family name of the font (e.g., “Helvetica-Bold”).
@@ -66,6 +66,7 @@ public extension NSUIFontDescriptor {
         font(size: 10)?.localizedName(for: .subFamily)?.name
     }
     
+    /*
     ///  The localized family name of the font for the specified locale.
     func localizedName(for locale: Locale) -> String? {
         guard let fontDescriptor = fontDescriptor(for: locale) else { return nil }
@@ -83,6 +84,7 @@ public extension NSUIFontDescriptor {
         guard let fontDescriptor = fontDescriptor(for: locale) else { return nil }
         return fontDescriptor.faceName
     }
+    */
     /*/
      #if os(macOS)
      ///  The localized family name of the font.
@@ -159,12 +161,20 @@ public extension NSUIFontDescriptor {
     }
     #endif
     
-    /// The relative slant angle value.
+    /**
+     The relative slant angle value.
+     
+     A value between`-1.0` to `1.0`. The value of `0.0` corresponds to `0` degree clockwise rotation from the vertical and` 1.0` corresponds to `30` degrees clockwise rotation.
+     */
     var slant: CGFloat? {
         traits?[.slant] as? CGFloat
     }
     
-    /// The relative inter-glyph spacing.
+    /**
+     The relative inter-glyph spacing.
+     
+     A value between `-1.0` and `1.0`. The value of `0.0` corresponds to the regular glyph spacing.
+     */
     var width: CGFloat? {
         traits?[.width] as? CGFloat
     }
@@ -179,57 +189,27 @@ public extension NSUIFontDescriptor {
 
     /// The weight of the font.
     var weight: NSUIFont.Weight? {
-        if let rawValue = traits?[.weight] as? CGFloat {
-            switch rawValue {
-            case -0.8: return .ultraLight
-            case -0.6: return .thin
-            case -0.4: return .light
-            case 0: return .regular
-            case 0.23: return .medium
-            case 0.3: return .semibold
-            case 0.4: return .bold
-            case 0.56: return .heavy
-            case 0.62: return .black
-            default: return nil
-            }
-        }
-        return nil
+        guard let rawValue = traits?[.weight] as? CGFloat else { return nil }
+        return .init(rawValue: rawValue)
     }
     
     /// Returns a new font descriptor based on the current object, but with the specified weight.
     func withWeight(_ weight: NSUIFont.Weight) -> NSUIFontDescriptor {
-        var traits = self.traits ?? [:]
+        var traits = traits ?? [:]
         traits[.weight] = weight.rawValue
         return addingAttributes([.traits : traits])
     }
     
     /// A dictionary of the traits.
     internal var traits: [TraitKey: Any]? {
-        object(forKey: .traits) as? [TraitKey: Any]
+        (object(forKey: .traits) as? [String: Any])?.mapKeys({ TraitKey(rawValue: $0) })
     }
 
     /// The text style of the font descriptor.
     @available(macOS 11.0, iOS 10.0, tvOS 10.0, watchOS 3.0, *)
     var textStyle: NSUIFont.TextStyle? {
-        if let rawValue = fontAttributes[.uiUsage] as? String, rawValue.contains("UICTFontTextStyle") {
-            switch rawValue {
-            case let str where str.contains("Body"): return .body
-            case let str where str.contains("Callout"): return .callout
-            case let str where str.contains("Caption1"): return .caption1
-            case let str where str.contains("Caption2"): return .caption2
-            case let str where str.contains("Headline"): return .headline
-            case let str where str.contains("Subhead"): return .subheadline
-            #if os(macOS) || os(iOS)
-            case let str where str.contains("Title0"): return .largeTitle
-            #endif
-            case let str where str.contains("Title1"): return .title1
-            case let str where str.contains("Title2"): return .title2
-            case let str where str.contains("Title3"): return .title3
-            default: break
-            }
-            return NSUIFont.TextStyle(rawValue: rawValue)
-        }
-        return nil
+        guard let rawValue = object(forKey: .textStyle) as? String else { return nil }
+        return .init(rawValue: rawValue)
     }
     
     #if os(macOS)
@@ -319,6 +299,15 @@ extension NSUIFontDescriptor.SymbolicTraits: Hashable {
 }
 
 public extension NSUIFontDescriptor.AttributeName {
+    #if os(macOS)
+    /**
+     The text style attribute.
+     
+     The value is an `NSString object that contains the specified text style.
+     */
+    static let textStyle = NSFontDescriptor.AttributeName.init("NSCTFontUIUsageAttribute")
+    #endif
+    
     #if canImport(UIKit)
     /// A dictionary that fully describes the font traits.
     static var traits: Self {
