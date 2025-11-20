@@ -47,6 +47,18 @@ extension CGContext {
         stroke(color, in: bounds)
     }
     
+    /// Sets the current fill color in a graphics context.
+    @_disfavoredOverload
+    public func setFillColor(_ color: NSUIColor) {
+        setFillColor(color.cgColor)
+    }
+    
+    /// Sets the current stroke color in a context.
+    @_disfavoredOverload
+    public func setStrokeColor(_ color: NSUIColor) {
+        setStrokeColor(color.cgColor)
+    }
+    
     #if os(macOS) || os(iOS) || os(tvOS)
     /// Enables shadowing with color a graphics context.
     public func setShadow(_ configuration: ShadowConfiguration) {

@@ -45,7 +45,7 @@ public extension NSColor {
         guard type == .catalog else { return nil }
         if let colorSpace = colorSpace {
             return (appearance ?? .current()).performAsCurrentDrawingAppearance {
-                usingColorSpace(colorSpace, includeVariation: true)
+                usingColorSpace(colorSpace)
             }
         }
         return Self.supportedColorSpaces.lazy.compactMap({ self.resolvedColor(for: appearance, colorSpace: $0) }).first
@@ -131,6 +131,17 @@ public extension NSColor {
     
     /// Supported color spaces for displaying a color.
     internal static let supportedColorSpaces: [NSColorSpace] = [.deviceRGB, .sRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .displayP3]
+}
+
+extension NSColor.ColorType: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .componentBased: return "componentBased"
+        case .pattern: return "pattern"
+        case .catalog: return "catalog"
+        @unknown default: return "unknown"
+        }
+    }
 }
 
 extension NSColor.SystemEffect: CustomStringConvertible {
