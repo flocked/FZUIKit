@@ -33,27 +33,23 @@ public extension NSUIFontDescriptor {
         object(forKey: .name) as? String
     }
     
-    #if os(macOS)
     /// Returns the font for the font descriptor.
     var font: NSUIFont {
+        #if os(macOS)
         .init(descriptor: self)!
-    }
-    
-    /// Returns the font for the font descriptor with the specified font size.
-    func font(withSize fontSize: CGFloat) -> NSUIFont {
-        .init(descriptor: self, size: fontSize)!
-    }
-    #else
-    /// Returns the font for the font descriptor.
-    var font: NSUIFont {
+        #else
         .init(descriptor: self)
+        #endif
     }
     
     /// Returns the font for the font descriptor with the specified font size.
     func font(withSize fontSize: CGFloat) -> NSUIFont {
+        #if os(macOS)
+        .init(descriptor: self, size: fontSize)!
+        #else
         .init(descriptor: self, size: fontSize)
+        #endif
     }
-    #endif
     
     /**
      The localized family name of the font (e.g., “Helvetica-Bold”).
@@ -98,12 +94,12 @@ public extension NSUIFontDescriptor {
     
     /// The value that overrides the glyph advancement specified by the font.
     var fixedAdvance: CGFloat {
-        object(forKey: .fixedAdvance) as? CGFloat ?? 0.0
+        object(forKey: .fixedAdvance) ?? 0.0
     }
     
     /// The set of Unicode characters covered by the font.
     var characterSet: CharacterSet {
-        object(forKey: .characterSet) as! CharacterSet
+        object(forKey: .characterSet)!
     }
     
     /**
@@ -120,7 +116,7 @@ public extension NSUIFontDescriptor {
      
      A value of `0.0` corresponds to `0` degree clockwise rotation from the vertical and` 1.0` corresponds to `30` degrees clockwise rotation.
      */
-    public func withSlant(_ slant: CGFloat) -> NSUIFontDescriptor {
+    func withSlant(_ slant: CGFloat) -> NSUIFontDescriptor {
         guard slant != self.slant, slant.isBetween(-1.0...1.0) else { return self }
         var traits = traits ?? [:]
         traits[.slant] = slant
@@ -141,7 +137,7 @@ public extension NSUIFontDescriptor {
      
      A value of `0.0` corresponds to the regular glyph spacing.
      */
-    public func withWidth(_ width: CGFloat) -> NSUIFontDescriptor {
+    func withWidth(_ width: CGFloat) -> NSUIFontDescriptor {
         guard width != self.width, width.isBetween(-1.0...1.0) else { return self }
         var traits = traits ?? [:]
         traits[.width] = width
@@ -170,7 +166,12 @@ public extension NSUIFontDescriptor {
     
     /// A dictionary of the traits.
     private var traits: [TraitKey: Any]? {
-        object(forKey: .traits) as? [TraitKey: Any]
+        object(forKey: .traits)
+    }
+    
+    /// Returns a new font descriptor based on the current object, but with the specified traits.
+    private func withTraits(_ traits: [TraitKey: Any]) -> NSUIFontDescriptor {
+        addingAttributes([.traits : traits])
     }
 
     /// The text style of the font descriptor.
@@ -214,95 +215,24 @@ public extension NSUIFontDescriptor {
     
     /// The recognized format of the font.
     var format: Format {
-        .init(rawValue: (object(forKey: .format) as? UInt32) ?? 0) ?? .unrecognized
+        .init(rawValue: object(forKey: .format) ?? 0) ?? .unrecognized
     }
     
     /// The URL to the font.
     var url: URL? {
-        object(forKey: .url) as? URL
+        object(forKey: .url)
     }
     
-    #if os(macOS)
-    /// A dictionary of variation axis tags (e.g. `"wght"`, `"wdth") and their corresponding values.
-    var variationAxes: [String: Double] {
-        if let variationAxes = _variationAxes {
-            return variationAxes
-        }
-        guard let rawVariations = object(forKey: .variation) as? [NSNumber: NSNumber] else {
-            return [:]
-        }
-        return rawVariations.mapKeys({ UTCreateStringForOSType($0.uint32Value).takeRetainedValue() as String? ?? "Unknown" }).mapValues({ $0.doubleValue })
-    }
-    
-    fileprivate var _variationAxes: [String: Double]? {
-        guard let rawVariations = object(forKey: .variation) as? [NSFontDescriptor.VariationKey: Any] else {
-            return nil
-        }
-        return rawVariations.mapKeys({$0.rawValue}).compactMapValues({ $0 as? NSNumber}).mapValues({$0.doubleValue})
-    }
-    
-    /*
-     /// A dictionary of variation axis tags (e.g. `"wght"`, `"wdth"`) and their corresponding values.
-     var variations: Varations? {
-         Swift.print(object(forKey: .variation) ?? "nil")
-         guard let variations = object(forKey: .variation) as? [NSFontDescriptor.VariationKey: Any] else { return nil }
-         Swift.print(variations.keys.map({$0.rawValue}))
-         return Varations(variations)
-     }
-    
-     public struct Varations {
-         /// The localized variation axis name.
-         public let name: String
-         /// The axis identifier value
-         public let identifier: Int
-         /// The minimum axis value.
-         public let minimumValue: Double
-         /// The maximum axis value.
-         public let maximumValue: Double
-         /// The default axis value.
-         public let defaultValue: Double
-        
-         init?(_ variations: [NSFontDescriptor.VariationKey: Any]) {
-             guard let name = variations[.name] as? String, let id = variations[.identifier] as? Int, let minValue = variations[.minimumValue] as? Double, let maxValue = variations[.maximumValue] as? Double, let defaultValue = variations[.defaultValue] as? Double else { return nil }
-             self.name = name
-             self.identifier = id
-             self.minimumValue = minValue
-             self.maximumValue = maxValue
-             self.defaultValue = defaultValue
-         }
-     }
+    /**
+     Returns the font attribute specified by the given key.
+     
+     - Parameter attribute: The font attribute key.
+     - Returns: The font attribute corresponding to `attribute`.
      */
-    
-    /// The non-default font feature settings.
-    internal var featureSettings: [FeatureSetting] {
-        guard let values = object(forKey: .featureSettings) as? [[NSFontDescriptor.FeatureKey: Int]] else { return [] }
-        return values.compactMap({ .init($0) })
+    func object<Value>(forKey attribute: AttributeName) -> Value? {
+        object(forKey: attribute) as? Value
     }
-
-    internal struct FeatureSetting {
-        /**
-         The type of the font feature.
-     
-         The value specifies a font feature type such as ligature, character shape, and so on.
-         */
-        public let typeIdentifier: Int
-        /**
-         The selector of the font feature.
-     
-         The value specifies a font feature selector such as common ligature off, traditional character shape, and so on.
-         */
-        public let selectorIdentifier: Int
     
-        init?(_ dic: [NSUIFontDescriptor.FeatureKey: Int]) {
-            guard let typeID = dic[.typeIdentifier], let selectorID = dic[.selectorIdentifier] else { return nil }
-            self.typeIdentifier = typeID
-            self.selectorIdentifier = selectorID
-        }
-    }
-    #endif
-}
-
-public extension NSUIFontDescriptor {
     /// Returns all available font descriptors.
     static var all: [NSUIFontDescriptor] {
         let descriptor = CTFontDescriptorCreateWithAttributes([CFString: Any]() as CFDictionary)
@@ -311,7 +241,7 @@ public extension NSUIFontDescriptor {
     
     /// Returns all available font descriptors matching the specified font attributes.
     static func all(matchingAttributes fontAttributes: [AttributeName: Any]) -> [NSUIFontDescriptor] {
-         (CTFontDescriptorCreateMatchingFontDescriptors(NSUIFontDescriptor(fontAttributes: fontAttributes), nil) as? [NSUIFontDescriptor] ?? [])
+        (CTFontDescriptorCreateMatchingFontDescriptors(NSUIFontDescriptor(fontAttributes: fontAttributes), nil) as? [NSUIFontDescriptor] ?? [])
     }
     
     /// Returns all available font descriptors for the specified font family name (e.g. "Helvetica").
@@ -329,11 +259,61 @@ public extension NSUIFontDescriptor {
     static func all(withSymbolTraits symbolicTraits: SymbolicTraits) -> [NSUIFontDescriptor] {
         all.filter({ $0.symbolicTraits.contains(symbolicTraits) })
     }
+    
+    #if !os(macOS)
+    /**
+     Returns a normalized font descriptor whose specified attributes match those of the receiver.
+ 
+     If more than one font matches the `[.name, .family, .visibleName, .face]` attributes, the list of font descriptors is filtered by the other mandatory keys, if any, and the top result that is returned is the same as the first element returned from [matchingFontDescriptors(withMandatoryKeys:)](https://developer.apple.com/documentation/uikit/uifontdescriptor/matchingfontdescriptors(withmandatorykeys:)).
+ 
+     - Parameter mandatoryKeys: Keys that must be identical to be matched. Can be `nil`.
+     - Returns: The matching font descriptor. If there is no font that matches the given mandatory key values, returns `nil`.
+ 
+     */
+    func matchingFontDescriptor(withMandatoryKeys mandatoryKeys: Set<AttributeName>?) -> NSUIFontDescriptor? {
+        CTFontDescriptorCreateMatchingFontDescriptor(self, mandatoryKeys?.map({$0.rawValue as CFString}) as? NSSet)
+    }
+    #endif
 }
 
 public extension NSUIFontDescriptor.TraitKey {
     /// The normalized design value.
     static let design = Self(rawValue: "NSCTFontUIFontDesignTrait")
+}
+
+extension NSUIFontDescriptor.AttributeName: ExpressibleByStringLiteral {
+    public init(stringLiteral value: String) {
+        self.init(rawValue: value)
+    }
+    
+    /// A string that specifies the covered languages for the font.
+    public static let languages = Self(rawValue: kCTFontLanguagesAttribute as String)
+    
+    /// A string that specifies the orientation for the glyphs of the font.
+    public static let orientation = Self(rawValue: kCTFontOrientationAttribute as String)
+    
+    /// A string that specifies the recognized format of the font.
+    public static let format = Self(rawValue: kCTFontFormatAttribute as String)
+    
+    /// A string that specifies the font features of the font.
+    public static let features = Self(rawValue: kCTFontFeaturesAttribute as String)
+    
+    /// A string that specifies the font url.
+    public static let url = Self(rawValue: kCTFontURLAttribute as String)
+    
+    /// A string that specifies the font size category.
+    public static let sizeCategory = Self(rawValue: "NSCTFontSizeCategoryAttribute")
+
+    /// A string that specifies the font UI usage.
+    public static let uiUsage = Self(rawValue: "NSCTFontUIUsageAttribute")
+    #if os(macOS)
+    /**
+     The text style attribute.
+ 
+     The value is an `NSString` object that contains the specified text style.
+     */
+    public static let textStyle = Self("NSCTFontUIUsageAttribute")
+    #endif
 }
 
 extension NSUIFontDescriptor.SymbolicTraits: Hashable, CustomStringConvertible {
@@ -426,33 +406,83 @@ extension NSUIFontDescriptor.SymbolicTraits: Hashable, CustomStringConvertible {
     static let _looseLeading = Self(rawValue: 65536)
 }
 
-public extension NSUIFontDescriptor.AttributeName {
-    /// A string that specifies the covered languages for the font.
-    static let languages = Self(rawValue: kCTFontLanguagesAttribute as String)
-    
-    /// A string that specifies the orientation for the glyphs of the font.
-    static let orientation = Self(rawValue: kCTFontOrientationAttribute as String)
-    
-    /// A string that specifies the recognized format of the font.
-    static let format = Self(rawValue: kCTFontFormatAttribute as String)
-    
-    /// A string that specifies the font features of the font.
-    static let features = Self(rawValue: kCTFontFeaturesAttribute as String)
-    
-    /// A string that specifies the font url.
-    static let url = Self(rawValue: kCTFontURLAttribute as String)
-    
-    /// A string that specifies the font size category.
-    static let sizeCategory = Self(rawValue: "NSCTFontSizeCategoryAttribute")
+#if os(macOS)
+extension NSUIFontDescriptor {
+    /// A dictionary of variation axis tags (e.g. `"wght"`, `"wdth") and their corresponding values.
+    var variationAxes: [String: Double] {
+        if let variationAxes = _variationAxes {
+            return variationAxes
+        }
+        guard let rawVariations = object(forKey: .variation) as? [NSNumber: NSNumber] else {
+            return [:]
+        }
+        return rawVariations.mapKeys({ UTCreateStringForOSType($0.uint32Value).takeRetainedValue() as String? ?? "Unknown" }).mapValues({ $0.doubleValue })
+    }
 
-    /// A string that specifies the font UI usage.
-    static let uiUsage = Self(rawValue: "NSCTFontUIUsageAttribute")
-    #if os(macOS)
-    /**
-     The text style attribute.
+    fileprivate var _variationAxes: [String: Double]? {
+        guard let rawVariations = object(forKey: .variation) as? [NSFontDescriptor.VariationKey: Any] else {
+            return nil
+        }
+        return rawVariations.mapKeys({$0.rawValue}).compactMapValues({ $0 as? NSNumber}).mapValues({$0.doubleValue})
+    }
+
+    /// The variation axis of the font.
+    internal var variationAxis: VarationAxis? {
+        .init(object(forKey: .variation) as? [VariationKey: Any] ?? [:])
+    }
+
+    /// The variation axis of a font.
+    internal struct VarationAxis: CustomStringConvertible {
+        /// The localized name of the variation axis.
+        public let name: String
+        /// The identifier of the variation axis.
+        public let identifier: Int
+        /// The minimum valuer of the variation axis.
+        public let minimumValue: CGFloat
+        /// The maximum valuer of the variation axis.
+        public let maximumValue: CGFloat
+        /// The default valuer of the variation axis.
+        public let defaultValue: CGFloat
+    
+        public var description: String {
+            "(\(identifier), name: \(name), minumum: \(minimumValue), maximum: \(maximumValue), default: \(defaultValue))"
+        }
+    
+        init?(_ variations: [VariationKey: Any]) {
+            guard !variations.isEmpty else { return nil }
+            self.name = variations[.name] as! String
+            self.identifier = variations[.identifier] as! Int
+            self.minimumValue = variations[.minimumValue] as! CGFloat
+            self.maximumValue = variations[.maximumValue] as! CGFloat
+            self.defaultValue = variations[.defaultValue] as! CGFloat
+        }
+    }
+
+    /// The non-default font feature settings.
+    internal var featureSettings: [FeatureSetting] {
+        guard let values = object(forKey: .featureSettings) as? [[NSFontDescriptor.FeatureKey: Int]] else { return [] }
+        return values.compactMap({ .init($0) })
+    }
+
+    internal struct FeatureSetting {
+        /**
+         The type of the font feature.
  
-     The value is an `NSString` object that contains the specified text style.
-     */
-    static let textStyle = Self("NSCTFontUIUsageAttribute")
-    #endif
+         The value specifies a font feature type such as ligature, character shape, and so on.
+         */
+        public let typeIdentifier: Int
+        /**
+         The selector of the font feature.
+ 
+         The value specifies a font feature selector such as common ligature off, traditional character shape, and so on.
+         */
+        public let selectorIdentifier: Int
+
+        init?(_ dic: [NSUIFontDescriptor.FeatureKey: Int]) {
+            guard let typeID = dic[.typeIdentifier], let selectorID = dic[.selectorIdentifier] else { return nil }
+            self.typeIdentifier = typeID
+            self.selectorIdentifier = selectorID
+        }
+    }
 }
+#endif

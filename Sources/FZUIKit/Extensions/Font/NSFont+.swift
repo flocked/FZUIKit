@@ -184,12 +184,4 @@ public extension NSFont {
     }
 }
 
-@available(macOS 11.0, *)
-extension NSFont.TextStyle: CaseIterable {
-    /// A collection of all text style values.
-    public static var allCases: [Self] {
-        [.body, .subheadline, .headline, .caption1, .caption2, .callout, .footnote, .title1, .title2, .title3, .largeTitle]
-    }
-}
-
 #endif

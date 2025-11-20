@@ -119,12 +119,6 @@ extension NSFont {
         }
     }
 }
-#else
-extension UIFont {
-    static func sdsd() {
-        
-    }
-}
 #endif
 
 extension NSUIFont {
