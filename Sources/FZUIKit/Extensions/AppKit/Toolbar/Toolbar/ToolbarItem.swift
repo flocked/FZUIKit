@@ -341,11 +341,8 @@ extension NSToolbarItem {
         set {
             guard newValue != _isHidden else { return }
             let selector = NSSelectorFromString("setHidden:")
-            guard let meth = class_getInstanceMethod(object_getClass(self), selector) else { return }
-            let imp = method_getImplementation(meth)
             typealias ClosureType = @convention(c) (NSToolbarItem, Selector, Bool) -> Void
-            let method: ClosureType = unsafeBitCast(imp, to: ClosureType.self)
-            method(self, selector, newValue)
+            method(for: selector, as: ClosureType.self)?(self, selector, newValue)
         }
     }
 }

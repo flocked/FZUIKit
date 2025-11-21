@@ -193,14 +193,9 @@ extension NSSegmentedCell {
     /// Returns the index of the segment at the specified location.
     public func indexOfSegment(at location: CGPoint) -> Int? {
         let selector = NSSelectorFromString("indexOfSegmentContainingPoint:inCellFrame:")
-        if let meth = class_getInstanceMethod(object_getClass(self), selector) {
-            let imp = method_getImplementation(meth)
-            typealias ClosureType = @convention(c) (AnyObject, Selector, CGPoint, CGRect) -> Int
-            let method: ClosureType = unsafeBitCast(imp, to: ClosureType.self)
-            let index = method(self, selector, location, CGRect(.zero, cellSize))
-            return index != -1 ? index : nil
-        }
-        return nil
+        typealias ClosureType = @convention(c) (AnyObject, Selector, CGPoint, CGRect) -> Int
+        guard let index = method(for: selector, as: ClosureType.self)?(self, selector, location, CGRect(.zero, cellSize)) else { return nil }
+        return index != -1 ? index : nil
     }
     
     /**
@@ -211,16 +206,11 @@ extension NSSegmentedCell {
     public func frame(forSegment segment: Int) -> CGRect? {
         guard segment > 0, segment < segmentCount else { return nil }
         let selector = NSSelectorFromString("_rectForSegment:inFrame:")
-        if let meth = class_getInstanceMethod(object_getClass(self), selector) {
-            let imp = method_getImplementation(meth)
-            typealias ClosureType = @convention(c) (AnyObject, Selector, Int, CGRect) -> CGRect
-            let method: ClosureType = unsafeBitCast(imp, to: ClosureType.self)
-            var frame = method(self, selector, segment, CGRect(.zero, cellSize))
-            frame.origin.x += cellSize.width/2.0
-            frame.origin.y += cellSize.height/2.0
-            return frame
-        }
-        return nil
+        typealias ClosureType = @convention(c) (AnyObject, Selector, Int, CGRect) -> CGRect
+        guard var frame = method(for: selector, as: ClosureType.self)?(self, selector, segment, CGRect(.zero, cellSize)) else { return nil }
+        frame.origin.x += cellSize.width/2.0
+        frame.origin.y += cellSize.height/2.0
+        return frame
     }
 }
 #endif
