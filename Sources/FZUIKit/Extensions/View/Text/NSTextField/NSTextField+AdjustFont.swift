@@ -18,7 +18,7 @@ extension NSTextField {
      
      The default value for this property is `false`. If you change it to `true`, be sure that you also set an appropriate minimum font scale by modifying the ``AppKit/NSTextField/adjustsFontSizeToFitWidth`` property. This autoshrinking behavior is only intended for use with a single-line text field.
 
-     - Note: If you you set this property to `true`, ``automaticallyResizesToFit`` is set to `false`.
+     - Note: If you you set this property to `true`, ``AppKit/NSTextField/automaticallyResizesToFit`` is set to `false`.
      */
     public var adjustsFontSizeToFitWidth: Bool {
         get { getAssociatedValue("adjustsFontSizeToFitWidth", initialValue: false) }
@@ -64,51 +64,73 @@ extension NSTextField {
 
     /// Returns the font size that fits the current string value in the text field's bounds, or `0` if no font size fits.
     public var fittingFontSize: CGFloat {
-        guard let _font = _font ?? font else { return 0.0 }
-        cell?.font = _font
+        guard let baseFont = _font ?? font, let cell = cell else { return 0.0 }
+        let currentFont = cell.font
+        defer { cell.font = currentFont }
+        cell.font = baseFont
         stringValue = stringValue
-        var needsUpdate = !isFittingCurrentText
-        var pointSize = _font.pointSize
-        var minPointSize = 0.1
-        var fittingPointSize: CGFloat? = nil
-        while needsUpdate {
-            let currentPointSize = minPointSize + ((pointSize - minPointSize) / 2.0)
-            let adjustedFont = _font.withSize(currentPointSize)
-            cell?.font = adjustedFont
+        let initialSize = baseFont.pointSize
+        guard isFittingCurrentText else { return 0.1 }
+        var low: CGFloat = 0.1
+        var high: CGFloat = initialSize
+        while true {
+            let test = high * 2.0
+            cell.font = baseFont.withSize(test)
             if isFittingCurrentText {
-                minPointSize = currentPointSize
-                fittingPointSize = currentPointSize.rounded(toPlaces: 1, rule: .towardZero)
+                high = test
             } else {
-                pointSize = currentPointSize
+                break
             }
-            needsUpdate = !minPointSize.isApproximatelyEqual(to: pointSize, epsilon: 0.1)
         }
-        cell?.font = _font
-        return fittingPointSize ?? 0.0
+        cell.font = baseFont
+        var best = low
+        while high - low > 0.1 {
+            let mid = (low + high) * 0.5
+            cell.font = baseFont.withSize(mid)
+            if isFittingCurrentText {
+                best = mid
+                low = mid
+            } else {
+                high = mid
+            }
+        }
+        return best.rounded(toPlaces: 1, rule: .towardZero)
     }
 
     func adjustFontSize() {
-        guard needsFontAdjustments else { return }
-        guard let _font = _font else { return }
-        cell?.font = _font
-        var scaleFactor = 1.0
-        var needsUpdate = !isFittingCurrentText
-        var pointSize = _font.pointSize
-        var minPointSize = pointSize * minimumScaleFactor
-        while needsUpdate, scaleFactor >= minimumScaleFactor {
-            let currentPointSize = minPointSize + ((pointSize - minPointSize) / 2.0)
+        guard let baseFont = _font else { return }
 
-            let adjustedFont = _font.withSize(currentPointSize)
-            scaleFactor = currentPointSize / _font.pointSize
-            cell?.font = adjustedFont
+        let maxPoint = baseFont.pointSize
+        let minPoint = maxPoint * minimumScaleFactor
+
+        // Reset to full size before measuring
+        cell?.font = baseFont
+
+        // Quick exit if the text already fits at full size
+        if isFittingCurrentText { return }
+
+        // Binary search bounds
+        var low = minPoint
+        var high = maxPoint
+        var best = minPoint
+
+        while high - low > 0.001 {
+            let mid = (low + high) * 0.5
+            let testFont = baseFont.withSize(mid)
+            cell?.font = testFont
+
             if isFittingCurrentText {
-                minPointSize = currentPointSize
+                // Text fits → try larger
+                best = mid
+                low = mid
             } else {
-                pointSize = currentPointSize
+                // Text doesn't fit → try smaller
+                high = mid
             }
-            needsUpdate = !minPointSize.isApproximatelyEqual(to: pointSize, epsilon: 0.001)
         }
-        //  adjustFontKerning()
+
+        // Apply the largest fitting font size
+        cell?.font = baseFont.withSize(best)
     }
 
     func adjustFontKerning() {
@@ -136,18 +158,17 @@ extension NSTextField {
 
     func setupFontAdjustment() {
         if needsFontAdjustments {
-            guard isMethodHooked(#selector(setter: font)) == false else { return }                
+            guard fontHooks.isEmpty else { return }
             textFieldObserver = nil
             _font = font
             do {
-                try hook(#selector(setter: font), closure: { original, textField, sel, font in
+                fontHooks += try hook(#selector(setter: font), closure: { original, textField, sel, font in
                     guard textField._font != font else { return }
                     textField._font = font
                     original(textField, sel, font)
                     textField.adjustFontSize()
                 } as @convention(block) ((NSTextField, Selector, NSFont?) -> Void, NSTextField, Selector, NSFont?) -> Void)
-
-                try hook(#selector(getter: font), closure: { original, object, sel in
+                fontHooks += try hook(#selector(getter: font), closure: { original, object, sel in
                     object._font ?? original(object, sel)
                 } as @convention(block) ((NSTextField, Selector) -> NSFont?, NSTextField, Selector) -> NSFont?)
             } catch {
@@ -155,14 +176,19 @@ extension NSTextField {
             }
             setupTextFieldObserver()
             observeEditing()
-        } else if isMethodHooked(#selector(setter: font)) {
+        } else if !fontHooks.isEmpty {
             textFieldObserver = nil
-            revertHooks(for: #selector(setter: font))
-            revertHooks(for: #selector(getter: font))
+            fontHooks.forEach({ try? $0.revert() })
+            fontHooks = []
             setupTextFieldObserver()
             observeEditing()
             font = _font ?? font
         }
+    }
+    
+    var fontHooks: [Hook] {
+        get { getAssociatedValue("fontHooks") ?? [] }
+        set { setAssociatedValue(newValue, key: "fontHooks") }
     }
 
     var _font: NSFont? {

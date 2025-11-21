@@ -335,15 +335,11 @@ public extension NSTextField {
 
     /// A Boolean value indicating whether the text field is truncating the text.
     var isTruncatingText: Bool {
-        var isTruncating = false
-        if let cell = cell {
-            isTruncating = cell.expansionFrame(withFrame: frame, in: self) != .zero
-            if !isTruncating, maximumNumberOfLines == 1 {
-                let cellSize = cell.cellSize(forBounds: CGRect(0, 0, CGFloat.greatestFiniteMagnitude, frame.height-0.5))
-                isTruncating = cellSize.width > frame.width
-            }
-        }
-        return isTruncating
+        guard let cell = cell else { return false }
+        let isTruncating = cell.expansionFrame(withFrame: frame, in: self) != .zero
+        guard !isTruncating, maximumNumberOfLines == 1 else { return isTruncating }
+        let cellSize = cell.cellSize(forBounds: CGRect(0, 0, CGFloat.greatestFiniteMagnitude, frame.height-0.5))
+        return cellSize.width > frame.width
     }
     
     /// The rectangle of the text.

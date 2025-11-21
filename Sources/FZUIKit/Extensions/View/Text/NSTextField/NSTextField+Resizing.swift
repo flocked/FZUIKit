@@ -13,7 +13,7 @@ extension NSTextField {
     /**
      A Boolean value indicating whether the text field is automatically adjust it's size to fit it's string value.
      
-     If you you set this property to `true`, ``adjustsFontSizeToFitWidth`` is set to `false`.
+     If you you set this property to `true`, ``AppKit/NSTextField/adjustsFontSizeToFitWidth`` is set to `false`.
      
      - Note: This property isn't working with `NSSearchField`.
      */

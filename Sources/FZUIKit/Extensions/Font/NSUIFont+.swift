@@ -253,6 +253,18 @@ public extension NSUIFont {
     static func systemFont(ofSize size: CGFloat, weight: Weight = .regular, design: SystemDesign) -> NSUIFont {
         systemFont(ofSize: size, weight: weight).design(design)
     }
+    
+    /**
+     Creates and returns a font object for the specified font name and size.
+
+     - Parameters:
+        - fontName: The fully specified name of the font. This name incorporates both the font family name and the specific style information for the font.
+        - fontSize: The font size. If you specify `0.0` or a negative number for this parameter, the method returns the system font at the default size.
+     - Returns: A font object of the specified name and size.
+     */
+    static func named(_ fontName: String, size fontSize: CGFloat) -> NSUIFont? {
+        NSUIFont(name: fontName, size: fontSize)
+    }
     #else
     /**
      Returns the standard system font with the specified size, design and weight.
@@ -264,6 +276,18 @@ public extension NSUIFont {
      */
     static func systemFont(ofSize size: CGFloat, weight: Weight = .regular, design: SystemDesign) -> NSUIFont {
         systemFont(ofSize: size, weight: weight).design(design)
+    }
+    
+    /**
+     Creates and returns a font object for the specified font name and size.
+
+     - Parameters:
+        - fontName: The fully specified name of the font. This name incorporates both the font family name and the specific style information for the font.
+        - fontSize: The size (in points) to which the font is scaled. This value must be greater than `0.0`.
+     - Returns: A font object of the specified name and size.
+     */
+    static func named(_ fontName: String, size fontSize: CGFloat) -> NSUIFont? {
+        NSUIFont(name: fontName, size: fontSize)
     }
     #endif
 
@@ -519,6 +543,60 @@ extension NSUIFont {
         }
     }
 }
+
+public extension NSUIFont {
+    /**
+     Returns the font with a point size that is adjusted so that the specified text fits within the given height.
+
+     This method determines the largest point size at which the rendered height of the string does not exceed the provided value.
+
+     - Parameters:
+       - height: The maximum allowed height for the rendered text.
+       - text: The text whose rendered height should fit within the specified value.
+
+     - Returns: The font sized so the text fits within the provided height.
+     */
+    func sizedToFit(height: CGFloat, for text: String) -> NSUIFont {
+        var low: CGFloat = 1.0
+        var high: CGFloat = max(height, 1.0)
+        while high - low > 0.1 {
+            let mid = (low + high) / 2.0
+            if text.size(withAttributes: [.font: withSize(mid)]).height <= height {
+                low = mid
+            } else {
+                high = mid
+            }
+        }
+        return withSize(low)
+    }
+
+    /**
+     Returns the font with a point size that is adjusted so that the specified text fits within the given width.
+
+     This method determines the largest point size at which the rendered width of the string does not exceed the provided value.
+     
+     - Parameters:
+       - width: The maximum allowed width for the rendered text.
+       - text: The text whose rendered width should fit within the specified value.
+
+     - Returns: The font sized so the text fits within the provided width.
+     */
+    func sizedToFit(width: CGFloat, for text: String) -> NSUIFont {
+        let baseWidth = text.size(withAttributes: [.font: self]).width
+        var low: CGFloat = 1.0
+        var upper = baseWidth > 0.0 ? max(1.0, (width / baseWidth) * pointSize) :  max(1.0, width)
+        while upper - low > 0.1 {
+            let mid = (low + upper) / 2.0
+            if text.size(withAttributes: [.font: withSize(mid)]).width <= width {
+                low = mid
+            } else {
+                upper = mid
+            }
+        }
+        return withSize(low)
+    }
+}
+
 
 #if os(macOS)
 @available(macOS 15.0, *)
