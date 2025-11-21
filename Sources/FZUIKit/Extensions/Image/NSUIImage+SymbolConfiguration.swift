@@ -657,7 +657,7 @@ extension NSImage.SymbolConfiguration {
     class func symbolWeight(for fontWeight: NSFont.Weight) -> NSFont.Weight {
         typealias Function = @convention(c) (AnyObject, Selector, NSFont.Weight) -> NSFont.Weight
         let selector = NSSelectorFromString("_symbolWeightForFontWeight:")
-        return classMethod(for: selector, as: Function.self)?(self, selector, fontWeight) ?? fontWeight
+        return method(for: selector, as: Function.self)?(self, selector, fontWeight) ?? fontWeight
     }
 }
 #endif
