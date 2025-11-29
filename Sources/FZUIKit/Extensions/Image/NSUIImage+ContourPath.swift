@@ -56,13 +56,11 @@ extension CGImage {
 }
 
 enum ContourError: LocalizedError {
-    case imageNotFound
     case noContour
     case noCGImage
 
     var errorDescription: String? {
         switch self {
-        case .imageNotFound: return "Image not found."
         case .noContour: return "No contour detected."
         case .noCGImage: return "Unable to create CGImage representation of image."
         }

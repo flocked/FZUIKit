@@ -18,26 +18,12 @@ extension NSUIImage {
      
      - Parameters:
         - images: The images to combine.
-        - alignment: The alignment of the images.
+        - alignment: The horizontal alignment of the images.
      - Returns: The image, or `nil` if the image couldn't be created.
      */
     public convenience init?(combineVertical images: [NSUIImage], alignment: HorizontalAlignment = .center) {
-        guard let image = NSUIImage.combined(images: images, vertical: true, alignment: alignment.rawValue) else { return nil }
-        #if os(macOS)
-        self.init(size: image.size)
-        lockFocus()
-        defer { unlockFocus() }
-        image.draw(at: .zero, from: CGRect(origin: .zero, size: image.size), operation: .copy, fraction: 1.0)
-        #else
-        UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
-        defer { UIGraphicsEndImageContext() }
-        image.draw(at: .zero)
-        if let cgImage = UIGraphicsGetImageFromCurrentImageContext()?.cgImage {
-            self.init(cgImage: cgImage)
-        } else {
-            self.init()
-        }
-        #endif
+        guard let cgImage = CGImage.combineVertical(images.compactMap({$0.cgImage}), alignment: .init(rawValue: alignment.rawValue)!) else { return nil }
+        self.init(cgImage: cgImage)
     }
     
     /**
@@ -45,26 +31,12 @@ extension NSUIImage {
      
      - Parameters:
         - images: The images to combine.
-        - alignment: The alignment of the images.
+        - alignment: The vertical alignment of the images.
      - Returns: The image, or `nil` if the image couldn't be created.
      */
     public convenience init?(combineHorizontal images: [NSUIImage], alignment: VerticalAlignment = .center) {
-        guard let image = NSUIImage.combined(images: images, vertical: false, alignment: alignment.rawValue) else { return nil }
-        #if os(macOS)
-        self.init(size: image.size)
-        lockFocus()
-        defer { unlockFocus() }
-        image.draw(at: .zero, from: CGRect(origin: .zero, size: image.size), operation: .copy, fraction: 1.0)
-        #else
-        UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
-        defer { UIGraphicsEndImageContext() }
-        image.draw(at: .zero)
-        if let cgImage = UIGraphicsGetImageFromCurrentImageContext()?.cgImage {
-            self.init(cgImage: cgImage)
-        } else {
-            self.init()
-        }
-        #endif
+        guard let cgImage = CGImage.combineHorizontal(images.compactMap({$0.cgImage}), alignment: .init(rawValue: alignment.rawValue)!) else { return nil }
+        self.init(cgImage: cgImage)
     }
 
     /// The vertical alignment of images when combining them to a new image.
@@ -86,34 +58,113 @@ extension NSUIImage {
         /// Trailing.
         case right
     }
+}
+
+extension CFType where Self == CGImage {
+    /**
+     Creates a new image by combining the specified images vertically.
+     
+     - Parameters:
+        - images: The images to combine.
+        - alignment: The horizontal alignment of the images.
+     - Returns: The image, or `nil` if the image couldn't be created.
+     */
+    public init?(combineVertical images: [CGImage], alignment: CGImage.HorizontalAlignment = .center) {
+        guard let image = CGImage.combineVertical(images, alignment: alignment) else { return nil }
+        self = image
+    }
+    
+    /**
+     Creates a new image by combining the specified images horizontally.
+     
+     - Parameters:
+        - images: The images to combine.
+        - alignment: The vertical alignment of the images.
+     - Returns: The image, or `nil` if the image couldn't be created.
+     */
+    public init?(combineHorizonal images: [CGImage], alignment: CGImage.VerticalAlignment = .center) {
+        guard let image = CGImage.combineHorizontal(images, alignment: alignment) else { return nil }
+        self = image
+    }
+}
+
+extension CGImage {
+    /// The vertical alignment of images when combining them to a new image.
+    public enum VerticalAlignment: Int {
+        /// Leading.
+        case top
+        /// Center.
+        case center
+        /// Trailing.
+        case bottom
+    }
+    
+    /// The horizontal alignment of images when combining them to a new image.
+    public enum HorizontalAlignment: Int {
+        /// Leading.
+        case left
+        /// Center.
+        case center
+        /// Trailing.
+        case right
+    }
+    
+    fileprivate static func combineVertical(_ images: [CGImage], alignment: HorizontalAlignment = .center) -> CGImage? {
+        guard !images.isEmpty else { return nil }
         
-    private static func combined(images: [NSUIImage], vertical: Bool, alignment: Int) -> NSUIImage? {
-        guard images.count > 1 else { return images.first }
+        // Total height = sum of heights
+        let totalHeight = images.reduce(0) { $0 + $1.height }
+        let maxWidth = images.map(\.width).max() ?? 0
         
-        let rects = vertical ? images.map({CGRect(.zero, $0.size)}).alignVertically(at: .init(rawValue: alignment)!) : images.map({CGRect(.zero, $0.size)}).alignHorizontally(at: .init(rawValue: alignment)!)
-        #if os(macOS)
-        let finalImage = NSUIImage(size: rects.union().size)
-        finalImage.lockFocus()
-        defer { finalImage.unlockFocus() }
-        var currentPoint: CGPoint = .zero
-        for value in zip(images, rects) {
-            let image = value.0
-            let drawRect = value.1
-            image.draw(in: drawRect)
-            currentPoint = vertical ? CGPoint(x: currentPoint.x, y: currentPoint.y + image.size.height) : CGPoint(x: currentPoint.x + image.size.width, y: currentPoint.y)
+        guard let ctx = CGContext(data: nil, width: maxWidth, height: totalHeight, bitsPerComponent: 8, bytesPerRow: maxWidth * 4, space: .deviceRGB, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else {
+            return nil
         }
-        return finalImage
-        #else
-        UIGraphicsBeginImageContextWithOptions(rects.union().size, false, 0.0)
-        defer { UIGraphicsEndImageContext() }
-        var currentPoint: CGPoint = .zero
-        for value in zip(images, rects) {
-            let image = value.0
-            let drawRect = value.1
-            image.draw(in: drawRect)
-            currentPoint = vertical ? CGPoint(x: currentPoint.x, y: currentPoint.y + image.size.height) : CGPoint(x: currentPoint.x + image.size.width, y: currentPoint.y)
+        
+        var yOffset = 0
+        
+        for image in images {
+            let x: Int
+            switch alignment {
+            case .left:
+                x = 0
+            case .center:
+                x = (maxWidth - image.width) / 2
+            case .right:
+                x = maxWidth - image.width
+            }
+            ctx.draw(image, in: CGRect(x: x, y: yOffset, width: image.width, height: image.height))
+            yOffset += image.height
         }
-        return UIGraphicsGetImageFromCurrentImageContext()
-        #endif
+        
+        return ctx.makeImage()
+    }
+    
+    
+    fileprivate static func combineHorizontal(_ images: [CGImage], alignment: VerticalAlignment = .center) -> CGImage? {
+        guard !images.isEmpty else { return nil }
+        
+        let totalWidth = images.reduce(0) { $0 + $1.width }
+        let maxHeight = images.map(\.height).max() ?? 0
+        guard let ctx = CGContext(data: nil, width: totalWidth, height: maxHeight, bitsPerComponent: 8, bytesPerRow: totalWidth * 4, space: .deviceRGB, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else {
+            return nil
+        }
+        
+        var xOffset = 0
+        
+        for image in images {
+            let y: Int
+            switch alignment {
+            case .top:
+                y = maxHeight - image.height
+            case .center:
+                y = (maxHeight - image.height) / 2
+            case .bottom:
+                y = 0
+            }
+            ctx.draw(image, in: CGRect(x: xOffset, y: y, width: image.width, height: image.height))
+            xOffset += image.width
+        }
+        
+        return ctx.makeImage()
     }
 }
