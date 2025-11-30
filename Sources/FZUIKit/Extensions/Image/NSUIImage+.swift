@@ -196,27 +196,66 @@ public extension NSUIImage {
      */
     static func maskImage(cornerRadius: CGFloat) -> NSUIImage {
         let size = CGSize(width: cornerRadius * 2, height: cornerRadius * 2)
+        
         func draw(in rect: CGRect) {
             let path = NSUIBezierPath(roundedRect: rect, cornerRadius: cornerRadius)
-            path.close()
             NSUIColor.black.setFill()
             path.fill()
         }
+
         #if os(macOS)
+
         let image = NSImage(size: size, flipped: false) { rect in
             draw(in: rect)
             return true
         }
         image.capInsets = NSEdgeInsets(top: cornerRadius, left: cornerRadius, bottom: cornerRadius, right: cornerRadius)
         return image
-        #else
-        let format = UIGraphicsImageRendererFormat.default()
-        format.opaque = false
-        let image = UIGraphicsImageRenderer(size: size, format: format).image { context in
-            draw(in: CGRect(origin: .zero, size: size))
+
+        #elseif os(watchOS)
+
+        let rect = CGRect(origin: .zero, size: size)
+        let scale = 1.0
+
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
+
+        guard let context = CGContext(
+            data: nil,
+            width: Int(size.width * scale),
+            height: Int(size.height * scale),
+            bitsPerComponent: 8,
+            bytesPerRow: 0,
+            space: colorSpace,
+            bitmapInfo: bitmapInfo
+        ) else {
+            return NSUIImage()
         }
+
+        context.scaleBy(x: scale, y: scale)
+
+        UIGraphicsPushContext(context)
+        draw(in: rect)
+        UIGraphicsPopContext()
+
+        guard let cgImage = context.makeImage() else { return NSUIImage() }
+        let image = NSUIImage(cgImage: cgImage, scale: scale, orientation: .up)
+
         let insets = UIEdgeInsets(top: cornerRadius, left: cornerRadius, bottom: cornerRadius, right: cornerRadius)
         return image.resizableImage(withCapInsets: insets, resizingMode: .stretch)
+
+        #else   // iOS / tvOS
+
+        let format = UIGraphicsImageRendererFormat.default()
+        format.opaque = false
+
+        let image = UIGraphicsImageRenderer(size: size, format: format).image { _ in
+            draw(in: CGRect(origin: .zero, size: size))
+        }
+
+        let insets = UIEdgeInsets(top: cornerRadius, left: cornerRadius, bottom: cornerRadius, right: cornerRadius)
+        return image.resizableImage(withCapInsets: insets, resizingMode: .stretch)
+
         #endif
     }
     
@@ -229,32 +268,77 @@ public extension NSUIImage {
 
      - Returns: A black-filled image with transparent corners, suitable for use as a resizable mask.
      */
+
     static func maskImage(roundedCorners: NSUIRectCorner, cornerRadius: CGFloat) -> NSUIImage {
         if roundedCorners == .allCorners {
             return maskImage(cornerRadius: cornerRadius)
         }
+
         let size = CGSize(width: cornerRadius * 2, height: cornerRadius * 2)
+
         func draw(in rect: CGRect) {
-            let path = NSUIBezierPath(roundedRect: rect, byRoundingCorners: roundedCorners, cornerRadius: cornerRadius)
-            path.close()
+            let path = NSUIBezierPath(
+                roundedRect: rect,
+                byRoundingCorners: roundedCorners,
+                cornerRadius: cornerRadius
+            )
             NSUIColor.black.setFill()
             path.fill()
         }
+
         #if os(macOS)
+
         let image = NSImage(size: size, flipped: false) { rect in
             draw(in: rect)
             return true
         }
         image.capInsets = NSEdgeInsets(top: cornerRadius, left: cornerRadius, bottom: cornerRadius, right: cornerRadius)
         return image
-        #else
-        let format = UIGraphicsImageRendererFormat.default()
-        format.opaque = false
-        let image = UIGraphicsImageRenderer(size: size, format: format).image { context in
-            draw(in: CGRect(origin: .zero, size: size))
+
+        #elseif os(watchOS)
+
+        let rect = CGRect(origin: .zero, size: size)
+        let scale = 1.0
+
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
+
+        guard let context = CGContext(
+            data: nil,
+            width: Int(size.width * scale),
+            height: Int(size.height * scale),
+            bitsPerComponent: 8,
+            bytesPerRow: 0,
+            space: colorSpace,
+            bitmapInfo: bitmapInfo
+        ) else {
+            return NSUIImage()
         }
+
+        context.scaleBy(x: scale, y: scale)
+
+        UIGraphicsPushContext(context)
+        draw(in: rect)
+        UIGraphicsPopContext()
+
+        guard let cgImage = context.makeImage() else { return NSUIImage() }
+        let image = NSUIImage(cgImage: cgImage, scale: scale, orientation: .up)
+
         let insets = UIEdgeInsets(top: cornerRadius, left: cornerRadius, bottom: cornerRadius, right: cornerRadius)
         return image.resizableImage(withCapInsets: insets, resizingMode: .stretch)
+
+        #else   // iOS / tvOS
+
+        let format = UIGraphicsImageRendererFormat.default()
+        format.opaque = false
+
+        let image = UIGraphicsImageRenderer(size: size, format: format).image { _ in
+            draw(in: CGRect(origin: .zero, size: size))
+        }
+
+        let insets = UIEdgeInsets(top: cornerRadius, left: cornerRadius, bottom: cornerRadius, right: cornerRadius)
+        return image.resizableImage(withCapInsets: insets, resizingMode: .stretch)
+
         #endif
     }
     

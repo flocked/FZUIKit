@@ -64,6 +64,7 @@ extension simd_quatd: Interpolatable {
     }
 }
 
+#if os(macOS) || os(iOS) || os(tvOS)
 extension CATransform3D.DecomposedTransform: Interpolatable {
     public func lerp(to: Self, fraction: Double) -> Self {
         CATransform3D.DecomposedTransform(storage.lerp(to: to.storage, fraction: Double(fraction)))
@@ -75,6 +76,7 @@ extension CATransform3D: Interpolatable {
         CATransform3D(_decomposed().lerp(to: to._decomposed(), fraction: Double(fraction)).recomposed())
     }
 }
+#endif
 
 extension CGQuaternion: Interpolatable {
     public func lerp(to: CGQuaternion, fraction: CGFloat) -> CGQuaternion {
@@ -94,6 +96,7 @@ extension CGVector4: Interpolatable {
     }
 }
 
+#if os(macOS) || os(iOS) || os(tvOS)
 extension matrix_double4x4.DecomposedTransform: Interpolatable {
     public func lerp(to: Self, fraction: Double) -> Self {
         matrix_double4x4.DecomposedTransform(translation: translation.lerp(to: to.translation, fraction: fraction),
@@ -127,5 +130,6 @@ extension matrix_float4x4: Interpolatable {
         decomposed().lerp(to: to.decomposed(), fraction: fraction).recomposed()
     }
 }
+#endif
 
 #endif

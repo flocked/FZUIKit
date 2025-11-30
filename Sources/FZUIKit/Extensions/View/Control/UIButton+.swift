@@ -5,9 +5,7 @@
 //  Created by Florian Zand on 10.07.25.
 //
 
-#if canImport(UIKit)
-import UIKit
-
+#if os(iOS) || os(tvOS)
 import UIKit
 
 extension UIButton {

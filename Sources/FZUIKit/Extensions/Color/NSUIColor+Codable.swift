@@ -19,12 +19,16 @@ extension NSUIColor: Codable {
     }
     
     public func encode(to encoder: Encoder) throws {
-        let dynamicColors = dynamicColors
         var container = encoder.container(keyedBy: CodingKeys.self)
+        #if os(macOS) || os(iOS) || os(tvOS)
+        let dynamicColors = dynamicColors
         try container.encode(dynamicColors.light.values, forKey: .light)
         if dynamicColors.light != dynamicColors.dark {
             try container.encode(dynamicColors.dark.values, forKey: .dark)
         }
+        #else
+        try container.encode(values, forKey: .light)
+        #endif
     }
     
     fileprivate var values: [CGFloat] {
@@ -51,11 +55,15 @@ extension Decodable where Self: NSUIColor {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let light: [CGFloat] = try container.decode(.light)
+        #if os(macOS) || os(iOS) || os(tvOS)
         if let dark: [CGFloat] = try container.decodeIfPresent(.dark) {
             self = NSUIColor(light:  Self(light), dark: Self(dark)) as! Self
         } else {
             self = Self(light)
         }
+        #else
+        self = Self(light)
+        #endif
     }
     
     fileprivate init(_ components: [CGFloat]) {

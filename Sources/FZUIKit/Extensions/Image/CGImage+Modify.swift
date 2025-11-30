@@ -7,7 +7,10 @@
 
 import Foundation
 import FZSwiftUtils
+import CoreGraphics
+#if os(macOS) || os(iOS) || os(tvOS)
 import CoreImage
+#endif
 
 
 public extension CGImage {

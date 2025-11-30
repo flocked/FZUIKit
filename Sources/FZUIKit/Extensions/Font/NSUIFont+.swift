@@ -386,6 +386,15 @@ public extension NSUIFont {
 
 extension NSUIFont {
     /**
+     Returns the name for the specified name type.
+     
+     - Returns: The requested name for the font, or `nil` if the font does not have an entry for the requested name.
+     */
+    public func name(of nameKey: NameKey) -> String? {
+        CTFontCopyName(self, nameKey.rawValue) as String?
+    }
+    
+    /**
      Returns the localized name for the specified name type.
 
      The name is localized based on the user’s global language preference precedence. That is, the user’s language preference is a list of languages in order of precedence.
@@ -541,6 +550,69 @@ extension NSUIFont {
             self.name = dictionary[kCTFontFeatureTypeNameKey as String] as? String
             self.isExclusive = (dictionary[kCTFontFeatureTypeExclusiveKey as String] as? NSNumber)?.boolValue ?? false
         }
+    }
+    
+    /**
+     The scaled font ascent metric.
+
+     The font ascent metric scaled based on the point size and matrix of the font reference.
+     */
+    public var ascent: CGFloat {
+        CTFontGetAscent(self)
+    }
+
+    /**
+     The scaled font descent metric.
+
+     The font descent metric scaled based on the point size and matrix of the font reference.
+     */
+    public var descent: CGFloat {
+        CTFontGetDescent(self)
+    }
+
+    /**
+     The number of glyphs.
+
+     The number of glyphs in the font.
+     */
+    public var countOfGlyphs: Int {
+        CTFontGetGlyphCount(self)
+    }
+
+    /**
+     The scaled bounding box.
+
+     The design bounding box of the font, which is the rectangle defined by `xMin`, `yMin`, `xMax`, and `yMax` values for the font.
+     */
+    public var boundingBox: CGRect {
+        CTFontGetBoundingBox(self)
+    }
+
+    /**
+     The scaled underline position.
+
+     The font underline position metric scaled based on the point size and matrix of the font reference.
+     */
+    public var underlinePosition: CGFloat {
+        CTFontGetUnderlinePosition(self)
+    }
+
+    /**
+     The scaled underline thickness metric.
+
+     The font underline thickness metric scaled based on the point size and matrix of the font reference.
+     */
+    public var underlineThickness: CGFloat {
+        CTFontGetUnderlineThickness(self)
+    }
+
+    /**
+     The slant angle of the font.
+
+     The transformed slant angle of the font. This is equivalent to the italic or caret angle with any skew from the transformation matrix applied.
+     */
+    public var slantAngle: CGFloat {
+        CTFontGetSlantAngle(self)
     }
 }
 

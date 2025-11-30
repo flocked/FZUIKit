@@ -5,9 +5,9 @@
 //  Created by Florian Zand on 31.10.25.
 //
 
-#if canImport(CoreImage)
+#if canImport(CoreGraphics)
 import Foundation
-import CoreImage
+import CoreGraphics
 import FZSwiftUtils
 
 extension CGContext {

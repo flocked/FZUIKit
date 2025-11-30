@@ -5,18 +5,11 @@
 //  Created by Florian Zand on 31.10.25.
 //
 
-#if canImport(CoreImage)
+#if canImport(CoreGraphics)
 import Foundation
-import CoreImage
+import CoreGraphics
 
 extension CGBitmapInfo: Hashable {
-    /// Sets the alpha info.
-    public func alpha(_ alpha: CGImageAlphaInfo) -> Self {
-        var info = self
-        info.alpha = alpha
-        return info
-    }
-    
     /// 32-bit little-endian bitmap without an alpha channel (xRGB layout).
     public static let rgb = CGBitmapInfo.byteOrder32Little.alpha(.noneSkipFirst)
     /// 32-bit little-endian bitmap with a alpha channel (BGRA layout).
@@ -25,5 +18,18 @@ extension CGBitmapInfo: Hashable {
     public static let rgbLegacy = CGBitmapInfo.byteOrder32Big.alpha(.noneSkipLast)
     /// 32-bit big-endian bitmap with a alpha channel (RGBA layout, legacy format).
     public static let rgbaLegacy = CGBitmapInfo.byteOrder32Big.alpha(.premultipliedLast)
+    
+    /// Creates a `CGBitmapInfo` with the specified alpha info.
+    public init(alpha: CGImageAlphaInfo) {
+        self.init()
+        self.alpha = alpha
+    }
+    
+    /// Returns the `CGBitmapInfo` with the specified alpha info.
+    public func alpha(_ alpha: CGImageAlphaInfo) -> Self {
+        var info = self
+        info.alpha = alpha
+        return info
+    }
 }
 #endif
