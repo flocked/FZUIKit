@@ -7,9 +7,9 @@
 
 #if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 /// A transformer that generates a modified output border from an input border.
@@ -30,6 +30,25 @@ public struct BorderTransformer: ContentTransform {
         Self("colorTransform: \(colorTransformer.id)") { border in
             var border = border
             border.colorTransformer = colorTransformer
+            return border
+        }
+    }
+
+    /// Creates a border transformer that generates a version of the border with the specified color.
+    public static func color(_ color: NSUIColor) -> Self {
+        Self("color: \(color)") { border in
+            var border = border
+            border.color = color
+            border.colorTransformer = nil
+            return border
+        }
+    }
+    
+    /// Creates a border transformer that generates a version of the border with the specified width.
+    public static func width(_ width: CGFloat) -> Self {
+        Self("width: \(width)") { border in
+            var border = border
+            border.width =  width
             return border
         }
     }

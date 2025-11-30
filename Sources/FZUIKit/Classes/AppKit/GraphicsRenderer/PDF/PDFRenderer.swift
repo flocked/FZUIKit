@@ -76,11 +76,11 @@ public class GraphicsPDFRenderer: GraphicsRenderer {
     /**
      Creates an image renderer with the specified bounds and format.
      
-     Use this initializer to create an image renderer when you want to override the default format for the current device. Provide the size of the images you want to create, and an instance of ``NSGraphicsImageGraphicsRendererFormat`` with the required configuration.
+     Use this initializer to create an image renderer when you want to override the default format for the current device. Provide the size of the images you want to create, and an instance of ``NSGraphicsGraphicsImageRendererFormat`` with the required configuration.
      
      - Parameters:
         - bounds: The bounds of the image context the image renderer creates and subsequently draws upon. Specify values in points in the Core Graphics coordinate space.
-        - format: A ``NSGraphicsImageGraphicsRendererFormat`` object that encapsulates the format used to create the renderer context.
+        - format: A ``NSGraphicsGraphicsImageRendererFormat`` object that encapsulates the format used to create the renderer context.
      - Returns: An initialized image renderer.
      */
     public init(bounds: NSRect, format: GraphicsPDFRendererFormat) {
@@ -91,7 +91,7 @@ public class GraphicsPDFRenderer: GraphicsRenderer {
     /**
      Creates an image renderer for drawing images of the specified size.
      
-     Use this initializer to create an image renderer that will draw images of a given size. This renderer uses the ``NSGraphicsImageGraphicsRendererFormat/default()`` static method on ``NSGraphicsImageGraphicsRendererContext`` to create its context, thereby selecting parameters that are the most appropriate for the current device.
+     Use this initializer to create an image renderer that will draw images of a given size. This renderer uses the ``NSGraphicsGraphicsImageRendererFormat/default()`` static method on ``NSGraphicsGraphicsImageRendererContext`` to create its context, thereby selecting parameters that are the most appropriate for the current device.
      
      - Parameter size: The size of images output from the renderer, specified in points.
      - Returns: An initialized image renderer.
@@ -108,7 +108,7 @@ public class GraphicsPDFRenderer: GraphicsRenderer {
      
      - Parameters:
         - size: The size of images output from the renderer, specified in points.
-        - format: A ``NSGraphicsImageGraphicsRendererFormat`` object that encapsulates the format used to create the renderer context.
+        - format: A ``NSGraphicsGraphicsImageRendererFormat`` object that encapsulates the format used to create the renderer context.
      - Returns: An initialized image renderer.
      */
     public init(size: CGSize, format: GraphicsPDFRendererFormat) {

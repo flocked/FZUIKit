@@ -1,5 +1,5 @@
 //
-//  ImageGraphicsRendererContext.swift
+//  GraphicsImageRendererContext.swift
 //  
 //
 //  Created by Florian Zand on 02.03.25.
@@ -8,7 +8,7 @@
 #if os(macOS)
 import AppKit
 
-public final class ImageGraphicsRendererContext: GraphicsRendererContext {
+public final class GraphicsImageRendererContext: GraphicsRendererContext {
     private let bitmapRep: NSBitmapImageRep
 
     /**
@@ -19,12 +19,12 @@ public final class ImageGraphicsRendererContext: GraphicsRendererContext {
     public let context: NSGraphicsContext
     
     /// The drawing configuration of the context.
-    public let format: ImageGraphicsRendererFormat
+    public let format: GraphicsImageRendererFormat
     
     /**
      The current state of the drawing context, expressed as an object that manages image data in your app.
      
-     Use this property to access the current Core Graphics context as a `NSImage` object while providing drawing instructions for one of the drawing methods in ``ImageGraphicsRenderer``.
+     Use this property to access the current Core Graphics context as a `NSImage` object while providing drawing instructions for one of the drawing methods in ``GraphicsImageRenderer``.
      */
     public var currentImage: NSImage {
         let image = NSImage(size: format.bounds.size)
@@ -43,7 +43,7 @@ public final class ImageGraphicsRendererContext: GraphicsRendererContext {
         NSGraphicsContext.restoreGraphicsState()
     }
     
-    init?(format: ImageGraphicsRendererFormat) {
+    init?(format: GraphicsImageRendererFormat) {
         self.format = format
         let size = format.bounds.size
         let hasAlpha = !format.isOpaque

@@ -10,11 +10,11 @@ import AppKit
 import FZSwiftUtils
 
 /// A graphics renderer for creating Core Graphics-backed images.
-public class ImageGraphicsRenderer: GraphicsRenderer {
-    public typealias Context = ImageGraphicsRendererContext
+public class GraphicsImageRenderer: GraphicsRenderer {
+    public typealias Context = GraphicsImageRendererContext
     
     /// The format used to create the graphics renderer.
-    public let format: ImageGraphicsRendererFormat
+    public let format: GraphicsImageRendererFormat
     
     private var bitmapRep: NSBitmapImageRep?
     
@@ -28,9 +28,9 @@ public class ImageGraphicsRenderer: GraphicsRenderer {
      - Parameter actions: A block that, when invoked by the renderer, executes a set of drawing instructions to create the output image.
      - Returns: A `NSImage` object created by the supplied drawing actions.
      */
-    public func image(actions: (_ context: ImageGraphicsRendererContext) -> Void) -> NSImage? {
+    public func image(actions: (_ context: GraphicsImageRendererContext) -> Void) -> NSImage? {
         var image: NSImage?
-        if let context = ImageGraphicsRendererContext(format: format) {
+        if let context = GraphicsImageRendererContext(format: format) {
             context.beginRendering()
             actions(context)
             image = context.currentImage
@@ -54,7 +54,7 @@ public class ImageGraphicsRenderer: GraphicsRenderer {
      
      - Returns: A `Data` object representing a JPEG-encoded representation of the image created by the supplied drawing actions, or `nil` if the image couldn't be rendered.
      */
-    public func jpegData(withCompressionQuality quality: CGFloat, actions: (_ context: ImageGraphicsRendererContext) -> Void) -> Data? {
+    public func jpegData(withCompressionQuality quality: CGFloat, actions: (_ context: GraphicsImageRendererContext) -> Void) -> Data? {
         image(actions: actions)?.jpegData(compressionQuality: quality)
     }
     
@@ -68,7 +68,7 @@ public class ImageGraphicsRenderer: GraphicsRenderer {
      - Parameter actions: A block that, when invoked by the renderer, executes a set of drawing instructions to create the output image.
      - Returns: A `Data` object representing a PNG-encoded representation of the image created by the supplied drawing actions, or `nil` if the image couldn't be rendered.
      */
-    public func pngData(actions: (_ context: ImageGraphicsRendererContext) -> Void) -> Data? {
+    public func pngData(actions: (_ context: GraphicsImageRendererContext) -> Void) -> Data? {
         image(actions: actions)?.pngData()
     }
     
@@ -84,14 +84,14 @@ public class ImageGraphicsRenderer: GraphicsRenderer {
         - actions: A block that, when invoked by the renderer, executes a set of drawing instructions to create the output image.
      - Returns: A `Data` object representing a TIFF-encoded representation of the image created by the supplied drawing actions, or `nil` if the image couldn't be rendered.
      */
-    public func tiffData(withCompression compression: NSBitmapImageRep.TIFFCompression = .none,  actions: (_ context: ImageGraphicsRendererContext) -> Void) -> Data? {
+    public func tiffData(withCompression compression: NSBitmapImageRep.TIFFCompression = .none,  actions: (_ context: GraphicsImageRendererContext) -> Void) -> Data? {
         image(actions: actions)?.tiffRepresentation(using: compression, factor: 1.0)
     }
     
     /**
      Creates an image renderer for drawing images of the specified size.
      
-     Use this initializer to create an image renderer that will draw images of a given size. This renderer uses the ``NSGraphicsImageGraphicsRendererFormat/default()`` static method on ``NSGraphicsImageGraphicsRendererContext`` to create its context, thereby selecting parameters that are the most appropriate for the current device.
+     Use this initializer to create an image renderer that will draw images of a given size. This renderer uses the ``NSGraphicsGraphicsImageRendererFormat/default()`` static method on ``NSGraphicsGraphicsImageRendererContext`` to create its context, thereby selecting parameters that are the most appropriate for the current device.
      
      - Parameter size: The size of images output from the renderer, specified in points.
      - Returns: An initialized image renderer.
@@ -105,14 +105,14 @@ public class ImageGraphicsRenderer: GraphicsRenderer {
     /**
      Creates an image renderer with the specified bounds and format.
      
-     Use this initializer to create an image renderer when you want to override the default format for the current device. Provide the size of the images you want to create, and an instance of ``NSGraphicsImageGraphicsRendererFormat`` with the required configuration.
+     Use this initializer to create an image renderer when you want to override the default format for the current device. Provide the size of the images you want to create, and an instance of ``NSGraphicsGraphicsImageRendererFormat`` with the required configuration.
      
      - Parameters:
         - bounds: The bounds of the image context the image renderer creates and subsequently draws upon. Specify values in points in the Core Graphics coordinate space.
-        - format: A ``NSGraphicsImageGraphicsRendererFormat`` object that encapsulates the format used to create the renderer context.
+        - format: A ``NSGraphicsGraphicsImageRendererFormat`` object that encapsulates the format used to create the renderer context.
      - Returns: An initialized image renderer.
      */
-    public init(bounds: NSRect, format: ImageGraphicsRendererFormat = .default()) {
+    public init(bounds: NSRect, format: GraphicsImageRendererFormat = .default()) {
         self.format = format
         format.bounds = bounds
     }
@@ -120,7 +120,7 @@ public class ImageGraphicsRenderer: GraphicsRenderer {
     /**
      Creates an image renderer for drawing images of the specified size.
      
-     Use this initializer to create an image renderer that will draw images of a given size. This renderer uses the ``NSGraphicsImageGraphicsRendererFormat/default()`` static method on ``NSGraphicsImageGraphicsRendererContext`` to create its context, thereby selecting parameters that are the most appropriate for the current device.
+     Use this initializer to create an image renderer that will draw images of a given size. This renderer uses the ``NSGraphicsGraphicsImageRendererFormat/default()`` static method on ``NSGraphicsGraphicsImageRendererContext`` to create its context, thereby selecting parameters that are the most appropriate for the current device.
      
      - Parameter size: The size of images output from the renderer, specified in points.
      - Returns: An initialized image renderer.
@@ -137,10 +137,10 @@ public class ImageGraphicsRenderer: GraphicsRenderer {
      
      - Parameters:
         - size: The size of images output from the renderer, specified in points.
-        - format: A ``NSGraphicsImageGraphicsRendererFormat`` object that encapsulates the format used to create the renderer context.
+        - format: A ``NSGraphicsGraphicsImageRendererFormat`` object that encapsulates the format used to create the renderer context.
      - Returns: An initialized image renderer.
      */
-    public init(size: NSSize, format: ImageGraphicsRendererFormat) {
+    public init(size: NSSize, format: GraphicsImageRendererFormat) {
         self.format = format
         format.bounds = CGRect(.zero, size)
     }

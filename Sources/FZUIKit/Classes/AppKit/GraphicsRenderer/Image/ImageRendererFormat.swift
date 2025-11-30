@@ -15,7 +15,7 @@ import AppKit
  
  The image renderer format object contains properties that determine the attributes of the underlying Core Graphics contexts that the image renderer creates. Use the `default()` static method to create an image renderer format instance optimized for the current device.
  */
-public final class ImageGraphicsRendererFormat: GraphicsRendererFormat {
+public final class GraphicsImageRendererFormat: GraphicsRendererFormat {
     
     /**
      The display scale of the image renderer context.
@@ -102,9 +102,9 @@ public final class ImageGraphicsRendererFormat: GraphicsRendererFormat {
     }
 
     /// Returns the most suitable format for the main screen’s current configuration.
-    public static func preferred() -> ImageGraphicsRendererFormat {
+    public static func preferred() -> GraphicsImageRendererFormat {
         let screen = NSScreen.main ?? NSScreen.screens.first
-        return ImageGraphicsRendererFormat(for: screen!)
+        return GraphicsImageRendererFormat(for: screen!)
     }
     
     /**
@@ -114,15 +114,15 @@ public final class ImageGraphicsRendererFormat: GraphicsRendererFormat {
      
      This property doesn’t always return a format that’s optimized for the current configuration of the main screen. If you’re rendering content for immediate display, it’s recommended that you use ``preferred()`` instead of this property.
      */
-    public static func `default`() -> ImageGraphicsRendererFormat {
-        let format = ImageGraphicsRendererFormat.preferred()
+    public static func `default`() -> GraphicsImageRendererFormat {
+        let format = GraphicsImageRendererFormat.preferred()
         format.isOpaque = false
         format.preferredRange = .extended
         return format
     }
 }
 
-extension ImageGraphicsRendererFormat {
+extension GraphicsImageRendererFormat {
     /// Constants that specify the color range of the image renderer context.
     public enum Range: Int {
         /// The system automatically chooses the image renderer context’s pixel format according to the color range of its content.

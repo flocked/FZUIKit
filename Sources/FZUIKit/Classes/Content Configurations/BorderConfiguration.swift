@@ -111,10 +111,13 @@ public struct BorderConfiguration: Hashable {
             self.animates = animates
             self.animationSpeed = animationSpeed
         }
+        
+        /// No dash pattern.
+        public static let none = Self()
     }
     
     /// Creates a border configuration.
-    public init(color: NSUIColor? = nil, colorTransformer: ColorTransformer? = nil, width: CGFloat = 0.0, dash: Dash = Dash(), insets: NSDirectionalEdgeInsets = .init(0)) {
+    public init(color: NSUIColor? = nil, colorTransformer: ColorTransformer? = nil, width: CGFloat = 0.0, dash: Dash = .none, insets: NSDirectionalEdgeInsets = .init(0)) {
         self.color = color
         self.width = width
         self.dash = dash
@@ -124,6 +127,13 @@ public struct BorderConfiguration: Hashable {
     
     /// A configuration without a border.
     public static let none = Self()
+    
+    /// Returns the configuration with the specified dash pattern.
+    public func dashed(_ patterh: [CGFloat] = [4, 4], phase: CGFloat = 0, lineCap: CGLineCap = .butt, lineJoin: CGLineJoin = .miter, mitterLimit: CGFloat = 10.0, animates: Bool = false, animationSpeed: Dash.AnimationSpeed = .normal) -> Self {
+        var configuration = self
+        configuration.dash = Dash(pattern: patterh, phase: phase, lineCap: lineCap, lineJoin: lineJoin, mitterLimit: mitterLimit, animates: animates, animationSpeed: animationSpeed)
+        return configuration
+    }
     
     /// A configuration for a black border.
     public static func black(width: CGFloat = 2.0) -> Self {

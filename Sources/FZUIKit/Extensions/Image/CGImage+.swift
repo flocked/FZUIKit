@@ -53,7 +53,7 @@ public extension CGImage {
         NSUIImage(cgImage: self)
     }
     
-    /// A Boolean value that determines if the image is lazily loaded.
+    /// A Boolean value that indicates whether the image is lazily loaded.
     var isLazyLoaded: Bool {
         if let match = cfDescription.firstMatch(pattern: "\\((IP|DP)\\)")?.string {
             switch match {
@@ -65,7 +65,7 @@ public extension CGImage {
         return utType != nil
     }
     
-    /// A Boolean value that determines if the image has alpha information.
+    /// A Boolean value that indicates whether the image has alpha information.
     var hasAlpha: Bool {
         switch alphaInfo {
         case .premultipliedFirst, .premultipliedLast, .last, .first, .alphaOnly: return true
@@ -93,37 +93,13 @@ extension CGImage {
               utType == image.utType,
               isMask == image.isMask,
               renderingIntent == image.renderingIntent,
-              shouldInterpolate == image.shouldInterpolate
+              shouldInterpolate == image.shouldInterpolate,
+              let data1 = dataProvider?.data, let data2 = image.dataProvider?.data,
+              data1.count == data2.count
         else { return false }
-        guard let data1 = dataProvider?.data, let data2 = image.dataProvider?.data else { return false }
-        let dataCount1 = data1.count
-        let dataCount2 = data2.count
-        guard dataCount1 == dataCount2 else { return false }
         return data1.withBytes { ptr1 in
             data2.withBytes { ptr2 in
-                memcmp(ptr1, ptr2, dataCount1) == 0
-            }
-        }
-    }
-    
-    fileprivate func hash() -> Int {
-        Hasher.hash([dataProvider?.data as Data?, size, colorSpace?.name, bitsPerPixel, bitsPerComponent, bitmapInfo, byteOrderInfo, alphaInfo, bytesPerRow, utType, isMask, renderingIntent, shouldInterpolate])
-    }
-}
-
-extension Sequence where Element == CGImage {
-    /// An array of unique images.
-    public func uniqueImages() -> [Element] {
-        let hashedImages = enumerated().map { (image: $0.element, hash: $0.element.hash(), index: $0.offset) }.sorted(by: \.hash)
-        return hashedImages.grouped(by: \.hash).values.flatMap({ $0.uniqueImages() }).sorted(by: \.index).map { $0.image }
-    }
-}
-
-fileprivate extension Array<(image: CGImage, hash: Int, index: Int)> {
-    func uniqueImages() -> [Element] {
-        reduce(into: []) { result, entry in
-            if !result.contains(where: { $0.image.isEqual(to: entry.image) }) {
-                result.append(entry)
+                memcmp(ptr1, ptr2, data1.count) == 0
             }
         }
     }
@@ -234,7 +210,63 @@ extension CGImage {
     }
 }
 
+extension CGImage {
+    /// The color at the specified pixel location.
+    func color(at point: CGPoint) -> CGColor? {
+        let x = Int(point.x)
+        let y = Int(point.y)
+
+        guard x >= 0, x < width, y >= 0, y < height, let providerData = dataProvider?.data, let data = providerData.bytesPointer() else { return nil }
+
+        let offset = y * bytesPerRow + x * (bitsPerPixel / 8)
+        guard offset + 3 < providerData.count else { return nil }
+        
+        let b0 = CGFloat(data[offset]) / 255.0
+        let b1 = CGFloat(data[offset + 1]) / 255.0
+        let b2 = CGFloat(data[offset + 2]) / 255.0
+        let b3 = CGFloat(data[offset + 3]) / 255.0
+        
+        if bitmapInfo.intersection(.byteOrderMask) == .byteOrder32Little {
+            return CGColor(red: b2, green: b1, blue: b0, alpha: b3)
+        } else {
+            return CGColor(red: b0, green: b1, blue: b2, alpha: b3)
+        }
+    }
+}
+
 fileprivate enum CGImageError: Error {
     case unableToCreateImageFromContext
     case invalidContext
+}
+
+public extension Sequence where Element == CGImage {
+    /// An array of unique images.
+    func uniqueImages() -> [CGImage] {
+        var seenHashes = Set<Int>()
+        var seenDataCounts = Set<Int>()
+        var seenDataHashes = Set<Int>()
+        var seenOSHashes = Set<Int>()
+        var result: [CGImage] = []
+        for image in self {
+            if seenHashes.insert(image.imageHash).inserted {
+                result.append(image)
+            } else {
+                guard let data = image.dataProvider?.data as Data? else { continue }
+                if seenDataCounts.insert(data.count).inserted {
+                    result.append(image)
+                } else if seenOSHashes.insert(OSHash(data: data).hashValue).inserted {
+                    result.append(image)
+                } else if seenDataHashes.insert(data.hashValue).inserted {
+                    result.append(image)
+                }
+            }
+        }
+        return result
+    }
+}
+
+fileprivate extension CGImage {
+    var imageHash: Int {
+        Hasher.hash([size, bitsPerPixel, bitsPerComponent, colorSpace?.name, bitmapInfo, byteOrderInfo, alphaInfo, bytesPerRow, utType, isMask, renderingIntent, shouldInterpolate])
+    }
 }

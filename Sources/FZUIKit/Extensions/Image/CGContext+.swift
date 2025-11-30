@@ -21,6 +21,13 @@ extension CGContext {
         CGRect(origin: .zero, size: size)
     }
     
+    /// Executes the specified block while preserving graphics state.
+    public func withSavedGState(_ block: ()->()) {
+        saveGState()
+        block()
+        restoreGState()
+    }
+    
     /// Fills the specified rectangle with the provided color.
     public func fill(_ color: CGColor, in rect: CGRect) {
         saveGState()
@@ -59,6 +66,34 @@ extension CGContext {
         setStrokeColor(color.cgColor)
     }
     
+    /**
+     Draws an image at the specified point.
+     
+     When the byTiling parameter is `true`, the image is tiled in user space—thus, unlike when drawing with patterns, the current transformation (see the [ctm](https://developer.apple.com/documentation/coregraphics/cgcontext/ctm) property) affects the final result.
+     
+     - Parameters:
+        - location: The location at which to draw the image.
+        - byTiling:
+            - If `true`, this method fills the context’s entire clipping region by tiling many copies of the image, and the rect parameter defines the origin and size of the tiling pattern.
+            - If `false` (the default), this method draws a single copy of the image in the area defined by the rect parameter.
+     
+     */
+    public func draw(_ image: CGImage, at location: CGPoint = .zero, byTiling: Bool = false) {
+        draw(image, in: CGRect(origin: location, size: image.size), byTiling: byTiling)
+    }
+    
+    /// Flips the entire drawable area of the context vertically.
+    public func flipVertically() {
+        translateBy(x: 0, y: CGFloat(height))
+        scaleBy(x: 1, y: -1)
+    }
+    
+    /// Flips the entire drawable area of the context horizontally.
+    public func flipHorizontally() {
+        translateBy(x: CGFloat(width), y: 0)
+        scaleBy(x: -1, y: 1)
+    }
+    
     #if os(macOS) || os(iOS) || os(tvOS)
     /// Enables shadowing with color a graphics context.
     public func setShadow(_ configuration: ShadowConfiguration) {
@@ -72,6 +107,24 @@ extension CGContext {
     
     /// Strokes the specified rectangle using the provided configuration.
     public func stroke(_ configuration: BorderConfiguration, in rect: CGRect) {
+        stroke(configuration) {
+            stroke(rect)
+        }
+    }
+    
+    /// Strokes an ellipse that fits inside the entire context bounds using the provided configuration.
+    public func strokeElipse(_ configuration: BorderConfiguration) {
+        strokeElipse(configuration, in: bounds)
+    }
+    
+    /// Strokes an ellipse that fits inside the specified rectangle using the provided configuration.
+    public func strokeElipse(_ configuration: BorderConfiguration, in rect: CGRect) {
+        stroke(configuration) {
+            strokeEllipse(in: rect)
+        }
+    }
+    
+    fileprivate func stroke(_ configuration: BorderConfiguration, block: ()->()) {
         guard configuration.width > 0.0, let color = configuration.resolvedColor()?.cgColor, color.alpha > 0.0 else { return }
         saveGState()
         setLineWidth(configuration.width)
@@ -80,7 +133,7 @@ extension CGContext {
         setMiterLimit(configuration.dash.mitterLimit)
         setLineDash(phase: configuration.dash.phase, lengths: configuration.dash.pattern)
         setStrokeColor(color)
-        stroke(rect)
+        block()
         restoreGState()
     }
     
@@ -110,6 +163,16 @@ extension CGContext {
 }
 @available(macOS 14.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *)
 extension CGContext {
+    /**
+     Draws a conic (angular) gradient into the graphics context.
+
+     A conic gradient transitions colors around a central point, rotating clockwise beginning at the specified angle.
+     
+     - Parameters:
+        - gradient: A gradient object.
+        - center: The center point of the gradient.
+        - angle: The starting angle of the gradient, in radians. The gradient sweeps clockwise from this angle.
+     */
     public func drawConicGradient(_ gradient: CGGradient, center: CGPoint, angle: CGFloat) {
         CGContextDrawConicGradient(self, gradient, center, angle)
     }

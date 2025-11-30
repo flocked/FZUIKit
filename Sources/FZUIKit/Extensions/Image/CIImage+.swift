@@ -9,6 +9,7 @@
 #if os(macOS)
 import AppKit
 extension CIImage {
+    /// A `NSImage` representation of the image.
     public var nsImage: NSImage {
         cgImage.nsImage
     }
@@ -16,6 +17,7 @@ extension CIImage {
 #elseif canImport(UIKit)
 import UIKit
 extension CIImage {
+    /// An `UIImage` representation of the image.
     public var uiImage: UIImage {
         cgImage.uiImage
     }
@@ -23,12 +25,9 @@ extension CIImage {
 #endif
 
 extension CIImage {
+    /// A `CGImage` representation of the image.
     public var cgImage: CGImage {
-        CIContext(options: nil).createCGImage(self, from: self.extent)!
-    }
-    
-    var nsUIImage: NSUIImage {
-        cgImage.nsUIImage
+        CIContext(options: nil).createCGImage(self, from: extent)!
     }
 }
 

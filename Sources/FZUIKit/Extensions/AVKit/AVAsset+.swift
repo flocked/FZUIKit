@@ -87,11 +87,11 @@ public extension AVAsset {
      - Parameter unique: A Boolean value indicating whether to return only unique frames.
      */
     func videoFrames(unique: Bool = false) -> [CGImage] {
-        let images = videoImageBuffers.compactMap({$0.cgImage})
+        let images = videoImageBuffers.map({ CGImage(cvPixelBuffer: $0) })
         return unique ? images.uniqueImages() : images
     }
     
-    internal var videoImageBuffers: [CVImageBuffer] {
+    private var videoImageBuffers: [CVImageBuffer] {
         guard let reader = try? AVAssetReader(asset: self), let videoTrack = tracks(withMediaType: .video).first else { return [] }
         let trackReaderOutput = AVAssetReaderTrackOutput(track: videoTrack, outputSettings: [String(kCVPixelBufferPixelFormatTypeKey): NSNumber(value: kCVPixelFormatType_32BGRA)])
         reader.add(trackReaderOutput)

@@ -80,8 +80,8 @@ public extension NSUIImage {
         return scaledImage
     }
 
-    /// Returns the image as circle.
-    func rounded() -> NSImage {
+    /// Returns the image elipsed.
+    func elipsed() -> NSImage {
         let image = NSImage(size: size)
         image.lockFocus()
 
@@ -91,6 +91,11 @@ public extension NSUIImage {
 
         image.unlockFocus()
         return image
+    }
+    
+    /// Returns the image as circle.
+    func rounded() -> NSUIImage {
+        rounded(cornerRadius: size.min)
     }
 
     /// Returns the image rounded with the specified corner radius.
@@ -243,8 +248,20 @@ public extension NSUIImage {
 
     /// Returns the image as circle.
     func rounded() -> NSUIImage {
-        let maxRadius = min(size.width, size.height)
-        return rounded(cornerRadius: maxRadius)
+        rounded(cornerRadius: size.min)
+    }
+    
+    /// Returns the image elipsed.
+    func elipsed() -> UIImage {
+        guard size.width > 0 && size.height > 0 else { return self }
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+        return renderer.image { ctx in
+            let bounds = CGRect(origin: .zero, size: size)
+            UIBezierPath(ovalIn: bounds).addClip()
+            draw(in: bounds)
+        }
     }
 
     /// Returns the image rounded with the specified corner radius.
@@ -260,11 +277,12 @@ public extension NSUIImage {
         )
 
         let newRect = scaledImageSize.rect
-        let renderer = UIGraphicsImageRenderer(size: newRect.size)
-
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = scale
+        let renderer = UIGraphicsImageRenderer(size: newRect.size, format: format)
         let scaledImage = renderer.image { _ in
             UIBezierPath(roundedRect: newRect, cornerRadius: cornerRadius).addClip()
-            self.draw(in: newRect)
+            draw(in: newRect)
         }
         return scaledImage
     }

@@ -21,20 +21,20 @@ public struct StringTransformer: ContentTransform {
         id = identifier
     }
 
-    /// Creates a color transformer that generates a capitalized version of the attributed string.
-    public static func capitalized() -> Self {
-        Self("capitalized") { $0.capitalized }
-    }
+    /// Creates a color transformer that generates a capitalized version of the string.
+    public static let capitalized = Self("capitalized") { $0.capitalized }
+    
+    /// Creates a color transformer that generates a lowercased version of the string.
+    public static let lowercased = Self("lowercased") { $0.lowercased() }
 
-    /// Creates a color transformer that generates a lowercased version of the attributed string.
-    public static func lowercased() -> Self {
-        Self("lowercased") { $0.lowercased() }
-    }
-
-    /// Creates a color transformer that generates a uppercased version of the attributed string.
-    public static func uppercased() -> Self {
-        Self("uppercased") { $0.uppercased() }
-    }
+    /// Creates a color transformer that generates a uppercased version of the string.
+    public static let uppercased = Self("uppercased") { $0.uppercased() }
+    
+    /// Creates a color transformer that generates a version of the string where the first character is lowercased.
+    public static let lowercasedFirst = Self("lowercasedFirst") { $0.lowercasedFirst() }
+    
+    /// Creates a color transformer that generates a version of the string where the first character is uppercased.
+    public static let uppercasedFirst = Self("uppercasedFirst") { $0.uppercasedFirst() }
 }
 
 @available(macOS 12, iOS 15, tvOS 15, watchOS 8, *)
@@ -52,19 +52,19 @@ public struct AttributedStringTransformer: ContentTransform {
     }
 
     /// Creates a color transformer that generates a capitalized version of the attributed string.
-    public static func capitalized() -> Self {
-        Self("capitalized") { $0.capitalized() }
-    }
-
+    public static let capitalized = Self("capitalized") { $0.capitalized() }
+    
     /// Creates a color transformer that generates a lowercased version of the attributed string.
-    public static func lowercased() -> Self {
-        Self("lowercased") { $0.lowercased() }
-    }
+    public static let lowercased = Self("lowercased") { $0.lowercased() }
 
     /// Creates a color transformer that generates a uppercased version of the attributed string.
-    public static func uppercased() -> Self {
-        Self("uppercased") { $0.uppercased() }
-    }
+    public static let uppercased = Self("uppercased") { $0.uppercased() }
+    
+    /// Creates a color transformer that generates a version of the attributed string where the first character is lowercased.
+    public static let lowercasedFirst = Self("lowercasedFirst") { $0.lowercasedFirst() }
+    
+    /// Creates a color transformer that generates a version of the attributed string where the first character is uppercased.
+    public static let uppercasedFirst = Self("uppercasedFirst") { $0.uppercasedFirst() }
 }
 
 /// A transformer that generates a modified output attributed string from an input attributed string.
@@ -79,19 +79,19 @@ public struct NSAttributedStringTransformer: ContentTransform {
         self.transform = transform
         self.id = id
     }
-
+    
     /// Creates a color transformer that generates a capitalized version of the attributed string.
-    public static func capitalized() -> Self {
-        Self("capitalized") { $0.capitalized() }
-    }
-
+    public static let capitalized = Self("capitalized") { $0.capitalized() }
+    
     /// Creates a color transformer that generates a lowercased version of the attributed string.
-    public static func lowercased() -> Self {
-        Self("lowercased") { $0.lowercased() }
-    }
+    public static let lowercased = Self("lowercased") { $0.lowercased() }
 
     /// Creates a color transformer that generates a uppercased version of the attributed string.
-    public static func uppercased() -> Self {
-        Self("uppercased") { $0.uppercased() }
-    }
+    public static let uppercased = Self("uppercased") { $0.uppercased() }
+    
+    /// Creates a color transformer that generates a version of the attributed string where the first character is lowercased.
+    public static let lowercasedFirst = Self("lowercasedFirst") { $0.lowercasedFirst() }
+    
+    /// Creates a color transformer that generates a version of the attributed string where the first character is uppercased.
+    public static let uppercasedFirst = Self("uppercasedFirst") { $0.uppercasedFirst() }
 }

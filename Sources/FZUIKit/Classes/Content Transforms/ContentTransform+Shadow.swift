@@ -7,9 +7,9 @@
 
 #if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
-    import AppKit
+import AppKit
 #elseif canImport(UIKit)
-    import UIKit
+import UIKit
 #endif
 
 /// A transformer that generates a modified output shadow from an input shadow.
@@ -30,6 +30,16 @@ public struct ShadowTransformer: ContentTransform {
         Self("colorTransform: \(colorTransformer.id)") { shadow in
             var shadow = shadow
             shadow.colorTransformer = colorTransformer
+            return shadow
+        }
+    }
+    
+    /// Creates a shadow transformer that generates a version of the shadow with the specified color.
+    public static func color(_ color: NSUIColor) -> Self {
+        Self("color: \(color)") { shadow in
+            var shadow = shadow
+            shadow.color = color
+            shadow.colorTransformer = nil
             return shadow
         }
     }
