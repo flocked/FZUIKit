@@ -123,7 +123,7 @@ public extension CFType where Self == CGColorSpace {
     }
 }
 
-extension CGColorSpaceModel: CustomStringConvertible {
+extension CGColorSpaceModel: Swift.CustomStringConvertible {
     public var description: String {
         switch self {
         case .unknown: return "unknown"

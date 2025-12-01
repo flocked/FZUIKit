@@ -343,7 +343,7 @@ extension NSRunningApplication {
     }
 }
 
-extension CGWindowBackingType: CustomStringConvertible, Hashable, Codable {
+extension CGWindowBackingType: Swift.CustomStringConvertible, Swift.Hashable, Swift.Codable {
     public var description: String {
         switch self {
         case .backingStoreRetained: return "retained"
@@ -353,7 +353,7 @@ extension CGWindowBackingType: CustomStringConvertible, Hashable, Codable {
     }
 }
 
-extension CGWindowSharingType: CustomStringConvertible, Hashable, Codable {
+extension CGWindowSharingType: Swift.CustomStringConvertible, Swift.Hashable, Swift.Codable {
     public var description: String {
         switch self {
         case .readOnly: return "readOnly"

@@ -63,7 +63,7 @@ public extension NSUIRectCorner {
     }
 }
 
-extension NSUIRectCorner: Hashable {
+extension NSUIRectCorner: Swift.Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(rawValue)
     }

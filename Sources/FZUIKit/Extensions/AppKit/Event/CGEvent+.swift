@@ -31,7 +31,7 @@ extension CGEvent {
     }
 }
 
-extension CGEventFlags: Hashable {
+extension CGEventFlags: Swift.Hashable {
     public var modifierFlags: NSEvent.ModifierFlags {
         var flags: NSEvent.ModifierFlags = []
         if contains(.maskShift) { flags.insert(.shift) }

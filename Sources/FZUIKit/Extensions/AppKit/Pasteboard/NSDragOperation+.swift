@@ -8,7 +8,7 @@
 #if os(macOS)
 import AppKit
 
-extension NSDragOperation: CustomStringConvertible {
+extension NSDragOperation: Swift.CustomStringConvertible {
     public var description: String {
         "[\((self == .every ? NSDragOperation(rawValue: 63) : self).elements().compactMap({$0.string}).joined(separator: ", "))]"
     }

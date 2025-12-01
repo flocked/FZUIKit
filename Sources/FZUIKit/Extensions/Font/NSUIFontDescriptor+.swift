@@ -316,7 +316,7 @@ extension NSUIFontDescriptor.AttributeName: ExpressibleByStringLiteral {
     #endif
 }
 
-extension NSUIFontDescriptor.SymbolicTraits: Hashable, CustomStringConvertible {
+extension NSUIFontDescriptor.SymbolicTraits: Swift.Hashable, Swift.CustomStringConvertible {
     /// The width of the font’s characters.
     public enum Width: Hashable, Codable {
         /// The font’s characters have a condensed width.

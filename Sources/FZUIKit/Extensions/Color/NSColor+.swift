@@ -133,7 +133,7 @@ public extension NSColor {
     internal static let supportedColorSpaces: [NSColorSpace] = [.deviceRGB, .sRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .displayP3]
 }
 
-extension NSColor.ColorType: CustomStringConvertible {
+extension NSColor.ColorType: Swift.CustomStringConvertible {
     public var description: String {
         switch self {
         case .componentBased: return "componentBased"
@@ -144,7 +144,7 @@ extension NSColor.ColorType: CustomStringConvertible {
     }
 }
 
-extension NSColor.SystemEffect: CustomStringConvertible {
+extension NSColor.SystemEffect: Swift.CustomStringConvertible {
     public var description: String {
         switch self {
         case .none: return "none"

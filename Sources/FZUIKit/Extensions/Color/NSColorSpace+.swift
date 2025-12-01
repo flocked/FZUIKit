@@ -98,7 +98,7 @@ extension NSColorSpace {
     }
 }
 
-extension NSColorSpace.Model: CaseIterable, CustomStringConvertible {
+extension NSColorSpace.Model: Swift.CaseIterable, Swift.CustomStringConvertible {
     public var description: String {
         switch self {
         case .gray: return "gray"

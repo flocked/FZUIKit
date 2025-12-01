@@ -11,7 +11,7 @@ import AppKit
 import UIKit
 #endif
 
-extension NSUIImage: Codable {
+extension NSUIImage: Swift.Codable {
     public func encode(to encoder: Encoder) throws {
         #if os(macOS)
         if let data = tiffData() {

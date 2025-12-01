@@ -77,7 +77,7 @@ public extension NSUIEdgeInsets {
     }
 }
 
-extension NSUIEdgeInsets: Hashable {
+extension NSUIEdgeInsets: Swift.Hashable {
     public static func == (lhs: NSUIEdgeInsets, rhs: NSUIEdgeInsets) -> Bool {
         lhs.hashValue == rhs.hashValue
     }
@@ -91,7 +91,7 @@ extension NSUIEdgeInsets: Hashable {
 }
 
 #if os(macOS)
-extension NSUIEdgeInsets: Codable {
+extension NSUIEdgeInsets: Swift.Codable {
     public enum CodingKeys: String, CodingKey {
         case top
         case bottom
@@ -223,7 +223,7 @@ public extension NSDirectionalEdgeInsets {
     }
 }
 
-extension NSDirectionalEdgeInsets: Hashable {
+extension NSDirectionalEdgeInsets: Swift.Hashable {
     public static func == (lhs: NSDirectionalEdgeInsets, rhs: NSDirectionalEdgeInsets) -> Bool {
         lhs.hashValue == rhs.hashValue
     }
@@ -237,7 +237,7 @@ extension NSDirectionalEdgeInsets: Hashable {
 }
 
 #if os(macOS)
-extension NSDirectionalEdgeInsets: Codable {
+extension NSDirectionalEdgeInsets: Swift.Codable {
     public enum CodingKeys: String, CodingKey {
         case top
         case bottom
@@ -275,7 +275,7 @@ extension Edge.Set {
     }
 }
 
-extension EdgeInsets: Hashable {
+extension EdgeInsets: Swift.Hashable {
     /// An edge insets struct whose top, leading, bottom, and trailing fields are all set to 0.
     public static var zero: EdgeInsets = .init(top: 0, leading: 0, bottom: 0, trailing: 0)
 
@@ -367,7 +367,7 @@ extension EdgeInsets: Hashable {
     }
 }
 
-extension EdgeInsets: Codable {
+extension EdgeInsets: Swift.Codable {
     public enum CodingKeys: String, CodingKey {
         case top
         case bottom

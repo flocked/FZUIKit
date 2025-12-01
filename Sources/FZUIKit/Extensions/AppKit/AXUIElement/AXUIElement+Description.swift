@@ -11,7 +11,7 @@ import ApplicationServices
 import Combine
 import FZSwiftUtils
 
-extension AXUIElement: CustomStringConvertible, CustomDebugStringConvertible {
+extension AXUIElement: Swift.CustomStringConvertible, Swift.CustomDebugStringConvertible {
     static var useShort = false
     
     public var description: String {

@@ -9,7 +9,7 @@
 import Foundation
 import CoreGraphics
 
-extension CGBitmapInfo: Hashable {
+extension CGBitmapInfo: Swift.Hashable {
     /// 32-bit little-endian bitmap without an alpha channel (xRGB layout).
     public static let rgb = CGBitmapInfo.byteOrder32Little.alpha(.noneSkipFirst)
     /// 32-bit little-endian bitmap with a alpha channel (BGRA layout).

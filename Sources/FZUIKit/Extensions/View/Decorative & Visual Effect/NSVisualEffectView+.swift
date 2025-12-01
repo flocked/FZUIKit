@@ -56,11 +56,11 @@ public extension NSVisualEffectView {
     }
 }
 
-extension NSVisualEffectView.Material: Codable { }
-extension NSVisualEffectView.State: Codable { }
-extension NSVisualEffectView.BlendingMode: Codable { }
+extension NSVisualEffectView.Material: Swift.Codable { }
+extension NSVisualEffectView.State: Swift.Codable { }
+extension NSVisualEffectView.BlendingMode: Swift.Codable { }
 
-extension NSVisualEffectView.State: CustomStringConvertible {
+extension NSVisualEffectView.State: Swift.CustomStringConvertible {
     public var description: String {
         switch self {
         case .followsWindowActiveState: return "followsWindowActiveState"
@@ -70,7 +70,7 @@ extension NSVisualEffectView.State: CustomStringConvertible {
     }
 }
 
-extension NSVisualEffectView.BlendingMode: CustomStringConvertible {
+extension NSVisualEffectView.BlendingMode: Swift.CustomStringConvertible {
     public var description: String {
         switch self {
         case .behindWindow: return "behindWindow"
@@ -79,7 +79,7 @@ extension NSVisualEffectView.BlendingMode: CustomStringConvertible {
     }
 }
 
-extension NSVisualEffectView.Material: CustomStringConvertible {
+extension NSVisualEffectView.Material: Swift.CustomStringConvertible {
     public var description: String {
         switch self {
         case .titlebar: return "titlebar"

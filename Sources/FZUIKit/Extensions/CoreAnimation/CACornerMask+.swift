@@ -75,7 +75,7 @@ public extension CACornerMask {
     ]
 }
 
-extension CACornerMask: Hashable {
+extension CACornerMask: Swift.Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(rawValue)
     }

@@ -44,7 +44,7 @@ extension TimeDuration {
     }
 }
 
-extension CMTime: Codable {
+extension CMTime: Swift.Codable {
     public enum CodingKeys: CodingKey {
         case value
         case timescale
@@ -70,9 +70,9 @@ extension CMTime: Codable {
     }
 }
 
-extension CMTimeFlags: Codable { }
+extension CMTimeFlags: Swift.Codable { }
 
-extension CMTimeRange: Codable {
+extension CMTimeRange: Swift.Codable {
     public enum CodingKeys: CodingKey {
         case start
         case duration

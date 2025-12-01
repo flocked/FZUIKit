@@ -143,7 +143,7 @@ extension NSAppearance {
     
 }
 
-extension NSAppearance: Codable {
+extension NSAppearance: Swift.Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(name)
@@ -173,9 +173,9 @@ extension Decodable where Self: NSAppearance {
     }
 }
 
-extension NSAppearance.Name: Codable { }
+extension NSAppearance.Name: Swift.Codable { }
 
-extension NSAppearance.Name: CustomStringConvertible {
+extension NSAppearance.Name: Swift.CustomStringConvertible {
     public var description: String {
         switch self {
         case .aqua: return "aqua"
