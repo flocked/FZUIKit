@@ -366,14 +366,14 @@ extension NSUIImage.SymbolConfiguration {
     #if os(macOS)
     var pointSize: CGFloat {
         get { value(forKey: "pointSize") ?? 0.0 }
-        set { setIvarValue(Double(newValue), of: "_pointSize") }
+        set { setIvarValue(Double(newValue), named: "_pointSize") }
     }
     #else
     var pointSize: CGFloat? {
         get { value(forKey: "pointSize") ?? 0.0 }
         set {
             let newValue = newValue != nil ? Double(newValue!) : nil
-            setIvarValue(newValue, of: "_pointSize")
+            setIvarValue(newValue, named: "_pointSize")
             guard newValue != nil else { return }
             textStyle = nil
         }
@@ -387,7 +387,7 @@ extension NSUIImage.SymbolConfiguration {
         }
         set {
             #if os(macOS)
-            setIvarValue(newValue, of: "_prefersMulticolor")
+            setIvarValue(newValue, named: "_prefersMulticolor")
             #else
             guard responds(to: NSSelectorFromString("prefersMulticolor")) else { return }
             setValue(safely: newValue, forKey: "prefersMulticolor")
@@ -412,9 +412,9 @@ extension NSUIImage.SymbolConfiguration {
         }
         set {
             #if os(macOS)
-            setIvarValue(Double(newValue.symbolWeight().rawValue), of: "_weight")
+            setIvarValue(Double(newValue.symbolWeight().rawValue), named: "_weight")
             #else
-            setIvarValue(newValue.rawValue, of: "_weight")
+            setIvarValue(newValue.rawValue, named: "_weight")
             #endif
         }
     }
@@ -430,7 +430,7 @@ extension NSUIImage.SymbolConfiguration {
                 return .default }
             return NSUIImage.SymbolScale(rawValue: rawValue) ?? .default
         }
-        set { setIvarValue(newValue.rawValue, of: "_scale") }
+        set { setIvarValue(newValue.rawValue, named: "_scale") }
     }
     
     private func scale(_ scale: NSUIImage.SymbolScale) -> NSUIImage.SymbolConfiguration {
@@ -440,7 +440,7 @@ extension NSUIImage.SymbolConfiguration {
     
     var colors: [NSUIColor]? {
         get { value(forKey: "colors") }
-        set { setIvarValue(newValue, of: "_colors") }
+        set { setIvarValue(newValue, named: "_colors") }
     }
     
     var primary: NSUIColor? {
@@ -485,14 +485,14 @@ extension NSUIImage.SymbolConfiguration {
             guard responds(to: NSSelectorFromString("renderingStyle")) else { return .automatic }
             return .init(rawValue: value(forKeySafely: "renderingStyle") as? Int ?? 0)!
         }
-        set { setIvarValue(newValue.rawValue, of: "_renderingStyle") }
+        set { setIvarValue(newValue.rawValue, named: "_renderingStyle") }
     }
     #else
     var textStyle: NSUIFont.TextStyle? {
         get { value(forKey: "textStyle") }
         set {
             let value = newValue?.uictName
-            setIvarValue(value, of: "_textStyle")
+            setIvarValue(value, named: "_textStyle")
             guard value != nil else { return }
             pointSize = nil
         }
