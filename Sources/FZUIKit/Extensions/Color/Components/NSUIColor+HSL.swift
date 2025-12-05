@@ -165,26 +165,29 @@ public struct HSLAComponents: Hashable {
         self.alpha = alpha.clamped(to: 0.0...1.0)
     }
 
-    #if os(macOS)
-    /// Returns the `NSColor`.
-    public func nsColor() -> NSUIColor {
-        NSUIColor(self)
-    }
-    #else
-    /// Returns the `UIColor`.
-    public func uiColor() -> NSUIColor {
-        NSUIColor(self)
-    }
-    #endif
+    /**
+     Blends the color components with the specified components.
 
-    /// Returns the SwiftUI `Color`.
-    public func toColor() -> Color {
-        Color(self)
+     - Parameters:
+        - fraction: The amount of the color to blend (between `0.0` and `1.0`).
+        - components: The components to blend.
+     */
+    public mutating func blend(withFraction fraction: CGFloat, of components: Self) {
+        self = blended(withFraction: fraction, of: components)
     }
+    
+    /**
+     Blends the color components with the specified components.
 
-    /// Returns the `CGColor`.
-    public func toCGColor() -> CGColor {
-        NSUIColor(self).cgColor
+     - Parameters:
+        - fraction: The amount of the color to blend (between `0.0` and `1.0`).
+        - components: The components to blend.
+     
+     - Returns: The color components blended with the specified components.
+     */
+    public func blended(withFraction fraction: CGFloat, of components: Self) -> Self {
+        let fraction = fraction.clamped(to: 0...1.0)
+        return Self(hue + (components.hue - hue) * fraction, saturation + (components.saturation - saturation) * fraction, lightness + (components.lightness - lightness) * fraction, alpha + (components.alpha - alpha) * fraction)
     }
 }
 

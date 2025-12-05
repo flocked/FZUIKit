@@ -383,7 +383,7 @@ extension NSEvent.EventType {
     }
 }
 
-extension NSEvent.EventSubtype: Swift.CustomStringConvertible, Swift.Hashable, Swift.Codable {
+extension NSEvent.EventSubtype: Swift.CustomStringConvertible, Swift.Hashable, Swift.Encodable, Swift.Decodable {
     public var description: String {
         switch self {
         case .applicationActivated: return "applicationActivated"
@@ -399,7 +399,7 @@ extension NSEvent.EventSubtype: Swift.CustomStringConvertible, Swift.Hashable, S
     }
 }
 
-extension NSEvent.Phase: Swift.CustomStringConvertible, Swift.Hashable, Swift.Codable {
+extension NSEvent.Phase: Swift.CustomStringConvertible, Swift.Hashable, Swift.Encodable, Swift.Decodable {
     public var description: String {
         switch self {
         case .changed: return "changed"
@@ -413,7 +413,7 @@ extension NSEvent.Phase: Swift.CustomStringConvertible, Swift.Hashable, Swift.Co
     }
 }
 
-extension NSEvent.EventType: Swift.CustomStringConvertible, Swift.Hashable, Swift.Codable {
+extension NSEvent.EventType: Swift.CustomStringConvertible, Swift.Hashable, Swift.Encodable, Swift.Decodable {
     public var description: String {
         switch self {
         case .leftMouseDown: return "leftMouseDown"
@@ -455,7 +455,7 @@ extension NSEvent.EventType: Swift.CustomStringConvertible, Swift.Hashable, Swif
     }
 }
 
-extension NSEvent.PressureBehavior: Swift.CustomStringConvertible, Swift.Hashable, Swift.Codable {
+extension NSEvent.PressureBehavior: Swift.CustomStringConvertible, Swift.Hashable, Swift.Encodable, Swift.Decodable {
     public var description: String {
         switch self {
         case .unknown: return "unknown"
@@ -470,7 +470,7 @@ extension NSEvent.PressureBehavior: Swift.CustomStringConvertible, Swift.Hashabl
     }
 }
 
-extension NSEvent.PointingDeviceType: Swift.CustomStringConvertible, Swift.Hashable, Swift.Codable {
+extension NSEvent.PointingDeviceType: Swift.CustomStringConvertible, Swift.Hashable, Swift.Encodable, Swift.Decodable {
     public var description: String {
         switch self {
         case .unknown: return "unknown"
@@ -482,7 +482,7 @@ extension NSEvent.PointingDeviceType: Swift.CustomStringConvertible, Swift.Hasha
     }
 }
 
-extension NSEvent.SpecialKey: Swift.CustomStringConvertible, Swift.Hashable, Swift.Codable {
+extension NSEvent.SpecialKey: Swift.CustomStringConvertible, Swift.Hashable, Swift.Encodable, Swift.Decodable {
     public var description: String {
         switch self {
         case .backTab: return "backTab"
@@ -572,7 +572,7 @@ extension NSEvent.SpecialKey: Swift.CustomStringConvertible, Swift.Hashable, Swi
     }
 }
 
-extension NSEvent.EventTypeMask: Swift.CustomStringConvertible, Swift.Hashable, Swift.Codable {
+extension NSEvent.EventTypeMask: Swift.CustomStringConvertible, Swift.Hashable, Swift.Encodable, Swift.Decodable {
     /// A Boolean value indicating whether the specified event intersects with the mask.
     public func intersects(_ event: NSEvent?) -> Bool {
         guard let event = event else { return false }
@@ -647,7 +647,7 @@ extension NSEvent.EventTypeMask: Swift.CustomStringConvertible, Swift.Hashable, 
     }
 }
 
-extension NSEvent.ModifierFlags: Swift.CustomStringConvertible, Swift.CustomDebugStringConvertible, Swift.Hashable, Swift.Codable {
+extension NSEvent.ModifierFlags: Swift.CustomStringConvertible, Swift.CustomDebugStringConvertible, Swift.Hashable, Swift.Encodable, Swift.Decodable {
     /// A `CGEventFlags` representation of the modifier flags.
     public var cgEventFlags: CGEventFlags {
         var flags: CGEventFlags = []

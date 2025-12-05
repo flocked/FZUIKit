@@ -181,8 +181,8 @@ public extension NSUIFontDescriptor {
         return .init(rawValue: rawValue)
     }
     
-    /// The covered  languages for the font.
-    var languages: [Locale] {
+    /// The covered languages for the font.
+    var supportedLanguages: [Locale] {
         (object(forKey: .languages) as? [String] ?? []).map({ Locale(identifier: $0 )})
     }
     
@@ -482,6 +482,46 @@ extension NSUIFontDescriptor {
             guard let typeID = dic[.typeIdentifier], let selectorID = dic[.selectorIdentifier] else { return nil }
             self.typeIdentifier = typeID
             self.selectorIdentifier = selectorID
+        }
+    }
+}
+
+extension CTFontSymbolicTraits {
+    /// The width of the font’s characters.
+    public enum Width: Hashable, Codable {
+        /// The font’s characters have a condensed width.
+        case condensed
+        /// The font’s characters have an expanded width.
+        case expanded
+        /// The font’s characters have a standard width.
+        case standard
+    }
+    
+    /// The width of the font’s characters.
+    public var width: Width {
+        get { contains(.traitExpanded) ? .expanded : contains(.traitCondensed) ? .condensed : .standard }
+        set {
+            self[.traitExpanded] = newValue == .expanded
+            self[.traitCondensed] = newValue == .condensed
+        }
+    }
+    
+    /// The font’s leading value.
+    public enum Leading: Hashable, Codable {
+        /// The font uses a standard leading value.
+        case standard
+        /// The font uses a leading value that’s greater than the default.
+        case loose
+        /// The font uses a leading value that’s less than the default.
+        case tight
+    }
+    
+    /// The font’s leading value.
+    public var leading: Leading {
+        get { contains(.traitTightLeading) ? .tight : contains(.traitLooseLeading) ? .loose : .standard }
+        set {
+            self[.traitTightLeading] = newValue == .tight
+            self[.traitLooseLeading] = newValue == .loose
         }
     }
 }

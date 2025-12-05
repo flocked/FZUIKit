@@ -25,6 +25,35 @@ public extension NSColor {
     }
     
     /**
+     Creates a color object from the specified components of the given color space.
+     
+     - Parameters:
+        - colorSpace: An `NSColorSpace` object representing a color space. The colorspace should be component-based.
+        - components: An array of the components in the specified color space to use to create the `NSColor` object. The order of these components is determined by the color-space profile, with the alpha component always last. (If you want the created color to be opaque, specify `1.0` for the alpha component.)
+     - Returns: The color object.
+     */
+    convenience init(colorSpace: NSColorSpace, components: [CGFloat]) {
+        precondition(components.count == colorSpace.numberOfColorComponents || components.count == colorSpace.numberOfColorComponents + 1,
+                     "Invalid number of components for \(colorSpace): expected \(colorSpace.numberOfColorComponents) or \(colorSpace.numberOfColorComponents+1), got \(components.count)")
+        var components = components
+        self.init(colorSpace: colorSpace, components: &components, count: components.count)
+    }
+    
+    /**
+     Creates a color object from the specified components in the extended sRGB colorspace.
+     
+     - Parameters:
+        - red: The red component of the color object.
+        - green: The green component of the color object.
+        - blue: The blue component of the color object.
+        - alpha: The opacity value of the color object.
+     - Returns: The color object.
+     */
+    convenience init(extendedSRGBRed red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat = 1.0) {
+        self.init(colorSpace: .extendedSRGB, components: [red, green, blue, alpha])
+    }
+    
+    /**
      Generates the resolved color for the specified appearance.
      
      - Parameter appearance: The appearance of the resolved color.

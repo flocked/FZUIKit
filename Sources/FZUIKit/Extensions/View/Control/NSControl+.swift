@@ -115,7 +115,7 @@ extension NSControl {
     }
 }
 
-extension NSControl.StateValue: ExpressibleByBooleanLiteral {
+extension NSControl.StateValue: Swift.ExpressibleByBooleanLiteral {
     public init(booleanLiteral value: Bool) {
         self = value ? .on : .off
     }    

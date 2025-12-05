@@ -169,6 +169,52 @@ public struct HSBAComponents {
         components.alpha = alpha
         return components
     }
+    
+    /**
+     Blends the color components with the specified components.
+
+     - Parameters:
+        - fraction: The amount of the color to blend (between `0.0` and `1.0`).
+        - components: The components to blend.
+     */
+    public mutating func blend(withFraction fraction: CGFloat, of components: Self) {
+        self = blended(withFraction: fraction, of: components)
+    }
+    
+    /**
+     Blends the color components with the specified components.
+
+     - Parameters:
+        - fraction: The amount of the color to blend (between `0.0` and `1.0`).
+        - components: The components to blend.
+     
+     - Returns: The color components blended with the specified components.
+     */
+    public func blended(withFraction fraction: CGFloat, of components: Self) -> Self {
+        let fraction = fraction.clamped(to: 0...1.0)
+        return Self(hue + (components.hue - hue) * fraction, saturation + (components.saturation - saturation) * fraction, brightness + (components.brightness - brightness) * fraction, alpha + (components.alpha - alpha) * fraction)
+    }
+    
+    public func rgba() -> RGBAComponents {
+        if saturation <= 0 { return .init(brightness, brightness, brightness, alpha) }
+        var hue = hue.truncatingRemainder(dividingBy: 1)
+        if hue < 0 { hue += 1 }
+        let h = hue * 6
+        let i = Int(floor(h))
+        let f = h - Double(i)
+        let p = brightness * (1 - saturation)
+        let q = brightness * (1 - saturation * f)
+        let t = brightness * (1 - saturation * (1 - f))
+
+        switch (i % 6) {
+            case 0: return .init(brightness, t, p, alpha)
+            case 1: return .init(q, brightness, p, alpha)
+            case 2: return .init(p, brightness, t, alpha)
+            case 3: return .init(p, q, brightness, alpha)
+            case 4: return .init(t, p, brightness, alpha)
+            default: return .init(brightness, p, q, alpha)
+        }
+    }
 
     /**
      Creates HSBA components with the specified hue, saturation, brightness and alpha components.
@@ -191,28 +237,6 @@ public struct HSBAComponents {
         self.saturation = saturation.clamped(to: 0.0...1.0)
         self.brightness = brightness.clamped(to: 0.0...1.0)
         self.alpha = alpha.clamped(to: 0.0...1.0)
-    }
-
-    #if os(macOS)
-    /// Returns the `NSColor`.
-    public func toNSColor() -> NSUIColor {
-        NSUIColor(self)
-    }
-    #else
-    /// Returns the `UIColor`.
-    public func toUIColor() -> NSUIColor {
-        NSUIColor(self)
-    }
-    #endif
-
-    /// Returns the SwiftUI `Color`.
-    public func toColor() -> Color {
-        Color(hue: hue, saturation: saturation, brightness: brightness, opacity: alpha)
-    }
-
-    /// Returns the `CGColor`.
-    public func toCGColor() -> CGColor {
-        NSUIColor(self).cgColor
     }
     
     func hsla() -> HSLAComponents {

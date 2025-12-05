@@ -8,17 +8,9 @@
 import CoreGraphics
 import FZSwiftUtils
 
-extension CFType where Self == CGColorSpace {
-    /// Creates a color space with the specified name.
-    public init?(name: CGColorSpaceName) {
-        guard let space = CGColorSpace(name: name.rawValue) else { return nil }
-        self = space
-    }
-}
-
 /// Constants that specify color space names.
-public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
-    public let rawValue: CFString
+public struct CGColorSpaceName: ExpressibleByStringLiteral {
+    public let rawValue: String
     
     /// The color space model of the color space.
     public let model: CGColorSpaceModel
@@ -28,28 +20,26 @@ public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
         model.numberOfComponents
     }
     
-    public init(rawValue: CFString) {
+    public init(rawValue: String) {
         self.rawValue = rawValue
         self.model = .rgb
     }
     
     public init(rawValue: CFString, model: CGColorSpaceModel) {
-        self.rawValue = rawValue
+        self.rawValue = rawValue as String
         self.model = model
     }
     
     public init(stringLiteral value: String) {
-        self.rawValue = value as CFString
+        self.rawValue = value
         self.model = .rgb
     }
     
     init(_ rawValue: CFString, model: CGColorSpaceModel = .rgb) {
-        self.rawValue = rawValue
+        self.rawValue = rawValue as String
         self.model = model
     }
-    
-    private var _rawValue: String { rawValue as String }
-    
+        
     // MARK: - RGB color spaces
     
     /// The Academy Color Encoding System color space with a linear transfer function.
@@ -199,6 +189,13 @@ public struct CGColorSpaceName: RawRepresentable, ExpressibleByStringLiteral {
             colorSpaceNames += [.linearDisplayP3, .itur_2020_sRGBGamma, .itur_709_HLG, .itur_709_PQ, .linearITUR_2020]
         }
         let modalColorSpaces = Dictionary(grouping: colorSpaceNames, by: \.model.rawValue)
-        return modalColorSpaces.keys.sorted(.smallestFirst).flatMap({ (modalColorSpaces[$0] ?? []).sorted(by: \._rawValue) })
+        return modalColorSpaces.keys.sorted(.smallestFirst).flatMap({ (modalColorSpaces[$0] ?? []).sorted(by: \.rawValue) })
     }()
+}
+
+extension CFType where Self == CGColorSpace {
+    /// Creates a color space with the specified name.
+    public init?(name: CGColorSpaceName) {
+        self.init(CGColorSpace(name: name.rawValue as CFString))
+    }
 }

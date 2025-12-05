@@ -119,7 +119,7 @@ public extension NSLayoutConstraint {
     }
 }
 
-extension NSUILayoutPriority: ExpressibleByFloatLiteral, ExpressibleByIntegerLiteral {
+extension NSUILayoutPriority: Swift.ExpressibleByFloatLiteral, Swift.ExpressibleByIntegerLiteral {
     public init(floatLiteral value: Float) {
         self.init(value)
     }

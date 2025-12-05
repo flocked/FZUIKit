@@ -14,8 +14,37 @@ import SwiftUI
 import FZSwiftUtils
 
 extension NSUIColor {
+    
+    
+    #if os(macOS)
+    /**
+     Returns the RGBA (red, green, blue, alpha) components of the color.
+     - Parameter colorSpace: The `RGB` based color space for the components, or `nil` to automatically determinate a color space.
+     */
+    public func rgbaComponents(using colorSpace: NSColorSpace? = nil) -> RGBAComponents {
+        if let colorSpace = colorSpace, colorSpace.colorSpaceModel != .rgb {
+            fatalError("The provided color space isn't rgb based, which is needed for rgbaComponents()")
+        }
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        if let colorSpace = colorSpace {
+            usingColorSpace(colorSpace)
+        } else if self.colorSpace.colorSpaceModel == .rgb {
+            
+        }
+        if let color = usingColorSpace(.deviceRGB) ?? usingColorSpace(.genericRGB) {
+            color.getRed(&r, green: &g, blue: &b, alpha: &a)
+        } else {
+            fatalError("Could not convert color to RGBA.")
+        }
+        return RGBAComponents(r, g, b, a)
+    }
+    #endif
     /// Returns the RGBA (red, green, blue, alpha) components of the color.
-    public func rgbaComponents() -> RGBAComponents {
+    @_disfavoredOverload
+    public func rgbaComponents(using colorSpace: CGColorSpaceName? = nil) -> RGBAComponents {
+        if let colorSpace = colorSpace, colorSpace.model != .rgb {
+            fatalError("The provided color space isn't rgb based, which is needed for rgbaComponents()")
+        }
         var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
         #if os(macOS)
         if let color = usingColorSpace(.deviceRGB) ?? usingColorSpace(.genericRGB) {
@@ -150,6 +179,55 @@ public struct RGBAComponents: Codable, Hashable {
         return components
     }
     
+    /// The linear red component.
+    public var linearRed: CGFloat {
+        get { srgbToLinear(red) }
+        set { red = linearToSRGB(newValue) }
+    }
+    
+    /// Sets the linear red component.
+    public func linearRed(_ linearRed: CGFloat) -> Self {
+        var components = self
+        components.linearRed = linearRed
+        return components
+    }
+    
+    /// The linear green component.
+    public var linearGreen: CGFloat {
+        get { srgbToLinear(green) }
+        set { green = linearToSRGB(newValue) }
+    }
+    
+    /// Sets the linear green component.
+    public func linearGreen(_ linearGreen: CGFloat) -> Self {
+        var components = self
+        components.linearGreen = linearGreen
+        return components
+    }
+    
+    /// The linear blue component.
+    public var linearBlue: CGFloat {
+        get { srgbToLinear(blue) }
+        set { blue = linearToSRGB(newValue) }
+    }
+    
+    /// Sets the linear blue component.
+    public func linearBlue(_ linearBlue: CGFloat) -> Self {
+        var components = self
+        components.linearBlue = linearBlue
+        return components
+    }
+    
+    @inline(__always)
+    private func srgbToLinear(_ c: CGFloat) -> CGFloat {
+        c <= 0.04045 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4)
+    }
+    
+    @inline(__always)
+    private func linearToSRGB(_ c: CGFloat) -> CGFloat {
+        c <= 0.0031308 ? 12.92 * c : 1.055 * pow(c, 1.0 / 2.4) - 0.055
+    }
+    
     /**
      Blends the color components with the specified components.
 
@@ -157,12 +235,8 @@ public struct RGBAComponents: Codable, Hashable {
         - fraction: The amount of the color to blend (between `0.0` and `1.0`).
         - components: The components to blend.
      */
-    public mutating func blend(withFraction fraction: CGFloat, of components: RGBAComponents) {
-        let fraction = fraction.clamped(to: 0...1.0)
-        red = red + (fraction * (components.red - red))
-        green = green + (fraction * (components.green - green))
-        blue = blue + (fraction * (components.blue - blue))
-        alpha = alpha + (fraction * (components.alpha - alpha))
+    public mutating func blend(withFraction fraction: CGFloat, of components: Self) {
+        self = blended(withFraction: fraction, of: components)
     }
     
     /**
@@ -174,37 +248,11 @@ public struct RGBAComponents: Codable, Hashable {
      
      - Returns: The color components blended with the specified components.
      */
-    public func blended(withFraction fraction: CGFloat, of components: RGBAComponents) -> RGBAComponents {
-        var rgba = self
-        rgba.blend(withFraction: fraction, of: components)
-        return RGBAComponents(rgba.red, rgba.green, rgba.blue, rgba.alpha)
+    public func blended(withFraction fraction: CGFloat, of components: Self) -> Self {
+        let fraction = fraction.clamped(to: 0...1.0)
+        return Self(red + (components.red - red) * fraction, green + (components.green - green) * fraction, blue + (components.blue - blue) * fraction, alpha + (components.alpha - alpha) * fraction)
     }
-
-    #if os(macOS)
-    /// Returns the `NSColor`.
-    public func nsColor() -> NSUIColor {
-        NSUIColor(red: red, green: green, blue: blue, alpha: alpha)
-    }
-    #else
-    /// Returns the `UIColor`.
-    public func uiColor() -> NSUIColor {
-        NSUIColor(red: red, green: green, blue: blue, alpha: alpha)
-    }
-    #endif
-
-    /// Returns the `CGColor`.
-    public func cgColor() -> CGColor {
-        CGColor(red: red, green: green, blue: blue, alpha: alpha)
-    }
-
-    /// Returns the SwiftUI `Color`.
-    public func color() -> Color {
-        Color(red: red, green: green, blue: blue, opacity: alpha)
-    }
-
-    /// Components with zero alpha.
-    static let zero = RGBAComponents(0.0, 0.0, 0.0, 0.0)
-
+    
     /**
      Creates RGBA components with the specified red, green, blue and alpha components.
      
@@ -311,4 +359,8 @@ public extension CFType where Self == CGColor {
     init(_ rgbaComponents: RGBAComponents) {
         self.init(red: rgbaComponents.red, green: rgbaComponents.green, blue: rgbaComponents.blue, alpha: rgbaComponents.alpha)
     }
+}
+
+extension RGBAComponents {
+
 }

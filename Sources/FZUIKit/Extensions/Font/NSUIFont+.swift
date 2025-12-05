@@ -13,6 +13,35 @@ import UIKit
 import FZSwiftUtils
 
 public extension NSUIFont {
+    #if os(macOS)
+    /**
+     Returns a font object for the specified font name and matrix.
+     
+     - Parameters:
+        - name: The fully specified family-face name of the font.
+        - matrix: A transformation matrix applied to the font.
+     - Returns: A font object for the specified name and transformation matrix.
+     */
+    convenience init?(name: String, matrix: CGAffineTransform) {
+        var matrix = [matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty]
+        self.init(name: name, matrix: &matrix)
+    }
+    
+    #else
+    /**
+     Returns a font object for the specified font name and matrix.
+     
+     - Parameters:
+        - name: The fully specified family-face name of the font.
+        - matrix: A transformation matrix applied to the font.
+     - Returns: A font object for the specified name and transformation matrix.
+     */
+    convenience init?(name: String, matrix: CGAffineTransform) {
+        guard NSUIFont(name: name, size: 0) != nil else { return nil }
+        self.init(descriptor: .init(name: name, matrix: matrix))
+    }
+    #endif
+    
     /// The available font names.
     static var availableFonts: [String] {
         availableFontDescriptors.compactMap({ $0.name })
@@ -178,6 +207,11 @@ public extension NSUIFont {
     func symbolicTraits(_ symbolTraits: SymbolicTraits) -> NSUIFont {
         descriptor(fontDescriptor.withSymbolicTraits(symbolTraits))
     }
+    
+    /// The current font with the specified symbolic traits and the current one.
+    func symbolTraits(adding symbolTraits: SymbolicTraits) -> NSUIFont {
+        self.symbolicTraits(fontDescriptor.symbolicTraits + symbolTraits)
+    }
 
     /// The current font with the specified face.
     func face(_ face: String) -> NSUIFont {
@@ -322,13 +356,11 @@ public extension NSUIFont {
     }
 
     /// The font with a serif design.
-    @available(macOS 10.15, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     var serif: NSUIFont {
         design(.serif)
     }
 
     /// The font with a serif design.
-    @available(macOS 10.15, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     func serif(_ serif: Bool) -> NSUIFont {
         if serif {
             return self.serif
@@ -472,83 +504,104 @@ extension NSUIFont {
             }
         }
     }
-
-    /// The features of the font.
+    
+    /// Returns the list of typographic features supported by the font.
     public var features: [Feature] {
-        (CTFontCopyFeatures(self) as? [[String: Any]] ?? []).compactMap { .init($0) }
+        (CTFontCopyFeatures(self)?.nsArray as? [[String: Any]] ?? []).compactMap({ $0.toModel( NSUIFont.Feature.self ) })
     }
-
-    /// A feature of a font.
-    public struct Feature: CustomStringConvertible, CustomDebugStringConvertible {
-        /// The identifier of the feature.
-        public let identifier: Int
-        /// The name of the feature.
-        public let name: String?
-        /// A Boolean value indicating whether a selector is selected exclusively.
-        public let isExclusive: Bool
-        /// The values of the feature.
-        public let values: [FeatureValue]
-
+    
+    /// A typographic feature supported by a font, representing a group of related selectors that control a specific stylistic or OpenType behavior.
+    public struct Feature: Codable, CustomStringConvertible, CustomDebugStringConvertible {
+        /// The numeric identifier of the font feature type, if provided by CoreText.
+        public let identifier: Int?
+        /// The localized name of the feature type.
+        public let name: String
+        /// Indicates whether this feature type is exclusive, meaning only one selector may be active at a time.
+        public let isExclusive: Bool?
+        /// A sample string demonstrating the effect of this feature.
+        public let sampleText: String?
+        /// A brief description or tooltip explaining the feature.
+        public let toolTipText: String?
+        /// The list of selectors that belong to this feature type.
+        public let selectors: [Selector]
+        
         public var description: String {
-            if isExclusive {
-                return "\"\(name ?? "\(identifier)")\", values: \(values.count), isExclusive"
+            if isExclusive ?? false {
+                return "\"\(name)\", selectors: \(selectors.count), isExclusive"
             }
-            return "\"\(name ?? "\(identifier)")\", values: \(values.count)"
+            return "\"\(name)\", selectors: \(selectors.count)"
         }
 
         public var debugDescription: String {
-            let valuesString = values.isEmpty ? "" : "\n  " + values.map({ $0.description }).joined(separator: "\n  ")
-            if isExclusive {
-                return "\"\(name ?? "\(identifier)")\" isExclusive" + valuesString
+            let valuesString = selectors.isEmpty ? "" : "\n   " + selectors.map({ $0.debugDescription }).joined(separator: "\n  ")
+            if isExclusive ?? false {
+                return "\"\(name)\" (exclusive)" + valuesString
             }
-            return "\"\(name ?? "\(identifier)")\"" + valuesString
+            return "\"\(name)\"" + valuesString
         }
-
-        /// A value of a feature.
-        public struct FeatureValue: CustomStringConvertible {
-            /// The identifier of the feature value.
-            public let identifier: Int
-            /// The name of the feature value.
-            public let name: String?
-            /// A Boolean value indicating whether the feature value is selected.
-            public let isSelected: Bool
-            /// A Boolean value indicating whether the feature value is the default selector.
-            public let isDefault: Bool
-
+        
+        public enum CodingKeys: String, CodingKey {
+            case identifier = "CTFeatureTypeIdentifier"
+            case name = "CTFeatureTypeName"
+            case isExclusive = "CTFeatureTypeExclusive"
+            case sampleText = "CTFeatureSampleText"
+            case toolTipText = "CTFeatureTooltipText"
+            case selectors = "CTFeatureTypeSelectors"
+        }
+        
+        /// A selector representing a specific option within a typographic feature, such as choosing one stylistic alternative, numeral style, or ligature variant.
+        public struct Selector: Codable, CustomStringConvertible, CustomDebugStringConvertible {
+            /// The numeric identifier of the selector option.
+              public let identifier: Int?
+              /// The localized name of the selector option.
+              public let name: String
+              /// Indicates whether the selector is the default option for this feature.
+              public let isDefault: Bool?
+              /// Indicates whether this selector is currently enabled.
+              public let isEnabled: Bool?
+              /// The four-character OpenType tag associated with this selector, if available.
+              public let openTypeTag: String?
+              /// The numeric OpenType value associated with this selector, if provided.
+              public let openTypeValue: Int?
+            
             public var description: String {
-                let nameString = "\"\(name ?? "\(identifier)")\""
+                description(debug: false)
+            }
+            
+            public var debugDescription: String {
+                description(debug: true)
+            }
+            
+            private func description(debug: Bool) -> String {
+                let nameString = "\"\(name)\""
                 var strings: [String] = []
-                if isSelected {
-                    strings += "isSelected"
+                if isEnabled ?? false {
+                    strings += "✓"
                 }
-                if isDefault {
-                    strings += "isDefault"
+                if isDefault ?? false {
+                    strings += "default"
+                }
+                if debug, let tag = openTypeTag, let value = openTypeValue {
+                    let openTypeString = " [\(tag): \(value)]"
+                    if !strings.isEmpty {
+                        return nameString + openTypeString + " (\(strings.joined(separator: ", ")))"
+                    }
+                    return nameString + openTypeString
                 }
                 if !strings.isEmpty {
                     return nameString + " (\(strings.joined(separator: ", ")))"
                 }
                 return nameString
             }
-
-            init?(_ dictionary: [String: Any]) {
-                guard let idCFNumber = dictionary[kCTFontFeatureSelectorIdentifierKey as String] as? NSNumber else {
-                    return nil
-                }
-                identifier = idCFNumber.intValue
-                name = dictionary[kCTFontFeatureSelectorNameKey as String] as? String
-                isDefault = (dictionary[kCTFontFeatureSelectorDefaultKey as String] as? NSNumber)?.boolValue ?? false
-                isSelected = (dictionary[kCTFontFeatureSelectorSettingKey as String] as? NSNumber)?.boolValue ?? isDefault
+            
+            public enum CodingKeys: String, CodingKey {
+                case identifier = "CTFeatureSelectorIdentifier"
+                case name = "CTFeatureSelectorName"
+                case isDefault = "CTFeatureSelectorDefault"
+                case isEnabled = "CTFeatureSelectorSetting"
+                case openTypeTag = "CTFeatureOpenTypeTag"
+                case openTypeValue = "CTFeatureOpenTypeValue"
             }
-        }
-
-        init?(_ dictionary: [String: Any]) {
-            guard let idCFNumber = dictionary[kCTFontFeatureTypeIdentifierKey as String] as? NSNumber, let selectorDictionaries = dictionary[kCTFontFeatureTypeSelectorsKey as String] as? [[String: Any]] else {
-                return nil
-            }
-            self.identifier = idCFNumber.intValue
-            self.values = selectorDictionaries.compactMap { .init($0) }
-            self.name = dictionary[kCTFontFeatureTypeNameKey as String] as? String
-            self.isExclusive = (dictionary[kCTFontFeatureTypeExclusiveKey as String] as? NSNumber)?.boolValue ?? false
         }
     }
     
@@ -558,7 +611,11 @@ extension NSUIFont {
      The font ascent metric scaled based on the point size and matrix of the font reference.
      */
     public var ascent: CGFloat {
+        #if os(macOS)
+        CTFontGetAscent(cleanedFont)
+        #else
         CTFontGetAscent(self)
+        #endif
     }
 
     /**
@@ -567,7 +624,11 @@ extension NSUIFont {
      The font descent metric scaled based on the point size and matrix of the font reference.
      */
     public var descent: CGFloat {
+        #if os(macOS)
+        CTFontGetDescent(cleanedFont)
+        #else
         CTFontGetDescent(self)
+        #endif
     }
 
     /**
@@ -613,6 +674,77 @@ extension NSUIFont {
      */
     public var slantAngle: CGFloat {
         CTFontGetSlantAngle(self)
+    }
+    
+    /// The units-per-em metric of the font.
+    public var unitsPerEm: UInt32 {
+        CTFontGetUnitsPerEm(self)
+    }
+    
+    /// `CGFont` representation of the font.
+    public var cgFont: CGFont {
+        CTFontCopyGraphicsFont(self, nil)
+    }
+    
+    /**
+     Returns the special user-interface font for the specified type and size.
+     
+     - Parameters:
+        - type: The intended user-interface use for the requested font.
+        - size: The point size of the font. If `0.0` is specified, the default size for the requested user-interface type is used.
+        - locale: The locale of the font.
+     - Returns: The correct font for various user-interface uses.
+     */
+    public static func uiFont(type: CTFontUIFontType, size: CGFloat = 0.0, locale: Locale = .current) -> NSUIFont? {
+        CTFontCreateUIFontForLanguage(type, size, locale.identifier as CFString)
+    }
+    
+    #if os(macOS)
+    /**
+     Returns the special user-interface font for the specified type and size.
+     
+     - Parameters:
+        - type: The intended user-interface use for the requested font.
+        - size: The control size of the font.
+        - locale: The locale of the font.
+     - Returns: The correct font for various user-interface uses.
+     */
+    public static func uiFont(type: CTFontUIFontType, size: NSControl.ControlSize, locale: Locale = .current) -> NSUIFont? {
+        uiFont(type: type, size: NSFont.systemFontSize(for: size), locale: locale)
+    }
+    #endif
+    
+    /// Returns the width of the space character in points.
+    public var spaceCharacterWidth: CGFloat {
+        guard let glyph = glyph(for: 0x20) else { return 0.0 }
+        let advancement = advancement(forCGGlyph: glyph)
+        return (advancement.width * 100.0).rounded() / 100.0
+    }
+    
+    /**
+     Returns the glyph corresponding to a single `UniChar`.
+          
+     - Parameter char: The `UniChar`.
+     - Returns: The `CGGlyph` for the character, or `nil` if the font does not contain it.
+     */
+    public func glyph(for char: UniChar) -> CGGlyph? {
+        var char = char
+        var glyph = CGGlyph()
+        guard CTFontGetGlyphsForCharacters(self, &char, &glyph, 1) else { return nil }
+        return glyph
+    }
+    
+    /**
+     Returns the glyphs corresponding to a `Character`.
+     
+     - Parameter character: The character.
+     - Returns: the glyphs corresponding to the character, or `nil` if the font does not contain the character.
+     */
+    public func glyphs(for character: Character) -> [CGGlyph]? {
+        let utf16 = Array(character.utf16)
+        var glyphs = [CGGlyph](repeating: 0, count: utf16.count)
+        guard CTFontGetGlyphsForCharacters(self, utf16, &glyphs, utf16.count) else { return nil }
+        return glyphs
     }
 }
 
@@ -681,7 +813,6 @@ extension NSFont.TextStyle {
 }
 #endif
 
-@available(macOS 11.0, iOS 9.0, tvOS 9.0, watchOS 3.0, *)
 extension NSUIFont.TextStyle: CaseIterable {
     /// A collection of all text style values.
     public static var allCases: [Self] {
@@ -697,4 +828,30 @@ extension NSUIFont.TextStyle: CaseIterable {
         return [.body, .subheadline, .headline, .caption1, .caption2, .callout, .footnote, .title1, .title2, .title3]
         #endif
     }
+}
+
+#if !os(macOS)
+extension UIFont {
+    /**
+     Returns the nominal spacing for the given glyph—the distance the current point moves after showing the glyph—accounting for the receiver’s size.
+     
+     The spacing is given according to the glyph’s movement direction, which is either strictly horizontal or strictly vertical.
+     
+     - Parameter glyph: The glyph whose advancement is returned.
+     - Returns: The advancement spacing in points.
+     
+     */
+    public func advancement(forCGGlyph glyph: CGGlyph) -> CGSize {
+        var advance: CGSize = .zero
+        CTFontGetAdvancesForGlyphs(self, .default, [glyph], &advance, 1)
+        return advance
+    }
+}
+#endif
+
+public extension CTFontSymbolicTraits {
+    /// The font uses a leading value that’s greater than the default.
+    static let traitLooseLeading = Self(rawValue: 1 << 15)
+    /// The font uses a leading value that’s less than the default.
+    static let traitTightLeading = Self(rawValue: 1 << 16)
 }

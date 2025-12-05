@@ -195,14 +195,3 @@ public extension AVAssetTrack {
         return nil
     }
 }
-
-public extension FourCharCode {
-    var string: String {
-        let n = Int(self)
-        var s = String(UnicodeScalar((n >> 24) & 255)!)
-        s += String(UnicodeScalar((n >> 16) & 255)!)
-        s += String(UnicodeScalar((n >> 8) & 255)!)
-        s += String(UnicodeScalar(n & 255)!)
-        return s.trimmingCharacters(in: .whitespaces)
-    }
-}

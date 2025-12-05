@@ -11,6 +11,7 @@ import AppKit
 import UIKit
 #endif
 import SwiftUI
+import FZSwiftUtils
 
 public extension CGColor {
     /**
@@ -196,5 +197,37 @@ public extension CGColor {
 
     internal var nsUIColor: NSUIColor? {
         NSUIColor(cgColor: self)
+    }
+}
+
+public extension CFType where Self == CGColor {
+    /**
+     Creates a color with the specified color space and components.
+     
+     - Parameters:
+        - colorSpace: A color space for the new color.
+        - components: An array of intensity values describing the color. The array should contain n+1 values that correspond to the n color components in the specified color space, followed by the alpha component. Each component value should be in the range appropriate for the color space. Values outside this range will be clamped to the nearest correct value.
+     - Returns: A new color.
+     */
+    init?(colorSpace: CGColorSpace, components: [CGFloat]) {
+        guard components.count >= colorSpace.numberOfComponents else { return nil }
+        var components = components.count == colorSpace.numberOfComponents ? components + 1.0 : components
+        guard let color = CGColor(colorSpace: colorSpace, components: &components) else { return nil }
+        self = color
+    }
+
+    /**
+     Creates a color with the specified color space and components.
+     
+     - Parameters:
+        - colorSpace: A color space for the new color.
+        - components: An array of intensity values describing the color. The array should contain n+1 values that correspond to the n color components in the specified color space, followed by the alpha component. Each component value should be in the range appropriate for the color space. Values outside this range will be clamped to the nearest correct value.
+     - Returns: A new color.
+     */
+    @_disfavoredOverload
+    init?(colorSpace: CGColorSpaceName, components: [CGFloat]) {
+        guard let colorSpace = CGColorSpace(name: colorSpace) else { return nil }
+        guard let color = Self(colorSpace: colorSpace, components: components) else { return nil }
+        self = color
     }
 }

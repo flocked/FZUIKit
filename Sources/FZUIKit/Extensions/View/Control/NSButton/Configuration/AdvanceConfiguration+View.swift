@@ -23,23 +23,11 @@ extension NSButton.AdvanceButtonView {
         }
 
         var titleFont: Font {
-            switch configuration.size {
-            case .large: return .system(.title3) // 13
-            case .regular: return .system(.body) // 13
-            case .small: return .system(.subheadline) //
-            case .mini: return .system(.caption2)
-            @unknown default: return .system(.body)
-            }
+            .system(size: NSFont.systemFontSize(for: configuration.size))
         }
 
         var subtitleFont: Font {
-            switch configuration.size {
-            case .large: return .system(.body) // 13
-            case .regular: return .system(.subheadline) // 13
-            case .small: return .system(.caption2) //
-            case .mini: return .system(.caption2)
-            @unknown default: return .system(.subheadline)
-            }
+            .system(size: NSFont.systemFontSize(for: NSControl.ControlSize(rawValue: configuration.size.rawValue-1) ?? .mini))
         }
 
         @ViewBuilder

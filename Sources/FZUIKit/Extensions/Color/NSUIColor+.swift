@@ -10,6 +10,7 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import FZSwiftUtils
 
 public extension NSUIColor {
     /// A random color.
@@ -180,4 +181,34 @@ public extension NSUIColor {
         }
     }
 }
+
+public extension NSObjectProtocol where Self == NSUIColor {
+    /**
+     Creates a color with the specified color space and components.
+     
+     - Parameters:
+        - colorSpace: A color space for the new color.
+        - components: An array of intensity values describing the color. The array should contain n+1 values that correspond to the n color components in the specified color space, followed by the alpha component. Each component value should be in the range appropriate for the color space. Values outside this range will be clamped to the nearest correct value.
+     - Returns: A new color.
+     */
+    init?(colorSpace: CGColorSpace, components: [CGFloat]) {
+        guard let cgColor = CGColor(colorSpace: colorSpace, components: components) else { return nil }
+        self.init(cgColor: cgColor)
+    }
+    
+    /**
+     Creates a color with the specified color space and components.
+     
+     - Parameters:
+        - colorSpace: A color space for the new color.
+        - components: An array of intensity values describing the color. The array should contain n+1 values that correspond to the n color components in the specified color space, followed by the alpha component. Each component value should be in the range appropriate for the color space. Values outside this range will be clamped to the nearest correct value.
+     - Returns: A new color.
+     */
+    @_disfavoredOverload
+    init?(colorSpace: CGColorSpaceName, components: [CGFloat]) {
+        guard let cgColor = CGColor(colorSpace: colorSpace, components: components) else { return nil }
+        self.init(cgColor: cgColor)
+    }
+}
+
 #endif

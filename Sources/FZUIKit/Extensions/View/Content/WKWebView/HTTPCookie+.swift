@@ -8,9 +8,9 @@
 #if os(macOS) || os(iOS)
 import WebKit
 
-extension HTTPCookiePropertyKey: Swift.Codable { }
+extension HTTPCookiePropertyKey: Swift.Encodable, Swift.Decodable { }
 
-extension HTTPCookie: Swift.Codable {
+extension HTTPCookie: Swift.Encodable, Swift.Decodable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode((properties ?? [:]).mapValues({"\($0)"}))

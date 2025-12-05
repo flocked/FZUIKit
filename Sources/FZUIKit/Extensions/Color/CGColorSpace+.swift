@@ -35,25 +35,21 @@ extension CGColorSpace {
     }
     
     /// A Boolean value indicating whether the color space uses the ITU-R BT.2100 transfer function.
-    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public var usesITUR_2100TF: Bool {
         CGColorSpaceUsesITUR_2100TF(self)
     }
     
     /// A Boolean value indicating whether the color space uses a PQ (Perceptual Quantizer) transfer function.
-    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
     public var isPQBased: Bool {
         CGColorSpaceIsPQBased(self)
     }
     
     /// A Boolean value indicating whether the color space uses a HLG (Hybrid Log-Gamma) transfer function.
-    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
     public var isHLGBased: Bool {
         CGColorSpaceIsHLGBased(self)
     }
     
     /// Returns a linear version of the color space.
-    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public var linear: CGColorSpace? {
         if name as? String == "kCGColorSpaceGenericRGB" {
             return CGColorSpace(name: .genericRGBLinear)
@@ -62,14 +58,12 @@ extension CGColorSpace {
     }
     
     /// Returns a non-linear version of the color space.
-    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public var nonLinear: CGColorSpace? {
         guard let name = name as? String, isLinear else { return nil }
         return CGColorSpace(name: name.removingOccurrences(of: "Linear") as CFString)
     }
 
     /// Returns a linear version of the color space with extended range.
-    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public var extendedLinear: CGColorSpace? {
         CGColorSpaceCreateExtendedLinearized(self)
     }
@@ -81,7 +75,6 @@ extension CGColorSpace {
     }
 
     /// Returns the color space with an extended range.
-    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public var extendedRange: CGColorSpace? {
         CGColorSpaceCreateExtended(self)
     }
@@ -116,7 +109,6 @@ extension CGColorSpace {
 
 public extension CFType where Self == CGColorSpace {
     /// Creates a color space with the specified color sync profie.
-    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
     init?(colorSyncProfile: ColorSyncProfile?, options: CFDictionary? = nil) {
         guard let colorSpace = CGColorSpaceCreateWithColorSyncProfile(colorSyncProfile, options) else { return nil }
         self = colorSpace
@@ -142,7 +134,6 @@ extension CGColorSpaceModel: Swift.CustomStringConvertible {
     ///The number of color components in a color space with this model.
     public var numberOfComponents: Int {
         switch self {
-        case .unknown: return 0
         case .monochrome: return 1
         case .rgb, .lab, .XYZ: return 3
         case .cmyk: return 4

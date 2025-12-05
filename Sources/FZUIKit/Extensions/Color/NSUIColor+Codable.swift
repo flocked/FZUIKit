@@ -12,7 +12,7 @@ import AppKit
 import UIKit
 #endif
 
-extension NSUIColor: Swift.Codable {
+extension NSUIColor: Swift.Encodable, Swift.Decodable {
     public enum CodingKeys: String, CodingKey {
         case light
         case dark

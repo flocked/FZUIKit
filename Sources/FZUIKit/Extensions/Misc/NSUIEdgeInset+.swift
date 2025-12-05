@@ -91,7 +91,7 @@ extension NSUIEdgeInsets: Swift.Hashable {
 }
 
 #if os(macOS)
-extension NSUIEdgeInsets: Swift.Codable {
+extension NSUIEdgeInsets: Swift.Encodable, Swift.Decodable {
     public enum CodingKeys: String, CodingKey {
         case top
         case bottom
@@ -237,7 +237,7 @@ extension NSDirectionalEdgeInsets: Swift.Hashable {
 }
 
 #if os(macOS)
-extension NSDirectionalEdgeInsets: Swift.Codable {
+extension NSDirectionalEdgeInsets: Swift.Encodable, Swift.Decodable {
     public enum CodingKeys: String, CodingKey {
         case top
         case bottom
@@ -367,7 +367,7 @@ extension EdgeInsets: Swift.Hashable {
     }
 }
 
-extension EdgeInsets: Swift.Codable {
+extension EdgeInsets: Swift.Encodable, Swift.Decodable {
     public enum CodingKeys: String, CodingKey {
         case top
         case bottom

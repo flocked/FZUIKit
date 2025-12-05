@@ -23,7 +23,7 @@ public extension NSToolbarItem {
     }
 }
 
-extension NSToolbarItem.Identifier: ExpressibleByStringLiteral {
+extension NSToolbarItem.Identifier: Swift.ExpressibleByStringLiteral {
     public init(stringLiteral value: String) {
         self.init(value)
     }

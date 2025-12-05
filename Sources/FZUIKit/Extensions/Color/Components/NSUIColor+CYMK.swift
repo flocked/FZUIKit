@@ -161,4 +161,29 @@ public struct CMYBComponents: Codable, Hashable {
         self.black = black
         self.alpha = alpha
     }
+    
+    /**
+     Blends the color components with the specified components.
+
+     - Parameters:
+        - fraction: The amount of the color to blend (between `0.0` and `1.0`).
+        - components: The components to blend.
+     */
+    public mutating func blend(withFraction fraction: CGFloat, of components: Self) {
+        self = blended(withFraction: fraction, of: components)
+    }
+    
+    /**
+     Blends the color components with the specified components.
+
+     - Parameters:
+        - fraction: The amount of the color to blend (between `0.0` and `1.0`).
+        - components: The components to blend.
+     
+     - Returns: The color components blended with the specified components.
+     */
+    public func blended(withFraction fraction: CGFloat, of components: Self) -> Self {
+        let fraction = fraction.clamped(to: 0...1.0)
+        return Self(cyan + (components.cyan - cyan) * fraction, magenta + (components.magenta - magenta) * fraction, yellow + (components.yellow - yellow) * fraction, black + (components.black - black) * fraction, alpha + (components.alpha - alpha) * fraction)
+    }
 }

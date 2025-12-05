@@ -11,60 +11,105 @@ import FZSwiftUtils
 
 public extension NSFont {
     /// The standard system font, with default size.
-    static var systemFont: NSUIFont {
+    static var systemFont: NSFont {
         .systemFont(ofSize: 0)
     }
     
+    /// Returns the standard system font with the specified size.
+    static func systemFont(ofSize size: NSControl.ControlSize, weight: Weight = .regular, design: SystemDesign = .default) -> NSFont {
+        .systemFont(ofSize: NSFont.systemFontSize(for: size), weight: weight, design: design)
+    }
+    
+    /// Returns the font used for standard interface labels in the specified size.
+    static func labelFont(ofSize size: NSControl.ControlSize) -> NSFont {
+        .labelFont(ofSize: NSFont.systemFontSize(for: size))
+    }
+    
+    /// Returns the font used for standard interface items, such as button labels, menu items, and so on, in the specified size.
+    static func messageFont(ofSize size: NSControl.ControlSize) -> NSFont {
+        .messageFont(ofSize: NSFont.systemFontSize(for: size))
+    }
+    
+    /// Returns the font used for menu bar items, in the specified size.
+    static func menuBarFont(ofSize size: NSControl.ControlSize) -> NSFont {
+        .menuBarFont(ofSize: NSFont.systemFontSize(for: size))
+    }
+    
+    /// Returns the font used for menu items, in the specified size.
+    static func menuFont(ofSize size: NSControl.ControlSize) -> NSFont {
+        .menuFont(ofSize: NSFont.systemFontSize(for: size))
+    }
+    
+    /// Returns the font used for the content of controls in the specified size.
+    static func controlContentFont(ofSize size: NSControl.ControlSize) -> NSFont {
+        .controlContentFont(ofSize: NSFont.systemFontSize(for: size))
+    }
+    
+    /// Returns the font used for window title bars, in the specified size.
+    static func titleBarFont(ofSize size: NSControl.ControlSize) -> NSFont {
+        .titleBarFont(ofSize: NSFont.systemFontSize(for: size))
+    }
+    
+    /// Returns the font used for palette window title bars, in the specified size.
+    static func paletteFont(ofSize size: NSControl.ControlSize) -> NSFont {
+        .paletteFont(ofSize: NSFont.systemFontSize(for: size))
+    }
+    
+    /// Returns the font used for tool tips labels, in the specified size.
+    static func toolTipsFont(ofSize size: NSControl.ControlSize) -> NSFont {
+        .toolTipsFont(ofSize: NSFont.systemFontSize(for: size))
+    }
+    
     /// The font used for standard interface labels, with default size.
-    static var label: NSFont {
+    static var labelFont: NSFont {
         .labelFont(ofSize: 0)
     }
 
     /// The font used for standard interface items, such as button labels, menu items, and so on, with default size.
-    static var message: NSFont {
+    static var messageFont: NSFont {
         .messageFont(ofSize: 0)
     }
 
     /// The font used for menu bar items, with default size.
-    static var menuBar: NSFont {
+    static var menuBarFont: NSFont {
         .menuBarFont(ofSize: 0)
     }
 
     /// The font used for menu items, with default size.
-    static var menu: NSFont {
+    static var menuFont: NSFont {
         .menuFont(ofSize: 0)
     }
 
     /// The font used for the content of controls, with default size.
-    static var controlContent: NSFont {
+    static var controlContentFont: NSFont {
         .controlContentFont(ofSize: 0)
     }
 
     /// The font used for window title bars, with default size.
-    static var titleBar: NSFont {
+    static var titleBarFont: NSFont {
         .titleBarFont(ofSize: 0)
     }
 
     /// The font used for palette window title bars, with default size.
-    static var palette: NSFont {
+    static var paletteFont: NSFont {
         .paletteFont(ofSize: 0)
     }
 
     /// The font used for tool tips labels, with default size.
-    static var toolTips: NSFont {
+    static var toolTipsFont: NSFont {
         .toolTipsFont(ofSize: 0)
     }
-
+    
     /**
      The actual line height used when rendering text with this font.
      
      This value represents the full vertical distance from the highest [ascender](https://developer.apple.com/documentation/appkit/nsfont/ascender) to the lowest [descender](https://developer.apple.com/documentation/appkit/nsfont/descender), including any built-in [leading](https://developer.apple.com/documentation/appkit/nsfont/leading). It corresponds to the real line spacing the font provides when drawing multiline text.
      */
     var lineHeight: CGFloat {
-        if let lineHeight = value(forKeySafely: "lineHeight") as? Double {
+        if let lineHeight = value(forKeySafely: "lineHeight") as? CGFloat {
             return lineHeight
         }
-        let ctFont = cleanedFont as CTFont
+        let ctFont = cleanedFont
         return CTFontGetAscent(ctFont) + CTFontGetDescent(ctFont) + CTFontGetLeading(ctFont)
     }
     
@@ -107,54 +152,29 @@ public extension NSFont {
         value(forKeySafely: "_baselineOffsetForUILayout") as? CGFloat ?? 0.0
     }
     
-    /// Returns the width of the space character in points.
-    var spaceCharacterWidth: CGFloat {
-        var glyph = CGGlyph()
-        guard let cgFont = cgFont else { return 0.0 }
-        let fontRef = CTFontCreateWithGraphicsFont(cgFont, pointSize, nil, nil)
-        guard CTFontGetGlyphsForCharacters(fontRef, [0x20], &glyph, 1) else { return 0.0 }
-        var advancement = CGSize.zero
-        CTFontGetAdvancesForGlyphs(fontRef, .horizontal, [glyph], &advancement, 1)
-        return (advancement.width * 100).rounded() / 100
-        return advancement.width
-    }
-
-    /// `CGFont` representation of the font.
-    var cgFont: CGFont? {
-        guard let name = fontDescriptor.name else { return nil }
-        return CGFont(name as CFString)
-    }
-    
     private var descenderReal: CGFloat {
-        let ctFont = cleanedFont as CTFont
-        return -CTFontGetDescent(ctFont)
+        -CTFontGetDescent(cleanedFont)
     }
 
     private var ascenderReal: CGFloat {
-        let ctFont = cleanedFont as CTFont
-        return -CTFontGetAscent(ctFont)
+        -CTFontGetAscent(cleanedFont)
     }
 
     private var leadingReal: CGFloat {
-        let ctFont = cleanedFont as CTFont
-        return -CTFontGetLeading(ctFont)
+        -CTFontGetLeading(cleanedFont)
     }
 
-    private var cleanedFont: NSFont {
+    var cleanedFont: NSFont {
         var attributes = fontDescriptor.fontAttributes
-        var font = self
-        if attributes[.sizeCategory] != nil {
-            attributes[.sizeCategory] = nil
-            if let usageValue = attributes[.uiUsage] as? String {
-                if usageValue == "UICTFontTextStyleHeadline" {
-                    attributes[.uiUsage] = "CTFontDemiUsage"
-                } else if usageValue.contains("UICTFontTextStyle") {
-                    attributes[.uiUsage] = "CTFontRegularUsage"
-                }
+        guard attributes.removeValue(forKey: .sizeCategory) != nil else { return self }
+        if let usageValue = attributes[.uiUsage] as? String {
+            if usageValue == "UICTFontTextStyleHeadline" {
+                attributes[.uiUsage] = "CTFontDemiUsage"
+            } else if usageValue.contains("UICTFontTextStyle") {
+                attributes[.uiUsage] = "CTFontRegularUsage"
             }
-            font = NSFont(descriptor: NSUIFontDescriptor(fontAttributes: attributes), size: pointSize)!
         }
-        return font
+        return NSFont(descriptor: NSUIFontDescriptor(fontAttributes: attributes), size: 0)!
     }
 }
 

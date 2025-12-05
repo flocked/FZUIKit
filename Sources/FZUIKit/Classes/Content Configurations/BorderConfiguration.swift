@@ -370,7 +370,7 @@ extension Shape {
     }
 }
 
-extension CGLineCap: Swift.Codable {
+extension CGLineCap: Swift.Encodable, Swift.Decodable {
     public var shapeLayerLineCap: CAShapeLayerLineCap {
         switch self {
         case .round: return .round
@@ -380,7 +380,7 @@ extension CGLineCap: Swift.Codable {
     }
 }
 
-extension CGLineJoin: Swift.Codable {
+extension CGLineJoin: Swift.Encodable, Swift.Decodable {
     public var shapeLayerLineJoin: CAShapeLayerLineJoin {
         switch self {
         case .round: return .round

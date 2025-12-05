@@ -56,9 +56,9 @@ public extension NSVisualEffectView {
     }
 }
 
-extension NSVisualEffectView.Material: Swift.Codable { }
-extension NSVisualEffectView.State: Swift.Codable { }
-extension NSVisualEffectView.BlendingMode: Swift.Codable { }
+extension NSVisualEffectView.Material: Swift.Encodable, Swift.Decodable { }
+extension NSVisualEffectView.State: Swift.Encodable, Swift.Decodable { }
+extension NSVisualEffectView.BlendingMode: Swift.Encodable, Swift.Decodable { }
 
 extension NSVisualEffectView.State: Swift.CustomStringConvertible {
     public var description: String {
