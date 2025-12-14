@@ -20,7 +20,7 @@ public extension NSUIColor {
      - Returns: The tinted color object.
      */
     func tinted(by amount: CGFloat = 0.2) -> NSUIColor {
-        mixed(withFraction: amount, of: .white, using: .rgb)
+        blended(withFraction: amount, of: .white, using: .srgb)
     }
 
     /**
@@ -29,8 +29,7 @@ public extension NSUIColor {
      - Returns: The shaded color object.
      */
     func shaded(by amount: CGFloat = 0.2) -> NSUIColor {
-        mixed(withFraction: amount, of: .black, using: .rgb)
-
+        blended(withFraction: amount, of: .black, using: .srgb)
     }
 
     /**
@@ -49,8 +48,9 @@ public extension NSUIColor {
     }
     
     fileprivate func _lighter(by amount: CGFloat) -> NSUIColor {
-        let hsla = hslaComponents()
-        return NSUIColor(hsla.lightness(hsla.lightness + amount))
+        var hsla = hsl()
+        hsla.lightness += amount
+        return NSUIColor(hsla)
     }
 
     /**
@@ -78,8 +78,9 @@ public extension NSUIColor {
     }
     
     fileprivate func _saturated(by amount: CGFloat) -> NSUIColor {
-        let hsla = hslaComponents()
-        return NSUIColor(hsla.saturation(hsla.saturation + amount))
+        var hsla = hsl()
+        hsla.saturation += amount
+        return NSUIColor(hsla)
     }
 
     /**
@@ -108,7 +109,7 @@ public extension NSUIColor {
     }
     
     fileprivate func _adjustedHue(amount: CGFloat) -> NSUIColor {
-        var hsla = hslaComponents()
+        var hsla = hsl()
         hsla.hue = hsla.hue + amount.clamped(to: 0...360)
         if hsla.hue > 360 {
             hsla.hue = hsla.hue - 360
@@ -143,7 +144,7 @@ public extension NSUIColor {
     }
     
     fileprivate func _grayscaled(mode: GrayscalingMode) -> NSUIColor {
-        let rgba = rgbaComponents()
+        let rgba = rgb()
         let (r, g, b, a) = (rgba.red, rgba.green, rgba.blue, rgba.alpha)
 
         let l: CGFloat
@@ -167,7 +168,7 @@ public extension NSUIColor {
             #endif
             return NSUIColor(white: white, alpha: alpha)
         }
-        return NSUIColor(hue: 0.0, saturation: 0.0, lightness: l, alpha: a)
+        return NSUIColor(.hsl(hue: 0.0, saturation: 0.0, lightness: l, alpha: a))
     }
 
     /// The mode of grayscaling a color.
@@ -199,7 +200,7 @@ public extension NSUIColor {
     }
     
     fileprivate var _inverted: NSUIColor {
-        var rgba = rgbaComponents()
+        var rgba = rgb()
         rgba.red = 1.0 - rgba.red
         rgba.red = 1.0 - rgba.green
         rgba.red = 1.0 - rgba.blue

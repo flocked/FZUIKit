@@ -78,7 +78,7 @@ public extension NSUIColor {
 
     /// Returns an Integer representing the color in hex format (e.g. `0x112233`)
     var hex: Int {
-        let rgba = rgbaComponents()
+        let rgba = rgb()
         if rgba.alpha == 1.0 {
             return lround(rgba.red * 255.0) << 16 | lround(rgba.green * 255.0) << 8 | lround(rgba.blue * 255.0)
         } else {
@@ -88,7 +88,7 @@ public extension NSUIColor {
 
     /// Returns a hex string representing the color (e.g. `#112233`)
     var hexString: String {
-        if rgbaComponents().alpha == 1.0 {
+        if rgb().alpha == 1.0 {
             return "#" + String(format: "%06x", hex)
         } else {
             return "#" + String(format: "#%08x", hex)

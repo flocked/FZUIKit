@@ -39,10 +39,6 @@ public class GraphicsImageRenderer: GraphicsRenderer {
         return image
     }
     
-    public func imageAlt(actions: (_ context: GraphicsImageRendererContextAlt) -> Void) -> NSImage? {
-        GraphicsImageRendererContextAlt(format: format)?.render(actions)
-    }
-    
     /**
      Creates a JPEG-encoded image from a set of drawing instructions.
      

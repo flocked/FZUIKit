@@ -129,7 +129,7 @@ extension NSProgressIndicator {
             _color = newValue != .controlAccentColor ? newValue : nil
             contentFilters.removeAll(where: { $0.name == "CIHueAdjust" || $0.name == "CIColorClamp" } )
             if style == .spinning {
-                let rgb = newValue.rgbaComponents()
+                let rgb = newValue.rgb()
                 contentFilters += CIFilter(name: "CIColorClamp", parameters: ["inputMinComponents": CIVector(x: rgb.red, y: rgb.green, z: rgb.blue, w: 0.0), "inputMaxComponents": CIVector(x: rgb.red, y: rgb.green, z: rgb.blue, w: 1.0)])
             } else {
                 guard newValue != .controlAccentColor else { return }

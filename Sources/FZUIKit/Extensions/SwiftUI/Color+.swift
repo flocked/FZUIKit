@@ -31,7 +31,11 @@ extension Color {
         - darkColor: The dark color.
      */
     public init(light lightColor: @escaping @autoclosure () -> Color, dark darkColor: @escaping @autoclosure () -> Color) {
-        self.init(NSUIColor(light: lightColor().nsUIColor, dark: darkColor().nsUIColor))
+        #if os(macOS)
+        self.init(nsColor: NSUIColor(light: lightColor().nsUIColor, dark: darkColor().nsUIColor))
+        #else
+        self.init(uiColor: NSUIColor(light: lightColor().nsUIColor, dark: darkColor().nsUIColor))
+        #endif
     }
     
     /// A random color.
@@ -45,37 +49,13 @@ extension Color {
     }
     
     /**
-     Creates a new color from the current mixed with with the specified color and amount.
-     
-     - Parameters:
-        - color: The color to mix.
-        - amount: The amount of the color to mix with the current color.
-        - colorSpace: The color space mode to be used for mixing the two colors.
-
-     - Returns: The new mixed color.
-     */
-    public func mixed(with color: Color, by amount: CGFloat = 0.5, using colorSpace: MixingColorSpace = .rgb) -> Color {
-        nsUIColor.mixed(withFraction: amount, of: color.nsUIColor, using: .init(rawValue: colorSpace.rawValue)!).swiftUI
-    }
-    
-    /// The color for mixing two colors.
-    public enum MixingColorSpace: String, Hashable {
-        /// RGB color space.
-        case rgb
-        /// HSL color space.
-        case hsl
-        /// HSB color space.
-        case hsb
-    }
-    
-    /**
      Tints the color by the specified amount.
      
      - Parameter amount: The amount of tint.
      - Returns: The tinted color object.
      */
     public func tinted(by amount: CGFloat = 0.2) -> Color {
-        mixed(with: .white, by: amount)
+        blended(withFraction: amount, of: .white, using: .srgb)
     }
     
     /**
@@ -85,7 +65,7 @@ extension Color {
      - Returns: The shaded color object.
      */
     public func shaded(by amount: CGFloat = 0.2) -> Color {
-        mixed(with: .black, by: amount)
+        blended(withFraction: amount, of: .black, using: .srgb)
     }
     
     /**
@@ -190,41 +170,6 @@ extension Color {
     /// A Boolean value indicating whether the color is light.
     public var isLight: Bool {
         nsUIColor.isLight
-    }
-    
-    /// Returns a new color with the specified red component (between `0.0` and `1.0`).
-    public func red(_ red: CGFloat) -> Color {
-        nsUIColor.withRed(red).swiftUI
-    }
-    
-    /// Returns a new color with the specified alpha component (between `0.0` and `1.0`).
-    public func green(_ green: CGFloat) -> Color {
-        nsUIColor.withGreen(green).swiftUI
-    }
-    
-    /// Returns a new color with the specified blue component (between `0.0` and `1.0`).
-    public func blue(_ blue: CGFloat) -> Color {
-        nsUIColor.withBlue(blue).swiftUI
-    }
-    
-    /// Returns a new color with the specified lightness value (between `0.0` and `1.0`).
-    public func lightness(_ lightness: CGFloat) -> Color {
-        nsUIColor.withLightness(lightness).swiftUI
-    }
-    
-    /// Returns a new color with the specified brightness value (between `0.0` and `1.0`).
-    public func brightness(_ brightness: CGFloat) -> Color {
-        nsUIColor.withBrightness(brightness).swiftUI
-    }
-    
-    /// Returns a new color with the specified hue value (between `0.0` and `1.0`).
-    public func hue(_ hue: CGFloat) -> Color {
-        nsUIColor.withHue(hue).swiftUI
-    }
-    
-    /// Returns a new color with the specified saturation value (between `0.0` and `1.0`).
-    public func saturation(_ saturation: CGFloat) -> Color {
-        nsUIColor.withSaturation(saturation).swiftUI
     }
 }
 #endif

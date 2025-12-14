@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 06.10.23.
 //
 
+/*
 #if os(macOS)
 import AppKit
 #else
@@ -98,4 +99,5 @@ public extension NSUIColor {
 protocol Interpolatable {
     func interpolated(to: Self, amount: CGFloat) -> Self
 }
+*/
 */

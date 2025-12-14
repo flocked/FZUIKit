@@ -135,22 +135,7 @@ extension GraphicsImageRendererFormat {
             CGBitmapInfo(alpha: opaque ? .noneSkipLast : .premultipliedLast, component: .float, byteOrder: .order32Little) :
             CGBitmapInfo(alpha: opaque ? .noneSkipFirst : .premultipliedFirst, byteOrder: .order32Little)
         }
-        
-        var bitmapFormat: NSBitmapImageRep.Format {
-            var bitmapFormat: NSBitmapImageRep.Format = []
-            bitmapFormat[.alphaFirst] = self == .standard
-            bitmapFormat[.floatingPointSamples] = self == .extended
-            return bitmapFormat
-        }
-        
-        var bitsPerComponent: Int {
-            self == .extended ? 32 : 8
-        }
-        
-        var colorSpace: NSColorSpaceName {
-            self == .extended ? .deviceRGB : .genericRGB
-        }
-        
+
         var cgColorSpace: CGColorSpace {
             self == .extended ? CGColorSpace(name: .extendedSRGB)! : CGColorSpace(name: .sRGB)!
         }

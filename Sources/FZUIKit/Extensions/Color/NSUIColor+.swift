@@ -15,7 +15,7 @@ import FZSwiftUtils
 public extension NSUIColor {
     /// A random color.
     static var random: NSUIColor {
-        NSUIColor(hue: CGFloat.random(in: 0.0 ... 1.0), saturation: 0.6, lightness: 0.5)
+        NSUIColor(.hsl(hue: .random(in: 0 ... 1), saturation: 0.6, lightness: 0.5))
     }
     
     /// A random pastel color.
@@ -78,14 +78,14 @@ public extension NSUIColor {
     
     /// A Boolean value indicating whether the color is light.
     var isLight: Bool {
-        let components = rgbaComponents()
+        let components = rgb()
         let brightness = ((components.red * 299.0) + (components.green * 587.0) + (components.blue * 114.0)) / 1000.0
         return brightness >= 0.5
     }
     
     /// A Boolean value indicating whether the color is visible (`alphaComponent` isn't `0`).
     var isVisible: Bool {
-        alphaComponent > 0.0
+        rgb().alpha > 0.0
     }
     
     #if os(iOS) || os(tvOS)
@@ -139,6 +139,20 @@ public extension NSUIColor {
             colors += [.systemMint, .tintColor, .systemCyan]
         }
         return colors
+    }
+    #endif
+    
+    /// Returns a new color object with the specified alpha value (between `0.0` and `1.0`).
+    @objc func withAlpha(_ alpha: CGFloat) -> NSUIColor {
+        withAlphaComponent(alpha)
+    }
+    
+    #if !os(macOS)
+    /// The alpha value of the color.
+    var alphaComponent: CGFloat {
+        var alpha: CGFloat = 1.0
+        getRed(nil, green: nil, blue: nil, alpha: &alpha)
+        return alpha
     }
     #endif
 }

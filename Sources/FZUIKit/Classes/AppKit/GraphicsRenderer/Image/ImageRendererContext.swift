@@ -15,69 +15,6 @@ import FZSwiftUtils
  When using the ``GraphicsImageRenderer`` drawing methods, you must pass a block which provides a ``GraphicsImageRendererContext`` instance as an argument. Use the context object to access high-level drawing functions and the underlying Core Graphics context.
  */
 public final class GraphicsImageRendererContext: GraphicsRendererContext {
-    private let bitmapRep: NSBitmapImageRep
-
-    /**
-     The format used to create the associated graphics renderer.
-     
-     If you specified a format object when you initialized the current renderer (`NSGraphicsImageRenderer`) object, then this property provides access to that object. Otherwise, a default format object was created for you using the renderer initialization parameters, tuned to the current device.
-     */
-    public let context: NSGraphicsContext
-    
-    /// The drawing configuration of the context.
-    public let format: GraphicsImageRendererFormat
-    
-    /**
-     The current state of the drawing context, expressed as an object that manages image data in your app.
-     
-     Use this property to access the current Core Graphics context as a `NSImage` object while providing drawing instructions for one of the drawing methods in ``GraphicsImageRenderer``.
-     */
-    public var currentImage: NSImage {
-        let image = NSImage(size: format.bounds.size)
-        image.addRepresentation(bitmapRep)
-        return image
-    }
-    
-    func beginRendering() {
-        NSGraphicsContext.saveGraphicsState()
-        NSGraphicsContext.current = context
-        context.saveGraphicsState()
-    }
-    
-    func endRendering() {
-        context.restoreGraphicsState()
-        NSGraphicsContext.restoreGraphicsState()
-    }
-    
-    init?(format: GraphicsImageRendererFormat) {
-        self.format = format
-        let size = format.bounds.size * format.scale
-        let hasAlpha = !format.isOpaque
-        let range = format.preferredRange.resolved
-        let bitmapFormat = range.bitmapFormat
-        guard let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(size.width), pixelsHigh: Int(size.height), bitsPerSample: bitmapFormat.bitsPerSample, samplesPerPixel: hasAlpha ? 4 : 3, hasAlpha: hasAlpha, isPlanar: false, colorSpaceName: range.colorSpace, bitmapFormat: bitmapFormat, bytesPerRow: 0, bitsPerPixel: 0) else { return nil }
-        bitmapRep = rep
-        guard let context = NSGraphicsContext(bitmapImageRep: bitmapRep) else { return nil }
-        
-        self.context = context
-        if format.scale != 1.0 {
-            cgContext.scaleBy(x: format.scale, y: format.scale)
-        }
-        if format.isOpaque {
-            cgContext.fill(.white)
-        }
-        if format.isFlipped {
-            cgContext.flipVertically()
-        }
-    }
-}
-
-/**
- The drawing environment for an image renderer.
- 
- When using the ``GraphicsImageRenderer`` drawing methods, you must pass a block which provides a ``GraphicsImageRendererContext`` instance as an argument. Use the context object to access high-level drawing functions and the underlying Core Graphics context.
- */
-public final class GraphicsImageRendererContextAlt: GraphicsRendererContext {
     /**
      The format used to create the associated graphics renderer.
      
@@ -101,7 +38,7 @@ public final class GraphicsImageRendererContextAlt: GraphicsRendererContext {
         return image
     }
     
-    func render(_ actions: (_ context: GraphicsImageRendererContextAlt) -> Void) -> NSImage? {
+    func render(_ actions: (_ context: GraphicsImageRendererContext) -> Void) -> NSImage? {
         var image: NSImage?
         beginRendering()
         actions(self)
