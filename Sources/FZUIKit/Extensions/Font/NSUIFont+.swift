@@ -507,7 +507,7 @@ extension NSUIFont {
     
     /// Returns the list of typographic features supported by the font.
     public var features: [Feature] {
-        (CTFontCopyFeatures(self)?.nsArray as? [[String: Any]] ?? []).compactMap({ $0.toModel( NSUIFont.Feature.self ) })
+        (CTFontCopyFeatures(self)?.nsArray as? [[String: Any]] ?? []).compactMap({ try? $0.decode(as: NSUIFont.Feature.self ) })
     }
     
     /// A typographic feature supported by a font, representing a group of related selectors that control a specific stylistic or OpenType behavior.

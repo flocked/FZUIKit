@@ -65,25 +65,25 @@ extension NSUIColor {
     }
 
     #if os(iOS) || os(tvOS) || os(watchOS)
-        /// The red component of the color.
-        var redComponent: CGFloat {
-            rgbaComponents().red
-        }
+    /// The red component of the color.
+    var redComponent: CGFloat {
+        rgbaComponents().red
+    }
 
-        /// The green component of the color.
-        var greenComponent: CGFloat {
-            rgbaComponents().green
-        }
+    /// The green component of the color.
+    var greenComponent: CGFloat {
+        rgbaComponents().green
+    }
 
-        /// The blue component of the color.
-        var blueComponent: CGFloat {
-            rgbaComponents().blue
-        }
+    /// The blue component of the color.
+    var blueComponent: CGFloat {
+        rgbaComponents().blue
+    }
 
-        /// The alpha component of the color.
-        var alphaComponent: CGFloat {
-            rgbaComponents().alpha
-        }
+    /// The alpha component of the color.
+    var alphaComponent: CGFloat {
+        rgbaComponents().alpha
+    }
     #endif
 
     /// Returns a new color object with the specified red component (between `0.0` and `1.0`).
@@ -127,12 +127,10 @@ extension NSUIColor {
 
 /// The RGBA (red, green, blue, alpha) components of a color.
 public struct RGBAComponents: Codable, Hashable {
-    /// The red component of the color (between `0.0` to `1.0`).
-    public var red: CGFloat {
-        didSet { red = red.clamped(to: 0.0...1.0) }
-    }
+    /// The red component of the color.
+    public var red: CGFloat
     
-    /// Sets the red component of the color (between `0.0` to `1.0`).
+    /// Sets the red component of the color.
     @discardableResult
     public func red(_ red: CGFloat) -> Self {
         var components = self
@@ -140,12 +138,10 @@ public struct RGBAComponents: Codable, Hashable {
         return components
     }
 
-    /// The green component of the color (between `0.0` to `1.0`).
-    public var green: CGFloat {
-        didSet { green = green.clamped(to: 0.0...1.0) }
-    }
+    /// The green component of the color.
+    public var green: CGFloat
     
-    /// Sets the green component of the color (between `0.0` to `1.0`).
+    /// Sets the green component of the color.
     @discardableResult
     public func green(_ green: CGFloat) -> Self {
         var components = self
@@ -153,12 +149,10 @@ public struct RGBAComponents: Codable, Hashable {
         return components
     }
 
-    /// The blue component of the color (between `0.0` to `1.0`).
-    public var blue: CGFloat {
-        didSet { blue = blue.clamped(to: 0.0...1.0) }
-    }
+    /// The blue component of the color.
+    public var blue: CGFloat
     
-    /// Sets the blue component of the color (between `0.0` to `1.0`).
+    /// Sets the blue component of the color.
     @discardableResult
     public func blue(_ blue: CGFloat) -> Self {
         var components = self
@@ -181,8 +175,8 @@ public struct RGBAComponents: Codable, Hashable {
     
     /// The linear red component.
     public var linearRed: CGFloat {
-        get { srgbToLinear(red) }
-        set { red = linearToSRGB(newValue) }
+        get { Self.srgbToLinear(red) }
+        set { red = Self.linearToSRGB(newValue) }
     }
     
     /// Sets the linear red component.
@@ -194,8 +188,8 @@ public struct RGBAComponents: Codable, Hashable {
     
     /// The linear green component.
     public var linearGreen: CGFloat {
-        get { srgbToLinear(green) }
-        set { green = linearToSRGB(newValue) }
+        get { Self.srgbToLinear(green) }
+        set { green = Self.linearToSRGB(newValue) }
     }
     
     /// Sets the linear green component.
@@ -207,8 +201,8 @@ public struct RGBAComponents: Codable, Hashable {
     
     /// The linear blue component.
     public var linearBlue: CGFloat {
-        get { srgbToLinear(blue) }
-        set { blue = linearToSRGB(newValue) }
+        get { Self.srgbToLinear(blue) }
+        set { blue = Self.linearToSRGB(newValue) }
     }
     
     /// Sets the linear blue component.
@@ -219,12 +213,12 @@ public struct RGBAComponents: Codable, Hashable {
     }
     
     @inline(__always)
-    private func srgbToLinear(_ c: CGFloat) -> CGFloat {
+    private static func srgbToLinear(_ c: CGFloat) -> CGFloat {
         c <= 0.04045 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4)
     }
     
     @inline(__always)
-    private func linearToSRGB(_ c: CGFloat) -> CGFloat {
+    private static func linearToSRGB(_ c: CGFloat) -> CGFloat {
         c <= 0.0031308 ? 12.92 * c : 1.055 * pow(c, 1.0 / 2.4) - 0.055
     }
     
@@ -253,62 +247,68 @@ public struct RGBAComponents: Codable, Hashable {
         return Self(red + (components.red - red) * fraction, green + (components.green - green) * fraction, blue + (components.blue - blue) * fraction, alpha + (components.alpha - alpha) * fraction)
     }
     
-    /**
-     Creates RGBA components with the specified red, green, blue and alpha components.
-     
-     - Parameters:
-        - red: The red component of the color (between `0.0` to `1.0`).
-        - green: The green component of the color (between `0.0` to `1.0`).
-        - blue: The blue component of the color (between `0.0` to `1.0`).
-        - alpha: The alpha value of the color (between `0.0` to `1.0`).
-     */
-    public init(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
-        self.red = red.clamped(to: 0.0...1.0)
-        self.green = green.clamped(to: 0.0...1.0)
-        self.blue = blue.clamped(to: 0.0...1.0)
+    /// Creates the RGBA components with the specified red, green, blue and alpha components.
+    public init(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat = 1.0) {
+        self.red = red
+        self.green = green
+        self.blue = blue
+        self.alpha = alpha
+    }
+    
+    init(linearRed red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat = 1.0) {
+        self.red = Self.linearToSRGB(red)
+        self.green = Self.linearToSRGB(green)
+        self.blue = Self.linearToSRGB(blue)
         self.alpha = alpha.clamped(to: 0.0...1.0)
     }
 
     init(_ red: CGFloat, _ green: CGFloat, _ blue: CGFloat, _ alpha: CGFloat) {
-        self.red = red.clamped(to: 0.0...1.0)
-        self.green = green.clamped(to: 0.0...1.0)
-        self.blue = blue.clamped(to: 0.0...1.0)
-        self.alpha = alpha.clamped(to: 0.0...1.0)
+        self.init(red: red, green: green, blue: blue, alpha: alpha)
+    }
+
+    /// The components as OKLAB.
+    public func oklab() -> OKLabComponents {
+        let lR = linearRed
+        let lG = linearGreen
+        let lB = linearBlue
+        let Lc = cbrt(0.4122214708*lR + 0.5363325363*lG + 0.0514459929*lB)
+        let Mc = cbrt(0.2119034982*lR + 0.6806995451*lG + 0.1073969566*lB)
+        let Sc = cbrt(0.0883024619*lR + 0.2817188376*lG + 0.6299787005*lB)
+        let outL = 0.2104542553*Lc + 0.7936177850*Mc - 0.0040720468*Sc
+        let outA = 1.9779984951*Lc - 2.4285922050*Mc + 0.4505937099*Sc
+        let outB = 0.0259040371*Lc + 0.7827717662*Mc - 0.8086757660*Sc
+        return .init(outL, outA, outB, alpha)
     }
     
-    func hsla() -> HSLAComponents {
+    /// The components as OKLCH.
+    public func oklch() -> OKLCHComponents {
+        oklab().oklch()
+    }
+    
+    /// The components as HSLA.
+    public func hsla() -> HSLAComponents {
         hsba().hsla()
     }
     
-    func hsba() -> HSBAComponents {
-          let maxV = max(red, max(green, blue))
-          let minV = min(red, min(green, blue))
-          let delta = maxV - minV
+    /// The components as HSBA.
+    public func hsba() -> HSBAComponents {
+        let maxV = max(red, max(green, blue))
+        let minV = min(red, min(green, blue))
+        let delta = maxV - minV
 
-          // Brightness
-          let brightness = maxV
+        var hue = 0.0
+        let saturation = (maxV == 0) ? 0 : delta / maxV
+        let brightness = maxV
 
-          // Saturation
-          let saturation = maxV == 0 ? 0 : delta / maxV
-
-          // Hue
-          var hue: CGFloat = 0
-
-          if delta != 0 {
-              if maxV == red {
-                  hue = (green - blue) / delta
-              } else if maxV == green {
-                  hue = 2 + (blue - red) / delta
-              } else {
-                  hue = 4 + (red - green) / delta
-              }
-
-              hue /= 6
-              if hue < 0 { hue += 1 }
-          }
-
+        if delta != 0 {
+            if maxV == red { hue = ((green - blue) / delta).truncatingRemainder(dividingBy: 6) }
+            else if maxV == green { hue = (blue - red) / delta + 2 }
+            else { hue = (red - green) / delta + 4 }
+            hue /= 6
+            if hue < 0 { hue += 1 }
+        }
         return .init(hue, saturation, brightness, alpha)
-      }
+    }
 }
 
 public extension NSUIColor {
@@ -328,28 +328,16 @@ public extension Color {
 public extension CGColor {
     /// Returns the RGBA (red, green, blue, alpha) components of the color.
     func rgbaComponents() -> RGBAComponents? {
-        if let rgbaComponents = nsUIColor?.rgbaComponents() {
-            return rgbaComponents
-        }
         var color = self
         if color.colorSpace?.model != .rgb, #available(iOS 9.0, macOS 10.11, tvOS 9.0, watchOS 2.0, *) {
             color = color.converted(to: .deviceRGB) ?? color.converted(to: .genericRGB) ?? color
         }
         guard color.colorSpace?.model == .rgb, let components = color.components else { return nil }
         switch components.count {
-        case 2:
-            return RGBAComponents(components[0], components[0], components[0], components[1])
-        case 3:
-            return RGBAComponents(components[0], components[1], components[2], 1.0)
-        case 4:
-            return RGBAComponents(components[0], components[1], components[2], components[3])
-        default:
-            #if os(macOS) || os(iOS) || os(tvOS)
-            let ciColor = CIColor(cgColor: color)
-            return RGBAComponents(ciColor.red, ciColor.green, ciColor.blue, ciColor.alpha)
-            #else
-            return nil
-            #endif
+        case 2: return .init(components[0], components[0], components[0], components[1])
+        case 3: return .init(components[0], components[1], components[2], 1.0)
+        case 4: return .init(components[0], components[1], components[2], components[3])
+        default: return nil
         }
     }
 }
@@ -357,10 +345,6 @@ public extension CGColor {
 public extension CFType where Self == CGColor {
     /// Creates a color using the RGBA components.
     init(_ rgbaComponents: RGBAComponents) {
-        self.init(red: rgbaComponents.red, green: rgbaComponents.green, blue: rgbaComponents.blue, alpha: rgbaComponents.alpha)
+        self.init(colorSpace: .extendedSRGB, components: [rgbaComponents.red, rgbaComponents.green, rgbaComponents.blue, rgbaComponents.alpha])!
     }
-}
-
-extension RGBAComponents {
-
 }

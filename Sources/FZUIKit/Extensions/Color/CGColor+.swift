@@ -230,4 +230,17 @@ public extension CFType where Self == CGColor {
         guard let color = Self(colorSpace: colorSpace, components: components) else { return nil }
         self = color
     }
+    
+    /**
+     Creates a color in the extended sRGB color space.
+     
+     - Parameters:
+        - red: The red component value.
+        - green: The green component value.
+        - blue: The blue component value.
+        - alpha: The alpha value (between `0.0` - `1.0`).
+     */
+    init(extendedSRGBRed red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
+        self.init(colorSpace: .extendedSRGB, components: [red, green, blue, alpha])!
+    }
 }

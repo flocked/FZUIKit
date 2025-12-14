@@ -87,7 +87,7 @@ extension CGContext {
         translateBy(x: 0, y: CGFloat(height))
         scaleBy(x: 1, y: -1)
     }
-    
+        
     /// Flips the entire drawable area of the context horizontally.
     public func flipHorizontally() {
         translateBy(x: CGFloat(width), y: 0)
@@ -211,7 +211,15 @@ public extension CFType where Self == CGContext {
      - Returns: A new `CGContext` if creation succeeds, otherwise `nil`.
      */
     init?(data: UnsafeMutableRawPointer? = nil, size: CGSize, bitsPerComponent: Int = 8, bytesPerRow: Int = 0, space: CGColorSpaceName, hasAlpha: Bool = true) {
+        CGBitmapInfo(alpha: .noneSkipLast, byteOrder: .order32Big)
+        CGBitmapInfo(alpha: .premultipliedLast, byteOrder: .order32Big)
         guard let context = CGContext(data: data, width: Int(size.width), height: Int(size.height), bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: CGColorSpace(name: space) ?? .deviceRGB, bitmapInfo: hasAlpha ? .rgba : .rgb) else { return nil }
+        self = context
+    }
+    
+    init?(size: CGSize, bitmapInfo: CGBitmapInfo, space: CGColorSpaceName) {
+        guard let space = CGColorSpace(name: space) else { return nil }
+        guard let context = CGContext(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: bitmapInfo.bitsPerComponent, bytesPerRow: 0, space: space, bitmapInfo: bitmapInfo) else { return nil }
         self = context
     }
 }

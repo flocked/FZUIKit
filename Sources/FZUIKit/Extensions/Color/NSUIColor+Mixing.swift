@@ -93,3 +93,9 @@ public extension NSUIColor {
         return target - source
     }
 }
+
+/*
+protocol Interpolatable {
+    func interpolated(to: Self, amount: CGFloat) -> Self
+}
+*/

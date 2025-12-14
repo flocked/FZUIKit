@@ -75,8 +75,7 @@ public final class GraphicsImageRendererFormat: GraphicsRendererFormat {
     /// Creates the most suitable format for rendering on the specified screen.
     public init(for screen: NSScreen) {
         scale = screen.backingScaleFactor
-        guard let colorSpace = screen.colorSpace else { return }
-        preferredRange = colorSpace.displayP3Capable ? .extended : .standard
+        preferredRange = screen.colorSpace?.isExtended ?? false ? .extended : .standard
     }
     
     /**
@@ -85,9 +84,9 @@ public final class GraphicsImageRendererFormat: GraphicsRendererFormat {
      It uses the most suitable format based on the window's screen, otherwise of the [main](https://developer.apple.com/documentation/appkit/nsscreen/main) screen.
      */
     public init(for window: NSWindow) {
-        let screen = window.screen ?? NSScreen.main
-        scale = screen?.backingScaleFactor ?? 1.0
-        preferredRange = (screen?.colorSpace?.displayP3Capable ?? false) ? .extended : .standard
+        let colorSpace = window.colorSpace ?? (window.screen ?? NSScreen.main)?.colorSpace
+        scale = window.backingScaleFactor
+        preferredRange = colorSpace?.isExtended ?? false ? .extended : .standard
     }
     
     /**
@@ -96,15 +95,15 @@ public final class GraphicsImageRendererFormat: GraphicsRendererFormat {
      It uses the most suitable format based on the view's screen, otherwise of the [main](https://developer.apple.com/documentation/appkit/nsscreen/main) screen.
      */
     public init(for view: NSView) {
-        let screen = view.window?.screen ?? NSScreen.main
-        scale = screen?.backingScaleFactor ?? 1.0
-        preferredRange = (screen?.colorSpace?.displayP3Capable ?? false) ? .extended : .standard
+        let colorSpace = view.window?.colorSpace ?? (NSScreen.main ?? NSScreen.screens.first)?.colorSpace
+        scale = view.window?.backingScaleFactor ?? (NSScreen.main ?? NSScreen.screens.first)?.backingScaleFactor ?? 1.0
+        preferredRange = colorSpace?.isExtended ?? false ? .extended : .standard
     }
 
     /// Returns the most suitable format for the main screen’s current configuration.
     public static func preferred() -> GraphicsImageRendererFormat {
-        let screen = NSScreen.main ?? NSScreen.screens.first
-        return GraphicsImageRendererFormat(for: screen!)
+        guard let screen = NSScreen.main ?? NSScreen.screens.first else { return .init() }
+        return GraphicsImageRendererFormat(for: screen)
     }
     
     /**
@@ -116,7 +115,6 @@ public final class GraphicsImageRendererFormat: GraphicsRendererFormat {
      */
     public static func `default`() -> GraphicsImageRendererFormat {
         let format = GraphicsImageRendererFormat.preferred()
-        format.isOpaque = false
         format.preferredRange = .extended
         return format
     }
@@ -126,35 +124,50 @@ extension GraphicsImageRendererFormat {
     /// Constants that specify the color range of the image renderer context.
     public enum Range: Int {
         /// The system automatically chooses the image renderer context’s pixel format according to the color range of its content.
-        case automatic = 0
+        case automatic
         /// The image renderer context supports wide color.
         case extended
         /// The image renderer context doesn’t support extended colors.
         case standard
         
+        func bitmapInfo(opaque: Bool) -> CGBitmapInfo {
+            self == .extended ?
+            CGBitmapInfo(alpha: opaque ? .noneSkipLast : .premultipliedLast, component: .float, byteOrder: .order32Little) :
+            CGBitmapInfo(alpha: opaque ? .noneSkipFirst : .premultipliedFirst, byteOrder: .order32Little)
+        }
+        
+        var bitmapFormat: NSBitmapImageRep.Format {
+            var bitmapFormat: NSBitmapImageRep.Format = []
+            bitmapFormat[.alphaFirst] = self == .standard
+            bitmapFormat[.floatingPointSamples] = self == .extended
+            return bitmapFormat
+        }
+        
+        var bitsPerComponent: Int {
+            self == .extended ? 32 : 8
+        }
+        
         var colorSpace: NSColorSpaceName {
-            switch self {
-            case .automatic:
-                if let screenColorSpace = (NSScreen.main ?? NSScreen.screens.first)?.colorSpace,
-                   screenColorSpace.colorSpaceModel == .rgb,
-                   screenColorSpace.displayP3Capable {
-                    return .deviceRGB
-                } else {
-                    return .genericRGB
-                }
-            case .extended:
-                return .deviceRGB
-            case .standard:
-                return .genericRGB
+            self == .extended ? .deviceRGB : .genericRGB
+        }
+        
+        var cgColorSpace: CGColorSpace {
+            self == .extended ? CGColorSpace(name: .extendedSRGB)! : CGColorSpace(name: .sRGB)!
+        }
+        
+        var resolved: Range {
+            guard self == .automatic else { return self }
+            if (NSScreen.main ?? NSScreen.screens.first)?.colorSpace?.isExtended == true {
+                return .extended
             }
+            return .standard
         }
     }
 }
 
 private extension NSColorSpace {
-    var displayP3Capable: Bool {
-        guard let cgSpace = self.cgColorSpace else { return false }
-        return cgSpace.name == CGColorSpace.displayP3 as CFString
+    var isExtended: Bool {
+        isHDR || usesExtendedRange
     }
 }
 

@@ -58,26 +58,11 @@ public extension NSColor {
      
      - Parameter appearance: The appearance of the resolved color.
      */
-    func resolvedColor(for appearance: NSAppearance? = nil) -> NSColor {
-        resolvedColor(for: appearance, colorSpace: nil) ?? self
-    }
-    
-    /**
-     Generates the resolved color for the specified appearance and color space. If color space is `nil`, the color resolves to the first compatible color space.
-     
-     - Parameters:
-        - appearance: The appearance of the resolved color.
-        - colorSpace: The color space of the resolved color. If `nil`, the first compatible color space is used.
-     - Returns: A color for the appearance and color space.
-     */
-    func resolvedColor(for appearance: NSAppearance? = nil, colorSpace: NSColorSpace?) -> NSColor? {
-        guard type == .catalog else { return nil }
-        if let colorSpace = colorSpace {
-            return (appearance ?? .current()).performAsCurrentDrawingAppearance {
-                usingColorSpace(colorSpace)
-            }
+    func resolvedColor(for appearance: NSAppearance = .currentDrawing()) -> NSColor {
+        guard type == .catalog else { return self }
+        return appearance.performAsCurrentDrawingAppearance {
+            NSColor(cgColor: cgColor) ?? self
         }
-        return Self.supportedColorSpaces.lazy.compactMap({ self.resolvedColor(for: appearance, colorSpace: $0) }).first
     }
     
     /**
@@ -95,19 +80,20 @@ public extension NSColor {
     /// Creates a new color object with a supported color space.
     func withSupportedColorSpace() -> NSColor? {
         guard type == .componentBased || type == .catalog else { return nil }
-        guard !Self.supportedColorSpaces.contains(colorSpace) else { return self }
+        guard safeColorSpace?.colorSpaceModel != .rgb else { return self }
+        // guard !Self.supportedColorSpaces.contains(colorSpace) else { return self }
         return Self.supportedColorSpaces.lazy.compactMap({ self.usingColorSpace($0) }).first
     }
     
     /**
      Creates a new color object representing the color of the current color object in the specified color space.
      
+     If the receiver’s color space is the same as the specified, this method returns the same color.
+
      - Parameters:
         - space: The color space of the new `NSColor` object.
         - includeVariation: A Boolean value indicating whether to include both variations of a dynamic color (e.g. a color that has a light and dark appearance).
      - Returns: The new `NSColor` object. This method converts the receiver’s color to an equivalent one in the new color space. Although the new color might have different component values, it looks the same as the original. Returns `nil` if conversion is not possible.
-     
-     If the receiver’s color space is the same as that specified in space, this method returns the same `NSColor` object.
      */
     func usingColorSpace(_ space: NSColorSpace, includeVariation: Bool) -> NSColor? {
         guard includeVariation else { return usingColorSpace(space) }
@@ -128,6 +114,13 @@ public extension NSColor {
     /// A Boolean value indicating whether the color has a color space. Accessing `colorSpace` directly crashes if a color doesn't have a color space. Therefore it's recommended to use this property prior.
     var hasColorSpace: Bool {
         type == .componentBased && !String(describing: self).contains("customDynamic")
+    }
+    
+    /// The color space associated with the color.
+    var safeColorSpace: NSColorSpace? {
+        try? NSObject.catchException {
+            colorSpace
+        }
     }
     
     /// The name of the color.

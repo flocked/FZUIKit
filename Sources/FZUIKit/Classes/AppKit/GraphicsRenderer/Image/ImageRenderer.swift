@@ -39,6 +39,10 @@ public class GraphicsImageRenderer: GraphicsRenderer {
         return image
     }
     
+    public func imageAlt(actions: (_ context: GraphicsImageRendererContextAlt) -> Void) -> NSImage? {
+        GraphicsImageRendererContextAlt(format: format)?.render(actions)
+    }
+    
     /**
      Creates a JPEG-encoded image from a set of drawing instructions.
      
@@ -84,7 +88,7 @@ public class GraphicsImageRenderer: GraphicsRenderer {
         - actions: A block that, when invoked by the renderer, executes a set of drawing instructions to create the output image.
      - Returns: A `Data` object representing a TIFF-encoded representation of the image created by the supplied drawing actions, or `nil` if the image couldn't be rendered.
      */
-    public func tiffData(withCompression compression: NSBitmapImageRep.TIFFCompression = .none,  actions: (_ context: GraphicsImageRendererContext) -> Void) -> Data? {
+    public func tiffData(withCompression compression: NSBitmapImageRep.TIFFCompression = .none, actions: (_ context: GraphicsImageRendererContext) -> Void) -> Data? {
         image(actions: actions)?.tiffRepresentation(using: compression, factor: 1.0)
     }
     

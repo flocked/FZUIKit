@@ -52,6 +52,11 @@ extension NSColorSpace {
         cgColorSpace?.usesExtendedRange ?? false
     }
     
+    /// A Boolean value indicating whether the color space is HDR.
+    public var isHDR: Bool {
+        cgColorSpace?.isHDR() ?? false
+    }
+    
     /// A Boolean value indicating whether the color space is linear.
     public var isLinear: Bool {
         cgColorSpace?.isLinear ?? false

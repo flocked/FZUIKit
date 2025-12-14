@@ -201,36 +201,73 @@ extension CGImage {
         case abgr
                 
         func toBitmapInfo(premultiplyAlpha: Bool) -> CGBitmapInfo {
-            let alphaFirst = premultiplyAlpha ? CGImageAlphaInfo.premultipliedFirst : .first
-            let alphaLast = premultiplyAlpha ? CGImageAlphaInfo.premultipliedLast : .last
-            let byteOrder: CGBitmapInfo = self == .argb || self == .rgba ? .byteOrder32Big : .byteOrder32Little
-            let alphaInfo: CGImageAlphaInfo = self == .argb || self == .bgra ? alphaFirst : alphaLast
-            return CGBitmapInfo(rawValue: byteOrder.rawValue | alphaInfo.rawValue)
+            CGBitmapInfo(alpha: self == .argb || self == .bgra ? (premultiplyAlpha ? .premultipliedFirst : .first) : (premultiplyAlpha ? .premultipliedLast : .last), byteOrder: self == .argb || self == .rgba ?  .order32Big : .order32Little)
         }
     }
 }
 
 extension CGImage {
-    /// The color at the specified pixel location.
-    func color(at point: CGPoint) -> CGColor? {
+    /// The RGBA components at the specified pixel location.
+    func rgbaComponents(at point: CGPoint) -> RGBAComponents? {
+        guard let pixelData = dataProvider?.data, let data = pixelData.bytes() else {
+            return nil
+        }
+        let layout = bitmapInfo.pixelByteOrder
         let x = Int(point.x)
         let y = Int(point.y)
-
-        guard x >= 0, x < width, y >= 0, y < height, let providerData = dataProvider?.data, let data = providerData.bytesPointer() else { return nil }
-
-        let offset = y * bytesPerRow + x * (bitsPerPixel / 8)
-        guard offset + 3 < providerData.count else { return nil }
-        
-        let b0 = CGFloat(data[offset]) / 255.0
-        let b1 = CGFloat(data[offset + 1]) / 255.0
-        let b2 = CGFloat(data[offset + 2]) / 255.0
-        let b3 = CGFloat(data[offset + 3]) / 255.0
-        
-        if bitmapInfo.intersection(.byteOrderMask) == .byteOrder32Little {
-            return CGColor(red: b2, green: b1, blue: b0, alpha: b3)
-        } else {
-            return CGColor(red: b0, green: b1, blue: b2, alpha: b3)
+        let index = width * y + x
+        let numBytes = pixelData.count
+        let numComponents = layout.count
+        if numBytes != width * height * numComponents {
+            return nil
         }
+        switch numComponents {
+        case 1:
+            return .init(red: 0, green: 0, blue: 0, alpha: CGFloat(data[index])/255.0)
+        case 3:
+            let c0 = CGFloat((data[3*index])) / 255
+            let c1 = CGFloat((data[3*index+1])) / 255
+            let c2 = CGFloat((data[3*index+2])) / 255
+            if layout == .bgr {
+                return .init(red: c2, green: c1, blue: c0, alpha: 1.0)
+            }
+            return .init(red: c0, green: c1, blue: c2, alpha: 1.0)
+        case 4:
+            let c0 = CGFloat((data[4*index])) / 255
+            let c1 = CGFloat((data[4*index+1])) / 255
+            let c2 = CGFloat((data[4*index+2])) / 255
+            let c3 = CGFloat((data[4*index+3])) / 255
+            var r: CGFloat = 0
+            var g: CGFloat = 0
+            var b: CGFloat = 0
+            var a: CGFloat = 0
+            switch layout {
+            case .abgr:
+                a = c0; b = c1; g = c2; r = c3
+            case .argb:
+                a = c0; r = c1; g = c2; b = c3
+            case .bgra:
+                b = c0; g = c1; r = c2; a = c3
+            case .rgba:
+                r = c0; g = c1; b = c2; a = c3
+            default:
+                break
+            }
+            if bitmapInfo.isAlphaPremultiplied && a > 0 {
+                r = r / a
+                g = g / a
+                b = b / a
+            }
+            return .init(red: r, green: g, blue: b, alpha: a)
+        default:
+            return nil
+        }
+    }
+    
+    /// The color at the specified pixel location.
+    func color(at point: CGPoint) -> CGColor? {
+        guard let rgba = rgbaComponents(at: point) else { return nil }
+        return .init(red: rgba.red, green: rgba.green, blue: rgba.blue, alpha: rgba.alpha)
     }
 }
 

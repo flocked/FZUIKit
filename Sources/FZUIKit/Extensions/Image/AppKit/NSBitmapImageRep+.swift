@@ -11,8 +11,15 @@ import FZSwiftUtils
 import AppKit
 
 public extension NSBitmapImageRep {
-    /// A data object that contains the representation in JPEG format.
-    func pngData() -> Data? { representation(using: .png, properties: [:]) }
+    /**
+     A data object that contains the representation in PNG format.
+     
+     - Parameter interlaced: A Boolean value that indicates whether the image is interlaced.
+     */
+    func pngData(interlaced: Bool = false) -> Data? {
+        self[.interlaced] = interlaced ? true : nil
+        return representation(using: .png, properties: interlaced ? [.interlaced:true] : [:])
+    }
     
     /**
      A data object that contains the representation in tiff format.
@@ -26,15 +33,30 @@ public extension NSBitmapImageRep {
     /**
      A data object that contains the representation in JPEG format with the specified compression factor.
      
-     - Parameter compressionFactor: The compression factor between `0.0` and `1.0`, with `1.0` resulting in no compression and `0.0` resulting in the maximum compression possible.
+     - Parameters:
+        - compressionFactor: The compression factor between `0.0` and `1.0`, with `1.0` resulting in no compression and `0.0` resulting in the maximum compression possible.
+        - progressive: A Boolean value indicating whether the image uses progressive encoding.
+        - fallbackBackgroundColor: The background color to use when the image has an alpha channel.
      */
-    func jpegData(compressionFactor: Double = 1.0) -> Data? {
+    func jpegData(compressionFactor: Double = 1.0, progressive: Bool = false, fallbackBackgroundColor: NSColor = .white) -> Data? {
         let factor = compressionFactor.clamped(to: 0...1)
-        return representation(using: .jpeg, properties: factor == 1.0 ? [:] : [.compressionFactor: factor])
+        self[.fallbackBackgroundColor] = fallbackBackgroundColor
+        self[.progressive] = progressive ? true : nil
+        return representation(using: .jpeg, properties: factor == 1.0 ? [:] : [.compressionFactor: factor, .fallbackBackgroundColor: fallbackBackgroundColor, .progressive: progressive])
     }
     
     /// A data object that contains the representation in BMP format.
     func bmpData() -> Data? {  representation(using: .bmp, properties: [:]) }
+    
+    /**
+     A data object that contains the representation in GIF format.
+     
+     - Parameter ditherTransparency: A Boolean that indicates whether the image is dithered.
+     */
+    func gifData(ditherTransparency: Bool = false) -> Data? {
+        self[.ditherTransparency] = ditherTransparency ? true : nil
+        return representation(using: .bmp, properties: ditherTransparency ? [.ditherTransparency:true] : [:])
+    }
     
     /// The property for the specified property key.
     subscript<V>(propertyKey: PropertyKey) -> V? {
@@ -51,6 +73,10 @@ public extension NSBitmapImageRep {
           }
     }
     
+    func color(at location: CGPoint) -> NSColor? {
+        colorAt(x: Int(location.x), y: Int(location.y))
+    }
+    
     /// The compression mode.
     var compressionMode: TIFFCompression {
         get { self[.compressionMethod] ?? .none }
@@ -59,6 +85,11 @@ public extension NSBitmapImageRep {
     /// The compression factor.
     var compressionFactor: Double? {
         get { self[.compressionFactor] }
+    }
+    
+    /// A Boolean indicating whether the image uses progressive encoding (used only for JPEG files).
+    var progressive: Bool {
+        self[.progressive] ?? false
     }
     
     /**
@@ -179,9 +210,7 @@ public extension NSBitmapImageRep {
                 } else {
                     original(object, sel, property, value)
                 }
-            } as @convention(block) (
-                (NSBitmapImageRep, Selector, NSBitmapImageRep.PropertyKey, Any?) -> Void,
-                NSBitmapImageRep, Selector, NSBitmapImageRep.PropertyKey, Any?) -> Void)
+            } as @convention(block) ((NSBitmapImageRep, Selector, NSBitmapImageRep.PropertyKey, Any?) -> Void, NSBitmapImageRep, Selector, NSBitmapImageRep.PropertyKey, Any?) -> Void)
             currentFrame = 0
             _currentFrameDuration = currentFrameDuration
             currentFrame = _currentFrame
@@ -195,16 +224,41 @@ public extension NSBitmapImageRep {
         set { setAssociatedValue(newValue, key: "currentFrameDuration") }
     }
     
-    private var imageSource: ImageSource? {
-        guard String(describing: value(forKeySafely: "_tiffData")) != "nil" else { return nil }
-        return ImageSource(value(forKey: "_tiffData") as! CGImageSource)
+    /// Returns the image source for the bitmap image representation.
+    var imageSource: ImageSource? {
+        guard let cgImageSource = cgImageSource else { return nil }
+        return ImageSource(cgImageSource)
+    }
+    
+    private var cgImageSource: CGImageSource? {
+        value(forKey: "_tiffData")
+    }
+    
+    /// Returns all available compression types that can be used when writing a TIFF image.
+    public static var tiffCompressionTypes: [TIFFCompression] {
+        var rawList: UnsafePointer<TIFFCompression>? = nil
+        var count: Int = 0
+        withUnsafeMutablePointer(to: &rawList) { listPtr in
+            withUnsafeMutablePointer(to: &count) { countPtr in
+                getTIFFCompressionTypes(listPtr, count: countPtr)
+            }
+        }
+        guard let list = rawList else { return [] }
+        return Array(UnsafeBufferPointer(start: list, count: count))
     }
 }
 
 extension NSBitmapImageRep.TIFFCompression {
-    /// Localized name of the compression type.
+    /// The localized name of the compression type.
     var localizedName: String? {
         NSBitmapImageRep.localizedName(forTIFFCompressionType: self)
+    }
+}
+
+extension NSBitmapImageRep.Format {
+    /// Returns the number of bits per sample for creating a `NSBitmapImageRep` based on this format.
+    var bitsPerSample: Int {
+        self.contains(.floatingPointSamples) ? 32 : 8
     }
 }
 

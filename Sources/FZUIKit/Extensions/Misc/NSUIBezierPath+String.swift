@@ -110,7 +110,7 @@ public extension CFType where Self == CGPath {
                 }
             }
         }
-        self = (letters.copy() ?? letters) as! Self
+        self = (letters.copy() ?? letters) 
     }
 }
 

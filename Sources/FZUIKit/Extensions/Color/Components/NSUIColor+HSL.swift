@@ -159,10 +159,7 @@ public struct HSLAComponents: Hashable {
     }
 
     init(_ hue: CGFloat, _ saturation: CGFloat, _ lightness: CGFloat, _ alpha: CGFloat) {
-        self.hue = hue.fractionalRemainder(dividingBy: 360.0)
-        self.saturation = saturation.clamped(to: 0.0...1.0)
-        self.lightness = lightness.clamped(to: 0.0...1.0)
-        self.alpha = alpha.clamped(to: 0.0...1.0)
+        self.init(hue: hue, saturation: saturation, lightness: lightness, alpha: alpha)
     }
 
     /**

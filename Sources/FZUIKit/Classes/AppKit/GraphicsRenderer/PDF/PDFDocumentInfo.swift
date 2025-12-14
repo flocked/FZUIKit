@@ -25,17 +25,14 @@ public struct PDFDocumentInfo {
     /// The user password for the PDF document.
     public var userPassword: String?
     
-    /// A flag indicating if printing is allowed on the PDF document.
-    public var allowsPrinting: Bool?
+    /// A Boolean value indicating whether printing is allowed on the PDF document.
+    public var allowsPrinting: Bool = true
     
-    /// A flag indicating if copying content is allowed from the PDF document.
-    public var allowsCopying: Bool?
+    /// A Boolean value indicating whether copying content is allowed from the PDF document.
+    public var allowsCopying: Bool = true
     
-    /// A string that describes the output intent for the PDF document.
-    public var outputIntent: String?
-    
-    /// A string containing the output intents for the PDF document.
-    public var outputIntents: String?
+    /// An array containing the output intents for the PDF document.
+    public var outputIntents: [OutputIntend]?
     
     /// The subject of the PDF document.
     public var subject: String?
@@ -61,23 +58,48 @@ public struct PDFDocumentInfo {
     /// The art box dimensions for the PDF document.
     public var artBox: CGRect?
     
-    /// The output intent subtype for the PDF document.
-    public var outputIntentSubtype: String?
-    
-    /// The output condition identifier for the PDF document.
-    public var outputConditionIdentifier: String?
-    
-    /// The output condition for the PDF document.
-    public var outputCondition: String?
-    
-    /// The registry name for the PDF document.
-    public var registryName: String?
-    
-    /// The additional information about the PDF document.
-    public var info: String?
-    
-    /// The destination output profile for the PDF document.
-    public var destinationOutputProfile: String?
+    /// The output intent PDF/X.
+    public struct OutputIntend {
+        /// A string identifying the intended output device or production condition in a human- or machine-readable form.
+        public  var outputConditionIdentifier: String
+        
+        /// A string identifying the intended output device or production condition in a human-readable form.
+        public  var outputCondition: String?
+        
+        /// A string identifying the registry in which the condition designated by ``identifier`` is defined.
+        public var registryName: String?
+        /**
+         A human-readable string containing additional information or comments about the intended target device or production condition.
+         
+         This value is required if the value of ``outputConditionIdentifier`` does not specify a standard production condition.
+         */
+        public var info: String?
+        /**
+         An ICC profile stream defining the transformation from the PDF document’s source colors to output device colorants.
+         
+         This value is required if the value of ``outputConditionIdentifier`` does not specify a standard production condition.
+         */
+        public var destinationOutputProfile: CGColorSpace?
+        
+        public init(outputConditionIdentifier: String, outputCondition: String? = nil, registryName: String? = nil, info: String? = nil, destinationOutputProfile: CGColorSpace? = nil) {
+            self.outputConditionIdentifier = outputConditionIdentifier
+            self.outputCondition = outputCondition
+            self.registryName = registryName
+            self.info = info
+            self.destinationOutputProfile = destinationOutputProfile
+        }
+        
+        var dictionary: [CFString: Any] {
+            var dict: [CFString: Any] = [:]
+            dict[kCGPDFXOutputIntentSubtype] = "GTS_PDFX"
+            dict[kCGPDFXOutputConditionIdentifier] = outputConditionIdentifier
+            dict[kCGPDFXOutputCondition] = outputCondition
+            dict[kCGPDFXRegistryName] = registryName
+            dict[kCGPDFXInfo] = info
+            dict[kCGPDFXDestinationOutputProfile] = destinationOutputProfile
+            return dict
+        }
+    }
     
     public init() {
         
@@ -94,8 +116,7 @@ public struct PDFDocumentInfo {
         dict[kCGPDFContextUserPassword] = userPassword
         dict[kCGPDFContextAllowsPrinting] = allowsPrinting
         dict[kCGPDFContextAllowsCopying] = allowsCopying
-        dict[kCGPDFContextOutputIntent] = outputIntent
-        dict[kCGPDFContextOutputIntents] = outputIntents
+        dict[kCGPDFContextOutputIntents] = outputIntents?.map({$0.dictionary})
         dict[kCGPDFContextSubject] = subject
         dict[kCGPDFContextKeywords] = keywords
         dict[kCGPDFContextEncryptionKeyLength] = encryptionKeyLength
@@ -104,12 +125,6 @@ public struct PDFDocumentInfo {
         dict[kCGPDFContextBleedBox] = bleedBox
         dict[kCGPDFContextTrimBox] = trimBox
         dict[kCGPDFContextArtBox] = artBox
-        dict[kCGPDFXOutputIntentSubtype] = outputIntentSubtype
-        dict[kCGPDFXOutputConditionIdentifier] = outputConditionIdentifier
-        dict[kCGPDFXOutputCondition] = outputCondition
-        dict[kCGPDFXRegistryName] = registryName
-        dict[kCGPDFXInfo] = info
-        dict[kCGPDFXDestinationOutputProfile] = destinationOutputProfile
         return dict as CFDictionary
     }
 }

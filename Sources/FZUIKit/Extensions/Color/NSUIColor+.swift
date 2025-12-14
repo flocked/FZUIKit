@@ -26,9 +26,10 @@ public extension NSUIColor {
     /**
      Creates a new color representing the color of the current color in the specified color space.
      
-     - Parameter space: The color space of the new color.
+     If the receiver’s color space is the same as the specified, this method returns the same color object.
      
-     - Returns: The new color object. This method converts the receiver's color to an equivalent one in the new color space. Although the new color might have different component values, it looks the same as the original. Returns `nil` if conversion is not possible. If the receiver's color space is the same as that specified in space, this method returns the same color object.
+     - Parameter space: The color space of the new color.
+     - Returns: The new color object. This method converts the receiver's color to an equivalent one in the new color space. Although the new color might have different component values, it looks the same as the original. Returns `nil` if conversion is not possible.
      */
     @_disfavoredOverload
     func usingColorSpace(_ space: CGColorSpace) -> NSUIColor? {
@@ -64,13 +65,14 @@ public extension NSUIColor {
     /**
      Creates a new color representing the color of the current color in the specified color space.
      
-     - Parameter name: The name of the color space of the new color.
+     If the receiver's color space is the same as the color space with the specified name, this method returns the same color object.
      
-     - Returns: The new color. This method converts the receiver's color to an equivalent one in the new color space. Although the new color might have different component values, it looks the same as the original. Returns `nil` if conversion is not possible. If the receiver's color space is the same as that specified in space, this method returns the same color object.
+     - Parameter colorSpaceName: The name of the color space of the new color.
+     - Returns: The new color. This method converts the receiver's color to an equivalent one in the new color space. Although the new color might have different component values, it looks the same as the original. Returns `nil` if conversion is not possible.
      */
     @_disfavoredOverload
-    func usingColorSpace(_ name: CGColorSpaceName) -> NSUIColor? {
-        guard let space = CGColorSpace(name: name) else { return nil }
+    func usingColorSpace(_ colorSpaceName: CGColorSpaceName) -> NSUIColor? {
+        guard let space = CGColorSpace(name: colorSpaceName) else { return nil }
         return usingColorSpace(space)
     }
     

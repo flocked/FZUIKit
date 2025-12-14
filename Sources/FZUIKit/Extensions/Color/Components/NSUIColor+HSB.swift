@@ -118,12 +118,10 @@ extension NSUIColor {
 
 /// The HSBA (hue, saturation, brightness, alpha) components of a color.
 public struct HSBAComponents {
-    /// The hue component of the color (between `0.0` to `1.0`).
-    public var hue: CGFloat {
-        didSet { hue = hue.clamped(to: 0.0...1.0) }
-    }
+    /// The hue component of the color.
+    public var hue: CGFloat
 
-    /// Sets the hue component of the color (between `0.0` to `1.0`).
+    /// Sets the hue component of the color.
     @discardableResult
     public func hue(_ hue: CGFloat) -> Self {
         var components = self
@@ -131,12 +129,10 @@ public struct HSBAComponents {
         return components
     }
 
-    /// The saturation component of the color (between `0.0` to `1.0`).
-    public var saturation: CGFloat {
-        didSet { saturation = saturation.clamped(to: 0.0...1.0) }
-    }
+    /// The saturation component of the color.
+    public var saturation: CGFloat
 
-    /// Sets the saturation component of the color (between `0.0` to `1.0`).
+    /// Sets the saturation component of the color.
     @discardableResult
     public func saturation(_ saturation: CGFloat) -> Self {
         var components = self
@@ -144,12 +140,10 @@ public struct HSBAComponents {
         return components
     }
 
-    /// The brightness component of the color (between `0.0` to `1.0`).
-    public var brightness: CGFloat {
-        didSet { brightness = brightness.clamped(to: 0.0...1.0) }
-    }
+    /// The brightness component of the color.
+    public var brightness: CGFloat
 
-    /// Sets the brightness component of the color (between `0.0` to `1.0`).
+    /// Sets the brightness component of the color.
     @discardableResult
     public func brightness(_ brightness: CGFloat) -> Self {
         var components = self
@@ -195,16 +189,17 @@ public struct HSBAComponents {
         return Self(hue + (components.hue - hue) * fraction, saturation + (components.saturation - saturation) * fraction, brightness + (components.brightness - brightness) * fraction, alpha + (components.alpha - alpha) * fraction)
     }
     
+    /// The components as RGBA.
     public func rgba() -> RGBAComponents {
         if saturation <= 0 { return .init(brightness, brightness, brightness, alpha) }
         var hue = hue.truncatingRemainder(dividingBy: 1)
         if hue < 0 { hue += 1 }
-        let h = hue * 6
+        let h = hue * 6.0
         let i = Int(floor(h))
-        let f = h - Double(i)
-        let p = brightness * (1 - saturation)
-        let q = brightness * (1 - saturation * f)
-        let t = brightness * (1 - saturation * (1 - f))
+        let f = h - CGFloat(i)
+        let p = brightness * (1.0 - saturation)
+        let q = brightness * (1.0 - saturation * f)
+        let t = brightness * (1.0 - saturation * (1.0 - f))
 
         switch (i % 6) {
             case 0: return .init(brightness, t, p, alpha)
@@ -215,31 +210,9 @@ public struct HSBAComponents {
             default: return .init(brightness, p, q, alpha)
         }
     }
-
-    /**
-     Creates HSBA components with the specified hue, saturation, brightness and alpha components.
-
-     - Parameters:
-        -  hue: The hue component of the color (between `0.0` to `1.0`).
-        - saturation: The saturation component of the color (between `0.0` to `1.0`).
-        - brightness: The hue component of the color (between `0.0` to `1.0`).
-        - alpha: The alpha vlaue of the color (between `0.0` to `1.0`).
-     */
-    public init(hue: CGFloat, saturation: CGFloat, brightness: CGFloat, alpha: CGFloat) {
-        self.hue = hue.clamped(to: 0.0...1.0)
-        self.saturation = saturation.clamped(to: 0.0...1.0)
-        self.brightness = brightness.clamped(to: 0.0...1.0)
-        self.alpha = alpha.clamped(to: 0.0...1.0)
-    }
-
-    init(_ hue: CGFloat, _ saturation: CGFloat, _ brightness: CGFloat, _ alpha: CGFloat = 1.0) {
-        self.hue = hue.clamped(to: 0.0...1.0)
-        self.saturation = saturation.clamped(to: 0.0...1.0)
-        self.brightness = brightness.clamped(to: 0.0...1.0)
-        self.alpha = alpha.clamped(to: 0.0...1.0)
-    }
     
-    func hsla() -> HSLAComponents {
+    /// The components as HSLA.
+    public func hsla() -> HSLAComponents {
         let lightness = ((2.0 - saturation) * brightness) / 2.0
         var saturation = saturation
         switch lightness {
@@ -251,6 +224,28 @@ public struct HSBAComponents {
             saturation = (saturation * brightness) / (2.0 - lightness * 2.0)
         }
         return HSLAComponents(hue * 360.0, saturation, lightness, alpha)
+    }
+    
+    /// The components as OKLAB.
+    public func oklab() -> OKLabComponents {
+        rgba().oklab()
+    }
+    
+    /// The components as OKLCH.
+    public func oklch() -> OKLCHComponents {
+        rgba().oklch()
+    }
+
+    /// Creates HSBA components with the specified hue, saturation, brightness and alpha components.
+    public init(hue: CGFloat, saturation: CGFloat, brightness: CGFloat, alpha: CGFloat = 1.0) {
+        self.hue = hue.clamped(min: 0.0)
+        self.saturation = saturation.clamped(min: 0.0)
+        self.brightness = brightness.clamped(min: 0.0)
+        self.alpha = alpha.clamped(to: 0.0...1.0)
+    }
+
+    init(_ hue: CGFloat, _ saturation: CGFloat, _ brightness: CGFloat, _ alpha: CGFloat = 1.0) {
+        self.init(hue: hue, saturation: saturation, brightness: brightness, alpha: alpha)
     }
 }
 
@@ -272,5 +267,10 @@ public extension CFType where Self == CGColor {
     /// Creates a color using the HSBA components.
     init(_ hsbaComponents: HSBAComponents) {
         self = NSUIColor(hsbaComponents).cgColor
+    }
+    
+    /// Creates a color object using the specified opacity and HSB color space component values.
+    init(hue: CGFloat, saturation: CGFloat, brightness: CGFloat, alpha: CGFloat) {
+        self.init(HSBAComponents(hue, saturation, brightness, alpha))
     }
 }
