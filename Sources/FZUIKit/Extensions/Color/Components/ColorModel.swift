@@ -68,11 +68,11 @@ public extension ColorModel {
     #endif
 }
 
-protocol ColorModelInternal: ColorModel {
+protocol _ColorModel: ColorModel {
     var _components: [Double] { get }
 }
 
-extension ColorModelInternal {
+extension _ColorModel {
     var _components: [Double] { components }
 }
 
@@ -95,7 +95,7 @@ extension NSUIColor {
     public func rgb() -> ColorComponents.SRGB {
         var rgba: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) = (0,0,0,0)
         #if os(macOS)
-        if let color = colorSpace.colorSpaceModel == .rgb ? self : usingColorSpace(.extendedSRGB) {
+        if let color = safeColorSpace?.colorSpaceModel == .rgb ? self : usingColorSpace(.extendedSRGB) {
             color.getRed(&rgba.red, green: &rgba.green, blue: &rgba.blue, alpha: &rgba.alpha)
             return .init(red: rgba.red, green: rgba.green, blue: rgba.blue, alpha: rgba.alpha)
         }
@@ -111,7 +111,7 @@ extension NSUIColor {
     public func hsb() -> ColorComponents.HSB {
         var hsb: (hue: CGFloat, saturation: CGFloat, brightness: CGFloat, alpha: CGFloat) = (0,0,0,0)
         #if os(macOS)
-        if let color = colorSpace.colorSpaceModel == .rgb ? self : usingColorSpace(.extendedSRGB) {
+        if let color = safeColorSpace?.colorSpaceModel == .rgb ? self : usingColorSpace(.extendedSRGB) {
             color.getHue(&hsb.hue, saturation: &hsb.saturation, brightness: &hsb.brightness, alpha: &hsb.alpha)
             return .init(hue: hsb.hue, saturation: hsb.saturation, brightness: hsb.brightness, alpha: hsb.alpha)
         }
@@ -262,7 +262,7 @@ extension CGColor {
 extension CFType where Self == CGColor {
     /// Creates the color with the specified color components.
     public init(_ colorComponents: any ColorModel) {
-        self.init(colorSpace: type(of: colorComponents).colorSpace, components: (colorComponents as! any ColorModelInternal)._components.map({CGFloat($0)}))!
+        self.init(colorSpace: type(of: colorComponents).colorSpace, components: (colorComponents as! any _ColorModel)._components.map({CGFloat($0)}))!
     }
 }
 

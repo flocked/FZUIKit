@@ -49,7 +49,7 @@ extension CALayer {
         return self
     }
     
-    /// Sets The radius to use when drawing rounded corners for the layer’s background.
+    /// Sets the radius to use when drawing rounded corners for the layer’s background.
     public func cornerRadius(_ cornerRadius: CGFloat) -> Self {
         self.cornerRadius = cornerRadius
         return self
@@ -835,9 +835,8 @@ extension CALayer {
         let width = Int(bounds.width * scale)
         let height = Int(bounds.height * scale)
         guard width > 0, height > 0 else { return nil }
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
         let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
-        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: colorSpace, bitmapInfo: bitmapInfo) else {
+        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: bitmapInfo) else {
             return nil
         }
         context.scaleBy(x: scale, y: scale)

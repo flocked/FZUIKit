@@ -84,18 +84,15 @@ public struct CGColorSpaceName: ExpressibleByStringLiteral {
     public static let displayP3_HLG = Self(CGColorSpace.displayP3_HLG)
     
     /// The Display P3 color space with Perceptual Quantizer (PQ) transfer function.
-    @available(macOS 10.15.4, iOS 13.4, tvOS 13.4, watchOS 6.2, *)
     public static let displayP3_PQ = Self(CGColorSpace.displayP3_PQ)
     
     /// The extended range version of the Display P3 color space.
-    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public static let extendedDisplayP3 = Self(CGColorSpace.extendedDisplayP3)
     
     /// The extended linear Display P3 color space.
     public static let extendedLinearDisplayP3 = Self(CGColorSpace.extendedLinearDisplayP3)
     
     /// The linear Display P3 color space.
-    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
     public static let linearDisplayP3 = Self(CGColorSpace.linearDisplayP3)
     
     // MARK: - Grayscale color spaces
@@ -128,7 +125,6 @@ public struct CGColorSpaceName: ExpressibleByStringLiteral {
     public static let linearITUR_2020 = Self(CGColorSpace.linearITUR_2020)
     
     /// The extended range ITU-R BT.2020 color space.
-    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public static let extendedITUR_2020 = Self(CGColorSpace.extendedITUR_2020)
     
     /// The extended linear ITU-R BT.2020 color space.
@@ -139,11 +135,9 @@ public struct CGColorSpaceName: ExpressibleByStringLiteral {
     public static let itur_2020_sRGBGamma = Self(CGColorSpace.itur_2020_sRGBGamma)
     
     /// The ITU-R BT.2100 color space with Hybrid Log-Gamma (HLG) transfer function.
-    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public static let itur_2100_HLG = Self(CGColorSpace.itur_2100_HLG)
     
     /// The ITU-R BT.2100 color space with Perceptual Quantizer (PQ) transfer function.
-    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     public static let itur_2100_PQ = Self(CGColorSpace.itur_2100_PQ)
     
     /// The ITU-R BT.709 color space.
@@ -178,15 +172,9 @@ public struct CGColorSpaceName: ExpressibleByStringLiteral {
     
     /// Returns the names of all available color spaces.
     public static let availableNames: [CGColorSpaceName] = {
-        var colorSpaceNames: [CGColorSpaceName] = [.acescgLinear, .adobeRGB1998, .deviceRGB, .extendedLinearSRGB, .extendedSRGB, .genericRGB, .genericRGBLinear, .linearSRGB, .rommRGB, .sRGB, .dcip3, .displayP3, .displayP3_HLG, .extendedLinearDisplayP3, .deviceGray, .extendedGray, .extendedLinearGray, .genericGray, .genericGrayGamma2_2, .linearGray, .extendedLinearITUR_2020, .itur_2020, .itur_709, .genericCMYK, .deviceCMYK, .genericLab, .genericXYZ]
-        if #available(macOS 10.15.4, iOS 13.4, tvOS 13.4, watchOS 6.2, *) {
-            colorSpaceNames += .displayP3_PQ
-        }
-        if #available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *) {
-            colorSpaceNames += [.extendedDisplayP3, .extendedITUR_2020, .itur_2100_HLG, .itur_2100_PQ]
-        }
+        var colorSpaceNames: [CGColorSpaceName] = [.acescgLinear, .adobeRGB1998, .deviceRGB, .extendedLinearSRGB, .extendedSRGB, .genericRGB, .genericRGBLinear, .linearSRGB, .rommRGB, .sRGB, .dcip3, .displayP3, .displayP3_HLG, .extendedLinearDisplayP3, .deviceGray, .extendedGray, .extendedLinearGray, .genericGray, .genericGrayGamma2_2, .linearGray, .extendedLinearITUR_2020, .itur_2020, .itur_709, .genericCMYK, .deviceCMYK, .genericLab, .genericXYZ, .displayP3_PQ, .extendedDisplayP3, .extendedITUR_2020, .itur_2100_HLG, .itur_2100_PQ, .linearDisplayP3]
         if #available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, *) {
-            colorSpaceNames += [.linearDisplayP3, .itur_2020_sRGBGamma, .itur_709_HLG, .itur_709_PQ, .linearITUR_2020]
+            colorSpaceNames += [.itur_2020_sRGBGamma, .itur_709_HLG, .itur_709_PQ, .linearITUR_2020]
         }
         let modalColorSpaces = Dictionary(grouping: colorSpaceNames, by: \.model.rawValue)
         return modalColorSpaces.keys.sorted(.smallestFirst).flatMap({ (modalColorSpaces[$0] ?? []).sorted(by: \.rawValue) })

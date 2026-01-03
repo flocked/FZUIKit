@@ -54,7 +54,7 @@ public extension CALayer {
         case borderWidth
         /// CGRect
         case bounds
-        /// CGpoint
+        /// CGPoint
         case boundsOrigin = "bounds.origin"
         /// CGFloat
         case boundsOriginX = "bounds.origin.x"

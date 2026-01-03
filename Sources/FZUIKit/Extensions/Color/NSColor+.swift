@@ -81,7 +81,6 @@ public extension NSColor {
     func withSupportedColorSpace() -> NSColor? {
         guard type == .componentBased || type == .catalog else { return nil }
         guard safeColorSpace?.colorSpaceModel != .rgb else { return self }
-        // guard !Self.supportedColorSpaces.contains(colorSpace) else { return self }
         return Self.supportedColorSpaces.lazy.compactMap({ self.usingColorSpace($0) }).first
     }
     

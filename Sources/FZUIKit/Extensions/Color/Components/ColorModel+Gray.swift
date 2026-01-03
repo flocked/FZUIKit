@@ -1,6 +1,6 @@
 //
 //  ColorModel+Gray.swift
-//  FZUIKit
+//  
 //
 //  Created by Florian Zand on 14.12.25.
 //
@@ -11,7 +11,7 @@ import FZSwiftUtils
 
 extension ColorComponents {
     /// The color components for a color in the grayscale color space.
-    public struct Gray: ColorModelInternal {
+    public struct Gray: _ColorModel {
         /// The white component of the color.
         public var white: Double
         /// The alpha value of the color.

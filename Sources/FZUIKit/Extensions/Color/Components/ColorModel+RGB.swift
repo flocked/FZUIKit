@@ -1,6 +1,6 @@
 //
 //  ColorModel+RGB.swift
-//  FZUIKit
+//  
 //
 //  Created by Florian Zand on 14.12.25.
 //
@@ -11,7 +11,7 @@ import FZSwiftUtils
 
 extension ColorComponents {
     /// The color components for a color in the sRGB color space.
-    public struct SRGB: ColorModelInternal {
+    public struct SRGB: _ColorModel {
         /// The red component of the color.
         public var red: Double
         /// The green component of the color.
