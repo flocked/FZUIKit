@@ -1,6 +1,6 @@
 //
 //  ColorModel+HSB.swift
-//  FZUIKit
+//  
 //
 //  Created by Florian Zand on 14.12.25.
 //
@@ -11,7 +11,7 @@ import FZSwiftUtils
 
 extension ColorComponents {
     /// The color components for a color in the HSB color space.
-    public struct HSB: ColorModelInternal {
+    public struct HSB: _ColorModel {
         /// The hue component of the color.
         public var hue: Double
         /// The saturation component of the color.
@@ -43,7 +43,7 @@ extension ColorComponents {
             } else {
                 saturation = (brightness - lightness) / min(lightness, brightness - lightness)
             }
-            return HSL(hue: Self.wrapUnit(hue), saturation: saturation, lightness: lightness, alpha: alpha)
+            return HSL(hue: wrapUnit(hue), saturation: saturation, lightness: lightness, alpha: alpha)
         }
         
         /// The color in the sRGB color space.
@@ -118,7 +118,7 @@ extension ColorComponents {
         }
         
         @inline(__always)
-        private static func wrapUnit(_ x: Double) -> Double {
+        private func wrapUnit(_ x: Double) -> Double {
             let r = x.truncatingRemainder(dividingBy: 1)
             return r < 0 ? r + 1 : r
         }

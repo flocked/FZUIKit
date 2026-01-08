@@ -1,6 +1,6 @@
 //
 //  ColorModel+XYZ.swift
-//  FZUIKit
+//  
 //
 //  Created by Florian Zand on 14.12.25.
 //
@@ -11,7 +11,7 @@ import FZSwiftUtils
 
 extension ColorComponents {
     /// The color components for a color in the XYZ color space.
-    public struct XYZ: ColorModelInternal {
+    public struct XYZ: _ColorModel {
         /// The x component of the color.
         public var x: Double
         /// The y component of the color.

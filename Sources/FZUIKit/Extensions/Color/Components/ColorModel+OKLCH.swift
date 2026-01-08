@@ -1,6 +1,6 @@
 //
 //  ColorModel+OKLCH.swift
-//  FZUIKit
+//  
 //
 //  Created by Florian Zand on 14.12.25.
 //
@@ -11,7 +11,7 @@ import FZSwiftUtils
 
 extension ColorComponents {
     /// The color components for a color in the OKLCH color space.
-    public struct OKLCH: ColorModelInternal {
+    public struct OKLCH: _ColorModel {
         /// The lightness component of the color.
         public var lightness: Double
         /// The chroma component of the color.

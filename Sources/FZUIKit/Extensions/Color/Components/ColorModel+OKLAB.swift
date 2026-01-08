@@ -1,6 +1,6 @@
 //
 //  ColorModel+OKLAB.swift
-//  FZUIKit
+//  
 //
 //  Created by Florian Zand on 14.12.25.
 //
@@ -11,7 +11,7 @@ import FZSwiftUtils
 
 extension ColorComponents {
     /// The color components for a color in the OKLAB color space.
-    public struct OKLAB: ColorModelInternal {
+    public struct OKLAB: _ColorModel {
         /// The lightness component of the color.
         public var lightness: Double
         /// The green-red component of the color.

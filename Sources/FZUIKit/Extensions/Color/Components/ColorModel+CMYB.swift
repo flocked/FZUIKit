@@ -1,6 +1,6 @@
 //
 //  ColorModel+CMYB.swift
-//  FZUIKit
+//  
 //
 //  Created by Florian Zand on 14.12.25.
 //
@@ -11,7 +11,7 @@ import FZSwiftUtils
 
 extension ColorComponents {
     /// The color components for a color in the CMYK color space.
-    public struct CMYK: ColorModelInternal {
+    public struct CMYK: _ColorModel {
         /// The cyan component of the color.
         public var cyan: Double
         /// The magenta component of the color.

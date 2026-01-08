@@ -59,7 +59,7 @@ public extension CGColor {
     /**
      Creates a color object with the specified alpha component.
 
-     - Parameter alpha: The opacity value of the new color object, specified as a value from 0.0 to 1.0. Alpha values below 0.0 are interpreted as 0.0, and values above 1.0 are interpreted as 1.0.
+     - Parameter alpha: The opacity value of the new color object, specified as a value from `0.0` to `1.0`. Alpha values below `0.0` are interpreted as `0.0`, and values above `1.0` are interpreted as `1.0`.
      - Returns: The new `CGColor` object.
      */
     func withAlpha(_ alpha: CGFloat) -> CGColor {

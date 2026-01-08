@@ -35,7 +35,7 @@ public extension NSUIColor {
     func usingColorSpace(_ space: CGColorSpace) -> NSUIColor? {
         #if os(macOS)
         if colorSpace.cgColorSpace == space { return self }
-        if let colorSpace = NSColorSpace(cgColorSpace: space),  let color = usingColorSpace(colorSpace, includeVariation: true) {
+        if let colorSpace = NSColorSpace(cgColorSpace: space), let color = usingColorSpace(colorSpace, includeVariation: true) {
             return color
         }
         #endif
