@@ -84,7 +84,7 @@ public extension NSGridRow {
     }
 }
 
-extension NSGridRow.Alignment: CustomStringConvertible {
+extension NSGridRow.Alignment: Swift.CustomStringConvertible {
     public var description: String {
         switch self {
         case .inherited: return "inherited"

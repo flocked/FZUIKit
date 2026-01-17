@@ -81,7 +81,7 @@ public extension NSGridCell {
     }
 }
 
-extension NSGridCell.Placement: CustomStringConvertible {
+extension NSGridCell.Placement: Swift.CustomStringConvertible {
     public var description: String {
         switch self {
         case .inherited: return "inherited"

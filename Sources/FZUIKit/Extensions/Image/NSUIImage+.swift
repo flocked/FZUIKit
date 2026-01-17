@@ -372,6 +372,8 @@ public extension NSUIImage {
     }
 }
 
+extension NSUIImage: Swift.Encodable, Swift.Decodable { }
+
 extension Collection where Element == NSUIImage {
     /// An array of unique images.
     public func uniqueImages() -> [Element] {

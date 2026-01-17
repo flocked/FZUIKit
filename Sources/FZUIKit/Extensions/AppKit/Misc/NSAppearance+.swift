@@ -134,8 +134,9 @@ public extension NSAppearance {
     internal static func current() -> NSAppearance {
         if #available(macOS 11.0, *) {
             return .currentDrawing()
+        } else {
+            return .current
         }
-        return .current
     }
 }
 
@@ -150,26 +151,10 @@ extension NSAppearance: Swift.Encodable, Swift.Decodable {
     }
 }
 
-extension Encoder {
-    /// Encodes the specified value in a single value container.
-    func encodeSingleValue<T: Encodable>(_ value: T) throws {
-        var container = singleValueContainer()
-        try container.encode(value)
-    }
-}
-
-extension Decoder {
-    /// Decodes a value of the given type from a sing
-    func decodeSingleValue<T: Decodable>(_ type: T.Type) throws -> T {
-        try singleValueContainer().decode(type)
-    }
-}
-
 extension Decodable where Self: NSAppearance {
     /// Decodes a value of the given type from a sing
     public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        self = .init(named: try container.decode())!
+        self.init(named: try decoder.singleValueContainer().decode())!
     }
 }
 

@@ -60,9 +60,10 @@ public extension WKWebView {
     }
     
     /// Returns all cookies for the current webpage asynchronously.
-    func cookiesForCurrentPage() async -> [HTTPCookie] {
+    func WKHTTPCookieStoreObserver() async -> [HTTPCookie] {
         guard let host = url?.host else { return [] }
         return await configuration.websiteDataStore.httpCookieStore.allCookies().filter({ $0.domain.contains(host) })
     }
 }
+
 #endif

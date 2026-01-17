@@ -77,7 +77,7 @@ public extension NSUIEdgeInsets {
     }
 }
 
-extension NSUIEdgeInsets: Swift.Hashable {
+extension NSUIEdgeInsets: Swift.Hashable, Swift.Equatable {
     public static func == (lhs: NSUIEdgeInsets, rhs: NSUIEdgeInsets) -> Bool {
         lhs.hashValue == rhs.hashValue
     }
@@ -223,7 +223,7 @@ public extension NSDirectionalEdgeInsets {
     }
 }
 
-extension NSDirectionalEdgeInsets: Swift.Hashable {
+extension NSDirectionalEdgeInsets: Swift.Hashable, Swift.Equatable {
     public static func == (lhs: NSDirectionalEdgeInsets, rhs: NSDirectionalEdgeInsets) -> Bool {
         lhs.hashValue == rhs.hashValue
     }

@@ -29,6 +29,33 @@ public extension NSBezierPath {
     convenience init(roundedRect rect: CGRect, cornerRadius: CGFloat) {
         self.init(roundedRect: rect, byRoundingCorners: .allCorners, cornerRadius: cornerRadius)
     }
+    
+    convenience init(roundedRect rect: NSRect, topLeftRadius: CGFloat, topRightRadius: CGFloat,
+                     bottomLeftRadius: CGFloat, bottomRightRadius: CGFloat) {
+        self.init()
+        
+        let maxCorner = min(rect.width, rect.height) / 2
+        
+        let radiusTopLeft = min(maxCorner, max(0, topLeftRadius))
+        let radiusTopRight = min(maxCorner, max(0, topRightRadius))
+        let radiusBottomLeft = min(maxCorner, max(0, bottomLeftRadius))
+        let radiusBottomRight = min(maxCorner, max(0, bottomRightRadius))
+        
+        guard !rect.isEmpty else {
+            return
+        }
+        
+        let topLeft = NSPoint(x: rect.minX, y: rect.maxY)
+        let topRight = NSPoint(x: rect.maxX, y: rect.maxY)
+        let bottomRight = NSPoint(x: rect.maxX, y: rect.minY)
+        
+        move(to: NSPoint(x: rect.midX, y: rect.maxY))
+        appendArc(from: topLeft, to: rect.origin, radius: radiusTopLeft)
+        appendArc(from: rect.origin, to: bottomRight, radius: radiusBottomLeft)
+        appendArc(from: bottomRight, to: topRight, radius: radiusBottomRight)
+        appendArc(from: topRight, to: topLeft, radius: radiusTopRight)
+        close()
+    }
 
     /**
      Creates and returns a new Bézier path object with a rectangular path rounded at the specified corners.
@@ -656,7 +683,7 @@ fileprivate extension CGPath {
         return path
     }
 
-    static func minimumCornerRadius(for rect: CGRect, cornerRadius: (topLeft: CGFloat, topRight: CGFloat, bottomLeft: CGFloat, bottomRight: CGFloat)) -> (topLeft: CGFloat, topRight: CGFloat, bottomLeft: CGFloat, bottomRight: CGFloat) {
+    private static func minimumCornerRadius(for rect: CGRect, cornerRadius: (topLeft: CGFloat, topRight: CGFloat, bottomLeft: CGFloat, bottomRight: CGFloat)) -> (topLeft: CGFloat, topRight: CGFloat, bottomLeft: CGFloat, bottomRight: CGFloat) {
         let calculateMinimumRadius: (CGFloat, CGFloat, CGFloat) -> CGFloat = { width, height, radius in
             let minSide = min(width, height)
             let minRadius = min(radius * ellipseCoefficient, minSide)
@@ -674,7 +701,7 @@ fileprivate extension CGPath {
         return (minimumTopLeft, minimumTopRight, minimumBottomLeft, minimumBottomRight)
     }
     
-    static let ellipseCoefficient: CGFloat = 1.28195
+    private static let ellipseCoefficient: CGFloat = 1.28195
 }
 
 extension Sequence where Element: NSUIBezierPath {

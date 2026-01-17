@@ -160,4 +160,14 @@ extension CGImageAlphaInfo: Swift.CustomStringConvertible {
         }
     }
 }
+
+extension CGImageAlphaInfo {
+    /// A Boolean value indicating whether the image data contains an alpha channel.
+    public var hasAlpha: Bool {
+        switch self {
+        case .none, .noneSkipLast, .noneSkipFirst: return false
+        default: return true
+        }
+    }
+}
 #endif

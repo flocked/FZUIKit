@@ -211,8 +211,6 @@ public extension CFType where Self == CGContext {
      - Returns: A new `CGContext` if creation succeeds, otherwise `nil`.
      */
     init?(data: UnsafeMutableRawPointer? = nil, size: CGSize, bitsPerComponent: Int = 8, bytesPerRow: Int = 0, space: CGColorSpaceName, hasAlpha: Bool = true) {
-        CGBitmapInfo(alpha: .noneSkipLast, byteOrder: .order32Big)
-        CGBitmapInfo(alpha: .premultipliedLast, byteOrder: .order32Big)
         guard let context = CGContext(data: data, width: Int(size.width), height: Int(size.height), bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: CGColorSpace(name: space) ?? .deviceRGB, bitmapInfo: hasAlpha ? .rgba : .rgb) else { return nil }
         self = context
     }
@@ -221,6 +219,77 @@ public extension CFType where Self == CGContext {
         guard let space = CGColorSpace(name: space) else { return nil }
         guard let context = CGContext(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: bitmapInfo.bitsPerComponent, bytesPerRow: 0, space: space, bitmapInfo: bitmapInfo) else { return nil }
         self = context
+    }
+}
+
+extension CFType where Self == CGContext {
+    public init?(size: CGSize) {
+        guard let context = CGContext(
+            data: nil,
+            width: max(Int(size.width.rounded(.down)), 1),
+            height: max(Int(size.height.rounded(.down)), 1),
+            bitsPerComponent: 8,
+            bytesPerRow: 0,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue)
+        else {
+            return nil
+        }
+        self = context
+    }
+    
+    public init?(size: CGSize, cgImage: CGImage) {
+        guard let context = CGContext(
+            data: nil,
+            width: max(Int(size.width.rounded(.down)), 1),
+            height: max(Int(size.height.rounded(.down)), 1),
+            bitsPerComponent: cgImage.bitsPerComponent,
+            bytesPerRow: 0,
+            space: cgImage.colorSpace ?? CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: cgImage.bitmapInfo.rawValue)
+        else {
+            return nil
+        }
+        self = context
+    }
+    
+    private static func supportedBitsPerComponent(from cgImage: CGImage?) -> Int {
+        guard let bits = cgImage?.bitsPerComponent, bits > 0 else { return 8 }
+        if bits <= 8 { return 8 }
+        return 16
+    }
+    
+    private static func resolveColorSpace(from cgImage: CGImage?) -> CGColorSpace {
+        guard let cgColorSpace = cgImage?.colorSpace else {
+            return CGColorSpaceCreateDeviceRGB()
+        }
+        let components = cgColorSpace.numberOfComponents
+        if components == 1 || components == 3 {
+            return cgColorSpace
+        }
+        return CGColorSpaceCreateDeviceRGB()
+    }
+    
+    private static func bitmapInfo(componentCount: Int, hasAlpha: Bool) -> CGBitmapInfo {
+        let alphaInfo: CGImageAlphaInfo
+        if componentCount == 1 {
+            alphaInfo = hasAlpha ? .premultipliedLast : .none
+        } else {
+            alphaInfo = hasAlpha ? .premultipliedLast : .noneSkipLast
+        }
+        return CGBitmapInfo(rawValue: alphaInfo.rawValue)
+    }
+    
+    private static func channelsPerPixel(componentCount: Int, hasAlpha: Bool) -> Int {
+        if componentCount == 1 {
+            return hasAlpha ? 2 : 1
+        }
+        return hasAlpha ? componentCount + 1 : componentCount + 1
+    }
+    
+    private static func alignedBytesPerRow(bitsPerPixel: Int, width: Int) -> Int {
+        let rawBytes = (bitsPerPixel * width + 7) / 8
+        return (rawBytes + 0x3F) & ~0x3F
     }
 }
 #endif

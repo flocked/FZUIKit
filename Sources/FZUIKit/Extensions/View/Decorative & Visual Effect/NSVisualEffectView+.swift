@@ -66,6 +66,7 @@ extension NSVisualEffectView.State: Swift.CustomStringConvertible {
         case .followsWindowActiveState: return "followsWindowActiveState"
         case .active: return "active"
         case .inactive: return "inactive"
+        default: return "\(rawValue)"
         }
     }
 }
@@ -75,6 +76,7 @@ extension NSVisualEffectView.BlendingMode: Swift.CustomStringConvertible {
         switch self {
         case .behindWindow: return "behindWindow"
         case .withinWindow: return "withinWindow"
+        default: return "\(rawValue)"
         }
     }
 }

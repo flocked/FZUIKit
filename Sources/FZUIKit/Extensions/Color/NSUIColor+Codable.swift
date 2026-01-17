@@ -13,74 +13,53 @@ import UIKit
 #endif
 
 extension NSUIColor: Swift.Encodable, Swift.Decodable {
-    public enum CodingKeys: String, CodingKey {
+    fileprivate enum CodingKeys: String, CodingKey {
         case light
         case dark
+        case name
     }
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        #if os(macOS) || os(iOS) || os(tvOS)
-        let dynamicColors = dynamicColors
-        try container.encode(dynamicColors.light.values, forKey: .light)
-        if dynamicColors.light != dynamicColors.dark {
-            try container.encode(dynamicColors.dark.values, forKey: .dark)
-        }
-        #else
-        try container.encode(values, forKey: .light)
-        #endif
-    }
-    
-    fileprivate var values: [CGFloat] {
-        var (r, g, b, a): (CGFloat, CGFloat, CGFloat, CGFloat) = (0, 0, 0, 0)
         #if os(macOS)
-        if let color = usingColorSpace(.deviceRGB) ?? usingColorSpace(.genericRGB) {
-            color.getRed(&r, green: &g, blue: &b, alpha: &a)
-            return [r, g, b, a]
-        }
+        let isCustomDynamicColor = object_getClass(self) == NSClassFromString("NSCustomDynamicColor")
         #else
-        if getRed(&r, green: &g, blue: &b, alpha: &a) {
-            return [r, g, b, a]
-        } else if getWhite(&r, alpha: &a) {
-            return [r, a]
-        } else if getHue(&r, saturation: &g, brightness: &b, alpha: &a) {
-            return [r, g, b, a, 0.0]
-        }
+        let isCustomDynamicColor = object_getClass(self) == NSClassFromString("UIDynamicProviderColor")
         #endif
-        return [0, 0]
+        if isCustomDynamicColor {
+            let dynamic = dynamicColors
+            try container.encode(try NSKeyedArchiver.archivedData(withRootObject: dynamic.light, requiringSecureCoding:  true), forKey: .light)
+            try container.encode(try NSKeyedArchiver.archivedData(withRootObject: dynamic.dark, requiringSecureCoding:  true), forKey: .dark)
+            #if os(macOS)
+            guard let name = colorName, UUID(uuidString: name) == nil else { return }
+            try container.encode(name, forKey: .name)
+            #endif
+        } else {
+            try container.encode(try NSKeyedArchiver.archivedData(withRootObject: self, requiringSecureCoding: true), forKey: .light)
+        }
     }
 }
 
 extension Decodable where Self: NSUIColor {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let light: [CGFloat] = try container.decode(.light)
-        #if os(macOS) || os(iOS) || os(tvOS)
-        if let dark: [CGFloat] = try container.decodeIfPresent(.dark) {
-            self = NSUIColor(light:  Self(light), dark: Self(dark)) as! Self
+        let lightColor = try Self.unarchive(try container.decode(Data.self, forKey: .light))
+        if let darkData = try container.decodeIfPresent(Data.self, forKey: .dark) {
+            let darkColor = try Self.unarchive(darkData)
+            #if os(macOS)
+            self = NSUIColor(name: try container.decodeIfPresent(String.self, forKey: .name), light: lightColor, dark: darkColor) as! Self
+            #else
+            self = NSUIColor(light: lightColor, dark: darkColor) as! Self
+            #endif
         } else {
-            self = Self(light)
+            self = lightColor
         }
-        #else
-        self = Self(light)
-        #endif
     }
     
-    fileprivate init(_ components: [CGFloat]) {
-        switch components.count {
-        case 2:
-            self = Self(white: components[0], alpha: components[1])
-        case 4:
-            self = Self(red: components[0], green: components[1], blue: components[2], alpha: components[3])
-        case 5:
-            #if os(macOS)
-            self = Self(deviceCyan: components[0], magenta: components[1], yellow: components[2], black: components[3], alpha: components[4])
-            #else
-            self = Self(hue: components[0], saturation: components[1], brightness: components[2], alpha: components[3])
-            #endif
-        default: self = Self(white: 0.0, alpha: 0.0)
-        }
+    private static func unarchive(_ data: Data) throws -> Self {
+        //         guard let value = try NSKeyedUnarchiver.unarchivedObject(ofClass: Self.self, from: data) else {
+        guard let color = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? Self else { throw CocoaError(.coderReadCorrupt) }
+        return color
     }
 }
-
 #endif
