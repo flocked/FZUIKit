@@ -194,7 +194,7 @@ extension NSSegmentedCell {
     public func indexOfSegment(at location: CGPoint) -> Int? {
         let selector = NSSelectorFromString("indexOfSegmentContainingPoint:inCellFrame:")
         typealias ClosureType = @convention(c) (AnyObject, Selector, CGPoint, CGRect) -> Int
-        guard let index = method(for: selector, as: ClosureType.self)?(self, selector, location, CGRect(.zero, cellSize)) else { return nil }
+        guard let index = Self.instanceMethod(for: selector, as: ClosureType.self)?(self, selector, location, CGRect(.zero, cellSize)) else { return nil }
         return index != -1 ? index : nil
     }
     
@@ -207,7 +207,7 @@ extension NSSegmentedCell {
         guard segment > 0, segment < segmentCount else { return nil }
         let selector = NSSelectorFromString("_rectForSegment:inFrame:")
         typealias ClosureType = @convention(c) (AnyObject, Selector, Int, CGRect) -> CGRect
-        guard var frame = method(for: selector, as: ClosureType.self)?(self, selector, segment, CGRect(.zero, cellSize)) else { return nil }
+        guard var frame = Self.instanceMethod(for: selector, as: ClosureType.self)?(self, selector, segment, CGRect(.zero, cellSize)) else { return nil }
         frame.origin.x += cellSize.width/2.0
         frame.origin.y += cellSize.height/2.0
         return frame

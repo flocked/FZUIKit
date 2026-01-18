@@ -117,35 +117,35 @@ public extension NSColor {
     
     /// The color space associated with the color.
     var safeColorSpace: NSColorSpace? {
-        try? NSObject.catchException {
+        try? ObjCRuntime.catchException {
             colorSpace
         }
     }
     
     /// The name of the color.
     var colorName: String? {
-        try? NSObject.catchException {
+        try? ObjCRuntime.catchException {
             colorNameComponent
         }
     }
     
     /// The localized version of the color name.
     var localizedColorName: String? {
-        try? NSObject.catchException {
+        try? ObjCRuntime.catchException {
             localizedColorNameComponent
         }
     }
     
     /// The catalog containing the color’s name.
     var catalogName: String? {
-        try? NSObject.catchException {
+        try? ObjCRuntime.catchException {
             catalogNameComponent
         }
     }
     
     /// The localized version of the catalog name containing the color.
     var localizedCatalogName: String? {
-        try? NSObject.catchException {
+        try? ObjCRuntime.catchException {
             localizedCatalogNameComponent
         }
     }

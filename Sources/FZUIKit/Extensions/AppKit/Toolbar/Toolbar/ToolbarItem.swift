@@ -342,7 +342,7 @@ extension NSToolbarItem {
             guard newValue != _isHidden else { return }
             let selector = NSSelectorFromString("setHidden:")
             typealias ClosureType = @convention(c) (NSToolbarItem, Selector, Bool) -> Void
-            method(for: selector, as: ClosureType.self)?(self, selector, newValue)
+            Self.instanceMethod(for: selector, as: ClosureType.self)?(self, selector, newValue)
         }
     }
 }
