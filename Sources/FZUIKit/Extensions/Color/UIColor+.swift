@@ -20,6 +20,11 @@ public extension UIColor {
     convenience init(light lightColor: @escaping @autoclosure () -> UIColor, dark darkColor: @escaping @autoclosure () -> UIColor) {
         self.init { $0.userInterfaceStyle == .dark ? darkColor() : lightColor() }
     }
+    
+    /// A `CIColor` representation of the color.
+    var ciColor: CIColor {
+        CIColor(color: self)
+    }
 }
 #endif
 #endif

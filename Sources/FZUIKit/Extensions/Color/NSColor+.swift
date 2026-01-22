@@ -33,9 +33,8 @@ public extension NSColor {
      - Returns: The color object.
      */
     convenience init(colorSpace: NSColorSpace, components: [CGFloat]) {
-        precondition(components.count == colorSpace.numberOfColorComponents || components.count == colorSpace.numberOfColorComponents + 1,
-                     "Invalid number of components for \(colorSpace): expected \(colorSpace.numberOfColorComponents) or \(colorSpace.numberOfColorComponents+1), got \(components.count)")
-        var components = components
+        var components = components.count == colorSpace.numberOfColorComponents ? components + [1.0] : components
+        precondition(components.count == colorSpace.numberOfColorComponents+1, "Invalid number of components for \(colorSpace): expected \(colorSpace.numberOfColorComponents) or \(colorSpace.numberOfColorComponents+1), got \(components.count)")
         self.init(colorSpace: colorSpace, components: &components, count: components.count)
     }
     

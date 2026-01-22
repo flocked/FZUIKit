@@ -79,9 +79,9 @@ extension _ColorModel {
 /// The color components of a color in a speciic color space.
 public struct ColorComponents { }
 
-extension NSObjectProtocol where Self == NSUIColor {
+extension NSUIColor {
     /// Creates the color with the specified color components.
-    public init(_ colorComponents: any ColorModel) {
+    public convenience init(_ colorComponents: any ColorModel) {
         #if os(macOS)
         self.init(cgColor: CGColor(colorComponents))!
         #else

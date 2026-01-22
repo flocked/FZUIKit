@@ -155,6 +155,35 @@ public extension NSUIColor {
         return alpha
     }
     #endif
+    
+    /**
+     Creates a color with the specified color space and components.
+     
+     - Parameters:
+        - colorSpace: A color space for the new color.
+        - components: An array of the components in the specified color space to use to create the color object. The order of these components is determined by the color-space profile, with the alpha component always last. (If you want the created color to be opaque, specify `1.0` for the alpha component.)
+     - Returns: A new color.
+     */
+    convenience init?(colorSpace: CGColorSpace, components: [CGFloat]) {
+        var components = components.count == colorSpace.numberOfComponents ? components + [1.0] : components
+        guard let cgColor = CGColor(colorSpace: colorSpace, components: components) else { return nil }
+        self.init(cgColor: cgColor)
+    }
+    
+    /**
+     Creates a color with the specified color space and components.
+     
+     - Parameters:
+        - colorSpace: A color space for the new color.
+        - components: An array of the components in the specified color space to use to create the color object. The order of these components is determined by the color-space profile, with the alpha component always last. (If you want the created color to be opaque, specify `1.0` for the alpha component.)
+     - Returns: A new color.
+     */
+    @_disfavoredOverload
+    convenience init?(colorSpace: CGColorSpaceName, components: [CGFloat]) {
+        var components = components.count == colorSpace.numberOfComponents ? components + [1.0] : components
+        guard let cgColor = CGColor(colorSpace: colorSpace, components: components) else { return nil }
+        self.init(cgColor: cgColor)
+    }
 }
 
 #if os(macOS) || os(iOS) || os(tvOS)
@@ -186,44 +215,10 @@ public extension NSUIColor {
             light != dark
         }
         
-        /// The `CGColor` representation of the light and dark color.
-        public var cgColor: (light: CGColor, dark: CGColor) {
-            (light.cgColor, dark.cgColor)
-        }
-        
         init(_ light: NSUIColor, _ dark: NSUIColor) {
             self.light = light
             self.dark = dark
         }
-    }
-}
-
-public extension NSObjectProtocol where Self == NSUIColor {
-    /**
-     Creates a color with the specified color space and components.
-     
-     - Parameters:
-        - colorSpace: A color space for the new color.
-        - components: An array of intensity values describing the color. The array should contain n+1 values that correspond to the n color components in the specified color space, followed by the alpha component. Each component value should be in the range appropriate for the color space. Values outside this range will be clamped to the nearest correct value.
-     - Returns: A new color.
-     */
-    init?(colorSpace: CGColorSpace, components: [CGFloat]) {
-        guard let cgColor = CGColor(colorSpace: colorSpace, components: components) else { return nil }
-        self.init(cgColor: cgColor)
-    }
-    
-    /**
-     Creates a color with the specified color space and components.
-     
-     - Parameters:
-        - colorSpace: A color space for the new color.
-        - components: An array of intensity values describing the color. The array should contain n+1 values that correspond to the n color components in the specified color space, followed by the alpha component. Each component value should be in the range appropriate for the color space. Values outside this range will be clamped to the nearest correct value.
-     - Returns: A new color.
-     */
-    @_disfavoredOverload
-    init?(colorSpace: CGColorSpaceName, components: [CGFloat]) {
-        guard let cgColor = CGColor(colorSpace: colorSpace, components: components) else { return nil }
-        self.init(cgColor: cgColor)
     }
 }
 

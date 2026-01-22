@@ -41,6 +41,28 @@ extension ColorComponents {
             set { blue = Self.linearToSRGB(newValue) }
         }
         
+        /**
+         The relative luminance of the color.
+         
+         Setting this values scales the linear RGB components proportionally to achieve the new luminance, while preserving the relative color ratios. Alpha is unaffected.
+        */
+        public var luminance: Double {
+            get { 0.2126 * linearRed + 0.7152 * linearGreen + 0.0722 * linearBlue }
+            set {
+                let currentLuminance = luminance
+                guard currentLuminance != 0 else {
+                    linearRed = newValue
+                    linearGreen = newValue
+                    linearBlue = newValue
+                    return
+                }
+                let scale = newValue / currentLuminance
+                linearRed *= scale
+                linearGreen *= scale
+                linearBlue *= scale
+            }
+        }
+        
         public var components: [Double] {
             [red, green, blue, alpha]
         }
@@ -124,6 +146,36 @@ extension ColorComponents {
         /// The color in the grayscale color space.
         public var gray: Gray {
             Gray(white: 0.2126 * red + 0.7152 * green + 0.0722 * blue, alpha: alpha)
+        }
+        
+        /// The color inverted.
+        public var inverted: SRGB {
+            Self(red: 1.0 - red, green: 1.0 - green, blue: 1.0 - blue, alpha: alpha)
+        }
+        
+        ///  The mode used to convert a color to grayscale.
+        public enum GrayscalingMode: String, Hashable {
+            /// Linear-light luminance / Physically accurate brightness.
+            case luminance
+            /// HSL lightness / Perceptual lightness.
+            case lightness
+            /// Average of RGB channels.
+            case average
+            /// HSV/HSB value / Maximum channel value.
+            case value
+        }
+        
+        public func gray(mode: GrayscalingMode) -> Gray {
+            switch mode {
+            case .luminance:
+                return Gray(white: xyz.y, alpha: alpha)
+            case .lightness:
+                return Gray(white: hsl.lightness, alpha: alpha)
+            case .average:
+                return Gray(white: (red + green + blue) / 3.0, alpha: alpha)
+            case .value:
+                return Gray(white: hsb.brightness, alpha: alpha)
+            }
         }
         
         /// Creates the color with the specified components.
