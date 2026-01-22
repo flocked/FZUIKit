@@ -227,4 +227,16 @@ public extension NSObjectProtocol where Self == NSUIColor {
     }
 }
 
+extension NSUIColor: Swift.Encodable, Swift.Decodable {
+    public func encode(to encoder: Encoder) throws {
+        try encoder.encodeSingle(archivedData())
+    }
+}
+
+extension Decodable where Self: NSUIColor {
+    public init(from decoder: Decoder) throws {
+        self = try Self.unarchive(decoder.decodeSingle())
+    }
+}
+
 #endif
