@@ -210,7 +210,7 @@ extension ColorModels {
             self.init(red: components[0], green: components[1], blue: components[2], alpha: components[safe: 3] ?? 0.0)
         }
         
-        /// Initializes a color from a hex string (e.g. `#1D2E3F`) and an optional alpha value.
+        /// Creates the color from a hex string (e.g. `#1D2E3F`) and an optional alpha value.
         public init?(hex: String, alpha: CGFloat = 1.0) {
             let hex = hex.trimmingCharacters(in: .whitespacesAndNewlines).lowercased().removingPrefix("#").removingPrefix("0x")
             guard let hexValue = UInt64(hex, radix: 16) else { return nil }
@@ -223,7 +223,7 @@ extension ColorModels {
             }
         }
         
-        /// Initializes a color from a hex string (e.g. `#1D2E3F`) and an optional alpha value.
+        /// Creates the color from a hex string (e.g. `#1D2E3F`) and an optional alpha value.
         public init(hex: Int, alpha: CGFloat = 1.0) {
             self.init(red: CGFloat((hex & 0xFF0000) >> 16) / 255.0, green: CGFloat((hex & 0x00FF00) >> 8) / 255.0, blue: CGFloat(hex & 0x0000FF) / 255.0, alpha: alpha)
         }

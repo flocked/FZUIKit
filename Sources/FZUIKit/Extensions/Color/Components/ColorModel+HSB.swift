@@ -27,9 +27,8 @@ extension ColorModels {
             "HSB(hue: \(hue), saturation: \(saturation), brightness: \(brightness), alpha: \(alpha))"
         }
         
-        public func blended(withFraction fraction: Double, of other: Self) -> Self {
-            let blendedHue = interpolateHue(hue, to: other.hue, fraction: fraction)
-            return HSB(hue: blendedHue, saturation: saturation + (other.saturation - saturation) * fraction, brightness: brightness + (other.brightness - brightness) * fraction, alpha: alpha + (other.alpha - alpha) * fraction)
+        public func mixed(with other: Self, by fraction: Double) -> Self {
+            HSB(hue: interpolateHue(hue, to: other.hue, fraction: fraction), saturation: saturation + (other.saturation - saturation) * fraction, brightness: brightness + (other.brightness - brightness) * fraction, alpha: alpha + (other.alpha - alpha) * fraction)
         }
         
         public var components: [Double] {

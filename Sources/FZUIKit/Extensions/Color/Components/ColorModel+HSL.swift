@@ -37,9 +37,8 @@ extension ColorModels {
             }
         }
         
-        public func blended(withFraction fraction: Double, of other: Self) -> Self {
-            let blendedHue = interpolateHue(hue, to: other.hue, fraction: fraction)
-            return HSL(hue: blendedHue, saturation: saturation + (other.saturation - saturation) * fraction, lightness: lightness + (other.lightness - lightness) * fraction, alpha: alpha + (other.alpha - alpha) * fraction)
+        public func mixed(with other: Self, by fraction: Double) -> Self {
+             HSL(hue: interpolateHue(hue, to: other.hue, fraction: fraction), saturation: saturation + (other.saturation - saturation) * fraction, lightness: lightness + (other.lightness - lightness) * fraction, alpha: alpha + (other.alpha - alpha) * fraction)
         }
         
         /// The color in the sRGB color space.

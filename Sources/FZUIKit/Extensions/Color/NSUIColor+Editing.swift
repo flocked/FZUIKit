@@ -21,7 +21,7 @@ public extension NSUIColor {
      - Returns: The tinted color object.
      */
     func tinted(by amount: CGFloat = 0.2) -> NSUIColor {
-        blended(withFraction: amount, of: .white, using: .srgb)
+        mixed(with: .white, by: amount, in: .srgb)
     }
 
     /**
@@ -30,7 +30,7 @@ public extension NSUIColor {
      - Returns: The shaded color object.
      */
     func shaded(by amount: CGFloat = 0.2) -> NSUIColor {
-        blended(withFraction: amount, of: .black, using: .srgb)
+        mixed(with: .black, by: amount, in: .srgb)
     }
 
     /**
@@ -184,7 +184,7 @@ public extension CGColor {
      - Returns: The tinted color object.
      */
     func tinted(by amount: CGFloat = 0.2) -> CGColor {
-        blended(withFraction: amount, of: .white, using: .srgb)
+        mixed(with: .white, by: amount, in: .srgb)
     }
 
     /**
@@ -193,7 +193,7 @@ public extension CGColor {
      - Returns: The shaded color object.
      */
     func shaded(by amount: CGFloat = 0.2) -> CGColor {
-        blended(withFraction: amount, of: .black, using: .srgb)
+        mixed(with: .black, by: amount, in: .srgb)
     }
     
     /**
@@ -301,7 +301,7 @@ public extension Color {
      - Returns: The tinted color object.
      */
     func tinted(by amount: CGFloat = 0.2) -> Color {
-        blended(withFraction: amount, of: .white, using: .srgb)
+        mix(with: .white, by: amount)
     }
 
     /**
@@ -310,7 +310,7 @@ public extension Color {
      - Returns: The shaded color object.
      */
     func shaded(by amount: CGFloat = 0.2) -> Color {
-        blended(withFraction: amount, of: .black, using: .srgb)
+        mix(with: .black, by: amount)
     }
 
     /**

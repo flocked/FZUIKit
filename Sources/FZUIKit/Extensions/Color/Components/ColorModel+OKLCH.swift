@@ -23,9 +23,8 @@ extension ColorModels {
             didSet { alpha = alpha.clamped(to: 0...1) }
         }
         
-        public func blended(withFraction fraction: Double, of other: Self) -> Self {
-            let blendedHue = interpolateHue(hue, to: other.hue, fraction: fraction)
-            return OKLCH(lightness: lightness + (other.lightness - lightness) * fraction, chroma: chroma + (other.chroma - chroma) * fraction, hue: blendedHue, alpha: alpha + (other.alpha - alpha) * fraction)
+        public func mixed(with other: Self, by fraction: Double) -> Self {
+            OKLCH(lightness: lightness + (other.lightness - lightness) * fraction, chroma: chroma + (other.chroma - chroma) * fraction, hue: interpolateHue(hue, to: other.hue, fraction: fraction), alpha: alpha + (other.alpha - alpha) * fraction)
         }
         
         public var description: String {
