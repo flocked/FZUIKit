@@ -97,7 +97,7 @@ public extension ColorModel {
     }
 }
 
-/// The color components of a color in a speciic color space.
+/// Representations of a color in a specific color space.
 public struct ColorModels { }
 
 extension NSUIColor {

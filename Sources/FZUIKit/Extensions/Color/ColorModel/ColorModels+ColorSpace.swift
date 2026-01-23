@@ -1,6 +1,6 @@
 //
-//  ColorSpace.swift
-//  FZUIKit
+//  ColorModels+ColorSpace.swift
+//  
 //
 //  Created by Florian Zand on 14.12.25.
 //
