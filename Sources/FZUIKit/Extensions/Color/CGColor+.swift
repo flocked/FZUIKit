@@ -37,7 +37,8 @@ public extension CGColor {
      - Returns: A new color in the destination color space that matches (or closely approximates) the source color.
      */
     func converted(to colorSpace: CGColorSpace, intent: CGColorRenderingIntent = .defaultIntent) -> CGColor? {
-        converted(to: colorSpace, intent: intent, options: nil)
+        guard self.colorSpace != colorSpace else { return self }
+        return converted(to: colorSpace, intent: intent, options: nil)
     }
 
     /// A Boolean value indicating whether the color is visible (alpha value isn't zero).
@@ -66,30 +67,6 @@ public extension CGColor {
         copy(alpha: alpha) ?? self
     }
 
-    /// Returns a color from a pattern image.
-    static func fromImage(_ image: NSUIImage) -> CGColor {
-        let drawPattern: CGPatternDrawPatternCallback = { info, context in
-            let image = Unmanaged<NSUIImage>.fromOpaque(info!).takeUnretainedValue()
-            guard let cgImage = image.cgImage else { return }
-            context.draw(cgImage, in: CGRect(origin: .zero, size: image.size))
-        }
-
-        var callbacks = CGPatternCallbacks(version: 0, drawPattern: drawPattern, releaseInfo: nil)
-
-        let pattern = CGPattern(info: Unmanaged.passRetained(image).toOpaque(),
-                                bounds: CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height),
-                                matrix: CGAffineTransform(a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0),
-                                xStep: image.size.width,
-                                yStep: image.size.height,
-                                tiling: .constantSpacing,
-                                isColored: true,
-                                callbacks: &callbacks)!
-
-        let space = CGColorSpace(patternBaseSpace: nil)
-        let color = CGColor(patternSpace: space!, pattern: pattern, components: [1.0])!
-        return color
-    }
-
     #if os(macOS)
     /// Returns a `NSColor` representation of the color.
     var nsColor: NSColor? {
@@ -98,10 +75,7 @@ public extension CGColor {
 
     /// Returns a `Color` representation of the color.
     var swiftUI: Color? {
-        if let color = self.nsColor {
-            return Color(color)
-        }
-        return nil
+        nsColor?.swiftUI
     }
 
     #elseif canImport(UIKit)
@@ -112,7 +86,7 @@ public extension CGColor {
 
     /// Returns a `Color` representation of the color.
     var swiftUI: Color {
-        Color(uiColor)
+        uiColor.swiftUI
     }
 
     /// The clear color in the Generic gray color space.
@@ -130,10 +104,6 @@ public extension CGColor {
         CGColor(gray: 0, alpha: 1)
     }
     #endif
-
-    internal var nsUIColor: NSUIColor? {
-        NSUIColor(cgColor: self)
-    }
 }
 
 public extension CFType where Self == CGColor {
@@ -178,5 +148,26 @@ public extension CFType where Self == CGColor {
      */
     init(extendedSRGBRed red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
         self.init(colorSpace: .extendedSRGB, components: [red, green, blue, alpha])!
+    }
+    
+    /**
+     Creates a `CGColor` from a `CGImage`, using the image as a repeating pattern.
+
+     The color can be used to fill shapes, strokes, or layers with the image pattern.
+     
+     - Parameter patternImage: The image to use as a pattern.
+     */
+    init(patternImage: CGImage) {
+        let drawPattern: CGPatternDrawPatternCallback = { info, context in
+            let image = Unmanaged<CGImage>.fromOpaque(info!).takeUnretainedValue()
+            context.draw(image, in: CGRect(origin: .zero, size: image.size))
+        }
+        var callbacks = CGPatternCallbacks(version: 0, drawPattern: drawPattern, releaseInfo: nil)
+        let pattern = CGPattern(info: Unmanaged.passUnretained(patternImage).toOpaque(), bounds: patternImage.size.rect, matrix: .identity, xStep: CGFloat(patternImage.width), yStep: CGFloat(patternImage.height), tiling: .constantSpacing, isColored: true, callbacks: &callbacks)!
+        self = CGColor(patternSpace: CGColorSpace(patternBaseSpace: nil)!, pattern: pattern, components: [1.0])!
+    }
+    
+    internal var nsUIColor: NSUIColor? {
+        NSUIColor(cgColor: self)
     }
 }

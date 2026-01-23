@@ -16,7 +16,11 @@ import UIKit
 public extension NSUIColor {
     /// A `SwiftUI` representation of the color.
     var swiftUI: Color {
-        Color(self)
+        #if os(macOS)
+        Color(nsColor: self)
+        #else
+        Color(uiColor: self)
+        #endif
     }
 }
 
@@ -67,6 +71,38 @@ extension Color {
     /// A Boolean value indicating whether the color is light.
     public var isLight: Bool {
         nsUIColor.isLight
+    }
+}
+
+public extension Color {
+    /// Returns the dynamic light and dark color variation of the color.
+    var dynamicColors: DynamicColor {
+        let dynamicColors = nsUIColor.dynamicColors
+        return DynamicColor(dynamicColors.light.swiftUI, dynamicColors.dark.swiftUI)
+    }
+    
+    /// A Boolean value indicating whether the color contains a different light and dark color variant.
+    var isDynamic: Bool {
+        dynamicColors.isDynamic
+    }
+    
+    /// The dynamic light and dark variations of a color.
+    struct DynamicColor {
+        /// The light color.
+        public let light: Color
+        
+        /// The dark color.
+        public let dark: Color
+        
+        /// A Boolean value indicating whether the light color differs to the dark color.
+        public var isDynamic: Bool {
+            light != dark
+        }
+        
+        init(_ light: Color, _ dark: Color) {
+            self.light = light
+            self.dark = dark
+        }
     }
 }
 #endif

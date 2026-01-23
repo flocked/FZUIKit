@@ -9,7 +9,7 @@ import CoreGraphics
 import FZSwiftUtils
 
 /// Constants that specify color space names.
-public struct CGColorSpaceName: ExpressibleByStringLiteral {
+public struct CGColorSpaceName: ExpressibleByStringLiteral, Sendable {
     public let rawValue: String
     
     /// The color space model of the color space.
@@ -181,9 +181,25 @@ public struct CGColorSpaceName: ExpressibleByStringLiteral {
     }()
 }
 
-extension CFType where Self == CGColorSpace {
+public extension CFType where Self == CGColorSpace {
     /// Creates a color space with the specified name.
-    public init?(name: CGColorSpaceName) {
+    init?(name: CGColorSpaceName) {
         self.init(CGColorSpace(name: name.rawValue as CFString))
+    }
+}
+
+public extension CGColorSpace {
+    /// Returns all color spaces available on the system.
+    static func availableColorSpaces() -> [CGColorSpace] {
+        CGColorSpaceName.availableNames.compactMap({ CGColorSpace(name: $0) })
+    }
+    
+    /**
+     Returns the list of color spaces available on the system.
+     
+     - Parameter model: The model to return the color spaces for.
+     */
+    static func availableColorSpaces(with model: CGColorSpaceModel) -> [CGColorSpace] {
+        CGColorSpaceName.availableNames(with: model).compactMap({ CGColorSpace(name: $0) })
     }
 }

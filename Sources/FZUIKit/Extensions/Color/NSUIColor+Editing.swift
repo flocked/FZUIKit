@@ -312,36 +312,33 @@ public extension Color {
     func shaded(by amount: CGFloat = 0.2) -> Color {
         blended(withFraction: amount, of: .black, using: .srgb)
     }
-    
+
     /**
      Brightens the color by the specified amount.
      - Parameter amount: The amount of brightness.
      - Returns: The brightened color object.
      */
     func lighter(by amount: CGFloat = 0.2) -> Color {
-        var hsla = hsl()
-        hsla.lightness += amount
-        return Color(hsla)
+        Color(nsUIColor.lighter(by: amount))
+
     }
-    
+
     /**
      Darkens the color by the specified amount.
      - Parameter amount: The amount of darken.
      - Returns: The darkened color object.
      */
     func darkened(by amount: CGFloat = 0.2) -> Color {
-        lighter(by: amount * -1.0)
+        Color(nsUIColor.darkened(by: amount))
     }
-    
+
     /**
      Saturates the color by the specified amount.
      - Parameter amount: The amount of saturation.
      - Returns: The saturated color object.
      */
     func saturated(by amount: CGFloat = 0.2) -> Color {
-        var hsla = hsl()
-        hsla.saturation += amount
-        return Color(hsla)
+        Color(nsUIColor.saturated(by: amount))
     }
 
     /**
@@ -350,9 +347,9 @@ public extension Color {
      - Returns: The desaturated color object.
      */
     func desaturated(by amount: CGFloat = 0.2) -> Color {
-        saturated(by: amount * -1.0)
+        Color(nsUIColor.desaturated(by: amount))
     }
-    
+
     /**
      Creates and returns a color object with the hue rotated along the color wheel by the given amount.
 
@@ -360,14 +357,9 @@ public extension Color {
      - returns: A DynamicColor object with the hue changed.
      */
     func adjustedHue(by amount: CGFloat) -> Color {
-        var hsla = hsl()
-        hsla.hue = hsla.hue + amount.clamped(to: 0...360)
-        if hsla.hue > 360 {
-            hsla.hue = hsla.hue - 360
-        }
-        return Color(hsla)
+        Color(nsUIColor.adjustedHue(by: amount))
     }
-
+    
     /**
      Creates and returns the complement of the color object.
 
@@ -376,7 +368,7 @@ public extension Color {
      - returns: The complement DynamicColor.
      */
     func complemented() -> Color {
-        adjustedHue(by: 180.0)
+        Color(nsUIColor.complemented())
     }
 
     /**
@@ -385,7 +377,7 @@ public extension Color {
      - Returns: The grayscaled color.
      */
     func grayscaled(mode: GrayscalingMode = .lightness) -> Color {
-        Color(rgb().gray(mode: .init(rawValue: mode.rawValue)!))
+        Color(nsUIColor.grayscaled(mode: .init(rawValue: mode.rawValue)!))
 
     }
 
@@ -407,6 +399,6 @@ public extension Color {
      - returns: An inverse (negative) of the original color.
      */
     func inverted() -> Color {
-        Color(rgb().inverted)
+        Color(nsUIColor.inverted())
     }
 }

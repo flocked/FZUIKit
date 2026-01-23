@@ -91,7 +91,7 @@ extension ColorComponents {
             self.init(cyan: components[0], magenta: components[1], yellow: components[2], black: components[3], alpha: components[safe: 4] ?? 1.0)
         }
         
-        public static let colorSpace = CGColorSpace(name: .genericCMYK)!
+        static let colorSpace = CGColorSpace(name: .genericCMYK)!
     }
 }
 

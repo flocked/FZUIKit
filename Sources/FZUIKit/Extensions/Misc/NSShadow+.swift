@@ -49,7 +49,11 @@ public extension NSShadow {
     /// Creates a shadow from the shadow values of the specified layer.
     convenience init(layer: CALayer) {
         self.init()
-        shadowColor = layer.shadowColor?.nsUIColor?.withAlphaComponent(CGFloat(layer.shadowOpacity))
+        #if os(macOS)
+        shadowColor = layer.shadowColor?.nsColor?.withAlphaComponent(CGFloat(layer.shadowOpacity))
+        #else
+        shadowColor = layer.shadowColor?.uiColor.withAlphaComponent(CGFloat(layer.shadowOpacity))
+        #endif
         shadowOffset = layer.shadowOffset
         shadowBlurRadius = layer.shadowRadius
     }

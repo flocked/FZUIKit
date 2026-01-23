@@ -91,7 +91,7 @@ extension NSColorSpace {
     }
     
     /// Returns all color spaces available on the system that are displayed in the color panel, in the order they are displayed in the color panel.
-    public static func allAvailableColorSpaces() -> [NSColorSpace] {
+    public static func availableColorSpaces() -> [NSColorSpace] {
         availableColorSpaces(with: .unknown).sorted(by: \.colorSpaceModel.rawValue)
     }
 }

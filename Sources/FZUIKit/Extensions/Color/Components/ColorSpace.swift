@@ -9,6 +9,7 @@ import Foundation
 import CoreGraphics
 
 extension ColorComponents {
+    /// Represents a color space.
     public struct ColorSpace: CustomStringConvertible, Equatable, Hashable {
         /// The name of the color space.
         public let name: String

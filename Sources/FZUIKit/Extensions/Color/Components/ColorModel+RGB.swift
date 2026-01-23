@@ -49,18 +49,23 @@ extension ColorComponents {
         public var luminance: Double {
             get { 0.2126 * linearRed + 0.7152 * linearGreen + 0.0722 * linearBlue }
             set {
-                let currentLuminance = luminance
-                guard currentLuminance != 0 else {
+                let luminance = luminance
+                guard luminance != 0 else {
                     linearRed = newValue
                     linearGreen = newValue
                     linearBlue = newValue
                     return
                 }
-                let scale = newValue / currentLuminance
+                let scale = newValue / luminance
                 linearRed *= scale
                 linearGreen *= scale
                 linearBlue *= scale
             }
+        }
+        
+        /// A Boolean value indicating whether the color is light.
+        public var isLight: Bool {
+             luminance >= 0.5
         }
         
         public var components: [Double] {
@@ -199,7 +204,7 @@ extension ColorComponents {
             self.init(red: components[0], green: components[1], blue: components[2], alpha: components[safe: 3] ?? 0.0)
         }
         
-        public static let colorSpace = CGColorSpace(name: .extendedSRGB)!
+        static let colorSpace = CGColorSpace(name: .extendedSRGB)!
         
         @inline(__always)
         private static func srgbToLinear(_ c: Double) -> Double {

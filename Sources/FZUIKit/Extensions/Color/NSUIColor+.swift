@@ -34,7 +34,6 @@ public extension NSUIColor {
     @_disfavoredOverload
     func usingColorSpace(_ space: CGColorSpace) -> NSUIColor? {
         #if os(macOS)
-        if colorSpace.cgColorSpace == space { return self }
         if let colorSpace = NSColorSpace(cgColorSpace: space), let color = usingColorSpace(colorSpace, includeVariation: true) {
             return color
         }
@@ -43,7 +42,7 @@ public extension NSUIColor {
         let dynamicColors = dynamicColors
         if dynamicColors.isDynamic {
             var light = dynamicColors.light.cgColor
-            var dark = dynamicColors.light.cgColor
+            var dark = dynamicColors.dark.cgColor
             guard light.colorSpace != space || dark.colorSpace != space else { return self }
             if light.colorSpace != space {
                 guard let color = light.converted(to: space) else { return nil }
@@ -78,9 +77,7 @@ public extension NSUIColor {
     
     /// A Boolean value indicating whether the color is light.
     var isLight: Bool {
-        let components = rgb()
-        let brightness = ((components.red * 299.0) + (components.green * 587.0) + (components.blue * 114.0)) / 1000.0
-        return brightness >= 0.5
+        rgb().isLight
     }
     
     /// A Boolean value indicating whether the color is visible (`alphaComponent` isn't `0`).
@@ -142,11 +139,6 @@ public extension NSUIColor {
     }
     #endif
     
-    /// Returns a new color object with the specified alpha value (between `0.0` and `1.0`).
-    @objc func withAlpha(_ alpha: CGFloat) -> NSUIColor {
-        withAlphaComponent(alpha)
-    }
-    
     #if !os(macOS)
     /// The alpha value of the color.
     var alphaComponent: CGFloat {
@@ -155,6 +147,11 @@ public extension NSUIColor {
         return alpha
     }
     #endif
+    
+    /// Returns a new color object with the specified alpha value (between `0.0` and `1.0`).
+    @objc func withAlpha(_ alpha: CGFloat) -> NSUIColor {
+        withAlphaComponent(alpha)
+    }
     
     /**
      Creates a color with the specified color space and components.
@@ -165,8 +162,7 @@ public extension NSUIColor {
      - Returns: A new color.
      */
     convenience init?(colorSpace: CGColorSpace, components: [CGFloat]) {
-        var components = components.count == colorSpace.numberOfComponents ? components + [1.0] : components
-        guard let cgColor = CGColor(colorSpace: colorSpace, components: components) else { return nil }
+        guard let cgColor = CGColor(colorSpace: colorSpace, components: components.count == colorSpace.numberOfComponents ? components + [1.0] : components) else { return nil }
         self.init(cgColor: cgColor)
     }
     
@@ -180,9 +176,20 @@ public extension NSUIColor {
      */
     @_disfavoredOverload
     convenience init?(colorSpace: CGColorSpaceName, components: [CGFloat]) {
-        var components = components.count == colorSpace.numberOfComponents ? components + [1.0] : components
-        guard let cgColor = CGColor(colorSpace: colorSpace, components: components) else { return nil }
+        guard let cgColor = CGColor(colorSpace: colorSpace, components: components.count == colorSpace.numberOfComponents ? components + [1.0] : components) else { return nil }
         self.init(cgColor: cgColor)
+    }
+    
+    /**
+     Creates a color object using the specified image object.
+     
+     You can use pattern colors to set the fill or stroke color just as you’d a solid color. During drawing, the image in the pattern color is tiled as necessary to cover the given area.
+          
+     - Parameter image: The image to use when creating the pattern color.
+     - Returns: The pattern color.
+     */
+    convenience init(patternImage image: CGImage) {
+        self.init(patternImage: NSUIImage(cgImage: image))
     }
 }
 
@@ -221,6 +228,7 @@ public extension NSUIColor {
         }
     }
 }
+#endif
 
 extension NSUIColor: Swift.Encodable, Swift.Decodable {
     public func encode(to encoder: Encoder) throws {
@@ -233,5 +241,3 @@ extension Decodable where Self: NSUIColor {
         self = try Self.unarchive(decoder.decodeSingle())
     }
 }
-
-#endif

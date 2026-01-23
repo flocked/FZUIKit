@@ -17,17 +17,11 @@ import UIKit
 #endif
 
 /// A representation of the components of a color in a specific color space.
-public protocol ColorModel: CustomStringConvertible, Equatable, Hashable, Codable, ApproximateEquatable {
+public protocol ColorModel: CustomStringConvertible, Equatable, Hashable, Codable, ApproximateEquatable, Sendable {
     /// The components of the color.
     var components: [Double] { get }
     /// Creates the color with the specified color components.
     init(_ components: [Double])
-    /// The color space of the color.
-    static var colorSpace: CGColorSpace { get }
-    /// Creates a new color by blending the color with the specified other color.
-    func blended(withFraction fraction: Double, of other: Self) -> Self
-    /// Blends the color with the specified other color.
-    mutating func blend(withFraction fraction: Double, of color: Self)
 }
 
 public extension ColorModel {
@@ -41,8 +35,21 @@ public extension ColorModel {
         self = blended(withFraction: fraction, of: color)
     }
     
-    func isApproximatelyEqual(to other: Self, epsilon: Double) -> Bool {
+    /**
+     A Boolean value indicating whether the color is approximately equal to the specified other color.
+
+     - Parameters:
+       - other: The color to compare against.
+       - epsilon: The maximum allowed difference between each component.
+     - Returns: `true` if all components of the colors are less than the specified `epsilon`, otherwise, `false`.
+     */
+    func isApproximatelyEqual(to other: Self, epsilon: Double = 0.00001) -> Bool {
         components.isApproximatelyEqual(to: other.components, epsilon: epsilon)
+    }
+    
+    /// A Boolean value indicating whether the color is visible (`alpha` isn't `0`).
+    var isVisible: Bool {
+        (self as! any _ColorModel).alpha > 0.0
     }
     
     /// `CGColor` representation of the color.
@@ -70,6 +77,8 @@ public extension ColorModel {
 
 protocol _ColorModel: ColorModel {
     var _components: [Double] { get }
+    var alpha: Double { get }
+    static var colorSpace: CGColorSpace { get }
 }
 
 extension _ColorModel {
@@ -81,16 +90,14 @@ public struct ColorComponents { }
 
 extension NSUIColor {
     /// Creates the color with the specified color components.
-    public convenience init(_ colorComponents: any ColorModel) {
+    public convenience init(_ colorComponents: some ColorModel) {
         #if os(macOS)
         self.init(cgColor: CGColor(colorComponents))!
         #else
         self.init(cgColor: CGColor(colorComponents))
         #endif
     }
-}
-
-extension NSUIColor {
+    
     /// The color components in the sRGB color space.
     public func rgb() -> ColorComponents.SRGB {
         var rgba: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) = (0,0,0,0)
@@ -170,6 +177,17 @@ extension NSUIColor {
      */
     @_disfavoredOverload
     public func blended(withFraction fraction: Double, of other: NSUIColor, using colorSpace: ColorComponents.ColorSpace = .srgb) -> NSUIColor {
+        #if os(macOS) || os(iOS) || os(tvOS)
+        let dynamic = dynamicColors
+        let otherDynamic = dynamicColors
+        if dynamic.isDynamic || otherDynamic.isDynamic {
+            return NSUIColor(light: dynamic.light._blended(withFraction: fraction, of: otherDynamic.light, using: colorSpace), dark: dynamic.dark._blended(withFraction: fraction, of: otherDynamic.dark, using: colorSpace))
+        }
+        #endif
+        return _blended(withFraction: fraction, of: other, using: colorSpace)
+    }
+    
+    fileprivate func _blended(withFraction fraction: Double, of other: NSUIColor, using colorSpace: ColorComponents.ColorSpace = .srgb) -> NSUIColor {
         switch colorSpace {
         case .srgb: .init(rgb().blended(withFraction: fraction, of: other.rgb()))
         case .xyz: .init(xyz().blended(withFraction: fraction, of: other.xyz()))
@@ -261,14 +279,14 @@ extension CGColor {
 
 extension CFType where Self == CGColor {
     /// Creates the color with the specified color components.
-    public init(_ colorComponents: any ColorModel) {
-        self.init(colorSpace: type(of: colorComponents).colorSpace, components: (colorComponents as! any _ColorModel)._components.map({CGFloat($0)}))!
+    public init(_ colorComponents: some ColorModel) {
+        self.init(colorSpace: type(of: colorComponents as! any _ColorModel).colorSpace, components: (colorComponents as! any _ColorModel)._components.map({CGFloat($0)}))!
     }
 }
 
 extension Color {
     /// Creates the color with the specified color components.
-    public init(_ colorComponents: any ColorModel) {
+    public init(_ colorComponents: some ColorModel) {
         #if os(macOS)
         self.init(nsColor: colorComponents.nsColor)
         #else
@@ -332,6 +350,17 @@ extension Color {
      - Returns: The resulting color.
      */
     public func blended(withFraction fraction: Double, of other: Color, using colorSpace: ColorComponents.ColorSpace = .srgb) -> Color {
+        #if os(macOS) || os(iOS) || os(tvOS)
+        let dynamic = dynamicColors
+        let otherDynamic = dynamicColors
+        if dynamic.isDynamic || otherDynamic.isDynamic {
+            return Color(light: dynamic.light._blended(withFraction: fraction, of: otherDynamic.light, using: colorSpace), dark: dynamic.dark._blended(withFraction: fraction, of: otherDynamic.dark, using: colorSpace))
+        }
+        #endif
+        return _blended(withFraction: fraction, of: other, using: colorSpace)
+    }
+    
+    fileprivate func _blended(withFraction fraction: Double, of other: Color, using colorSpace: ColorComponents.ColorSpace = .srgb) -> Color {
         switch colorSpace {
         case .srgb: .init(rgb().blended(withFraction: fraction, of: other.rgb()))
         case .xyz: .init(xyz().blended(withFraction: fraction, of: other.xyz()))

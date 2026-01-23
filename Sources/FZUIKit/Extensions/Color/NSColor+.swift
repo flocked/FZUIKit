@@ -18,10 +18,8 @@ public extension NSColor {
         - lightColor: The light color.
         - darkColor: The dark color.
      */
-    convenience init(name: NSColor.Name? = nil, light lightColor: @escaping @autoclosure () -> NSColor, dark darkColor: @escaping @autoclosure () -> NSColor) {
-        self.init(name: name, dynamicProvider: { appereance in
-            appereance.isLight ? lightColor() : darkColor()
-        })
+    convenience init(name: String? = nil, light lightColor: @escaping @autoclosure () -> NSColor, dark darkColor: @escaping @autoclosure () -> NSColor) {
+        self.init(name: name, dynamicProvider: { appereance in appereance.isLight ? lightColor() : darkColor() })
     }
     
     /**
@@ -67,12 +65,12 @@ public extension NSColor {
     /**
      Generates the resolved color for the specified appearance provider object (e.g. `NSView`, `NSWindow` or `NSApplication`).
      
-     It uses the objects's `effectiveAppearance` for resolving the color.
+     It uses the objects's [effectiveAppearance](https://developer.apple.com/documentation/appkit/nsappearancecustomization/effectiveappearance) for resolving the color.
      
      - Parameter appearanceProvider: The object for the resolved color.
      - Returns: A resolved color for the object.
      */
-    func resolvedColor<AppearanceProvider>(for appearanceProvider: AppearanceProvider) -> NSColor where AppearanceProvider: NSAppearanceCustomization {
+    func resolvedColor<AppearanceProvider: NSAppearanceCustomization>(for appearanceProvider: AppearanceProvider) -> NSColor {
         resolvedColor(for: appearanceProvider.effectiveAppearance)
     }
     
@@ -80,7 +78,7 @@ public extension NSColor {
     func withSupportedColorSpace() -> NSColor? {
         guard type == .componentBased || type == .catalog else { return nil }
         guard safeColorSpace?.colorSpaceModel != .rgb else { return self }
-        return Self.supportedColorSpaces.lazy.compactMap({ self.usingColorSpace($0) }).first
+        return [NSColorSpace.deviceRGB, .sRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .displayP3].lazy.compactMap({ self.usingColorSpace($0) }).first
     }
     
     /**
@@ -111,46 +109,33 @@ public extension NSColor {
     
     /// A Boolean value indicating whether the color has a color space. Accessing `colorSpace` directly crashes if a color doesn't have a color space. Therefore it's recommended to use this property prior.
     var hasColorSpace: Bool {
-        type == .componentBased && !String(describing: self).contains("customDynamic")
+        safeColorSpace != nil
     }
     
     /// The color space associated with the color.
     var safeColorSpace: NSColorSpace? {
-        try? ObjCRuntime.catchException {
-            colorSpace
-        }
+        try? ObjCRuntime.catchException { colorSpace }
     }
     
     /// The name of the color.
     var colorName: String? {
-        try? ObjCRuntime.catchException {
-            colorNameComponent
-        }
+        try? ObjCRuntime.catchException { colorNameComponent }
     }
     
     /// The localized version of the color name.
     var localizedColorName: String? {
-        try? ObjCRuntime.catchException {
-            localizedColorNameComponent
-        }
+        try? ObjCRuntime.catchException { localizedColorNameComponent }
     }
     
     /// The catalog containing the color’s name.
     var catalogName: String? {
-        try? ObjCRuntime.catchException {
-            catalogNameComponent
-        }
+        try? ObjCRuntime.catchException { catalogNameComponent }
     }
     
     /// The localized version of the catalog name containing the color.
     var localizedCatalogName: String? {
-        try? ObjCRuntime.catchException {
-            localizedCatalogNameComponent
-        }
+        try? ObjCRuntime.catchException { localizedCatalogNameComponent }
     }
-    
-    /// Supported color spaces for displaying a color.
-    internal static let supportedColorSpaces: [NSColorSpace] = [.deviceRGB, .sRGB, .extendedSRGB, .genericRGB, .adobeRGB1998, .displayP3]
 }
 
 extension NSColor.ColorType: Swift.CustomStringConvertible {
@@ -175,7 +160,5 @@ extension NSColor.SystemEffect: Swift.CustomStringConvertible {
         @unknown default: return "unknown"
         }
     }
-    
-    
 }
 #endif

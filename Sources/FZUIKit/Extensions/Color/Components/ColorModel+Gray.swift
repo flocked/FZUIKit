@@ -76,7 +76,7 @@ extension ColorComponents {
             self.init(white: components[0], alpha: components[safe: 1] ?? 1.0)
         }
                 
-        public static let colorSpace = CGColorSpace(name: .extendedGray)!
+        static let colorSpace = CGColorSpace(name: .extendedGray)!
     }
 }
 

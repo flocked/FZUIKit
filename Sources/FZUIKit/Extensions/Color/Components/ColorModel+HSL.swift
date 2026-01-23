@@ -103,7 +103,7 @@ extension ColorComponents {
         }
         
         var _components: [Double] { rgb.components }
-        public static let colorSpace = SRGB.colorSpace
+        static let colorSpace = SRGB.colorSpace
     }
 }
 

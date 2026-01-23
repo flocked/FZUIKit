@@ -90,10 +90,10 @@ extension ColorComponents {
               
         #if os(macOS)
         var _components: [Double] { rgb.components }
-        public static let colorSpace = CGColorSpace(name: .extendedSRGB)!
+        static let colorSpace = CGColorSpace(name: .extendedSRGB)!
         #else
         var _components: [Double] { components }
-        public static let colorSpace = CGColorSpace(name: .genericXYZ)!
+        static let colorSpace = CGColorSpace(name: .genericXYZ)!
         #endif
         
         @inline(__always)
