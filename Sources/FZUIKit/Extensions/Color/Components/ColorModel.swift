@@ -18,10 +18,16 @@ import UIKit
 
 /// A representation of the components of a color in a specific color space.
 public protocol ColorModel: CustomStringConvertible, Equatable, Hashable, Codable, ApproximateEquatable, Sendable {
-    /// The components of the color.
-    var components: [Double] { get }
     /// Creates the color with the specified color components.
     init(_ components: [Double])
+    /// The components of the color.
+    var components: [Double] { get set }
+    /// `CGColor` representation of the color.
+    var cgColor: CGColor { get }
+    /// Creates a new color by blending the color with the specified other color.
+    func blended(withFraction fraction: Double, of other: Self) -> Self
+    /// Blends the color with the specified other color.
+    mutating func blend(withFraction fraction: Double, of color: Self)
 }
 
 public extension ColorModel {
@@ -49,12 +55,19 @@ public extension ColorModel {
     
     /// A Boolean value indicating whether the color is visible (`alpha` isn't `0`).
     var isVisible: Bool {
-        (self as! any _ColorModel).alpha > 0.0
+        components.last ?? 0.0 > 0.0
     }
     
-    /// `CGColor` representation of the color.
-    var cgColor: CGColor {
-        CGColor(self)
+    /// The color component at the specified index.
+    subscript(index: Int) -> Double {
+        get { components[index] }
+        set { components[index] = newValue }
+    }
+    
+    /// The color component at the specified index.
+    subscript(safe index: Int) -> Double? {
+        get { components[safe: index] }
+        set { components[safe: index] = newValue }
     }
     
     /// SwiftUI `Color` representation of the color.
@@ -73,33 +86,34 @@ public extension ColorModel {
         UIColor(self)
     }
     #endif
-}
-
-protocol _ColorModel: ColorModel {
-    var _components: [Double] { get }
-    var alpha: Double { get }
-    static var colorSpace: CGColorSpace { get }
-}
-
-extension _ColorModel {
-    var _components: [Double] { components }
+    
+    /// Initializes a color from a hex string (e.g. `#1D2E3F`) and an optional alpha value.
+    init?(hex: String, alpha: CGFloat = 1.0) {
+        guard let components = ColorModels.SRGB(hex: hex, alpha: alpha)?.components else { return nil }
+        self.init(components)
+    }
+    
+    /// Initializes a color from a hex string (e.g. `#1D2E3F`) and an optional alpha value.
+    init(hex: Int, alpha: CGFloat = 1.0) {
+        self.init(ColorModels.SRGB(hex: hex, alpha: alpha).components)
+    }
 }
 
 /// The color components of a color in a speciic color space.
-public struct ColorComponents { }
+public struct ColorModels { }
 
 extension NSUIColor {
     /// Creates the color with the specified color components.
     public convenience init(_ colorComponents: some ColorModel) {
         #if os(macOS)
-        self.init(cgColor: CGColor(colorComponents))!
+        self.init(cgColor: colorComponents.cgColor)!
         #else
-        self.init(cgColor: CGColor(colorComponents))
+        self.init(cgColor: colorComponents.cgColor)
         #endif
     }
     
     /// The color components in the sRGB color space.
-    public func rgb() -> ColorComponents.SRGB {
+    public func rgb() -> ColorModels.SRGB {
         var rgba: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) = (0,0,0,0)
         #if os(macOS)
         if let color = safeColorSpace?.colorSpaceModel == .rgb ? self : usingColorSpace(.extendedSRGB) {
@@ -115,7 +129,7 @@ extension NSUIColor {
     }
     
     /// The color components in the HSB color space.
-    public func hsb() -> ColorComponents.HSB {
+    public func hsb() -> ColorModels.HSB {
         var hsb: (hue: CGFloat, saturation: CGFloat, brightness: CGFloat, alpha: CGFloat) = (0,0,0,0)
         #if os(macOS)
         if let color = safeColorSpace?.colorSpaceModel == .rgb ? self : usingColorSpace(.extendedSRGB) {
@@ -131,37 +145,37 @@ extension NSUIColor {
     }
     
     /// The color components in the HSL color space.
-    public func hsl() -> ColorComponents.HSL {
+    public func hsl() -> ColorModels.HSL {
         rgb().hsl
     }
     
     /// The color components in the XYZ color space.
-    public func xyz() -> ColorComponents.XYZ {
+    public func xyz() -> ColorModels.XYZ {
         rgb().xyz
     }
     
     /// The color components in the OKLAB color space.
-    public func oklab() -> ColorComponents.OKLAB {
+    public func oklab() -> ColorModels.OKLAB {
         rgb().oklab
     }
     
     /// The color components in the OKLCH color space.
-    public func oklch() -> ColorComponents.OKLCH {
+    public func oklch() -> ColorModels.OKLCH {
         rgb().oklch
     }
     
     /// The color components in the CIE LAB color space.
-    public func lab() -> ColorComponents.LAB {
+    public func lab() -> ColorModels.LAB {
         rgb().lab
     }
     
     /// The color components in the gray color space.
-    public func gray() -> ColorComponents.Gray {
+    public func gray() -> ColorModels.Gray {
         rgb().gray
     }
     
     /// The color components in the CMYK color space.
-    public func cmyk() -> ColorComponents.CMYK {
+    public func cmyk() -> ColorModels.CMYK {
         rgb().cmyk
     }
     
@@ -176,7 +190,7 @@ extension NSUIColor {
      - Returns: The resulting color.
      */
     @_disfavoredOverload
-    public func blended(withFraction fraction: Double, of other: NSUIColor, using colorSpace: ColorComponents.ColorSpace = .srgb) -> NSUIColor {
+    public func blended(withFraction fraction: Double, of other: NSUIColor, using colorSpace: ColorModels.ColorSpace = .srgb) -> NSUIColor {
         #if os(macOS) || os(iOS) || os(tvOS)
         let dynamic = dynamicColors
         let otherDynamic = dynamicColors
@@ -187,7 +201,7 @@ extension NSUIColor {
         return _blended(withFraction: fraction, of: other, using: colorSpace)
     }
     
-    fileprivate func _blended(withFraction fraction: Double, of other: NSUIColor, using colorSpace: ColorComponents.ColorSpace = .srgb) -> NSUIColor {
+    fileprivate func _blended(withFraction fraction: Double, of other: NSUIColor, using colorSpace: ColorModels.ColorSpace = .srgb) -> NSUIColor {
         switch colorSpace {
         case .srgb: .init(rgb().blended(withFraction: fraction, of: other.rgb()))
         case .xyz: .init(xyz().blended(withFraction: fraction, of: other.xyz()))
@@ -205,48 +219,48 @@ extension NSUIColor {
 
 extension CGColor {
     /// The color components in the sRGB color space.
-    public func rgb() -> ColorComponents.SRGB {
+    public func rgb() -> ColorModels.SRGB {
         let components = (colorSpace?.model == .rgb ? self : converted(to: .extendedSRGB))?.components ?? [0, 0, 0, 0]
         return .init(components.map({Double($0)}))
     }
     
     /// The color components in the HSB color space.
-    public func hsb() -> ColorComponents.HSB {
+    public func hsb() -> ColorModels.HSB {
         rgb().hsb
     }
     
     /// The color components in the HSL color space.
-    public func hsl() -> ColorComponents.HSL {
+    public func hsl() -> ColorModels.HSL {
         rgb().hsl
     }
     
     /// The color components in the XYZ color space.
-    public func xyz() -> ColorComponents.XYZ {
+    public func xyz() -> ColorModels.XYZ {
         rgb().xyz
     }
     
     /// The color components in the OKLAB color space.
-    public func oklab() -> ColorComponents.OKLAB {
+    public func oklab() -> ColorModels.OKLAB {
         rgb().oklab
     }
     
     /// The color components in the OKLCH color space.
-    public func oklch() -> ColorComponents.OKLCH {
+    public func oklch() -> ColorModels.OKLCH {
         rgb().oklch
     }
     
     /// The color components in the CIE LAB color space.
-    public func lab() -> ColorComponents.LAB {
+    public func lab() -> ColorModels.LAB {
         rgb().lab
     }
     
     /// The color components in the gray color space.
-    public func gray() -> ColorComponents.Gray {
+    public func gray() -> ColorModels.Gray {
         rgb().gray
     }
     
     /// The color components in the CMYK color space.
-    public func cmyk() -> ColorComponents.CMYK {
+    public func cmyk() -> ColorModels.CMYK {
         rgb().cmyk
     }
     
@@ -261,7 +275,7 @@ extension CGColor {
      - Returns: The resulting color.
      */
     @_disfavoredOverload
-    public func blended(withFraction fraction: Double, of other: CGColor, using colorSpace: ColorComponents.ColorSpace = .srgb) -> CGColor {
+    public func blended(withFraction fraction: Double, of other: CGColor, using colorSpace: ColorModels.ColorSpace = .srgb) -> CGColor {
         switch colorSpace {
         case .srgb: .init(rgb().blended(withFraction: fraction, of: other.rgb()))
         case .xyz: .init(xyz().blended(withFraction: fraction, of: other.xyz()))
@@ -280,7 +294,7 @@ extension CGColor {
 extension CFType where Self == CGColor {
     /// Creates the color with the specified color components.
     public init(_ colorComponents: some ColorModel) {
-        self.init(colorSpace: type(of: colorComponents as! any _ColorModel).colorSpace, components: (colorComponents as! any _ColorModel)._components.map({CGFloat($0)}))!
+        self = colorComponents.cgColor
     }
 }
 
@@ -295,47 +309,47 @@ extension Color {
     }
     
     /// The color components in the sRGB color space.
-    public func rgb() -> ColorComponents.SRGB {
+    public func rgb() -> ColorModels.SRGB {
         nsUIColor.rgb()
     }
     
     /// The color components in the HSB color space.
-    public func hsb() -> ColorComponents.HSB {
+    public func hsb() -> ColorModels.HSB {
         nsUIColor.hsb()
     }
     
     /// The color components in the HSL color space.
-    public func hsl() -> ColorComponents.HSL {
+    public func hsl() -> ColorModels.HSL {
         rgb().hsl
     }
     
     /// The color components in the XYZ color space.
-    public func xyz() -> ColorComponents.XYZ {
+    public func xyz() -> ColorModels.XYZ {
         rgb().xyz
     }
     
     /// The color components in the OKLAB color space.
-    public func oklab() -> ColorComponents.OKLAB {
+    public func oklab() -> ColorModels.OKLAB {
         rgb().oklab
     }
     
     /// The color components in the OKLCH color space.
-    public func oklch() -> ColorComponents.OKLCH {
+    public func oklch() -> ColorModels.OKLCH {
         rgb().oklch
     }
     
     /// The color components in the CIE LAB color space.
-    public func lab() -> ColorComponents.LAB {
+    public func lab() -> ColorModels.LAB {
         rgb().lab
     }
     
     /// The color components in the gray color space.
-    public func gray() -> ColorComponents.Gray {
+    public func gray() -> ColorModels.Gray {
         rgb().gray
     }
     
     /// The color components in the CMYK color space.
-    public func cmyk() -> ColorComponents.CMYK {
+    public func cmyk() -> ColorModels.CMYK {
         rgb().cmyk
     }
     
@@ -349,7 +363,7 @@ extension Color {
 
      - Returns: The resulting color.
      */
-    public func blended(withFraction fraction: Double, of other: Color, using colorSpace: ColorComponents.ColorSpace = .srgb) -> Color {
+    public func blended(withFraction fraction: Double, of other: Color, using colorSpace: ColorModels.ColorSpace = .srgb) -> Color {
         #if os(macOS) || os(iOS) || os(tvOS)
         let dynamic = dynamicColors
         let otherDynamic = dynamicColors
@@ -360,7 +374,7 @@ extension Color {
         return _blended(withFraction: fraction, of: other, using: colorSpace)
     }
     
-    fileprivate func _blended(withFraction fraction: Double, of other: Color, using colorSpace: ColorComponents.ColorSpace = .srgb) -> Color {
+    fileprivate func _blended(withFraction fraction: Double, of other: Color, using colorSpace: ColorModels.ColorSpace = .srgb) -> Color {
         switch colorSpace {
         case .srgb: .init(rgb().blended(withFraction: fraction, of: other.rgb()))
         case .xyz: .init(xyz().blended(withFraction: fraction, of: other.xyz()))
@@ -376,11 +390,15 @@ extension Color {
     }
 }
 
-extension ColorComponents {
+extension ColorModels {
+    /// Standard illuminant D65 reference values for the CIE 1931 color space.
     enum D65 {
-        static let Xn = 0.95047
-        static let Yn = 1.00000
-        static let Zn = 1.08883
+        /// X component of the D65 white point.
+        public static let Xn = 0.95047
+        /// Y component of the D65 white point.
+        public static let Yn = 1.00000
+        /// Z component of the D65 white point.
+        public static let Zn = 1.08883
     }
 }
 

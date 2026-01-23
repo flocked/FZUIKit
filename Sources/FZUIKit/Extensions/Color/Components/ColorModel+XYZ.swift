@@ -9,9 +9,9 @@ import Foundation
 import CoreGraphics
 import FZSwiftUtils
 
-extension ColorComponents {
+extension ColorModels {
     /// The color components for a color in the XYZ color space.
-    public struct XYZ: _ColorModel {
+    public struct XYZ: ColorModel {
         /// The x component of the color.
         public var x: Double
         /// The y component of the color.
@@ -27,7 +27,15 @@ extension ColorComponents {
             "XYZ(x: \(x), y: \(y), z: \(z), alpha: \(alpha))"
         }
         
-        public var components: [Double] { [x, y, z, alpha] }
+        public var components: [Double] {
+            get { [x, y, z, alpha] }
+            set {
+                x = newValue[safe: 0] ?? x
+                y = newValue[safe: 1] ?? y
+                z = newValue[safe: 2] ?? z
+                alpha = newValue[safe: 3] ?? alpha
+            }
+        }
         
         /// The color in the sRGB color space.
         public var rgb: SRGB {
@@ -88,13 +96,19 @@ extension ColorComponents {
             self.init(x: components[0], y: components[1], z: components[2], alpha: components[safe: 3] ?? 0.0)
         }
               
-        #if os(macOS)
-        var _components: [Double] { rgb.components }
-        static let colorSpace = CGColorSpace(name: .extendedSRGB)!
-        #else
-        var _components: [Double] { components }
-        static let colorSpace = CGColorSpace(name: .genericXYZ)!
-        #endif
+        public var cgColor: CGColor {
+            rgb.cgColor
+        }
+        
+        /// Returns an Integer representing the color in hex format (e.g. `0x112233`)
+        public var hex: Int {
+            rgb.hex
+        }
+        
+        /// Returns a hex string representing the color (e.g. `#112233`)
+        public var hexString: String {
+            rgb.hexString
+        }
         
         @inline(__always)
         private func labF(_ t: Double) -> Double {
@@ -103,7 +117,7 @@ extension ColorComponents {
     }
 }
 
-public extension ColorModel where Self == ColorComponents.XYZ {
+public extension ColorModel where Self == ColorModels.XYZ {
     /// Returns the color components for a color in the XYZ color space.
     static func xyz(_ components: [Double]) -> Self {
         .init(components)

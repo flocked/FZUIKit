@@ -24,7 +24,7 @@ extension CGColorSpace {
         CGColorSpaceCreateDeviceGray()
     }
     
-    /// A Boolean value indicating whether the color space uses an extended range.
+    /// A Boolean value indicating whether the color space uses an extended range [-Inf, +Inf].
     public var usesExtendedRange: Bool {
         CGColorSpaceUsesExtendedRange(self)
     }
@@ -49,7 +49,7 @@ extension CGColorSpace {
         CGColorSpaceIsHLGBased(self)
     }
     
-    /// Returns a linear version of the color space.
+    /// Returns a linearized version of the color space.
     public var linear: CGColorSpace? {
         if name as? String == "kCGColorSpaceGenericRGB" {
             return CGColorSpace(name: .genericRGBLinear)
@@ -57,29 +57,37 @@ extension CGColorSpace {
         return CGColorSpaceCreateLinearized(self)
     }
     
-    /// Returns a non-linear version of the color space.
+    /// Returns a non-linearized version of the color space.
     public var nonLinear: CGColorSpace? {
-        guard let name = name as? String, isLinear else { return nil }
-        return CGColorSpace(name: name.removingOccurrences(of: "Linear") as CFString)
+        guard let name = name as? String, name.contains("Linear") else { return nil }
+        return CGColorSpace(name: name.replacingOccurrences(of: "Linear", with: "") as CFString)
     }
 
-    /// Returns a linear version of the color space with extended range.
+    /// Returns a linearized version of the color space with an extended range  (`[-Inf, +Inf]`).
     public var extendedLinear: CGColorSpace? {
         CGColorSpaceCreateExtendedLinearized(self)
     }
         
-    /// Returns the color space with a standard range.
+    /// Returns the color space with a standard range  (`[0.0, 1.0]`).
     @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
     public var standardRange: CGColorSpace {
         CGColorSpaceCreateCopyWithStandardRange(self)
     }
 
-    /// Returns the color space with an extended range.
+    /// Returns the color space with an extended range  (`[-Inf, +Inf]`).
     public var extendedRange: CGColorSpace? {
         CGColorSpaceCreateExtended(self)
     }
     
-    /// The base color space of a derived color space, or itself if no base exists.
+    /**
+     Returns the base color space, or the color space without any image-specific metadata.
+
+     If the color space is a pattern or an indexed color space, it's base color space is returned.
+
+     If the color space contains image-specific metadata associated with the gain map, it is returned without the metadata.
+
+     Otherwise the same color space is returned.
+     */
     @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, *)
     public var base: CGColorSpace {
         CGColorSpaceCopyBaseColorSpace(self)

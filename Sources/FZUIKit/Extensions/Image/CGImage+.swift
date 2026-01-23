@@ -208,7 +208,7 @@ extension CGImage {
 
 extension CGImage {
     /// The RGBA components at the specified pixel location.
-    func rgbaComponents(at point: CGPoint) -> ColorComponents.SRGB? {
+    func rgbaComponents(at point: CGPoint) -> ColorModels.SRGB? {
         guard let pixelData = dataProvider?.data, let data = pixelData.bytes() else {
             return nil
         }

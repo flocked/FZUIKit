@@ -43,8 +43,8 @@ public struct ColorTransformer: ContentTransform {
     }
     
     /// Creates a color transformer that generates a version of the color mixed with fractions of the specificed color.
-    public static func blended(withFraction fraction: CGFloat, of color: NSUIColor, using colorSpace: ColorComponents.ColorSpace = .srgb) -> Self {
-        Self(id: "mixed(withFraction: \(fraction), of: \(color), using: \(colorSpace.name))") { $0.blended(withFraction: fraction, of: color, using: colorSpace) }
+    public static func blended(withFraction fraction: CGFloat, of color: NSUIColor, using colorSpace: ColorModels.ColorSpace = .srgb) -> Self {
+        Self(id: "mixed(withFraction: \(fraction), of: \(color), using: \(colorSpace.rawValue))") { $0.blended(withFraction: fraction, of: color, using: colorSpace) }
     }
 
     /// Creates a color transformer that generates a tinted version of the color.

@@ -107,32 +107,47 @@ public extension NSColor {
         CIColor(color: self)
     }
     
-    /// A Boolean value indicating whether the color has a color space. Accessing `colorSpace` directly crashes if a color doesn't have a color space. Therefore it's recommended to use this property prior.
-    var hasColorSpace: Bool {
-        safeColorSpace != nil
-    }
-    
-    /// The color space associated with the color.
+    /**
+     The color space associated with the color.
+     
+     This is a safe alternative to [colorSpace](https://developer.apple.com/documentation/appkit/nscolor/colorspace),  which crashes when accessed on colors that do not have an associated color space.
+     */
     var safeColorSpace: NSColorSpace? {
         try? ObjCRuntime.catchException { colorSpace }
     }
     
-    /// The name of the color.
+    /**
+     The name of the color.
+     
+     This is a safe alternative to [colorNameComponent](https://developer.apple.com/documentation/appkit/nscolor/colornamecomponent), which crashes when the color is not backed by a named color catalog.
+     */
     var colorName: String? {
         try? ObjCRuntime.catchException { colorNameComponent }
     }
     
-    /// The localized version of the color name.
+    /**
+     The localized version of the color name.
+     
+     This is a safe alternative to [localizedColorNameComponent](https://developer.apple.com/documentation/appkit/nscolor/localizedcolornamecomponent), which crashes when the color is not backed by a named color catalog.
+     */
     var localizedColorName: String? {
         try? ObjCRuntime.catchException { localizedColorNameComponent }
     }
     
-    /// The catalog containing the color’s name.
+    /**
+     The catalog containing the color’s name.
+     
+     This is a safe alternative to [catalogNameComponent](https://developer.apple.com/documentation/appkit/nscolor/catalognamecomponent), which crashes when the color is not backed by a named color catalog.
+     */
     var catalogName: String? {
         try? ObjCRuntime.catchException { catalogNameComponent }
     }
     
-    /// The localized version of the catalog name containing the color.
+    /**
+     The localized version of the catalog name containing the color.
+     
+     This is a safe alternative to [localizedCatalogNameComponent](https://developer.apple.com/documentation/appkit/nscolor/localizedcatalognamecomponent), which crashes when the color is not backed by a named color catalog.
+     */
     var localizedCatalogName: String? {
         try? ObjCRuntime.catchException { localizedCatalogNameComponent }
     }

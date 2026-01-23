@@ -16,35 +16,50 @@ extension NSColorSpace {
         self.init(cgColorSpace: cgColorSpace)
     }
     
-    /// Returns the color space linearized.
+    /// Returns a linearized version of the color space.
     public var linear: NSColorSpace? {
         guard let colorSpace = cgColorSpace?.linear else { return nil }
         return NSColorSpace(cgColorSpace: colorSpace)
     }
     
-    /// Returns the color space non-linearized.
+    /// Returns a non-linearized version of the color space.
     public var nonLinear: NSColorSpace {
         guard let cgColorSpace = cgColorSpace?.nonLinear else { return self }
         return NSColorSpace(cgColorSpace: cgColorSpace) ?? self
     }
     
-    /// Returns the color space extended linearized.
+    /// Returns a linearized version of the color space with an extended range  (`[-Inf, +Inf]`).
     public var extendedLinear: NSColorSpace? {
         guard let colorSpace = cgColorSpace?.extendedLinear else { return nil }
         return NSColorSpace(cgColorSpace: colorSpace)
     }
     
-    /// Returns the color space with a standard range.
-    @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+    /// Returns the color space with a standard range  (`[0.0, 1.0]`).
+    @available(macOS 13.0, *)
     public var standardRange: NSColorSpace {
         guard let cgColorSpace = cgColorSpace?.standardRange else { return self }
         return NSColorSpace(cgColorSpace: cgColorSpace) ?? self
     }
     
-    /// Returns the color space extended.
+    /// Returns the color space with an extended range  (`[-Inf, +Inf]`).
     public var extendedRange: NSColorSpace? {
         guard let colorSpace = cgColorSpace?.extendedRange else { return nil }
         return NSColorSpace(cgColorSpace: colorSpace)
+    }
+    
+    /**
+     Returns the base color space, or the color space without any image-specific metadata.
+
+     If the color space is a pattern or an indexed color space, it's base color space is returned.
+
+     If the color space contains image-specific metadata associated with the gain map, it is returned without the metadata.
+
+     Otherwise the same color space is returned.
+     */
+    @available(macOS 15.0, *)
+    public var base: NSColorSpace {
+        guard let cgColorSpace = cgColorSpace?.base else { return self }
+        return NSColorSpace(cgColorSpace: cgColorSpace) ?? self
     }
     
     /// A Boolean value indicating whether the color space uses an extended range.
@@ -75,13 +90,6 @@ extension NSColorSpace {
     /// A Boolean value indicating whether the color space uses a HLG (Hybrid Log-Gamma) transfer function.
     public var isHLGBased: Bool {
         cgColorSpace?.isHLGBased ?? false
-    }
-    
-    /// The base color space of a derived color space, or itself if no base exists.
-    @available(macOS 15.0, *)
-    public var base: NSColorSpace {
-        guard let cgColorSpace = cgColorSpace?.base else { return self }
-        return NSColorSpace(cgColorSpace: cgColorSpace) ?? self
     }
     
     /// The name of the color space.

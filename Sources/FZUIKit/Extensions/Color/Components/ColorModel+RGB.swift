@@ -9,9 +9,9 @@ import Foundation
 import CoreGraphics
 import FZSwiftUtils
 
-extension ColorComponents {
+extension ColorModels {
     /// The color components for a color in the sRGB color space.
-    public struct SRGB: _ColorModel {
+    public struct SRGB: ColorModel {
         /// The red component of the color.
         public var red: Double
         /// The green component of the color.
@@ -69,7 +69,13 @@ extension ColorComponents {
         }
         
         public var components: [Double] {
-            [red, green, blue, alpha]
+            get { [red, green, blue, alpha] }
+            set {
+                red = newValue[safe: 0] ?? red
+                green = newValue[safe: 1] ?? green
+                blue = newValue[safe: 2] ?? blue
+                alpha = newValue[safe: 3] ?? alpha
+            }
         }
         
         public var description: String {
@@ -204,7 +210,45 @@ extension ColorComponents {
             self.init(red: components[0], green: components[1], blue: components[2], alpha: components[safe: 3] ?? 0.0)
         }
         
-        static let colorSpace = CGColorSpace(name: .extendedSRGB)!
+        /// Initializes a color from a hex string (e.g. `#1D2E3F`) and an optional alpha value.
+        public init?(hex: String, alpha: CGFloat = 1.0) {
+            let hex = hex.trimmingCharacters(in: .whitespacesAndNewlines).lowercased().removingPrefix("#").removingPrefix("0x")
+            guard let hexValue = UInt64(hex, radix: 16) else { return nil }
+            switch hex.count {
+            case 3: self.init(red: CGFloat((hexValue & 0xF00) >> 8) / 15.0, green: CGFloat((hexValue & 0x0F0) >> 4) / 15.0, blue: CGFloat(hexValue & 0x00F) / 15.0)
+            case 4: self.init(red: CGFloat((hexValue & 0xF000) >> 12) / 15.0, green: CGFloat((hexValue & 0x0F00) >> 8) / 15.0, blue: CGFloat((hexValue & 0x00F0) >> 4) / 15.0, alpha: CGFloat(hexValue & 0x000F) / 15.0)
+            case 6: self.init(red: CGFloat((hexValue & 0xFF0000) >> 16) / 255.0, green: CGFloat((hexValue & 0x00FF00) >> 8) / 255.0, blue: CGFloat(hexValue & 0x0000FF) / 255.0)
+            case 8: self.init(red: CGFloat((hexValue & 0xFF000000) >> 24) / 255.0, green: CGFloat((hexValue & 0x00FF0000) >> 16) / 255.0, blue: CGFloat((hexValue & 0x0000FF00) >> 8) / 255.0, alpha: CGFloat(hexValue & 0x000000FF) / 255.0)
+            default: return nil
+            }
+        }
+        
+        /// Initializes a color from a hex string (e.g. `#1D2E3F`) and an optional alpha value.
+        public init(hex: Int, alpha: CGFloat = 1.0) {
+            self.init(red: CGFloat((hex & 0xFF0000) >> 16) / 255.0, green: CGFloat((hex & 0x00FF00) >> 8) / 255.0, blue: CGFloat(hex & 0x0000FF) / 255.0, alpha: alpha)
+        }
+        
+        /// Returns an Integer representing the color in hex format (e.g. `0x112233`)
+        public var hex: Int {
+            if alpha == 1.0 {
+                return Int(UInt32(lround(red * 255)) << 16 | UInt32(lround(green * 255)) << 8 | UInt32(lround(blue * 255)))
+            } else {
+                return Int(UInt32(lround(red * 255)) << 24 | UInt32(lround(green * 255)) << 16 | UInt32(lround(blue * 255)) << 8 | UInt32(lround(alpha * 255)))
+            }
+        }
+
+        /// Returns a hex string representing the color (e.g. `#112233`)
+        public var hexString: String {
+            if alpha == 1.0 {
+                return String(format: "#%06X", UInt32(lround(red * 255)) << 16 | UInt32(lround(green * 255)) << 8 | UInt32(lround(blue * 255)))
+            } else {
+                return String(format: "#%08X", UInt32(lround(red * 255)) << 24 | UInt32(lround(green * 255)) << 16 | UInt32(lround(blue * 255)) << 8 | UInt32(lround(alpha * 255)))
+            }
+        }
+                
+        public var cgColor: CGColor {
+            CGColor(colorSpace: CGColorSpace(name: .extendedSRGB)!, components:  components.map({CGFloat($0)}))!
+        }
         
         @inline(__always)
         private static func srgbToLinear(_ c: Double) -> Double {
@@ -218,7 +262,7 @@ extension ColorComponents {
     }
 }
 
-public extension ColorModel where Self == ColorComponents.SRGB {
+public extension ColorModel where Self == ColorModels.SRGB {
     /// Returns the color components for a color in the SRGB color space.
     static func rgb(_ components: [Double]) -> Self {
         .init(components)

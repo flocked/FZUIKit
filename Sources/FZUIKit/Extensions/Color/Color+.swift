@@ -13,17 +13,6 @@ import AppKit
 import UIKit
 #endif
 
-public extension NSUIColor {
-    /// A `SwiftUI` representation of the color.
-    var swiftUI: Color {
-        #if os(macOS)
-        Color(nsColor: self)
-        #else
-        Color(uiColor: self)
-        #endif
-    }
-}
-
 #if os(macOS) || os(iOS) || os(tvOS)
 @available(macOS 11.0, iOS 14.0, watchOS 7.0, *)
 extension Color {
@@ -72,22 +61,57 @@ extension Color {
     public var isLight: Bool {
         nsUIColor.isLight
     }
-}
+    
+    /// A Boolean value indicating whether the color is visible (alpha value isn't zero).
+    public var isVisible: Bool {
+        rgb().alpha != 0.0
+    }
+    
+    #if os(macOS)
+    /**
+     Generates the resolved color for the specified appearance.
+     
+     - Parameter appearance: The appearance of the resolved color.
+     */
+    public func resolvedColor(for appearance: NSAppearance = .currentDrawing()) -> Color {
+        nsColor.resolvedColor(for: appearance).swiftUI
+    }
+    
+    /**
+     Generates the resolved color for the specified appearance provider object (e.g. `NSView`, `NSWindow` or `NSApplication`).
+     
+     It uses the objects's [effectiveAppearance](https://developer.apple.com/documentation/appkit/nsappearancecustomization/effectiveappearance) for resolving the color.
+     
+     - Parameter appearanceProvider: The object for the resolved color.
+     - Returns: A resolved color for the object.
+     */
+    public func resolvedColor<AppearanceProvider: NSAppearanceCustomization>(for appearanceProvider: AppearanceProvider) -> Color {
+        resolvedColor(for: appearanceProvider.effectiveAppearance)
+    }
+    #else
+    /**
+     Returns the version of the current color that results from the specified traits.
 
-public extension Color {
+     - Parameter traitCollection: v
+     */
+    public func resolvedColor(with traitCollection: UITraitCollection) -> Color {
+        uiColor.resolvedColor(for: appearance).swiftUI
+    }
+    #endif
+
     /// Returns the dynamic light and dark color variation of the color.
-    var dynamicColors: DynamicColor {
+    public var dynamicColors: DynamicColor {
         let dynamicColors = nsUIColor.dynamicColors
         return DynamicColor(dynamicColors.light.swiftUI, dynamicColors.dark.swiftUI)
     }
     
     /// A Boolean value indicating whether the color contains a different light and dark color variant.
-    var isDynamic: Bool {
+    public var isDynamic: Bool {
         dynamicColors.isDynamic
     }
     
     /// The dynamic light and dark variations of a color.
-    struct DynamicColor {
+    public struct DynamicColor {
         /// The light color.
         public let light: Color
         
@@ -106,3 +130,28 @@ public extension Color {
     }
 }
 #endif
+
+extension Color: Swift.Encodable, Swift.Decodable {
+    public init(from decoder: any Decoder) throws {
+        #if os(macOS)
+        self.init(nsColor: try NSUIColor(from: decoder))
+        #else
+        self.init(uiColor: try NSUIColor(from: decoder))
+        #endif
+    }
+    
+    public func encode(to encoder: any Encoder) throws {
+        try nsUIColor.encode(to: encoder)
+    }
+}
+
+public extension NSUIColor {
+    /// A `SwiftUI` representation of the color.
+    var swiftUI: Color {
+        #if os(macOS)
+        Color(nsColor: self)
+        #else
+        Color(uiColor: self)
+        #endif
+    }
+}

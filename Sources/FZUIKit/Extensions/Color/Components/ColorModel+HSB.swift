@@ -9,9 +9,9 @@ import Foundation
 import CoreGraphics
 import FZSwiftUtils
 
-extension ColorComponents {
+extension ColorModels {
     /// The color components for a color in the HSB color space.
-    public struct HSB: _ColorModel {
+    public struct HSB: ColorModel {
         /// The hue component of the color.
         public var hue: Double
         /// The saturation component of the color.
@@ -27,12 +27,20 @@ extension ColorComponents {
             "HSB(hue: \(hue), saturation: \(saturation), brightness: \(brightness), alpha: \(alpha))"
         }
         
-        public func blended(withFraction fraction: Double, of other: HSB) -> HSB {
+        public func blended(withFraction fraction: Double, of other: Self) -> Self {
             let blendedHue = interpolateHue(hue, to: other.hue, fraction: fraction)
             return HSB(hue: blendedHue, saturation: saturation + (other.saturation - saturation) * fraction, brightness: brightness + (other.brightness - brightness) * fraction, alpha: alpha + (other.alpha - alpha) * fraction)
         }
         
-        public var components: [Double] { [hue, saturation, brightness, alpha] }
+        public var components: [Double] {
+            get { [hue, saturation, brightness, alpha] }
+            set {
+                hue = newValue[safe: 0] ?? hue
+                saturation = newValue[safe: 1] ?? saturation
+                brightness = newValue[safe: 2] ?? brightness
+                alpha = newValue[safe: 3] ?? alpha
+            }
+        }
         
         /// The color in the HSL color space.
         public var hsl: HSL {
@@ -123,12 +131,23 @@ extension ColorComponents {
             return r < 0 ? r + 1 : r
         }
         
-        var _components: [Double] { rgb.components }
-        static let colorSpace = SRGB.colorSpace
+        public var cgColor: CGColor {
+            rgb.cgColor
+        }
+        
+        /// Returns an Integer representing the color in hex format (e.g. `0x112233`)
+        public var hex: Int {
+            rgb.hex
+        }
+        
+        /// Returns a hex string representing the color (e.g. `#112233`)
+        public var hexString: String {
+            rgb.hexString
+        }
     }
 }
 
-public extension ColorModel where Self == ColorComponents.HSB {
+public extension ColorModel where Self == ColorModels.HSB {
     /// Returns the color components for a color in the HSB color space.
     static func hsb(_ components: [Double]) -> Self {
         .init(components)

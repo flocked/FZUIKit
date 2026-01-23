@@ -9,9 +9,9 @@ import Foundation
 import CoreGraphics
 import FZSwiftUtils
 
-extension ColorComponents {
+extension ColorModels {
     /// The color components for a color in the CMYK color space.
-    public struct CMYK: _ColorModel {
+    public struct CMYK: ColorModel {
         /// The cyan component of the color.
         public var cyan: Double
         /// The magenta component of the color.
@@ -30,7 +30,14 @@ extension ColorComponents {
         }
         
         public var components: [Double] {
-            [cyan, magenta, yellow, black, alpha]
+            get { [cyan, magenta, yellow, black, alpha] }
+            set {
+                cyan = newValue[safe: 0] ?? cyan
+                magenta = newValue[safe: 1] ?? magenta
+                yellow = newValue[safe: 2] ?? yellow
+                black = newValue[safe: 2] ?? black
+                alpha = newValue[safe: 4] ?? alpha
+            }
         }
         
         /// The color in the sRGB color space.
@@ -90,12 +97,24 @@ extension ColorComponents {
             precondition(components.count >= 4, "You need to provide at least 4 components for a color in CMYK color space.")
             self.init(cyan: components[0], magenta: components[1], yellow: components[2], black: components[3], alpha: components[safe: 4] ?? 1.0)
         }
+                
+        public var cgColor: CGColor {
+            CGColor(colorSpace: CGColorSpace(name: .genericCMYK)!, components:  components.map({CGFloat($0)}))!
+        }
         
-        static let colorSpace = CGColorSpace(name: .genericCMYK)!
+        /// Returns an Integer representing the color in hex format (e.g. `0x112233`)
+        public var hex: Int {
+            rgb.hex
+        }
+        
+        /// Returns a hex string representing the color (e.g. `#112233`)
+        public var hexString: String {
+            rgb.hexString
+        }
     }
 }
 
-public extension ColorModel where Self == ColorComponents.CMYK {
+public extension ColorModel where Self == ColorModels.CMYK {
     /// Returns the color components for a color in the CMYK color space.
     static func cmyk(_ components: [Double]) -> Self {
         .init(components)

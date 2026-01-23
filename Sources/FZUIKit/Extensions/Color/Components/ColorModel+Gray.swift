@@ -9,9 +9,9 @@ import Foundation
 import CoreGraphics
 import FZSwiftUtils
 
-extension ColorComponents {
+extension ColorModels {
     /// The color components for a color in the grayscale color space.
-    public struct Gray: _ColorModel {
+    public struct Gray: ColorModel {
         /// The white component of the color.
         public var white: Double
         /// The alpha value of the color.
@@ -19,7 +19,13 @@ extension ColorComponents {
             didSet { alpha = alpha.clamped(to: 0...1) }
         }
         
-        public var components: [Double] { [white, alpha] }
+        public var components: [Double] {
+            get { [white, alpha] }
+            set {
+                white = newValue[safe: 0] ?? white
+                alpha = newValue[safe: 1] ?? alpha
+            }
+        }
         
         public var description: String {
             "Gray(white: \(white), alpha: \(alpha))"
@@ -75,12 +81,24 @@ extension ColorComponents {
             precondition(components.count >= 1, "You need to provide at least 1 component for a color in grayscale color space.")
             self.init(white: components[0], alpha: components[safe: 1] ?? 1.0)
         }
-                
-        static let colorSpace = CGColorSpace(name: .extendedGray)!
+                        
+        public var cgColor: CGColor {
+            CGColor(colorSpace: CGColorSpace(name: .extendedGray)!, components:  components.map({CGFloat($0)}))!
+        }
+        
+        /// Returns an Integer representing the color in hex format (e.g. `0x112233`)
+        public var hex: Int {
+            rgb.hex
+        }
+        
+        /// Returns a hex string representing the color (e.g. `#112233`)
+        public var hexString: String {
+            rgb.hexString
+        }
     }
 }
 
-public extension ColorModel where Self == ColorComponents.Gray {
+public extension ColorModel where Self == ColorModels.Gray {
     /// Returns the color components for a color in the grayscale color space.
     static func gray(_ components: [Double]) -> Self {
         .init(components)

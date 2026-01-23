@@ -52,9 +52,7 @@ public extension CGColor {
      It is useful when you need to know whether you should display the text in black or white.
      */
     var isLight: Bool {
-        let components = rgb()
-        let brightness = ((components.red * 299.0) + (components.green * 587.0) + (components.blue * 114.0)) / 1000.0
-        return brightness >= 0.5
+        rgb().isLight
     }
 
     /**
@@ -169,5 +167,18 @@ public extension CFType where Self == CGColor {
     
     internal var nsUIColor: NSUIColor? {
         NSUIColor(cgColor: self)
+    }
+}
+
+extension Swift.Decodable where Self: CGColor {
+    public init(from decoder: any Decoder) throws {
+        self = try NSUIColor(from: decoder).cgColor as! Self
+    }
+    
+}
+
+extension CGColor: Swift.Encodable, Swift.Decodable {
+    public func encode(to encoder: any Encoder) throws {
+        try nsUIColor.encode(to: encoder)
     }
 }

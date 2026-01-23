@@ -9,9 +9,9 @@ import Foundation
 import CoreGraphics
 import FZSwiftUtils
 
-extension ColorComponents {
+extension ColorModels {
     /// The color components for a color in the OKLCH color space.
-    public struct OKLCH: _ColorModel {
+    public struct OKLCH: ColorModel {
         /// The lightness component of the color.
         public var lightness: Double
         /// The chroma component of the color.
@@ -23,7 +23,7 @@ extension ColorComponents {
             didSet { alpha = alpha.clamped(to: 0...1) }
         }
         
-        public func blended(withFraction fraction: Double, of other: OKLCH) -> OKLCH {
+        public func blended(withFraction fraction: Double, of other: Self) -> Self {
             let blendedHue = interpolateHue(hue, to: other.hue, fraction: fraction)
             return OKLCH(lightness: lightness + (other.lightness - lightness) * fraction, chroma: chroma + (other.chroma - chroma) * fraction, hue: blendedHue, alpha: alpha + (other.alpha - alpha) * fraction)
         }
@@ -32,7 +32,15 @@ extension ColorComponents {
             "OKLCH(lightness: \(lightness), chroma: \(chroma), hue: \(hue), alpha: \(alpha))"
         }
         
-        public var components: [Double] { [lightness, chroma, hue, alpha] }
+        public var components: [Double] {
+            get { [lightness, chroma, hue, alpha] }
+            set {
+                lightness = newValue[safe: 0] ?? lightness
+                chroma = newValue[safe: 1] ?? chroma
+                hue = newValue[safe: 2] ?? hue
+                alpha = newValue[safe: 3] ?? alpha
+            }
+        }
         
         /// The color in the OKLAB color space.
         public var oklab: OKLAB {
@@ -90,12 +98,23 @@ extension ColorComponents {
             self.init(lightness: components[0], chroma: components[1], hue: components[2], alpha: components[safe: 3] ?? 0.0)
         }
         
-        var _components: [Double] { rgb.components }
-        static let colorSpace = SRGB.colorSpace
+        public var cgColor: CGColor {
+            rgb.cgColor
+        }
+        
+        /// Returns an Integer representing the color in hex format (e.g. `0x112233`)
+        public var hex: Int {
+            rgb.hex
+        }
+        
+        /// Returns a hex string representing the color (e.g. `#112233`)
+        public var hexString: String {
+            rgb.hexString
+        }
     }
 }
 
-public extension ColorModel where Self == ColorComponents.OKLCH {
+public extension ColorModel where Self == ColorModels.OKLCH {
     /// Returns the color components for a color in the OKLCH color space.
     static func oklch(_ components: [Double]) -> Self {
         .init(components)

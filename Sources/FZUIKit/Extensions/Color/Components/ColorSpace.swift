@@ -8,7 +8,37 @@
 import Foundation
 import CoreGraphics
 
-extension ColorComponents {
+extension ColorModels {
+    /// Represents a color space.
+    public enum ColorSpace: String, Equatable, Hashable, Sendable, CustomStringConvertible {
+        /// sRGB.
+        case srgb
+        /// HSL.
+        case hsl
+        /// HSB.
+        case hsb
+        /// OKLAB.
+        case oklab
+        /// OKLCH.
+        case oklch
+        /// XYZ.
+        case xyz
+        /// LAB.
+        case lab
+        /// Gray.
+        case gray
+        /// CMYK.
+        case cmyk
+        
+        public var description: String {
+           rawValue
+        }
+    }
+}
+
+
+/*
+extension ColorModels {
     /// Represents a color space.
     public struct ColorSpace: CustomStringConvertible, Equatable, Hashable {
         /// The name of the color space.
@@ -54,3 +84,4 @@ extension ColorComponents {
         }
     }
 }
+*/

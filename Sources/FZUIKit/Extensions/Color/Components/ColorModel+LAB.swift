@@ -9,9 +9,9 @@ import Foundation
 import CoreGraphics
 import FZSwiftUtils
 
-extension ColorComponents {
+extension ColorModels {
     /// The color components for a color in the CIE Lab color space.
-    public struct LAB: _ColorModel {
+    public struct LAB: ColorModel {
         /// The lightness component of the color.
         public var lightness: Double
         /// The green-red component of the color.
@@ -27,7 +27,15 @@ extension ColorComponents {
             "LAB(lightness: \(lightness), greenRed: \(greenRed), blueYellow: \(blueYellow), alpha: \(alpha))"
         }
         
-        public var components: [Double] { [lightness, greenRed, blueYellow, alpha] }
+        public var components: [Double] {
+            get { [lightness, greenRed, blueYellow, alpha] }
+            set {
+                lightness = newValue[safe: 0] ?? lightness
+                greenRed = newValue[safe: 1] ?? greenRed
+                blueYellow = newValue[safe: 2] ?? blueYellow
+                alpha = newValue[safe: 3] ?? alpha
+            }
+        }
         
         /// The color in the sRGB color space.
         public var rgb: SRGB {
@@ -91,17 +99,23 @@ extension ColorComponents {
             return t3 > 0.008856 ? t3 : (t - 16.0/116.0) / 7.787
         }
         
-        #if os(macOS)
-        var _components: [Double] { rgb.components }
-        static let colorSpace = CGColorSpace(name: .extendedSRGB)!
-        #else
-        var _components: [Double] { components }
-        static let colorSpace = CGColorSpace(name: .genericLab)!
-        #endif
+        public var cgColor: CGColor {
+            rgb.cgColor
+        }
+        
+        /// Returns an Integer representing the color in hex format (e.g. `0x112233`)
+        public var hex: Int {
+            rgb.hex
+        }
+        
+        /// Returns a hex string representing the color (e.g. `#112233`)
+        public var hexString: String {
+            rgb.hexString
+        }
     }
 }
 
-public extension ColorModel where Self == ColorComponents.LAB {
+public extension ColorModel where Self == ColorModels.LAB {
     /// Returns the color components for a color in the CIE Lab color space.
     static func lab(_ components: [Double]) -> Self {
         .init(components)

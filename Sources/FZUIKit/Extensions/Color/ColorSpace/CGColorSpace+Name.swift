@@ -171,13 +171,13 @@ public struct CGColorSpaceName: ExpressibleByStringLiteral, Sendable {
     }
     
     /// Returns the names of all available color spaces.
-    public static let availableNames: [CGColorSpaceName] = {
-        var colorSpaceNames: [CGColorSpaceName] = [.acescgLinear, .adobeRGB1998, .deviceRGB, .extendedLinearSRGB, .extendedSRGB, .genericRGB, .genericRGBLinear, .linearSRGB, .rommRGB, .sRGB, .dcip3, .displayP3, .displayP3_HLG, .extendedLinearDisplayP3, .deviceGray, .extendedGray, .extendedLinearGray, .genericGray, .genericGrayGamma2_2, .linearGray, .extendedLinearITUR_2020, .itur_2020, .itur_709, .genericCMYK, .deviceCMYK, .genericLab, .genericXYZ, .displayP3_PQ, .extendedDisplayP3, .extendedITUR_2020, .itur_2100_HLG, .itur_2100_PQ, .linearDisplayP3]
+    public static let availableNames: [Self] = {
+        var names: [Self] = [.acescgLinear, .adobeRGB1998, .deviceRGB, .extendedLinearSRGB, .extendedSRGB, .genericRGB, .genericRGBLinear, .linearSRGB, .rommRGB, .sRGB, .dcip3, .displayP3, .displayP3_HLG, .extendedLinearDisplayP3, .deviceGray, .extendedGray, .extendedLinearGray, .genericGray, .genericGrayGamma2_2, .linearGray, .extendedLinearITUR_2020, .itur_2020, .itur_709, .genericCMYK, .deviceCMYK, .genericLab, .genericXYZ, .displayP3_PQ, .extendedDisplayP3, .extendedITUR_2020, .itur_2100_HLG, .itur_2100_PQ, .linearDisplayP3]
         if #available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, *) {
-            colorSpaceNames += [.itur_2020_sRGBGamma, .itur_709_HLG, .itur_709_PQ, .linearITUR_2020]
+            names += [.itur_2020_sRGBGamma, .itur_709_HLG, .itur_709_PQ, .linearITUR_2020]
         }
-        let modalColorSpaces = Dictionary(grouping: colorSpaceNames, by: \.model.rawValue)
-        return modalColorSpaces.keys.sorted(.smallestFirst).flatMap({ (modalColorSpaces[$0] ?? []).sorted(by: \.rawValue) })
+        let keyedNames = Dictionary(grouping: names, by: \.model.rawValue)
+        return keyedNames.keys.sorted().flatMap({ (keyedNames[$0] ?? []).sorted(by: \.rawValue) })
     }()
 }
 
