@@ -102,7 +102,7 @@ public struct ColorModels { }
 
 extension NSUIColor {
     /// Creates the color with the specified color components.
-    public convenience init(_ colorModel: some ColorModel) {
+    public convenience init(_ colorModel: any ColorModel) {
         #if os(macOS)
         self.init(cgColor: colorModel.cgColor)!
         #else
@@ -287,14 +287,14 @@ extension CGColor {
 
 extension CFType where Self == CGColor {
     /// Creates the color with the specified color components.
-    public init(_ colorModel: some ColorModel) {
+    public init(_ colorModel: any ColorModel) {
         self = colorModel.cgColor
     }
 }
 
 extension Color {
     /// Creates the color with the specified color components.
-    public init(_ colorModel: some ColorModel) {
+    public init(_ colorModel: any ColorModel) {
         self.init(cgColor: colorModel.cgColor)
     }
     
