@@ -42,16 +42,21 @@ extension Color {
     }
     
     #if os(macOS)
-    /// A `NSColor` representation of the color.
+    /// `NSColor` representation of the color.
     public var nsColor: NSColor {
         NSColor(self)
     }
     #else
-    /// A `UIColor` representation of the color.
+    /// `UIColor` representation of the color.
     public var uiColor: UIColor {
         UIColor(self)
     }
     #endif
+    
+    /// `CGColor` representation of the color.
+    public var cgColor: CGColor {
+        nsUIColor.cgColor
+    }
     
     var nsUIColor: NSUIColor {
         NSUIColor(self)
@@ -65,6 +70,15 @@ extension Color {
     /// A Boolean value indicating whether the color is visible (alpha value isn't zero).
     public var isVisible: Bool {
         rgb().alpha != 0.0
+    }
+    
+    /// Generates the resolved color for the specified environment.
+    func resolvedColor(in environment: EnvironmentValues) -> Color {
+        #if os(macOS)
+        resolvedColor(for: environment.colorScheme == .light ? .aqua : .darkAqua)
+        #else
+        resolvedColor(with: environment.colorScheme == .light ? .light : .dark)
+        #endif
     }
     
     #if os(macOS)
@@ -95,14 +109,13 @@ extension Color {
      - Parameter traitCollection: v
      */
     public func resolvedColor(with traitCollection: UITraitCollection) -> Color {
-        uiColor.resolvedColor(for: appearance).swiftUI
+        uiColor.resolvedColor(for: traitCollection).swiftUI
     }
     #endif
 
     /// Returns the dynamic light and dark color variation of the color.
     public var dynamicColors: DynamicColor {
-        let dynamicColors = nsUIColor.dynamicColors
-        return DynamicColor(dynamicColors.light.swiftUI, dynamicColors.dark.swiftUI)
+        DynamicColor(nsUIColor.dynamicColors)
     }
     
     /// A Boolean value indicating whether the color contains a different light and dark color variant.
@@ -123,9 +136,9 @@ extension Color {
             light != dark
         }
         
-        init(_ light: Color, _ dark: Color) {
-            self.light = light
-            self.dark = dark
+        init(_ colors: NSUIColor.DynamicColor) {
+            self.light = colors.light.swiftUI
+            self.dark = colors.dark.swiftUI
         }
     }
 }
