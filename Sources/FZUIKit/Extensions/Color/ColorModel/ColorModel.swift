@@ -110,36 +110,19 @@ extension NSUIColor {
         #endif
     }
     
-    /// The color components in the sRGB color space.
+    /// The color components in the extended sRGB color space.
     public func rgb() -> ColorModels.SRGB {
-        var rgba: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) = (0,0,0,0)
-        #if os(macOS)
-        if let color = safeColorSpace?.colorSpaceModel == .rgb ? self : usingColorSpace(.extendedSRGB) {
-            color.getRed(&rgba.red, green: &rgba.green, blue: &rgba.blue, alpha: &rgba.alpha)
-            return .init(red: rgba.red, green: rgba.green, blue: rgba.blue, alpha: rgba.alpha)
-        }
-        #else
-        if getRed(&rgba.red, green: &rgba.green, blue: &rgba.blue, alpha: &rgba.alpha) {
-            return .init(red: rgba.red, green: rgba.green, blue: rgba.blue, alpha: rgba.alpha)
-        }
-        #endif
-        return cgColor.rgb()
+        cgColor.rgb()
+    }
+    
+    /// The color components in the specified RGB color space.
+    public func rgb(using colorSpace: ColorModels.RGBColorSpace) -> ColorModels.SRGB {
+        cgColor.rgb(using: colorSpace)
     }
     
     /// The color components in the HSB color space.
     public func hsb() -> ColorModels.HSB {
-        var hsb: (hue: CGFloat, saturation: CGFloat, brightness: CGFloat, alpha: CGFloat) = (0,0,0,0)
-        #if os(macOS)
-        if let color = safeColorSpace?.colorSpaceModel == .rgb ? self : usingColorSpace(.extendedSRGB) {
-            color.getHue(&hsb.hue, saturation: &hsb.saturation, brightness: &hsb.brightness, alpha: &hsb.alpha)
-            return .init(hue: hsb.hue, saturation: hsb.saturation, brightness: hsb.brightness, alpha: hsb.alpha)
-        }
-        #else
-        if getHue(&hsb.hue, saturation: &hsb.saturation, brightness: &hsb.brightness, alpha: &hsb.alpha) {
-            return .init(hue: hsb.hue, saturation: hsb.saturation, brightness: hsb.brightness, alpha: hsb.alpha)
-        }
-        #endif
-        return cgColor.hsb()
+        rgb().hsb
     }
     
     /// The color components in the HSL color space.
@@ -214,10 +197,16 @@ extension NSUIColor {
 }
 
 extension CGColor {
-    /// The color components in the sRGB color space.
+    /// The color components in the extened sRGB color space.
     public func rgb() -> ColorModels.SRGB {
-        let components = (colorSpace?.model == .rgb ? self : converted(to: .extendedSRGB))?.components ?? [0, 0, 0, 0]
-        return .init(components.map({Double($0)}))
+        rgb(using: .extended)
+    }
+    
+    /// The color components in the specified RGB color space.
+    public func rgb(using colorSpace: ColorModels.RGBColorSpace) -> ColorModels.SRGB {
+        let colorSpace = colorSpace.colorSpace ?? .deviceRGB
+        let components = ((self.colorSpace == colorSpace ? self : converted(to: colorSpace))?.components ?? [0,0,0.0]).map(Double.init)
+        return .init(components)
     }
     
     /// The color components in the HSB color space.
@@ -298,14 +287,19 @@ extension Color {
         self.init(cgColor: colorModel.cgColor)
     }
     
-    /// The color components in the sRGB color space.
+    /// The color components in the extended sRGB color space.
     public func rgb() -> ColorModels.SRGB {
         nsUIColor.rgb()
     }
     
+    /// The color components in the RGB color space.
+    public func rgb(using colorSpace: ColorModels.RGBColorSpace) -> ColorModels.SRGB {
+        nsUIColor.rgb(using: colorSpace)
+    }
+    
     /// The color components in the HSB color space.
     public func hsb() -> ColorModels.HSB {
-        nsUIColor.hsb()
+        rgb().hsb
     }
     
     /// The color components in the HSL color space.
@@ -353,6 +347,7 @@ extension Color {
      
      - Returns: The resulting color.
      */
+    @_disfavoredOverload
     public func mix(with other: Color, by fraction: Double, in colorSpace: ColorModels.ColorSpace = .srgb) -> Color {
         nsUIColor.mixed(with: other.nsUIColor, by: fraction, in: colorSpace).swiftUI
     }

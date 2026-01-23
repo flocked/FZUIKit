@@ -20,6 +20,11 @@ public struct CGColorSpaceName: ExpressibleByStringLiteral, Sendable {
         model.numberOfComponents
     }
     
+    /// The color space for the name.
+    public var colorSpace: CGColorSpace? {
+        CGColorSpace(name: self)
+    }
+    
     public init(rawValue: String) {
         self.rawValue = rawValue
         self.model = .rgb

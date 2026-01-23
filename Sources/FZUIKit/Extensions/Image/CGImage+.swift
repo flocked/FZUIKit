@@ -20,35 +20,45 @@ public extension CGImage {
     var nsImage: NSImage {
         NSImage(cgImage: self)
     }
-
+    
     #elseif canImport(UIKit)
     /// A `UIImage` representation of the image.
     var uiImage: UIImage {
         UIImage(cgImage: self)
     }
     #endif
-
+    
     /// An `Image` representation of the image.
     var swiftUI: Image {
         #if os(macOS)
-        return Image(nsImage)
+        Image(nsImage: nsImage)
         #elseif canImport(UIKit)
-        return Image(uiImage: uiImage)
+        Image(uiImage: uiImage)
         #endif
     }
-
+    
     #if os(macOS) || os(iOS) || os(tvOS)
     /// A `CIImage` representation of the image.
     var ciImage: CIImage {
         CIImage(cgImage: self)
     }
     #endif
-
+    
     /// The size of the image.
     var size: CGSize {
         CGSize(width: width, height: height)
     }
-
+    
+    /// Returns the data for a bitmap image or image mask.
+    var data: Data? {
+        dataProvider?.data as Data?
+    }
+    
+    /// Returns the pointer to the bytes for a bitmap image or image mask.
+    var bytePointer: UnsafePointer<UInt8>? {
+        dataProvider?.data?.bytes()
+    }
+    
     internal var nsUIImage: NSUIImage {
         NSUIImage(cgImage: self)
     }
@@ -71,6 +81,59 @@ public extension CGImage {
         case .premultipliedFirst, .premultipliedLast, .last, .first, .alphaOnly: return true
         default: return false
         }
+    }
+    
+    func masked(by mask: CGImage, invertMask: Bool = false) -> CGImage? {
+        mask.grayScaled(invert: invertMask).flatMap(masking)
+    }
+    
+    func grayScaled(invert: Bool = false, includeAlpha: Bool = false) -> CGImage? {
+        let ciImage = CIImage(cgImage: self)
+        guard let grayFilter = CIFilter(name: "CIColorControls") else { return nil }
+        grayFilter.setValue(ciImage, forKey: kCIInputImageKey)
+        grayFilter.setValue(0.0, forKey: kCIInputSaturationKey)
+        guard var outputImage = grayFilter.outputImage else { return nil }
+        if invert, let invertFilter = CIFilter(name: "CIColorInvert") {
+            invertFilter.setValue(outputImage, forKey: kCIInputImageKey)
+            if let inverted = invertFilter.outputImage {
+                outputImage = inverted
+            }
+        }
+        return CIContext(options: nil).createCGImage(outputImage, from: outputImage.extent, format: includeAlpha ? .LA8 : .L8, colorSpace: CGColorSpaceCreateDeviceGray())
+    }
+    
+    func masked(by mask: CGImage, invertMask: Bool = false, shouldInterpolate: Bool) -> CGImage? {
+        mask.asMask(invert: invertMask, shouldInterpolate: shouldInterpolate).flatMap(masking)
+    }
+    
+    func asMask(invert: Bool = false, shouldInterpolate: Bool = false) -> CGImage? {
+        let rect = CGRect(x: 0, y: 0, width: width, height: height)
+        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.none.rawValue) else { return nil }
+        context.translateBy(x: 0, y: CGFloat(height))
+        context.scaleBy(x: 1, y: -1)
+        if invert {
+            context.setFillColor(gray: 1, alpha: 1)
+            context.fill(rect)
+            context.setBlendMode(.difference)
+        } else {
+            context.setBlendMode(.copy)
+        }
+        context.draw(self, in: rect)
+        guard let img = context.makeImage(), let provider = img.dataProvider else { return nil }
+        return CGImage(maskWidth: img.width, height: img.height, bitsPerComponent: img.bitsPerComponent, bitsPerPixel: img.bitsPerPixel, bytesPerRow: img.bytesPerRow, provider: provider, decode: nil, shouldInterpolate: shouldInterpolate)
+    }
+    
+    func asMaskAlt(invert: Bool = false, shouldInterpolate: Bool = false) -> CGImage? {
+        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.none.rawValue) else { return nil }
+        context.flipVertically()
+        if invert {
+            context.setFillColor(gray: 1, alpha: 1)
+            context.fill(size.rect)
+            context.setBlendMode(.difference)
+        }
+        context.draw(self)
+        guard let img = context.makeImage(), let provider = img.dataProvider else { return nil }
+        return CGImage(maskWidth: img.width, height: img.height, bitsPerComponent: img.bitsPerComponent, bitsPerPixel: img.bitsPerPixel, bytesPerRow: img.bytesPerRow, provider: provider, decode: nil, shouldInterpolate: shouldInterpolate)
     }
 }
 
@@ -107,33 +170,14 @@ extension CGImage {
 
 extension CFType where Self == CGImage {
     /**
-     Creates a new image with the specified size and color space.
-     
-     - Parameters:
-       - size: The size of the image.
-       - colorSpace: The color space to use.
-       - hasAlpha: A Boolean value indicating whether the image should include an alpha channel.
-     */
-    public init(size: CGSize, colorSpace: CGColorSpaceName = .genericRGB, hasAlpha: Bool = true) {
-        let context = CGContext(size: size, space: colorSpace, hasAlpha: hasAlpha)!
-        context.clear(CGRect(.zero, size))
-        self = context.makeImage()!
-    }
-    
-    /**
      Creates a new image filled with the specified color.
      
      - Parameters:
        - size: The size of the image.
-       - colorSpace: The color space to use.
        - color: The fill color of the image.
      */
-    public init(size: CGSize, colorSpace: CGColorSpaceName = .genericRGB, color: CGColor) {
-        let context = CGContext(size: size, space: colorSpace, hasAlpha: color.alpha < 1.0)!
-        context.saveGState()
-        context.fill(color, in: CGRect(origin: .zero, size: size))
-        context.restoreGState()
-        self = context.makeImage()!
+    public init(size: CGSize, color: CGColor) {
+        self.init(size: size, colorSpace: color.colorSpace ?? .deviceRGB, color: color, drawingHandler: { _ in })
     }
     
     /**
@@ -145,11 +189,23 @@ extension CFType where Self == CGImage {
         - hasAlpha: A Boolean value indicating whether the image has an alpha channel.
         - drawingHandler: A block that draws the contents of the image representation.
      */
-    public init(size: CGSize, colorSpace: CGColorSpaceName = .genericRGB, hasAlpha: Bool = true, drawingHandler: ((CGContext) -> Void)) {
+    public init(size: CGSize, colorSpace: CGColorSpaceName = .sRGB, hasAlpha: Bool = true, drawingHandler: ((CGContext) -> Void)) {
+        self.init(size: size, colorSpace: colorSpace.colorSpace ?? .deviceRGB, hasAlpha: hasAlpha, drawingHandler: drawingHandler)
+    }
+    
+    /**
+     Creates an image whose contents are drawn using the specified block.
+     
+     - Parameters:
+        - size: The size of the image.
+        - colorSpace: The name of the color space.
+        - hasAlpha: A Boolean value indicating whether the image has an alpha channel.
+        - drawingHandler: A block that draws the contents of the image representation.
+     */
+    @_disfavoredOverload
+    public init(size: CGSize, colorSpace: CGColorSpace, hasAlpha: Bool = true, drawingHandler: ((CGContext) -> Void)) {
         let context = CGContext(size: size, space: colorSpace, hasAlpha: hasAlpha)!
-        context.saveGState()
         drawingHandler(context)
-        context.restoreGState()
         self = context.makeImage()!
     }
     
@@ -162,13 +218,27 @@ extension CFType where Self == CGImage {
         - color: The background color of the image.
         - drawingHandler: A block that draws the contents of the image representation.
      */
-    public init(size: CGSize, colorSpace: CGColorSpaceName = .genericRGB, color: CGColor, drawingHandler: ((CGContext) -> Void)) {
-        let context = CGContext(size: size, space: colorSpace, hasAlpha: color.alpha < 1.0)!
-        context.saveGState()
-        context.fill(color, in: CGRect(origin: .zero, size: size))
-        drawingHandler(context)
-        context.restoreGState()
-        self = context.makeImage()!
+    public init(size: CGSize, colorSpace: CGColorSpaceName = .sRGB, color: CGColor, drawingHandler: ((CGContext) -> Void)) {
+        self.init(size: size, colorSpace: colorSpace.colorSpace ?? .deviceRGB, color: color, drawingHandler: drawingHandler)
+    }
+    
+    /**
+     Creates an image whose contents are drawn using the specified block.
+     
+     - Parameters:
+        - size: The size of the image.
+        - colorSpace: The name of the color space.
+        - color: The background color of the image.
+        - drawingHandler: A block that draws the contents of the image representation.
+     */
+    @_disfavoredOverload
+    public init(size: CGSize, colorSpace: CGColorSpace, color: CGColor, drawingHandler: ((CGContext) -> Void)) {
+        self.init(size: size, colorSpace: colorSpace, hasAlpha: color.alpha < 1.0) { context in
+            context.withSavedGState {
+                context.fill(color)
+            }
+            drawingHandler(context)
+        }
     }
 }
 
@@ -207,8 +277,8 @@ extension CGImage {
 }
 
 extension CGImage {
-    /// The RGBA components at the specified pixel location.
-    func rgbaComponents(at point: CGPoint) -> ColorModels.SRGB? {
+    /// The sRGB color components at the specified pixel location.
+    func rgb(at point: CGPoint) -> ColorModels.SRGB? {
         guard let pixelData = dataProvider?.data, let data = pixelData.bytes() else {
             return nil
         }
@@ -266,8 +336,7 @@ extension CGImage {
     
     /// The color at the specified pixel location.
     func color(at point: CGPoint) -> CGColor? {
-        guard let rgba = rgbaComponents(at: point) else { return nil }
-        return .init(red: rgba.red, green: rgba.green, blue: rgba.blue, alpha: rgba.alpha)
+        rgb(at: point)?.cgColor
     }
 }
 

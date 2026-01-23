@@ -66,11 +66,6 @@ public extension NSUIImage {
         guard let cgImage = cgImage else { return [] }
         return CGRect(.zero, self.size).divided(into: size, horizontalOrder: .init(rawValue: horizontalOrder.rawValue)!, verticalOrder: .init(rawValue: verticalOrder.rawValue)!).compactMap({ cgImage.cropping(to: $0)?.nsUIImage })
     }
-
-    /// Returns the image cropped to the specified rect.
-    func cropped(to rect: CGRect) -> NSUIImage {
-        cgImage?.cropping(to: rect)?.nsUIImage ?? self
-    }
 }
 
 extension CGImage {

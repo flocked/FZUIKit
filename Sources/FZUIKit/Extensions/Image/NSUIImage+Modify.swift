@@ -13,6 +13,20 @@ import UIKit
 import FZSwiftUtils
 
 public extension NSUIImage {
+    /// Returns the image cropped to the specified rect.
+    func cropped(to rect: CGRect) -> NSUIImage? {
+        cgImage?.cropping(to: rect)?.nsUIImage
+    }
+    
+    /**
+     Creates a bitmap image from an existing image and an image mask.
+     
+     */
+    func masked(with mask: NSUIImage) -> NSUIImage? {
+        guard let mask = mask.cgImage else { return nil }
+        return cgImage?.masking(mask)?.nsUIImage
+    }
+    
     /// Returns the image resized to fit the specified size.
     func resized(toFit targetSize: CGSize) -> NSUIImage {
         resized(to: size.scaled(toFit: targetSize))

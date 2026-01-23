@@ -301,7 +301,7 @@ public extension Color {
      - Returns: The tinted color object.
      */
     func tinted(by amount: CGFloat = 0.2) -> Color {
-        mix(with: .white, by: amount)
+        mix(with: .white, by: amount, in: .srgb)
     }
 
     /**
@@ -310,7 +310,7 @@ public extension Color {
      - Returns: The shaded color object.
      */
     func shaded(by amount: CGFloat = 0.2) -> Color {
-        mix(with: .black, by: amount)
+        mix(with: .black, by: amount, in: .srgb)
     }
 
     /**

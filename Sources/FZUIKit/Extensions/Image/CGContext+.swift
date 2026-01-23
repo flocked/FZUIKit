@@ -215,8 +215,20 @@ public extension CFType where Self == CGContext {
         self = context
     }
     
+    @_disfavoredOverload
+    init?(data: UnsafeMutableRawPointer? = nil, size: CGSize, bitsPerComponent: Int = 8, bytesPerRow: Int = 0, space: CGColorSpace, hasAlpha: Bool = true) {
+        guard let context = CGContext(data: data, width: Int(size.width), height: Int(size.height), bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: space, bitmapInfo: hasAlpha ? .rgba : .rgb) else { return nil }
+        self = context
+    }
+    
     init?(size: CGSize, bitmapInfo: CGBitmapInfo, space: CGColorSpaceName) {
         guard let space = CGColorSpace(name: space) else { return nil }
+        guard let context = CGContext(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: bitmapInfo.bitsPerComponent, bytesPerRow: 0, space: space, bitmapInfo: bitmapInfo) else { return nil }
+        self = context
+    }
+    
+    @_disfavoredOverload
+    init?(size: CGSize, bitmapInfo: CGBitmapInfo, space: CGColorSpace) {
         guard let context = CGContext(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: bitmapInfo.bitsPerComponent, bytesPerRow: 0, space: space, bitmapInfo: bitmapInfo) else { return nil }
         self = context
     }
