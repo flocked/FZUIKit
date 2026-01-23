@@ -104,12 +104,6 @@ extension ColorModels {
             self.init(hue: components[0], saturation: components[1], lightness: components[2], alpha: components[safe: 3] ?? 0.0)
         }
         
-        @inline(__always)
-        private func wrapUnit(_ x: Double) -> Double {
-            let r = x.truncatingRemainder(dividingBy: 1)
-            return r < 0 ? r + 1 : r
-        }
-        
         public var cgColor: CGColor {
             rgb.cgColor
         }

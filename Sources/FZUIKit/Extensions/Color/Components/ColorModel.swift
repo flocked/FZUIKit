@@ -104,11 +104,11 @@ public struct ColorModels { }
 
 extension NSUIColor {
     /// Creates the color with the specified color components.
-    public convenience init(_ colorComponents: some ColorModel) {
+    public convenience init(_ colorModel: some ColorModel) {
         #if os(macOS)
-        self.init(cgColor: colorComponents.cgColor)!
+        self.init(cgColor: colorModel.cgColor)!
         #else
-        self.init(cgColor: colorComponents.cgColor)
+        self.init(cgColor: colorModel.cgColor)
         #endif
     }
     
@@ -212,7 +212,6 @@ extension NSUIColor {
         case .cmyk: .init(cmyk().blended(withFraction: fraction, of: other.cmyk()))
         case .lab: .init(lab().blended(withFraction: fraction, of: other.lab()))
         case .gray: .init(gray().blended(withFraction: fraction, of: other.gray()))
-        default: .init(rgb().blended(withFraction: fraction, of: other.rgb()))
         }
     }
 }
@@ -286,25 +285,24 @@ extension CGColor {
         case .cmyk: .init(cmyk().blended(withFraction: fraction, of: other.cmyk()))
         case .lab: .init(lab().blended(withFraction: fraction, of: other.lab()))
         case .gray: .init(gray().blended(withFraction: fraction, of: other.gray()))
-        default: .init(rgb().blended(withFraction: fraction, of: other.rgb()))
         }
     }
 }
 
 extension CFType where Self == CGColor {
     /// Creates the color with the specified color components.
-    public init(_ colorComponents: some ColorModel) {
-        self = colorComponents.cgColor
+    public init(_ colorModel: some ColorModel) {
+        self = colorModel.cgColor
     }
 }
 
 extension Color {
     /// Creates the color with the specified color components.
-    public init(_ colorComponents: some ColorModel) {
+    public init(_ colorModel: some ColorModel) {
         #if os(macOS)
-        self.init(nsColor: colorComponents.nsColor)
+        self.init(nsColor: colorModel.nsColor)
         #else
-        self.init(uiColor: colorComponents.uiColor)
+        self.init(uiColor: colorModel.uiColor)
         #endif
     }
     
@@ -385,7 +383,6 @@ extension Color {
         case .cmyk: .init(cmyk().blended(withFraction: fraction, of: other.cmyk()))
         case .lab: .init(lab().blended(withFraction: fraction, of: other.lab()))
         case .gray: .init(gray().blended(withFraction: fraction, of: other.gray()))
-        default: .init(rgb().blended(withFraction: fraction, of: other.rgb()))
         }
     }
 }
@@ -415,5 +412,10 @@ extension ColorModel {
             delta += 1.0
         }
         return h1 + delta * fraction
+    }
+    
+    func wrapUnit(_ x: Double) -> Double {
+        let r = x.truncatingRemainder(dividingBy: 1.0)
+        return r < 0 ? r + 1 : r
     }
 }
