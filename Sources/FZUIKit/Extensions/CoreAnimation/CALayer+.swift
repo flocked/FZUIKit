@@ -413,7 +413,6 @@ extension CALayer {
         return self
     }
     
-    
     /// The shape of the shadow.
     public var shadowShape: (any Shape)? {
         get { getAssociatedValue("shadowShape") }
@@ -1184,3 +1183,103 @@ public extension CAAutoresizingMask {
 }
 #endif
 #endif
+
+/*
+public class DynColors {
+    private weak var layer: CALayer?
+    private var viewObservation: KeyValueObservation?
+    
+    private var observations: [PartialKeyPath<CALayer>: Observer] = [:] {
+        didSet { updateViewObservation() }
+    }
+    
+    public init(_ layer: CALayer) {
+        self.layer = layer
+    }
+    
+    public subscript(_ keyPath: ReferenceWritableKeyPath<CALayer, CGColor?>) -> NSUIColor? {
+        get { observations[keyPath]?.color ?? layer?[keyPath: keyPath]?.nsUIColor }
+        set { setColor(newValue, for: keyPath) }
+    }
+    
+    public subscript(_ keyPath: ReferenceWritableKeyPath<CALayer, CGColor>) -> NSUIColor {
+        get { observations[keyPath]?.color ?? layer?[keyPath: keyPath].nsUIColor ?? .clear }
+        set { setColor(newValue, for: keyPath) }
+    }
+        
+    private func setColor(_ color: NSUIColor?, for keyPath: ReferenceWritableKeyPath<CALayer, CGColor?>) {
+        guard let layer = layer else { return }
+        func setup() {
+            observations[keyPath] = nil
+            layer[keyPath: keyPath] = color?.resolvedColor(for: layer.parentView?.effectiveAppearance ?? .aqua).cgColor
+            guard var observer = Observer(color) else { return }
+            observer.observation = layer.observeChanges(for: keyPath) { [weak self] old, new in
+                guard new != observer.light && new != observer.dark else { return }
+                self?.observations[keyPath] = nil
+            }
+            observer.update = { $0[keyPath: keyPath] = $1 ? observer.light : observer.dark }
+            observations[keyPath] = observer
+        }
+        if let match = observations[keyPath] {
+            guard match.color != color else { return }
+            setup()
+        } else {
+            setup()
+        }
+    }
+    
+    private func setColor(_ color: NSUIColor, for keyPath: ReferenceWritableKeyPath<CALayer, CGColor>) {
+        guard let layer = layer else { return }
+        func setup() {
+            observations[keyPath] = nil
+            layer[keyPath: keyPath] = color.resolvedColor(for: layer.parentView?.effectiveAppearance ?? .aqua).cgColor
+            guard var observer = Observer(color) else { return }
+            observer.observation = layer.observeChanges(for: keyPath) { [weak self] old, new in
+                guard new != observer.light && new != observer.dark else { return }
+                self?.observations[keyPath] = nil
+            }
+            observer.update = { $0[keyPath: keyPath] = $1 ? observer.light : observer.dark }
+            observations[keyPath] = observer
+        }
+        if let match = observations[keyPath] {
+            guard match.color != color else { return }
+            setup()
+        } else {
+            setup()
+        }
+    }
+    
+    private func updateColors(isLight: Bool) {
+        guard let layer = layer else { return }
+        observations.values.forEach({ $0.update(layer, isLight) })
+    }
+    
+    private func updateViewObservation() {
+        if observations.isEmpty {
+            viewObservation = nil
+        } else if viewObservation == nil {
+            viewObservation = layer?.parentView?.observeChanges(for: \.effectiveAppearance) { [weak self] old, new in
+                guard old.isLight != new.isLight else { return }
+                self?.updateColors(isLight: new.isLight)
+            }
+        }
+    }
+    
+    private struct Observer {
+        let color: NSUIColor
+        let light: CGColor
+        let dark: CGColor
+        var observation: KeyValueObservation?
+        var update: (CALayer, Bool)->() = { _,_ in }
+        
+        init?(_ color: NSUIColor?) {
+            guard let color = color else { return nil }
+            let dynamicColors = color.dynamicColors
+            guard dynamicColors.isDynamic else { return nil }
+            self.color = color
+            self.light = dynamicColors.light.cgColor
+            self.dark = dynamicColors.dark.cgColor
+        }
+    }
+}
+*/

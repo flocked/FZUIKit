@@ -7,7 +7,6 @@
 
 import Foundation
 import CoreGraphics
-import FZSwiftUtils
 
 extension ColorModels {
     /// The color components for a color in the OKLAB color space.

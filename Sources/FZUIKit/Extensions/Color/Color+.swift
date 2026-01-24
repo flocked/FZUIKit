@@ -14,7 +14,6 @@ import UIKit
 #endif
 
 #if os(macOS) || os(iOS) || os(tvOS)
-@available(macOS 11.0, iOS 14.0, watchOS 7.0, *)
 extension Color {
     /**
      Creates a color that uses the specified block to generate its color data dynamically.
@@ -52,11 +51,6 @@ extension Color {
         UIColor(self)
     }
     #endif
-    
-    /// `CGColor` representation of the color.
-    public var cgColor: CGColor {
-        nsUIColor.cgColor
-    }
     
     var nsUIColor: NSUIColor {
         NSUIColor(self)
@@ -109,7 +103,7 @@ extension Color {
      - Parameter traitCollection: v
      */
     public func resolvedColor(with traitCollection: UITraitCollection) -> Color {
-        uiColor.resolvedColor(for: traitCollection).swiftUI
+        uiColor.resolvedColor(with: traitCollection).swiftUI
     }
     #endif
 

@@ -7,7 +7,6 @@
 
 #if os(macOS)
 import AppKit
-import FZSwiftUtils
 
 extension NSColorSpace {
     /// Initializes and returns a color space object initialized from a `CGColorSpace` with the specified name.
