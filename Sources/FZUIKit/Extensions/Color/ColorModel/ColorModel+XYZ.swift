@@ -81,6 +81,11 @@ extension ColorModels {
             let fz = labF(z / D65.Zn)
             return LAB(lightness: 116.0 * fy - 16.0, greenRed: 500.0 * (fx - fy), blueYellow: 200.0 * (fy - fz), alpha: alpha)
         }
+        
+        /// The color in the LCH color space.
+        public var lch: LCH {
+            lab.lch
+        }
 
         /// Creates the color with the specified components.
         public init(x: Double, y: Double, z: Double, alpha: Double = 1.0) {

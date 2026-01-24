@@ -79,6 +79,14 @@ extension ColorModels {
             rgb.gray
         }
         
+        /// The color in the LCH color space.
+        public var lch: LCH {
+            let chroma = sqrt(greenRed * greenRed + blueYellow * blueYellow)
+            var hue = atan2(blueYellow, greenRed) / (2.0 * Double.pi)
+            if hue < 0 { hue += 1 }
+            return LCH(lightness: lightness, chroma: chroma, hue: hue, alpha: alpha)
+        }
+        
         /// Creates the color with the specified components.
         public init(lightness: Double, greenRed: Double, blueYellow: Double, alpha: Double = 1.0) {
             self.lightness = lightness

@@ -89,6 +89,11 @@ extension ColorModels {
             rgb.gray
         }
         
+        /// The color in the LCH color space.
+        public var lch: LCH {
+            rgb.lch
+        }
+        
         /// Creates the color with the specified components.
         public init(lightness: Double, greenRed: Double, blueYellow: Double, alpha: Double = 1.0) {
             self.lightness = lightness

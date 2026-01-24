@@ -150,6 +150,11 @@ extension NSUIColor {
         rgb().lab
     }
     
+    /// The color components in the LCH color space.
+    public func lch() -> ColorModels.LCH {
+        rgb().lch
+    }
+    
     /// The color components in the gray color space.
     public func gray() -> ColorModels.Gray {
         rgb().gray
@@ -182,17 +187,11 @@ extension NSUIColor {
     }
     
     fileprivate func _mixed(with other: NSUIColor, by fraction: Double, in colorSpace: ColorModels.ColorSpace = .srgb) -> NSUIColor {
-        switch colorSpace {
-        case .srgb: .init(rgb().mixed(with: other.rgb(), by: fraction))
-        case .xyz: .init(xyz().mixed(with: other.xyz(), by: fraction))
-        case .oklab: .init(oklab().mixed(with: other.oklab(), by: fraction))
-        case .oklch: .init(oklch().mixed(with: other.oklch(), by: fraction))
-        case .hsl: .init(hsl().mixed(with: other.hsl(), by: fraction))
-        case .hsb: .init(hsb().mixed(with: other.hsb(), by: fraction))
-        case .cmyk: .init(cmyk().mixed(with: other.cmyk(), by: fraction))
-        case .lab: .init(lab().mixed(with: other.lab(), by: fraction))
-        case .gray: .init(gray().mixed(with: other.gray(), by: fraction))
-        }
+        #if os(macOS)
+        NSUIColor(cgColor: cgColor.mixed(with: other.cgColor, by: fraction, in: colorSpace))!
+        #else
+        NSUIColor(cgColor: cgColor.mixed(with: other.cgColor, by: fraction, in: colorSpace))
+        #endif
     }
 }
 
@@ -249,6 +248,11 @@ extension CGColor {
         rgb().cmyk
     }
     
+    /// The color components in the LCH color space.
+    public func lch() -> ColorModels.LCH {
+        rgb().lch
+    }
+    
     /**
      Creates a new color whose component values are a weighted sum of the current color and the specified color.
 
@@ -270,6 +274,7 @@ extension CGColor {
         case .cmyk: .init(cmyk().mixed(with: other.cmyk(), by: fraction))
         case .lab: .init(lab().mixed(with: other.lab(), by: fraction))
         case .gray: .init(gray().mixed(with: other.gray(), by: fraction))
+        case .lch: .init(lch().mixed(with: other.lch(), by: fraction))
         }
     }
 }
@@ -325,6 +330,11 @@ extension Color {
     /// The color components in the CIE LAB color space.
     public func lab() -> ColorModels.LAB {
         rgb().lab
+    }
+    
+    /// The color components in the LCH color space.
+    public func lch() -> ColorModels.LCH {
+        rgb().lch
     }
     
     /// The color components in the gray color space.
@@ -385,26 +395,3 @@ extension ColorModel {
         return r < 0 ? r + 1 : r
     }
 }
-
-/*
- extension Double {
-     var wrapUnit: Double {
-         let r = truncatingRemainder(dividingBy: 1.0)
-         return r < 0 ? r + 1 : r
-     }
-    
-     func interpolateHue(withFraction fraction: Double, of other: Self) -> Self {
-         var h1 = truncatingRemainder(dividingBy: 1.0)
-         var h2 = other.truncatingRemainder(dividingBy: 1.0)
-         if h1 < 0 { h1 += 1 }
-         if h2 < 0 { h2 += 1 }
-         var delta = h2 - h1
-         if delta > 0.5 {
-             delta -= 1.0
-         } else if delta < -0.5 {
-             delta += 1.0
-         }
-         return h1 + delta * fraction
-     }
- }
- */

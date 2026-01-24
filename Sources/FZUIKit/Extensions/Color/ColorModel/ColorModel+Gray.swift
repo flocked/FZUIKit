@@ -70,6 +70,11 @@ extension ColorModels {
             rgb.lab
         }
         
+        /// The color in the LCH color space.
+        public var lch: LCH {
+            rgb.lch
+        }
+        
         /// Creates the color with the specified components.
         public init(white: Double, alpha: Double = 1.0) {
             self.white = white

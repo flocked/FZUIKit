@@ -25,6 +25,8 @@ extension ColorModels {
         case xyz
         /// LAB.
         case lab
+        /// LCH.
+        case lch
         /// Gray.
         case gray
         /// CMYK.

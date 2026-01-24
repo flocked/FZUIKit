@@ -105,6 +105,11 @@ extension ColorModels {
             rgb.lab
         }
         
+        /// The color in the LCH color space.
+        public var lch: LCH {
+            rgb.lch
+        }
+        
         /// The color in the grayscale color space.
         public var gray: Gray {
             rgb.gray

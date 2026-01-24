@@ -153,6 +153,11 @@ extension ColorModels {
             xyz.lab
         }
         
+        /// The color in the LCH color space.
+        public var lch: LCH {
+            lab.lch
+        }
+        
         /// The color in the grayscale color space.
         public var gray: Gray {
             Gray(white: 0.2126 * red + 0.7152 * green + 0.0722 * blue, alpha: alpha)

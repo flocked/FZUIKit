@@ -1,16 +1,16 @@
 //
-//  ColorModel+OKLCH.swift
-//  
+//  ColorModel+LCH.swift
+//  FZUIKit
 //
-//  Created by Florian Zand on 14.12.25.
+//  Created by Florian Zand on 24.01.26.
 //
 
 import Foundation
 import CoreGraphics
 
 extension ColorModels {
-    /// The color components for a color in the OKLCH color space.
-    public struct OKLCH: ColorModel {
+    /// The color components for a color in the LCH color space.
+    public struct LCH: ColorModel {
         /// The lightness component of the color.
         public var lightness: Double
         /// The chroma component of the color.
@@ -27,7 +27,7 @@ extension ColorModels {
         }
         
         public var description: String {
-            "OKLCH(lightness: \(lightness), chroma: \(chroma), hue: \(hue), alpha: \(alpha))"
+            "LCH(lightness: \(lightness), chroma: \(chroma), hue: \(hue), alpha: \(alpha))"
         }
         
         public var components: [Double] {
@@ -38,54 +38,6 @@ extension ColorModels {
                 hue = newValue[safe: 2] ?? hue
                 alpha = newValue[safe: 3] ?? alpha
             }
-        }
-        
-        /// The color in the OKLAB color space.
-        public var oklab: OKLAB {
-            let hRad = hue * 2.0 * Double.pi
-            let greenRed = chroma * cos(hRad)
-            let blueYellow = chroma * sin(hRad)
-            return OKLAB(lightness: lightness, greenRed: greenRed, blueYellow: blueYellow, alpha: alpha)
-        }
-        
-        /// The color in the sRGB color space.
-        public var rgb: SRGB {
-            oklab.rgb
-        }
-        
-        /// The color in the HSB color space.
-        public var hsb: HSB {
-            rgb.hsb
-        }
-        
-        /// The color in the HSL color space.
-        public var hsl: HSL {
-            rgb.hsl
-        }
-        
-        /// The color in the CMYK color space.
-        public var cmyk: CMYK {
-            rgb.cmyk
-        }
-        
-        /// The color in the the XYZ color space.
-        public var xyz: XYZ {
-            rgb.xyz
-        }
-        
-        /// The color in the the CIE Lab color space.
-        public var lab: LAB {
-            rgb.lab
-        }
-        
-        /// The color in the LCH color space.
-        public var lch: LCH {
-            lab.lch
-        }
-        
-        /// The color in the grayscale color space.
-        public var gray: Gray {
-            rgb.gray
         }
         
         /// Creates the color with the specified components.
@@ -101,30 +53,66 @@ extension ColorModels {
             self.init(lightness: components[0], chroma: components[1], hue: components[2], alpha: components[safe: 3] ?? 0.0)
         }
         
+        /// The color in the sRGB color space.
+        public var rgb: SRGB {
+            lab.rgb
+        }
+        
+        /// The color in the OKLAB color space.
+        public var oklab: OKLAB {
+            lab.oklab
+        }
+        
+        /// The color in the OKLCH color space.
+        public var oklch: OKLCH {
+            lab.oklch
+        }
+        
+        /// The color in the HSB color space.
+        public var hsb: HSB {
+            lab.hsb
+        }
+        
+        /// The color in the HSL color space.
+        public var hsl: HSL {
+            lab.hsl
+        }
+        
+        /// The color in the CMYK color space.
+        public var cmyk: CMYK {
+            lab.cmyk
+        }
+        
+        /// The color in the the XYZ color space.
+        public var xyz: XYZ {
+            lab.xyz
+        }
+        
+        /// The color in the grayscale color space.
+        public var gray: Gray {
+            lab.gray
+        }
+        
+        /// The color in the the CIE Lab color space.
+        public var lab: LAB {
+            let hRad = hue * 2.0 * Double.pi
+            let greenRed = chroma * cos(hRad)
+            let blueYellow = chroma * sin(hRad)
+            return LAB(lightness: lightness, greenRed: greenRed, blueYellow: blueYellow, alpha: alpha)
+        }
+        
         public var cgColor: CGColor {
-            rgb.cgColor
+            lab.cgColor
         }
         
         /// Returns an Integer representing the color in hex format (e.g. `0x112233`)
         public var hex: Int {
-            rgb.hex
+            lab.hex
         }
         
         /// Returns a hex string representing the color (e.g. `#112233`)
         public var hexString: String {
-            rgb.hexString
+            lab.hexString
         }
-    }
-}
-
-public extension ColorModel where Self == ColorModels.OKLCH {
-    /// Returns the color components for a color in the OKLCH color space.
-    static func oklch(_ components: [Double]) -> Self {
-        .init(components)
-    }
-    
-    /// Returns the color components for a color in the OKLCH color space.
-    static func oklch(lightness: Double, chroma: Double, hue: Double, alpha: Double = 1.0) -> Self {
-        .init(lightness: lightness, chroma: chroma, hue: hue, alpha: alpha)
     }
 }
