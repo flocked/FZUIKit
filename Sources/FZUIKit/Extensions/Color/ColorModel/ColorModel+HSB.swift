@@ -114,6 +114,11 @@ extension ColorModels {
         public var gray: Gray {
             rgb.gray
         }
+        
+        /// The color inverted.
+        public var inverted: Self {
+            rgb.inverted.hsb
+        }
                 
         /// Creates the color with the specified components.
         public init(hue: Double, saturation: Double, brightness: Double, alpha: Double = 1.0) {

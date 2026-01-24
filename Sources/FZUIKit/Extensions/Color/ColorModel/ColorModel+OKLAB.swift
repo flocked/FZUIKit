@@ -94,6 +94,11 @@ extension ColorModels {
             rgb.lch
         }
         
+        /// The color inverted.
+        public var inverted: Self {
+            rgb.inverted.oklab
+        }
+        
         /// Creates the color with the specified components.
         public init(lightness: Double, greenRed: Double, blueYellow: Double, alpha: Double = 1.0) {
             self.lightness = lightness

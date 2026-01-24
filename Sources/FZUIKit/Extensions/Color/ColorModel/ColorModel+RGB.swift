@@ -163,11 +163,6 @@ extension ColorModels {
             Gray(white: 0.2126 * red + 0.7152 * green + 0.0722 * blue, alpha: alpha)
         }
         
-        /// The color inverted.
-        public var inverted: SRGB {
-            Self(red: 1.0 - red, green: 1.0 - green, blue: 1.0 - blue, alpha: alpha)
-        }
-        
         ///  The mode used to convert a color to grayscale.
         public enum GrayscalingMode: String, Hashable {
             /// Linear-light luminance / Physically accurate brightness.
@@ -191,6 +186,11 @@ extension ColorModels {
             case .value:
                 return Gray(white: hsb.brightness, alpha: alpha)
             }
+        }
+        
+        /// The color inverted.
+        public var inverted: SRGB {
+            Self(red: 1.0 - red, green: 1.0 - green, blue: 1.0 - blue, alpha: alpha)
         }
         
         /// Creates the color with the specified components.
@@ -251,7 +251,7 @@ extension ColorModels {
         }
                 
         public var cgColor: CGColor {
-            CGColor(colorSpace: CGColorSpace(name: .extendedSRGB)!, components:  components.map({CGFloat($0)}))!
+            CGColor(colorSpace: .extendedSRGB, components:  components.map({CGFloat($0)}))!
         }
         
         @inline(__always)

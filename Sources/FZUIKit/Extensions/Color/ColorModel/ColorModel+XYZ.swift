@@ -86,6 +86,11 @@ extension ColorModels {
         public var lch: LCH {
             lab.lch
         }
+        
+        /// The color inverted.
+        public var inverted: Self {
+            rgb.inverted.xyz
+        }
 
         /// Creates the color with the specified components.
         public init(x: Double, y: Double, z: Double, alpha: Double = 1.0) {

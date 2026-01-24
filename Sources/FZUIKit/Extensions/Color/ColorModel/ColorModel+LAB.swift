@@ -87,6 +87,11 @@ extension ColorModels {
             return LCH(lightness: lightness, chroma: chroma, hue: hue, alpha: alpha)
         }
         
+        /// The color inverted.
+        public var inverted: Self {
+            rgb.inverted.lab
+        }
+        
         /// Creates the color with the specified components.
         public init(lightness: Double, greenRed: Double, blueYellow: Double, alpha: Double = 1.0) {
             self.lightness = lightness

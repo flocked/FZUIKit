@@ -101,6 +101,11 @@ extension ColorModels {
             return LAB(lightness: lightness, greenRed: greenRed, blueYellow: blueYellow, alpha: alpha)
         }
         
+        /// The color inverted.
+        public var inverted: Self {
+            rgb.inverted.lch
+        }
+        
         public var cgColor: CGColor {
             lab.cgColor
         }

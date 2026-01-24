@@ -89,6 +89,11 @@ extension ColorModels {
             rgb.gray
         }
         
+        /// The color inverted.
+        public var inverted: Self {
+            rgb.inverted.cmyk
+        }
+        
         /// Creates the color with the specified components.
         public init(cyan: Double, magenta: Double, yellow: Double, black: Double, alpha: Double = 1.0) {
             self.cyan = cyan
