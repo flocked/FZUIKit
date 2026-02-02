@@ -8,13 +8,13 @@
 import FZSwiftUtils
 import SwiftUI
 
-extension AnimatablePair: Comparable where First: Comparable, Second: Comparable {
+extension AnimatablePair: Swift.Comparable where First: Comparable, Second: Comparable {
     public static func < (lhs: AnimatablePair<First, Second>, rhs: AnimatablePair<First, Second>) -> Bool {
         lhs.first < rhs.first && lhs.second < rhs.second
     }
 }
 
-extension AnimatablePair: MultiplicativeArithmetic where First: MultiplicativeArithmetic, Second: MultiplicativeArithmetic {
+extension AnimatablePair: FZSwiftUtils.MultiplicativeArithmetic where First: MultiplicativeArithmetic, Second: MultiplicativeArithmetic {
     public static func / (lhs: Self, rhs: Self) -> Self {
         Self(lhs.first / rhs.first, lhs.second / rhs.second)
     }
@@ -24,4 +24,4 @@ extension AnimatablePair: MultiplicativeArithmetic where First: MultiplicativeAr
     }
 }
 
-extension Array: Animatable where Element: Animatable {}
+extension Array: SwiftUI.Animatable where Element: Animatable {}

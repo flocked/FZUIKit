@@ -235,7 +235,7 @@ public extension NSBitmapImageRep {
     }
     
     /// Returns all available compression types that can be used when writing a TIFF image.
-    public static var tiffCompressionTypes: [TIFFCompression] {
+    static var tiffCompressionTypes: [TIFFCompression] {
         var rawList: UnsafePointer<TIFFCompression>? = nil
         var count: Int = 0
         withUnsafeMutablePointer(to: &rawList) { listPtr in

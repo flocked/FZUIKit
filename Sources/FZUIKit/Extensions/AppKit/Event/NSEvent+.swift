@@ -482,7 +482,7 @@ extension NSEvent.PointingDeviceType: Swift.CustomStringConvertible, Swift.Hasha
     }
 }
 
-extension NSEvent.SpecialKey: Swift.CustomStringConvertible, Swift.Hashable, Swift.Encodable, Swift.Decodable {
+extension NSEvent.SpecialKey: Swift.CustomStringConvertible, Swift.Encodable, Swift.Decodable {
     public var description: String {
         switch self {
         case .backTab: return "backTab"

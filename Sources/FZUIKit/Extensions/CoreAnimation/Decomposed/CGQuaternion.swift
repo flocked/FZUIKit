@@ -80,7 +80,7 @@ public extension simd_quatf {
 @available(watchOS, obsoleted: 10.0, message: "watchOS 10 provides Hashable")
 @available(iOS, obsoleted: 17.0, message: "iOS 17 provides Hashable")
 @available(tvOS, obsoleted: 17.0, message: "tvOS 17 provides Hashable")
-extension simd_quatd: Hashable {
+extension simd_quatd: Swift.Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(vector)
     }

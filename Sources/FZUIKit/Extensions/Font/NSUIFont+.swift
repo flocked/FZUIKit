@@ -813,7 +813,7 @@ extension NSFont.TextStyle {
 }
 #endif
 
-extension NSUIFont.TextStyle: CaseIterable {
+extension NSUIFont.TextStyle: Swift.CaseIterable {
     /// A collection of all text style values.
     public static var allCases: [Self] {
         #if os(macOS) || os(iOS) || os(watchOS)

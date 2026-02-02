@@ -72,7 +72,7 @@ extension CGBitmapInfo: Swift.Hashable {
             return littleEndian ? .bgra : .argb
         case .noneSkipLast, .last, .premultipliedLast:
             return littleEndian ? .abgr : .rgba
-        @unknown default:
+        default:
             return littleEndian ? .bgra : .argb
         }
     }

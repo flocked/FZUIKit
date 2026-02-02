@@ -68,7 +68,7 @@ public extension NSImage {
         let images = representations.compactMap({$0 as? NSBitmapImageRep}).flatMap({$0.getImages()})
         guard !images.isEmpty else { return nil }
         let types = Set(images.compactMap { $0.utType })
-        let outputType = types.first ?? kUTTypeTIFF
+        let outputType = types.first ?? UTType.tiff.identifier.cfString
         let mutableData = NSMutableData()
         guard let destination = CGImageDestinationCreateWithData(mutableData as CFMutableData, outputType, images.count, nil) else { return nil }
         images.forEach { CGImageDestinationAddImage(destination, $0, nil) }
@@ -80,7 +80,7 @@ public extension NSImage {
         let bitmapImageReps = representations.compactMap({ $0 as? NSBitmapImageRep })
         if let cgImages = bitmapImageReps.first(where: { $0.isAnimated })?.cgImages {
             let mutableData = NSMutableData()
-            let outputType = cgImages.lazy.compactMap({$0.utType}).first ?? kUTTypeGIF
+            let outputType = cgImages.lazy.compactMap({$0.utType}).first ?? UTType.tiff.identifier.cfString
             guard let destination = CGImageDestinationCreateWithData(mutableData as CFMutableData, outputType, cgImages.count, nil) else { return nil }
             cgImages.forEach { CGImageDestinationAddImage(destination, $0, nil) }
             guard CGImageDestinationFinalize(destination) else { return nil }
@@ -89,7 +89,7 @@ public extension NSImage {
             return CGImageSourceCreateWithData(data as CFData, nil)
         } else if let cgImage = bitmapImageReps.lazy.compactMap({$0.cgImage}).first {
             let mutableData = NSMutableData()
-            guard let destination = CGImageDestinationCreateWithData(mutableData as CFMutableData, cgImage.utType ?? kUTTypeTIFF, 1, nil) else { return nil }
+            guard let destination = CGImageDestinationCreateWithData(mutableData as CFMutableData, cgImage.utType ?? UTType.tiff.identifier.cfString, 1, nil) else { return nil }
             CGImageDestinationAddImage(destination, cgImage, nil)
             guard CGImageDestinationFinalize(destination) else { return nil }
             return CGImageSourceCreateWithData(mutableData, nil)

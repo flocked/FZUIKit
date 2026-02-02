@@ -8,7 +8,7 @@
 #if os(macOS)
 import AppKit
 
-extension NSUserInterfaceItemIdentifier: ExpressibleByStringLiteral, ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral {
+extension NSUserInterfaceItemIdentifier: Swift.ExpressibleByStringLiteral, Swift.ExpressibleByStringInterpolation, Swift.ExpressibleByExtendedGraphemeClusterLiteral, Swift.ExpressibleByUnicodeScalarLiteral, Swift.ExpressibleByIntegerLiteral, Swift.ExpressibleByFloatLiteral {
     public init(stringLiteral value: String) {
         self.init(rawValue: value)
     }

@@ -13,6 +13,7 @@ import MobileCoreServices
 import UIKit
 #endif
 import FZSwiftUtils
+import UniformTypeIdentifiers
 
 public extension NSUIImage {
     #if os(macOS)
@@ -129,7 +130,7 @@ public extension NSUIImage {
     private static func gifData(from images: [NSUIImage], frameDuration: TimeInterval, loopCount: Int = 0) -> Data? {
         guard !images.isEmpty else { return nil }
         let data = NSMutableData()
-        guard let destination = CGImageDestinationCreateWithData(data as CFMutableData, kUTTypeGIF, images.count, nil) else { return nil }
+        guard let destination = CGImageDestinationCreateWithData(data as CFMutableData, UTType.gif.identifier.cfString, images.count, nil) else { return nil }
         let gifProperties = [kCGImagePropertyGIFDictionary as String: [kCGImagePropertyGIFLoopCount as String: loopCount, kCGImagePropertyGIFHasGlobalColorMap: false]].cfDictionary
         let frameProperties = [kCGImagePropertyGIFDictionary as String: [kCGImagePropertyGIFDelayTime as String: frameDuration, kCGImagePropertyGIFUnclampedDelayTime as String: frameDuration]].cfDictionary
         CGImageDestinationSetProperties(destination, gifProperties)
@@ -152,7 +153,7 @@ public extension NSUIImage {
     static func gifData(from images: [(image: NSUIImage, duration: TimeInterval)], loopCount: Int = 0) -> Data? {
         guard !images.isEmpty else { return nil }
         let data = NSMutableData()
-        guard let destination = CGImageDestinationCreateWithData(data as CFMutableData, kUTTypeGIF, images.count, nil) else { return nil }
+        guard let destination = CGImageDestinationCreateWithData(data as CFMutableData, UTType.gif.identifier.cfString, images.count, nil) else { return nil }
         let gifProperties = [kCGImagePropertyGIFDictionary as String: [kCGImagePropertyGIFLoopCount as String: loopCount]] as CFDictionary
         CGImageDestinationSetProperties(destination, gifProperties)
         for (img, duration) in images {

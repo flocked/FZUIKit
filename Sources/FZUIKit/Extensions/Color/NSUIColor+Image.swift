@@ -30,7 +30,7 @@ public extension NSUIImage {
     }
     
     /// The quality at which the main colors of an image should be analysed. A higher value takes longer to analyse.
-    public struct ImageColorsQuality: RawRepresentable, ExpressibleByFloatLiteral, ExpressibleByIntegerLiteral {
+    struct ImageColorsQuality: RawRepresentable, ExpressibleByFloatLiteral, ExpressibleByIntegerLiteral {
         /// 50 px.
         public static let lowest: Self = 50
         /// 100px.
