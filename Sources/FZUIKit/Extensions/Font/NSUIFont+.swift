@@ -423,7 +423,7 @@ extension NSUIFont {
      - Returns: The requested name for the font, or `nil` if the font does not have an entry for the requested name.
      */
     public func name(of nameKey: NameKey) -> String? {
-        CTFontCopyName(self, nameKey.rawValue) as String?
+        CTFontCopyName(self, nameKey.rawValue)?.asSwift()
     }
     
     /**

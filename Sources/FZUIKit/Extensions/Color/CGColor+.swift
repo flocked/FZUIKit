@@ -43,7 +43,7 @@ public extension CGColor {
 
     /// A Boolean value indicating whether the color is visible (alpha value isn't zero).
     var isVisible: Bool {
-        alpha != 0.0
+        alpha > 0.0
     }
 
     /**

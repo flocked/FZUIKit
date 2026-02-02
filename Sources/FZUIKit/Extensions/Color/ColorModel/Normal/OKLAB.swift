@@ -75,7 +75,7 @@ extension ColorModels {
         /// The color in the OKLCH color space.
         public var oklch: OKLCH {
             let chroma = ColorMath.chromaFromCartesian(greenRed, blueYellow)
-            let hue = ColorMath.hueFromCartesian(blueYellow, greenRed)
+            let hue = ColorMath.hueFromCartesian(greenRed, blueYellow)
             return .init(lightness: lightness, chroma: chroma, hue: hue, alpha: alpha)
         }
         
@@ -169,7 +169,7 @@ extension ColorModels.OKLAB {
         let aUnit = C != 0 ? oklab.greenRed / C : 1
         let bUnit = C != 0 ? oklab.blueYellow / C : 1
         
-        let hue = ColorMath.hueFromCartesian(oklab.blueYellow, oklab.greenRed)
+        let hue = ColorMath.hueFromCartesian(oklab.greenRed, oklab.blueYellow)
         
         let stMax = getStMax(a: aUnit, b: bUnit)
         let sMax = stMax[0]

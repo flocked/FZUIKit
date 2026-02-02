@@ -74,7 +74,7 @@ extension ColorModels {
         /// The color in the LCHUV color space.
         public var lchuv: LCHUV {
             let chroma = ColorMath.chromaFromCartesian(greenRed, blueYellow)
-            let hue = ColorMath.hueFromCartesian(blueYellow, greenRed)
+            let hue = ColorMath.hueFromCartesian(greenRed, blueYellow)
             return .init(lightness: lightness, chroma: chroma, hue: hue, alpha: alpha)
         }
         

@@ -56,13 +56,13 @@ extension ColorModels {
             let fy = (lightness + 16.0) / 116.0
             let fx = fy + greenRed / 500.0
             let fz = fy - blueYellow / 200.0
-            return XYZ(x: Self.fInv(fx) * XYZ.WhitePoint.D55.x, y: Self.fInv(fy) * XYZ.WhitePoint.D55.y, z: Self.fInv(fz) * XYZ.WhitePoint.D55.z, alpha: alpha)
+            return XYZ(x: Self.fInv(fx) * XYZ.WhitePoint.D65.x, y: Self.fInv(fy) * XYZ.WhitePoint.D65.y, z: Self.fInv(fz) * XYZ.WhitePoint.D65.z, alpha: alpha)
         }
         
         /// The color in the LCH color space.
         public var lch: LCH {
             let chroma = ColorMath.chromaFromCartesian(greenRed, blueYellow)
-            let hue = ColorMath.hueFromCartesian(blueYellow, greenRed)
+            let hue = ColorMath.hueFromCartesian(greenRed, blueYellow)
             return .init(lightness: lightness, chroma: chroma, hue: hue, alpha: alpha)
         }
         
