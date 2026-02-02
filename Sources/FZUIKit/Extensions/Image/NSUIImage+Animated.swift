@@ -131,8 +131,8 @@ public extension NSUIImage {
         guard !images.isEmpty else { return nil }
         let data = NSMutableData()
         guard let destination = CGImageDestinationCreateWithData(data as CFMutableData, UTType.gif.identifier.cfString, images.count, nil) else { return nil }
-        let gifProperties = [kCGImagePropertyGIFDictionary as String: [kCGImagePropertyGIFLoopCount as String: loopCount, kCGImagePropertyGIFHasGlobalColorMap: false]].cfDictionary
-        let frameProperties = [kCGImagePropertyGIFDictionary as String: [kCGImagePropertyGIFDelayTime as String: frameDuration, kCGImagePropertyGIFUnclampedDelayTime as String: frameDuration]].cfDictionary
+        let gifProperties = [kCGImagePropertyGIFDictionary.string: [kCGImagePropertyGIFLoopCount.string: loopCount, kCGImagePropertyGIFHasGlobalColorMap: false]].cfDictionary
+        let frameProperties = [kCGImagePropertyGIFDictionary.string: [kCGImagePropertyGIFDelayTime.string: frameDuration, kCGImagePropertyGIFUnclampedDelayTime.string: frameDuration]].cfDictionary
         CGImageDestinationSetProperties(destination, gifProperties)
         for image in images.compactMap({$0.cgImage}) {
             CGImageDestinationAddImage(destination, image, frameProperties)
@@ -154,11 +154,11 @@ public extension NSUIImage {
         guard !images.isEmpty else { return nil }
         let data = NSMutableData()
         guard let destination = CGImageDestinationCreateWithData(data as CFMutableData, UTType.gif.identifier.cfString, images.count, nil) else { return nil }
-        let gifProperties = [kCGImagePropertyGIFDictionary as String: [kCGImagePropertyGIFLoopCount as String: loopCount]] as CFDictionary
+        let gifProperties = [kCGImagePropertyGIFDictionary.string: [kCGImagePropertyGIFLoopCount.string: loopCount]] as CFDictionary
         CGImageDestinationSetProperties(destination, gifProperties)
         for (img, duration) in images {
             guard let cgImage = img.cgImage else { continue }
-            let frameProperties = [kCGImagePropertyGIFDictionary as String: [kCGImagePropertyGIFDelayTime as String: duration, kCGImagePropertyGIFUnclampedDelayTime as String: duration]] as CFDictionary
+            let frameProperties = [kCGImagePropertyGIFDictionary.string: [kCGImagePropertyGIFDelayTime.string: duration, kCGImagePropertyGIFUnclampedDelayTime.string: duration]] as CFDictionary
             CGImageDestinationAddImage(destination, cgImage, frameProperties)
         }
         CGImageDestinationFinalize(destination)
