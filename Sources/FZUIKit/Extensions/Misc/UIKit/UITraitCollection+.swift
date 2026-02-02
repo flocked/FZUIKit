@@ -1,6 +1,6 @@
 //
 //  UITraitCollection+.swift
-//  FZUIKit
+//
 //
 //  Created by Florian Zand on 14.11.25.
 //

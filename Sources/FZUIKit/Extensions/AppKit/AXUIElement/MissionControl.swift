@@ -1,6 +1,6 @@
 //
 //  MissionControl.swift
-//  FZUIKit
+//
 //
 //  Created by Florian Zand on 08.11.25.
 //

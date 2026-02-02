@@ -1,6 +1,6 @@
 //
 //  NSAnimationGroup.swift
-//  FZUIKit
+//
 //
 //  Created by Florian Zand on 23.07.25.
 //

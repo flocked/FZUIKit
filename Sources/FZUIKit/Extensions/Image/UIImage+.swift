@@ -1,6 +1,6 @@
 //
 //  UIImage+.swift
-//  FZUIKit
+//
 //
 //  Created by Florian Zand on 29.06.25.
 //

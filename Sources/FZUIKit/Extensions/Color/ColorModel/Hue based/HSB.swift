@@ -6,28 +6,45 @@
 //
 
 import Foundation
-import CoreGraphics
+import FZSwiftUtils
 
 extension ColorModels {
-    /// The color components for a color in the HSB color space.
+    /// The color components for a color in the HSB / HSV color space.
     public struct HSB: ColorModel {
+        var storage: SIMD4<Double>
+        
         /// The hue component of the color.
-        public var hue: Double
+        public var hue: Double {
+            get { storage.x }
+            set { storage.x = newValue }
+        }
+        
         /// The saturation component of the color.
-        public var saturation: Double
+        public var saturation: Double {
+            get { storage.y }
+            set { storage.y = newValue }
+        }
+        
         /// The brightness component of the color.
-        public var brightness: Double
+        public var brightness: Double {
+            get { storage.z }
+            set { storage.z = newValue }
+        }
+        
         /// The alpha value of the color.
         public var alpha: Double {
-            didSet { alpha = alpha.clamped(to: 0...1) }
+            get { storage.w }
+            set { storage.w = newValue.clamped(to: 0...1) }
+        }
+        
+        /// The hue component of the color in degrees.
+        public var hueDegrees: Double {
+            get { hue * 360 }
+            set { hue = newValue / 360 }
         }
         
         public var description: String {
             "HSB(hue: \(hue), saturation: \(saturation), brightness: \(brightness), alpha: \(alpha))"
-        }
-        
-        public func mixed(with other: Self, by fraction: Double) -> Self {
-            HSB(hue: interpolateHue(hue, to: other.hue, fraction: fraction), saturation: saturation + (other.saturation - saturation) * fraction, brightness: brightness + (other.brightness - brightness) * fraction, alpha: alpha + (other.alpha - alpha) * fraction)
         }
         
         public var components: [Double] {
@@ -44,19 +61,18 @@ extension ColorModels {
         public var hsl: HSL {
             let lightness = brightness * (1 - saturation * 0.5)
             let saturation: Double
-            if lightness == 0 || lightness >= brightness {
+            if lightness == 0 || lightness == brightness {
                 saturation = 0
             } else {
                 saturation = (brightness - lightness) / min(lightness, brightness - lightness)
             }
-            return HSL(hue: wrapUnit(hue), saturation: saturation, lightness: lightness, alpha: alpha)
+            return HSL(hue: ColorMath.wrapUnit(hue), saturation: saturation, lightness: lightness, alpha: alpha)
         }
         
         /// The color in the sRGB color space.
         public var rgb: SRGB {
             if saturation <= 0 { return SRGB(red: brightness, green: brightness, blue: brightness, alpha: alpha) }
-            var hue = hue.truncatingRemainder(dividingBy: 1)
-            if hue < 0 { hue += 1 }
+            let hue = ColorMath.wrapUnit(hue)
             let h = hue * 6.0
             let i = Int(floor(h))
             let f = h - Double(i)
@@ -80,71 +96,37 @@ extension ColorModels {
             }
         }
         
-        /// The color in the OKLAB color space.
-        public var oklab: OKLAB {
-            rgb.oklab
+        /// The color in the HWB color space.
+        public var hwb: HWB {
+            .init(hue: hue, whiteness: brightness * (1 - saturation), blackness: 1 - brightness, alpha: alpha)
         }
         
-        /// The color in the OKLCH color space.
-        public var oklch: OKLCH {
-            rgb.oklch
+        public var animatableData: SIMD8<Double> {
+            get {
+                let vector = ColorMath.hueToVector(hue)
+                return .init(vector.x, vector.y, saturation, brightness, alpha, 0, 0, 0)
+            }
+            set {
+                hue = ColorMath.hueFromVector(newValue[0], newValue[1], reference: hue)
+                saturation = newValue[2]
+                brightness = newValue[3]
+                alpha = newValue[4]
+            }
         }
         
-        /// The color in the CMYK color space.
-        public var cmyk: CMYK {
-            rgb.cmyk
-        }
-        
-        /// The color in the the XYZ color space.
-        public var xyz: XYZ {
-            rgb.xyz
-        }
-        
-        /// The color in the the CIE Lab color space.
-        public var lab: LAB {
-            rgb.lab
-        }
-        
-        /// The color in the LCH color space.
-        public var lch: LCH {
-            rgb.lch
-        }
-        
-        /// The color in the grayscale color space.
-        public var gray: Gray {
-            rgb.gray
-        }
-        
-        /// The color inverted.
-        public var inverted: Self {
-            rgb.inverted.hsb
-        }
-                
         /// Creates the color with the specified components.
         public init(hue: Double, saturation: Double, brightness: Double, alpha: Double = 1.0) {
-            self.hue = hue
-            self.saturation = saturation
-            self.brightness = brightness
-            self.alpha = alpha
+            storage = .init(hue, saturation, brightness, alpha)
+        }
+        
+        /// Creates the color with the specified components.
+        public init(hueDegrees: Double, saturation: Double, brightness: Double, alpha: Double = 1.0) {
+            storage = .init(hueDegrees/360.0, saturation, brightness, alpha)
         }
         
         public init(_ components: [Double]) {
             precondition(components.count >= 3, "You need to provide at least 3 components for a color in HSB color space.")
             self.init(hue: components[0], saturation: components[1], brightness: components[2], alpha: components[safe: 3] ?? 0.0)
-        }
-        
-        public var cgColor: CGColor {
-            rgb.cgColor
-        }
-        
-        /// Returns an Integer representing the color in hex format (e.g. `0x112233`)
-        public var hex: Int {
-            rgb.hex
-        }
-        
-        /// Returns a hex string representing the color (e.g. `#112233`)
-        public var hexString: String {
-            rgb.hexString
         }
     }
 }

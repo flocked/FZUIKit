@@ -75,7 +75,6 @@ public extension CGColor {
     var swiftUI: Color? {
         nsColor?.swiftUI
     }
-
     #elseif canImport(UIKit)
     /// Returns a `UIColor` representation of the color.
     var uiColor: UIColor {
@@ -102,6 +101,18 @@ public extension CGColor {
         CGColor(gray: 0, alpha: 1)
     }
     #endif
+    
+    /// Returns the color components for the color in the specified color space.
+    @_disfavoredOverload
+    func components(for colorSpace: CGColorSpaceName) -> [CGFloat]? {
+        guard let colorSpace = colorSpace.colorSpace else { return nil }
+        return components(for: colorSpace)
+    }
+    
+    /// Returns the color components for the color in the specified color space.
+    func components(for colorSpace: CGColorSpace) -> [CGFloat]? {
+        (self.colorSpace == colorSpace ? self : converted(to: colorSpace))?.components
+    }
 }
 
 public extension CFType where Self == CGColor {

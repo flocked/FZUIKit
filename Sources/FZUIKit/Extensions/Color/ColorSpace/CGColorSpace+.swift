@@ -7,6 +7,8 @@
 
 import CoreGraphics
 import FZSwiftUtils
+import Foundation
+import ColorSync
 
 extension CGColorSpace {
     /// Creates a device-dependent RGB color space.
@@ -122,9 +124,14 @@ extension CGColorSpace {
 
 public extension CFType where Self == CGColorSpace {
     /// Creates a color space with the specified color sync profie.
-    init?(colorSyncProfile: ColorSyncProfile?, options: CFDictionary? = nil) {
-        guard let colorSpace = CGColorSpaceCreateWithColorSyncProfile(colorSyncProfile, options) else { return nil }
+    init?(colorSyncProfile: ColorSyncProfile) {
+        guard let colorSpace = CGColorSpaceCreateWithColorSyncProfile(colorSyncProfile, nil) else { return nil }
         self = colorSpace
+    }
+    
+    /// Creates an ICC-based color space using the ICC profile contained in the specified data.
+    init?(iccData data: Data) {
+        self.init(iccData: data as CFData)
     }
 }
 

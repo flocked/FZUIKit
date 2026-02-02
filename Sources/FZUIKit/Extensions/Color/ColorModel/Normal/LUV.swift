@@ -1,0 +1,103 @@
+//
+//  ColorModel+LUV.swift
+//
+//
+//  Created by Florian Zand on 24.01.26.
+//
+
+import Foundation
+import FZSwiftUtils
+
+extension ColorModels {
+    /// The color components for a color in the CIE Luv color space.
+    public struct LUV: ColorModel {
+        public var animatableData: SIMD4<Double>
+        
+        /// The lightness component of the color.
+        public var lightness: Double {
+            get { animatableData.x }
+            set { animatableData.x = newValue }
+        }
+        
+        /// The green-red component of the color.
+        public var greenRed: Double {
+            get { animatableData.y }
+            set { animatableData.y = newValue }
+        }
+        
+        /// The blue-yellow component of the color.
+        public var blueYellow: Double {
+            get { animatableData.z }
+            set { animatableData.z = newValue }
+        }
+        
+        /// The alpha value of the color.
+        public var alpha: Double {
+            get { animatableData.w }
+            set { animatableData.w = newValue.clamped(to: 0...1) }
+        }
+        
+        public var description: String {
+            "LUV(lightness: \(lightness), greenRed: \(greenRed), blueYellow: \(blueYellow), alpha: \(alpha))"
+        }
+        
+        public var components: [Double] {
+            get { [lightness, greenRed, blueYellow, alpha] }
+            set {
+                lightness = newValue[safe: 0] ?? lightness
+                greenRed = newValue[safe: 1] ?? greenRed
+                blueYellow = newValue[safe: 2] ?? blueYellow
+                alpha = newValue[safe: 3] ?? alpha
+            }
+        }
+        
+        /// The color in the XYZ color space.
+        public var xyz: XYZ {
+            let un = XYZ.WhitePoint.D65.un
+            let vn = XYZ.WhitePoint.D65.vn
+            let uPrime = lightness != 0 ? greenRed / (13 * lightness) + un : 0
+            let vPrime = lightness != 0 ? blueYellow / (13 * lightness) + vn : 0
+            let y: Double
+            if lightness > 8 {
+                y = XYZ.WhitePoint.D65.y * pow((lightness + 16.0)/116.0, 3.0)
+            } else {
+                y = XYZ.WhitePoint.D65.y * lightness * pow(3.0/29.0, 3.0)
+            }
+            guard vPrime != 0 else {
+                return .init(x: 0, y: y, z: 0, alpha: alpha)
+            }
+            let x = y * 2.25 * uPrime / vPrime
+            let z = y * (3 - 0.75*uPrime - 5*vPrime) / vPrime
+            return .init(x: x, y: y, z: z, alpha: alpha)
+        }
+        
+        /// The color in the LCHUV color space.
+        public var lchuv: LCHUV {
+            let chroma = ColorMath.chromaFromCartesian(greenRed, blueYellow)
+            let hue = ColorMath.hueFromCartesian(blueYellow, greenRed)
+            return .init(lightness: lightness, chroma: chroma, hue: hue, alpha: alpha)
+        }
+        
+        /// Creates the color with the specified components.
+        public init(lightness: Double, greenRed: Double, blueYellow: Double, alpha: Double = 1.0) {
+            animatableData = .init(lightness, greenRed, blueYellow, alpha)
+        }
+        
+        public init(_ components: [Double]) {
+            precondition(components.count >= 3, "You need to provide at least 3 components for a color in CIE LAB color space.")
+            self.init(lightness: components[0], greenRed: components[1], blueYellow: components[2], alpha: components[safe: 3] ?? 0.0)
+        }
+    }
+}
+
+public extension ColorModel where Self == ColorModels.LUV {
+    /// Returns the color components for a color in the CIE LUV color space.
+    static func luv(_ components: [Double]) -> Self {
+        .init(components)
+    }
+    
+    /// Returns the color components for a color in the CIE LUV color space.
+    static func luv(lightness: Double, greenRed: Double, blueYellow: Double, alpha: Double = 1.0) -> Self {
+        .init(lightness: lightness, greenRed: greenRed, blueYellow: blueYellow, alpha: alpha)
+    }
+}

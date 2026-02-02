@@ -161,6 +161,7 @@ public extension NSUIColor {
         - components: An array of the components in the specified color space to use to create the color object. The order of these components is determined by the color-space profile, with the alpha component always last. (If you want the created color to be opaque, specify `1.0` for the alpha component.)
      - Returns: A new color.
      */
+    @_disfavoredOverload
     convenience init?(colorSpace: CGColorSpace, components: [CGFloat]) {
         guard let cgColor = CGColor(colorSpace: colorSpace, components: components.count == colorSpace.numberOfComponents ? components + [1.0] : components) else { return nil }
         self.init(cgColor: cgColor)
@@ -190,6 +191,22 @@ public extension NSUIColor {
      */
     convenience init(patternImage image: CGImage) {
         self.init(patternImage: NSUIImage(cgImage: image))
+    }
+    
+    /// Returns the color components of the color.
+    var components: [CGFloat]? {
+        cgColor.components
+    }
+    
+    /// Returns the color components for the color in the specified color space.
+    @_disfavoredOverload
+    func components(for colorSpace: CGColorSpaceName) -> [CGFloat]? {
+        cgColor.components(for: colorSpace)
+    }
+    
+    /// Returns the color components for the color in the specified color space.
+    func components(for colorSpace: CGColorSpace) -> [CGFloat]? {
+        cgColor.components(for: colorSpace)
     }
 }
 

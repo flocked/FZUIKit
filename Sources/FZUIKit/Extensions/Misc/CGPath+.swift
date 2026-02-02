@@ -18,7 +18,7 @@ import FZSwiftUtils
 
 
 extension CFType where Self == CGPath {
-    public init(roundedRect rect: NSRect, cornerRadius: CGFloat, cornerCurve: CGPath.CornerCurve) {
+    public init(roundedRect rect: CGRect, cornerRadius: CGFloat, cornerCurve: CGPath.CornerCurve) {
         self = .init(roundedRect: rect, cornerRadius: (cornerRadius, cornerRadius, cornerRadius, cornerRadius), cornerCurve: cornerCurve)
     }
     
@@ -35,11 +35,11 @@ extension CFType where Self == CGPath {
 
      - Returns: A new path object with the rounded rectangular path.
      */
-    public init(roundedRect rect: NSRect, byRoundingCorners corners: NSUIRectCorner, cornerRadius: CGFloat, cornerCurve: CGPath.CornerCurve = .circular) {
+    public init(roundedRect rect: CGRect, byRoundingCorners corners: NSUIRectCorner, cornerRadius: CGFloat, cornerCurve: CGPath.CornerCurve = .circular) {
         self = .init(roundedRect: rect, cornerRadius: (corners.contains(.topLeft) ? cornerRadius : 0, corners.contains(.topRight) ? cornerRadius : 0, corners.contains(.bottomLeft) ? cornerRadius : 0, corners.contains(.bottomRight) ? cornerRadius : 0 ), cornerCurve: cornerCurve)
     }
     
-    public init(roundedRect rect: NSRect, cornerRadius: (topLeft: CGFloat, topRight: CGFloat, bottomLeft: CGFloat, bottomRight: CGFloat), cornerCurve: CGPath.CornerCurve = .circular) {
+    public init(roundedRect rect: CGRect, cornerRadius: (topLeft: CGFloat, topRight: CGFloat, bottomLeft: CGFloat, bottomRight: CGFloat), cornerCurve: CGPath.CornerCurve = .circular) {
         if cornerCurve == .circular {
             self = CGPath.circularRoundedRect(rect, cornerRadius: cornerRadius)
         } else {
@@ -49,7 +49,7 @@ extension CFType where Self == CGPath {
 }
 
 fileprivate extension CGPath {
-    static func circularRoundedRect(_ rect: NSRect, cornerRadius: (topLeft: CGFloat, topRight: CGFloat, bottomLeft: CGFloat, bottomRight: CGFloat)) -> CGPath {
+    static func circularRoundedRect(_ rect: CGRect, cornerRadius: (topLeft: CGFloat, topRight: CGFloat, bottomLeft: CGFloat, bottomRight: CGFloat)) -> CGPath {
         let maxCorner = min(rect.width, rect.height) / 2
         
         let radiusTopLeft = min(maxCorner, max(0, cornerRadius.topLeft))

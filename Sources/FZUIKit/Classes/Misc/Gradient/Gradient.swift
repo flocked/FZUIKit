@@ -28,6 +28,8 @@ public struct Gradient: Hashable {
     /// The type of gradient.
     public var type: GradientType = .linear
     
+    public var colorSpace: ColorModels.ColorSpace? = nil
+    
     /// The colors of the gradient.
     public var colors: [NSUIColor] {
         get { stops.map({ $0.color }) }
@@ -349,6 +351,90 @@ public extension Gradient {
      */
     func cgGradient(colorSpace: CGColorSpaceName) -> CGGradient? {
         cgGradient(colorSpace: CGColorSpace(name: colorSpace))
+    }
+}
+
+extension Gradient.ColorStop {
+    
+}
+
+extension Gradient {
+    func resolved() -> Gradient {
+        guard let colorSpace = colorSpace else { return self }
+        switch colorSpace {
+        case .srgb: return self
+        case .cmyk:
+            guard let colorSpace = CGColorSpace(name: .extendedDisplayP3) else { break }
+            let newStops = stops.compactMap({ stop in stop.color.usingColorSpace(colorSpace).map({ ColorStop(color: $0, location:  stop.location) }) })
+            guard newStops.count == stops.count else { break }
+            var gradient = self
+            gradient.stops = newStops
+            return gradient
+        default: break
+        }
+        return resampled(in: colorSpace) ?? self
+    }
+    
+    public func resampled(in colorSpace: ColorModels.ColorSpace, samplesPerUnit: CGFloat = 24) -> Self? {
+        guard stops.count >= 2 else { return nil }
+        var newStops: [ColorStop] = .init(reserveCapacity: stops.count * Int(samplesPerUnit))
+        for (index, pair) in zip(stops, stops.dropFirst()).enumerated() {
+            let stop1 = pair.0
+            let stop2 = pair.1
+            let delta = stop2.location - stop1.location
+            let length = abs(delta)
+            guard length > 0 else { continue }
+            let color1 = stop1.color.components(for: colorSpace)
+            let color2 = stop2.color.components(for: colorSpace)
+            let sampleCount = max(2, Int(ceil(length * samplesPerUnit)))
+            let startIndex = (index == 0) ? 0 : 1
+            for i in startIndex..<sampleCount {
+                let t = CGFloat(i) / CGFloat(sampleCount - 1)
+                let location = stop1.location + t * delta
+                #if os(macOS)
+                let color = color1._mixed(with: color2, by: t).nsColor
+                #else
+                let color = color1._mixed(with: color2, by: t).uiColor
+                #endif
+                newStops.append(ColorStop(color: color, location: location))
+            }
+        }
+        var gradient = self
+        gradient.stops = newStops
+        return gradient
+    }
+}
+
+extension ColorModel {
+    func _mixed(with color: any ColorModel, by fraction: Double) -> Self {
+        mixed(with: color as! Self, by: fraction)
+    }
+}
+
+extension NSUIColor {
+    func components(for colorSpace: ColorModels.ColorSpace) -> any ColorModel {
+        switch colorSpace {
+        case .srgb: rgb()
+        case .hsl: hsl()
+        case .hsb: hsb()
+        case .oklab: oklab()
+        case .oklch: oklch()
+        case .okhsb: okhsb()
+        case .okhsl: okhsl()
+        case .xyz: xyz()
+        case .lab: lab()
+        case .lch: lch()
+        case .luv: luv()
+        case .hpluv: hpluv()
+        case .gray: gray()
+        case .cmyk: cmyk()
+        case .displayP3: displayP3()
+        case .hwb: hwb()
+        case .lchuv: lchuv()
+        case .hsluv: hsluv()
+        case .jzczhz: jzczhz()
+        case .jzazbz: jzazbz()
+        }
     }
 }
 

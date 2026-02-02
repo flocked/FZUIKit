@@ -13,6 +13,44 @@ import AppKit
 import UIKit
 #endif
 
+extension Color {
+    #if os(macOS)
+    /// `NSColor` representation of the color.
+    public var nsColor: NSColor {
+        NSColor(self)
+    }
+    #else
+    /// `UIColor` representation of the color.
+    public var uiColor: UIColor {
+        UIColor(self)
+    }
+    #endif
+
+    var nsUIColor: NSUIColor {
+        NSUIColor(self)
+    }
+    
+    /// A random color.
+    public static var random: Color {
+        NSUIColor.random.swiftUI
+    }
+    
+    /// A random pastel color.
+    public static var randomPastel: Color {
+        NSUIColor.randomPastel.swiftUI
+    }
+    
+    /// A Boolean value indicating whether the color is light.
+    public var isLight: Bool {
+        nsUIColor.isLight
+    }
+    
+    /// A Boolean value indicating whether the color is visible (alpha value isn't zero).
+    public var isVisible: Bool {
+        rgb().alpha != 0.0
+    }
+}
+
 #if os(macOS) || os(iOS) || os(tvOS)
 extension Color {
     /**
@@ -28,42 +66,6 @@ extension Color {
         #else
         self.init(uiColor: NSUIColor(light: lightColor().nsUIColor, dark: darkColor().nsUIColor))
         #endif
-    }
-    
-    /// A random color.
-    public static var random: Color {
-        NSUIColor.random.swiftUI
-    }
-    
-    /// A random pastel color.
-    public static var randomPastel: Color {
-        NSUIColor.randomPastel.swiftUI
-    }
-    
-    #if os(macOS)
-    /// `NSColor` representation of the color.
-    public var nsColor: NSColor {
-        NSColor(self)
-    }
-    #else
-    /// `UIColor` representation of the color.
-    public var uiColor: UIColor {
-        UIColor(self)
-    }
-    #endif
-    
-    var nsUIColor: NSUIColor {
-        NSUIColor(self)
-    }
-    
-    /// A Boolean value indicating whether the color is light.
-    public var isLight: Bool {
-        nsUIColor.isLight
-    }
-    
-    /// A Boolean value indicating whether the color is visible (alpha value isn't zero).
-    public var isVisible: Bool {
-        rgb().alpha != 0.0
     }
     
     /// Generates the resolved color for the specified environment.

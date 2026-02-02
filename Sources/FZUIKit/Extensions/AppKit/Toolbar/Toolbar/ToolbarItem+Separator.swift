@@ -1,6 +1,6 @@
 //
 //  ToolbarItem+Separator.swift
-//  FZUIKit
+//
 //
 //  Created by Florian Zand on 21.06.25.
 //

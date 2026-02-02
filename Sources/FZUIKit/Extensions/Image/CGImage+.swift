@@ -83,6 +83,7 @@ public extension CGImage {
         }
     }
     
+    #if !os(watchOS)
     func masked(by mask: CGImage, invertMask: Bool = false) -> CGImage? {
         mask.grayScaled(invert: invertMask).flatMap(masking)
     }
@@ -101,6 +102,7 @@ public extension CGImage {
         }
         return CIContext(options: nil).createCGImage(outputImage, from: outputImage.extent, format: includeAlpha ? .LA8 : .L8, colorSpace: CGColorSpaceCreateDeviceGray())
     }
+    #endif
     
     func masked(by mask: CGImage, invertMask: Bool = false, shouldInterpolate: Bool) -> CGImage? {
         mask.asMask(invert: invertMask, shouldInterpolate: shouldInterpolate).flatMap(masking)

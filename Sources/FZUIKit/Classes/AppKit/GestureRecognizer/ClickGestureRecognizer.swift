@@ -1,6 +1,6 @@
 //
 //  ClickGestureRecognizer.swift
-//  FZUIKit
+//
 //
 //  Created by Florian Zand on 01.06.25.
 //

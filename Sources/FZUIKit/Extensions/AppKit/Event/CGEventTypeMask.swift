@@ -1,6 +1,6 @@
 //
 //  CGEventTypeMask.swift
-//  FZUIKit
+//
 //
 //  Created by Florian Zand on 30.07.25.
 //

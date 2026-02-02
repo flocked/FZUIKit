@@ -21,161 +21,200 @@ public extension NSUIColor {
      - Returns: The tinted color object.
      */
     func tinted(by amount: CGFloat = 0.2) -> NSUIColor {
-        mixed(with: .white, by: amount, in: .srgb)
+        cgColor.tinted(by: amount).nsUIColor!
     }
-
+    
     /**
      Shades the color by the specified amount.
      - Parameter amount: The amount of shade.
      - Returns: The shaded color object.
      */
     func shaded(by amount: CGFloat = 0.2) -> NSUIColor {
-        mixed(with: .black, by: amount, in: .srgb)
+        cgColor.shaded(by: amount).nsUIColor!
     }
-
+    
     /**
      Brightens the color by the specified amount.
      - Parameter amount: The amount of brightness.
      - Returns: The brightened color object.
      */
     func lighter(by amount: CGFloat = 0.2) -> NSUIColor {
-        #if os(macOS) || os(iOS) || os(tvOS)
-        let dynamic = dynamicColors
-        guard !dynamic.isDynamic else {
-            return NSUIColor(light: dynamic.light._lighter(by: amount), dark: dynamic.dark._lighter(by: amount))
-        }
-        #endif
-        return _lighter(by: amount)
+        cgColor.lighter(by: amount).nsUIColor!
     }
     
-    fileprivate func _lighter(by amount: CGFloat) -> NSUIColor {
-        var hsla = hsl()
-        hsla.lightness += amount
-        return NSUIColor(hsla)
-    }
-
     /**
      Darkens the color by the specified amount.
      - Parameter amount: The amount of darken.
      - Returns: The darkened color object.
      */
     func darkened(by amount: CGFloat = 0.2) -> NSUIColor {
-        lighter(by: amount * -1.0)
+        cgColor.darkened(by: amount).nsUIColor!
     }
-
+    
     /**
      Saturates the color by the specified amount.
      - Parameter amount: The amount of saturation.
      - Returns: The saturated color object.
      */
     func saturated(by amount: CGFloat = 0.2) -> NSUIColor {
-        #if os(macOS) || os(iOS) || os(tvOS)
-        let dynamic = dynamicColors
-        guard !dynamic.isDynamic else {
-            return NSUIColor(light: dynamic.light._saturated(by: amount), dark: dynamic.dark._saturated(by: amount))
-        }
-        #endif
-        return _saturated(by: amount)
+        cgColor.saturated(by: amount).nsUIColor!
     }
     
-    fileprivate func _saturated(by amount: CGFloat) -> NSUIColor {
-        var hsla = hsl()
-        hsla.saturation += amount
-        return NSUIColor(hsla)
-    }
-
     /**
      Desaturates the color by the specified amount.
      - Parameter amount: The amount of desaturation.
      - Returns: The desaturated color object.
      */
     func desaturated(by amount: CGFloat = 0.2) -> NSUIColor {
-        saturated(by: amount * -1.0)
+        cgColor.desaturated(by: amount).nsUIColor!
     }
-
+    
     /**
      Creates and returns a color object with the hue rotated along the color wheel by the given amount.
-
-     - Parameter amount: A float representing the number of degrees as ratio (usually between -360.0 degree and 360.0 degree).
+     
+     - Parameter amount: A float representing the number of degrees as ratio (usually between -1.0 degree and 360.0 degree).
      - returns: A DynamicColor object with the hue changed.
      */
     func adjustedHue(by amount: CGFloat) -> NSUIColor {
-        #if os(macOS) || os(iOS) || os(tvOS)
-        let dynamic = dynamicColors
-        guard !dynamic.isDynamic else {
-            return NSUIColor(light: dynamic.light._adjustedHue(amount: amount), dark: dynamic.dark._adjustedHue(amount: amount))
-        }
-        #endif
-        return _adjustedHue(amount: amount)
+        cgColor.adjustedHue(by: amount).nsUIColor!
     }
     
-    fileprivate func _adjustedHue(amount: CGFloat) -> NSUIColor {
-        var hsla = hsl()
-        hsla.hue = hsla.hue + amount.clamped(to: 0...360)
-        if hsla.hue > 360 {
-            hsla.hue = hsla.hue - 360
-        }
-        return NSUIColor(hsla)
-    }
-
     /**
      Creates and returns the complement of the color object.
-
+     
      This is identical to adjustedHue(180).
-
+     
      - returns: The complement DynamicColor.
      */
     func complemented() -> NSUIColor {
-        adjustedHue(by: 180.0)
+        cgColor.complemented().nsUIColor!
     }
-
+    
     /**
      A grayscaled representation of the color.
      - Parameter mode: The grayscale mode.
      - Returns: The grayscaled color.
      */
     func grayscaled(mode: GrayscalingMode = .lightness) -> NSUIColor {
-        #if os(macOS) || os(iOS) || os(tvOS)
-        let dynamic = dynamicColors
-        guard !dynamic.isDynamic else {
-            return NSUIColor(light: dynamic.light._grayscaled(mode: mode), dark: dynamic.dark._grayscaled(mode: mode))
-        }
-        #endif
-        return _grayscaled(mode: mode)
+        cgColor.grayscaled(mode: .init(rawValue: mode.rawValue)!).nsUIColor!
     }
     
-    fileprivate func _grayscaled(mode: GrayscalingMode) -> NSUIColor {
-        NSUIColor(rgb().gray(mode: .init(rawValue: mode.rawValue)!))
-
-    }
-
     /// The mode of grayscaling a color.
     enum GrayscalingMode: String, Hashable {
-        /// XYZ luminance
+        /// Linear relative luminance (XYZ Y value).
         case luminance
-        /// HSL lightness
+        /// Perceptually correct sRGB gamma-corrected luminance.
+        case perceptual
+        /// HSL lightness value.
         case lightness
-        /// RGB average
+        /// Average of RGB channels.
         case average
-        /// HSV value
+        /// HSB/HSV brightness value.
         case value
     }
-
+    
     /**
      Creates and return a color object where the red, green, and blue values are inverted, while the alpha channel is left alone.
-
+     
      - returns: An inverse (negative) of the original color.
      */
     func inverted() -> NSUIColor {
-        #if os(macOS) || os(iOS) || os(tvOS)
-        let dynamic = dynamicColors
-        guard !dynamic.isDynamic else {
-            return NSUIColor(light: NSUIColor(dynamic.light.rgb().inverted), dark: NSUIColor(dynamic.dark.rgb().inverted))
-        }
-        #endif
-        return NSUIColor(rgb().inverted)
+        cgColor.inverted().nsUIColor!
     }
 }
+
+/*
+ /**
+  Tints the color by the specified amount.
+  - Parameter amount: The amount of tint.
+  - Returns: The tinted color object.
+  */
+ func tinted(by amount: CGFloat = 0.2) -> NSUIColor {
+     resolve {
+         var oklch = $0.oklch()
+         oklch.lightness.interpolate(to: 1.0, fraction: amount)
+         oklch.chroma.interpolate(to: 0.0, fraction: amount)
+         return oklch.nsColor
+     }
+ }
+ 
+ /**
+  Shades the color by the specified amount.
+  - Parameter amount: The amount of shade.
+  - Returns: The shaded color object.
+  */
+ func shaded(by amount: CGFloat = 0.2) -> NSUIColor {
+     resolve {
+         var oklch = $0.oklch()
+         oklch.lightness.interpolate(to: 0.0, fraction: amount)
+         oklch.chroma.interpolate(to: 0.0, fraction: amount)
+         return oklch.nsColor
+     }
+ }
+ 
+ /**
+  Brightens the color by the specified amount.
+  - Parameter amount: The amount of brightness.
+  - Returns: The brightened color object.
+  */
+ func lighter(by amount: CGFloat = 0.2) -> NSUIColor {
+     resolve {
+         var oklch = $0.oklch()
+         oklch.lightness.interpolate(to: 1.0, fraction: amount)
+         return oklch.nsColor
+     }
+ }
+ 
+ /**
+  Darkens the color by the specified amount.
+  - Parameter amount: The amount of darken.
+  - Returns: The darkened color object.
+  */
+ func darkened(by amount: CGFloat = 0.2) -> NSUIColor {
+     resolve {
+         var oklch = $0.oklch()
+         oklch.lightness.interpolate(to: 0.0, fraction: amount)
+         return oklch.nsColor
+     }
+ }
+ 
+ /**
+  Saturates the color by the specified amount.
+  - Parameter amount: The amount of saturation.
+  - Returns: The saturated color object.
+  */
+ func saturated(by amount: CGFloat = 0.2) -> NSUIColor {
+     resolve {
+         var hsla = $0.hsl()
+         hsla.saturation += amount
+         return NSUIColor(hsla)
+     }
+ }
+ 
+ /**
+  Desaturates the color by the specified amount.
+  - Parameter amount: The amount of desaturation.
+  - Returns: The desaturated color object.
+  */
+ func desaturated(by amount: CGFloat = 0.2) -> NSUIColor {
+     saturated(by: amount * -1.0)
+ }
+ 
+ /**
+  Creates and returns a color object with the hue rotated along the color wheel by the given amount.
+  
+  - Parameter amount: A float representing the number of degrees as ratio (usually between -1.0 degree and 360.0 degree).
+  - returns: A DynamicColor object with the hue changed.
+  */
+ func adjustedHue(by amount: CGFloat) -> NSUIColor {
+     resolve {
+         var hsl = $0.hsl()
+         hsl.hue = (hsl.hue + amount).truncatingRemainder(dividingBy: 1.0)
+         if hsl.hue < 0 { hsl.hue += 1 }
+         return NSUIColor(hsl)
+     }
+ }
+ */
 
 public extension CGColor {
     /**
@@ -184,16 +223,22 @@ public extension CGColor {
      - Returns: The tinted color object.
      */
     func tinted(by amount: CGFloat = 0.2) -> CGColor {
-        mixed(with: .white, by: amount, in: .srgb)
+        var oklch = oklch()
+        oklch.lightness.interpolate(to: 1.0, fraction: amount)
+        oklch.chroma.interpolate(to: 0.0, fraction: amount)
+        return oklch.cgColor
     }
-
+    
     /**
      Shades the color by the specified amount.
      - Parameter amount: The amount of shade.
      - Returns: The shaded color object.
      */
     func shaded(by amount: CGFloat = 0.2) -> CGColor {
-        mixed(with: .black, by: amount, in: .srgb)
+        var oklch = oklch()
+        oklch.lightness.interpolate(to: 0.0, fraction: amount)
+        oklch.chroma.interpolate(to: 0.0, fraction: amount)
+        return oklch.cgColor
     }
     
     /**
@@ -202,9 +247,9 @@ public extension CGColor {
      - Returns: The brightened color object.
      */
     func lighter(by amount: CGFloat = 0.2) -> CGColor {
-        var hsla = hsl()
-        hsla.lightness += amount
-        return CGColor(hsla)
+        var oklch = oklch()
+        oklch.lightness.interpolate(to: 1.0, fraction: amount)
+        return oklch.cgColor
     }
     
     /**
@@ -213,7 +258,9 @@ public extension CGColor {
      - Returns: The darkened color object.
      */
     func darkened(by amount: CGFloat = 0.2) -> CGColor {
-        lighter(by: amount * -1.0)
+        var oklch = oklch()
+        oklch.lightness.interpolate(to: 0.0, fraction: amount)
+        return oklch.cgColor
     }
     
     /**
@@ -222,11 +269,11 @@ public extension CGColor {
      - Returns: The saturated color object.
      */
     func saturated(by amount: CGFloat = 0.2) -> CGColor {
-        var hsla = hsl()
-        hsla.saturation += amount
-        return CGColor(hsla)
+        var hsl = hsl()
+        hsl.saturation += amount
+        return hsl.cgColor
     }
-
+    
     /**
      Desaturates the color by the specified amount.
      - Parameter amount: The amount of desaturation.
@@ -238,30 +285,28 @@ public extension CGColor {
     
     /**
      Creates and returns a color object with the hue rotated along the color wheel by the given amount.
-
+     
      - Parameter amount: A float representing the number of degrees as ratio (usually between -360.0 degree and 360.0 degree).
      - returns: A DynamicColor object with the hue changed.
      */
     func adjustedHue(by amount: CGFloat) -> CGColor {
-        var hsla = hsl()
-        hsla.hue = hsla.hue + amount.clamped(to: 0...360)
-        if hsla.hue > 360 {
-            hsla.hue = hsla.hue - 360
-        }
-        return CGColor(hsla)
+        var hsl = hsl()
+        hsl.hue = (hsl.hue + amount).truncatingRemainder(dividingBy: 1.0)
+        if hsl.hue < 0 { hsl.hue += 1 }
+        return hsl.cgColor
     }
-
+    
     /**
      Creates and returns the complement of the color object.
-
+     
      This is identical to adjustedHue(180).
-
+     
      - returns: The complement DynamicColor.
      */
     func complemented() -> CGColor {
         adjustedHue(by: 180.0)
     }
-
+    
     /**
      A grayscaled representation of the color.
      - Parameter mode: The grayscale mode.
@@ -269,24 +314,26 @@ public extension CGColor {
      */
     func grayscaled(mode: GrayscalingMode = .lightness) -> CGColor {
         CGColor(rgb().gray(mode: .init(rawValue: mode.rawValue)!))
-
+        
     }
-
+    
     /// The mode of grayscaling a color.
     enum GrayscalingMode: String, Hashable {
-        /// XYZ luminance
+        /// Linear relative luminance (XYZ Y value).
         case luminance
-        /// HSL lightness
+        /// Perceptually correct sRGB gamma-corrected luminance.
+        case perceptual
+        /// HSL lightness value.
         case lightness
-        /// RGB average
+        /// Average of RGB channels.
         case average
-        /// HSV value
+        /// HSB/HSV brightness value.
         case value
     }
-
+    
     /**
      Creates and return a color object where the red, green, and blue values are inverted, while the alpha channel is left alone.
-
+     
      - returns: An inverse (negative) of the original color.
      */
     func inverted() -> CGColor {
@@ -303,7 +350,7 @@ public extension Color {
     func tinted(by amount: CGFloat = 0.2) -> Color {
         mix(with: .white, by: amount, in: .srgb)
     }
-
+    
     /**
      Shades the color by the specified amount.
      - Parameter amount: The amount of shade.
@@ -312,7 +359,7 @@ public extension Color {
     func shaded(by amount: CGFloat = 0.2) -> Color {
         mix(with: .black, by: amount, in: .srgb)
     }
-
+    
     /**
      Brightens the color by the specified amount.
      - Parameter amount: The amount of brightness.
@@ -320,9 +367,9 @@ public extension Color {
      */
     func lighter(by amount: CGFloat = 0.2) -> Color {
         Color(nsUIColor.lighter(by: amount))
-
+        
     }
-
+    
     /**
      Darkens the color by the specified amount.
      - Parameter amount: The amount of darken.
@@ -331,7 +378,7 @@ public extension Color {
     func darkened(by amount: CGFloat = 0.2) -> Color {
         Color(nsUIColor.darkened(by: amount))
     }
-
+    
     /**
      Saturates the color by the specified amount.
      - Parameter amount: The amount of saturation.
@@ -340,7 +387,7 @@ public extension Color {
     func saturated(by amount: CGFloat = 0.2) -> Color {
         Color(nsUIColor.saturated(by: amount))
     }
-
+    
     /**
      Desaturates the color by the specified amount.
      - Parameter amount: The amount of desaturation.
@@ -349,10 +396,10 @@ public extension Color {
     func desaturated(by amount: CGFloat = 0.2) -> Color {
         Color(nsUIColor.desaturated(by: amount))
     }
-
+    
     /**
      Creates and returns a color object with the hue rotated along the color wheel by the given amount.
-
+     
      - Parameter amount: A float representing the number of degrees as ratio (usually between -360.0 degree and 360.0 degree).
      - returns: A DynamicColor object with the hue changed.
      */
@@ -362,15 +409,15 @@ public extension Color {
     
     /**
      Creates and returns the complement of the color object.
-
+     
      This is identical to adjustedHue(180).
-
+     
      - returns: The complement DynamicColor.
      */
     func complemented() -> Color {
         Color(nsUIColor.complemented())
     }
-
+    
     /**
      A grayscaled representation of the color.
      - Parameter mode: The grayscale mode.
@@ -378,24 +425,26 @@ public extension Color {
      */
     func grayscaled(mode: GrayscalingMode = .lightness) -> Color {
         Color(nsUIColor.grayscaled(mode: .init(rawValue: mode.rawValue)!))
-
+        
     }
-
+    
     /// The mode of grayscaling a color.
     enum GrayscalingMode: String, Hashable {
-        /// XYZ luminance
+        /// Linear relative luminance (XYZ Y value).
         case luminance
-        /// HSL lightness
+        /// Perceptually correct sRGB gamma-corrected luminance.
+        case perceptual
+        /// HSL lightness value.
         case lightness
-        /// RGB average
+        /// Average of RGB channels.
         case average
-        /// HSV value
+        /// HSB/HSV brightness value.
         case value
     }
-
+    
     /**
      Creates and return a color object where the red, green, and blue values are inverted, while the alpha channel is left alone.
-
+     
      - returns: An inverse (negative) of the original color.
      */
     func inverted() -> Color {

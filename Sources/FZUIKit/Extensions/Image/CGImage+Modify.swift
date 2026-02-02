@@ -1,6 +1,6 @@
 //
 //  CGImage+Modify.swift
-//  FZUIKit
+//
 //
 //  Created by Florian Zand on 31.10.25.
 //

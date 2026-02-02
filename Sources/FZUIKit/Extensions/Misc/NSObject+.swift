@@ -1,6 +1,6 @@
 //
 //  NSObject+.swift
-//  FZUIKit
+//
 //
 //  Created by Florian Zand on 11.07.25.
 //
