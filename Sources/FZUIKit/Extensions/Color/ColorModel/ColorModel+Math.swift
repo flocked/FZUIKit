@@ -160,15 +160,3 @@ extension ColorMath {
         }
     }
 }
-
-public extension SIMD {
-    /// Returns a new vector by applying the given transform to each element.
-    func map<E>(_ transform: (Scalar) throws(E) -> Scalar) throws(E) -> Self where E : Error {
-        Self(try scalars.map(transform))
-    }
-    
-    /// Applies the given closure to each element of the vector in-place.
-    mutating func editEach(_ body: (inout Scalar) throws -> Void) rethrows {
-        try indices.forEach({ try body(&self[$0]) })
-    }
-}
