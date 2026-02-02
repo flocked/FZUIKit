@@ -59,7 +59,7 @@ extension ColorModels {
         
         /// The color in the OKLAB color space.
         public var oklab: OKLAB {
-            ColorMath.OKLab.fromHSX(storage, hsl: true)
+            OKLAB.fromHSX(storage, hsl: true)
         }
         
         /// The color in the sRGB color space.

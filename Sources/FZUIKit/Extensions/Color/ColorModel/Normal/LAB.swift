@@ -56,7 +56,7 @@ extension ColorModels {
             let fy = (lightness + 16.0) / 116.0
             let fx = fy + greenRed / 500.0
             let fz = fy - blueYellow / 200.0
-            return XYZ(x: ColorMath.LAB.fInv(fx) * XYZ.WhitePoint.D55.x, y: ColorMath.LAB.fInv(fy) * XYZ.WhitePoint.D55.y, z: ColorMath.LAB.fInv(fz) * XYZ.WhitePoint.D55.z, alpha: alpha)
+            return XYZ(x: Self.fInv(fx) * XYZ.WhitePoint.D55.x, y: Self.fInv(fy) * XYZ.WhitePoint.D55.y, z: Self.fInv(fz) * XYZ.WhitePoint.D55.z, alpha: alpha)
         }
         
         /// The color in the LCH color space.
@@ -75,6 +75,23 @@ extension ColorModels {
             precondition(components.count >= 3, "You need to provide at least 3 components for a color in CIE LAB color space.")
             self.init(lightness: components[0], greenRed: components[1], blueYellow: components[2], alpha: components[safe: 3] ?? 0.0)
         }
+    }
+}
+
+extension ColorModels.LAB {
+    fileprivate static let delta = 6.0 / 29.0
+    fileprivate static let threshold = delta * delta * delta
+    fileprivate static let k = 3 * delta * delta
+    fileprivate static let four29 = 4.0 / 29.0
+    
+    @inline(__always)
+    static func f(_ t: Double) -> Double {
+        t > threshold ? cbrt(t) : t / k + four29
+    }
+    
+    @inline(__always)
+    static func fInv(_ t: Double) -> Double {
+        t > delta ? t * t * t : k * (t - four29)
     }
 }
 

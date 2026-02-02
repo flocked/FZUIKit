@@ -13,13 +13,6 @@ enum ColorMath {
         return r < 0 ? r + 1 : r
     }
     
-    private static let kToe = (1 + 0.206) / (1 + 0.03)
-    
-    @inline(__always)
-    static func toe(_ x: Double) -> Double {
-        0.5 * (kToe * x - 0.206 + sqrt((kToe * x - 0.206) * (kToe * x - 0.206) + 4 * 0.03 * kToe * x))
-    }
-    
     @inline(__always)
     static func hueToVector(_ h: Double) -> (x: Double, y: Double) {
         let θ = h * 2 * .pi
@@ -91,72 +84,5 @@ enum ColorMath {
             }
         }
         return result
-    }
-}
-
-extension ColorMath {
-    enum RGB {
-        private static let invGamma = 1.0 / 2.4
-        
-        @inline(__always)
-        static func toLinear(_ c: Double) -> Double {
-            let absC = abs(c)
-            let res = absC <= 0.04045
-            ? absC / 12.92
-            : pow((absC + 0.055) / 1.055, 2.4)
-            return c < 0 ? -res : res
-        }
-        
-        @inline(__always)
-        static func toNonlinear(_ c: Double) -> Double {
-            let absC = abs(c)
-            let res = absC <= 0.0031308
-            ? 12.92 * absC
-            : 1.055 * pow(absC, invGamma) - 0.055
-            return c < 0 ? -res : res
-        }
-        
-        static func toHSX(_ storage: SIMD4<Double>, isHSL: Bool = true) -> (hue: Double, saturation: Double, brightness: Double, alpha: Double) {
-            let (hue, delta, maxV, minV) = hueChromaMaxMin(red: storage.x, green: storage.y, blue: storage.z)
-            if isHSL {
-                let lightness = (maxV + minV) / 2
-                let saturation = lightness > 0 && lightness < 1 ? delta / (1 - abs(2 * lightness - 1)) : 0
-                return (hue, saturation, lightness, storage.w)
-            }
-            return (hue, maxV != 0 ? delta / maxV : 0, maxV, storage.w)
-        }
-        
-        private static func hueChromaMaxMin(red: Double, green: Double, blue: Double) -> (hue: Double, delta: Double, maxV: Double, minV: Double) {
-            let maxV = max(red, green, blue)
-            let minV = min(red, green, blue)
-            let delta = maxV - minV
-            var hue: Double = 0
-            if delta > 0 {
-                hue = (maxV == red ? (green - blue) / delta
-                       : maxV == green ? (blue - red) / delta + 2
-                       : (red - green) / delta + 4) / 6
-                if hue < 0 { hue += 1 }
-            }
-            return (hue, delta, maxV, minV)
-        }
-    }
-}
-
-extension ColorMath {
-    enum LAB {
-        private static let delta = 6.0 / 29.0
-        private static let threshold = delta * delta * delta
-        private static let k = 3 * delta * delta
-        private static let four29 = 4.0 / 29.0
-        
-        @inline(__always)
-        static func f(_ t: Double) -> Double {
-            t > threshold ? cbrt(t) : t / k + four29
-        }
-        
-        @inline(__always)
-        static func fInv(_ t: Double) -> Double {
-            t > delta ? t * t * t : k * (t - four29)
-        }
     }
 }

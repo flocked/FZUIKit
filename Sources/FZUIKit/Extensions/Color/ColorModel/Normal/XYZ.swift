@@ -89,9 +89,9 @@ extension ColorModels {
         
         /// The color in the LAB color space.
         public var lab: LAB {
-            let fx = ColorMath.LAB.f(x / XYZ.WhitePoint.D65.x)
-            let fy = ColorMath.LAB.f(y / XYZ.WhitePoint.D65.y)
-            let fz = ColorMath.LAB.f(z / XYZ.WhitePoint.D65.z)
+            let fx = LAB.f(x / XYZ.WhitePoint.D65.x)
+            let fy = LAB.f(y / XYZ.WhitePoint.D65.y)
+            let fz = LAB.f(z / XYZ.WhitePoint.D65.z)
             return .init(lightness: 116.0 * fy - 16.0, greenRed: 500.0 * (fx - fy), blueYellow: 200.0 * (fy - fz), alpha: alpha)
         }
         
@@ -111,7 +111,7 @@ extension ColorModels {
 
         /// The color in the JZCZHZ color space.
         public var jzazbz: JZAZBZ {
-            ColorMath.JZAZBZ.fromXYZ(self)
+            JZAZBZ.fromXYZ(self)
         }
 
         /// Creates the color with the specified components.

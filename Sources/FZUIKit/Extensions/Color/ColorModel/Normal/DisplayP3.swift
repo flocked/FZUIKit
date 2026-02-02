@@ -40,20 +40,20 @@ extension ColorModels {
         
         /// The linear red component of the color.
         public var linearRed: Double {
-            get { ColorMath.RGB.toLinear(red) }
-            set { red = ColorMath.RGB.toNonlinear(newValue) }
+            get { SRGB.toLinear(red) }
+            set { red = SRGB.toNonlinear(newValue) }
         }
         
         /// The linear green component of the color.
         public var linearGreen: Double {
-            get { ColorMath.RGB.toLinear(green) }
-            set { green = ColorMath.RGB.toNonlinear(newValue) }
+            get { SRGB.toLinear(green) }
+            set { green = SRGB.toNonlinear(newValue) }
         }
         
         /// The linear blue component of the color.
         public var linearBlue: Double {
-            get { ColorMath.RGB.toLinear(blue) }
-            set { blue = ColorMath.RGB.toNonlinear(newValue) }
+            get { SRGB.toLinear(blue) }
+            set { blue = SRGB.toNonlinear(newValue) }
         }
         
         public var components: [Double] {
@@ -90,13 +90,13 @@ extension ColorModels {
 
         /// The color in the HSB color space.
         public var hsb: HSB {
-            let hsb = ColorMath.RGB.toHSX(animatableData, isHSL: false)
+            let hsb = SRGB.toHSX(animatableData, isHSL: false)
             return .init(hue: hsb.hue, saturation: hsb.saturation, brightness: hsb.brightness, alpha: hsb.alpha)
         }
         
         /// The color in the HSL color space.
         public var hsl: HSL {
-            let hsl = ColorMath.RGB.toHSX(animatableData, isHSL: true)
+            let hsl = SRGB.toHSX(animatableData, isHSL: true)
             return .init(hue: hsl.hue, saturation: hsl.saturation, lightness: hsl.brightness, alpha: hsl.alpha)
         }
         
@@ -107,7 +107,7 @@ extension ColorModels {
         
         /// Creates the color with the specified linear components.
         public init(linearRed red: Double, green: Double, blue: Double, alpha: Double = 1.0) {
-            self.init(red: ColorMath.RGB.toNonlinear(red), green: ColorMath.RGB.toNonlinear(green), blue: ColorMath.RGB.toNonlinear(blue), alpha: alpha)
+            self.init(red: SRGB.toNonlinear(red), green: SRGB.toNonlinear(green), blue: SRGB.toNonlinear(blue), alpha: alpha)
         }
         
         public init(_ components: [Double]) {

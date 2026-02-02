@@ -40,20 +40,20 @@ extension ColorModels {
                 
         /// The linear red component of the color.
         public var linearRed: Double {
-            get { ColorMath.RGB.toLinear(red) }
-            set { red = ColorMath.RGB.toNonlinear(newValue) }
+            get { Self.toLinear(red) }
+            set { red = Self.toNonlinear(newValue) }
         }
         
         /// The linear green component of the color.
         public var linearGreen: Double {
-            get { ColorMath.RGB.toLinear(green) }
-            set { green = ColorMath.RGB.toNonlinear(newValue) }
+            get { Self.toLinear(green) }
+            set { green = Self.toNonlinear(newValue) }
         }
         
         /// The linear blue component of the color.
         public var linearBlue: Double {
-            get { ColorMath.RGB.toLinear(blue) }
-            set { blue = ColorMath.RGB.toNonlinear(newValue) }
+            get { Self.toLinear(blue) }
+            set { blue = Self.toNonlinear(newValue) }
         }
         
         /// The relative luminance of the color.
@@ -115,13 +115,13 @@ extension ColorModels {
         
         /// The color in the HSB color space.
         public var hsb: HSB {
-            let hsb = ColorMath.RGB.toHSX(animatableData, isHSL: false)
+            let hsb = Self.toHSX(animatableData, isHSL: false)
             return .init(hue: hsb.hue, saturation: hsb.saturation, brightness: hsb.brightness, alpha: hsb.alpha)
         }
         
         /// The color in the HSL color space.
         public var hsl: HSL {
-            let hsl = ColorMath.RGB.toHSX(animatableData, isHSL: true)
+            let hsl = Self.toHSX(animatableData, isHSL: true)
             return .init(hue: hsl.hue, saturation: hsl.saturation, lightness: hsl.brightness, alpha: hsl.alpha)
         }
         
@@ -173,7 +173,7 @@ extension ColorModels {
             case .value:
                 return Grayscale(white: hsb.brightness, alpha: alpha)
             case .perceptual:
-                return Grayscale(white: ColorMath.RGB.toNonlinear(relativeLuminance), alpha: alpha)
+                return Grayscale(white: Self.toNonlinear(relativeLuminance), alpha: alpha)
             }
         }
         
@@ -211,7 +211,7 @@ extension ColorModels {
         
         /// Creates the color with the specified linear components.
         public init(linearRed red: Double, green: Double, blue: Double, alpha: Double = 1.0) {
-            self.init(red: ColorMath.RGB.toNonlinear(red), green: ColorMath.RGB.toNonlinear(green), blue: ColorMath.RGB.toNonlinear(blue), alpha: alpha)
+            self.init(red: Self.toNonlinear(red), green: Self.toNonlinear(green), blue: Self.toNonlinear(blue), alpha: alpha)
         }
         
         public init(_ components: [Double]) {
@@ -236,6 +236,52 @@ extension ColorModels {
         public init(hex: Int, alpha: CGFloat = 1.0) {
             self.init(red: CGFloat((hex & 0xFF0000) >> 16) / 255.0, green: CGFloat((hex & 0x00FF00) >> 8) / 255.0, blue: CGFloat(hex & 0x0000FF) / 255.0, alpha: alpha)
         }
+    }
+}
+
+extension ColorModels.SRGB {
+    fileprivate static let invGamma = 1.0 / 2.4
+    
+    @inline(__always)
+    static func toLinear(_ c: Double) -> Double {
+        let absC = abs(c)
+        let res = absC <= 0.04045
+        ? absC / 12.92
+        : pow((absC + 0.055) / 1.055, 2.4)
+        return c < 0 ? -res : res
+    }
+    
+    @inline(__always)
+    static func toNonlinear(_ c: Double) -> Double {
+        let absC = abs(c)
+        let res = absC <= 0.0031308
+        ? 12.92 * absC
+        : 1.055 * pow(absC, invGamma) - 0.055
+        return c < 0 ? -res : res
+    }
+    
+    static func toHSX(_ storage: SIMD4<Double>, isHSL: Bool = true) -> (hue: Double, saturation: Double, brightness: Double, alpha: Double) {
+        let (hue, delta, maxV, minV) = hueChromaMaxMin(red: storage.x, green: storage.y, blue: storage.z)
+        if isHSL {
+            let lightness = (maxV + minV) / 2
+            let saturation = lightness > 0 && lightness < 1 ? delta / (1 - abs(2 * lightness - 1)) : 0
+            return (hue, saturation, lightness, storage.w)
+        }
+        return (hue, maxV != 0 ? delta / maxV : 0, maxV, storage.w)
+    }
+    
+    fileprivate static func hueChromaMaxMin(red: Double, green: Double, blue: Double) -> (hue: Double, delta: Double, maxV: Double, minV: Double) {
+        let maxV = max(red, green, blue)
+        let minV = min(red, green, blue)
+        let delta = maxV - minV
+        var hue: Double = 0
+        if delta > 0 {
+            hue = (maxV == red ? (green - blue) / delta
+                   : maxV == green ? (blue - red) / delta + 2
+                   : (red - green) / delta + 4) / 6
+            if hue < 0 { hue += 1 }
+        }
+        return (hue, delta, maxV, minV)
     }
 }
 
