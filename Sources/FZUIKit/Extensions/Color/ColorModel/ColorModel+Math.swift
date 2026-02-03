@@ -86,3 +86,4 @@ enum ColorMath {
         return result
     }
 }
+

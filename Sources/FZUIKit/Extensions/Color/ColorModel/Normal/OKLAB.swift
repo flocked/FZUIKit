@@ -1,6 +1,6 @@
 //
 //  ColorModel+OKLAB.swift
-//  
+//
 //
 //  Created by Florian Zand on 14.12.25.
 //
@@ -81,7 +81,7 @@ extension ColorModels {
         
         /// The color in the OKHSB color space.
         public var okhsb: OKHSB {
-            let (hue, saturation, brightness) = Self.toHSX(self)
+            let (hue, saturation, brightness) = Self.toHSX(self, hsl: false)
             return .init(hue: hue, saturation: saturation, brightness: brightness, alpha: alpha)
         }
         
@@ -104,99 +104,92 @@ extension ColorModels {
 }
 
 extension ColorModels.OKLAB {
-    static func fromHSX(_ storage: SIMD4<Double>, hsl: Bool) -> ColorModels.OKLAB {
-        let (hue, saturation, lightOrValue, alpha) = (storage.x, storage.y, storage.z, storage.w)            // Unit vector along hue
-        let aUnit = cos(2.0 * .pi * hue)
-        let bUnit = sin(2.0 * .pi * hue)
+    static func fromHSX(_ storage: SIMD4<Double>, hsl: Bool) -> Self {
+        let (h, s, lOrV, alpha) = (storage.x, storage.y, storage.z, storage.w)
         
-        // Max saturation info
-        let stMax = getStMax(a: aUnit, b: bUnit)
-        let sMax = stMax[0]
-        let T = stMax[1]
+        let aUnit = cos(2.0 * .pi * h)
+        let bUnit = sin(2.0 * .pi * h)
+        
+        // 1. Get Cusp and Max Saturation info
+        let cusp = findCusp(a: aUnit, b: bUnit)
+        let stMax = getStMax(a: aUnit, b: bUnit, cusp: cusp)
+        let S_max = stMax[0]
+        let T_max = stMax[1]
         let s0 = 0.5
-        let k = 1 - s0 / sMax
+        let k = 1 - s0 / S_max
         
-        // Compute perceptual C
-        let Cv = saturation != 0 ? (T * s0 * saturation) / ((s0 + T) - k * T * saturation) : 0
-        
-        // Compute L for HSL or HSB
-        let Lv: Double
+        // 2. Derive L and C (Chroma)
+        let L: Double
         if hsl {
-            // Undo toe for HSL lightness
-            Lv = toeInv(lightOrValue)
+            L = toeInv(lOrV) // Convert HSL Lightness back to OKLAB L
         } else {
-            // For HSB, lightOrValue is already Lv (brightness)
-            Lv = lightOrValue
+            L = lOrV // In HSB, Value is treated as OKLAB L
         }
         
-        // Adjust C to match linear sRGB gamut
-        let Cvt = Cv
-        let rgbLinear = ColorModels.OKLAB(lightness: Lv, greenRed: aUnit * Cvt, blueYellow: bUnit * Cvt).rgb
-        let maxRGB = max(rgbLinear.linearRed, rgbLinear.linearGreen, rgbLinear.linearBlue)
-        let scaleL = maxRGB > 1e-6 ? pow(1.0 / maxRGB, 1.0 / 3.0) : 1.0
+        // Saturation to Chroma formula
+        let C = (s * T_max * s0) / (s0 + T_max - k * T_max * s)
         
-        let LFinal = Lv * scaleL
-        let CFinal = Cvt * scaleL
-        
-        return ColorModels.OKLAB(lightness: LFinal, greenRed: CFinal * aUnit, blueYellow: CFinal * bUnit, alpha: alpha)
+        return .init(lightness: L, greenRed: C * aUnit, blueYellow: C * bUnit, alpha: alpha)
     }
     
-    fileprivate static func getStMax(a: Double, b: Double, cusp: [Double]? = nil) -> [Double] {
-        let _cusp = cusp ?? findCusp(a: a, b: b)
-        let l = _cusp[0]
-        let c = _cusp[1]
-        return [c / l, c / (1 - l)]
+    static func toHSX(_ oklab: Self, hsl: Bool) -> (hue: Double, saturation: Double, light: Double) {
+        let L = oklab.lightness
+        let C = sqrt(oklab.greenRed * oklab.greenRed + oklab.blueYellow * oklab.blueYellow)
+        
+        var h = atan2(oklab.blueYellow, oklab.greenRed) / (2.0 * .pi)
+        if h < 0 { h += 1 }
+        
+        let aUnit = C > 1e-6 ? oklab.greenRed / C : cos(2.0 * .pi * h)
+        let bUnit = C > 1e-6 ? oklab.blueYellow / C : sin(2.0 * .pi * h)
+        
+        let cusp = findCusp(a: aUnit, b: bUnit)
+        let stMax = getStMax(a: aUnit, b: bUnit, cusp: cusp)
+        let S_max = stMax[0]
+        let T_max = stMax[1]
+        let s0 = 0.5
+        let k = 1 - s0 / S_max
+        
+        // Chroma to Saturation formula
+        let saturation = (C * (s0 + T_max)) / (T_max * s0 + T_max * k * C)
+        
+        // Lightness/Value component
+        let light = hsl ? toe(L) : L
+        
+        return (h, saturation, light)
+    }
+    
+    fileprivate static func getStMax(a: Double, b: Double, cusp: (L: Double, C: Double)) -> [Double] {
+        let L = cusp.L
+        let C = cusp.C
+        return [C / L, C / (1.0 - L)]
+    }
+    
+    fileprivate static func toe(_ x: Double) -> Double {
+        if x <= 0 { return 0 }
+        if x >= 1 { return x } // Linear for extended range > 1
+        let k1 = 0.206
+        let k2 = 0.03
+        let k3 = (1.0 + k1) / (1.0 + k2)
+        return 0.5 * (k3 * x - k1 + sqrt((k3 * x - k1) * (k3 * x - k1) + 4 * k2 * k3 * x))
     }
     
     fileprivate static func toeInv(_ x: Double) -> Double {
+        if x <= 0 { return 0 }
+        if x >= 1 { return x } // Linear for extended range > 1
         let k1 = 0.206
         let k2 = 0.03
-        let k3 = (1 + k1) / (1 + k2)
+        let k3 = (1.0 + k1) / (1.0 + k2)
         return (x * x + k1 * x) / (k3 * (x + k2))
     }
     
-    fileprivate static func findCusp(a: Double, b: Double) -> [Double] {
+    fileprivate static func findCusp(a: Double, b: Double) -> (L: Double, C: Double) {
         let sCusp = computeMaxSaturation(a, b)
+        
         let rgb = ColorModels.OKLAB(lightness: 1, greenRed: sCusp * a, blueYellow: sCusp * b).rgb
-        let maxL = max(rgb.linearRed, max(rgb.linearGreen, rgb.linearBlue))
-        let lCusp = maxL > 1e-6 ? pow(1.0 / maxL, 1.0/3.0) : 1.0
-        return [lCusp, lCusp * sCusp]
-    }
-    
-    static func toHSX(_ oklab: ColorModels.OKLAB, hsl: Bool = false) -> (hue: Double, saturation: Double, light: Double) {
-        let C = ColorMath.chromaFromCartesian(oklab.greenRed, oklab.blueYellow)
+        let maxRGB = max(rgb.linearRed, max(rgb.linearGreen, rgb.linearBlue))
         
-        let aUnit = C != 0 ? oklab.greenRed / C : 1
-        let bUnit = C != 0 ? oklab.blueYellow / C : 1
-        
-        let hue = ColorMath.hueFromCartesian(oklab.greenRed, oklab.blueYellow)
-        
-        let stMax = getStMax(a: aUnit, b: bUnit)
-        let sMax = stMax[0]
-        let T = stMax[1]
-        let s0 = 0.5
-        let k = 1 - s0 / sMax
-        
-        let Lv = oklab.lightness
-        let Cv = C
-        
-        let Lvt = toeInv(Lv)
-        let Cvt = Lv != 0 ? (Cv * Lvt) / Lv : 0
-        
-        // Scale to fit linear sRGB gamut
-        let rgbLinear = ColorModels.OKLAB(lightness: Lvt, greenRed: aUnit * Cvt, blueYellow: bUnit * Cvt).rgb
-        let maxRGB = max(rgbLinear.linearRed, rgbLinear.linearGreen, rgbLinear.linearBlue)
-        let scaleL = maxRGB > 1e-6 ? pow(1.0 / maxRGB, 1.0 / 3.0) : 1.0
-        
-        let saturation = Cvt != 0 ? ((s0 + T) * Cvt) / (T * s0 + T * k * Cvt) : 0
-        return (hue, saturation, hsl ? toe(Lvt * scaleL) : Lvt * scaleL)
-    }
-    
-    fileprivate static let kToe = (1 + 0.206) / (1 + 0.03)
-    
-    @inline(__always)
-    fileprivate static func toe(_ x: Double) -> Double {
-        0.5 * (kToe * x - 0.206 + sqrt((kToe * x - 0.206) * (kToe * x - 0.206) + 4 * 0.03 * kToe * x))
+        let lCusp = pow(1.0 / maxRGB, 1.0/3.0)
+        return (lCusp, lCusp * sCusp)
     }
     
     fileprivate static func computeMaxSaturation(_ a: Double, _ b: Double) -> Double {

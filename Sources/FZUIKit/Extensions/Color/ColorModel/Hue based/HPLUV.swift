@@ -58,7 +58,7 @@ extension ColorModels {
         }
         
         /// The color in the LCHUV color space.
-        var lchuv: LCHUV {
+        public var lchuv: LCHUV {
             let lightness = lightness * 100
             let chroma = saturation == 0 ? 0 : ColorMath.maxChroma(lightness, hue) * saturation
             // let chroma saturation > 0 ? ColorMath.maxChroma(lightness, hue) * saturation : 0

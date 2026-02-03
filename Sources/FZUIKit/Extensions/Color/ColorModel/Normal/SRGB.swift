@@ -165,7 +165,8 @@ extension ColorModels {
         public func gray(mode: GrayscalingMode) -> Grayscale {
             switch mode {
             case .luminance:
-                return Grayscale(white: xyz.y, alpha: alpha)
+                let luminance = SIMD3(linearRed, linearGreen, linearBlue).dot(Self.toXYZ.y)
+                return Grayscale(white: luminance, alpha: alpha)
             case .lightness:
                 return Grayscale(white: hsl.lightness, alpha: alpha)
             case .average:

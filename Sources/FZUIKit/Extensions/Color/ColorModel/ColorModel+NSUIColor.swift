@@ -31,6 +31,16 @@ extension CGColor: PlatformColor {
         return .init(components)
     }
     
+    /*
+    /// The color components in the generic CMYK color space.
+    public func cmyk() -> ColorModels.CMYK {
+        if let components = components(for: .genericCMYK)?.map(Double.init) {
+            return .init(components)
+        }
+        return rgb().cmyk
+    }
+     */
+    
     fileprivate func components(for colorspaces: [CGColorSpaceName]) -> [CGFloat]? {
         colorspaces.lazy.compactMap({ self.components(for: $0) }).first
     }
@@ -39,11 +49,15 @@ extension CGColor: PlatformColor {
 extension NSUIColor: PlatformColor {
     public func rgb() -> ColorModels.SRGB { cgColor.rgb() }
     public func displayP3() -> ColorModels.DisplayP3 { cgColor.displayP3() }
+    /// The color components in the generic CMYK color space.
+ //   public func cmyk() -> ColorModels.CMYK { cgColor.cmyk() }
 }
 
 extension Color: PlatformColor {
     public func rgb() -> ColorModels.SRGB { nsUIColor.rgb() }
     public func displayP3() -> ColorModels.DisplayP3 { nsUIColor.displayP3() }
+    /// The color components in the generic CMYK color space.
+  //  public func cmyk() -> ColorModels.CMYK { nsUIColor.cmyk() }
 }
 
 extension PlatformColor {

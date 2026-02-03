@@ -168,12 +168,51 @@ public extension CFType where Self == CGColor {
      */
     init(patternImage: CGImage) {
         let drawPattern: CGPatternDrawPatternCallback = { info, context in
-            let image = Unmanaged<CGImage>.fromOpaque(info!).takeUnretainedValue()
-            context.draw(image, in: CGRect(origin: .zero, size: image.size))
+            guard let info else { return }
+            let image = Unmanaged<CGImage>.fromOpaque(info).takeUnretainedValue()
+            context.draw(image, in: image.size.rect)
         }
-        var callbacks = CGPatternCallbacks(version: 0, drawPattern: drawPattern, releaseInfo: nil)
-        let pattern = CGPattern(info: Unmanaged.passUnretained(patternImage).toOpaque(), bounds: patternImage.size.rect, matrix: .identity, xStep: CGFloat(patternImage.width), yStep: CGFloat(patternImage.height), tiling: .constantSpacing, isColored: true, callbacks: &callbacks)!
+        let releasePattern: CGPatternReleaseInfoCallback = { info in
+            guard let info else { return }
+            Unmanaged<CGImage>.fromOpaque(info).release()
+        }
+        let info = Unmanaged.passRetained(patternImage).toOpaque()
+        var callbacks = CGPatternCallbacks(version: 0, drawPattern: drawPattern, releaseInfo: releasePattern)
+        let bounds = CGRect(x: 0, y: 0, width: patternImage.width, height: patternImage.height)
+        let pattern = CGPattern(info: info, bounds: bounds, matrix: .identity, xStep: bounds.width, yStep: bounds.height, tiling: .constantSpacing, isColored: true, callbacks: &callbacks)!
         self = CGColor(patternSpace: CGColorSpace(patternBaseSpace: nil)!, pattern: pattern, components: [1.0])!
+    }
+    
+    /**
+     Creates a `CGColor` representing a repeating pattern tile drawn by a custom closure.
+
+     The drawing handler is called each time the pattern tile needs to be drawn.
+
+     - Parameters:
+       - patternSize: The size of one tile in the pattern. This determines how the pattern
+         repeats.
+       - drawingHandler: A closure that takes a `CGContext` and draws one tile of the pattern.
+
+     - Returns: A `CGColor` representing a repeating pattern.
+     
+     - Note: The drawingHandler closure cannot capture local variables from outside directly for the C callback. All state should be captured inside the closure or via objects stored in the closure.
+    */
+    init(patternSize: CGSize, drawingHandler: @escaping (CGContext) -> Void) {
+        let drawBox = PatternDrawBox(drawingHandler)
+        let info = Unmanaged.passRetained(drawBox).toOpaque()
+        let drawCallback: CGPatternDrawPatternCallback = { info, ctx in
+            guard let info else { return }
+            let box = Unmanaged<PatternDrawBox>.fromOpaque(info).takeUnretainedValue()
+            box.block(ctx)
+        }
+        let releaseCallback: CGPatternReleaseInfoCallback = { info in
+            guard let info else { return }
+            Unmanaged<PatternDrawBox>.fromOpaque(info).release()
+        }
+        var callbacks = CGPatternCallbacks(version: 0, drawPattern: drawCallback, releaseInfo: releaseCallback)
+        let pattern = CGPattern(info: info, bounds: CGRect(origin: .zero, size: patternSize), matrix: .identity, xStep: patternSize.width, yStep: patternSize.height, tiling: .constantSpacing, isColored: true, callbacks: &callbacks)!
+        let colorSpace = CGColorSpace(patternBaseSpace: nil)!
+        self = CGColor(patternSpace: colorSpace, pattern: pattern, components: [1.0])!
     }
     
     internal var nsUIColor: NSUIColor? {
@@ -192,4 +231,9 @@ extension CGColor: Swift.Encodable, Swift.Decodable {
     public func encode(to encoder: any Encoder) throws {
         try nsUIColor.encode(to: encoder)
     }
+}
+
+fileprivate class PatternDrawBox {
+    let block: (CGContext) -> Void
+    init(_ block: @escaping (CGContext) -> Void) { self.block = block }
 }
