@@ -12,7 +12,7 @@ import UIKit
 #endif
 import SwiftUI
 
-/// `NSColor`, `UIColor` and SwiftUI `Color`.
+/// `NSColor`, `UIColor`, `CGColor` and SwiftUI `Color`.
 public protocol PlatformColor {
     /// The color components in the extened sRGB color space.
     func rgb() -> ColorModels.SRGB
@@ -31,16 +31,6 @@ extension CGColor: PlatformColor {
         return .init(components)
     }
     
-    /*
-    /// The color components in the generic CMYK color space.
-    public func cmyk() -> ColorModels.CMYK {
-        if let components = components(for: .genericCMYK)?.map(Double.init) {
-            return .init(components)
-        }
-        return rgb().cmyk
-    }
-     */
-    
     fileprivate func components(for colorspaces: [CGColorSpaceName]) -> [CGFloat]? {
         colorspaces.lazy.compactMap({ self.components(for: $0) }).first
     }
@@ -49,15 +39,11 @@ extension CGColor: PlatformColor {
 extension NSUIColor: PlatformColor {
     public func rgb() -> ColorModels.SRGB { cgColor.rgb() }
     public func displayP3() -> ColorModels.DisplayP3 { cgColor.displayP3() }
-    /// The color components in the generic CMYK color space.
- //   public func cmyk() -> ColorModels.CMYK { cgColor.cmyk() }
 }
 
 extension Color: PlatformColor {
     public func rgb() -> ColorModels.SRGB { nsUIColor.rgb() }
     public func displayP3() -> ColorModels.DisplayP3 { nsUIColor.displayP3() }
-    /// The color components in the generic CMYK color space.
-  //  public func cmyk() -> ColorModels.CMYK { nsUIColor.cmyk() }
 }
 
 extension PlatformColor {
@@ -135,26 +121,26 @@ extension CGColor {
      */
     public func mixed(with other: CGColor, by fraction: Double, in colorSpace: ColorModels.ColorSpace = .srgb) -> CGColor {
         switch colorSpace {
-        case .srgb: .init(rgb().mixed(with: other.rgb(), by: fraction))
-        case .xyz: .init(xyz().mixed(with: other.xyz(), by: fraction))
-        case .oklab: .init(oklab().mixed(with: other.oklab(), by: fraction))
-        case .oklch: .init(oklch().mixed(with: other.oklch(), by: fraction))
-        case .hsl: .init(hsl().mixed(with: other.hsl(), by: fraction))
-        case .hsb: .init(hsb().mixed(with: other.hsb(), by: fraction))
-        case .cmyk: .init(cmyk().mixed(with: other.cmyk(), by: fraction))
-        case .lab: .init(lab().mixed(with: other.lab(), by: fraction))
-        case .gray: .init(gray().mixed(with: other.gray(), by: fraction))
-        case .lch: .init(lch().mixed(with: other.lch(), by: fraction))
-        case .luv: .init(luv().mixed(with: other.luv(), by: fraction))
-        case .displayP3: .init(displayP3().mixed(with: other.displayP3(), by: fraction))
-        case .hwb: .init(hwb().mixed(with: other.hwb(), by: fraction))
-        case .okhsb: .init(okhsb().mixed(with: other.okhsb(), by: fraction))
-        case .okhsl: .init(okhsl().mixed(with: other.okhsl(), by: fraction))
-        case .hpluv: .init(hpluv().mixed(with: other.hpluv(), by: fraction))
-        case .lchuv: .init(lchuv().mixed(with: other.lchuv(), by: fraction))
-        case .hsluv: .init(hsluv().mixed(with: other.hsluv(), by: fraction))
-        case .jzazbz: .init(jzazbz().mixed(with: other.jzazbz(), by: fraction))
-        case .jzczhz: .init(jzczhz().mixed(with: other.jzczhz(), by: fraction))
+        case .srgb: rgb().mixed(with: other.rgb(), by: fraction).cgColor
+        case .xyz: xyz().mixed(with: other.xyz(), by: fraction).cgColor
+        case .oklab: oklab().mixed(with: other.oklab(), by: fraction).cgColor
+        case .oklch: oklch().mixed(with: other.oklch(), by: fraction).cgColor
+        case .hsl: hsl().mixed(with: other.hsl(), by: fraction).cgColor
+        case .hsb: hsb().mixed(with: other.hsb(), by: fraction).cgColor
+        case .cmyk: cmyk().mixed(with: other.cmyk(), by: fraction).cgColor
+        case .lab: lab().mixed(with: other.lab(), by: fraction).cgColor
+        case .gray: gray().mixed(with: other.gray(), by: fraction).cgColor
+        case .lch: lch().mixed(with: other.lch(), by: fraction).cgColor
+        case .luv: luv().mixed(with: other.luv(), by: fraction).cgColor
+        case .displayP3: displayP3().mixed(with: other.displayP3(), by: fraction).cgColor
+        case .hwb: hwb().mixed(with: other.hwb(), by: fraction).cgColor
+        case .okhsb: okhsb().mixed(with: other.okhsb(), by: fraction).cgColor
+        case .okhsl: okhsl().mixed(with: other.okhsl(), by: fraction).cgColor
+        case .hpluv: hpluv().mixed(with: other.hpluv(), by: fraction).cgColor
+        case .lchuv: lchuv().mixed(with: other.lchuv(), by: fraction).cgColor
+        case .hsluv: hsluv().mixed(with: other.hsluv(), by: fraction).cgColor
+        case .jzazbz: jzazbz().mixed(with: other.jzazbz(), by: fraction).cgColor
+        case .jzczhz: jzczhz().mixed(with: other.jzczhz(), by: fraction).cgColor
         }
     }
 }
@@ -184,14 +170,10 @@ extension NSUIColor {
         let dynamic = dynamicColors
         let otherDynamic = other.dynamicColors
         if dynamic.isDynamic || otherDynamic.isDynamic {
-            return NSUIColor(light: dynamic.light._mixed(with: otherDynamic.light, by: fraction, in: colorSpace), dark: dynamic.dark._mixed(with: otherDynamic.dark, by: fraction, in: colorSpace))
+            return NSUIColor(light: dynamic.light.cgColor.mixed(with: otherDynamic.light.cgColor, by: fraction, in: colorSpace).nsUIColor!, dark: dynamic.dark.cgColor.mixed(with: otherDynamic.dark.cgColor, by: fraction, in: colorSpace).nsUIColor!)
         }
         #endif
-        return _mixed(with: other, by: fraction, in: colorSpace)
-    }
-    
-    fileprivate func _mixed(with other: NSUIColor, by fraction: Double, in colorSpace: ColorModels.ColorSpace = .srgb) -> NSUIColor {
-        cgColor.mixed(with: other.cgColor, by: fraction, in: colorSpace).nsUIColor!
+        return cgColor.mixed(with: other.cgColor, by: fraction, in: colorSpace).nsUIColor!
     }
 }
 

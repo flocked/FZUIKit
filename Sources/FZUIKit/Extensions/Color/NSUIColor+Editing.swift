@@ -21,7 +21,13 @@ public extension NSUIColor {
      - Returns: The tinted color object.
      */
     func tinted(by amount: CGFloat = 0.2) -> NSUIColor {
-        cgColor.tinted(by: amount).nsUIColor!
+        #if os(macOS) || os(iOS) || os(tvOS)
+        let dynamic = dynamicColors
+        if dynamic.isDynamic {
+            return NSUIColor(light: dynamic.light.cgColor.tinted(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.tinted(by: amount).nsUIColor!)
+        }
+        #endif
+        return cgColor.tinted(by: amount).nsUIColor!
     }
     
     /**
@@ -30,7 +36,13 @@ public extension NSUIColor {
      - Returns: The shaded color object.
      */
     func shaded(by amount: CGFloat = 0.2) -> NSUIColor {
-        cgColor.shaded(by: amount).nsUIColor!
+        #if os(macOS) || os(iOS) || os(tvOS)
+        let dynamic = dynamicColors
+        if dynamic.isDynamic {
+            return NSUIColor(light: dynamic.light.cgColor.shaded(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.shaded(by: amount).nsUIColor!)
+        }
+        #endif
+        return cgColor.shaded(by: amount).nsUIColor!
     }
     
     /**
@@ -39,7 +51,13 @@ public extension NSUIColor {
      - Returns: The brightened color object.
      */
     func lighter(by amount: CGFloat = 0.2) -> NSUIColor {
-        cgColor.lighter(by: amount).nsUIColor!
+        #if os(macOS) || os(iOS) || os(tvOS)
+        let dynamic = dynamicColors
+        if dynamic.isDynamic {
+            return NSUIColor(light: dynamic.light.cgColor.lighter(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.lighter(by: amount).nsUIColor!)
+        }
+        #endif
+        return cgColor.lighter(by: amount).nsUIColor!
     }
     
     /**
@@ -48,7 +66,13 @@ public extension NSUIColor {
      - Returns: The darkened color object.
      */
     func darkened(by amount: CGFloat = 0.2) -> NSUIColor {
-        cgColor.darkened(by: amount).nsUIColor!
+        #if os(macOS) || os(iOS) || os(tvOS)
+        let dynamic = dynamicColors
+        if dynamic.isDynamic {
+            return NSUIColor(light: dynamic.light.cgColor.darkened(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.darkened(by: amount).nsUIColor!)
+        }
+        #endif
+        return cgColor.darkened(by: amount).nsUIColor!
     }
     
     /**
@@ -57,7 +81,13 @@ public extension NSUIColor {
      - Returns: The saturated color object.
      */
     func saturated(by amount: CGFloat = 0.2) -> NSUIColor {
-        cgColor.saturated(by: amount).nsUIColor!
+        #if os(macOS) || os(iOS) || os(tvOS)
+        let dynamic = dynamicColors
+        if dynamic.isDynamic {
+            return NSUIColor(light: dynamic.light.cgColor.saturated(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.saturated(by: amount).nsUIColor!)
+        }
+        #endif
+        return cgColor.saturated(by: amount).nsUIColor!
     }
     
     /**
@@ -66,7 +96,13 @@ public extension NSUIColor {
      - Returns: The desaturated color object.
      */
     func desaturated(by amount: CGFloat = 0.2) -> NSUIColor {
-        cgColor.desaturated(by: amount).nsUIColor!
+        #if os(macOS) || os(iOS) || os(tvOS)
+        let dynamic = dynamicColors
+        if dynamic.isDynamic {
+            return NSUIColor(light: dynamic.light.cgColor.desaturated(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.desaturated(by: amount).nsUIColor!)
+        }
+        #endif
+        return cgColor.desaturated(by: amount).nsUIColor!
     }
     
     /**
@@ -76,7 +112,13 @@ public extension NSUIColor {
      - returns: A DynamicColor object with the hue changed.
      */
     func adjustedHue(by amount: CGFloat) -> NSUIColor {
-        cgColor.adjustedHue(by: amount).nsUIColor!
+        #if os(macOS) || os(iOS) || os(tvOS)
+        let dynamic = dynamicColors
+        if dynamic.isDynamic {
+            return NSUIColor(light: dynamic.light.cgColor.adjustedHue(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.adjustedHue(by: amount).nsUIColor!)
+        }
+        #endif
+        return cgColor.adjustedHue(by: amount).nsUIColor!
     }
     
     /**
@@ -122,99 +164,6 @@ public extension NSUIColor {
         cgColor.inverted().nsUIColor!
     }
 }
-
-/*
- /**
-  Tints the color by the specified amount.
-  - Parameter amount: The amount of tint.
-  - Returns: The tinted color object.
-  */
- func tinted(by amount: CGFloat = 0.2) -> NSUIColor {
-     resolve {
-         var oklch = $0.oklch()
-         oklch.lightness.interpolate(to: 1.0, fraction: amount)
-         oklch.chroma.interpolate(to: 0.0, fraction: amount)
-         return oklch.nsColor
-     }
- }
- 
- /**
-  Shades the color by the specified amount.
-  - Parameter amount: The amount of shade.
-  - Returns: The shaded color object.
-  */
- func shaded(by amount: CGFloat = 0.2) -> NSUIColor {
-     resolve {
-         var oklch = $0.oklch()
-         oklch.lightness.interpolate(to: 0.0, fraction: amount)
-         oklch.chroma.interpolate(to: 0.0, fraction: amount)
-         return oklch.nsColor
-     }
- }
- 
- /**
-  Brightens the color by the specified amount.
-  - Parameter amount: The amount of brightness.
-  - Returns: The brightened color object.
-  */
- func lighter(by amount: CGFloat = 0.2) -> NSUIColor {
-     resolve {
-         var oklch = $0.oklch()
-         oklch.lightness.interpolate(to: 1.0, fraction: amount)
-         return oklch.nsColor
-     }
- }
- 
- /**
-  Darkens the color by the specified amount.
-  - Parameter amount: The amount of darken.
-  - Returns: The darkened color object.
-  */
- func darkened(by amount: CGFloat = 0.2) -> NSUIColor {
-     resolve {
-         var oklch = $0.oklch()
-         oklch.lightness.interpolate(to: 0.0, fraction: amount)
-         return oklch.nsColor
-     }
- }
- 
- /**
-  Saturates the color by the specified amount.
-  - Parameter amount: The amount of saturation.
-  - Returns: The saturated color object.
-  */
- func saturated(by amount: CGFloat = 0.2) -> NSUIColor {
-     resolve {
-         var hsla = $0.hsl()
-         hsla.saturation += amount
-         return NSUIColor(hsla)
-     }
- }
- 
- /**
-  Desaturates the color by the specified amount.
-  - Parameter amount: The amount of desaturation.
-  - Returns: The desaturated color object.
-  */
- func desaturated(by amount: CGFloat = 0.2) -> NSUIColor {
-     saturated(by: amount * -1.0)
- }
- 
- /**
-  Creates and returns a color object with the hue rotated along the color wheel by the given amount.
-  
-  - Parameter amount: A float representing the number of degrees as ratio (usually between -1.0 degree and 360.0 degree).
-  - returns: A DynamicColor object with the hue changed.
-  */
- func adjustedHue(by amount: CGFloat) -> NSUIColor {
-     resolve {
-         var hsl = $0.hsl()
-         hsl.hue = (hsl.hue + amount).truncatingRemainder(dividingBy: 1.0)
-         if hsl.hue < 0 { hsl.hue += 1 }
-         return NSUIColor(hsl)
-     }
- }
- */
 
 public extension CGColor {
     /**
