@@ -42,6 +42,9 @@ extension NSTextField {
         case delete
         /// Resets the text to the the state before editing.
         case reset
+        
+        var shouldReset: Bool { self == .reset || self == .endEditingAndReset }
+        var shouldEnd: Bool { self == .endEditing || self == .endEditingAndReset }
     }
 
     /// The action to perform when the user presses the enter key while editing.
@@ -51,57 +54,78 @@ extension NSTextField {
         /// Ends editing the text.
         case endEditing
     }
-
+    
     /// The allowed characters the user can enter when editing.
-    public struct AllowedCharacters: OptionSet {
-        public let rawValue: UInt
+    public struct AllowedCharacters: Equatable, Hashable, ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
+        var set: CharacterSet
+        var isEmoji: Bool
+        
         /// Allows numeric characters (like 1, 2, etc.)
-        public static let digits = AllowedCharacters(rawValue: 1 << 0)
-        /// Allows all letter characters.
-        public static let letters: AllowedCharacters = [.lowercaseLetters, .uppercaseLetters]
+        public static let digits = Self(.decimalDigits)
         /// Allows alphabetic lowercase characters (like a, b, c, etc.)
-        public static let lowercaseLetters = AllowedCharacters(rawValue: 1 << 1)
-        /// Allows alphabetic uppercase characters (like A, B, C, etc.)
-        public static let uppercaseLetters = AllowedCharacters(rawValue: 1 << 2)
+        public static let lowercaseLetters = Self(.lowercaseLetters)
+        /// Allows alphabetic lowercase characters (like a, b, c, etc.)
+        public static let uppercaseLetters = Self(.uppercaseLetters)
+        /// Allows punctuation characters (like …,).
+        public static let punctuation = Self(.punctuationCharacters)
+
+        /// Allows all letter characters.
+        public static let letters: Self = [.lowercaseLetters, .uppercaseLetters]
         /// Allows all alphanumerics characters.
-        public static let alphanumerics: AllowedCharacters = [.digits, .lowercaseLetters, .uppercaseLetters]
+        public static let alphanumerics: Self = [.digits, .lowercaseLetters, .uppercaseLetters]
         /// Allows symbols (like !, -, /, etc.)
-        public static let symbols = AllowedCharacters(rawValue: 1 << 3)
-        /// Allows emoji characters (like 🥰 ❤️, etc.)
-        public static let emojis = AllowedCharacters(rawValue: 1 << 4)
+        public static let symbols = Self(.symbols)
         /// Allows whitespace characters.
-        public static let whitespaces = AllowedCharacters(rawValue: 1 << 5)
+        public static let whitespaces = Self(.whitespaces)
         /// Allows new line characters.
-        public static let newLines = AllowedCharacters(rawValue: 1 << 6)
-        /// Allows all characters.
-        public static let all: AllowedCharacters = [.alphanumerics, .symbols, .emojis, .whitespaces, .newLines]
-            
+        public static let newLines = Self(.newlines)
+        /// Allows emoji characters (like 🥰 ❤️, etc.)
+        public static let emojis = Self(isEmoji: true)
+        /// ALl characters.
+        public static let all: Self = [.alphanumerics, .symbols, .emojis, .whitespaces, .newLines, .punctuation]
+        
         var needsSwizzling: Bool {
-            self != AllowedCharacters.all
-        }
-            
-        func isValid(_ string: String) -> Bool {
-            trimString(string) == string
+            self != Self.all
         }
 
         func trimString(_ string: String) -> String {
-            guard self != .all else { return string }
-            var string = string
-            var characterSet = CharacterSet()
-            if !contains(.lowercaseLetters) { characterSet += .lowercaseLetters }
-            if !contains(.uppercaseLetters) { characterSet += .uppercaseLetters }
-            if !contains(.digits) { characterSet += .decimalDigits }
-            if !contains(.symbols) { characterSet += .symbols}
-            if !characterSet.isEmpty { string = string.trimmingCharacters(in: characterSet) }
-            if !contains(.newLines) { string = string.replacingOccurrences(of: "\n", with: "") }
-            if !contains(.whitespaces) { string = string.replacingOccurrences(of: " ", with: "") }
-            if !contains(.emojis) { string = string.trimmingEmojis() }
-            return string
+            guard set != Self.all.set else { return isEmoji ? string : string.removingEmojis() }
+            guard isEmoji else { return string.keepingCharacters(in: set) }
+            return String(string.filter { character in
+                character.unicodeScalars.allSatisfy { set.contains($0) } || character.isEmoji
+            })
         }
-
-        /// Creates a allowed characters structure with the specified raw value.
-        public init(rawValue: UInt) {
-            self.rawValue = rawValue
+        
+        public init(_ set: CharacterSet) {
+            self.set = set
+            self.isEmoji = false
+        }
+        
+        public init(stringLiteral value: String) {
+            self.init(value.unicodeScalars)
+        }
+        
+        public init<S: Sequence<Unicode.Scalar>>(_ characters: S) {
+            self.init(CharacterSet(characters))
+        }
+        
+        public init(arrayLiteral elements: Self...) {
+            set = elements.map({$0.set}).union
+            isEmoji = elements.contains(where: {$0.isEmoji })
+        }
+        
+        init(_ set: CharacterSet = .init(), isEmoji: Bool) {
+            self.set = set
+            self.isEmoji = isEmoji
+        }
+        
+        public static func + (lhs: Self, rhs: Self) -> Self {
+            .init(lhs.set.union(rhs.set), isEmoji: lhs.isEmoji || rhs.isEmoji)
+        }
+        
+        public static func += (lhs: inout Self, rhs: Self) {
+            lhs.set.formUnion(rhs.set)
+            lhs.isEmoji = lhs.isEmoji || rhs.isEmoji
         }
     }
 
@@ -130,11 +154,6 @@ extension NSTextField {
             setAssociatedValue(newValue, key: "editingHandlers")
             observeEditing()
         }
-    }
-        
-    var isEditingText: Bool {
-        get { getAssociatedValue("isEditingText", initialValue: false) }
-        set { setAssociatedValue(newValue, key: "isEditingText") }
     }
 
     /// The action to perform when the user presses the enter key while editing.
@@ -178,13 +197,10 @@ extension NSTextField {
         set {
             guard newValue != minimumNumberOfCharacters else { return }
             setAssociatedValue(newValue, key: "minimumNumberOfCharacters")
-            if let newValue = newValue {
-                if let maximumNumberOfCharacters = maximumNumberOfCharacters, newValue > maximumNumberOfCharacters {
+            if let minChars = newValue {
+                if let maxChars = maximumNumberOfCharacters, minChars > maxChars {
                     self.maximumNumberOfCharacters = newValue
                 }
-            }
-            if let maxCharCount = newValue, stringValue.count > maxCharCount {
-                stringValue = String(stringValue.prefix(maxCharCount))
             }
             observeEditing()
         }
@@ -203,13 +219,13 @@ extension NSTextField {
         set {
             guard newValue != maximumNumberOfCharacters else { return }
             setAssociatedValue(newValue, key: "maximumNumberOfCharacters")
-            if let newValue = newValue {
-                if let minimumNumberOfCharacters = minimumNumberOfCharacters, newValue < minimumNumberOfCharacters {
-                    self.minimumNumberOfCharacters = newValue
+            if let maxChars = newValue {
+                if let minChars = minimumNumberOfCharacters, minChars > maxChars {
+                    self.minimumNumberOfCharacters = maxChars
                 }
-            }
-            if let maxCharCount = newValue, stringValue.count > maxCharCount {
-                stringValue = String(stringValue.prefix(maxCharCount))
+                if stringValue.count > maxChars {
+                    stringValue = String(stringValue.prefix(maxChars))
+                }
             }
             observeEditing()
         }
@@ -260,17 +276,10 @@ extension NSTextField {
     func updateString() {
         let newString = allowedCharacters.trimString(stringValue)
         if let maxCharCount = maximumNumberOfCharacters, newString.count > maxCharCount {
-            if previousString.count <= maxCharCount {
-                stringValue = previousString
-                currentEditor()?.selectedRange = editingRange
-            } else {
-                stringValue = String(newString.prefix(maxCharCount))
-            }
+            stringValue = String(newString.prefix(maxCharCount))
         } else if let minCharCount = minimumNumberOfCharacters, newString.count < minCharCount {
-            if previousString.count >= minCharCount {
-                stringValue = previousString
-                currentEditor()?.selectedRange = editingRange
-            }
+            stringValue = previousString
+            currentEditor()?.selectedRange = editingRange
         } else if editingHandlers.shouldEdit?(stringValue) == false {
             stringValue = previousString
             currentEditor()?.selectedRange = editingRange
@@ -326,47 +335,29 @@ extension NSTextField {
         
     func swizzleDoCommandBy() {
         if editingActionOnEscapeKeyDown != .none || editingActionOnEnterKeyDown != .none {
-            if isMethodHooked(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) == false {
+            if doCommandHook == nil {
                 textFieldObserver = nil
                 do {
-                    try hook(#selector(NSTextViewDelegate.textView(_:doCommandBy:)), closure: { original, textField, sel, textView, selector in
+                    doCommandHook = try hook(#selector(NSTextViewDelegate.textView(_:doCommandBy:)), closure: { original, textField, sel, textView, selector in
                         switch selector {
                         case #selector(NSControl.cancelOperation(_:)):
-                            switch textField.editingActionOnEscapeKeyDown {
-                            case .endEditingAndReset:
+                            guard textField.editingActionOnEscapeKeyDown != .none else { break }
+                            if textField.editingActionOnEscapeKeyDown.shouldReset {
                                 textField.stringValue = textField.editStartString
-                                textField.adjustFontSize()
-                                textView.resignAsFirstResponder()
-                                return true
-                            case .endEditing:
-                                if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
-                                    return false
-                                } else {
-                                    textView.resignAsFirstResponder()
-                                    return true
-                                }
-                            case .delete:
+                            } else if textField.editingActionOnEscapeKeyDown == .delete {
                                 textField.stringValue = ""
-                                textField.adjustFontSize()
-                                return false
-                            case .reset:
-                                textField.stringValue = textField.editStartString
-                                textField.adjustFontSize()
-                                return false
-                            case .none:
-                                break
                             }
+                            if textField.editingActionOnEscapeKeyDown.shouldEnd {
+                                textView.resignAsFirstResponder()
+                            }
+                            return true
+                            guard textField.editingActionOnEscapeKeyDown.shouldEnd else { break }
+                            textView.resignAsFirstResponder()
+                            return true
                         case #selector(NSControl.insertNewline(_:)):
-                            switch textField.editingActionOnEnterKeyDown {
-                            case .endEditing:
-                                if textField.editingHandlers.shouldEdit?(textField.stringValue) == false {
-                                    return false
-                                } else {
-                                    textView.resignAsFirstResponder()
-                                    return true
-                                }
-                            case .none: break
-                            }
+                            guard textField.editingActionOnEnterKeyDown == .endEditing else { break }
+                            textView.resignAsFirstResponder()
+                            return true
                         default: break
                         }
                         return original(textField, sel, textView, selector)
@@ -376,9 +367,10 @@ extension NSTextField {
                     Swift.debugPrint(error)
                 }
             }
-        } else if isMethodHooked(#selector(NSTextViewDelegate.textView(_:doCommandBy:))) {
+        } else if let hook = doCommandHook {
             textFieldObserver = nil
-            revertHooks(for: #selector(NSTextViewDelegate.textView(_:doCommandBy:)))
+            try? hook.revert()
+            doCommandHook = nil
             setupTextFieldObserver()
         }
     }
@@ -389,7 +381,6 @@ extension NSTextField {
         } else if textFieldObserver == nil {
             textFieldObserver = KeyValueObserver(self)
         }
-            
         guard let textFieldObserver = textFieldObserver else { return }
         if needsFontAdjustments || automaticallyResizesToFit {
             guard textFieldObserver.isObserving(\.stringValue) == false else { return }
@@ -426,7 +417,6 @@ extension NSTextField {
         } else {
             textFieldObserver.remove([\.stringValue, \.isBezeled, \.isBordered, \.bezelStyle, \.preferredMaxLayoutWidth, \.maximumNumberOfLines])
         }
-            
         if needsFontAdjustments {
             guard textFieldObserver.isObserving(\.allowsDefaultTighteningForTruncation) == false else { return }
             textFieldObserver.add(\.allowsDefaultTighteningForTruncation, handler: { [weak self] old, new in
@@ -440,7 +430,6 @@ extension NSTextField {
         } else {
             textFieldObserver.remove([\.allowsDefaultTighteningForTruncation, \.frame])
         }
-            
         if automaticallyResizesToFit {
             guard textFieldObserver.isObserving(\.attributedStringValue) == false else { return }
             textFieldObserver.add(\.attributedStringValue) { [weak self] old, new in
@@ -459,41 +448,51 @@ extension NSTextField {
             textFieldObserver.remove([\.attributedStringValue, \.placeholderString, \.placeholderAttributedString])
         }
     }
+    
+    private var doCommandHook: Hook? {
+        get { getAssociatedValue("doCommandHook") }
+        set { setAssociatedValue(newValue, key: "doCommandHook") }
+    }
+    
+    private var isEditingText: Bool {
+        get { getAssociatedValue("isEditingText", initialValue: false) }
+        set { setAssociatedValue(newValue, key: "isEditingText") }
+    }
         
     var textFieldObserver: KeyValueObserver<NSTextField>? {
         get { getAssociatedValue("textFieldObserver") }
         set { setAssociatedValue(newValue, key: "textFieldObserver") }
     }
         
-    var editingNotificationTokens: [NotificationToken] {
+    private var editingNotificationTokens: [NotificationToken] {
         get { getAssociatedValue("editingNotificationTokens", initialValue: []) }
         set { setAssociatedValue(newValue, key: "editingNotificationTokens") }
     }
-        
-    var doubleClickEditGestureRecognizer: DoubleClickEditGestureRecognizer? {
-        get { getAssociatedValue("doubleClickEditGestureRecognizer") }
-        set { setAssociatedValue(newValue, key: "doubleClickEditGestureRecognizer") }
-    }
 
-    var editStartString: String {
+    private var editStartString: String {
         get { getAssociatedValue("editStartString", initialValue: stringValue) }
         set { setAssociatedValue(newValue, key: "editStartString") }
     }
 
-    var previousString: String {
+    private var previousString: String {
         get { getAssociatedValue("previousString", initialValue: stringValue) }
         set { setAssociatedValue(newValue, key: "previousString") }
     }
 
-    var editingRange: NSRange {
+    private var editingRange: NSRange {
         get { getAssociatedValue("editingRange", initialValue: currentEditor()?.selectedRange ?? NSRange(location: 0, length: 0)) }
         set { setAssociatedValue(newValue, key: "editingRange") }
     }
+    
+    private var doubleClickEditGestureRecognizer: DoubleClickEditGestureRecognizer? {
+        get { getAssociatedValue("doubleClickEditGestureRecognizer") }
+        set { setAssociatedValue(newValue, key: "doubleClickEditGestureRecognizer") }
+    }
         
     class DoubleClickEditGestureRecognizer: NSGestureRecognizer {
-        var isSelectableEditableState: (isSelectable: Bool, isEditable: Bool)?
-        var observation: KeyValueObservation?
-            
+        var isSelectableEditableState: (isSelectable: Bool, isEditable: Bool) = (false, false)
+        var observations: [KeyValueObservation] = []
+
         init(_ view: NSTextField) {
             super.init(target: nil, action: nil)
             reattachesAutomatically = true
@@ -509,14 +508,17 @@ extension NSTextField {
                 textField.isSelectable = true
                 textField.isEditable = true
                 textField.makeFirstResponder()
-                observation = textField.observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
-                    guard let self = self, let view = self.view as? NSTextField else { return }
-                    if let isSelectableEditableState = self.isSelectableEditableState, !view.isFirstResponder {
-                        view.isSelectable = isSelectableEditableState.isSelectable
-                        view.isEditable = isSelectableEditableState.isEditable
-                        self.isSelectableEditableState = nil
-                        self.observation = nil
-                    }
+                observations += textField.observeWillChange(for:\.isEditable) { [weak self] _,new in
+                    self?.isSelectableEditableState.isEditable = new
+                }
+                observations += textField.observeWillChange(for:\.isSelectable) { [weak self] _,new in
+                    self?.isSelectableEditableState.isSelectable = new
+                }
+                observations += textField.observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
+                    guard let self = self, let view = self.view as? NSTextField, !view.isFirstResponder else { return }
+                    self.observations = []
+                    view.isSelectable = isSelectableEditableState.isSelectable
+                    view.isEditable = isSelectableEditableState.isEditable
                 }
             }
         }

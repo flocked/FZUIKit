@@ -186,7 +186,7 @@ extension NSImageView {
             if newValue.type == nil  {
                 transitionImageObservation = []
             } else if transitionImageObservation.isEmpty {
-                transitionImageObservation = [observeWillChange(\.image) { [weak self] _ in
+                transitionImageObservation = [observeWillChange(for: \.image) { [weak self] _ in
                     guard let self = self else { return }
                     self.updateTransition()
                 }, observeChanges(for: \.image) {  [weak self] _, _ in

@@ -134,56 +134,76 @@ extension NSTextView {
     }
         
     /// The allowed characters the user can enter when editing.
-    public struct AllowedCharacters: OptionSet {
-        public let rawValue: UInt
+    public struct AllowedCharacters: Equatable, Hashable, ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
+        var set: CharacterSet
+        var isEmoji: Bool
+        
         /// Allows numeric characters (like 1, 2, etc.)
-        public static let digits = AllowedCharacters(rawValue: 1 << 0)
-        /// Allows all letter characters.
-        public static let letters: AllowedCharacters = [.lowercaseLetters, .uppercaseLetters]
+        public static let digits = Self(.decimalDigits)
         /// Allows alphabetic lowercase characters (like a, b, c, etc.)
-        public static let lowercaseLetters = AllowedCharacters(rawValue: 1 << 1)
-        /// Allows alphabetic uppercase characters (like A, B, C, etc.)
-        public static let uppercaseLetters = AllowedCharacters(rawValue: 1 << 2)
+        public static let lowercaseLetters = Self(.lowercaseLetters)
+        /// Allows alphabetic lowercase characters (like a, b, c, etc.)
+        public static let uppercaseLetters = Self(.uppercaseLetters)
+        /// Allows punctuation characters (like …,).
+        public static let punctuation = Self(.punctuationCharacters)
+
+        /// Allows all letter characters.
+        public static let letters: Self = [.lowercaseLetters, .uppercaseLetters]
         /// Allows all alphanumerics characters.
-        public static let alphanumerics: AllowedCharacters = [.digits, .lowercaseLetters, .uppercaseLetters]
+        public static let alphanumerics: Self = [.digits, .lowercaseLetters, .uppercaseLetters]
         /// Allows symbols (like !, -, /, etc.)
-        public static let symbols = AllowedCharacters(rawValue: 1 << 3)
-        /// Allows emoji characters (like 🥰 ❤️, etc.)
-        public static let emojis = AllowedCharacters(rawValue: 1 << 4)
+        public static let symbols = Self(.symbols)
         /// Allows whitespace characters.
-        public static let whitespaces = AllowedCharacters(rawValue: 1 << 5)
+        public static let whitespaces = Self(.whitespaces)
         /// Allows new line characters.
-        public static let newLines = AllowedCharacters(rawValue: 1 << 6)
-            
-        /// Allows all characters.
-        public static let all: AllowedCharacters = [.alphanumerics, .symbols, .emojis, .whitespaces, .newLines]
-            
-        var needsDelegate: Bool {
-            self != AllowedCharacters.all
-        }
-            
-        func isValid(_ string: String) -> Bool {
-            trimString(string) == string
+        public static let newLines = Self(.newlines)
+        /// Allows emoji characters (like 🥰 ❤️, etc.)
+        public static let emojis = Self(isEmoji: true)
+        /// ALl characters.
+        public static let all: Self = [.alphanumerics, .symbols, .emojis, .whitespaces, .newLines, .punctuation]
+        
+        var needsSwizzling: Bool {
+            self != Self.all
         }
 
         func trimString(_ string: String) -> String {
-            guard self != .all else { return string }
-            var string = string
-            var characterSet = CharacterSet()
-            if !contains(.lowercaseLetters) { characterSet += .lowercaseLetters }
-            if !contains(.uppercaseLetters) { characterSet += .uppercaseLetters }
-            if !contains(.digits) { characterSet += .decimalDigits }
-            if !contains(.symbols) { characterSet += .symbols}
-            if !characterSet.isEmpty { string = string.trimmingCharacters(in: characterSet) }
-            if !contains(.newLines) { string = string.replacingOccurrences(of: "\n", with: "") }
-            if !contains(.whitespaces) { string = string.replacingOccurrences(of: " ", with: "") }
-            if !contains(.emojis) { string = string.trimmingEmojis() }
-            return string
+            guard set != Self.all.set else { return isEmoji ? string : string.removingEmojis() }
+            guard isEmoji else { return string.keepingCharacters(in: set) }
+            return String(string.filter { character in
+                character.unicodeScalars.allSatisfy { set.contains($0) } || character.isEmoji
+            })
         }
-
-        /// Creates a allowed characters structure with the specified raw value.
-        public init(rawValue: UInt) {
-            self.rawValue = rawValue
+        
+        public init(_ set: CharacterSet) {
+            self.set = set
+            self.isEmoji = false
+        }
+        
+        public init(stringLiteral value: String) {
+            self.init(value.unicodeScalars)
+        }
+        
+        public init<S: Sequence<Unicode.Scalar>>(_ characters: S) {
+            self.init(CharacterSet(characters))
+        }
+        
+        public init(arrayLiteral elements: Self...) {
+            set = elements.map({$0.set}).union
+            isEmoji = elements.contains(where: {$0.isEmoji })
+        }
+        
+        init(_ set: CharacterSet = .init(), isEmoji: Bool) {
+            self.set = set
+            self.isEmoji = isEmoji
+        }
+        
+        public static func + (lhs: Self, rhs: Self) -> Self {
+            .init(lhs.set.union(rhs.set), isEmoji: lhs.isEmoji || rhs.isEmoji)
+        }
+        
+        public static func += (lhs: inout Self, rhs: Self) {
+            lhs.set.formUnion(rhs.set)
+            lhs.isEmoji = lhs.isEmoji || rhs.isEmoji
         }
     }
 
@@ -498,7 +518,7 @@ extension NSTextView {
     }
         
     fileprivate func setupTextViewDelegate() {
-        if !actionOnEscapeKeyDown.needsDelegate && !actionOnEnterKeyDown.needsDelegate && !editingHandlers.needsObservation && minimumNumberOfCharacters == nil && maximumNumberOfCharacters == nil && !allowedCharacters.needsDelegate {
+        if !actionOnEscapeKeyDown.needsDelegate && !actionOnEnterKeyDown.needsDelegate && !editingHandlers.needsObservation && minimumNumberOfCharacters == nil && maximumNumberOfCharacters == nil && !allowedCharacters.needsSwizzling {
             textViewDelegate = nil
         } else if textViewDelegate == nil {
             textViewDelegate = TextViewDelegate(self)
