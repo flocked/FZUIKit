@@ -328,22 +328,22 @@ extension NSWindow {
     
     func observeIsKey(_ handler: ((Bool)->())?) -> [NotificationToken] {
         guard let handler = handler else { return [] }
-        return [NotificationCenter.default.observe(NSWindow.didBecomeKeyNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignKeyNotification, object: self) { _ in handler(false) }]
+        return [NotificationCenter.default.observe(NSWindow.didBecomeKeyNotification, postedBy: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignKeyNotification, postedBy: self) { _ in handler(false) }]
     }
     
     func observeIsMain(_ handler: ((Bool)->())?) -> [NotificationToken] {
         guard let handler = handler else { return [] }
-        return [NotificationCenter.default.observe(NSWindow.didBecomeMainNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignMainNotification, object: self) { _ in handler(false) }]
+        return [NotificationCenter.default.observe(NSWindow.didBecomeMainNotification, postedBy: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignMainNotification, postedBy: self) { _ in handler(false) }]
     }
     
     func observeIsLiveResizing(_ handler: ((Bool)->())?) -> [NotificationToken] {
         guard let handler = handler else { return [] }
-        return [NotificationCenter.default.observe(NSWindow.willStartLiveResizeNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didEndLiveResizeNotification, object: self) { _ in handler(false) }]
+        return [NotificationCenter.default.observe(NSWindow.willStartLiveResizeNotification, postedBy: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didEndLiveResizeNotification, postedBy: self) { _ in handler(false) }]
     }
     
     func observeMiniaturize(_ handler: ((Bool)->())?) -> [NotificationToken] {
         guard let handler = handler else { return [] }
-        return [NotificationCenter.default.observe(NSWindow.didMiniaturizeNotification, object: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didDeminiaturizeNotification, object: self) { _ in handler(false) }]
+        return [NotificationCenter.default.observe(NSWindow.didMiniaturizeNotification, postedBy: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didDeminiaturizeNotification, postedBy: self) { _ in handler(false) }]
     }
     
     var _isOnActiveSpace: Bool {
@@ -542,13 +542,13 @@ extension NSWindow {
     
     private func setupFullscreenObservation() {
         guard fullscreenTokens.isEmpty else { return }
-        fullscreenTokens = [NotificationToken(NSWindow.willEnterFullScreenNotification, object: self, using: { [weak self] _ in
+        fullscreenTokens = [NotificationToken(NSWindow.willEnterFullScreenNotification, object: self, block: { [weak self] _ in
             self?.willChangeValue(for: \.isFullscreen)
-        }), NotificationToken(NSWindow.willExitFullScreenNotification, object: self, using: { [weak self] _ in
+        }), NotificationToken(NSWindow.willExitFullScreenNotification, object: self, block: { [weak self] _ in
             self?.willChangeValue(for: \.isFullscreen)
-        }), NotificationToken(NSWindow.didExitFullScreenNotification, object: self, using: { [weak self] _ in
+        }), NotificationToken(NSWindow.didExitFullScreenNotification, object: self, block: { [weak self] _ in
             self?.didChangeValue(for: \.isFullscreen)
-        }), NotificationToken(NSWindow.didEnterFullScreenNotification, object: self, using: { [weak self] _ in
+        }), NotificationToken(NSWindow.didEnterFullScreenNotification, object: self, block: { [weak self] _ in
             self?.didChangeValue(for: \.isFullscreen)
         })]
     }

@@ -61,76 +61,45 @@ extension NSTextField {
         }
         return isFitting
     }
-
+    
     /// Returns the font size that fits the current string value in the text field's bounds, or `0` if no font size fits.
     public var fittingFontSize: CGFloat {
-        guard let baseFont = _font ?? font, let cell = cell else { return 0.0 }
-        let currentFont = cell.font
-        defer { cell.font = currentFont }
-        cell.font = baseFont
-        stringValue = stringValue
-        let initialSize = baseFont.pointSize
-        guard isFittingCurrentText else { return 0.1 }
-        var low: CGFloat = 0.1
-        var high: CGFloat = initialSize
-        while true {
-            let test = high * 2.0
-            cell.font = baseFont.withSize(test)
-            if isFittingCurrentText {
-                high = test
-            } else {
-                break
-            }
-        }
-        cell.font = baseFont
-        var best = low
-        while high - low > 0.1 {
-            let mid = (low + high) * 0.5
-            cell.font = baseFont.withSize(mid)
-            if isFittingCurrentText {
-                best = mid
-                low = mid
-            } else {
-                high = mid
-            }
-        }
-        return best.rounded(toPlaces: 1, rule: .towardZero)
+        fittingFontSize(min: 0.1)
     }
 
     func adjustFontSize() {
-        guard let baseFont = _font else { return }
-
-        let maxPoint = baseFont.pointSize
-        let minPoint = maxPoint * minimumScaleFactor
-
-        // Reset to full size before measuring
-        cell?.font = baseFont
-
-        // Quick exit if the text already fits at full size
-        if isFittingCurrentText { return }
-
-        // Binary search bounds
-        var low = minPoint
-        var high = maxPoint
-        var best = minPoint
-
-        while high - low > 0.001 {
+        guard let font = _font else { return }
+        cell?.font = font.withSize(fittingFontSize(min: font.pointSize * minimumScaleFactor, max: font.pointSize))
+    }
+    
+    func fittingFontSize(min: CGFloat, max: CGFloat? = nil, epsilon: CGFloat = 0.001) -> CGFloat {
+        guard let baseFont = _font ?? font, let cell = cell else { return 0.0 }
+        let currentFont = cell.font
+        defer { cell.font = currentFont }
+        var low = min
+        var high = max ?? 0.0
+        var best = min
+        if high == 0 {
+            high = 200
+            cell.font = baseFont.withSize(high)
+            while !isFittingCurrentText {
+                high += 1.2
+                cell.font = baseFont.withSize(high)
+                if high > 2000 { break }
+            }
+        }
+        while high - low > epsilon {
             let mid = (low + high) * 0.5
             let testFont = baseFont.withSize(mid)
-            cell?.font = testFont
-
+            cell.font = testFont
             if isFittingCurrentText {
-                // Text fits → try larger
                 best = mid
                 low = mid
             } else {
-                // Text doesn't fit → try smaller
                 high = mid
             }
         }
-
-        // Apply the largest fitting font size
-        cell?.font = baseFont.withSize(best)
+        return best
     }
 
     func adjustFontKerning() {
@@ -162,15 +131,12 @@ extension NSTextField {
             textFieldObserver = nil
             _font = font
             do {
-                fontHooks += try hook(#selector(setter: font), closure: { original, textField, sel, font in
+                fontHooks += try hookAfter(set: \.font) { textField, font in
                     guard textField._font != font else { return }
                     textField._font = font
-                    original(textField, sel, font)
                     textField.adjustFontSize()
-                } as @convention(block) ((NSTextField, Selector, NSFont?) -> Void, NSTextField, Selector, NSFont?) -> Void)
-                fontHooks += try hook(#selector(getter: font), closure: { original, object, sel in
-                    object._font ?? original(object, sel)
-                } as @convention(block) ((NSTextField, Selector) -> NSFont?, NSTextField, Selector) -> NSFont?)
+                }
+                fontHooks += try hook(\.font) { return $0._font ?? $1 }
             } catch {
                 Swift.debugPrint(error)
             }
@@ -199,3 +165,77 @@ extension NSTextField {
     }
 }
 #endif
+
+/*
+ 
+ /// Returns the font size that fits the current string value in the text field's bounds, or `0` if no font size fits.
+ public var fittingFontSize: CGFloat {
+     guard let baseFont = _font ?? font, let cell = cell else { return 0.0 }
+     let currentFont = cell.font
+     defer { cell.font = currentFont }
+     cell.font = baseFont
+     stringValue = stringValue
+     let initialSize = baseFont.pointSize
+     guard isFittingCurrentText else { return 0.1 }
+     var low: CGFloat = 0.1
+     var high: CGFloat = initialSize
+     while true {
+         let test = high * 2.0
+         cell.font = baseFont.withSize(test)
+         if isFittingCurrentText {
+             high = test
+         } else {
+             break
+         }
+     }
+     cell.font = baseFont
+     var best = low
+     while high - low > 0.1 {
+         let mid = (low + high) * 0.5
+         cell.font = baseFont.withSize(mid)
+         if isFittingCurrentText {
+             best = mid
+             low = mid
+         } else {
+             high = mid
+         }
+     }
+     return best.rounded(toPlaces: 1, rule: .towardZero)
+ }
+
+ func adjustFontSize() {
+     guard let baseFont = _font else { return }
+
+     let maxPoint = baseFont.pointSize
+     let minPoint = maxPoint * minimumScaleFactor
+
+     // Reset to full size before measuring
+     cell?.font = baseFont
+
+     // Quick exit if the text already fits at full size
+     if isFittingCurrentText { return }
+
+     // Binary search bounds
+     var low = minPoint
+     var high = maxPoint
+     var best = minPoint
+
+     while high - low > 0.001 {
+         let mid = (low + high) * 0.5
+         let testFont = baseFont.withSize(mid)
+         cell?.font = testFont
+
+         if isFittingCurrentText {
+             // Text fits → try larger
+             best = mid
+             low = mid
+         } else {
+             // Text doesn't fit → try smaller
+             high = mid
+         }
+     }
+
+     // Apply the largest fitting font size
+     cell?.font = baseFont.withSize(best)
+ }
+ */

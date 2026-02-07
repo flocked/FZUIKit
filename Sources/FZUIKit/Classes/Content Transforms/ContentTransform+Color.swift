@@ -95,7 +95,7 @@ public struct ColorTransformer: ContentTransform {
     public static let accentColor = Self("accentColor") { _ in .controlAccentColor }
 
     /// Creates a color transformer that generates a grayscale version of the color.
-    public static func grayscaled(mode: NSUIColor.GrayscalingMode = .lightness) -> Self {
+    public static func grayscaled(mode: ColorModels.GrayscalingMode = .lightness) -> Self {
         Self("grayscaled: \(mode.rawValue)") { $0.grayscaled(mode: mode) }
     }
 

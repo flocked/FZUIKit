@@ -115,7 +115,7 @@ public class FontManager: NSObject {
                     self.targetIsFirstResonder = textView.isFirstResponder
                 }
                 updateSelectedFont(for: textView)
-                targetFontObservation = NotificationCenter.default.observe(NSTextView.didChangeSelectionNotification, object: textView) { [weak self] _ in
+                targetFontObservation = NotificationCenter.default.observe(NSTextView.didChangeSelectionNotification, postedBy: textView) { [weak self] _ in
                     guard let self = self else { return }
                     self.updateSelectedFont(for: textView)
                     self.updateSegmentedTextViewAttributes()

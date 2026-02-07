@@ -327,7 +327,7 @@ extension NSScrollView {
             if newValue {
                 previousContentOffset = contentOffset
                 contentView.postsBoundsChangedNotifications = true
-                contentOffsetNotificationToken = NotificationCenter.default.observe(NSView.boundsDidChangeNotification, object: contentView) { [weak self] notification in
+                contentOffsetNotificationToken = NotificationCenter.default.observe(NSView.boundsDidChangeNotification, postedBy: contentView) { [weak self] notification in
                     guard let self = self, self.contentOffset != self.previousContentOffset else { return }
                     self.isChangingContentOffset = true
                     self.willChangeValue(for: \.contentOffset)
@@ -560,20 +560,20 @@ extension NSScrollView {
     
     private func setupLiveResizeObservation() {
         guard liveScrollNotificationTokens.isEmpty else { return }
-        liveScrollNotificationTokens = [NotificationCenter.default.observe(NSScrollView.willStartLiveScrollNotification, object: self, using: { [weak self] _ in
+        liveScrollNotificationTokens = [NotificationCenter.default.observe(NSScrollView.willStartLiveScrollNotification, postedBy: self, using: { [weak self] _ in
             self?.inLiveScroll = true
-        }), NotificationCenter.default.observe(NSScrollView.didLiveScrollNotification, object: self, using: { [weak self] _ in
+        }), NotificationCenter.default.observe(NSScrollView.didLiveScrollNotification, postedBy: self, using: { [weak self] _ in
             self?.inLiveScroll = true
-        }), NotificationCenter.default.observe(NSScrollView.didEndLiveScrollNotification, object: self, using: { [weak self] _ in
+        }), NotificationCenter.default.observe(NSScrollView.didEndLiveScrollNotification, postedBy: self, using: { [weak self] _ in
             self?.inLiveScroll = false
         })]
     }
     
     private func setupLiveMagnifyObservation() {
         guard liveMagnifyNotificationTokens.isEmpty else { return }
-        liveMagnifyNotificationTokens = [NotificationCenter.default.observe(NSScrollView.willStartLiveMagnifyNotification, object: self, using: { [weak self] _ in
+        liveMagnifyNotificationTokens = [NotificationCenter.default.observe(NSScrollView.willStartLiveMagnifyNotification, postedBy: self, using: { [weak self] _ in
             self?.inLiveMagnify = true
-        }), NotificationCenter.default.observe(NSScrollView.didEndLiveMagnifyNotification, object: self, using: { [weak self] _ in
+        }), NotificationCenter.default.observe(NSScrollView.didEndLiveMagnifyNotification, postedBy: self, using: { [weak self] _ in
             self?.inLiveMagnify = false
         })]
     }
@@ -842,7 +842,7 @@ extension NSScrollView {
                 func setup(for view: NSView?) {
                     if let view = view {
                         view.postsBoundsChangedNotifications = true
-                        scrollViewTokens[NSView.boundsDidChangeNotification] = NotificationCenter.default.observe(NSView.boundsDidChangeNotification, object: view) { [weak self] _ in
+                        scrollViewTokens[NSView.boundsDidChangeNotification] = NotificationCenter.default.observe(NSView.boundsDidChangeNotification, postedBy: view) { [weak self] _ in
                             guard let self = self else { return }
                             handler(self.documentVisibleRect)
                         }
@@ -861,7 +861,7 @@ extension NSScrollView {
             }
             func setup(_ keyPath: KeyPath<NSScrollView, (()->())?>, notification: Notification.Name) {
                 if let handler = self[keyPath: keyPath] {
-                    scrollViewTokens[notification] = NotificationCenter.default.observe(notification, object: self) { _ in
+                    scrollViewTokens[notification] = NotificationCenter.default.observe(notification, postedBy: self) { _ in
                         handler()
                     }
                 } else {

@@ -137,22 +137,8 @@ public extension NSUIColor {
      - Parameter mode: The grayscale mode.
      - Returns: The grayscaled color.
      */
-    func grayscaled(mode: GrayscalingMode = .lightness) -> NSUIColor {
-        cgColor.grayscaled(mode: .init(rawValue: mode.rawValue)!).nsUIColor!
-    }
-    
-    /// The mode of grayscaling a color.
-    enum GrayscalingMode: String, Hashable {
-        /// Linear relative luminance (XYZ Y value).
-        case luminance
-        /// Perceptually correct sRGB gamma-corrected luminance.
-        case perceptual
-        /// HSL lightness value.
-        case lightness
-        /// Average of RGB channels.
-        case average
-        /// HSB/HSV brightness value.
-        case value
+    func grayscaled(mode: ColorModels.GrayscalingMode = .lightness) -> NSUIColor {
+        cgColor.grayscaled(mode: mode).nsUIColor!
     }
     
     /**
@@ -261,23 +247,9 @@ public extension CGColor {
      - Parameter mode: The grayscale mode.
      - Returns: The grayscaled color.
      */
-    func grayscaled(mode: GrayscalingMode = .lightness) -> CGColor {
-        CGColor(rgb().gray(mode: .init(rawValue: mode.rawValue)!))
+    func grayscaled(mode: ColorModels.GrayscalingMode = .lightness) -> CGColor {
+        rgb().gray(mode: mode).cgColor
         
-    }
-    
-    /// The mode of grayscaling a color.
-    enum GrayscalingMode: String, Hashable {
-        /// Linear relative luminance (XYZ Y value).
-        case luminance
-        /// Perceptually correct sRGB gamma-corrected luminance.
-        case perceptual
-        /// HSL lightness value.
-        case lightness
-        /// Average of RGB channels.
-        case average
-        /// HSB/HSV brightness value.
-        case value
     }
     
     /**
@@ -372,23 +344,9 @@ public extension Color {
      - Parameter mode: The grayscale mode.
      - Returns: The grayscaled color.
      */
-    func grayscaled(mode: GrayscalingMode = .lightness) -> Color {
-        Color(nsUIColor.grayscaled(mode: .init(rawValue: mode.rawValue)!))
+    func grayscaled(mode: ColorModels.GrayscalingMode = .lightness) -> Color {
+        Color(nsUIColor.grayscaled(mode: mode))
         
-    }
-    
-    /// The mode of grayscaling a color.
-    enum GrayscalingMode: String, Hashable {
-        /// Linear relative luminance (XYZ Y value).
-        case luminance
-        /// Perceptually correct sRGB gamma-corrected luminance.
-        case perceptual
-        /// HSL lightness value.
-        case lightness
-        /// Average of RGB channels.
-        case average
-        /// HSB/HSV brightness value.
-        case value
     }
     
     /**

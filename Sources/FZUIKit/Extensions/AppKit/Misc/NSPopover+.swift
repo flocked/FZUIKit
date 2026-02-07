@@ -356,7 +356,7 @@ extension NSPopover {
             show(relativeTo: positioningRect, of: noArrowView, preferredEdge: preferredEdge)
             noArrowView.frame = NSRect(x: 0, y: -200, width: 10, height: 10)
         }
-        willCloseObservation = NotificationCenter.default.observe(NSPopover.willCloseNotification, object: self, using: { [weak self] notification in
+        willCloseObservation = NotificationCenter.default.observe(NSPopover.willCloseNotification, postedBy: self, using: { [weak self] notification in
             guard let self = self, !self.isClosing else { return }
             self.dismiss()
         })

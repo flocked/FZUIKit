@@ -292,37 +292,32 @@ extension NSTextField {
         if editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit || needsFontAdjustments || isVerticallyCentered || editingActionOnEscapeKeyDown == .endEditingAndReset {
             guard editingNotificationTokens.isEmpty else { return }
             setupTextFieldObserver()
-                
-            editingNotificationTokens.append(NotificationCenter.default.observe(NSTextField.textDidBeginEditingNotification, object: self) { [weak self] notification in
+            editingNotificationTokens += .init(NSTextField.textDidBeginEditingNotification, object: self) {  [weak self] _ in
                 guard let self = self else { return }
                 self.isEditingText = true
                 self.editStartString = self.stringValue
                 self.previousString = self.stringValue
                 self.editingHandlers.didBegin?()
-                if let editingRange = self.currentEditor()?.selectedRange {
-                    self.editingRange = editingRange
-                }
-            })
-                
-            editingNotificationTokens.append(NotificationCenter.default.observe(NSTextField.textDidChangeNotification, object: self) { [weak self] notification in
+                guard let editingRange = self.currentEditor()?.selectedRange else { return }
+                self.editingRange = editingRange
+            }
+            editingNotificationTokens += .init(NSTextField.textDidChangeNotification, object: self) {  [weak self] _ in
                 guard let self = self else { return }
                 self.updateString()
                 self.resizeToFit()
                 self.adjustFontSize()
-                if self.isVerticallyCentered, !self.automaticallyResizesToFit {
-                    self.frame.size.height += 0.0001
-                    self.frame.size.height -= 0.0001
-                }
-            })
-                
-            editingNotificationTokens.append(NotificationCenter.default.observe(NSTextField.textDidEndEditingNotification, object: self) { [weak self] notification in
+                guard self.isVerticallyCentered, !self.automaticallyResizesToFit else { return }
+                self.frame.size.height += 0.0001
+                self.frame.size.height -= 0.0001
+            }
+            editingNotificationTokens += .init(NSTextField.textDidEndEditingNotification, object: self) {  [weak self] _ in
                 guard let self = self else { return }
                 self.isEditingText = false
                 self.editStartString = self.stringValue
                 self.editingHandlers.didEnd?()
                 self.resizeToFit()
                 self.adjustFontSize()
-            })
+            }
         } else {
             setupTextFieldObserver()
             editingNotificationTokens.removeAll()

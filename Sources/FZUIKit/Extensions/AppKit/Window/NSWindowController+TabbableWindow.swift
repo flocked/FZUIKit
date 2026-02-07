@@ -73,7 +73,7 @@ class TabService {
     func addManagedWindow(windowController: NSWindowController) {
         guard let window = windowController.window else { return }
 
-        let subscription = NotificationCenter.default.observe(NSWindow.willCloseNotification, object: window) { [weak self] notification in
+        let subscription = NotificationCenter.default.observe(NSWindow.willCloseNotification, postedBy: window) { [weak self] notification in
             guard let self = self else { return }
             self.managedWindows.removeAll(where: { $0.window === window })
         }
