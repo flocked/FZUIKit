@@ -43,9 +43,7 @@ public extension NSTextField {
      - Parameter string: The string value of the text field.
      */
     static func wrapping(_ stringValue: String = "") -> Self {
-        Self(wrappingLabelWithString: stringValue)
-            .isSelectable(false)
-            .isEditable(false)
+        Self(wrappingLabelWithString: stringValue).isSelectable(false).isEditable(false)
     }
         
     /**
@@ -123,7 +121,7 @@ public extension NSTextField {
     @discardableResult
     func backgroundColor(_ color: NSColor?) -> Self {
         backgroundColor = color ?? .clear
-        drawsBackground = color != nil
+        drawsBackground = color != nil ? true : drawsBackground
         return self
     }
         
@@ -134,13 +132,13 @@ public extension NSTextField {
         return self
     }
                 
-    /// The selected string value, or `nil` if the no string is selected.
+    /// The selected string value.
     var selectedStringValue: String? {
-        get { selectedStringRange != nil ? String(stringValue[selectedStringRange!]) : nil }
-        set { selectedStringRange = newValue != nil ? (stringValue as NSString).range(of: newValue!) : nil }
+        get { selectedStringRange.map({ String(stringValue[$0])}) }
+        set { selectedStringRange = newValue != nil ? stringValue.nsRange(of: newValue!) : nil }
     }
         
-    /// The range of the selected string, or `nil` if the no string is selected.
+    /// The range of the selected string.
     var selectedStringRange: NSRange? {
         get { currentEditor()?.selectedRange }
         set {
@@ -157,43 +155,32 @@ public extension NSTextField {
         
     /// Selects all text.
     func selectAll() {
-        select(stringValue)
+        select(stringValue.nsRange)
     }
         
     /// Selects the specified string.
     func select(_ string: String) {
-        selectedStringValue = string
+        select(stringValue.nsRange(of: string))
     }
         
     /// Selects the specified range.
     func select(_ range: Range<String.Index>) {
-        let range = NSRange(range, in: stringValue)
-        guard range != .notFound else { return }
-        currentEditor()?.selectedRange = range
+        select(NSRange(range, in: stringValue))
     }
         
     /// Selects the specified range.
-    func select(_ range: ClosedRange<String.Index>) {
-        let range = NSRange(range, in: stringValue)
+    func select(_ range: NSRange) {
         guard range != .notFound else { return }
-        currentEditor()?.selectedRange = range
+        makeFirstResponder()
+        DispatchQueue.main.async { [weak self] in
+            self?.currentEditor()?.selectedRange = range
+        }
     }
         
     /// The location of the cursor while editing.
     var editingCursorLocation: Int? {
         let currentEditor = currentEditor() as? NSTextView
         return currentEditor?.selectedRanges.first?.rangeValue.location
-    }
-        
-    /// The range of the selected text while editing.
-    var editingSelectedRange: Range<String.Index>? {
-        get { (self.currentEditor() as? NSTextView)?.selectedStringRanges.first }
-        set {
-            if let range = newValue {
-                let currentEditor = self.currentEditor() as? NSTextView
-                currentEditor?.selectedStringRanges = [range]
-            }
-        }
     }
 
     /**
@@ -267,13 +254,6 @@ public extension NSTextField {
     @discardableResult
     func isEditable(_ isEditable: Bool) -> Self {
         self.isEditable = isEditable
-        return self
-    }
-        
-    /// Sets the text layout of the text field.
-    @discardableResult
-    func textLayout(_ textLayout: TextLayout) -> Self {
-        self.textLayout = textLayout
         return self
     }
         

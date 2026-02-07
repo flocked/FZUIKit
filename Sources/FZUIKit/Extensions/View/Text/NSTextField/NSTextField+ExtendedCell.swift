@@ -25,10 +25,15 @@ extension NSTextField {
         case `default`
     }
     
-    /// The focus type of the text field.
+    /**
+     The focus type of the text field.
+     
+     - Note: This property isn't working with [NSSearchField](https://developer.apple.com/documentation/AppKit/NSSearchField).
+     */
     public var focusType: FocusType {
         get { extendedTextFieldCell?.focusType ?? .default }
         set {
+            guard !(self is NSSearchField) else { return }
             if newValue != .default {
                 convertToExtendedTextFieldCell()
             }
@@ -36,17 +41,26 @@ extension NSTextField {
         }
     }
     
-    /// Sets the focus type of the text field.
+    /**
+     Sets the focus type of the text field.
+     
+     - Note: This property isn't working with [NSSearchField](https://developer.apple.com/documentation/AppKit/NSSearchField).
+     */
     @discardableResult
     public func focusType(_ focusType: FocusType) -> Self {
         self.focusType = focusType
         return self
     }
     
-    /// A Boolean value indicating whether the text is vertically centered.
+    /**
+     A Boolean value indicating whether the text is vertically centered.
+     
+     - Note: This property isn't working with [NSSearchField](https://developer.apple.com/documentation/AppKit/NSSearchField).
+     */
     public var isVerticallyCentered: Bool {
         get { extendedTextFieldCell?.isVerticallyCentered ?? false }
         set {
+            guard !(self is NSSearchField) else { return }
             if newValue != false {
                 convertToExtendedTextFieldCell()
             }
@@ -55,25 +69,41 @@ extension NSTextField {
         }
     }
     
-    /// Sets the Boolean value indicating whether the text is vertically centered.
+    /**
+     Sets the Boolean value indicating whether the text is vertically centered.
+     
+     - Note: This property isn't working with [NSSearchField](https://developer.apple.com/documentation/AppKit/NSSearchField).
+     */
     @discardableResult
     public func isVerticallyCentered(_ isCentered: Bool) -> Self {
         self.isVerticallyCentered = isCentered
         return self
     }
     
-    /// The padding of the text.
+    /**
+     The padding of the text.
+     
+     - Note: This property isn't working with [NSSearchField](https://developer.apple.com/documentation/AppKit/NSSearchField).
+     */
     public var textPadding: NSEdgeInsets {
         get { extendedTextFieldCell?.textPadding ?? .zero }
         set {
+            guard !(self is NSSearchField) else { return }
+            guard newValue != textPadding else { return }
             if newValue != .zero {
                 convertToExtendedTextFieldCell()
             }
             extendedTextFieldCell?.textPadding = newValue
+            adjustFontSize()
+            resizeToFit()
         }
     }
     
-    /// Sets the padding of the text.
+    /**
+     Sets the padding of the text.
+     
+     - Note: This property isn't working with [NSSearchField](https://developer.apple.com/documentation/AppKit/NSSearchField).
+     */
     @discardableResult
     public func textPadding(_ textPadding: NSEdgeInsets) -> Self {
         self.textPadding = textPadding

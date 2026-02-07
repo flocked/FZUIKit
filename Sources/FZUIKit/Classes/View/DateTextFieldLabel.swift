@@ -79,7 +79,12 @@ open class DateTextField: NSTextField {
     /// Creates a date textfield with the specified date, display mode and frame.
     public convenience init(date: Date, displayMode: DateDisplayMode, frame: CGRect) {
         self.init(frame: frame)
-        textLayout = .wraps
+        lineBreakMode = .byWordWrapping
+        usesSingleLineMode = false
+        wraps = true
+        truncatesLastVisibleLine = true
+        isScrollable = false
+        setContentCompressionResistancePriority(.fittingSizeCompression, for: .horizontal)
         absoluteDateStyle = .medium
         absoluteTimeStyle = .medium
         drawsBackground = false

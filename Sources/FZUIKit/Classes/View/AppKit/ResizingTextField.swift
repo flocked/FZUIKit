@@ -80,7 +80,12 @@ open class ResizingTextField: NSTextField {
     func sharedInit() {
         drawsBackground = false
         isBordered = false
-        textLayout = .wraps
+        lineBreakMode = .byWordWrapping
+        usesSingleLineMode = false
+        wraps = true
+        truncatesLastVisibleLine = true
+        isScrollable = false
+        setContentCompressionResistancePriority(.fittingSizeCompression, for: .horizontal)
 
         isVerticallyCentered = true
         editingActionOnEnterKeyDown = .endEditing

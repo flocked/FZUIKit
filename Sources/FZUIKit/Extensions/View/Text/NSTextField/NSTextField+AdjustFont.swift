@@ -16,19 +16,16 @@ extension NSTextField {
 
      Normally, the text field draws the text with the font you specify in the `font` property. If this property is `true`, and the text in the `stringValue` property exceeds the text field’s bounding rectangle, the text field reduces the font size until the text fits or it has scaled the font down to the minimum font size.
      
-     The default value for this property is `false`. If you change it to `true`, be sure that you also set an appropriate minimum font scale by modifying the ``AppKit/NSTextField/adjustsFontSizeToFitWidth`` property. This autoshrinking behavior is only intended for use with a single-line text field.
+     The default value for this property is `false`. If you change it to `true`, be sure that you also set an appropriate minimum font scale by modifying the ``AppKit/NSTextField/minimumScaleFactor`` property. This autoshrinking behavior is only intended for use with a single-line text field.
 
-     - Note: If you you set this property to `true`, ``AppKit/NSTextField/automaticallyResizesToFit`` is set to `false`.
+     - Note: If you have ``AppKit/NSTextField/automaticallyResizesToFit`` set to `true`, this property is ignored.
      */
     public var adjustsFontSizeToFitWidth: Bool {
-        get { getAssociatedValue("adjustsFontSizeToFitWidth", initialValue: false) }
+        get { getAssociatedValue("adjustsFontSizeToFitWidth") ?? false }
         set {
             guard newValue != adjustsFontSizeToFitWidth else { return }
             setAssociatedValue(newValue, key: "adjustsFontSizeToFitWidth")
             setupFontAdjustment()
-            if newValue {
-                automaticallyResizesToFit = false
-            }
             adjustFontSize()
         }
     }
@@ -39,7 +36,7 @@ extension NSTextField {
      If the ``adjustsFontSizeToFitWidth`` is `true`, use this property to specify the smallest multiplier for the current font size that yields an acceptable font size for the text field’s text. If you specify a value of `0` for this property, the text field doesn’t scale the text down. The default value of this property is `0`.
      */
     public var minimumScaleFactor: CGFloat {
-        get { getAssociatedValue("minimumScaleFactor", initialValue: 0.0) }
+        get { getAssociatedValue("minimumScaleFactor") ?? 0.0 }
         set {
             let newValue = newValue.clamped(to: 0.0...1.0)
             guard newValue != minimumScaleFactor else { return }
@@ -68,7 +65,7 @@ extension NSTextField {
     }
 
     func adjustFontSize() {
-        guard let font = _font else { return }
+        guard !automaticallyResizesToFit, let font = _font else { return }
         cell?.font = font.withSize(fittingFontSize(min: font.pointSize * minimumScaleFactor, max: font.pointSize))
     }
     

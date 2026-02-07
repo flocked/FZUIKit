@@ -49,10 +49,14 @@ extension NSTextField {
 
     /// The action to perform when the user presses the enter key while editing.
     public enum EnterKeyAction: Int, Hashable {
-        /// No action.
-        case none
         /// Ends editing the text.
         case endEditing
+        /// Selects all text.
+        case selectAll
+        /// Inserts a new line.
+        case newLine
+        /// No action.
+        case none
     }
     
     /// The allowed characters the user can enter when editing.
@@ -156,9 +160,13 @@ extension NSTextField {
         }
     }
 
-    /// The action to perform when the user presses the enter key while editing.
+    /**
+     The action to perform when the user presses the enter key while editing.
+     
+     The default value is `selectAll`.
+     */
     public var editingActionOnEnterKeyDown: EnterKeyAction {
-        get { getAssociatedValue("actionOnEnterKeyDown", initialValue: .none) }
+        get { getAssociatedValue("actionOnEnterKeyDown", initialValue: .selectAll) }
         set {
             guard editingActionOnEnterKeyDown != newValue else { return }
             setAssociatedValue(newValue, key: "actionOnEnterKeyDown")
@@ -173,7 +181,11 @@ extension NSTextField {
         return self
     }
 
-    /// The action to perform when the user presses the escape key while editing.
+    /**
+     The action to perform when the user presses the escape key while editing.
+     
+     The default value is `none`.
+     */
     public var editingActionOnEscapeKeyDown: EscapeKeyAction {
         get { getAssociatedValue("actionOnEscapeKeyDown", initialValue: self is NSSearchField ? .delete : .none) }
         set {
@@ -197,10 +209,8 @@ extension NSTextField {
         set {
             guard newValue != minimumNumberOfCharacters else { return }
             setAssociatedValue(newValue, key: "minimumNumberOfCharacters")
-            if let minChars = newValue {
-                if let maxChars = maximumNumberOfCharacters, minChars > maxChars {
-                    self.maximumNumberOfCharacters = newValue
-                }
+            if let minChars = newValue, minChars > maximumNumberOfCharacters ?? minChars {
+                maximumNumberOfCharacters = minChars
             }
             observeEditing()
         }
@@ -219,13 +229,8 @@ extension NSTextField {
         set {
             guard newValue != maximumNumberOfCharacters else { return }
             setAssociatedValue(newValue, key: "maximumNumberOfCharacters")
-            if let maxChars = newValue {
-                if let minChars = minimumNumberOfCharacters, minChars > maxChars {
-                    self.minimumNumberOfCharacters = maxChars
-                }
-                if stringValue.count > maxChars {
-                    stringValue = String(stringValue.prefix(maxChars))
-                }
+            if let maxChars = newValue, minimumNumberOfCharacters ?? maxChars > maxChars {
+                minimumNumberOfCharacters = maxChars
             }
             observeEditing()
         }
@@ -291,10 +296,8 @@ extension NSTextField {
             editingHandlers.didEdit?()
         }
         previousString = stringValue
-        if let editingRange = currentEditor()?.selectedRange {
-            self.editingRange = editingRange
-        }
-        adjustFontSize()
+        guard let editingRange = currentEditor()?.selectedRange else { return }
+        self.editingRange = editingRange
     }
 
     func observeEditing() {
@@ -322,10 +325,10 @@ extension NSTextField {
             editingNotificationTokens += .init(NSTextField.textDidEndEditingNotification, object: self) {  [weak self] _ in
                 guard let self = self else { return }
                 self.isEditingText = false
-                self.editStartString = self.stringValue
                 self.editingHandlers.didEnd?()
-                self.resizeToFit()
-                self.adjustFontSize()
+                guard previousString != self.stringValue else { return }
+              //  self.resizeToFit()
+              //  self.adjustFontSize()
             }
         } else {
             setupTextFieldObserver()
@@ -334,7 +337,7 @@ extension NSTextField {
     }
         
     func swizzleDoCommandBy() {
-        if editingActionOnEscapeKeyDown != .none || editingActionOnEnterKeyDown != .none {
+        if editingActionOnEscapeKeyDown != .none || editingActionOnEnterKeyDown != .selectAll {
             if doCommandHook == nil {
                 textFieldObserver = nil
                 do {
@@ -355,6 +358,18 @@ extension NSTextField {
                             textView.resignAsFirstResponder()
                             return true
                         case #selector(NSControl.insertNewline(_:)):
+                            switch textField.editingActionOnEnterKeyDown {
+                            case .endEditing:
+                                textView.resignAsFirstResponder()
+                                return true
+                            case .selectAll:
+                                return original(textField, sel, textView, selector)
+                            case .none:
+                                return true
+                            case .newLine:
+                                textView.insertNewlineIgnoringFieldEditor(textField)
+                                return true
+                            }
                             guard textField.editingActionOnEnterKeyDown == .endEditing else { break }
                             textView.resignAsFirstResponder()
                             return true
@@ -385,7 +400,7 @@ extension NSTextField {
         if needsFontAdjustments || automaticallyResizesToFit {
             guard textFieldObserver.isObserving(\.stringValue) == false else { return }
             textFieldObserver.add(\.stringValue, handler: { [weak self] old, new in
-                guard let self = self, old != new else { return }
+                guard let self = self, old != new, self.isEditingText else { return }
                 self.resizeToFit()
                 self.adjustFontSize()
             })

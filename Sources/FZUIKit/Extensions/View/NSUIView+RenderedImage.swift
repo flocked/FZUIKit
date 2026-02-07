@@ -13,6 +13,7 @@ import UIKit
 #endif
 
 #if os(macOS)
+
 public extension NSView {
     /// A rendered image of the view.
     var renderedImage: NSImage {

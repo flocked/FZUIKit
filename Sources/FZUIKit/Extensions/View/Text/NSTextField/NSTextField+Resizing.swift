@@ -13,20 +13,16 @@ extension NSTextField {
     /**
      A Boolean value indicating whether the text field is automatically adjust it's size to fit it's string value.
      
-     If you you set this property to `true`, ``AppKit/NSTextField/adjustsFontSizeToFitWidth`` is set to `false`.
-     
-     - Note: This property isn't working with `NSSearchField`.
+     If you you set this property to `true`, ``AppKit/NSTextField/adjustsFontSizeToFitWidth`` is ignored.
      */
     @objc open var automaticallyResizesToFit: Bool {
         get { getAssociatedValue("automaticallyResizesToFit", initialValue: false) }
         set {
-            guard !(self is NSSearchField) else { return }
             guard newValue != automaticallyResizesToFit else { return }
             setAssociatedValue(newValue, key: "automaticallyResizesToFit")
             swizzleIntrinsicContentSize()
             observeEditing()
-            if newValue {
-                adjustsFontSizeToFitWidth = false
+            if newValue || needsFontAdjustments {
                 resizeToFit()
                 adjustFontSize()
             }
@@ -176,6 +172,8 @@ extension NSTextField {
         } else if preferredMinLayoutWidth > 0.0 {
             cellSize.width = max(preferredMinLayoutWidth.clamped(max: maxLayoutWidth), cellSize.width)
         }
+     //   cellSize.width += textPadding.width
+      //  cellSize.height += textPadding.height
         cellSize.width.round(toMultiple: 0.5, rule: .awayFromZero)
         cellSize.height.round(toMultiple: 0.5, rule: .awayFromZero)
         // Swift.print("calculatedFittingSize", cellSize)
