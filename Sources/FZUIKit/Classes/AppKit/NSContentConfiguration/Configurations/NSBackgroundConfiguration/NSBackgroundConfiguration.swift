@@ -8,6 +8,7 @@
 #if os(macOS)
     import AppKit
     import FZSwiftUtils
+    import SwiftUI
 
     /**
      A content configuration suitable for backgrounds.
@@ -43,7 +44,11 @@
         /// The scaling of the background image.
         public var imageScaling: ImageView.ImageScaling = .none
 
-        /// The background view.
+        /**
+         The background view.
+         
+         The custom view must have [translatesAutoresizingMaskIntoConstraints](https://developer.apple.com/documentation/appkit/nsview/translatesautoresizingmaskintoconstraints) set to `true`.
+         */
         public var view: NSView?
 
         /// Properties for configuring the border.
@@ -66,7 +71,39 @@
         
         /// The insets (or outsets, if negative) for the background and border, relative to the edges of the containing view.
         public var insets: NSDirectionalEdgeInsets = .zero
-
+        
+        public var shape: (any Shape)? = nil
+        
+        public static func == (lhs: Self, rhs: Self) -> Bool {
+            lhs.color == rhs.color &&
+            lhs.colorTransformer == rhs.colorTransformer &&
+            lhs.image == rhs.image &&
+            lhs.imageScaling == rhs.imageScaling &&
+            lhs.view  === rhs.view &&
+            lhs.border == rhs.border &&
+            lhs.innerShadow == rhs.innerShadow &&
+            lhs.shadow == rhs.shadow &&
+            lhs.visualEffect == rhs.visualEffect &&
+            lhs.roundedCorners == rhs.roundedCorners &&
+            lhs.insets == rhs.insets &&
+            lhs.shape?.description == rhs.shape?.description
+        }
+        
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(color)
+            hasher.combine(colorTransformer)
+            hasher.combine(image)
+            hasher.combine(imageScaling)
+            hasher.combine(view)
+            hasher.combine(border)
+            hasher.combine(innerShadow)
+            hasher.combine(shadow)
+            hasher.combine(visualEffect)
+            hasher.combine(roundedCorners)
+            hasher.combine(insets)
+            hasher.combine(shape?.description)
+        }
+        
         /// Creates an empty background configuration with a transparent background and no default styling.
         public static func clear() -> NSBackgroundConfiguration { NSBackgroundConfiguration() }
         

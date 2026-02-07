@@ -16,10 +16,14 @@ public extension Shape {
     }
 }
 
-public extension Shape {
-    func fill<Fill: ShapeStyle, Stroke: ShapeStyle>(_ fillStyle: Fill, strokeBorder strokeStyle: Stroke, lineWidth: Double = 1) -> some View {
+extension Shape {
+    public func fill<Fill: ShapeStyle, Stroke: ShapeStyle>(_ fillStyle: Fill, strokeBorder strokeStyle: Stroke, lineWidth: Double = 1) -> some View {
         stroke(strokeStyle, lineWidth: lineWidth)
             .background(fill(fillStyle))
+    }
+    
+    var description: String {
+        String(describing: self)
     }
 
     /*

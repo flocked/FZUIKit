@@ -364,7 +364,7 @@ extension CALayer {
         return self
     }
     
-    fileprivate var innerShadowLayer: _InnerShadowLayer? {
+    fileprivate var innerShadowLayer: InnerShadowLayer? {
         get { getAssociatedValue("innerShadowLayer") }
         set { setAssociatedValue(newValue, key: "innerShadowLayer") }
     }
@@ -391,7 +391,7 @@ extension CALayer {
                 mask = nil
             }
             shadowShape = newValue
-            innerShadowLayer?._maskShape = newValue
+            innerShadowLayer?.shape = newValue
             configurations.setupBorder()
             #if os(macOS)
             parentView?.setupShadowShapeView()
@@ -587,7 +587,7 @@ extension CALayer {
                     layer.innerShadowLayer?.removeFromSuperlayer()
                     layer.innerShadowLayer = nil
                 } else if layer.innerShadowLayer == nil {
-                    layer.innerShadowLayer = _InnerShadowLayer(for: layer)
+                    layer.innerShadowLayer = InnerShadowLayer(for: layer)
                 }
                 var newValue = newValue
                 if !Self.hasActiveGrouping {
@@ -1069,36 +1069,25 @@ extension CALayer {
 }
 
 fileprivate class BorderLayer: CAShapeLayer {
-    var observation: KeyValueObservation!
+    var observation: KeyValueObservation?
     
     var configuration: BorderConfiguration = .none {
         didSet {
             let color = configuration.resolvedColor()
             strokeColor = superlayer?.resolvedColor(for: color) ?? color?.cgColor
-            lineDashPattern = configuration.dash.pattern  as [NSNumber]
+            lineDashPattern = configuration.dash.pattern as [NSNumber]
             lineWidth = configuration.width
+            CALayer().border
             lineDashPhase = configuration.dash.phase
             lineJoin = configuration.dash.lineJoin.shapeLayerLineJoin
             lineCap = configuration.dash.lineCap.shapeLayerLineCap
             miterLimit = configuration.dash.mitterLimit
             if oldValue.insets != configuration.insets {
-                updateFrame(update: false)
+                frame = superlayer?.bounds.inset(by: configuration.insets) ?? frame
             }
             guard oldValue.width != configuration.width || oldValue.insets != configuration.insets else { return }
             updatePath()
         }
-    }
-    
-    func updateFrame(update: Bool = true) {
-        guard let layer = superlayer else { return }
-        var frame = layer.bounds
-        frame.size.width -= configuration.insets.width
-        frame.size.height -= configuration.insets.height
-        frame.origin.x = configuration.insets.leading
-        frame.origin.y = configuration.insets.bottom
-        self.frame = frame
-        guard update else { return }
-        updatePath()
     }
     
     var shape: (any Shape)? {
@@ -1106,15 +1095,18 @@ fileprivate class BorderLayer: CAShapeLayer {
     }
     
     func updatePath() {
-        if let shape = shape as? (any InsettableShape) {
-            path = shape.inset(by: lineWidth*0.5).path(in: bounds).cgPath
+        if let shape = shape {
+            if let shape = shape as? (any InsettableShape) {
+                path = shape.inset(by: lineWidth*0.5).path(in: bounds).cgPath
+            } else {
+                path = shape.path(in: bounds.insetBy(dx: lineWidth*0.5, dy: lineWidth*0.5)).cgPath
+            }
         } else {
-            path = shape?.path(in: bounds.insetBy(dx: lineWidth*0.5, dy: lineWidth*0.5)).cgPath
+            path = NSUIBezierPath(roundedRect: bounds, cornerRadius: superlayer?.cornerRadius ?? 0.0).cgPath
         }
     }
     
     init(for layer: CALayer) {
-        defer { self.shape = layer.maskShape }
         super.init()
         fillColor = nil
         frame = layer.bounds
@@ -1122,10 +1114,12 @@ fileprivate class BorderLayer: CAShapeLayer {
         layer.addSublayer(self)
         strokeColor = layer.borderColor
         lineWidth = layer.borderWidth
-        sendToBack()
+        shape = layer.maskShape
+        updatePath()
+        // sendToBack()
         observation = layer.observeChanges(for: \.bounds) { [weak self] old, new in
             guard let self = self, old.size != new.size else { return }
-            self.updateFrame()
+            self.frame = self.superlayer?.bounds.inset(by: self.configuration.insets) ?? self.frame
         }
     }
     

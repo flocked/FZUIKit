@@ -6,10 +6,9 @@
 //
 
 #if os(macOS) || os(iOS) || os(tvOS)
-import Foundation
 #if os(macOS)
 import AppKit
-#elseif canImport(UIKit)
+#else
 import UIKit
 #endif
 import FZSwiftUtils
@@ -17,34 +16,19 @@ import SwiftUI
 
 /// A layer with an inner shadow.
 open class InnerShadowLayer: CALayer {
+    private var viewObservation: KeyValueObservation?
+    private var superlayerObservation: KeyValueObservation?
+    private let shadowLayer = CAShapeLayer()
+    private let maskLayer = CAShapeLayer()
     
     /// The configuration of the inner shadow.
-    open var configuration: ShadowConfiguration {
-        get { ShadowConfiguration(color: color, colorTransformer: colorTransformer, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point) }
-        set {
-            
-            
-            isUpdating = true
-            color = newValue.color
-            colorTransformer = newValue.colorTransformer
-            if let view = superlayer?.parentView {
-                updateShadowColor(for: view)
-            } else {
-                shadowColor = newValue.resolvedColor()?.cgColor
-            }
-            shadowOpacity = Float(newValue.opacity)
-            let needsUpdate = shadowOffset != newValue.offset.size || shadowRadius != newValue.radius
-            shadowOffset = newValue.offset.size
-            shadowRadius = newValue.radius
-            isUpdating = false
-            if needsUpdate {
-                updateShadowPath()
-            }
-        }
-    }
+    open var configuration: ShadowConfiguration = .none { didSet { setNeedsLayout() } }
     
-    var _maskShape: (any Shape)? {
-        didSet { updateShadowPath() }
+    /// The shape of the inner shadowl
+    open var shape: (any Shape)? { didSet { setNeedsLayout() } }
+    
+    open override var cornerRadius: CGFloat {
+        didSet { if oldValue != cornerRadius && shape == nil { setNeedsLayout() } }
     }
     
     /**
@@ -54,199 +38,95 @@ open class InnerShadowLayer: CALayer {
      - Returns: The inner shadow layer.
      */
     public init(configuration: ShadowConfiguration) {
-        defer { self.configuration = configuration }
         super.init()
-        sharedInit()
+        setup()
+        self.configuration = configuration
     }
     
-    override public init() {
+    public override init() {
         super.init()
-        sharedInit()
+        setup()
     }
     
-    required public init?(coder: NSCoder) {
-        super.init(coder: coder)
-        sharedInit()
-    }
-    
-    override public init(layer: Any) {
-        super.init(layer: layer)
-        sharedInit()
-    }
-    
-    var color: NSUIColor? = nil
-    var colorTransformer: ColorTransformer? = nil
-    var isUpdating: Bool = false
-    var _superlayerObservation: KeyValueObservation?
-    var viewObservation: KeyValueObservation?
-    
-    func sharedInit() {
-        shadowOpacity = 0.0
-        shadowColor = nil
-        backgroundColor = .clear
-        masksToBounds = true
-        shadowOffset = .zero
-        shadowRadius = 0.0
+    init(for layer: CALayer) {
+        super.init()
+        setup()
+        layer.addSublayer(withConstraint: self)
+        sendToBack()
         zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
-        #if os(macOS)
-        _superlayerObservation = observeChanges(for: \.superlayer) { [weak self] old, new in
-            guard let self = self, old != new else { return }
-            self.updateViewObservation()
-        }
+    }
+    
+    public required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setup()
+    }
+    
+    private func setup(observeSuperlayer: Bool = true) {
+        addSublayer(shadowLayer)
+        shadowLayer.mask = maskLayer
+        shadowLayer.fillRule = .evenOdd
+        shadowLayer.backgroundColor = nil
+        shadowLayer.shadowPath = nil
+        #if os(macOS) || os(iOS)
+        guard observeSuperlayer else { return }
+        superlayerObservation = observeChanges(for: \.superlayer, handler: { [weak self] _, _ in
+            self?.updateViewObservation()
+        })
         #endif
     }
     
-    #if os(macOS)
+    open override func layoutSublayers() {
+        super.layoutSublayers()
+        let innerPath = shape?.path(in: bounds).cgPath ?? NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).cgPath
+        
+        let outerRect = bounds.insetBy(-configuration.radius * 4)
+        
+        let ringPath = CGMutablePath()
+        ringPath.addRect(outerRect)
+        ringPath.addPath(innerPath)
+        
+        shadowLayer.frame = bounds
+        shadowLayer.path = ringPath
+        shadowLayer.fillColor = configuration.color?.cgColor
+        shadowLayer.shadowColor = configuration.color?.cgColor
+        #if os(macOS) || os(iOS)
+        if let parentView = parentView {
+            updateShadowColor(for: parentView)
+        }
+        #endif
+        shadowLayer.shadowOffset = configuration.offset.size
+        shadowLayer.shadowOpacity = Float(configuration.opacity)
+        shadowLayer.shadowRadius = configuration.radius
+        
+        maskLayer.frame = bounds
+        maskLayer.path = innerPath
+    }
+    
+    #if os(macOS) || os(iOS)
+    func updateShadowColor(for view: NSUIView) {
+        let shadowColor = configuration.resolvedColor()?.resolvedColor(for: view).cgColor
+        shadowLayer.fillColor = shadowColor
+        shadowLayer.shadowColor = shadowColor
+    }
+    
     func updateViewObservation() {
-        if let view = superlayer?.parentView {
+        if let view = parentView {
             updateShadowColor(for: view)
-            shadowColor = color?.resolvedColor(for: view).cgColor
+            #if os(macOS)
             viewObservation = view.observeChanges(for: \.effectiveAppearance) { [weak self] old, new in
-                guard let self = self, old != new else { return }
-                self.updateShadowColor(for: view)
+                self?.updateShadowColor(for: view)
             }
+            #else
+            viewObservation = view.observeChanges(for: \.traitCollection) { [weak self] old, new in
+                guard old.userInterfaceStyle != new.userInterfaceStyle else { return }
+                self?.updateShadowColor(for: view)
+            }
+            #endif
         } else {
             viewObservation = nil
         }
     }
     #endif
-    
-    func updateShadowColor(for view: NSUIView) {
-        if let color = color?.resolvedColor(for: view) {
-            shadowColor = (colorTransformer?(color) ?? color).cgColor
-        }
-    }
-    
-    func updateShadowPath() {
-        let path: NSUIBezierPath
-        let innerPart: NSUIBezierPath
-        if let maskPath = _maskShape?.path(in: bounds.insetBy(dx: -20, dy: -20)).cgPath, let innerMaskPath = maskShape?.path(in: bounds).cgPath {
-            path = NSUIBezierPath(cgPath: maskPath)
-            #if os(macOS)
-            innerPart = NSUIBezierPath(cgPath: innerMaskPath).reversed
-            #else
-            innerPart = NSUIBezierPath(cgPath: innerMaskPath).reversing()
-            #endif
-        } else {
-            path = NSUIBezierPath(roundedRect: bounds.insetBy(dx: -20, dy: -20), cornerRadius: cornerRadius)
-            #if os(macOS)
-            innerPart = NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).reversed
-            #else
-            innerPart = NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).reversing()
-            #endif
-        }
-        path.append(innerPart)
-        shadowPath = path.cgPath
-    }
-    
-    override open var shadowRadius: CGFloat {
-        didSet {
-            if !isUpdating, oldValue != shadowRadius { updateShadowPath() }
-        }
-    }
-    
-    override open var shadowOffset: CGSize {
-        didSet {
-            if !isUpdating, oldValue != shadowOffset { updateShadowPath() }
-        }
-    }
-    
-    override open var bounds: CGRect {
-        didSet {
-            if !isUpdating, oldValue != bounds { updateShadowPath() }
-        }
-    }
-    
-    override open var cornerRadius: CGFloat {
-        didSet {
-            if !isUpdating, oldValue != cornerRadius { updateShadowPath() }
-        }
-    }
-    
-    override open var shadowColor: CGColor? {
-        didSet {
-            if !isUpdating, oldValue != shadowColor { color = shadowColor?.nsUIColor }
-        }
-    }
-}
-
-extension CALayer {
-    class _InnerShadowLayer: CALayer {
-        var isUpdating = false
-        
-        var configuration: ShadowConfiguration = .none {
-            didSet {
-                guard oldValue != configuration else { return }
-                isUpdating = true
-                shadowRadius = configuration.radius
-                shadowOffset = configuration.offset.size
-                shadowOpacity = Float(configuration.opacity)
-                shadowColor = superlayer?.resolvedColor(for: configuration.resolvedColor())
-                isUpdating = false
-                updateShadowPath()
-            }
-        }
-        
-        func updateShadowPath() {
-            let path: NSUIBezierPath
-            let innerPart: NSUIBezierPath
-            if let maskPath = _maskShape?.path(in: bounds.insetBy(dx: -20, dy: -20)).cgPath, let innerMaskPath = maskShape?.path(in: bounds).cgPath {
-                path = NSUIBezierPath(cgPath: maskPath)
-                #if os(macOS)
-                innerPart = NSUIBezierPath(cgPath: innerMaskPath).reversed
-                #else
-                innerPart = NSUIBezierPath(cgPath: innerMaskPath).reversing()
-                #endif
-            } else {
-                path = NSUIBezierPath(roundedRect: bounds.insetBy(dx: -20, dy: -20), cornerRadius: cornerRadius)
-                #if os(macOS)
-                innerPart = NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).reversed
-                #else
-                innerPart = NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).reversing()
-                #endif
-            }
-            path.append(innerPart)
-            shadowPath = path.cgPath
-        }
-        
-        var _maskShape: (any Shape)? {
-            didSet { updateShadowPath() }
-        }
-        
-        override var bounds: CGRect {
-            didSet { if !isUpdating, oldValue != bounds { updateShadowPath() } }
-        }
-        
-        override var cornerRadius: CGFloat {
-            didSet { if !isUpdating, oldValue != cornerRadius { updateShadowPath() } }
-        }
-        
-        override var shadowRadius: CGFloat {
-            didSet { if !isUpdating, oldValue != shadowRadius { updateShadowPath() } }
-        }
-        
-        override var shadowOffset: CGSize {
-            didSet { if !isUpdating, oldValue != shadowOffset { updateShadowPath() } }
-        }
-        
-        init(for layer: CALayer) {
-            super.init()
-            
-            shadowOpacity = 0.0
-            shadowColor = nil
-            backgroundColor = .clear
-            masksToBounds = true
-            shadowOffset = .zero
-            shadowRadius = 0.0
-            layer.addSublayer(withConstraint: self)
-            sendToBack()
-            zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
-        }
-        
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-    }
 }
 
 #endif

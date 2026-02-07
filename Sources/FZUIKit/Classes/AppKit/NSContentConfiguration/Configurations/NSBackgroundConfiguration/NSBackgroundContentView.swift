@@ -33,8 +33,8 @@
             super.init(frame: .zero)
             clipsToBounds = false
             contentView.clipsToBounds = false
-            contentViewConstraits = addSubview(withConstraint: contentView)
-            contentView.addSubview(withConstraint: imageView)
+            addSubview(contentView)
+            contentView.addSubview(imageView)
             imageView.clipsToBounds = true
             updateConfiguration()
         }
@@ -48,33 +48,24 @@
         
         let contentView = NSView()
         let imageView = ImageView()
-        var contentViewConstraits: [NSLayoutConstraint] = []
 
         var view: NSView? {
             didSet {
                 guard oldValue != view else { return }
                 oldValue?.removeFromSuperview()
-                if let view = view {
-                    view.clipsToBounds = true
-                    contentView.addSubview(withConstraint: view)
+                guard let view = view else { return }
+                guard view.translatesAutoresizingMaskIntoConstraints else {
+                    fatalError("NSBackgroundConfiguration's view must have translatesAutoresizingMaskIntoConstraints set to true")
                 }
-            }
-        }
-
-        var image: NSImage? {
-            get { imageView.image }
-            set {
-                imageView.image = newValue
-                imageView.isHidden = newValue == nil
+                contentView.addSubview(view)
             }
         }
 
         func updateConfiguration() {
             view = appliedConfiguration.view
-            image = appliedConfiguration.image
+            imageView.image = appliedConfiguration.image
 
             imageView.imageScaling = appliedConfiguration.imageScaling
-
             contentView.backgroundColor = appliedConfiguration._resolvedColor
             contentView.visualEffect = appliedConfiguration.visualEffect
             contentView.cornerRadius = appliedConfiguration.cornerRadius
@@ -82,10 +73,18 @@
             contentView.outerShadow = appliedConfiguration.resolvedShadow
             contentView.innerShadow = appliedConfiguration.innerShadow
             contentView.border = appliedConfiguration.resolvedBorder
-            
-            contentViewConstraits.constant(appliedConfiguration.insets)
+            contentView.maskShape = appliedConfiguration.shape
+            setNeedsLayout()
         }
-
+        
+        public override func layout() {
+            super.layout()
+            
+            contentView.frame = bounds.inset(by: appliedConfiguration.insets)
+            imageView.frame = contentView.bounds
+            view?.frame = contentView.bounds
+        }
+        
         @available(*, unavailable)
         required init?(coder _: NSCoder) {
             fatalError("init(coder:) has not been implemented")
