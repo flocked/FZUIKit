@@ -126,7 +126,7 @@ enum ColorMathVector {
     }
     
     static func xyzToLUV(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (x, y, z, alpha) = (color.x, color.y, color.y, color.z)
+        let (x, y, z, alpha) = (color.x, color.y, color.z, color.w)
         let un = D65.un
         let vn = D65.vn
         let denom = x + 15*y + 3*z
@@ -145,7 +145,7 @@ enum ColorMathVector {
     }
     
     static func xyzToLAB(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (x, y, z, alpha) = (color.x, color.y, color.y, color.z)
+        let (x, y, z, alpha) = (color.x, color.y, color.z, color.w)
         let fx = f(x / D65.x)
         let fy = f(y / D65.y)
         let fz = f(z / D65.z)
@@ -153,22 +153,22 @@ enum ColorMathVector {
     }
     
     static func xyzToDisplay3(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (x, y, z, alpha) = (color.x, color.y, color.y, color.z)
+        let (x, y, z, alpha) = (color.x, color.y, color.z, color.w)
         let xyzVec = SIMD3(x, y, z)
         let rgb = xyzToDisplayP3 * xyzVec
         return .init(rgbToNonlinear(rgb.x), rgbToNonlinear(rgb.y), rgbToNonlinear(rgb.z), alpha)
     }
     
     static func xyzToJZAZBZ(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        JZAZBZ.toXYZ(color)
-    }
-    
-    static func jzazbzToXYZ(_ color: SIMD4<Double>) -> SIMD4<Double> {
         JZAZBZ.fromXYZ(color)
     }
     
+    static func jzazbzToXYZ(_ color: SIMD4<Double>) -> SIMD4<Double> {
+        JZAZBZ.toXYZ(color)
+    }
+    
     static func hsbToHSL(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (hue, saturation, brightness, alpha) = (color.x, color.y, color.y, color.z)
+        let (hue, saturation, brightness, alpha) = (color.x, color.y, color.z, color.w)
         let lightness = brightness * (1 - saturation * 0.5)
         let sat: Double
         if lightness == 0 || lightness == brightness {
@@ -180,8 +180,8 @@ enum ColorMathVector {
     }
     
     static func hsbToRGB(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (hue, saturation, brightness, alpha) = (color.x, color.y, color.y, color.z)
-        if saturation <= 0 { return .init(brightness, brightness, brightness, brightness) }
+        let (hue, saturation, brightness, alpha) = (color.x, color.y, color.z, color.w)
+        if saturation <= 0 { return .init(brightness, brightness, brightness, alpha) }
         let hueWrapped = wrapUnit(hue)
         let h = hueWrapped * 6.0
         let i = Int(floor(h))
@@ -201,12 +201,12 @@ enum ColorMathVector {
     }
     
     static func hsbToHWB(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (hue, saturation, brightness, alpha) = (color.x, color.y, color.y, color.z)
+        let (hue, saturation, brightness, alpha) = (color.x, color.y, color.z, color.w)
         return .init(hue, brightness * (1 - saturation), 1 - brightness, alpha)
     }
     
     static func hpluvTpLCHUV(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (hue, saturation, _lightness, alpha) = (color.x, color.y, color.y, color.z)
+        let (hue, saturation, _lightness, alpha) = (color.x, color.y, color.z, color.w)
         let lightness = _lightness * 100
         let chroma = saturation == 0 ? 0 : maxChroma(lightness, hue) * saturation
         // let chroma saturation > 0 ? maxChroma(lightness, hue) * saturation : 0
@@ -214,7 +214,7 @@ enum ColorMathVector {
     }
     
     static func hslToHSB(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (hue, saturation, lightness, alpha) = (color.x, color.y, color.y, color.z)
+        let (hue, saturation, lightness, alpha) = (color.x, color.y, color.z, color.w)
         let l = lightness
         let s_hsl = saturation
         let v = l + s_hsl * min(l, max(0, 1 - l))
@@ -228,7 +228,7 @@ enum ColorMathVector {
     }
     
     static func hsluvTOLCHUV(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (hue, saturation, _lightness, alpha) = (color.x, color.y, color.y, color.z)
+        let (hue, saturation, _lightness, alpha) = (color.x, color.y, color.z, color.w)
         let lightness = _lightness * 100
         let chroma = saturation == 0 ? 0 : maxChroma(lightness, hue) * saturation
         // let chroma saturation > 0 ? maxChroma(lightness, hue) * saturation : 0
@@ -236,7 +236,7 @@ enum ColorMathVector {
     }
     
     static func hwbToHSB(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (hue, whiteness, blackness, alpha) = (color.x, color.y, color.y, color.z)
+        let (hue, whiteness, blackness, alpha) = (color.x, color.y, color.z, color.w)
         let brightness = 1 - blackness
         let saturation: Double
         if brightness == 0 {
@@ -248,48 +248,47 @@ enum ColorMathVector {
     }
     
     static func jzczhzTojzazbz(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (jz, chroma, hue, alpha) = (color.x, color.y, color.y, color.z)
-        let hueRadians = hue * .pi / 180.0
+        let (jz, chroma, hue, alpha) = (color.x, color.y, color.z, color.w)
+        let hueRadians = hue * 2.0 * .pi
         let az = chroma * cos(hueRadians)
         let bz = chroma * sin(hueRadians)
         return .init(jz, az, bz, alpha)
     }
     
     static func lchToLAB(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (lightness, chroma, hue, alpha) = (color.x, color.y, color.y, color.z)
+        let (lightness, chroma, hue, alpha) = (color.x, color.y, color.z, color.w)
         let cartesian = cartesianFromPolar(hue: hue, chroma: chroma)
         return .init(lightness, cartesian.a, cartesian.b, alpha)
     }
     
     static func lchuvToLUV(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (lightness, chroma, hue, alpha) = (color.x, color.y, color.y, color.z)
+        let (lightness, chroma, hue, alpha) = (color.x, color.y, color.z, color.w)
         let cartesian = cartesianFromPolar(hue: hue, chroma: chroma)
         return .init(lightness, cartesian.a, cartesian.b, alpha)
     }
     
     static func lchuvToHSLUV(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (lightness, chroma, hue, alpha) = (color.x, color.y, color.y, color.z)
+        let (lightness, chroma, hue, alpha) = (color.x, color.y, color.z, color.w)
         let maxC = maxChroma(lightness, hue)
         let saturation = maxC > 0 ? chroma / maxC : 0
-        return .init(hue, saturation, lightness, alpha)
+        return .init(hue, saturation, lightness / 100.0, alpha)
     }
     
     static func lchuvToHPLUV(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (lightness, chroma, hue, alpha) = (color.x, color.y, color.y, color.z)
+        let (lightness, chroma, hue, alpha) = (color.x, color.y, color.z, color.w)
+        let maxC = maxChroma(lightness, hue)
+        let saturation = maxC > 0 ? chroma / maxC : 0
+        return .init(hue, saturation, lightness / 100.0, alpha)
+    }
+    
+    static func oklchToOKLAB(_ color: SIMD4<Double>) -> SIMD4<Double> {
+        let (lightness, chroma, hue, alpha) = (color.x, color.y, color.z, color.w)
         let cartesian = cartesianFromPolar(hue: hue, chroma: chroma)
         return .init(lightness, cartesian.a, cartesian.b, alpha)
     }
     
-    static func oklchToOKLAB(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (_lightness, chroma, hue, alpha) = (color.x, color.y, color.y, color.z)
-        let maxC = maxChroma(_lightness, hue)
-        let saturation = maxC > 0 ? chroma / maxC : 0
-        let lightness = _lightness / 100
-        return .init(hue, saturation, lightness, alpha)
-    }
-    
     static func luvToXYZ(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (lightness, greenRed, blueYellow, alpha) = (color.x, color.y, color.y, color.z)
+        let (lightness, greenRed, blueYellow, alpha) = (color.x, color.y, color.z, color.w)
         let un = D65.un
         let vn = D65.vn
         let uPrime = lightness != 0 ? greenRed / (13 * lightness) + un : 0
@@ -309,24 +308,22 @@ enum ColorMathVector {
     }
     
     static func luvToLCHUV(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (lightness, greenRed, blueYellow, alpha) = (color.x, color.y, color.y, color.z)
+        let (lightness, greenRed, blueYellow, alpha) = (color.x, color.y, color.z, color.w)
         let chroma = chromaFromCartesian(greenRed, blueYellow)
         let hue = hueFromCartesian(greenRed, blueYellow)
         return .init(lightness, chroma, hue, alpha)
     }
     
     static func jzazbzToJZCZHZ(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (jz, az, bz, alpha) = (color.x, color.y, color.y, color.z)
+        let (jz, az, bz, alpha) = (color.x, color.y, color.z, color.w)
         let cz = sqrt(az * az + bz * bz)
-        var hz = atan2(bz, az) * 180.0 / .pi
-        if hz < 0 {
-            hz += 360.0
-        }
+        var hz = atan2(bz, az) / (2.0 * .pi)
+        if hz < 0 { hz += 1.0 }
         return .init(jz, cz, hz, alpha)
     }
     
     static func labToXYZ(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (lightness, greenRed, blueYellow, alpha) = (color.x, color.y, color.y, color.z)
+        let (lightness, greenRed, blueYellow, alpha) = (color.x, color.y, color.z, color.w)
         let fy = (lightness + 16.0) / 116.0
         let fx = fy + greenRed / 500.0
         let fz = fy - blueYellow / 200.0
@@ -334,14 +331,14 @@ enum ColorMathVector {
     }
     
     static func labToLCH(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (lightness, greenRed, blueYellow, alpha) = (color.x, color.y, color.y, color.z)
+        let (lightness, greenRed, blueYellow, alpha) = (color.x, color.y, color.z, color.w)
         let chroma = chromaFromCartesian(greenRed, blueYellow)
         let hue = hueFromCartesian(greenRed, blueYellow)
         return .init(lightness, chroma, hue, alpha)
     }
     
     static func oklabToRGB(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (lightness, greenRed, blueYellow, alpha) = (color.x, color.y, color.y, color.z)
+        let (lightness, greenRed, blueYellow, alpha) = (color.x, color.y, color.z, color.w)
         let oklab = SIMD3(lightness, greenRed, blueYellow)
         var lms = oklabToLMS * oklab
         lms = lms * lms * lms
@@ -350,7 +347,7 @@ enum ColorMathVector {
     }
     
     static func oklabToOKLCH(_ color: SIMD4<Double>) -> SIMD4<Double> {
-        let (lightness, greenRed, blueYellow, alpha) = (color.x, color.y, color.y, color.z)
+        let (lightness, greenRed, blueYellow, alpha) = (color.x, color.y, color.z, color.w)
         let chroma = chromaFromCartesian(greenRed, blueYellow)
         let hue = hueFromCartesian(greenRed, blueYellow)
         return .init(lightness, chroma, hue, alpha)
@@ -598,7 +595,7 @@ extension ColorMathVector {
             SIMD3(0.199076, 1.096799, -1.295875))
         
         static func toXYZ(_ color: SIMD4<Double>) -> SIMD4<Double> {
-            let (jz, az, bz, alpha) = (color.x, color.y, color.y, color.z)
+            let (jz, az, bz, alpha) = (color.x, color.y, color.z, color.w)
 
             // 1. Recover Iz
             let iz = (jz + d0) / (1.0 + d - d * (jz + d0))
@@ -696,7 +693,7 @@ extension ColorMathVector {
         }
         
         static func toHSX(_ color: SIMD4<Double>, hsl: Bool) -> SIMD4<Double> {
-            let (lightness, greenRed, blueYellow, alpha) = (color.x, color.y, color.y, color.z)
+            let (lightness, greenRed, blueYellow, alpha) = (color.x, color.y, color.z, color.w)
             let L = lightness
             let C = sqrt(greenRed * greenRed + blueYellow * blueYellow)
             
@@ -930,13 +927,13 @@ extension ColorMathVector {
         case .hpluv, .hsb, .hsl, .hsluv, .hwb, .okhsb, .okhsl:
             var color = animatable.first
             color[0] = hueFromVector(color[0], animatable.second)
-            return color
+            return colorToRGB(color, colorspace: colorspace)
         case .jzczhz, .lch, .lchuv, .oklch:
             var color = animatable.first
             color[2] = hueFromVector(color[2], animatable.second)
-            return color
+            return colorToRGB(color, colorspace: colorspace)
         default:
-            return animatable.first
+            return colorToRGB(animatable.first, colorspace: colorspace)
     }
     }
 }
