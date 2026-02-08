@@ -7,6 +7,7 @@
 
 import Foundation
 import FZSwiftUtils
+import simd
 
 extension ColorModels {
     /// The color components for a color in the OKLAB color space.
@@ -51,25 +52,23 @@ extension ColorModels {
             }
         }
         
-        private static let toLMS: [SIMD3<Double>] = [
+        private static let toLMS: simd_double3x3 = .init(
             SIMD3(1.0,  0.3963377774,  0.2158037573),
             SIMD3(1.0, -0.1055613458, -0.0638541728),
-            SIMD3(1.0, -0.0894841775, -1.2914855480)]
+            SIMD3(1.0, -0.0894841775, -1.2914855480))
         
-        private static let toSRGB: [SIMD3<Double>] = [
+        private static let toSRGB: simd_double3x3 = .init(
             SIMD3( 4.0767416621, -3.3077115913,  0.2309699292),
             SIMD3(-1.2684380046,  2.6097574011, -0.3413193965),
-            SIMD3(-0.0041960863, -0.7034186147,  1.7076147010)]
+            SIMD3(-0.0041960863, -0.7034186147,  1.7076147010))
         
         /// The color in the sRGB color space.
         public var rgb: SRGB {
             let oklab = SIMD3(lightness, greenRed, blueYellow)
-            var lms = SIMD3(oklab.dot(Self.toLMS[0]), oklab.dot(Self.toLMS[1]), oklab.dot(Self.toLMS[2]))
+            var lms = Self.toLMS * oklab
             lms = lms * lms * lms
-            let red = lms.dot(Self.toSRGB[0])
-            let green = lms.dot(Self.toSRGB[1])
-            let blue = lms.dot(Self.toSRGB[2])
-            return .init(linearRed: red, green: green, blue: blue, alpha: alpha)
+            let rgb = Self.toSRGB * lms
+            return .init(linearRed: rgb.x, green: rgb.y, blue: rgb.z, alpha: alpha)
         }
         
         /// The color in the OKLCH color space.

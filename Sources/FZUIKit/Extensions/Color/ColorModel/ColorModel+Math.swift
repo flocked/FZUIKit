@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import simd
 
 enum ColorMath {
     static func wrapUnit(_ x: Double) -> Double {
@@ -99,11 +100,9 @@ enum ColorMathVector {
     static func rgbToOKLAB(_ color: SIMD4<Double>) -> SIMD4<Double> {
         let linear = rgbToLinear(color)
         let rgb = SIMD3(linear.x, linear.y, linear.z)
-        let lms = SIMD3(cbrt(rgb.dot(rgbToLMS.0)), cbrt(rgb.dot(rgbToLMS.1)), cbrt(rgb.dot(rgbToLMS.2)))
-        let lightness = lms.dot(lmsToOKLAB.lightness)
-        let greenRed = lms.dot(lmsToOKLAB.greenRed)
-        let blueYellow = lms.dot(lmsToOKLAB.blueYellow)
-        return .init(lightness, greenRed, blueYellow, color.w)
+        let lms = (rgbToLMS * rgb).map(cbrt)
+        let oklab = lmsToOKLAB * lms
+        return .init(oklab.x, oklab.y, oklab.z, color.w)
     }
     
     static func rgbToHSL(_ color: SIMD4<Double>) -> SIMD4<Double> {
@@ -116,18 +115,14 @@ enum ColorMathVector {
     
     static func rgbToXYZ(_ color: SIMD4<Double>) -> SIMD4<Double> {
         let linearRGB = SIMD3(rgbToLinear(color.x), rgbToLinear(color.y), rgbToLinear(color.z))
-        let x = linearRGB.dot(rgbToXYZ.x)
-        let y = linearRGB.dot(rgbToXYZ.y)
-        let z = linearRGB.dot(rgbToXYZ.z)
-        return .init(x, y, z, color.w)
+        let xyz = rgbToXYZ * linearRGB
+        return .init(xyz.x, xyz.y, xyz.z, color.w)
     }
     
     static func xyzToRGB(_ color: SIMD4<Double>) -> SIMD4<Double> {
         let xyzVec = SIMD3(color.x, color.y, color.z)
-        let red = xyzVec.dot(xyztoRGB[0])
-        let green = xyzVec.dot(xyztoRGB[1])
-        let blue = xyzVec.dot(xyztoRGB[2])
-        return .init(rgbToNonlinear(red), rgbToNonlinear(green), rgbToNonlinear(blue), color.w)
+        let rgb = xyztoRGB * xyzVec
+        return .init(rgbToNonlinear(rgb.x), rgbToNonlinear(rgb.y), rgbToNonlinear(rgb.z), color.w)
     }
     
     static func xyzToLUV(_ color: SIMD4<Double>) -> SIMD4<Double> {
@@ -160,10 +155,8 @@ enum ColorMathVector {
     static func xyzToDisplay3(_ color: SIMD4<Double>) -> SIMD4<Double> {
         let (x, y, z, alpha) = (color.x, color.y, color.y, color.z)
         let xyzVec = SIMD3(x, y, z)
-        let red = xyzVec.dot(xyzToDisplayP3[0])
-        let green = xyzVec.dot(xyzToDisplayP3[1])
-        let blue = xyzVec.dot(xyzToDisplayP3[2])
-        return .init(rgbToNonlinear(red), rgbToNonlinear(green), rgbToNonlinear(blue), alpha)
+        let rgb = xyzToDisplayP3 * xyzVec
+        return .init(rgbToNonlinear(rgb.x), rgbToNonlinear(rgb.y), rgbToNonlinear(rgb.z), alpha)
     }
     
     static func xyzToJZAZBZ(_ color: SIMD4<Double>) -> SIMD4<Double> {
@@ -350,18 +343,16 @@ enum ColorMathVector {
     static func oklabToRGB(_ color: SIMD4<Double>) -> SIMD4<Double> {
         let (lightness, greenRed, blueYellow, alpha) = (color.x, color.y, color.y, color.z)
         let oklab = SIMD3(lightness, greenRed, blueYellow)
-        var lms = SIMD3(oklab.dot(oklabToLMS[0]), oklab.dot(oklabToLMS[1]), oklab.dot(oklabToLMS[2]))
+        var lms = oklabToLMS * oklab
         lms = lms * lms * lms
-        let red = lms.dot(lmsToSRGB[0])
-        let green = lms.dot(lmsToSRGB[1])
-        let blue = lms.dot(lmsToSRGB[2])
-        return .init(rgbToNonlinear(red), rgbToNonlinear(green), rgbToNonlinear(blue), alpha)
+        let rgb = lmsToSRGB * lms
+        return .init(rgbToNonlinear(rgb.x), rgbToNonlinear(rgb.y), rgbToNonlinear(rgb.z), alpha)
     }
     
     static func oklabToOKLCH(_ color: SIMD4<Double>) -> SIMD4<Double> {
         let (lightness, greenRed, blueYellow, alpha) = (color.x, color.y, color.y, color.z)
-        let chroma = ColorMath.chromaFromCartesian(greenRed, blueYellow)
-        let hue = ColorMath.hueFromCartesian(greenRed, blueYellow)
+        let chroma = chromaFromCartesian(greenRed, blueYellow)
+        let hue = hueFromCartesian(greenRed, blueYellow)
         return .init(lightness, chroma, hue, alpha)
     }
     
@@ -383,41 +374,39 @@ enum ColorMathVector {
     
     static func displayP3ToXYZ(_ color: SIMD4<Double>) -> SIMD4<Double> {
        let rgb = SIMD3(rgbToLinear(color.x), rgbToLinear(color.y), rgbToLinear(color.z))
-        let x = rgb.dot(displayP3ToXZY[0])
-        let y = rgb.dot(displayP3ToXZY[1])
-        let z = rgb.dot(displayP3ToXZY[2])
-        return .init(x, y, z, color.w)
+        let xyz = displayP3ToXZY * rgb
+        return .init(xyz.x, xyz.y, xyz.z, color.w)
     }
     
-    private static let oklabToLMS: [SIMD3<Double>] = [
+    private static let oklabToLMS: simd_double3x3 = .init(
         SIMD3(1.0,  0.3963377774,  0.2158037573),
         SIMD3(1.0, -0.1055613458, -0.0638541728),
-        SIMD3(1.0, -0.0894841775, -1.2914855480)]
+        SIMD3(1.0, -0.0894841775, -1.2914855480))
     
-    private static let lmsToSRGB: [SIMD3<Double>] = [
+    private static let lmsToSRGB: simd_double3x3 = .init(
         SIMD3( 4.0767416621, -3.3077115913,  0.2309699292),
         SIMD3(-1.2684380046,  2.6097574011, -0.3413193965),
-        SIMD3(-0.0041960863, -0.7034186147,  1.7076147010)]
+        SIMD3(-0.0041960863, -0.7034186147,  1.7076147010))
     
-    private static let xyztoRGB: [SIMD3<Double>] = [
+    private static let xyztoRGB: simd_double3x3 = .init(
         SIMD3( 3.2404542,  -1.5371385, -0.4985314),
         SIMD3(-0.9692660,  1.8760108,  0.0415560),
-        SIMD3( 0.0556434, -0.2040259,  1.0572252)]
+        SIMD3( 0.0556434, -0.2040259,  1.0572252))
     
-    private static let rgbToXYZ = (
-        x: SIMD3<Double>(0.4124564, 0.3575761, 0.1804375),
-        y: SIMD3<Double>(0.2126729, 0.7151522, 0.0721750),
-        z: SIMD3<Double>(0.0193339, 0.1191920, 0.9503041))
+    private static let rgbToXYZ: simd_double3x3 = .init(
+        SIMD3<Double>(0.4124564, 0.3575761, 0.1804375),
+        SIMD3<Double>(0.2126729, 0.7151522, 0.0721750),
+        SIMD3<Double>(0.0193339, 0.1191920, 0.9503041))
 
-    private static let rgbToLMS = (
+    private static let rgbToLMS: simd_double3x3 = .init(
         SIMD3(0.4122214708, 0.5363325363, 0.0514459929),
         SIMD3(0.2119034982, 0.6806995451, 0.1073969566),
         SIMD3(0.0883024619, 0.2817188376, 0.6299787005))
 
-    private static let lmsToOKLAB = (
-        lightness: SIMD3( 0.2104542553,  0.7936177850, -0.0040720468),
-        greenRed: SIMD3( 1.9779984951, -2.4285922050,  0.4505937099),
-        blueYellow: SIMD3( 0.0259040371,  0.7827717662, -0.8086757660))
+    private static let lmsToOKLAB: simd_double3x3 = .init(
+        SIMD3( 0.2104542553,  0.7936177850, -0.0040720468),
+        SIMD3( 1.9779984951, -2.4285922050,  0.4505937099),
+        SIMD3( 0.0259040371,  0.7827717662, -0.8086757660))
     
     private static let delta = 6.0 / 29.0
     private static let threshold = delta * delta * delta
@@ -531,11 +520,10 @@ enum ColorMathVector {
         return minLen
     }
     
-    private static let boundsMatrix = [
+    private static let boundsMatrix: simd_double3x3 = .init(
         [ 3.240969941904521, -1.537383177570093, -0.498610760293     ],
         [-0.96924363628087,   1.87596750150772,   0.041555057407175 ],
-        [ 0.055630079696993, -0.20397695888897,   1.056971514242878 ]
-    ]
+        [ 0.055630079696993, -0.20397695888897,   1.056971514242878 ])
     
     private static func getBounds(_ lightness: Double) -> [(slope: Double, intercept: Double)] {
         let sub1 = pow(lightness + 16, 3) / 1560896
@@ -556,15 +544,15 @@ enum ColorMathVector {
         return result
     }
     
-    private static let xyzToDisplayP3: [SIMD3<Double>] = [
+    private static let xyzToDisplayP3: simd_double3x3 = .init(
         SIMD3( 2.493496911941425, -0.9313836179191239, -0.40271078445071684),
         SIMD3(-0.8294889695615747,  1.7626640603183463,  0.023624685841943577),
-        SIMD3( 0.03584583024378447, -0.07617238926804182, 0.9568845240076872)]
+        SIMD3( 0.03584583024378447, -0.07617238926804182, 0.9568845240076872))
     
-    private static let displayP3ToXZY: [SIMD3<Double>] = [
+    private static let displayP3ToXZY: simd_double3x3 = .init(
         SIMD3(0.48657095, 0.26566769, 0.19821729),
         SIMD3(0.22897456, 0.69173852, 0.07928691),
-        SIMD3(0.0,        0.04511338, 1.04394437)]
+        SIMD3(0.0,        0.04511338, 1.04394437))
     
     private enum D65 {
         static let x = 0.95047
@@ -589,25 +577,25 @@ extension ColorMathVector {
         fileprivate static let d: Double = -0.56
         fileprivate static let d0: Double = 1.6295499532821566e-11
         
-        fileprivate static let coneToXYZ: [SIMD3<Double>] = [
+        fileprivate static let coneToXYZ: simd_double3x3 = .init(
             SIMD3(1.9242264357876067,  -1.0047923125953657,  0.037651404030618),
             SIMD3(0.35031676209499907,  0.7264811939316552, -0.06538442294808501),
-            SIMD3(-0.09098281098284752, -0.3127282905230739,  1.5227665613052603)]
+            SIMD3(-0.09098281098284752, -0.3127282905230739,  1.5227665613052603))
         
-        fileprivate static let iabToCone: [SIMD3<Double>] = [
+        fileprivate static let iabToCone: simd_double3x3 = .init(
             SIMD3(1,                   0.13860504327153927,   0.05804731615611883),
             SIMD3(1,                  -0.1386050432715393,   -0.058047316156118904),
-            SIMD3(1,                  -0.09601924202631895,  -0.81189189605603900)]
+            SIMD3(1,                  -0.09601924202631895,  -0.81189189605603900))
         
-        fileprivate static let XYZToCone: [SIMD3<Double>] = [
+        fileprivate static let XYZToCone: simd_double3x3 = .init(
             SIMD3(0.41478972, 0.579999, 0.0146480),
             SIMD3(-0.2015100, 1.120649, 0.0531008),
-            SIMD3(-0.0166008, 0.264800, 0.6684799)]
+            SIMD3(-0.0166008, 0.264800, 0.6684799))
         
-        fileprivate static let coneToIab: [SIMD3<Double>] = [
+        fileprivate static let coneToIab: simd_double3x3 = .init(
             SIMD3(0.5, 0.5, 0.0),
             SIMD3(3.524000, -4.066708, 0.542708),
-            SIMD3(0.199076, 1.096799, -1.295875)]
+            SIMD3(0.199076, 1.096799, -1.295875))
         
         static func toXYZ(_ color: SIMD4<Double>) -> SIMD4<Double> {
             let (jz, az, bz, alpha) = (color.x, color.y, color.y, color.z)
@@ -617,20 +605,14 @@ extension ColorMathVector {
             // 2. Iab vector
             let iab = SIMD3(iz, az, bz)
             // 3. Iab → PQ-LMS
-            let pqlms = SIMD3(
-                iab.dot(iabToCone[0]),
-                iab.dot(iabToCone[1]),
-                iab.dot(iabToCone[2]))
+            let pqlms = iabToCone * iab
             // 4. PQ decode
             let lms = SIMD3(
                 pqDecode(pqlms[0]),
                 pqDecode(pqlms[1]),
                 pqDecode(pqlms[2]))
             // 5. LMS → modified XYZ
-            let modifiedXYZ = SIMD3(
-                lms.dot(coneToXYZ[0]),
-                lms.dot(coneToXYZ[1]),
-                lms.dot(coneToXYZ[2]))
+            let modifiedXYZ = coneToXYZ * lms
             let za = modifiedXYZ.z
             // 6. Undo blue-curvature fix
             let xa = (modifiedXYZ.x + (b - 1.0) * za) / b
@@ -645,20 +627,14 @@ extension ColorMathVector {
                 g * xyz.y - (g - 1.0) * xyz.x,
                 xyz.z)
             // 2. Move to LMS cone domain using SIMD dot products
-            let lms = SIMD3(
-                modifiedXYZ.dot(XYZToCone[0]),
-                modifiedXYZ.dot(XYZToCone[1]),
-                modifiedXYZ.dot(XYZToCone[2]))
+            let lms = XYZToCone * modifiedXYZ
             // 3. PQ-encode LMS
             let encodedLMS = SIMD3(
                 pqEncode(lms[0]),
                 pqEncode(lms[1]),
                 pqEncode(lms[2]))
             // 4. Calculate Iz, az, bz via SIMD dot products
-            let iab = SIMD3(
-                encodedLMS.dot(coneToIab[0]),
-                encodedLMS.dot(coneToIab[1]),
-                encodedLMS.dot(coneToIab[2]))
+            let iab = coneToIab * encodedLMS
             // 5. Final Jz calculation
             let iz = iab[0]
             let jz = ((1.0 + d) * iz) / (1.0 + d * iz) - d0

@@ -20,15 +20,44 @@ open class InnerShadowLayer: CALayer {
     private var superlayerObservation: KeyValueObservation?
     private let shadowLayer = CAShapeLayer()
     private let maskLayer = CAShapeLayer()
+    private var needsUpdate = false
+    private var isVisible = false
+    private var lastBounds: CGRect = .zero
     
     /// The configuration of the inner shadow.
-    open var configuration: ShadowConfiguration = .none { didSet { setNeedsLayout() } }
+    open var configuration: ShadowConfiguration = .none {
+        didSet { updateInnerShadow(old: oldValue) }
+    }
+    
+    func updateInnerShadow(old: ShadowConfiguration) {
+        shadowLayer.fillColor = configuration.resolvedColor()?.cgColor
+        shadowLayer.shadowColor = shadowLayer.fillColor
+        #if os(macOS) || os(iOS)
+        if let parentView = parentView {
+            updateShadowColor(for: parentView)
+        }
+        #endif
+        shadowLayer.shadowOffset = configuration.offset.size
+        shadowLayer.shadowOpacity = Float(configuration.opacity)
+        shadowLayer.shadowRadius = configuration.radius
+        let wasVisible = isVisible
+        isVisible = configuration.opacity > 0.0 && shadowLayer.fillColor?.alpha ?? 0.0 > 0.0
+        guard wasVisible != isVisible else { return }
+        updateLayer()
+    }
+    
+    func updateLayer() {
+        needsUpdate = true
+        setNeedsLayout()
+    }
     
     /// The shape of the inner shadowl
-    open var shape: (any Shape)? { didSet { setNeedsLayout() } }
+    open var shape: (any Shape)? {
+        didSet { updateLayer() }
+    }
     
     open override var cornerRadius: CGFloat {
-        didSet { if oldValue != cornerRadius && shape == nil { setNeedsLayout() } }
+        didSet { if oldValue != cornerRadius && shape == nil { updateLayer() } }
     }
     
     /**
@@ -39,8 +68,9 @@ open class InnerShadowLayer: CALayer {
      */
     public init(configuration: ShadowConfiguration) {
         super.init()
-        setup()
+        self.setup()
         self.configuration = configuration
+        self.updateInnerShadow(old: .none)
     }
     
     public override init() {
@@ -50,10 +80,10 @@ open class InnerShadowLayer: CALayer {
     
     init(for layer: CALayer) {
         super.init()
+        zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
         setup()
         layer.addSublayer(withConstraint: self)
         sendToBack()
-        zPosition = -CGFloat(Float.greatestFiniteMagnitude) + 1
     }
     
     public required init?(coder: NSCoder) {
@@ -61,14 +91,13 @@ open class InnerShadowLayer: CALayer {
         setup()
     }
     
-    private func setup(observeSuperlayer: Bool = true) {
+    private func setup() {
         addSublayer(shadowLayer)
         shadowLayer.mask = maskLayer
         shadowLayer.fillRule = .evenOdd
         shadowLayer.backgroundColor = nil
         shadowLayer.shadowPath = nil
         #if os(macOS) || os(iOS)
-        guard observeSuperlayer else { return }
         superlayerObservation = observeChanges(for: \.superlayer, handler: { [weak self] _, _ in
             self?.updateViewObservation()
         })
@@ -77,27 +106,21 @@ open class InnerShadowLayer: CALayer {
     
     open override func layoutSublayers() {
         super.layoutSublayers()
+        guard bounds != lastBounds || needsUpdate else { return }
+        needsUpdate = false
+        lastBounds = bounds
+        guard isVisible else {
+            shadowLayer.path = nil
+            maskLayer.path = nil
+            return
+        }
         let innerPath = shape?.path(in: bounds).cgPath ?? NSUIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).cgPath
-        
         let outerRect = bounds.insetBy(-configuration.radius * 4)
-        
         let ringPath = CGMutablePath()
         ringPath.addRect(outerRect)
         ringPath.addPath(innerPath)
-        
         shadowLayer.frame = bounds
         shadowLayer.path = ringPath
-        shadowLayer.fillColor = configuration.color?.cgColor
-        shadowLayer.shadowColor = configuration.color?.cgColor
-        #if os(macOS) || os(iOS)
-        if let parentView = parentView {
-            updateShadowColor(for: parentView)
-        }
-        #endif
-        shadowLayer.shadowOffset = configuration.offset.size
-        shadowLayer.shadowOpacity = Float(configuration.opacity)
-        shadowLayer.shadowRadius = configuration.radius
-        
         maskLayer.frame = bounds
         maskLayer.path = innerPath
     }
@@ -128,5 +151,53 @@ open class InnerShadowLayer: CALayer {
     }
     #endif
 }
+#endif
 
+#if os(macOS) || os(iOS)
+/**
+ Observes changes to the light/dark mode (interface style) of a layer that is displayed in a view.
+ 
+ If the layer is attached to a view, it observes the view’s appearance; otherwise, it tracks the layer’s superlayers until a parent view is found.
+ */
+class LayerAppearanceObserver {
+    weak var layer: CALayer?
+    var handler: (_ layer: CALayer, _ isLight: Bool)->()
+    var superlayerObservations: [KeyValueObservation] = []
+    var viewUserStyleObservation: KeyValueObservation?
+    
+    init(layer: CALayer, handler: @escaping (_ layer: CALayer, _ isLight: Bool)->()) {
+        self.layer = layer
+        self.handler = handler
+        self.setupSuperlayerObservation()
+    }
+    
+    private func setupSuperlayerObservation() {
+        superlayerObservations = []
+        var currentLayer: CALayer? = layer
+        while let layer = currentLayer {
+            superlayerObservations += layer.observeChanges(for: \.superlayer) { [weak self] old, new in
+                self?.setupSuperlayerObservation()
+            }
+            currentLayer = layer.superlayer
+        }
+        setupViewAppearanceObservation()
+    }
+    
+    private func setupViewAppearanceObservation() {
+        guard let layer = layer else {
+            viewUserStyleObservation = nil
+            return
+        }
+        #if os(macOS)
+        viewUserStyleObservation = layer.parentView?.observeChanges(for: \.effectiveAppearance) { [weak self] old, new in
+            self?.handler(layer, new.isLight)
+        }
+        #else
+        viewUserStyleObservation = layer.parentView?.observeChanges(for: \.traitCollection) { [weak self] old, new in
+            guard old.userInterfaceStyle != new.userInterfaceStyle else { return }
+            self?.handler(layer, new.userInterfaceStyle.isLight)
+        }
+        #endif
+    }
+}
 #endif

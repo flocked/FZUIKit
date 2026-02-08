@@ -379,6 +379,19 @@ extension NSUIView {
         }
         return nil
     }
+    
+    #if os(macOS)
+    /// Returns the view’s nearest descendant (including itself) with a specific identifier, or `nil` if no subview has that identifier.
+    @objc open func firstSubview(withIdentifier identifier: NSUserInterfaceItemIdentifier) -> NSView? {
+        var queue: [NSView] = [self]
+        while !queue.isEmpty {
+            let current = queue.removeFirst()
+            if current.identifier == identifier { return current }
+            queue += current.subviews
+        }
+        return nil
+    }
+    #endif
 
     /// Positions the view above the specified view.
     @objc open func position(above view: NSUIView) {

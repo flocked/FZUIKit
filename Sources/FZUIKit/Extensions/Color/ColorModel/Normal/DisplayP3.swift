@@ -8,6 +8,7 @@
 import Foundation
 import CoreGraphics
 import FZSwiftUtils
+import simd
 
 extension ColorModels {
     /// The color components for a color in the DisplayP3 color space.
@@ -74,18 +75,16 @@ extension ColorModels {
             CGColor(colorSpace: .extendedDisplayP3, components: components.map({CGFloat($0)}))!
         }
         
-        private static let toXZY: [SIMD3<Double>] = [
+        private static let toXZY: simd_double3x3 = .init(
             SIMD3(0.48657095, 0.26566769, 0.19821729),
             SIMD3(0.22897456, 0.69173852, 0.07928691),
-            SIMD3(0.0,        0.04511338, 1.04394437)]
+            SIMD3(0.0,        0.04511338, 1.04394437))
         
         /// The color in the XYZ color space.
         public var xyz: XYZ {
             let rgb = SIMD3(linearRed, linearGreen, linearBlue)
-            let x = rgb.dot(Self.toXZY[0])
-            let y = rgb.dot(Self.toXZY[1])
-            let z = rgb.dot(Self.toXZY[2])
-            return .init(x: x, y: y, z: z, alpha: alpha)
+            let xyz = Self.toXZY * rgb
+            return .init(x: xyz.x, y: xyz.y, z: xyz.z, alpha: alpha)
         }
 
         /// The color in the HSB color space.

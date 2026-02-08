@@ -7,6 +7,7 @@
 
 import Foundation
 import FZSwiftUtils
+import simd
 
 extension ColorModels {
     /// The color components for a color in the JzAzBz color space.
@@ -102,25 +103,26 @@ extension ColorModels.JZAZBZ {
     fileprivate static let d: Double = -0.56
     fileprivate static let d0: Double = 1.6295499532821566e-11
     
-    fileprivate static let coneToXYZ: [SIMD3<Double>] = [
+    
+    fileprivate static let coneToXYZ: simd_double3x3 = .init(
         SIMD3(1.9242264357876067,  -1.0047923125953657,  0.037651404030618),
         SIMD3(0.35031676209499907,  0.7264811939316552, -0.06538442294808501),
-        SIMD3(-0.09098281098284752, -0.3127282905230739,  1.5227665613052603)]
+        SIMD3(-0.09098281098284752, -0.3127282905230739,  1.5227665613052603))
     
-    fileprivate static let iabToCone: [SIMD3<Double>] = [
+    fileprivate static let iabToCone: simd_double3x3 = .init(
         SIMD3(1,                   0.13860504327153927,   0.05804731615611883),
         SIMD3(1,                  -0.1386050432715393,   -0.058047316156118904),
-        SIMD3(1,                  -0.09601924202631895,  -0.81189189605603900)]
+        SIMD3(1,                  -0.09601924202631895,  -0.81189189605603900))
     
-    fileprivate static let XYZToCone: [SIMD3<Double>] = [
+    fileprivate static let XYZToCone: simd_double3x3 = .init(
         SIMD3(0.41478972, 0.579999, 0.0146480),
         SIMD3(-0.2015100, 1.120649, 0.0531008),
-        SIMD3(-0.0166008, 0.264800, 0.6684799)]
+        SIMD3(-0.0166008, 0.264800, 0.6684799))
     
-    fileprivate static let coneToIab: [SIMD3<Double>] = [
+    fileprivate static let coneToIab: simd_double3x3 = .init(
         SIMD3(0.5, 0.5, 0.0),
         SIMD3(3.524000, -4.066708, 0.542708),
-        SIMD3(0.199076, 1.096799, -1.295875)]
+        SIMD3(0.199076, 1.096799, -1.295875))
     
     static func toXYZ(_ jzazbz: Self) -> ColorModels.XYZ {
         // 1. Recover Iz
@@ -128,20 +130,14 @@ extension ColorModels.JZAZBZ {
         // 2. Iab vector
         let iab = SIMD3(iz, jzazbz.az, jzazbz.bz)
         // 3. Iab → PQ-LMS
-        let pqlms = SIMD3(
-            iab.dot(iabToCone[0]),
-            iab.dot(iabToCone[1]),
-            iab.dot(iabToCone[2]))
+        let pqlms = iabToCone * iab
         // 4. PQ decode
         let lms = SIMD3(
             pqDecode(pqlms[0]),
             pqDecode(pqlms[1]),
             pqDecode(pqlms[2]))
         // 5. LMS → modified XYZ
-        let modifiedXYZ = SIMD3(
-            lms.dot(coneToXYZ[0]),
-            lms.dot(coneToXYZ[1]),
-            lms.dot(coneToXYZ[2]))
+        let modifiedXYZ = coneToXYZ * lms
         let za = modifiedXYZ.z
         // 6. Undo blue-curvature fix
         let xa = (modifiedXYZ.x + (b - 1.0) * za) / b
@@ -156,20 +152,14 @@ extension ColorModels.JZAZBZ {
             g * xyz.y - (g - 1.0) * xyz.x,
             xyz.z)
         // 2. Move to LMS cone domain using SIMD dot products
-        let lms = SIMD3(
-            modifiedXYZ.dot(XYZToCone[0]),
-            modifiedXYZ.dot(XYZToCone[1]),
-            modifiedXYZ.dot(XYZToCone[2]))
+        let lms = XYZToCone * modifiedXYZ
         // 3. PQ-encode LMS
         let encodedLMS = SIMD3(
             pqEncode(lms[0]),
             pqEncode(lms[1]),
             pqEncode(lms[2]))
         // 4. Calculate Iz, az, bz via SIMD dot products
-        let iab = SIMD3(
-            encodedLMS.dot(coneToIab[0]),
-            encodedLMS.dot(coneToIab[1]),
-            encodedLMS.dot(coneToIab[2]))
+        let iab = coneToIab * encodedLMS
         // 5. Final Jz calculation
         let iz = iab[0]
         let jz = ((1.0 + d) * iz) / (1.0 + d * iz) - d0

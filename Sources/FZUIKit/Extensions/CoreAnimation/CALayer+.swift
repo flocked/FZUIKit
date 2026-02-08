@@ -369,6 +369,10 @@ extension CALayer {
         set { setAssociatedValue(newValue, key: "innerShadowLayer") }
     }
     
+    fileprivate var _innerShadowLayer: InnerShadowLayer {
+        getAssociatedValue("_innerShadowLayer", initialValue: InnerShadowLayer(for: self) )
+    }
+    
     var innerShadowColor: CGColor? {
         get { innerShadowLayer?.shadowColor }
         set { innerShadowLayer?.shadowColor = newValue }
@@ -383,14 +387,17 @@ extension CALayer {
     
     /// The shape that is used for masking the layer.
     public var maskShape: (any Shape)? {
-        get { (mask as? PathShapeMaskLayer)?.shape }
+        get { (mask as? ShapeLayer)?.shape }
         set {
             if let newValue = newValue {
-                (mask as? PathShapeMaskLayer ?? PathShapeMaskLayer(layer: self, shape: newValue)).shape = newValue
-            } else if mask is PathShapeMaskLayer {
+                (mask as? ShapeLayer ?? ShapeLayer(layer: self, shape: newValue)).shape = newValue
+            } else if mask is ShapeLayer {
                 mask = nil
             }
-            shadowShape = newValue
+            if !didUpdateShadowShapManually {
+                shadowShape = newValue
+                didUpdateShadowShapManually = false
+            }
             innerShadowLayer?.shape = newValue
             configurations.setupBorder()
             #if os(macOS)
@@ -418,6 +425,7 @@ extension CALayer {
         get { getAssociatedValue("shadowShape") }
         set {
             setAssociatedValue(newValue, key: "shadowShape")
+            didUpdateShadowShapManually = true
             if let newValue = newValue {
                 shadowShapeObservation = observeChanges(for: \.bounds) { [weak self] old, new in
                     guard let self = self, old.size != new.size else { return }
@@ -431,6 +439,11 @@ extension CALayer {
             parentView?.setupShadowShapeView()
             #endif
         }
+    }
+    
+    var didUpdateShadowShapManually: Bool {
+        get { getAssociatedValue("didUpdateShadowShapManually") ?? false }
+        set { setAssociatedValue(newValue, key: "didUpdateShadowShapManually") }
     }
     
     /// Sets the shape of the shadow.
@@ -464,7 +477,7 @@ extension CALayer {
     }
     
     var _borderColor: CGColor? {
-        get { borderLayer?.strokeColor ?? borderColor }
+        get { borderLayer?.configuration.color?.cgColor ?? borderColor }
         set {
             if let borderLayer = borderLayer {
                 borderLayer.strokeColor = newValue
@@ -493,13 +506,11 @@ extension CALayer {
         var border: BorderConfiguration {
             get {
                 guard let layer = layer else { return .none }
-                _border.color = layer.parentView?.dynamicColors[\._borderColor] ?? layer._borderColor?.nsUIColor
-                if let layer = layer.borderLayer {
-                    _border.width = layer.lineWidth
-                    _border.dash = .init(layer)
-                } else {
-                    _border.width = layer.borderWidth
+                if let borderLayer = layer.borderLayer {
+                    return borderLayer.configuration
                 }
+                _border.color = layer.parentView?.dynamicColors[\._borderColor] ?? layer._borderColor?.nsUIColor
+                _border.width = layer.borderWidth
                 return _border
             }
             set {
@@ -759,11 +770,8 @@ extension CALayer {
     @objc open func constraint(to layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
         let frameUpdate: (() -> Void) = { [weak self] in
             guard let self = self else { return }
-            var frame = layer.bounds
-            frame.size.width -= insets.width
-            frame.size.height -= insets.height
-            frame.center = layer.bounds.center
-            self.frame = frame
+            self.bounds = layer.bounds.inset(by: insets)
+            self.position = CGPoint(x: self.bounds.midX, y: self.bounds.midY)
         }
         cornerRadius = layer.cornerRadius
         maskedCorners = layer.maskedCorners
@@ -817,10 +825,7 @@ extension CALayer {
     
     /// The associated view using the layer.
     @objc open var parentView: NSUIView? {
-        if let view = delegate as? NSUIView {
-            return view
-        }
-        return superlayer?.parentView
+        delegate as? NSUIView ?? superlayer?.parentView
     }
     
     /// A rendered image of the layer.
@@ -1068,104 +1073,62 @@ extension CALayer {
     }
 }
 
-fileprivate class BorderLayer: CAShapeLayer {
-    var observation: KeyValueObservation?
-    
-    var configuration: BorderConfiguration = .none {
-        didSet {
-            let color = configuration.resolvedColor()
-            strokeColor = superlayer?.resolvedColor(for: color) ?? color?.cgColor
-            lineDashPattern = configuration.dash.pattern as [NSNumber]
-            lineWidth = configuration.width
-            CALayer().border
-            lineDashPhase = configuration.dash.phase
-            lineJoin = configuration.dash.lineJoin.shapeLayerLineJoin
-            lineCap = configuration.dash.lineCap.shapeLayerLineCap
-            miterLimit = configuration.dash.mitterLimit
-            if oldValue.insets != configuration.insets {
-                frame = superlayer?.bounds.inset(by: configuration.insets) ?? frame
-            }
-            guard oldValue.width != configuration.width || oldValue.insets != configuration.insets else { return }
-            updatePath()
-        }
-    }
-    
-    var shape: (any Shape)? {
-        didSet { updatePath() }
-    }
-    
-    func updatePath() {
-        if let shape = shape {
-            if let shape = shape as? (any InsettableShape) {
-                path = shape.inset(by: lineWidth*0.5).path(in: bounds).cgPath
-            } else {
-                path = shape.path(in: bounds.insetBy(dx: lineWidth*0.5, dy: lineWidth*0.5)).cgPath
-            }
-        } else {
-            path = NSUIBezierPath(roundedRect: bounds, cornerRadius: superlayer?.cornerRadius ?? 0.0).cgPath
-        }
-    }
-    
-    init(for layer: CALayer) {
-        super.init()
-        fillColor = nil
-        frame = layer.bounds
-        zPosition(.greatestFiniteMagnitude)
-        layer.addSublayer(self)
-        strokeColor = layer.borderColor
-        lineWidth = layer.borderWidth
-        shape = layer.maskShape
-        updatePath()
-        // sendToBack()
-        observation = layer.observeChanges(for: \.bounds) { [weak self] old, new in
-            guard let self = self, old.size != new.size else { return }
-            self.frame = self.superlayer?.bounds.inset(by: self.configuration.insets) ?? self.frame
-        }
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
+public extension CALayer {
+    #if os(macOS)
+    /**
+     The effective appearance of the view this layer is displayed in.
+     
+     Changes can be observed using `observeChanges(for:handler:)`.  If the layer is attached to a view, it observes the view’s appearance; otherwise, it tracks the layer’s superlayers until a parent view is found.
 
-fileprivate class PathShapeMaskLayer: CAShapeLayer {
-    var shape: any Shape {
-        didSet { path = shape.path(in: bounds).cgPath }
+     Observing this value is useful when deriving colors for `CGColor`-backed properties, since `CGColor` does't automatically update for appearance changes (light/dark mode) compared to `NSColor`.
+     
+     Example observation:
+     
+     ```swift
+     layer.observeChanges(for: \.parentViewAppearance) {
+        old, new in
+     }
+     ```
+     If the layer isn't displayed in a view, the `.aqua` is returned.
+     */
+    @objc dynamic var parentViewAppearance: NSAppearance {
+        parentView?.effectiveAppearance ?? .aqua
     }
-    
-    var observation: KeyValueObservation?
-    
-    init(layer: CALayer, shape: any Shape) {
-        self.shape = shape
-        super.init()
-        
-        frame = layer.bounds
-        layer.mask = self
-        observation = layer.observeChanges(for: \.bounds) { [weak self] old, new in
-            guard let self = self, old.size != new.size else { return }
-            self.frame = new
-            self.path = self.shape.path(in: new).cgPath
-        }
+    #elseif os(iOS)
+    /**
+     The user interface style of the view this layer is displayed in.
+     
+     Changes can be observed using `observeChanges(for:handler:)`.  If the layer is attached to a view, it observes the view’s user interface style; otherwise, it tracks the layer’s superlayers until a parent view is found.
+
+     Observing this value is useful when deriving colors for `CGColor`-backed properties, since `CGColor` does't automatically update for dynamic user interface style changes (light / dark mode) compared to `UIKit`.
+   
+     Example observation:
+     
+     ```swift
+     layer.observeChanges(for: \.parentViewAppearance) {
+        old, new in
+     }
+     ```
+     */
+    @objc dynamic var parentViewUserInterfaceStyle: UIUserInterfaceStyle {
+        parentView?.traitCollection.userInterfaceStyle ?? .unspecified
     }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    #endif
 }
 
 fileprivate extension CAGradientLayer {
     var _gradient: Gradient {
         get {
             let colors = (colors as? [CGColor])?.compactMap(\.nsUIColor) ?? []
-            let locations = locations?.compactMap { CGFloat($0.floatValue) } ?? []
+            let locations = locations?.map { CGFloat($0.floatValue) } ?? []
             let stops = zip(colors, locations).map({ Gradient.ColorStop(color: $0.0, location: $0.1) })
             return Gradient(stops: stops, startPoint: .init(startPoint.x, startPoint.y), endPoint: .init(endPoint.x, endPoint.y), type: .init(type))
         }
         set {
-            colors = newValue.stops.compactMap(\.color.cgColor)
-            locations = newValue.stops.compactMap { NSNumber($0.location) }
-            startPoint = .init(newValue.startPoint.x, newValue.startPoint.y)
-            endPoint = .init(newValue.endPoint.x, newValue.endPoint.y)
+            colors = newValue.stops.map(\.color.cgColor)
+            locations = newValue.stops.map { NSNumber($0.location) }
+            startPoint = newValue.startPoint.asPoint
+            endPoint = newValue.endPoint.asPoint
             type = newValue.type.gradientLayerType
         }
     }

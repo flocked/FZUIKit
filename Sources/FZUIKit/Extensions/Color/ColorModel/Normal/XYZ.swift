@@ -7,6 +7,7 @@
 
 import Foundation
 import FZSwiftUtils
+import simd
 
 extension ColorModels {
     /// The color components for a color in the XYZ color space.
@@ -51,18 +52,16 @@ extension ColorModels {
             }
         }
         
-        private static let toRGB: [SIMD3<Double>] = [
+        private static let toRGB: simd_double3x3 = .init(
             SIMD3( 3.2404542,  -1.5371385, -0.4985314),
             SIMD3(-0.9692660,  1.8760108,  0.0415560),
-            SIMD3( 0.0556434, -0.2040259,  1.0572252)]
+            SIMD3( 0.0556434, -0.2040259,  1.0572252))
         
         /// The color in the sRGB color space.
         public var rgb: SRGB {
             let xyzVec = SIMD3(x, y, z)
-            let red = xyzVec.dot(Self.toRGB[0])
-            let green = xyzVec.dot(Self.toRGB[1])
-            let blue = xyzVec.dot(Self.toRGB[2])
-            return .init(linearRed: red, green: green, blue: blue, alpha: alpha)
+            let rgb = Self.toRGB * xyzVec
+            return .init(linearRed: rgb.x, green: rgb.y, blue: rgb.z, alpha: alpha)
         }
         
         /// The color in the XYZ color space.
@@ -95,18 +94,16 @@ extension ColorModels {
             return .init(lightness: 116.0 * fy - 16.0, greenRed: 500.0 * (fx - fy), blueYellow: 200.0 * (fy - fz), alpha: alpha)
         }
         
-        private static let toDisplayP3: [SIMD3<Double>] = [
+        private static let toDisplayP3: simd_double3x3 = .init(
             SIMD3( 2.493496911941425, -0.9313836179191239, -0.40271078445071684),
             SIMD3(-0.8294889695615747,  1.7626640603183463,  0.023624685841943577),
-            SIMD3( 0.03584583024378447, -0.07617238926804182, 0.9568845240076872)]
+            SIMD3( 0.03584583024378447, -0.07617238926804182, 0.9568845240076872))
 
         /// The color in the DisplayP3 color space.
         public var displayP3: DisplayP3 {
             let xyzVec = SIMD3(x, y, z)
-            let red = xyzVec.dot(Self.toDisplayP3[0])
-            let green = xyzVec.dot(Self.toDisplayP3[1])
-            let blue = xyzVec.dot(Self.toDisplayP3[2])
-            return .init(linearRed: red, green: green, blue: blue, alpha: alpha)
+            let p3 = Self.toDisplayP3 * xyzVec
+            return .init(linearRed: p3.x, green: p3.y, blue: p3.z, alpha: alpha)
         }
 
         /// The color in the JZCZHZ color space.

@@ -8,6 +8,7 @@
 import Foundation
 import CoreGraphics
 import FZSwiftUtils
+import simd
 
 extension ColorModels {
     /// The color components for a color in the sRGB color space.
@@ -94,23 +95,22 @@ extension ColorModels {
             "SRGB(red: \(red), green: \(green), blue: \(blue), alpha: \(alpha))"
         }
         
-        private static let toLMS = (
+        private static let toLMS: simd_double3x3 = .init(
             SIMD3(0.4122214708, 0.5363325363, 0.0514459929),
             SIMD3(0.2119034982, 0.6806995451, 0.1073969566),
             SIMD3(0.0883024619, 0.2817188376, 0.6299787005))
 
-        private static let toOKLAB = (
-            lightness: SIMD3( 0.2104542553,  0.7936177850, -0.0040720468),
-            greenRed: SIMD3( 1.9779984951, -2.4285922050,  0.4505937099),
-            blueYellow: SIMD3( 0.0259040371,  0.7827717662, -0.8086757660))
+        private static let toOKLAB: simd_double3x3 = .init(
+            SIMD3( 0.2104542553,  0.7936177850, -0.0040720468),
+            SIMD3( 1.9779984951, -2.4285922050,  0.4505937099),
+            SIMD3( 0.0259040371,  0.7827717662, -0.8086757660))
         
         public var oklab: OKLAB {
             let rgb = SIMD3(linearRed, linearGreen, linearBlue)
-            let lms = SIMD3(cbrt(rgb.dot(Self.toLMS.0)), cbrt(rgb.dot(Self.toLMS.1)), cbrt(rgb.dot(Self.toLMS.2)))
-            let lightness = lms.dot(Self.toOKLAB.lightness)
-            let greenRed = lms.dot(Self.toOKLAB.greenRed)
-            let blueYellow = lms.dot(Self.toOKLAB.blueYellow)
-            return OKLAB(lightness: lightness, greenRed: greenRed, blueYellow: blueYellow, alpha: alpha)
+            var lms = Self.toLMS * rgb
+            lms = SIMD3(cbrt(lms.x), cbrt(lms.y), cbrt(lms.z))
+            let oklab = Self.toOKLAB * lms
+            return OKLAB(lightness: oklab.x, greenRed: oklab.y, blueYellow: oklab.z, alpha: alpha)
         }
         
         /// The color in the HSB color space.
@@ -145,16 +145,14 @@ extension ColorModels {
         /// The color in the XYZ color space.
         public var xyz: XYZ {
             let linearRGB = SIMD3(linearRed, linearGreen, linearBlue)
-            let x = linearRGB.dot(Self.toXYZ.x)
-            let y = linearRGB.dot(Self.toXYZ.y)
-            let z = linearRGB.dot(Self.toXYZ.z)
-            return .init(x: x, y: y, z: z, alpha: alpha)
+            let xyz = Self.toXYZ * linearRGB
+            return .init(x: xyz.x, y: xyz.y, z: xyz.z, alpha: alpha)
         }
         
-        private static let toXYZ = (
-            x: SIMD3<Double>(0.4124564, 0.3575761, 0.1804375),
-            y: SIMD3<Double>(0.2126729, 0.7151522, 0.0721750),
-            z: SIMD3<Double>(0.0193339, 0.1191920, 0.9503041))
+        private static let toXYZ: simd_double3x3 = .init(
+            SIMD3<Double>(0.4124564, 0.3575761, 0.1804375),
+            SIMD3<Double>(0.2126729, 0.7151522, 0.0721750),
+            SIMD3<Double>(0.0193339, 0.1191920, 0.9503041))
         
         /// The color in the grayscale color space.
         public var gray: Grayscale {
@@ -165,7 +163,7 @@ extension ColorModels {
         public func gray(mode: GrayscalingMode) -> Grayscale {
             switch mode {
             case .luminance:
-                let luminance = SIMD3(linearRed, linearGreen, linearBlue).dot(Self.toXYZ.y)
+                let luminance = SIMD3(linearRed, linearGreen, linearBlue).dot(Self.toXYZ[2])
                 return Grayscale(white: luminance, alpha: alpha)
             case .lightness:
                 return Grayscale(white: hsl.lightness, alpha: alpha)

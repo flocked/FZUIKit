@@ -17,19 +17,25 @@ public class InverseMaskLayer: CALayer {
     public init(maskLayer: CALayer) {
         self.maskLayer = maskLayer
         super.init()
+        bounds.size = maskLayer.bounds.size
+        initialSetup()
     }
 
     override init() {
         super.init()
+        initialSetup()
+    }
+    
+    private func initialSetup() {
         backgroundColor = NSUIColor.black.cgColor
-        frame = CGRect(.zero, CGSize(100_000))
         setupMaskLayer()
     }
 
     public weak var maskLayer: CALayer? {
         didSet {
-            guard oldValue != maskLayer else { return }
-            if oldValue?.superlayer == self {
+            guard oldValue !== maskLayer else { return }
+            if oldValue?.superlayer === self {
+                oldValue?.compositingFilter = nil
                 oldValue?.removeFromSuperlayer()
             }
             setupMaskLayer()
@@ -37,14 +43,14 @@ public class InverseMaskLayer: CALayer {
     }
 
     private func setupMaskLayer() {
-        if let maskLayer = maskLayer {
-            addSublayer(maskLayer)
-            maskLayer.compositingFilter = "xor"
-        }
+        guard let maskLayer = maskLayer else { return }
+        addSublayer(maskLayer)
+        maskLayer.compositingFilter = "xor"
     }
 
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
+        initialSetup()
     }
 }
 
