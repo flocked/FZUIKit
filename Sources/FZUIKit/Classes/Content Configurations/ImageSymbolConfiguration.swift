@@ -624,18 +624,19 @@ public extension NSUIImageView {
 }
 #endif
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension NSUIImage {
     /// Creates a new symbol image with the specified configuration.
+    @_disfavoredOverload
     func withSymbolConfiguration(_ configuration: ImageSymbolConfiguration) -> NSUIImage? {
-#if os(macOS)
+        #if os(macOS)
         withSymbolConfiguration(configuration.nsUI())
-#else
+        #else
         withConfiguration(configuration.nsUI())
-#endif
+        #endif
     }
     
     /// Returns a new version of the current image, applying the specified configuration attributes on top of the current attributes.
+    @_disfavoredOverload
     func applyingSymbolConfiguration(_ configuration: ImageSymbolConfiguration) -> NSUIImage? {
         applyingSymbolConfiguration(configuration.nsUI())
     }
