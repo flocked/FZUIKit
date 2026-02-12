@@ -9,16 +9,17 @@
 import Foundation
 import CoreGraphics
 import FZSwiftUtils
+import QuartzCore
 
 extension CGContext {
-    /// Returns the size of the bitmap context.
+    /// Returns the size of a bitmap context.
     public var size: CGSize {
         CGSize(width: width, height: height)
     }
     
-    /// Returns the rectangle representing the entire drawable area of the context.
+    /// Returns the rectangle representing the entire drawable area of a bitmap context.
     public var bounds: CGRect {
-        CGRect(origin: .zero, size: size)
+        size.rect
     }
     
     /// Executes the specified block while preserving graphics state.
@@ -41,6 +42,15 @@ extension CGContext {
         fill(color, in: bounds)
     }
     
+    /// Fills the specified path with the provided color.
+    public func fill(_ color: CGColor, at path: CGPath) {
+        saveGState()
+        setFillColor(color)
+        addPath(path)
+        fillPath()
+        restoreGState()
+    }
+    
     /// Strokes the specified rectangle with the provided color.
     public func stroke(_ color: CGColor, in rect: CGRect) {
         saveGState()
@@ -52,6 +62,15 @@ extension CGContext {
     /// Strokes the entire context bounds using the specified stroke color.
     public func stroke(_ color: CGColor) {
         stroke(color, in: bounds)
+    }
+    
+    /// Strokes the specified path with the provided color.
+    public func stroke(_ color: CGColor, in path: CGPath) {
+        saveGState()
+        setStrokeColor(color)
+        addPath(path)
+        strokePath()
+        restoreGState()
     }
     
     /// Sets the current fill color in a graphics context.
@@ -109,6 +128,14 @@ extension CGContext {
     public func stroke(_ configuration: BorderConfiguration, in rect: CGRect) {
         stroke(configuration) {
             stroke(rect)
+        }
+    }
+    
+    /// Strokes the specified path using the provided configuration.
+    public func stroke(_ configuration: BorderConfiguration, in path: CGPath) {
+        stroke(configuration) {
+            addPath(path)
+            strokePath()
         }
     }
     
@@ -180,128 +207,60 @@ extension CGContext {
 
 public extension CFType where Self == CGContext {
     /**
-     Creates a new bitmap graphics context with the size.
-     
+     Creates a new bitmap graphics context with the specified size.
+          
      - Parameters:
-       - data: A pointer to memory for the bitmap. If `nil`, the system allocates memory automatically.
-       - size: The size of the bitmap context.
-       - bitsPerComponent: The number of bits for each color component.
-       - bytesPerRow: The number of bytes per row of the bitmap. Default is `0`, which lets Core Graphics calculate it automatically.
-       - space: A color space name for the bitmap.
-       - bitmapInfo: Bitmap information flags specifying alpha info, byte order, etc.
-     
-     - Returns: A new `CGContext` if creation succeeds, otherwise `nil`.
+        - size: The size of the context's bitmap.
+        - bitmapInfo: The bitmap information.
+        - space: The color space of the context's bitmap.
      */
-    init?(data: UnsafeMutableRawPointer? = nil, size: CGSize, bitsPerComponent: Int = 8, bytesPerRow: Int = 0, space: CGColorSpaceName = .genericRGB, bitmapInfo: CGBitmapInfo) {
-        guard let context = CGContext(data: data, width: Int(size.width), height: Int(size.height), bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: CGColorSpace(name: space) ?? .deviceRGB, bitmapInfo: bitmapInfo) else { return nil }
+    init?(size: CGSize, bitmapInfo: CGBitmapInfo, space: CGColorSpace = CGColorSpaceCreateDeviceRGB()) {
+        guard let context = CGContext(data: nil, width: Int(size.width.rounded(.up)), height: Int(size.height.rounded(.up)), bitsPerComponent: bitmapInfo.bitsPerComponent, bytesPerRow: 0, space: space, bitmapInfo: bitmapInfo) else { return nil }
         self = context
     }
     
     /**
      Creates a new bitmap graphics context with the specified size.
-
+          
      - Parameters:
-        - data: A pointer to memory for the bitmap. If `nil`, the system allocates memory automatically.
-        - size: The size of the bitmap context.
-        - bitsPerComponent: The number of bits for each color component.
-        - bytesPerRow: The number of bytes per row of the bitmap. Default is `0`, which lets Core Graphics calculate it automatically.
-        - space: A color space name for the bitmap.
-        - hasAlpha: A Boolean value indicating whether the bitmap should include an alpha channel.
-     
-     - Returns: A new `CGContext` if creation succeeds, otherwise `nil`.
+        - size: The size of the context's bitmap.
+        - bitmapInfo: The bitmap information.
+        - space: The color space of the context's bitmap.
      */
-    init?(data: UnsafeMutableRawPointer? = nil, size: CGSize, bitsPerComponent: Int = 8, bytesPerRow: Int = 0, space: CGColorSpaceName, hasAlpha: Bool = true) {
-        guard let context = CGContext(data: data, width: Int(size.width), height: Int(size.height), bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: CGColorSpace(name: space) ?? .deviceRGB, bitmapInfo: hasAlpha ? .rgba : .rgb) else { return nil }
-        self = context
-    }
-    
     @_disfavoredOverload
-    init?(data: UnsafeMutableRawPointer? = nil, size: CGSize, bitsPerComponent: Int = 8, bytesPerRow: Int = 0, space: CGColorSpace, hasAlpha: Bool = true) {
-        guard let context = CGContext(data: data, width: Int(size.width), height: Int(size.height), bitsPerComponent: bitsPerComponent, bytesPerRow: bytesPerRow, space: space, bitmapInfo: hasAlpha ? .rgba : .rgb) else { return nil }
-        self = context
-    }
-    
     init?(size: CGSize, bitmapInfo: CGBitmapInfo, space: CGColorSpaceName) {
-        guard let space = CGColorSpace(name: space) else { return nil }
-        guard let context = CGContext(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: bitmapInfo.bitsPerComponent, bytesPerRow: 0, space: space, bitmapInfo: bitmapInfo) else { return nil }
+        guard let space = space.colorSpace else { return nil }
+        self.init(size: size, bitmapInfo: bitmapInfo, space: space)
+    }
+    
+    /**
+     Creates a new bitmap graphics context with the specified size.
+          
+     - Parameters:
+        - size: The size of the context's bitmap.
+        - includeAlpha: A Boolean value indicating whether the bitmap should include an alpha channel.
+        - space: The color space of the context's bitmap.
+     */
+    init?(size: CGSize, includeAlpha: Bool = true, space: CGColorSpace = CGColorSpaceCreateDeviceRGB()) {
+        guard let context = CGContext(data: nil, width: Int(size.width.rounded(.up)), height: Int(size.height.rounded(.up)), bitsPerComponent: 8, bytesPerRow: 0, space: space, bitmapInfo: CGBitmapInfo(alpha: includeAlpha ? .premultipliedLast : .noneSkipFirst))
+        else { return nil }
         self = context
     }
     
+    /**
+     Creates a new bitmap graphics context with the specified size.
+          
+     - Parameters:
+        - size: The size of the context's bitmap.
+        - includeAlpha: A Boolean value indicating whether the bitmap should include an alpha channel.
+        - space: The color space of the context's bitmap.
+     */
     @_disfavoredOverload
-    init?(size: CGSize, bitmapInfo: CGBitmapInfo, space: CGColorSpace) {
-        guard let context = CGContext(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: bitmapInfo.bitsPerComponent, bytesPerRow: 0, space: space, bitmapInfo: bitmapInfo) else { return nil }
-        self = context
+    init?(size: CGSize, includeAlpha: Bool = true, space: CGColorSpaceName) {
+        guard let space = space.colorSpace else { return nil }
+        self.init(size: size, includeAlpha: includeAlpha, space: space)
     }
 }
 
-extension CFType where Self == CGContext {
-    public init?(size: CGSize) {
-        guard let context = CGContext(
-            data: nil,
-            width: max(Int(size.width.rounded(.down)), 1),
-            height: max(Int(size.height.rounded(.down)), 1),
-            bitsPerComponent: 8,
-            bytesPerRow: 0,
-            space: CGColorSpaceCreateDeviceRGB(),
-            bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue).rawValue)
-        else {
-            return nil
-        }
-        self = context
-    }
-    
-    public init?(size: CGSize, cgImage: CGImage) {
-        guard let context = CGContext(
-            data: nil,
-            width: max(Int(size.width.rounded(.down)), 1),
-            height: max(Int(size.height.rounded(.down)), 1),
-            bitsPerComponent: cgImage.bitsPerComponent,
-            bytesPerRow: 0,
-            space: cgImage.colorSpace ?? CGColorSpaceCreateDeviceRGB(),
-            bitmapInfo: cgImage.bitmapInfo.rawValue)
-        else {
-            return nil
-        }
-        self = context
-    }
-    
-    private static func supportedBitsPerComponent(from cgImage: CGImage?) -> Int {
-        guard let bits = cgImage?.bitsPerComponent, bits > 0 else { return 8 }
-        if bits <= 8 { return 8 }
-        return 16
-    }
-    
-    private static func resolveColorSpace(from cgImage: CGImage?) -> CGColorSpace {
-        guard let cgColorSpace = cgImage?.colorSpace else {
-            return CGColorSpaceCreateDeviceRGB()
-        }
-        let components = cgColorSpace.numberOfComponents
-        if components == 1 || components == 3 {
-            return cgColorSpace
-        }
-        return CGColorSpaceCreateDeviceRGB()
-    }
-    
-    private static func bitmapInfo(componentCount: Int, hasAlpha: Bool) -> CGBitmapInfo {
-        let alphaInfo: CGImageAlphaInfo
-        if componentCount == 1 {
-            alphaInfo = hasAlpha ? .premultipliedLast : .none
-        } else {
-            alphaInfo = hasAlpha ? .premultipliedLast : .noneSkipLast
-        }
-        return CGBitmapInfo(rawValue: alphaInfo.rawValue)
-    }
-    
-    private static func channelsPerPixel(componentCount: Int, hasAlpha: Bool) -> Int {
-        if componentCount == 1 {
-            return hasAlpha ? 2 : 1
-        }
-        return hasAlpha ? componentCount + 1 : componentCount + 1
-    }
-    
-    private static func alignedBytesPerRow(bitsPerPixel: Int, width: Int) -> Int {
-        let rawBytes = (bitsPerPixel * width + 7) / 8
-        return (rawBytes + 0x3F) & ~0x3F
-    }
-}
+
 #endif

@@ -19,13 +19,20 @@ public class NSContentUnavailableView: NSView, NSContentView {
     public var configuration: NSContentConfiguration {
         get { appliedConfiguration }
         set {
-            if let newValue = newValue as? NSContentUnavailableConfiguration {
-                appliedConfiguration = newValue
-            }
+            guard let newValue = newValue as? NSContentUnavailableConfiguration, newValue != appliedConfiguration else { return }
+            appliedConfiguration = newValue
+            updateConfiguration()
         }
     }
     
-    /// Determines whether the view is compatible with the provided configuration.
+    var appliedConfiguration: NSContentUnavailableConfiguration
+    
+    /**
+     Determines whether the view is compatible with the provided configuration.
+     
+     - Parameter configuration: The new configuration to test for compatibility.
+     - Returns: `true` if the configuration is ``NSContentUnavailableConfiguration``;  otherwise, `false`.
+     */
     public func supports(_ configuration: NSContentConfiguration) -> Bool {
         configuration is NSContentUnavailableConfiguration
     }
@@ -41,14 +48,7 @@ public class NSContentUnavailableView: NSView, NSContentView {
     
     lazy var hostingView = NSHostingView(rootView: ContentView(configuration: self.appliedConfiguration))
     lazy var backgroundView: (NSView & NSContentView) = appliedConfiguration.background.makeContentView()
-    
-    var appliedConfiguration: NSContentUnavailableConfiguration {
-        didSet {
-            guard oldValue != appliedConfiguration else { return }
-            updateConfiguration()
-        }
-    }
-    
+        
     func updateConfiguration() {
         backgroundView.configuration = appliedConfiguration.background
         hostingView.rootView = ContentView(configuration: appliedConfiguration)

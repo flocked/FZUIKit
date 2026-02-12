@@ -362,7 +362,7 @@ open class StackView: NSUIView {
                     baselineOffsets.append(arrangedSubview.frame.origin.y)
                 }
             }
-            let baselineOffset = 0 - (baselineOffsets.min() ?? 0)
+            let baselineOffset = 0.0 - (baselineOffsets.min() ?? 0)
             for arrangedSubview in arrangedSubviews {
                 if arrangedViewOptions[arrangedSubview.objectID]?.distribution == .firstBaseline {
                     arrangedSubview.frame.origin.y += baselineOffset + layoutMargins.bottom

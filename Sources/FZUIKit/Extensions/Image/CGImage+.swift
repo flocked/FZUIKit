@@ -200,13 +200,13 @@ extension CFType where Self == CGImage {
      
      - Parameters:
         - size: The size of the image.
-        - colorSpace: The name of the color space.
+        - colorSpace: The color space.
         - hasAlpha: A Boolean value indicating whether the image has an alpha channel.
         - drawingHandler: A block that draws the contents of the image representation.
      */
     @_disfavoredOverload
     public init(size: CGSize, colorSpace: CGColorSpace, hasAlpha: Bool = true, drawingHandler: ((CGContext) -> Void)) {
-        let context = CGContext(size: size, space: colorSpace, hasAlpha: hasAlpha)!
+        let context = CGContext(size: size, includeAlpha: hasAlpha, space: colorSpace)!
         drawingHandler(context)
         self = context.makeImage()!
     }
@@ -229,7 +229,7 @@ extension CFType where Self == CGImage {
      
      - Parameters:
         - size: The size of the image.
-        - colorSpace: The name of the color space.
+        - colorSpace: The color space.
         - color: The background color of the image.
         - drawingHandler: A block that draws the contents of the image representation.
      */

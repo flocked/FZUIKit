@@ -58,6 +58,11 @@ public extension NSScreen {
     var isMain: Bool {
         self == NSScreen.main
     }
+    
+    /// A Boolean value indicating whether the screen represents the system’s primary display (the one that owns the menu bar).
+    var isPrimary: Bool {
+        displayID == CGMainDisplayID()
+    }
 
     /// The bounds of the screen in the global display coordinate space.
     var displayBounds: CGRect {

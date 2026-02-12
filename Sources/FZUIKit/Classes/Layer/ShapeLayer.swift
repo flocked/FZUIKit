@@ -5,12 +5,61 @@
 //  Created by Florian Zand on 08.02.26.
 //
 
+#if os(macOS) || os(iOS) || os(tvOS)
 import Foundation
 import FZSwiftUtils
 import SwiftUI
 
+#if os(macOS) || os(iOS)
+extension CAShapeLayer {
+    /**
+     The `SwiftUI` [Shape](https://developer.apple.com/documentation/SwiftUI/Shape) displayed by this layer.
+
+     Assigning a shape to this property makes the layer automatically reflect the shape's path, updating whenever the layer's bounds change. The shape will scale and adjust to match the layer’s current size.
+
+     Example usage:
+     ```swift
+     let layer = CAShapeLayer()
+     layer.shape = Circle()
+     ```
+    */
+    public var _shape: (any Shape)? {
+        get { getAssociatedValue("_shape") }
+        set {
+            setAssociatedValue(newValue, key: "_shape")
+            try? layoutSublayersHook?.revert()
+            if let newValue = newValue {
+                do {
+                    try hookAfter(#selector(CALayer.layoutSublayers)) { layer, selector in
+                        layer.path = newValue.path(in: layer.bounds).cgPath
+                    }
+                    setNeedsLayout()
+                } catch {
+                    Swift.print(error)
+                }
+            }
+        }
+    }
+    
+    /**
+     Creates a shape layer with the specified `SwiftUI` [Shape](https://developer.apple.com/documentation/SwiftUI/Shape).
+     
+     Assigning a shape to this property makes the layer automatically reflect the shape's path, updating whenever the layer's bounds change. The shape will scale and adjust to match the layer’s current size.
+     */
+    public convenience init(_shape: (any Shape)) {
+        self.init()
+        self._shape = _shape
+    }
+    
+    var layoutSublayersHook: Hook? {
+        get { getAssociatedValue("layoutSublayersHook") }
+        set { setAssociatedValue(newValue, key: "layoutSublayersHook") }
+    }
+}
+#endif
+
 /**
- A `CAShapeLayer` subclass with a SwiftUI `Shape`.
+ A `CAShapeLayer` subclass with a `SwiftUI` [Shape](https://developer.apple.com/documentation/SwiftUI/Shape).
  
  The layer automatically updates its `path` to the ``shape``  whenever its `bounds` changes.
  
@@ -57,3 +106,4 @@ open class ShapeLayer: CAShapeLayer {
         super.init(coder: coder)
     }
 }
+#endif

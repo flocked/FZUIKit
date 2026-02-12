@@ -24,13 +24,20 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
     public var configuration: NSContentConfiguration {
         get { appliedConfiguration }
         set {
-            if let newValue = newValue as? NSHostingConfiguration<Content, Background> {
-                appliedConfiguration = newValue
-            }
+            guard let newValue = newValue as? NSHostingConfiguration<Content, Background> else { return }
+            appliedConfiguration = newValue
+            updateConfiguration()
         }
     }
     
-    /// Determines whether the view is compatible with the provided configuration.
+    var appliedConfiguration: NSHostingConfiguration<Content, Background>
+    
+    /**
+     Determines whether the view is compatible with the provided configuration.
+     
+     - Parameter configuration: The new configuration to test for compatibility.
+     - Returns: `true` if the configuration is ``NSHostingConfiguration<Content, Background>``;  otherwise, `false`.
+     */
     public func supports(_ configuration: NSContentConfiguration) -> Bool {
         configuration is NSHostingConfiguration<Content, Background>
     }
@@ -44,11 +51,7 @@ class NSHostingContentView<Content, Background>: NSView, NSContentView, HostingC
         updateAutoHeight()
         updateConfiguration()
     }
-    
-    var appliedConfiguration: NSHostingConfiguration<Content, Background> {
-        didSet { updateConfiguration() }
-    }
-    
+        
    @objc var autoHeight = false {
         didSet {
             guard oldValue != autoHeight else { return }

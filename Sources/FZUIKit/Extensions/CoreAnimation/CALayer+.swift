@@ -340,6 +340,8 @@ extension CALayer {
             configurations.shadow = newValue
             #if os(macOS)
             parentView?.setupShadowShapeView()
+            #else
+            setupShadowShapeLayer()
             #endif
         }
     }
@@ -402,6 +404,8 @@ extension CALayer {
             configurations.setupBorder()
             #if os(macOS)
             parentView?.setupShadowShapeView()
+            #else
+            setupShadowShapeLayer()
             #endif
         }
     }
@@ -501,6 +505,71 @@ extension CALayer {
     private var _gradientLayer: CAGradientLayer? {
         firstSublayer(named: "_gradientLayer") as? CAGradientLayer
     }
+    
+    #if !os(macOS)
+    func setupShadowShapeLayer() {
+        guard !(self is ShadowShapeLayer) else { return }
+        if shadowShape == nil || maskShape == nil || !shadow.isVisible {
+            shadowShapeLayer?.removeFromSuperlayer()
+            shadowShapeLayer = nil
+        } else if shadowShapeLayer == nil {
+            shadowShapeLayer = ShadowShapeLayer(for: self)
+        }
+        shadowShapeLayer?.shadow = shadow
+        shadowShapeLayer?.shadowShape = shadowShape
+    }
+    
+    var shadowShapeLayer: ShadowShapeLayer? {
+        get { getAssociatedValue("shadowShapeLayer") }
+        set { setAssociatedValue(newValue, key: "shadowShapeLayer") }
+    }
+    
+    class ShadowShapeLayer: CALayer {
+        var layerObservation: KeyValueObserver<CALayer>!
+        var superlayerObservation: KeyValueObservation?
+        weak var layer: CALayer?
+        
+        init(for layer: CALayer) {
+            super.init()
+            self.layer = layer
+            layerObservation = KeyValueObserver(layer)
+            isHidden = layer.isHidden
+            opacity = layer.opacity
+            zPosition = layer.zPosition - 1
+            anchorPoint = layer.anchorPoint
+            bounds = layer.bounds
+            position = layer.position
+            layer.superlayer?.insertSublayer(self, below: layer)
+            layerObservation.add(\.superlayer) { [weak self] old, superlayer in
+                guard let self = self, let layer = self.layer else { return }
+                self.removeFromSuperlayer()
+                superlayer?.insertSublayer(self, below: layer)
+            }
+            layerObservation.add(\.isHidden) { [weak self] old, new in
+                self?.isHidden = new
+            }
+            layerObservation.add(\.opacity) { [weak self] old, new in
+                self?.opacity = new
+            }
+            layerObservation.add(\.bounds) { [weak self] old, new in
+                self?.bounds = new
+            }
+            layerObservation.add(\.position) { [weak self] old, new in
+                self?.position = new
+            }
+            layerObservation.add(\.anchorPoint) { [weak self] old, new in
+                self?.anchorPoint = new
+            }
+            layerObservation.add(\.zPosition) { [weak self] old, new in
+                self?.zPosition = new-1
+            }
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+    }
+    #endif
 
     class Configurations {
         var border: BorderConfiguration {
@@ -586,6 +655,11 @@ extension CALayer {
                 layer.shadowRadius = newValue.radius
                 layer.shadowOffset = newValue.offset.size
                 layer.shadowOpacity = Float(newValue.opacity)
+                #if os(macOS)
+                layer.parentView?.setupShadowShapeView()
+                #else
+                layer.setupShadowShapeLayer()
+                #endif
             }
         }
         
@@ -731,70 +805,90 @@ extension CALayer {
     /**
      Adds the specified sublayer and constraints it to the layer.
      
-     The properties `bounds`, `cornerRadius`, `cornerCurve` and `maskedCorners` of the specified layer will be constraint. To remove the constraints use `removeConstraints()`.
+     The layer's [bounds](https://developer.apple.com/documentation/quartzcore/calayer/bounds) and [position](https://developer.apple.com/documentation/quartzcore/calayer/position) are updated to follow the specified layer.
      
+     Optionally, [cornerRadius](https://developer.apple.com/documentation/quartzcore/calayer/cornerradius), [maskedCorners](https://developer.apple.com/documentation/quartzcore/calayer/maskedCorners), and [cornerCurve](https://developer.apple.com/documentation/quartzcore/calayer/cornerCurve) can also be synced.
+
+     To remove the constraints use ``QuartzCore/CALayer/removeConstraints()``.
+
      - Parameters:
         - layer: The layer to be added.
         - insets: Insets from the new sublayer border to the layer border.
+        - includeAppearance: A Boolean value indicating whether to also sync `cornerRadius`, `maskedCorners`, and `cornerCurve`.
      */
-    @objc open func addSublayer(withConstraint layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
+    @objc open func addSublayer(withConstraint layer: CALayer, insets: NSDirectionalEdgeInsets = .zero, includeAppearance: Bool = true) {
         addSublayer(layer)
-        layer.constraint(to: self, insets: insets)
+        layer.constraint(to: self, insets: insets, includeAppearance: includeAppearance)
     }
     
     /**
      Inserts the specified layer at the specified index and constraints it to the layer.
      
-     The properties [bounds](https://developer.apple.com/documentation/quartzcore/calayer/bounds), [cornerRadius](https://developer.apple.com/documentation/quartzcore/calayer/cornerradius), [cornerCurve](https://developer.apple.com/documentation/quartzcore/calayer/cornerCurve) and [maskedCorners](https://developer.apple.com/documentation/quartzcore/calayer/maskedCorners) of the specified layer will be constraint. To remove the constraints use ``removeConstraints()``.
+     The layer's [bounds](https://developer.apple.com/documentation/quartzcore/calayer/bounds) and [position](https://developer.apple.com/documentation/quartzcore/calayer/position) are updated to follow the specified layer.
      
+     Optionally, [cornerRadius](https://developer.apple.com/documentation/quartzcore/calayer/cornerradius), [maskedCorners](https://developer.apple.com/documentation/quartzcore/calayer/maskedCorners), and [cornerCurve](https://developer.apple.com/documentation/quartzcore/calayer/cornerCurve) can also be synced.
+
+     To remove the constraints use ``QuartzCore/CALayer/removeConstraints()``.
+
      - Parameters:
         - layer: The layer to be added.
         - index: The index at which to insert layer. This value must be a valid 0-based index into the `sublayers` array.
         - insets: Insets from the new sublayer border to the layer border.
+        - includeAppearance: A Boolean value indicating whether to also sync `cornerRadius`, `maskedCorners`, and `cornerCurve`.
      */
-    @objc open func insertSublayer(withConstraint layer: CALayer, at index: UInt32, insets: NSDirectionalEdgeInsets = .zero) {
+    @objc open func insertSublayer(withConstraint layer: CALayer, at index: UInt32, insets: NSDirectionalEdgeInsets = .zero, includeAppearance: Bool = true) {
         guard index >= 0, index < sublayers?.count ?? Int.max else { return }
         insertSublayer(layer, at: index)
-        layer.constraint(to: self, insets: insets)
+        layer.constraint(to: self, insets: insets, includeAppearance: includeAppearance)
     }
     
     /**
      Constraints the layer to the specified layer.
      
-     The properties [bounds](https://developer.apple.com/documentation/quartzcore/calayer/bounds), [cornerRadius](https://developer.apple.com/documentation/quartzcore/calayer/cornerradius), [cornerCurve](https://developer.apple.com/documentation/quartzcore/calayer/cornerCurve) and [maskedCorners](https://developer.apple.com/documentation/quartzcore/calayer/maskedCorners) will be constraint to the specified layer. To remove the constraints use ``removeConstraints()``.
+     The layer's [bounds](https://developer.apple.com/documentation/quartzcore/calayer/bounds) and [position](https://developer.apple.com/documentation/quartzcore/calayer/position) are updated to follow the specified layer.
+     
+     Optionally, [cornerRadius](https://developer.apple.com/documentation/quartzcore/calayer/cornerradius), [maskedCorners](https://developer.apple.com/documentation/quartzcore/calayer/maskedCorners), and [cornerCurve](https://developer.apple.com/documentation/quartzcore/calayer/cornerCurve) can also be synced.
+
+     To remove the constraints use ``QuartzCore/CALayer/removeConstraints()``.
      
      - Parameters:
         - layer: The layer to constraint to.
         - insets: The insets.
+        - includeAppearance: A Boolean value indicating whether to also sync `cornerRadius`, `maskedCorners`, and `cornerCurve`.
      */
-    @objc open func constraint(to layer: CALayer, insets: NSDirectionalEdgeInsets = .zero) {
+    @objc open func constraint(to layer: CALayer, insets: NSDirectionalEdgeInsets = .zero, includeAppearance: Bool = true) {
         let frameUpdate: (() -> Void) = { [weak self] in
             guard let self = self else { return }
             self.bounds = layer.bounds.inset(by: insets)
             self.position = CGPoint(x: self.bounds.midX, y: self.bounds.midY)
         }
-        cornerRadius = layer.cornerRadius
-        maskedCorners = layer.maskedCorners
-        cornerCurve = layer.cornerCurve
-        
-        if layerObserver?.observedObject != layer {
-            layerObserver = KeyValueObserver(layer)
+        if includeAppearance {
+            cornerRadius = layer.cornerRadius
+            maskedCorners = layer.maskedCorners
+            cornerCurve = layer.cornerCurve
         }
-        layerObserver?.add(\.cornerRadius) { [weak self] old, new in
-            guard let self = self, old != new else { return }
-            self.cornerRadius = new
+        if constrainLayerObserver?.observedObject != layer {
+            constrainLayerObserver = KeyValueObserver(layer)
         }
-        layerObserver?.add(\.cornerCurve) { [weak self] old, new in
-            guard let self = self, old != new else { return }
-            self.cornerCurve = new
-        }
-        layerObserver?.add(\.maskedCorners) { [weak self] old, new in
-            guard let self = self, old != new else { return }
-            self.maskedCorners = new
-        }
-        layerObserver?.add(\.bounds) { old, new in
+        constrainLayerObserver?.add(\.bounds) { old, new in
             guard old != new else { return }
             frameUpdate()
+        }
+        if includeAppearance {
+            constrainLayerObserver?.add(\.cornerRadius) { [weak self] old, new in
+                guard let self = self, old != new else { return }
+                self.cornerRadius = new
+            }
+            constrainLayerObserver?.add(\.cornerCurve) { [weak self] old, new in
+                guard let self = self, old != new else { return }
+                self.cornerCurve = new
+            }
+            constrainLayerObserver?.add(\.maskedCorners) { [weak self] old, new in
+                guard let self = self, old != new else { return }
+                self.maskedCorners = new
+            }
+        } else {
+            constrainLayerObserver?.remove([\.cornerRadius, \.cornerCurve, \.maskedCorners])
         }
         frameUpdate()
         if superlayer == layer {
@@ -809,7 +903,7 @@ extension CALayer {
     
     /// Removes the layer constraints.
     @objc open func removeConstraints() {
-        layerObserver = nil
+        constrainLayerObserver = nil
         superLayerObservation = nil
     }
     
@@ -818,9 +912,9 @@ extension CALayer {
         set { setAssociatedValue(newValue, key: "superLayerObservation") }
     }
     
-    private var layerObserver: KeyValueObserver<CALayer>? {
-        get { getAssociatedValue("layerObserver") }
-        set { setAssociatedValue(newValue, key: "layerObserver") }
+    private var constrainLayerObserver: KeyValueObserver<CALayer>? {
+        get { getAssociatedValue("constrainLayerObserver") }
+        set { setAssociatedValue(newValue, key: "constrainLayerObserver") }
     }
     
     /// The associated view using the layer.
@@ -830,20 +924,13 @@ extension CALayer {
     
     /// A rendered image of the layer.
     @objc open var renderedImage: CGImage? {
-        var scale: CGFloat = 1.0
-        #if os(macOS)
-        scale = parentView?.window?.backingScaleFactor ??  NSScreen.main?.backingScaleFactor ?? 1.0
-        #else
-        scale = parentView?.window?.windowScene?.screen.scale ?? 1.0
-        #endif
-        let width = Int(bounds.width * scale)
-        let height = Int(bounds.height * scale)
+        let width = Int(bounds.width * contentsScale)
+        let height = Int(bounds.height * contentsScale)
         guard width > 0, height > 0 else { return nil }
-        let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
-        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: bitmapInfo) else {
+        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else {
             return nil
         }
-        context.scaleBy(x: scale, y: scale)
+        context.scaleBy(x: contentsScale, y: contentsScale)
         render(in: context)
         return context.makeImage()
     }

@@ -14,7 +14,6 @@ import UIKit
 import SwiftUI
 import FZSwiftUtils
 
-@available(macOS 11.0, iOS 13.0, *)
 public extension NSUIHostingController {
     /**
      Creates a hosting controller object with the given contents.
@@ -49,7 +48,7 @@ public extension NSUIHostingController {
     }
 }
 
-extension NSUIHostingController {
+fileprivate extension NSUIHostingController {
     var _previousWidth: CGFloat {
         get { getAssociatedValue("previousWidth", initialValue: 0.0) }
         set { setAssociatedValue(newValue, key: "previousWidth") }
@@ -61,21 +60,14 @@ extension NSUIHostingController {
     }
     
     var autoAdjustsHeight: Bool {
-        get { getAssociatedValue("autoAdjustsHeight", initialValue: false) }
+        get { isMethodHooked(autoAdjustHeightSelector) }
         set {
             guard newValue != autoAdjustsHeight else { return }
             _heightAnchor.isActive = newValue
-            setAssociatedValue(newValue, key: "autoAdjustsHeight")
-            #if os(macOS)
-            let selector = #selector(Self.viewDidLayout)
-            #else
-            let selector = #selector(Self.viewDidLayoutSubviews)
-            #endif
             if newValue {
-                guard !isMethodHooked(selector) else { return }
                 do {
                     #if os(macOS) || os(iOS)
-                    try hook(selector, closure: { original, controller, sel in
+                    try hook(autoAdjustHeightSelector, closure: { original, controller, selector in
                         if controller.view.frame.size.width != controller._previousWidth {
                             controller._previousWidth = controller.view.frame.size.width
                             let fittingSize = controller.sizeThatFits(in: CGSize(width: controller._previousWidth, height: 40000))
@@ -84,7 +76,7 @@ extension NSUIHostingController {
                         original(controller, selector)
                     } as @convention(block) ((Self, Selector) -> Void, Self, Selector) -> Void)
                     #else
-                    try hook(selector,
+                    try hook(autoAdjustHeightSelector,
                              methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
                              hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
                         object in
@@ -104,24 +96,27 @@ extension NSUIHostingController {
                     debugPrint(error)
                 }
             } else {
-                revertHooks(for: selector)
+                revertHooks(for: autoAdjustHeightSelector)
             }
         }
+    }
+    
+    var autoAdjustHeightSelector: Selector {
+        #if os(macOS)
+        #selector(Self.viewDidLayout)
+        #else
+        #selector(Self.viewDidLayoutSubviews)
+        #endif
     }
 }
 
 fileprivate extension NSUIView {
-    @available(macOS 11.0, iOS 11.0, tvOS 11.0, *)
     func setSafeAreaInsets(_ newSafeAreaInsets: NSUIEdgeInsets?) {
         revertHooks(for: #selector(getter: NSUIView.safeAreaInsets))
         if let newSafeAreaInsets = newSafeAreaInsets {
             do {
                 #if os(macOS) || os(iOS)
-                try hook(#selector(getter: NSUIView.safeAreaInsets), closure: { original, object, sel in
-                    return newSafeAreaInsets
-                } as @convention(block) (
-                    (AnyObject, Selector) -> NSUIEdgeInsets,
-                    AnyObject, Selector) -> NSUIEdgeInsets)
+                try hook(\.safeAreaInsets) { _,_ in return newSafeAreaInsets }
                 #else
                 try hook(#selector(getter: NSUIView.safeAreaInsets),
                          methodSignature: (@convention(c)  (AnyObject, Selector) -> NSUIEdgeInsets).self,
@@ -152,7 +147,6 @@ public extension NSHostingView {
     }
             
     /// A Boolean value indicating whether the SwiftUI view ignores the safe area insets.
-    @available(macOS 11.0, *)
     var ignoresSafeArea: Bool {
         get { isMethodHooked(#selector(getter: NSUIView.safeAreaInsets)) }
         set { setSafeAreaInsets(newValue ? .zero : nil) }
@@ -169,7 +163,6 @@ public extension NSHostingView {
             
     /// Sets the Boolean value indicating whether the SwiftUI view ignores the safe area insets.
     @discardableResult
-    @available(macOS 11.0, *)
     func ignoresSafeArea(_ ignores: Bool) -> Self {
         ignoresSafeArea = ignores
         return self

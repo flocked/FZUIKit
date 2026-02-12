@@ -15,32 +15,31 @@ import SwiftUI
 
 /**
  An object that contains font, color, and image scale attributes to apply to an object with a symbol image.
-
+ 
  `NSImageView` and `UIImageView` can be configurated by applying the configuration to `configurate(using:_)`.
-
+ 
  `NSImage` can be configurated using `withSymbolConfiguration(_)` and `UIImage` can be configurated using `applyingSymbolConfiguration(_)`.
  */
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ImageSymbolConfiguration: Hashable {
     /// The font of the symbol configuration.
     public var font: FontConfiguration?
-
+    
     /// The color configuration of the symbol configuration.
     public var color: ColorConfiguration?
-
+    
     /// The color transformer for resolving the colors of the color configuration.
     public var colorTransformer: ColorTransformer?
-
+    
     /// Generates the resolved color configuration, using the color configuration and color transformer.
     public func resolvedColor() -> ColorConfiguration? {
         guard var color = color else { return nil }
         color.colors = colorTransformer?(color.colors) ?? color.colors
         return color
     }
-
+    
     /// The scale variant of the symbol configuration.
     public var scale: SymbolScale?
-
+    
     /// Sets the font of the symbol configuration.
     @discardableResult
     public func font(_ font: FontConfiguration?) -> Self {
@@ -48,7 +47,7 @@ public struct ImageSymbolConfiguration: Hashable {
         configuration.font = font
         return configuration
     }
-
+    
     /// Sets the font weight of the symbol configuration.
     @discardableResult
     public func weight(_ weight: NSUISymbolWeight) -> Self {
@@ -56,7 +55,7 @@ public struct ImageSymbolConfiguration: Hashable {
         configuration.font = configuration.font?.weight(weight)
         return configuration
     }
-
+    
     /// Sets the color configuration of the symbol configuration.
     @discardableResult
     public func color(_ configuration: ColorConfiguration?) -> Self {
@@ -64,7 +63,7 @@ public struct ImageSymbolConfiguration: Hashable {
         newConfiguration.color = configuration
         return newConfiguration
     }
-
+    
     /// Sets the color transformer of the symbol configuration.
     @discardableResult
     public func colorTransformer(_ transformer: ColorTransformer?) -> Self {
@@ -72,7 +71,7 @@ public struct ImageSymbolConfiguration: Hashable {
         newConfiguration.colorTransformer = transformer
         return newConfiguration
     }
-
+    
     /// Sets the scale variant of the symbol configuration.
     @discardableResult
     public func scale(_ scale: SymbolScale?) -> Self {
@@ -80,10 +79,10 @@ public struct ImageSymbolConfiguration: Hashable {
         configuration.scale = scale
         return configuration
     }
-
+    
     /**
      Returns a configuration that applies the specified configuration values on top of the current configuration’s values.
-
+     
      - Parameter configuration: The configuration to apply.
      - Returns: A new configuration that prioritizes the values from the configuration you specify.
      */
@@ -95,26 +94,26 @@ public struct ImageSymbolConfiguration: Hashable {
         newConfiguration.scale = configuration.scale ?? newConfiguration.scale
         return newConfiguration
     }
-
+    
     /// Returns a configuration that applies the right configuration values on top of the left configuration’s values.
     public static func + (lhs: ImageSymbolConfiguration, rhs: ImageSymbolConfiguration) -> ImageSymbolConfiguration {
         lhs.applying(rhs)
     }
-
+    
     /// Applies the right configuration values on top of the left configuration’s values.
     public static func += (lhs: inout ImageSymbolConfiguration, rhs: ImageSymbolConfiguration) {
         lhs = lhs.applying(rhs)
     }
-
+    
     /**
      Creates a symbol configuration.
-
+     
      - Parameters:
-        - font: The font.
-        - color: The color configuration.
-        - colorTransformer: The color transformer.
-        - imageScale: The image scaling.
-
+     - font: The font.
+     - color: The color configuration.
+     - colorTransformer: The color transformer.
+     - imageScale: The image scaling.
+     
      - Returns: a symbol configuration object.
      */
     public init(font: FontConfiguration? = nil, color: ColorConfiguration? = nil, colorTransformer: ColorTransformer? = nil, scale: SymbolScale? = nil) {
@@ -123,8 +122,8 @@ public struct ImageSymbolConfiguration: Hashable {
         self.colorTransformer = colorTransformer
         self.scale = scale
     }
-
-    #if os(macOS)
+    
+#if os(macOS)
     @available(macOS 13.0, *)
     init(symbolConfiguration configuration: NSUIImage.SymbolConfiguration) {
         let pointSize = configuration.pointSize
@@ -144,64 +143,63 @@ public struct ImageSymbolConfiguration: Hashable {
         color?.colors = configuration.colors ?? []
         scale = .init(rawValue: configuration.scale.rawValue)
     }
-    #endif
-
+#endif
+    
+    
     /// Creates a configuration with a monochrome color using the tint color.
     @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
     public static var monochrome: Self {
         Self(color: .monochrome)
     }
-
+    
     /// Creates a configuration with a monochrome color using the specified color.
     public static func monochrome(_ color: NSUIColor) -> Self {
         Self(color: .monochrome(color))
     }
-
-    #if os(macOS)
+    
+#if os(macOS)
     /// Creates a configuration with a hierarchical color using the tint color.
     @available(macOS 13.0, *)
     public static var hierarchical: Self {
         Self(color: .hierarchical)
     }
-    #endif
-
+#endif
+    
     /// Creates a configuration with a hierarchical color with the specified color.
     public static func hierarchical(_ color: NSUIColor) -> Self {
         Self(color: .hierarchical(color))
     }
-
+    
     /// Creates a configuration with a multicolor color using the tint color.
-    @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
     public static var multicolor: Self {
         Self(color: .multicolor)
     }
-
+    
     /// Creates a configuration with a multicolor color with the specified color.
-    @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
     public static func multicolor(_ color: NSUIColor) -> Self {
         Self(color: .multicolor(color))
     }
-
+    
     /// Creates a configuration with a palette color configuration with the specified primary, secondary and tertiary color.
     public static func palette(_ primary: NSUIColor, _ secondary: NSUIColor, _ tertiary: NSUIColor? = nil) -> Self {
         Self(color: .palette(primary, secondary, tertiary))
     }
-
+    
     /// Creates a configuration with the specified font style and weight.
     public static func font(_ style: NSUIFont.TextStyle, weight: NSUISymbolWeight = .regular) -> Self {
         Self(font: .textStyle(style, weight: weight))
     }
-
+    
     /// Creates a configuration with the specified font size and weight.
     public static func font(size: CGFloat, weight: NSUISymbolWeight = .regular) -> Self {
         Self(font: .size(size, weight: weight))
     }
-
+    
     /// Creates a configuration with the specified image scale.
     public static func scale(_ scale: SymbolScale) -> Self {
         Self(scale: scale)
     }
-
+    
     /// Creates a configuration  with a body font configuration.
     public static let body = Self.font(.body)
     /// Creates a configuration with a callout font configuration.
@@ -222,19 +220,67 @@ public struct ImageSymbolConfiguration: Hashable {
     public static let title2 = Self.font(.title2)
     /// Creates a configuration with a third-level title font configuration.
     public static let title3 = Self.font(.title3)
-    #if os(macOS) || os(iOS)
+#if os(macOS) || os(iOS)
     /// Creates a configuration with a large title font configuration.
     public static let largeTitle = Self.font(.largeTitle)
-    #endif
-
+#endif
+    
+    /// The color rendering mode of the configuration.
+    @available(macOS 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, *)
+    public var colorRenderingMode: ColorRenderingMode {
+        get { .init(rawValue: _colorRenderingMode)! }
+        set { _colorRenderingMode = newValue.rawValue }
+    }
+    
+    private var _colorRenderingMode = 0
+    
+    /// The color rendering mode of a symbol oonfiguration.
+    @available(macOS 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, *)
+    public enum ColorRenderingMode: Int, Hashable {
+        /// Automatically uses an appropriate color rendering mode for the symbol’s color layers.
+        case automatic
+        /// Renders the symbol’s color layers using flat colors.
+        case flat
+        /// Renders the symbol’s color layers using gradients.
+        case gradient
+        
+        var nsUI: NSUIImage.SymbolColorRenderingMode {
+            .init(rawValue: rawValue)!
+        }
+    }
+    
+    /// The variable value mode of the configuration.
+    @available(macOS 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, *)
+    public var variableValueMode: VariableValueMode {
+        get { .init(rawValue: _variableValueMode)! }
+        set { _variableValueMode = newValue.rawValue }
+    }
+    
+    private var _variableValueMode = 0
+    
+    /// The variable value mode of a symbol configuration.
+    @available(macOS 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, *)
+    public enum VariableValueMode: Int, Hashable {
+        /// Automatically selects an appropriate variable value mode for the symbol.
+        case automatic
+        /// Sets the opacity of each variable layer to either on or off depending on how its threshold compared to the current value.
+        case color
+        /// Changes the drawn length of each variable layer to either based on how its range relates to the current value.
+        case draw
+        
+        var nsUI: NSUIImage.SymbolVariableValueMode {
+            .init(rawValue: rawValue)!
+        }
+    }
+    
     /// The font of a symbol image.
     public enum FontConfiguration: Hashable {
         /// A font with the specified point size and font weight.
         case size(_ size: CGFloat, weight: NSUISymbolWeight = .regular)
-
+        
         /// A font with the specified text style and font weight.
         case textStyle(_ style: NSUIFont.TextStyle, weight: NSUISymbolWeight = .regular)
-
+        
         /// Sets the weight of the font.
         @discardableResult
         public func weight(_ weight: NSUISymbolWeight) -> Self {
@@ -245,7 +291,7 @@ public struct ImageSymbolConfiguration: Hashable {
                 return .textStyle(style, weight: weight)
             }
         }
-
+        
         /// The font you use for body text.
         public static let body = Self.textStyle(.body)
         /// The font you use for callouts.
@@ -260,27 +306,27 @@ public struct ImageSymbolConfiguration: Hashable {
         public static let headline = Self.textStyle(.headline)
         /// The font you use for subheadings.
         public static let subheadline = Self.textStyle(.subheadline)
-        #if os(macOS) || os(iOS)
+#if os(macOS) || os(iOS)
         /// The font you use for large titles.
         public static let largeTitle = Self.textStyle(.largeTitle)
-        #endif
+#endif
         /// The font you use for first-level hierarchical headings.
         public static let title1 = Self.textStyle(.title1)
         /// The font you use for second-level hierarchical headings.
         public static let title2 = Self.textStyle(.title2)
         /// The font you use for third-level hierarchical headings.
         public static let title3 = Self.textStyle(.title3)
-
+        
         var symbolConfiguration: NSUIImage.SymbolConfiguration {
             switch self {
             case .size(let size, let weight):
                 return .init(pointSize: size, weight: weight, scale: .default)
             case .textStyle(let style, let weight):
-                return .init(textStyle: style, weight: weight)
+                return .init(textStyle: style) + .weight(weight)
             }
         }
-
-        #if os(macOS)
+        
+#if os(macOS)
         /// `NSFont` representation of the font.
         public var nsFont: NSFont {
             switch self {
@@ -290,8 +336,10 @@ public struct ImageSymbolConfiguration: Hashable {
                 return .systemFont(textStyle).weight(weight)
             }
         }
-        var nsUIFont: NSUIFont { nsFont }
-        #else
+        var nsUIFont: NSUIFont {
+            nsFont
+        }
+#else
         /// `UIFont` representation of the font.
         public var uiFont: UIFont {
             switch self {
@@ -301,10 +349,12 @@ public struct ImageSymbolConfiguration: Hashable {
                 return .systemFont(textStyle).weight(weight.fontWeight())
             }
         }
-        var nsUIFont: NSUIFont { uiFont }
-        #endif
+        var nsUIFont: NSUIFont {
+            uiFont
+        }
+#endif
     }
-
+    
     /// Constants that indicate which scale variant of a symbol image to use.
     public enum SymbolScale: Int, Hashable, Codable {
         /// The default scale variant that matches the system usage.
@@ -315,25 +365,25 @@ public struct ImageSymbolConfiguration: Hashable {
         case medium
         /// A scale that produces large images.
         case large
-
+        
         // .default, .unspecified, .medium, .large]
-
+        
         var nsUI: NSUIImage.SymbolScale {
             .init(rawValue: rawValue)!
         }
-
-        #if os(macOS)
+        
+#if os(macOS)
         /// `NSImage.SymbolScale` representation of the scale.
         public var nsSymbolScale: NSUIImage.SymbolScale {
             nsUI
         }
-        #else
+#else
         /// `UIImage.SymbolScale` representation of the scale.
         public var uiSymbolScale: NSUIImage.SymbolScale {
             nsUI
         }
-        #endif
-
+#endif
+        
         /// SwiftUI `Image.Scale` representation of the scale.
         public var swiftui: SwiftUI.Image.Scale {
             switch self {
@@ -344,17 +394,16 @@ public struct ImageSymbolConfiguration: Hashable {
             }
         }
     }
-
+    
     /// The configuration of the color.
     public struct ColorConfiguration: Hashable, Codable {
         enum Mode: Int, Hashable, Codable {
             case monochrome = 1
             case hierarchical
             case palette
-            @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
             case multicolor = 10
         }
-
+        
         var renderingMode: SwiftUI.SymbolRenderingMode {
             switch mode {
             case .palette: return .palette
@@ -363,21 +412,26 @@ public struct ImageSymbolConfiguration: Hashable {
             case .hierarchical: return .hierarchical
             }
         }
-
+        
         var mode: Mode = .monochrome
-        var primary: NSUIColor? { colors[safe: 0] }
-        var secondary: NSUIColor? { colors[safe: 1] }
-        var tertiary: NSUIColor? { colors[safe: 2] }
-
+        var primary: NSUIColor? {
+            colors[safe: 0]
+        }
+        var secondary: NSUIColor? {
+            colors[safe: 1]
+        }
+        var tertiary: NSUIColor? {
+            colors[safe: 2]
+        }
+        
         /// The colors of the color configuration.
         public internal(set) var colors: [NSUIColor] = []
-
+        
         init(_ mode: Mode, _ primary: NSUIColor? = nil, _ secondary: NSUIColor? = nil, _ tertiary: NSUIColor? = nil) {
             self.mode = mode
             colors = [primary, secondary, tertiary].nonNil
         }
-
-        @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+        
         var symbolConfiguration: NSUIImage.SymbolConfiguration {
             switch mode {
             case .monochrome:
@@ -393,25 +447,19 @@ public struct ImageSymbolConfiguration: Hashable {
                 return .unspecified
             case .hierarchical:
                 if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
-                    #if os(macOS)
+#if os(macOS)
                     if let primary = primary {
                         return NSUIImage.SymbolConfiguration(hierarchicalColor: primary)
                     } else {
                         return .preferringHierarchical()
                     }
-                    #else
+#else
                     return NSUIImage.SymbolConfiguration(hierarchicalColor: primary!)
-                    #endif
+#endif
                 }
                 return .unspecified
             case .palette:
-                if let secondary = secondary {
-                    if let tertiary = tertiary {
-                        return .init(paletteColors: [primary!, secondary, tertiary])
-                    }
-                    return .init(paletteColors: [primary!, secondary])
-                }
-                return .init(paletteColors: [primary!])
+                return .init(paletteColors: [primary, secondary, tertiary].nonNil)
             case .multicolor:
                 if let primary = primary {
                     return .init(paletteColors: [primary]) + .preferringMulticolor()
@@ -420,94 +468,95 @@ public struct ImageSymbolConfiguration: Hashable {
                 }
             }
         }
-
+        
         @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
         /// Monochrome.
         public static var monochrome: Self {
             ColorConfiguration(.monochrome)
         }
-
+        
         /// Monochrome with the specified color.
         public static func monochrome(_ color: NSUIColor) -> Self {
             ColorConfiguration(.monochrome, color)
         }
-
-        #if os(macOS)
+        
+#if os(macOS)
         @available(macOS 13.0, *)
         /// Hierarchical.
         public static var hierarchical: Self {
             ColorConfiguration(.hierarchical)
         }
-        #endif
-
+#endif
+        
         /// Hierarchical with the specified color.
         public static func hierarchical(_ color: NSUIColor) -> Self {
             ColorConfiguration(.hierarchical, color)
         }
-
+        
         /// Palette with the specified primary, secondary and tertiary color.
         public static func palette(_ primary: NSUIColor, _ secondary: NSUIColor, _ tertiary: NSUIColor? = nil) -> Self {
             ColorConfiguration(.palette, primary, secondary, tertiary)
         }
-
-        @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+        
         /// Multicolor.
         public static var multicolor: Self {
             ColorConfiguration(.multicolor)
         }
-
-        @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+        
         /// Multicolor with the specified primary, secondary and tertiary color.
         public static func multicolor(_ primary: NSUIColor, _ secondary: NSUIColor? = nil, _ tertiary: NSUIColor? = nil) -> Self {
             ColorConfiguration(.multicolor, primary, secondary, tertiary)
         }
     }
-
-    #if os(macOS)
+    
+#if os(macOS)
     /// `NSImage.SymbolConfiguration` representation of the symbol configuration.
     public func nsSymbolConfiguration() -> NSUIImage.SymbolConfiguration {
         nsUI()
     }
-
-    #elseif canImport(UIKit)
+    
+#elseif canImport(UIKit)
     /// `UIImage.SymbolConfiguration` representation of the symbol configuration.
     public func uiSymbolConfiguration() -> NSUIImage.SymbolConfiguration {
         nsUI()
     }
-    #endif
-
+#endif
+    
     func nsUI() -> NSUIImage.SymbolConfiguration {
-        var configuration = resolvedColor()?.symbolConfiguration
-
-        if let _configuration = font?.symbolConfiguration {
-            configuration = configuration?.applying(_configuration) ?? _configuration
+        var configuration = resolvedColor()?.symbolConfiguration ?? .unspecified
+        
+        if let fontConfiguration = font?.symbolConfiguration {
+            configuration += fontConfiguration
         }
-
         if let symbolScale = scale?.nsUI {
-            if let _configuration = configuration, font == nil {
-                configuration = _configuration + .scale(symbolScale)
-            } else if configuration == nil {
-                configuration = .init(scale: symbolScale)
+            configuration += .init(scale: symbolScale)
+        }
+        if #available(macOS 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, *) {
+            if colorRenderingMode != .automatic {
+                configuration += .init(colorRenderingMode: colorRenderingMode.nsUI)
+            }
+            if variableValueMode != .automatic {
+                configuration += .init(variableValueMode: variableValueMode.nsUI)
             }
         }
-        return configuration ?? .unspecified
+        return configuration
     }
 }
 
 #if os(macOS) || os(iOS) || os(tvOS)
 @available(macOS 13.0, iOS 15.0, tvOS 15.0, *)
 public extension NSUIImageView {
-    #if os(macOS)
+#if os(macOS)
     /// The configuration values to use when rendering the image.
     var imageSymbolConfiguration: ImageSymbolConfiguration? {
-        get { 
+        get {
             guard let configuration = symbolConfiguration else { return nil }
             return .init(symbolConfiguration: configuration)
         }
         set { symbolConfiguration = newValue?.nsUI() }
     }
-
-    #else
+    
+#else
     /// The configuration values to use when rendering the image.
     var preferredImageSymbolConfiguration: ImageSymbolConfiguration? {
         get { getAssociatedValue("_imageSymbolConfiguration") }
@@ -516,7 +565,7 @@ public extension NSUIImageView {
             preferredSymbolConfiguration = newValue?.nsUI()
         }
     }
-    #endif
+#endif
 }
 
 #endif
@@ -525,9 +574,9 @@ public extension NSUIImageView {
 public extension View {
     /**
      Configurates symbol images within this view.
-
+     
      - Parameters:
-        - tintColor: The tint color of the symbol images.
+     - tintColor: The tint color of the symbol images.
      - configuration: The configuration for the symbol images.
      */
     @ViewBuilder func symbolConfiguration(tintColor: Color?, configuration: ImageSymbolConfiguration?) -> some View {
@@ -540,12 +589,12 @@ public extension View {
             self
         }
     }
-
+    
     /**
      Configurates symbol images within this view.
-
+     
      - Parameters:
-        - configuration: The configuration for the symbol images.
+     - configuration: The configuration for the symbol images.
      */
     @ViewBuilder func symbolConfiguration(_ configuration: ImageSymbolConfiguration?) -> some View {
         if let configuration = configuration {
@@ -564,13 +613,13 @@ public extension View {
 public extension NSUIImageView {
     /// Configurates the image view with the specified symbol configuration.
     func configurate(using configuration: ImageSymbolConfiguration) {
-        #if os(macOS)
+#if os(macOS)
         symbolConfiguration = configuration.nsUI()
         contentTintColor = configuration.resolvedColor()?.primary ?? contentTintColor
-        #elseif canImport(UIKit)
+#elseif canImport(UIKit)
         preferredSymbolConfiguration = configuration.nsUI()
         tintColor = configuration.resolvedColor()?.primary ?? tintColor
-        #endif
+#endif
     }
 }
 #endif
@@ -579,109 +628,75 @@ public extension NSUIImageView {
 public extension NSUIImage {
     /// Creates a new symbol image with the specified configuration.
     func withSymbolConfiguration(_ configuration: ImageSymbolConfiguration) -> NSUIImage? {
-        #if os(macOS)
+#if os(macOS)
         withSymbolConfiguration(configuration.nsUI())
-        #else
+#else
         withConfiguration(configuration.nsUI())
-        #endif
+#endif
     }
-
+    
     /// Returns a new version of the current image, applying the specified configuration attributes on top of the current attributes.
     func applyingSymbolConfiguration(_ configuration: ImageSymbolConfiguration) -> NSUIImage? {
         applyingSymbolConfiguration(configuration.nsUI())
     }
 }
 
-@available(macOS 11.0, *)
 extension NSUIImage.SymbolConfiguration {
-    /// Creates a configuration  with a body font configuration.
-    static var body: NSUIImage.SymbolConfiguration { .init(textStyle: .body) }
 
-    /// Creates a configuration with a callout font configuration.
-    static var callout: NSUIImage.SymbolConfiguration { .init(textStyle: .callout) }
-
-    /// Creates a configuration with a caption font configuration.
-    static var caption1: NSUIImage.SymbolConfiguration { .init(textStyle: .caption1) }
-
-    /// Creates a configuration with a alternate caption font configuration.
-    static var caption2: NSUIImage.SymbolConfiguration { .init(textStyle: .caption2) }
-
-    /// Creates a configuration with a footnote font configuration.
-    static var footnote: NSUIImage.SymbolConfiguration { .init(textStyle: .footnote) }
-
-    /// Creates a configuration with a headline font configuration.
-    static var headline: NSUIImage.SymbolConfiguration { .init(textStyle: .headline) }
-
-    /// Creates a configuration with a subheadline font configuration.
-    static var subheadline: NSUIImage.SymbolConfiguration { .init(textStyle: .subheadline) }
-
-    #if os(macOS)
-    /// Creates a configuration with a large title font configuration.
-    static var largeTitle: NSUIImage.SymbolConfiguration { .init(textStyle: .largeTitle) }
-    #endif
-
-    /// Creates a configuration with a first-level title font configuration.
-    static var title1: NSUIImage.SymbolConfiguration { .init(textStyle: .title1) }
-
-    /// Creates a configuration with a second-level title font configuration.
-    static var title2: NSUIImage.SymbolConfiguration { .init(textStyle: .title2) }
-
-    /// Creates a configuration with a third-level title font configuration.
-    static var title3: NSUIImage.SymbolConfiguration { .init(textStyle: .title3) }
-
+    
     /*
      @available(macOS 12.0, *)
      static func monochrome(_ color: NSUIColor) -> NSUIImage.SymbolConfiguration {
-         .color(.monochrome(color))
+     .color(.monochrome(color))
      }
-
-
+     
+     
      @available(macOS 12.0, *)
      static func multicolor(_ color: NSUIColor) -> NSUIImage.SymbolConfiguration {
-         .color(.multicolor(color))
+     .color(.multicolor(color))
      }
-      */
-
+     */
+    
     /*
      /// Creates a configuration with a monochrome color using the tint color.
      @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
      public static var monochrome: Self {
-         Self(color: .monochrome)
+     Self(color: .monochrome)
      }
-
+     
      /// Creates a configuration with a monochrome color using the specified color.
      public static func monochrome(_ color: NSUIColor) -> Self {
-         Self(color: .monochrome(color))
+     Self(color: .monochrome(color))
      }
-
+     
      #if os(macOS)
      /// Creates a configuration with a hierarchical color using the tint color.
      @available(macOS 13.0, *)
      public static var hierarchical: Self {
-         Self(color: .hierarchical)
+     Self(color: .hierarchical)
      }
      #endif
-
+     
      /// Creates a configuration with a hierarchical color with the specified color.
      public static func hierarchical(_ color: NSUIColor) -> Self {
-         Self(color: .hierarchical(color))
+     Self(color: .hierarchical(color))
      }
-
+     
      /// Creates a configuration with a multicolor color using the tint color.
      @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
      public static var multicolor: Self {
-         Self(color: .multicolor)
+     Self(color: .multicolor)
      }
-
+     
      /// Creates a configuration with a multicolor color with the specified color.
      @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
      public static func multicolor(_ color: NSUIColor) -> Self {
-         Self(color: .multicolor(color))
+     Self(color: .multicolor(color))
      }
-
+     
      /// Creates a configuration with a palette color configuration with the specified primary, secondary and tertiary color.
      public static func palette(_ primary: NSUIColor, _ secondary: NSUIColor, _ tertiary: NSUIColor? = nil) -> Self {
-         Self(color: .palette(primary, secondary, tertiary))
+     Self(color: .palette(primary, secondary, tertiary))
      }
      */
 }

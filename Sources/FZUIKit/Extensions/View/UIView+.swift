@@ -235,6 +235,13 @@ extension UIView {
         }
     }
     
+    /// Sets the integer that you can use to identify view objects in your application.
+    @discardableResult
+    public func tag(_ tag: Int) -> Self {
+        self.tag = tag
+        return self
+    }
+    
     /**
      An array representing the subviews of the view.
      
@@ -246,6 +253,7 @@ extension UIView {
     public var orderedSubviews: [UIView] {
         get { subviews }
         set {
+            let newValue = newValue.uniqued()
             guard subviews != newValue else { return }
             subviews.filter({ !newValue.contains($0) }).forEach({ $0.removeFromSuperview() })
             for (targetIndex, desiredView) in newValue.enumerated() {

@@ -175,7 +175,6 @@ public extension NSUIFontDescriptor {
     }
 
     /// The text style of the font descriptor.
-    @available(macOS 11.0, iOS 10.0, tvOS 10.0, watchOS 3.0, *)
     var textStyle: NSUIFont.TextStyle? {
         guard let rawValue = object(forKey: .textStyle) as? String else { return nil }
         return .init(rawValue: rawValue)

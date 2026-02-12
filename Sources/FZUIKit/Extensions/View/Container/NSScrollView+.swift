@@ -562,8 +562,6 @@ extension NSScrollView {
         guard liveScrollNotificationTokens.isEmpty else { return }
         liveScrollNotificationTokens = [NotificationCenter.default.observe(NSScrollView.willStartLiveScrollNotification, postedBy: self, using: { [weak self] _ in
             self?.inLiveScroll = true
-        }), NotificationCenter.default.observe(NSScrollView.didLiveScrollNotification, postedBy: self, using: { [weak self] _ in
-            self?.inLiveScroll = true
         }), NotificationCenter.default.observe(NSScrollView.didEndLiveScrollNotification, postedBy: self, using: { [weak self] _ in
             self?.inLiveScroll = false
         })]

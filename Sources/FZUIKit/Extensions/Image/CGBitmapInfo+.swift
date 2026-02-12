@@ -80,23 +80,6 @@ extension CGBitmapInfo: Swift.Hashable {
     var isAlphaPremultiplied: Bool {
         alpha == .premultipliedFirst || alpha == .premultipliedLast
     }
-
-    init(pixelByteOrder: PixelByteOrder, hasAlpha: Bool = true) {
-        switch pixelByteOrder {
-        case .rgba:
-            self = CGBitmapInfo(alpha: hasAlpha ? .premultipliedLast : .noneSkipLast, byteOrder: .order32Big)
-        case .bgra:
-            self = CGBitmapInfo(alpha: hasAlpha ? .premultipliedLast : .noneSkipLast, byteOrder: .order32Little)
-        case .argb:
-            self = CGBitmapInfo(alpha: hasAlpha ? .premultipliedFirst : .noneSkipFirst, byteOrder: .order32Big)
-        case .abgr:
-            self = CGBitmapInfo(alpha: hasAlpha ? .premultipliedFirst : .noneSkipFirst, byteOrder: .order32Little)
-        case .rgb:
-            self = CGBitmapInfo(alpha: .none, byteOrder: .order32Big)
-        case .bgr:
-            self = CGBitmapInfo(alpha: .none, byteOrder: .order32Little)
-        }
-    }
 }
 
 extension CGBitmapInfo: Swift.CustomStringConvertible {
@@ -133,13 +116,13 @@ extension CGImageByteOrderInfo: Swift.CustomStringConvertible {
     public var description: String {
         switch self {
         case .orderMask:  return "orderMask"
-        case .orderDefault: return "default"
-        case .order16Little: return "16Little"
-        case .order32Little: return "32Little"
-        case .order16Big: return "16Big"
-        case .order32Big: return "32Big"
-        case .order16Host: return "16Host"
-        case .order32Host: return "32Host"
+        case .orderDefault: return "orderDefault"
+        case .order16Little: return "order16Little"
+        case .order32Little: return "order32Little"
+        case .order16Big: return "order16Big"
+        case .order32Big: return "order32Big"
+        case .order16Host: return "order16Host"
+        case .order32Host: return "order32Host"
         default: return "\(rawValue)"
         }
     }

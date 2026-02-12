@@ -38,7 +38,6 @@ public extension NSUIImage {
         - description: The accessibility description for the symbol image, if any.
         - configuration: The image configuration the system applies to the image.
      */
-    @available(macOS 11.0, *)
     static func symbol(_ systemName: String, withConfiguration configuration: SymbolConfiguration) -> NSImage? {
         NSImage(systemSymbolName: systemName)?.withSymbolConfiguration(configuration)
     }
@@ -100,13 +99,21 @@ public extension NSUIImage {
     #endif
     
     /// The symbol name of the image.
-    @available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
     var symbolName: String? {
         guard isSymbolImage else { return nil }
         #if os(macOS)
         return representations.first?.value(forKeyPathSafely: "vectorGlyph.name") as? String
         #else
         return value(forKeyPathSafely: "content.vectorGlyph.name") as? String
+        #endif
+    }
+    
+    /// The outline bézier path of a symbol image.
+    var symbolPath: NSUIBezierPath? {
+        #if os(macOS)
+        representations.first?.value(forKey: "outlinePath")
+        #else
+        value(forKey: "outlinePath")
         #endif
     }
     

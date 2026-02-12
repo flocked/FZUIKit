@@ -13,6 +13,28 @@ import AppKit
 import UIKit
 #endif
 
+public extension NSUIBezierPath {
+    /// Creates a Bézier path from a symbol image with the specified name.
+    static func symbol(_ symbolName: String) -> NSUIBezierPath? {
+        NSUIImage.symbol(symbolName)?.symbolPath
+    }
+    
+    /// Creates a Bézier path from a symbol image with the specified name and symbol configuration.
+    static func symbol(_ symbolName: String, withConfiguration configuration: NSUIImage.SymbolConfiguration) -> NSUIBezierPath? {
+        NSUIImage.symbol(symbolName, withConfiguration: configuration)?.symbolPath
+    }
+    
+    /// Creates a Bézier path from a symbol image with the specified name, point-size, weight, and scale information.
+    static func symbol(_ symbolName: String, pointSize: CGFloat, weight: NSUISymbolWeight = .regular, scale: NSUIImageSymbolScale = .default) -> NSUIBezierPath? {
+        .symbol(symbolName, withConfiguration: .pointSize(pointSize, weight: weight, scale: scale))
+    }
+    
+    /// Creates a Bézier path from a symbol image with the specified name, font text style and scale information.
+    static func symbol(_ symbolName: String, textStyle: NSUIFont.TextStyle, scale: NSUIImageSymbolScale = .default) -> NSUIBezierPath? {
+        .symbol(symbolName, withConfiguration: .textStyle(textStyle, scale: scale))
+    }
+}
+
 #if os(macOS)
 public extension NSBezierPath {
     /**
@@ -154,48 +176,6 @@ public extension NSBezierPath {
                 break
             }
         }
-    }
-
-    /**
-     Creates a Bézier path for the specified symbol image, point size, font weight, and symbol scale.
-
-     - Parameters:
-        - symbolName: The name of the system symbol image.
-        - pointSize: The point size of the symbol.
-        - weight: The font weight of the symbol.
-        - scale: The scale of the symbol.
-     */
-    @available(macOS 11.0, *)
-    convenience init?(symbolName: String, pointSize: CGFloat, weight: NSFont.Weight = .regular, scale: NSImage.SymbolScale = .default) {
-        self.init(symbolName: symbolName, symbolConfiguration: .init(pointSize: pointSize, weight: weight, scale: scale))
-
-    }
-
-    /**
-     Creates a Bézier path for the specified symbol image, text style, font weight, and symbol scale.
-
-     - Parameters:
-        - symbolName: The name of the system symbol image.
-        - textStyle: The text style of the symbol.
-        - weight: The font weight of the symbol.
-        - scale: The scale of the symbol.
-     */
-    @available(macOS 11.0, *)
-    convenience init?(symbolName: String, textStyle: NSFont.TextStyle, weight: NSUISymbolWeight = .regular, scale: NSImage.SymbolScale = .default) {
-        self.init(symbolName: symbolName, symbolConfiguration: .init(textStyle: textStyle, weight: weight, scale: scale))
-    }
-
-    /**
-     Creates a Bézier path for the specified symbol image and symbol configuration.
-
-     - Parameters:
-        - symbolName: The name of the system symbol image.
-        - symbolConfiguration: The symbol configuration.
-     */
-    @available(macOS 11.0, *)
-    private convenience init?(symbolName: String, symbolConfiguration: NSImage.SymbolConfiguration) {
-        guard let representation = NSImage(systemSymbolName: symbolName)?.withSymbolConfiguration(symbolConfiguration)?.representations.first, let path = representation.value(forKeySafely: "outlinePath") as? NSBezierPath else { return nil }
-        self.init(cgPath: path.cgPath)
     }
 
     /**

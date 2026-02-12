@@ -126,16 +126,17 @@ open class BorderLayer: CALayer {
         #endif
     }
     
-    #if os(macOS) || os(iOS)
-    private func updateBorderColor(for view: NSUIView) {
-        borderedLayer.strokeColor = configuration.resolvedColor()?.resolvedColor(for: view).cgColor
-    }
-    
     var strokeColor: CGColor? {
         get { borderedLayer.strokeColor }
         set { borderedLayer.strokeColor = newValue }
     }
+    
     var lineWidth: CGFloat { borderedLayer.lineWidth }
+    
+    #if os(macOS) || os(iOS)
+    private func updateBorderColor(for view: NSUIView) {
+        borderedLayer.strokeColor = configuration.resolvedColor()?.resolvedColor(for: view).cgColor
+    }
 
     private func updateViewObservation() {
         if let view = parentView {

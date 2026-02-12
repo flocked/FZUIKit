@@ -75,110 +75,47 @@ public extension NSUIFont {
     static var system = NSUIFont.systemFont(ofSize: NSUIFont.systemFontSize)
 
     /// A font with the alternate caption text style.
-    static var caption2: NSUIFont {
-        if #available(macOS 11.0, iOS 7.0, tvOS 7.0, watchOS 2.0, *) {
-            return .preferredFont(forTextStyle: .caption2)
-        }
-        return .systemFont(ofSize: NSUIFont.systemFontSize - 6)
-    }
+    static var caption2: NSUIFont = .preferredFont(forTextStyle: .caption2)
 
     /// A font with the caption text style.
-    static var caption: NSUIFont {
-        if #available(macOS 11.0, iOS 7.0, tvOS 7.0, watchOS 2.0, *) {
-            return .preferredFont(forTextStyle: .caption1)
-        }
-        return .systemFont(ofSize: NSUIFont.systemFontSize - 5)
-    }
+    static var caption: NSUIFont = .preferredFont(forTextStyle: .caption1)
 
     /// A font with the footnote text style.
-    static var footnote: NSUIFont {
-        if #available(macOS 11.0, iOS 7.0, tvOS 7.0, watchOS 2.0, *) {
-            return .preferredFont(forTextStyle: .footnote)
-        }
-        return .systemFont(ofSize: NSUIFont.systemFontSize - 4)
-    }
+    static var footnote: NSUIFont = .preferredFont(forTextStyle: .footnote)
 
     /// A font with the callout text style.
-    static var callout: NSUIFont {
-        if #available(macOS 11.0, iOS 7.0, tvOS 7.0, watchOS 2.0, *) {
-            return .preferredFont(forTextStyle: .callout)
-        }
-        return .systemFont(ofSize: NSUIFont.systemFontSize - 1)
-    }
+    static var callout: NSUIFont = .preferredFont(forTextStyle: .callout)
 
     /// A font with the body text style.
-    static var body: NSUIFont {
-        if #available(macOS 11.0, iOS 7.0, tvOS 7.0, watchOS 2.0, *) {
-            return .preferredFont(forTextStyle: .body)
-        }
-        return .systemFont(ofSize: NSUIFont.systemFontSize)
-    }
+    static var body: NSUIFont = .preferredFont(forTextStyle: .body)
 
     /// A font with the subheadline text style.
-    static var subheadline: NSUIFont {
-        if #available(macOS 11.0, iOS 7.0, tvOS 7.0, watchOS 2.0, *) {
-            return .preferredFont(forTextStyle: .subheadline)
-        }
-        return .systemFont(ofSize: NSUIFont.systemFontSize - 2)
-    }
+    static var subheadline: NSUIFont = .preferredFont(forTextStyle: .subheadline)
 
     /// A font with the headline text style.
-    static var headline: NSUIFont {
-        if #available(macOS 11.0, iOS 7.0, tvOS 7.0, watchOS 2.0, *) {
-            return .preferredFont(forTextStyle: .headline)
-        }
-        return .systemFont(ofSize: NSUIFont.systemFontSize - 2, weight: .semibold)
-    }
+    static var headline: NSUIFont = .preferredFont(forTextStyle: .headline)
 
     /// Create a font for third level hierarchical headings.
-    static var title3: NSUIFont {
-        if #available(macOS 11.0, iOS 7.0, tvOS 7.0, watchOS 2.0, *) {
-            return .preferredFont(forTextStyle: .title3)
-        }
-        return .systemFont(ofSize: NSUIFont.systemFontSize + 3)
-    }
+    static var title3: NSUIFont = .preferredFont(forTextStyle: .title3)
 
     /// Create a font for second level hierarchical headings.
-    static var title2: NSUIFont {
-        if #available(macOS 11.0, iOS 7.0, tvOS 7.0, watchOS 2.0, *) {
-            return .preferredFont(forTextStyle: .title2)
-        }
-        return .systemFont(ofSize: NSUIFont.systemFontSize + 5)
-    }
+    static var title2: NSUIFont = .preferredFont(forTextStyle: .title2)
 
     /// A font with the title text style.
-    static var title: NSUIFont {
-        if #available(macOS 11.0, iOS 12.2, tvOS 12.2, watchOS 5.0, *) {
-            return .preferredFont(forTextStyle: .title1)
-        }
-        return .systemFont(ofSize: NSUIFont.systemFontSize + 11)
-    }
+    static var title: NSUIFont = .preferredFont(forTextStyle: .title1)
 
     #if os(macOS) || os(iOS) || os(watchOS)
     /// A font with the large title text style.
-    static var largeTitle: NSUIFont {
-        if #available(macOS 11.0, iOS 7.0, tvOS 7.0, watchOS 2.0, *) {
-            return .preferredFont(forTextStyle: .largeTitle)
-        }
-        return .systemFont(ofSize: NSUIFont.systemFontSize + 17)
-    }
-
+    static var largeTitle: NSUIFont = .preferredFont(forTextStyle: .largeTitle)
+    #endif
+    
     /// A font with the extra large title text style.
-    static var extraLargeTitle1: NSUIFont {
-        if #available(macOS 15.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *) {
-            return .preferredFont(forTextStyle: .init(rawValue: "UICTFontTextStyleExtraLargeTitle"))
-        }
-        return .largeTitle.withSize(36.0)
-    }
+    @available(macOS 15.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *)
+    static var extraLargeTitle1: NSUIFont = .preferredFont(forTextStyle: .init(rawValue: "UICTFontTextStyleExtraLargeTitle"))
     
     /// A font with the extra extra large title text style.
-    static var extraLargeTitle2: NSUIFont {
-        if #available(macOS 15.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *) {
-            return .preferredFont(forTextStyle: .init(rawValue: "UICTFontTextStyleExtraLargeTitle2"))
-        }
-        return .largeTitle.withSize(28.0)
-    }
-    #endif
+    @available(macOS 15.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *)
+    static var extraLargeTitle2: NSUIFont = .preferredFont(forTextStyle: .init(rawValue: "UICTFontTextStyleExtraLargeTitle2"))
 
     #if os(macOS)
     /// The current font with the specified matrix.
@@ -270,7 +207,6 @@ public extension NSUIFont {
         - textStyle: The text style for which to return a font.
         - design: The design of the font.
      */
-    @available(macOS 11.0, iOS 12.2, tvOS 12.2, watchOS 5.2, *)
     static func systemFont(_ textStyle: TextStyle, design: SystemDesign = .default) -> NSUIFont {
         preferredFont(forTextStyle: textStyle).design(design)
     }
@@ -839,7 +775,6 @@ extension UIFont {
      
      - Parameter glyph: The glyph whose advancement is returned.
      - Returns: The advancement spacing in points.
-     
      */
     public func advancement(forCGGlyph glyph: CGGlyph) -> CGSize {
         var advance: CGSize = .zero
@@ -854,4 +789,22 @@ public extension CTFontSymbolicTraits {
     static let traitLooseLeading = Self(rawValue: 1 << 15)
     /// The font uses a leading value that’s less than the default.
     static let traitTightLeading = Self(rawValue: 1 << 16)
+}
+
+extension NSUIFont.TextStyle {
+    /// The point size for the font with the text style.
+    public var pointSize: CGFloat {
+        NSUIFont.preferredFont(forTextStyle: self).pointSize
+    }
+    
+    /// The font weight for the font with the text style.
+    public var weight: NSUIFont.Weight? {
+        NSUIFont.preferredFont(forTextStyle: self).fontDescriptor.weight
+    }
+    
+    #if canImport(UIKit)
+    var uictName: String? {
+        UIFont.preferredFont(forTextStyle: self).fontDescriptor.object(forKey: .textStyle) as? String
+    }
+    #endif
 }

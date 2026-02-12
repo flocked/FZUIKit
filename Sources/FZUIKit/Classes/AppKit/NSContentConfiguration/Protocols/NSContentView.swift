@@ -26,9 +26,7 @@
 
          The default implementation assumes the view is compatible with configuration types that match the type of the view’s existing configuration.
 
-         - Parameters:
-            - configuration: The new configuration to test for compatibility.
-
+         - Parameter configuration: The new configuration to test for compatibility.
          - Returns: `true` if the view supports this configuration being set to its configuration property and is capable of updating itself for the configuration; otherwise, `false`.
          */
         func supports(_ configuration: NSContentConfiguration) -> Bool

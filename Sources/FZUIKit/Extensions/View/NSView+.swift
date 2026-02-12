@@ -574,7 +574,7 @@ extension NSView {
      - Parameter tag: The tag for the view.
      */
     @discardableResult
-    public func tag(_ tag: Int) -> Self {
+    @objc public func tag(_ tag: Int) -> Self {
         if let control = self as? NSControl {
             control.tag = tag
         } else {
@@ -587,6 +587,13 @@ extension NSView {
                 Swift.print(error)
             }
         }
+        return self
+    }
+    
+    /// Sets the string that identifies the user interface item.
+    @discardableResult
+    @objc public func identifer(_ identifier: NSUserInterfaceItemIdentifier?) -> Self {
+        self.identifier = identifier
         return self
     }
 
