@@ -25,19 +25,17 @@ public final class GraphicsPDFRendererContext: GraphicsRendererContext {
     /**
      The bounds of the PDF context for the current page.
      
-     This value represents the bounds provided to the ``beginPage(withBounds:pageInfo:)`` method that created the current page. If the current page was created using the ``beginPage(pageInfo:)`` method, the bounds are equal to those provided at the initialization of the PDF renderer.
+     This value represents the bounds provided to the ``beginPage(withBounds:pageInfo:)`` method that created the current page. If the current page was created using the ``beginPage()`` method, the bounds are equal to those provided at the initialization of the PDF renderer.
      */
-    public internal(set) var pdfContextBounds: CGRect = .zero
+    public private(set) var pdfContextBounds: CGRect = .zero
     
     /**
      Begins a new page in a PDF graphics context. The bounds will be the same as specified by the document.
      
      If an existing page is open, it will be closed.
-     
-     - Parameter pageInfo: The page info associated to be associated with this page.
      */
-    public func beginPage(pageInfo: PDFDocumentInfo = .none) {
-        beginPage(withBounds: format.bounds, pageInfo: pageInfo)
+    public func beginPage() {
+        beginPage(withBounds: format.bounds, pageInfo: format.documentInfo)
     }
     
     /**
@@ -54,12 +52,10 @@ public final class GraphicsPDFRendererContext: GraphicsRendererContext {
         pageInfo.mediaBox = bounds
         pdfContextBounds = bounds
         endPageIfOpen()
-        cgContext.beginPDFPage(pageInfo.dictionary)
+        cgContext.beginPDFPage(pageInfo.dictionary as CFDictionary)
         hasOpenPage = true
-        
-        if format.isFlipped {
-            cgContext.concatenate(CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: format.bounds.height))
-        }
+        guard format.isFlipped else { return }
+        cgContext.flipVertically()
     }
     
     /**
@@ -107,21 +103,21 @@ public final class GraphicsPDFRendererContext: GraphicsRendererContext {
         cgContext.addDocumentMetadata(metadata as CFData?)
     }
     
-    func endPageIfOpen() {
+    private func endPageIfOpen() {
         guard hasOpenPage else { return }
         cgContext.endPDFPage()
         hasOpenPage = false
         pdfContextBounds = .zero
     }
     
-    func beginRendering() {
+    private func beginRendering() {
         format.isRendering = true
         NSGraphicsContext.saveGraphicsState()
         NSGraphicsContext.current = context
         context.saveGraphicsState()
     }
     
-    func endRendering() {
+    private func endRendering() {
         format.isRendering = false
         endPageIfOpen()
         cgContext.closePDF()
@@ -129,24 +125,26 @@ public final class GraphicsPDFRendererContext: GraphicsRendererContext {
         NSGraphicsContext.restoreGraphicsState()
     }
     
-    init(context: NSGraphicsContext, format: GraphicsPDFRendererFormat) {
-        self.context = context
-        self.format = format
+    func render(_ actions: (_ context: GraphicsPDFRendererContext) -> Void) {
+        beginRendering()
+        actions(self)
+        endRendering()
     }
     
-    init?(url: URL, format: GraphicsPDFRendererFormat) {
-        var bounds = format.renderingBounds
-        guard let consumer = CGDataConsumer(url: url as CFURL), let context = CGContext(consumer: consumer, mediaBox: &bounds, format.documentInfo.dictionary) else { return nil }
+    init(url: URL, format: GraphicsPDFRendererFormat) throws {
+        guard let context = CGContext(url: url, mediaBox: format.renderingBounds, auxiliaryInfo: format.documentInfo.dictionary) else { throw Errors.renderingFailed }
         self.context = NSGraphicsContext(cgContext: context, flipped: format.isFlipped)
         self.format = format
     }
     
-    let data = NSMutableData()
-    init?(format: GraphicsPDFRendererFormat) {
-        var bounds = format.renderingBounds
-        guard let consumer = CGDataConsumer(data: data), let context = CGContext(consumer: consumer, mediaBox: &bounds, format.documentInfo.dictionary) else { return nil }
+    init(data: NSMutableData, format: GraphicsPDFRendererFormat) throws {
+        guard let context = CGContext(data: data, mediaBox: format.renderingBounds, auxiliaryInfo: format.documentInfo.dictionary) else { throw Errors.renderingFailed }
         self.context = NSGraphicsContext(cgContext: context, flipped: format.isFlipped)
         self.format = format
+    }
+    
+    private enum Errors: Error {
+        case renderingFailed
     }
 }
 

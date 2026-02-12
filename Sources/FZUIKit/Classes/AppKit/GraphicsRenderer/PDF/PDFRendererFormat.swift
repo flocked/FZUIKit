@@ -18,7 +18,7 @@ public class GraphicsPDFRendererFormat: GraphicsRendererFormat {
         Self()
     }
     
-    /// Returns the bounds for this format
+    /// Returns the bounds for this format.
     public internal(set) var bounds: CGRect {
         get { isRendering ? renderingBounds : .zero }
         set { renderingBounds = newValue }

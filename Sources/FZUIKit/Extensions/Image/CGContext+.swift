@@ -214,8 +214,12 @@ public extension CFType where Self == CGContext {
         - bitmapInfo: The bitmap information.
         - space: The color space of the context's bitmap.
      */
-    init?(size: CGSize, bitmapInfo: CGBitmapInfo, space: CGColorSpace = CGColorSpaceCreateDeviceRGB()) {
+    init?(size: CGSize, scale: CGFloat = 1.0, bitmapInfo: CGBitmapInfo, space: CGColorSpace = CGColorSpaceCreateDeviceRGB()) {
+        let size = size * scale
         guard let context = CGContext(data: nil, width: Int(size.width.rounded(.up)), height: Int(size.height.rounded(.up)), bitsPerComponent: bitmapInfo.bitsPerComponent, bytesPerRow: 0, space: space, bitmapInfo: bitmapInfo) else { return nil }
+        if scale != 1.0 {
+            context.scaleBy(x: scale, y: scale)
+        }
         self = context
     }
     
@@ -228,9 +232,9 @@ public extension CFType where Self == CGContext {
         - space: The color space of the context's bitmap.
      */
     @_disfavoredOverload
-    init?(size: CGSize, bitmapInfo: CGBitmapInfo, space: CGColorSpaceName) {
+    init?(size: CGSize, scale: CGFloat = 1.0, bitmapInfo: CGBitmapInfo, space: CGColorSpaceName) {
         guard let space = space.colorSpace else { return nil }
-        self.init(size: size, bitmapInfo: bitmapInfo, space: space)
+        self.init(size: size, scale: scale, bitmapInfo: bitmapInfo, space: space)
     }
     
     /**
@@ -241,9 +245,13 @@ public extension CFType where Self == CGContext {
         - includeAlpha: A Boolean value indicating whether the bitmap should include an alpha channel.
         - space: The color space of the context's bitmap.
      */
-    init?(size: CGSize, includeAlpha: Bool = true, space: CGColorSpace = CGColorSpaceCreateDeviceRGB()) {
+    init?(size: CGSize, scale: CGFloat = 1.0, includeAlpha: Bool = true, space: CGColorSpace = CGColorSpaceCreateDeviceRGB()) {
+        let size = size * scale
         guard let context = CGContext(data: nil, width: Int(size.width.rounded(.up)), height: Int(size.height.rounded(.up)), bitsPerComponent: 8, bytesPerRow: 0, space: space, bitmapInfo: CGBitmapInfo(alpha: includeAlpha ? .premultipliedLast : .noneSkipFirst))
         else { return nil }
+        if scale != 1.0 {
+            context.scaleBy(x: scale, y: scale)
+        }
         self = context
     }
     
@@ -256,11 +264,46 @@ public extension CFType where Self == CGContext {
         - space: The color space of the context's bitmap.
      */
     @_disfavoredOverload
-    init?(size: CGSize, includeAlpha: Bool = true, space: CGColorSpaceName) {
+    init?(size: CGSize, scale: CGFloat = 1.0, includeAlpha: Bool = true, space: CGColorSpaceName) {
         guard let space = space.colorSpace else { return nil }
-        self.init(size: size, includeAlpha: includeAlpha, space: space)
+        self.init(size: size, scale: scale, includeAlpha: includeAlpha, space: space)
+    }
+    
+    /**
+     Creates a PDF graphics context that writes to the specified data.
+     
+     - Parameters:
+        - data: The data to write to.
+        - mediabox: The rectangle that defines the size and location of the PDF page.
+        - auxiliaryInfo: A dictionary that specifies any additional information to be used by the PDF context when generating the PDF file.
+     
+     This function creates a PDF drawing environment to your specifications. When you draw into the new context, Core Graphics renders your drawing as a sequence of PDF drawing commands that are passed to the data consumer object.
+     */
+    init?(data: NSMutableData, mediaBox: CGRect, auxiliaryInfo: [CFString: Any]? = nil) {
+        guard let consumer =  CGDataConsumer(data: data) else { return nil }
+        var mediaBox = mediaBox
+        self.init(consumer: consumer, mediaBox: &mediaBox, auxiliaryInfo as CFDictionary?)
+    }
+    
+    /**
+     Creates a PDF graphics context that writes data to the location at the specified URL.
+     
+     - Parameters:
+        - data: The URL of the location to write the data to.
+        - mediabox: The rectangle that defines the size and location of the PDF page.
+        - auxiliaryInfo: A dictionary that specifies any additional information to be used by the PDF context when generating the PDF file.
+     */
+    init?(url: URL, mediaBox: CGRect, auxiliaryInfo: [CFString: Any]? = nil) {
+        guard let consumer =  CGDataConsumer(url: url as CFURL) else { return nil }
+        var mediaBox = mediaBox
+        self.init(consumer: consumer, mediaBox: &mediaBox, auxiliaryInfo as CFDictionary?)
     }
 }
+
+
+/*
+ CGDataConsumer(data: data), let context = CGContext(consumer: consumer, mediaBox: &bounds, format.documentInfo.dictionary)
+ */
 
 
 #endif

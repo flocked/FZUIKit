@@ -48,12 +48,14 @@ public final class GraphicsImageRendererContext: GraphicsRendererContext {
     }
     
     func beginRendering() {
+        format.isRendering = true
         NSGraphicsContext.saveGraphicsState()
         NSGraphicsContext.current = context
         context.saveGraphicsState()
     }
     
     func endRendering() {
+        format.isRendering = false
         context.restoreGraphicsState()
         NSGraphicsContext.restoreGraphicsState()
     }
@@ -62,12 +64,9 @@ public final class GraphicsImageRendererContext: GraphicsRendererContext {
         let size = format.bounds.size * format.scale
         let range = format.preferredRange.resolved
         let bitmapInfo = range.bitmapInfo(opaque: format.isOpaque)
-        guard let context = CGContext(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: bitmapInfo.bitsPerComponent, bytesPerRow: 0, space: range.cgColorSpace, bitmapInfo: bitmapInfo) else { return nil }
+        guard let context = CGContext(size: size, scale: format.scale, bitmapInfo: bitmapInfo, space: range.cgColorSpace) else { return nil }
         self.context = NSGraphicsContext(cgContext: context, flipped: format.isFlipped)
         self.format = format
-        if format.scale != 1.0 {
-            cgContext.scaleBy(x: format.scale, y: format.scale)
-        }
         if format.isOpaque {
             cgContext.fill(.white)
         }

@@ -11,6 +11,8 @@ import FZSwiftUtils
 
 /// A graphics renderer for creating PDFs.
 public class GraphicsPDFRenderer: GraphicsRenderer {
+    private let bounds: CGRect
+    
     public typealias Context = GraphicsPDFRendererContext
     
     /// The format used to create the graphics renderer.
@@ -27,12 +29,7 @@ public class GraphicsPDFRenderer: GraphicsRenderer {
         - actions: A block that, when invoked by the renderer, executes a set of drawing instructions to create the output PDF.
      */
     public func writePDF(to url: URL, withActions actions: (_ context: Context) -> Void) throws {
-        var bounds = format.renderingBounds
-        if let consumer = CGDataConsumer(url: url as CFURL), let context = CGContext(consumer: consumer, mediaBox: &bounds, format.documentInfo.dictionary) {
-            runDrawingActions(forContext: context, drawingActions: actions)
-        } else {
-            throw Errors.renderingFailed
-        }
+        try GraphicsPDFRendererContext(url: url, format: format).render(actions)
     }
     
     /**
@@ -46,74 +43,66 @@ public class GraphicsPDFRenderer: GraphicsRenderer {
      - Returns: A Data object that contains the encoded PDF.
      */
     public func pdfData(actions: (_ context: Context) -> Void) throws -> Data {
-        var bounds = format.renderingBounds
         let data = NSMutableData()
-        if let consumer = CGDataConsumer(data: data), let context = CGContext(consumer: consumer, mediaBox: &bounds, format.documentInfo.dictionary) {
-            runDrawingActions(forContext: context, drawingActions: actions)
-            return data as Data
-        } else {
-            throw Errors.renderingFailed
-        }
-    }
-    
-    enum Errors: Error {
-        case renderingFailed
-    }
-    
-    func runDrawingActions(forContext cgContext: CGContext, drawingActions: (_ context: Context) -> Void, completionActions: ((_ context: Context) -> Void)? = nil) {
-        let context = GraphicsPDFRendererContext(context: NSGraphicsContext(cgContext: cgContext, flipped: format.isFlipped), format: format)
-        context.beginRendering()
-        drawingActions(context)
-        completionActions?(context)
-        context.endRendering()
-    }
-    
-    public required init(bounds: CGRect) {
-        self.format = .default()
-        format.bounds = bounds
+        try GraphicsPDFRendererContext(data: data, format: format).render(actions)
+        return data as Data
     }
     
     /**
-     Creates an image renderer with the specified bounds and format.
+     Creates an PDF renderer with the specified bounds.
      
-     Use this initializer to create an image renderer when you want to override the default format for the current device. Provide the size of the images you want to create, and an instance of ``NSGraphicsGraphicsImageRendererFormat`` with the required configuration.
+     This renderer uses the ``GraphicsPDFRendererFormat/default()`` static method on ``GraphicsPDFRendererContext`` to create its context, thereby selecting parameters that are the most appropriate for the current device.
+     
+     - Parameter bounds: The bounds of the Core Graphics context available to the renderer, with values in points.
+     - Returns: An initialized PDF graphics renderer.
+     */
+    public required init(bounds: CGRect) {
+        self.format = .default()
+        self.bounds = bounds
+    }
+    
+    /**
+     Creates a new graphics renderer with the specified bounds and format.
+     
+     Use this initializer to create an PDF renderer when you want to override the default format for the current device. Provide the bounds of the PDF pages you want to create, and an instance of ``GraphicsPDFRendererFormat`` with the required configuration.
      
      - Parameters:
-        - bounds: The bounds of the image context the image renderer creates and subsequently draws upon. Specify values in points in the Core Graphics coordinate space.
-        - format: A ``NSGraphicsGraphicsImageRendererFormat`` object that encapsulates the format used to create the renderer context.
-     - Returns: An initialized image renderer.
+        - bounds: The bounds of the Core Graphics context available to the renderer, with values in points.
+        - format: A ``GraphicsPDFRendererFormat`` object that encapsulates the format applied to the renderer’s context.
+     - Returns: An initialized PDF graphics renderer.
      */
     public init(bounds: NSRect, format: GraphicsPDFRendererFormat) {
         self.format = format
-        format.bounds = bounds
+        self.bounds = bounds
     }
     
     /**
-     Creates an image renderer for drawing images of the specified size.
+     Creates a new graphics renderer with the specified bounds.
      
-     Use this initializer to create an image renderer that will draw images of a given size. This renderer uses the ``NSGraphicsGraphicsImageRendererFormat/default()`` static method on ``NSGraphicsGraphicsImageRendererContext`` to create its context, thereby selecting parameters that are the most appropriate for the current device.
+     This renderer uses the ``GraphicsPDFRendererFormat/default()`` static method on ``GraphicsPDFRendererContext`` to create its context, thereby selecting parameters that are the most appropriate for the current device.
      
-     - Parameter size: The size of images output from the renderer, specified in points.
-     - Returns: An initialized image renderer.
-     
+     - Parameter size: The size of PDF pages output from the renderer, specified in points.
+     - Returns: An initialized PDF graphics renderer.
+
      */
-    public convenience init(size: CGSize) {
-        self.init(size: size, format: .default())
+    public init(size: CGSize) {
+        self.format = .default()
+        self.bounds = size.rect
     }
     
     /**
-     Creates an image renderer with the specified size and format.
+     Creates a PDF renderer with the specified size and format.
      
-     Use this initializer to create an image renderer when you want to override the default format for the current device.
+     Use this initializer to create an PDF renderer when you want to override the default format for the current device.
      
      - Parameters:
-        - size: The size of images output from the renderer, specified in points.
-        - format: A ``NSGraphicsGraphicsImageRendererFormat`` object that encapsulates the format used to create the renderer context.
-     - Returns: An initialized image renderer.
+        - size: The size of PDF pages output from the renderer, specified in points.
+        - format: A ``GraphicsPDFRendererFormat`` object that encapsulates the format applied to the renderer’s context.
+     - Returns: An initialized PDF graphics renderer.
      */
     public init(size: CGSize, format: GraphicsPDFRendererFormat) {
         self.format = format
-        format.bounds = CGRect(.zero, size)
+        self.bounds = size.rect
     }
 }
 

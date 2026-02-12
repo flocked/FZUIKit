@@ -107,7 +107,7 @@ public struct PDFDocumentInfo {
     
     public static let none = PDFDocumentInfo()
 
-    var dictionary: CFDictionary {
+    var dictionary: [CFString: Any] {
         var dict: [CFString: Any] = [:]
         dict[kCGPDFContextAuthor] = author
         dict[kCGPDFContextCreator] = creator
@@ -125,7 +125,7 @@ public struct PDFDocumentInfo {
         dict[kCGPDFContextBleedBox] = bleedBox
         dict[kCGPDFContextTrimBox] = trimBox
         dict[kCGPDFContextArtBox] = artBox
-        return dict as CFDictionary
+        return dict
     }
 }
 

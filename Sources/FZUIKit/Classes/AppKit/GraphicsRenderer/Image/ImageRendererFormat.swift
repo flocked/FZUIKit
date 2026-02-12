@@ -16,6 +16,7 @@ import AppKit
  The image renderer format object contains properties that determine the attributes of the underlying Core Graphics contexts that the image renderer creates. Use the `default()` static method to create an image renderer format instance optimized for the current device.
  */
 public final class GraphicsImageRendererFormat: GraphicsRendererFormat {
+    var isRendering = false
     
     /**
      The display scale of the image renderer context.
@@ -54,7 +55,12 @@ public final class GraphicsImageRendererFormat: GraphicsRendererFormat {
      
      If the graphics renderer itself creates a format object, the bounds are set to those provided to the renderer as part of the initializer.
      */
-    public internal(set) var bounds: CGRect = .zero
+    public internal(set) var bounds: CGRect {
+        get { isRendering ? renderingBounds : .zero }
+        set { renderingBounds = newValue }
+    }
+    
+    var renderingBounds: CGRect = .zero
     
     /**
      Creates a image render format with the specified values.

@@ -29,14 +29,7 @@ public class GraphicsImageRenderer: GraphicsRenderer {
      - Returns: A `NSImage` object created by the supplied drawing actions.
      */
     public func image(actions: (_ context: GraphicsImageRendererContext) -> Void) -> NSImage? {
-        var image: NSImage?
-        if let context = GraphicsImageRendererContext(format: format) {
-            context.beginRendering()
-            actions(context)
-            image = context.currentImage
-            context.endRendering()
-        }
-        return image
+        GraphicsImageRendererContext(format: format)?.render(actions)
     }
     
     /**
@@ -89,11 +82,11 @@ public class GraphicsImageRenderer: GraphicsRenderer {
     }
     
     /**
-     Creates an image renderer for drawing images of the specified size.
-     
+     Creates an image renderer with the specified bounds.
+
      Use this initializer to create an image renderer that will draw images of a given size. This renderer uses the ``NSGraphicsGraphicsImageRendererFormat/default()`` static method on ``NSGraphicsGraphicsImageRendererContext`` to create its context, thereby selecting parameters that are the most appropriate for the current device.
      
-     - Parameter size: The size of images output from the renderer, specified in points.
+     - Parameter bounds: The bounds of the image context the image renderer creates and subsequently draws upon. Specify values in points in the Core Graphics coordinate space.
      - Returns: An initialized image renderer.
      
      */
@@ -126,8 +119,9 @@ public class GraphicsImageRenderer: GraphicsRenderer {
      - Returns: An initialized image renderer.
      
      */
-    public convenience init(size: NSSize) {
-        self.init(size: size, format: .default())
+    public init(size: NSSize) {
+        self.format = .default()
+        format.bounds = CGRect(.zero, size)
     }
     
     /**
