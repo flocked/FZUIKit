@@ -39,7 +39,7 @@ extension GraphicsRendererContext {
      - Parameter rect: A rectangle, specified in the Core Graphics coordinate space with values in points.
      */
     public func stroke(_ rect: CGRect) {
-        cgContext.runActions {
+        cgContext.withSavedGState {
             cgContext.stroke(rect)
         }
     }
@@ -56,7 +56,7 @@ extension GraphicsRendererContext {
         - blendMode: The blend mode applied to the stroke operation.
      */
     public func stroke(_ rect: CGRect, blendMode: CGBlendMode) {
-        cgContext.runActions {
+        cgContext.withSavedGState {
             cgContext.setBlendMode(blendMode)
             cgContext.stroke(rect)
         }
@@ -70,7 +70,7 @@ extension GraphicsRendererContext {
      - Parameter rect: A rectangle, specified in the Core Graphics coordinate space with values in points.
      */
     public func fill(_ rect: CGRect) {
-        cgContext.runActions {
+        cgContext.withSavedGState {
             cgContext.fill([rect])
         }
     }
@@ -87,7 +87,7 @@ extension GraphicsRendererContext {
         - blendMode: The blend mode applied to the stroke operation.
      */
     public func fill(_ rect: CGRect, blendMode: CGBlendMode) {
-        cgContext.runActions {
+        cgContext.withSavedGState {
             cgContext.setBlendMode(blendMode)
             cgContext.fill(rect)
         }
@@ -103,17 +103,9 @@ extension GraphicsRendererContext {
      - Parameter rect: The rectangle to which the drawing context is clipped, specified in the Core Graphics coordinate space with values in points.
      */
     public func clip(to rect: CGRect) {
-        cgContext.runActions {
+        cgContext.withSavedGState {
             cgContext.clip(to: rect)
         }
-    }
-}
-
-extension CGContext {
-    func runActions(_ actions: ()->()) {
-        saveGState()
-        actions()
-        restoreGState()
     }
 }
 

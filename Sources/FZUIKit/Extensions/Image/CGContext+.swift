@@ -31,10 +31,10 @@ extension CGContext {
     
     /// Fills the specified rectangle with the provided color.
     public func fill(_ color: CGColor, in rect: CGRect) {
-        saveGState()
-        setFillColor(color)
-        fill(rect)
-        restoreGState()
+        withSavedGState {
+            setFillColor(color)
+            fill(rect)
+        }
     }
     
     /// Fills the entire context bounds with the specified color.
@@ -44,19 +44,19 @@ extension CGContext {
     
     /// Fills the specified path with the provided color.
     public func fill(_ color: CGColor, at path: CGPath) {
-        saveGState()
-        setFillColor(color)
-        addPath(path)
-        fillPath()
-        restoreGState()
+        withSavedGState {
+            setFillColor(color)
+            addPath(path)
+            fillPath()
+        }
     }
     
     /// Strokes the specified rectangle with the provided color.
     public func stroke(_ color: CGColor, in rect: CGRect) {
-        saveGState()
-        setStrokeColor(color)
-        stroke(rect)
-        restoreGState()
+        withSavedGState {
+            setStrokeColor(color)
+            stroke(rect)
+        }
     }
     
     /// Strokes the entire context bounds using the specified stroke color.
@@ -66,11 +66,11 @@ extension CGContext {
     
     /// Strokes the specified path with the provided color.
     public func stroke(_ color: CGColor, in path: CGPath) {
-        saveGState()
-        setStrokeColor(color)
-        addPath(path)
-        strokePath()
-        restoreGState()
+        withSavedGState {
+            setStrokeColor(color)
+            addPath(path)
+            strokePath()
+        }
     }
     
     /// Sets the current fill color in a graphics context.
@@ -153,15 +153,15 @@ extension CGContext {
     
     fileprivate func stroke(_ configuration: BorderConfiguration, block: ()->()) {
         guard configuration.width > 0.0, let color = configuration.resolvedColor()?.cgColor, color.alpha > 0.0 else { return }
-        saveGState()
-        setLineWidth(configuration.width)
-        setLineCap(configuration.dash.lineCap)
-        setLineJoin(configuration.dash.lineJoin)
-        setMiterLimit(configuration.dash.mitterLimit)
-        setLineDash(phase: configuration.dash.phase, lengths: configuration.dash.pattern)
-        setStrokeColor(color)
-        block()
-        restoreGState()
+        withSavedGState {
+            setLineWidth(configuration.width)
+            setLineCap(configuration.dash.lineCap)
+            setLineJoin(configuration.dash.lineJoin)
+            setMiterLimit(configuration.dash.mitterLimit)
+            setLineDash(phase: configuration.dash.phase, lengths: configuration.dash.pattern)
+            setStrokeColor(color)
+            block()
+        }
     }
     
     /// Draws the specified gradient in the entire context bounds.
