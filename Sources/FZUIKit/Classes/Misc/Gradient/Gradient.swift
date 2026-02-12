@@ -252,6 +252,23 @@ public extension Gradient {
     }
 }
 
+extension Gradient {
+    /// Draws the gradient across the current graphics context’s full bounds.
+    func draw() {
+        CGContext.current?.drawGradient(self)
+    }
+    
+    /// Draws the gradient inside the specified rectangle using the current graphics context.
+    func draw(in rect: CGRect) {
+        CGContext.current?.drawGradient(self, in: rect)
+    }
+    
+    /// Draws the gradient clipped to the specified path using the current graphics context.
+    func draw(in path: CGPath) {
+        CGContext.current?.drawGradient(self, in: path)
+    }
+}
+
 /// The Objective-C class for ``Gradient``.
 public class __Gradient: NSObject, NSCopying {
     let gradient: Gradient

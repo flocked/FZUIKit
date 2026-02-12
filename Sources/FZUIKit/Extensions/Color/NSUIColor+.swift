@@ -23,6 +23,11 @@ public extension NSUIColor {
         NSUIColor(hue: .random(in: 0 ... 1), saturation: 1.0, brightness: .random(in: 0.75 ... 0.9), alpha: 1.0)
     }
     
+    /// Creates a new color object that has the same color space and component values as the current color object, but with the specified alpha value.
+    func opacity(_ opacity:  CGFloat) -> NSUIColor {
+        withAlphaComponent(opacity.clamped(to: 0...1.0))
+    }
+    
     /**
      Creates a new color representing the color of the current color in the specified color space.
      
@@ -73,11 +78,6 @@ public extension NSUIColor {
     func usingColorSpace(_ colorSpaceName: CGColorSpaceName) -> NSUIColor? {
         guard let space = CGColorSpace(name: colorSpaceName) else { return nil }
         return usingColorSpace(space)
-    }
-    
-    /// A Boolean value indicating whether the color is light.
-    var isLight: Bool {
-        rgb().isLight
     }
     
     /// A Boolean value indicating whether the color is visible (`alphaComponent` isn't `0`).
@@ -147,11 +147,6 @@ public extension NSUIColor {
         return alpha
     }
     #endif
-    
-    /// Returns a new color object with the specified alpha value (between `0.0` and `1.0`).
-    @objc func withAlpha(_ alpha: CGFloat) -> NSUIColor {
-        withAlphaComponent(alpha)
-    }
     
     /**
      Creates a color with the specified color space and components.

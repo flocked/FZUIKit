@@ -28,10 +28,7 @@ public struct BorderConfiguration: Hashable {
     
     /// Generates the resolved border color, using the border color and color transformer.
     public func resolvedColor() -> NSUIColor? {
-        if let color = color {
-            return colorTransformer?(color) ?? color
-        }
-        return nil
+        colorTransformer?(color) ?? color
     }
     
     /// The width of the border.
@@ -218,6 +215,23 @@ extension BorderConfiguration: Codable {
         width = try container.decode(.width)
         dash = try container.decode(.dash)
         insets = try container.decode(.insets)
+    }
+}
+
+extension BorderConfiguration {
+    /// Strokes the border using the current graphics context’s full bounds.
+    func draw() {
+        CGContext.current?.stroke(self)
+    }
+    
+    /// Strokes the border inside the specified rectangle using the current graphics context.
+    func draw(in rect: CGRect) {
+        CGContext.current?.stroke(self, in: rect)
+    }
+    
+    /// Strokes the border along the specified path using the current graphics context.
+    func draw(in path: CGPath) {
+        CGContext.current?.stroke(self, in: path)
     }
 }
 

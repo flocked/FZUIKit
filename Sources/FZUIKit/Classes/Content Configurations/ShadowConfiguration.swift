@@ -30,15 +30,15 @@ public struct ShadowConfiguration: Hashable {
     /// Generates the resolved shadow color, using the shadow color, color transformer and optionally the opacity.
     public func resolvedColor(withOpacity: Bool = false) -> NSUIColor? {
         guard var color = color else { return nil }
-        if withOpacity {
-            color = ColorTransformer.opacity(opacity)(color)
+        if withOpacity, opacity < 1.0 {
+            color = color.withAlphaComponent(opacity)
         }
         return colorTransformer?(color) ?? color
     }
     
     /// The opacity of the shadow.
     public var opacity: CGFloat = 0.4 {
-        didSet { opacity = opacity.clamped(min: 0.0) }
+        didSet { opacity = opacity.clamped(to: 0...1.0) }
     }
     
     /// The blur radius of the shadow.
@@ -81,7 +81,7 @@ public struct ShadowConfiguration: Hashable {
     public init(color: NSUIColor? = .black, colorTransformer: ColorTransformer? = nil, opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: -1.5)) {
         self.color = color
         self.colorTransformer = colorTransformer
-        self.opacity = opacity.clamped(min: 0.0)
+        self.opacity = opacity.clamped(to: 0.0...1.0)
         self.radius = radius.clamped(min: 0.0)
         self.offset = offset
     }
@@ -99,7 +99,7 @@ public struct ShadowConfiguration: Hashable {
     public init(color: NSUIColor? = .black, colorTransformer: ColorTransformer? = nil, opacity: CGFloat = 0.4, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: 1.5)) {
         self.color = color
         self.colorTransformer = colorTransformer
-        self.opacity = opacity.clamped(min: 0.0)
+        self.opacity = opacity.clamped(to: 0.0...1.0)
         self.radius = radius.clamped(min: 0.0)
         self.offset = offset
     }
@@ -225,6 +225,18 @@ extension ShadowConfiguration: Codable {
         opacity = try container.decode(.opacity)
         radius = try container.decode(.radius)
         offset = try container.decode(.offset)
+    }
+}
+
+extension ShadowConfiguration {
+    /// Draws a shadow for the specified rectangle using the current graphics context.
+    func draw(at rect: CGRect) {
+        CGContext.current?.drawShadow(self, at: rect)
+    }
+    
+    /// Draws a shadow for the specified path using the current graphics context.
+    func draw(at path: CGPath) {
+        CGContext.current?.drawShadow(self, at: path)
     }
 }
 

@@ -39,7 +39,7 @@ public struct ColorTransformer: ContentTransform {
 
     /// Creates a color transformer that generates a version of the color.with modified opacity.
     public static func opacity(_ opacity: CGFloat) -> Self {
-        Self("opacity: \(opacity)") { $0.withAlpha(opacity) }
+        Self("opacity: \(opacity)") { $0.opacity(opacity) }
     }
     
     /// Creates a color transformer that generates a version of the color mixed with fractions of the specificed color.

@@ -99,6 +99,15 @@ extension PlatformColor {
     public func contrastRatio(to other: Self) -> CGFloat {
         rgb().contrastRatio(to: other.rgb())
     }
+    
+    /**
+     A Boolean value indicating whether the color is light.
+
+     It is useful when you need to know whether you should display the text in black or white.
+     */
+    var isLight: Bool {
+        rgb().isLight
+    }
 }
 
 extension PlatformColor where Self == CGColor {

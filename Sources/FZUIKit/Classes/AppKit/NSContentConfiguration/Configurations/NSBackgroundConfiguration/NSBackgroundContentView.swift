@@ -45,6 +45,12 @@
             imageView.clipsToBounds = true
             updateConfiguration()
         }
+        
+        public override func hitTest(_ point: NSPoint) -> NSView? {
+            let view = super.hitTest(point)
+            if view == self { return nil }
+            return view
+        }
                 
         let contentView = NSView()
         let imageView = ImageView()

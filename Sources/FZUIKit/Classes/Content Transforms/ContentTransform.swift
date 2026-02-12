@@ -70,6 +70,13 @@ public extension ContentTransform {
     func callAsFunction(_ input: Content) -> Content {
         transform(input)
     }
+    
+    /// Performs the transformation on a single input.
+    @_disfavoredOverload
+    func callAsFunction(_ input: Content?) -> Content? {
+        guard let input = input else { return nil }
+        return transform(input)
+    }
 
     /// Performs the transformation on a sequence of inputs.
     func callAsFunction<S>(_ inputs: S) -> [Content] where S: Sequence<Content> {

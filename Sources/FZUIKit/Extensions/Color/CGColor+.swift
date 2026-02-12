@@ -14,6 +14,11 @@ import SwiftUI
 import FZSwiftUtils
 
 public extension CGColor {
+    /// Creates a copy of the current color with the specified opacity.
+    func opacity(_ opacity:  CGFloat) -> CGColor {
+        copy(alpha: opacity.clamped(to: 0...1.0)) ?? self
+    }
+    
     /**
      Creates a new color in the specified color space.
 
@@ -44,25 +49,6 @@ public extension CGColor {
     /// A Boolean value indicating whether the color is visible (alpha value isn't zero).
     var isVisible: Bool {
         alpha > 0.0
-    }
-
-    /**
-     A Boolean value indicating whether the color is light.
-
-     It is useful when you need to know whether you should display the text in black or white.
-     */
-    var isLight: Bool {
-        rgb().isLight
-    }
-
-    /**
-     Creates a color object with the specified alpha component.
-
-     - Parameter alpha: The opacity value of the new color object, specified as a value from `0.0` to `1.0`. Alpha values below `0.0` are interpreted as `0.0`, and values above `1.0` are interpreted as `1.0`.
-     - Returns: The new `CGColor` object.
-     */
-    func withAlpha(_ alpha: CGFloat) -> CGColor {
-        copy(alpha: alpha) ?? self
     }
 
     #if os(macOS)

@@ -23,7 +23,7 @@ extension GraphicsRendererContext {
     /**
      The underlying Core Graphics context.
      
-     Use this property to gain access to the underlying Core Graphics context when you need more drawing functionality than is offered by `AppKit` and `NSGraphicsGraphicsRendererContext`.
+     Use this property to gain access to the underlying Core Graphics context when you need more drawing functionality than is offered by `AppKit` and `GraphicsRendererContext`.
      
      For an example of how and when to use the Core Graphics context in an image renderer, see Using Core Graphics rendering functions in `NSGraphicsImageRenderer.
      */

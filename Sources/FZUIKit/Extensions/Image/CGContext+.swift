@@ -10,8 +10,22 @@ import Foundation
 import CoreGraphics
 import FZSwiftUtils
 import QuartzCore
+#if os(macOS)
+import AppKit
+#elseif canImport(UIKit)
+import UIKit
+#endif
 
 extension CGContext {
+    /// Returns the current graphics context.
+    public static var current: CGContext? {
+        #if os(macOS)
+        NSGraphicsContext.current?.cgContext
+        #else
+        UIGraphicsGetCurrentContext()
+        #endif
+    }
+    
     /// Returns the size of a bitmap context.
     public var size: CGSize {
         CGSize(width: width, height: height)
@@ -27,6 +41,15 @@ extension CGContext {
         saveGState()
         block()
         restoreGState()
+    }
+    
+    /// Executes the specified drawing block inside a transparency layer, compositing the result back into the context as a single unit.
+    public func withTransparencyLayer(_ draw: ()->()) {
+        withSavedGState {
+            beginTransparencyLayer(auxiliaryInfo: nil)
+            draw()
+            endTransparencyLayer()
+        }
     }
     
     /// Fills the specified rectangle with the provided color.
@@ -51,23 +74,32 @@ extension CGContext {
         }
     }
     
-    /// Strokes the specified rectangle with the provided color.
-    public func stroke(_ color: CGColor, in rect: CGRect) {
+    public func fill(_ color: NSUIColor, at path: NSUIBezierPath) {
+        withSavedGState {
+            setFillColor(color)
+            path.fill()
+        }
+    }
+    
+    /// Strokes the specified rectangle with the provided color and line width.
+    public func stroke(_ color: CGColor, width: CGFloat = 1, in rect: CGRect) {
         withSavedGState {
             setStrokeColor(color)
+            setLineWidth(width)
             stroke(rect)
         }
     }
     
-    /// Strokes the entire context bounds using the specified stroke color.
-    public func stroke(_ color: CGColor) {
-        stroke(color, in: bounds)
+    /// Strokes the entire context bounds using the specified stroke color and line width.
+    public func stroke(_ color: CGColor, width: CGFloat = 1) {
+        stroke(color, width: width, in: bounds)
     }
     
-    /// Strokes the specified path with the provided color.
-    public func stroke(_ color: CGColor, in path: CGPath) {
+    /// Strokes the specified path with the provided color and line width.
+    public func stroke(_ color: CGColor, width: CGFloat = 1, in path: CGPath) {
         withSavedGState {
             setStrokeColor(color)
+            setLineWidth(width)
             addPath(path)
             strokePath()
         }
@@ -115,8 +147,33 @@ extension CGContext {
     
     #if os(macOS) || os(iOS) || os(tvOS)
     /// Enables shadowing with color a graphics context.
-    public func setShadow(_ configuration: ShadowConfiguration) {
-        setShadow(offset: configuration.offset.size, blur: configuration.opacity, color: configuration.resolvedColor()?.cgColor)
+    public func setShadow(_ shadow: ShadowConfiguration) {
+        setShadow(offset: shadow.offset.size, blur: shadow.radius, color: shadow.resolvedColor()?.cgColor.copy(alpha: shadow.opacity))
+    }
+    
+    /// Draws the specified shadow at the given rectangle.
+    public func drawShadow(_ shadow: ShadowConfiguration, at rect: CGRect) {
+        withTransparencyLayer {
+            setShadow(shadow)
+            setFillColor(CGColor(gray: 0, alpha: 1))
+            fill(rect)
+            setBlendMode(.clear)
+            setShadow(offset: .zero, blur: 0, color: nil)
+            fill(rect)
+        }
+    }
+    
+    /// Draws the specified shadow at the given path.
+    public func drawShadow(_ shadow: ShadowConfiguration, at path: CGPath) {
+        withTransparencyLayer {
+            setShadow(shadow)
+            setFillColor(CGColor(gray: 0, alpha: 1))
+            addPath(path)
+            fillPath()
+            setBlendMode(.clear)
+            setShadow(offset: .zero, blur: 0, color: nil)
+            fillPath()
+        }
     }
     
     /// Strokes the entire context bounds using the provided configuration.
@@ -184,6 +241,15 @@ extension CGContext {
             if #available(macOS 14.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *) {
                 drawConicGradient(cgGradient, center: rect.center, angle: 0.0)
             }
+        }
+    }
+    
+    /// Draws the specified gradient in the given path.
+    public func drawGradient(_ gradient: Gradient, in path: CGPath) {
+        withSavedGState {
+            addPath(path)
+            clip()
+            drawGradient(gradient, in: path.boundingBoxOfPath)
         }
     }
     #endif

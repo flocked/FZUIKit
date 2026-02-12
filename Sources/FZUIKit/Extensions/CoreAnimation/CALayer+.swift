@@ -591,9 +591,9 @@ extension CALayer {
                         newValue.color = .clear
                     } else if !_border.isVisible, let color = newValue.resolvedColor() {
                         if let parentView = layer.parentView {
-                            _border.color = color.resolvedColor(for: parentView).withAlpha(0.0)
+                            _border.color = color.resolvedColor(for: parentView).opacity(0.0)
                         } else {
-                            _border.color = color.withAlpha(0.0)
+                            _border.color = color.opacity(0.0)
                         }
                         CATransaction.disabledActions {
                             setupBorder()
@@ -643,9 +643,9 @@ extension CALayer {
                     } else if !_shadow.isVisible, let color = newValue.resolvedColor() {
                         CATransaction.disabledActions {
                             if let parentView = layer.parentView {
-                                layer.shadowColor = color.resolvedColor(for: parentView).withAlpha(0.0).cgColor
+                                layer.shadowColor = color.resolvedColor(for: parentView).opacity(0.0).cgColor
                             } else {
-                                layer.shadowColor = color.withAlpha(0.0).cgColor
+                                layer.shadowColor = color.opacity(0.0).cgColor
                             }
                         }
                     }
@@ -681,9 +681,9 @@ extension CALayer {
                     } else if !_innerShadow.isVisible, let color = newValue.resolvedColor() {
                         CATransaction.disabledActions {
                             if let parentView = layer.parentView {
-                                layer.innerShadowLayer?.shadowColor  = color.resolvedColor(for: parentView).withAlpha(0.0).cgColor
+                                layer.innerShadowLayer?.shadowColor  = color.resolvedColor(for: parentView).opacity(0.0).cgColor
                             } else {
-                                layer.innerShadowLayer?.shadowColor = color.withAlpha(0.0).cgColor
+                                layer.innerShadowLayer?.shadowColor = color.opacity(0.0).cgColor
                             }
                         }
                     }
@@ -703,7 +703,7 @@ extension CALayer {
                         newValue = .clear
                     } else if layer.backgroundColor?.alpha ?? 1.0 <= 0.0, let color = newValue {
                         CATransaction.disabledActions {
-                            layer.backgroundColor = color.withAlpha(0.0).cgColor
+                            layer.backgroundColor = color.opacity(0.0).cgColor
                         }
                     }
                 }
