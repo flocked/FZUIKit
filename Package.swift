@@ -13,7 +13,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/flocked/FZSwiftUtils.git", from:  "1.3.0"),
+        .package(url: "https://github.com/flocked/FZSwiftUtils.git", branch: "main"),
     ],
     targets: [
         .target(
