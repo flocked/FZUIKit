@@ -129,6 +129,7 @@ extension NSTextField {
 }
 
 /// A text field cell with vertical alignment and focus type property.
+@objc(ExtendedTextFieldCell)
 class ExtendedTextFieldCell: NSTextFieldCell {
     
     /// The focus ring type.

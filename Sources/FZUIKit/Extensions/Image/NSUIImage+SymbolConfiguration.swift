@@ -337,22 +337,21 @@ extension NSUIImage.SymbolConfiguration {
 */
 
 extension NSUIImage.SymbolConfiguration {
-    #if os(macOS)
     var pointSize: CGFloat {
-        get { value(forKey: "pointSize") ?? 0.0 }
-        set { setIvarValue(Double(newValue), named: "_pointSize") }
-    }
-    #else
-    var pointSize: CGFloat? {
-        get { value(forKey: "pointSize") ?? 0.0 }
+        get {
+            #if os(macOS)
+            value(forKey: "pointSize") ?? 0.0
+            #else
+            value(forKey: "fixedPointSize") ?? 0.0
+            #endif
+        }
         set {
-            let newValue = newValue != nil ? Double(newValue!) : nil
             setIvarValue(newValue, named: "_pointSize")
-            guard newValue != nil else { return }
+            #if !os(macOS)
             textStyle = nil
+            #endif
         }
     }
-    #endif
     
     var prefersMulticolor: Bool {
         get {
@@ -376,13 +375,8 @@ extension NSUIImage.SymbolConfiguration {
     
     var weight: NSUISymbolWeight {
         get {
-            #if os(macOS)
             guard let weight: Double = value(forKey: "weight") else { return .unspecified }
             return NSUISymbolWeight(rawValue: weight)
-            #else
-            guard let rawValue: Int = value(forKey: "weight") else { return .unspecified }
-            return NSUISymbolWeight(rawValue: rawValue) ?? .unspecified
-            #endif
         }
         set {
             #if os(macOS)
@@ -400,9 +394,13 @@ extension NSUIImage.SymbolConfiguration {
     
     var scale: NSUIImage.SymbolScale {
         get {
-            guard let rawValue: Int = value(forKey: "scale"), rawValue != -1 else {
-                return .default }
+            #if os(macOS)
+            guard let rawValue: Int = value(forKey: "scale") else { return .default }
             return NSUIImage.SymbolScale(rawValue: rawValue) ?? .default
+            #else
+            guard let rawValue: Int = value(forKey: "scale") else { return .unspecified }
+            return NSUIImage.SymbolScale(rawValue: rawValue) ?? .unspecified
+            #endif
         }
         set { setIvarValue(newValue.rawValue, named: "_scale") }
     }

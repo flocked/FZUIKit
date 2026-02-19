@@ -29,4 +29,13 @@ extension NSUserInterfaceItemIdentifier: Swift.ExpressibleByStringLiteral, Swift
         rawValue
     }
 }
+
+extension NSUserInterfaceItemIdentification {
+    /// Sets the string that identifies the user interface item.
+    @discardableResult
+    public func identifer(_ identifier: NSUserInterfaceItemIdentifier?) -> Self {
+        self.identifier = identifier
+        return self
+    }
+}
 #endif

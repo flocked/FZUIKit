@@ -589,13 +589,6 @@ extension NSView {
         }
         return self
     }
-    
-    /// Sets the string that identifies the user interface item.
-    @discardableResult
-    @objc public func identifer(_ identifier: NSUserInterfaceItemIdentifier?) -> Self {
-        self.identifier = identifier
-        return self
-    }
 
     /**
      Inserts the subview at the specified index.

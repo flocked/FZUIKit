@@ -190,6 +190,11 @@ public extension NSSegmentedControl {
 }
 
 extension NSSegmentedCell {
+    /// The segmented control associated with this cell.
+    public var segmentedControl: NSSegmentedControl? {
+        controlView as? NSSegmentedControl
+    }
+    
     /// Returns the index of the segment at the specified location.
     public func indexOfSegment(at location: CGPoint) -> Int? {
         let selector = NSSelectorFromString("indexOfSegmentContainingPoint:inCellFrame:")
