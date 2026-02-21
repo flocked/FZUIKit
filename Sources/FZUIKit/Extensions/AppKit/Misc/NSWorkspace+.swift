@@ -112,7 +112,6 @@ public extension NSWorkspace {
         try setDesktopImageURL(url, for: screen, options: options)
     }
     
-    @available(macOS 12.0, *)
     /// Returns an image containing the icon for the specified content type when opened with the specified application.
     func icon(for type: UTType, toOpenWith app: URL, completion completionHandler: @escaping ((NSImage?) -> Void)) {
         guard FileManager.default.fileExists(at: app), let currentApp = urlForApplication(toOpen: type) else { 
@@ -130,7 +129,6 @@ public extension NSWorkspace {
         }
     }
     
-    @available(macOS 12.0, *)
     /// Returns an image containing the icon for the specified file when opened with the specified application.
     func icon(forFile fileURL: URL, toOpenWith app: URL, completion completionHandler: @escaping ((NSImage?) -> Void)) {
         guard FileManager.default.fileExists(at: app), let currentApp = urlForApplication(toOpen: fileURL) else {

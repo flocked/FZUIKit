@@ -123,14 +123,12 @@ public class LabeledControlView: NSView {
     }
   
     /// The symbol configuration of the image leading the control.
-    @available(macOS 11.0, *)
     public var leadingImageSymbolConfiguration: NSImage.SymbolConfiguration? {
         get { leadingImageView.symbolConfiguration }
         set { leadingImageView.symbolConfiguration = newValue }
     }
   
     /// The symbol configuration of the image trailing the control.
-    @available(macOS 11.0, *)
     public var trailingImageSymbolConfiguration: NSImage.SymbolConfiguration? {
         get { trailingImageView.symbolConfiguration }
         set { trailingImageView.symbolConfiguration = newValue }
@@ -351,7 +349,6 @@ extension LabeledControlView {
     }
   
     /// Sets the symbol configuration of the image leading the control.
-    @available(macOS 11.0, *)
     @discardableResult
     public func leadingImageSymbolConfiguration(_ symbolConfiguration: NSImage.SymbolConfiguration?) -> Self {
         self.leadingImageSymbolConfiguration = symbolConfiguration
@@ -359,7 +356,6 @@ extension LabeledControlView {
     }
   
     /// Sets the symbol configuration of the image trailing the control.
-    @available(macOS 11.0, *)
     @discardableResult
     public func trailingImageSymbolConfiguration(_ symbolConfiguration: NSImage.SymbolConfiguration?) -> Self {
         self.trailingImageSymbolConfiguration = symbolConfiguration

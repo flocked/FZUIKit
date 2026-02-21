@@ -44,7 +44,6 @@ extension Toolbar {
         }
         
         /// Sets the image with the specified symbol name.
-        @available(macOS 11.0, *)
         @discardableResult
         open func symbolImage(_ symbolName: String) -> Self {
             item.image = NSImage(systemSymbolName: symbolName)
@@ -65,14 +64,12 @@ extension Toolbar {
         }
         
         /// A Boolean value indicating whether the toolbar item behaves as a navigation item in the toolbar.
-        @available(macOS 11.0, *)
         open var isNavigational: Bool {
             get { item.isNavigational }
             set { item.isNavigational = newValue }
         }
         
         /// Sets the Boolean value indicating whether the toolbar item behaves as a navigation item in the toolbar.
-        @available(macOS 11.0, *)
         @discardableResult
         open func isNavigational(_ isNavigational: Bool) -> Self {
             item.isNavigational = isNavigational
@@ -205,7 +202,6 @@ extension Toolbar {
             - symbolName: The name for the symbol image of the button.
             - action: The handler that is called when the user clicks the item.
          */
-        @available(macOS 11.0, *)
         public init(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, symbolName: String, action: ((_ item: Item)->())? = nil) {
             super.init(identifier)
             self.title = title ?? ""

@@ -154,7 +154,6 @@ extension NSView {
             }
             
             /// The allowed file content types that can be dropped to the view.
-            @available(macOS 11.0, *)
             public var contentTypes: [UTType] {
                 get { _contentTypes as? [UTType] ?? [] }
                 set {

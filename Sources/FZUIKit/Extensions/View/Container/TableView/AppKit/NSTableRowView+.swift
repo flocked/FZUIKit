@@ -52,7 +52,6 @@ public extension NSTableRowView {
     }
 
     /// The tint configuration of the table row.
-    @available(macOS 11.0, *)
     var tintConfiguration: NSTintConfiguration? {
         get { value(forKeySafely: "_contentTintConfiguration") as? NSTintConfiguration }
         set { setValue(safely: newValue, forKey: "_contentTintConfiguration") }

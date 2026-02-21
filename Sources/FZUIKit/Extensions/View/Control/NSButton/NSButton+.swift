@@ -42,7 +42,6 @@ public extension NSButton {
         - symbolName: The name of the symbol image.
         - action: The handler that get's called when the button gets pressed.
      */
-    @available(macOS 11.0, *)
     static func push(_ title: String? = nil, symbolName: String, action: ActionBlock? = nil) -> Self {
         .button(title, symbolName: symbolName, style: .push, action: action)
     }
@@ -78,7 +77,6 @@ public extension NSButton {
         - symbolName: The name of the symbol image.
         - action: The handler that get's called when the button gets pressed.
      */
-    @available(macOS 11.0, *)
     static func flexiblePush(_ title: String? = nil, symbolName: String, action: ActionBlock? = nil) -> Self {
         .button(title, symbolName: symbolName, style: .flexiblePush, action: action)
     }
@@ -114,7 +112,6 @@ public extension NSButton {
         - symbolName: The name of the symbol image.
         - action: The handler that get's called when the button gets pressed.
      */
-    @available(macOS 11.0, *)
     static func toolbar(_ title: String? = nil, symbolName: String, action: ActionBlock? = nil) -> Self {
         .button(title, symbolName: symbolName, style: .toolbar, action: action)
     }
@@ -150,7 +147,6 @@ public extension NSButton {
         - symbolName: The name of the symbol image.
         - action: The handler that get's called when the button gets pressed.
      */
-    @available(macOS 11.0, *)
     static func accessoryBar(_ title: String? = nil, symbolName: String, action: ActionBlock? = nil) -> Self {
         .button(title, symbolName: symbolName, style: .accessoryBar, action: action)
     }
@@ -186,7 +182,6 @@ public extension NSButton {
         - symbolName: The name of the symbol image.
         - action: The handler that get's called when the button gets pressed.
      */
-    @available(macOS 11.0, *)
     static func accessoryBarAction(_ title: String? = nil, symbolName: String, action: ActionBlock? = nil) -> Self {
         .button(title, symbolName: symbolName, style: .accessoryBarAction, action: action)
     }
@@ -221,7 +216,6 @@ public extension NSButton {
         - symbolName: The name of the symbol image.
         - action: The handler that get's called when the button gets pressed.
      */
-    @available(macOS 11.0, *)
     static func circular(symbolName: String, action: ActionBlock? = nil) -> Self {
         .button(symbolName: symbolName, style: .circular, action: action)
     }
@@ -257,7 +251,6 @@ public extension NSButton {
         - symbolName: The name of the symbol image.
         - action: The handler that get's called when the button gets pressed.
      */
-    @available(macOS 11.0, *)
     static func badge(_ title: String? = nil, symbolName: String, action: ActionBlock? = nil) -> Self {
         .button(title, symbolName: symbolName, style: .badge, action: action)
     }
@@ -293,7 +286,6 @@ public extension NSButton {
         - symbolName: The name of the symbol image.
         - action: The handler that get's called when the button gets pressed.
      */
-    @available(macOS 11.0, *)
     static func smallSquare(_ title: String? = nil, symbolName: String, action: ActionBlock? = nil) -> Self {
         .button(title, symbolName: symbolName, style: .smallSquare, action: action)
     }
@@ -396,7 +388,6 @@ public extension NSButton {
         - symbolName: The name of the symbol image.
         - action: The handler that get's called when the button gets pressed.
      */
-    @available(macOS 11.0, *)
     static func image(symbolName: String, action: ActionBlock? = nil) -> Self {
         .button(symbolName: symbolName, action: action)
     }
@@ -449,7 +440,6 @@ public extension NSButton {
         - symbolName: The name of the symbol image.
         - action: The handler that get's called when the button gets pressed.
      */
-    @available(macOS 11.0, *)
     static func borderless(_ title: String? = nil, symbolName: String, action: ActionBlock? = nil) -> Self {
         let button = Self.push(title, symbolName: symbolName, action: action).isBordered(false)
         button.sizeToFit()
@@ -500,7 +490,6 @@ public extension NSButton {
         - isChecked: A Boolean value indicating whether the checkbox is checked.
         - action: The handler that get's called when the checkbox gets pressed.
      */
-    @available(macOS 11.0, *)
     static func checkbox(_ title: String? = nil, symbolName: String, isChecked: Bool = false, action: ActionBlock? = nil) -> Self {
         checkbox(title ?? "", image: NSImage(systemSymbolName: symbolName), isChecked: isChecked, action: action)
     }
@@ -549,7 +538,6 @@ public extension NSButton {
         - isSelected: A Boolean value indicating whether the radio is is selected.
         - action: The handler that get's called when the button gets pressed.
      */
-    @available(macOS 11.0, *)
     static func radio(_ title: String? = nil, symbolName: String, isSelected: Bool = false, action: ActionBlock? = nil) -> Self {
         radio(title ?? "", image: NSImage(systemSymbolName: symbolName), isSelected: isSelected, action: action)
     }
@@ -629,7 +617,6 @@ public extension NSButton {
         - configuration: The symbol configuration for the specified state.
         - state: The state that uses the specified symbol configuration.
      */
-    @available(macOS 11.0, *)
     @discardableResult
     func setSymbolConfiguration(_ configuration: NSImage.SymbolConfiguration?, for state: StateValue) -> Self {
         stateSymbolConfiguration[state] = configuration
@@ -649,7 +636,6 @@ public extension NSButton {
         - configuration: The symbol configuration for the specified state.
         - state: The state that uses the specified symbol configuration.
      */
-    @available(macOS 12.0, *)
     @discardableResult
     func setSymbolConfiguration(_ configuration: ImageSymbolConfiguration, for state: StateValue) -> Self {
         setSymbolConfiguration(configuration.nsUI(), for: state)
@@ -660,7 +646,6 @@ public extension NSButton {
      
      - Returns: The symbol configuration for the specified state.
      */
-    @available(macOS 11.0, *)
     func symbolConfiguration(for state: StateValue) -> NSImage.SymbolConfiguration? {
         stateSymbolConfiguration[state]
     }
@@ -670,7 +655,6 @@ public extension NSButton {
         set { setAssociatedValue(newValue, key: "stateContentTintColor") }
     }
     
-    @available(macOS 11.0, *)
     internal var stateSymbolConfiguration: [StateValue: NSImage.SymbolConfiguration] {
         get { getAssociatedValue("stateSymbolConfiguration") ?? [:] }
         set { setAssociatedValue(newValue, key: "stateSymbolConfiguration") }
@@ -687,10 +671,7 @@ public extension NSButton {
     
     internal func updateButtonStateObserver() {
         var shouldObserveState = !stateContentTintColor.isEmpty
-        if #available(macOS 11.0, *) {
-            shouldObserveState = !self.stateContentTintColor.isEmpty || !self.stateSymbolConfiguration.isEmpty
-        }
-        
+        shouldObserveState = !self.stateContentTintColor.isEmpty || !self.stateSymbolConfiguration.isEmpty
         if !shouldObserveState {
             buttonStateObserver = nil
         } else if buttonStateObserver == nil {
@@ -699,10 +680,8 @@ public extension NSButton {
                 if let contentTintColor = self.contentTintColor(for: state) {
                     self.contentTintColor = contentTintColor
                 }
-                if #available(macOS 11.0, *) {
-                    if let symbolConfiguration = self.symbolConfiguration(for: state) {
-                        self.symbolConfiguration = symbolConfiguration
-                    }
+                if let symbolConfiguration = self.symbolConfiguration(for: state) {
+                    self.symbolConfiguration = symbolConfiguration
                 }
             }
         }
@@ -744,7 +723,6 @@ public extension NSButton {
     }
     
     /// Sets the symbol configuration for the image.
-    @available(macOS 11.0, *)
     @discardableResult
     func symbolConfiguration(_ symbolConfiguration: NSImage.SymbolConfiguration?) -> Self {
         self.symbolConfiguration = symbolConfiguration
@@ -752,7 +730,6 @@ public extension NSButton {
     }
     
     /// Sets the symbol configuration for the image.
-    @available(macOS 12.0, *)
     @discardableResult
     func symbolConfiguration(_ symbolConfiguration: ImageSymbolConfiguration?) -> Self {
         self.symbolConfiguration = symbolConfiguration?.nsUI()
@@ -791,7 +768,6 @@ public extension NSButton {
     }
     
     /// Sets the symbol image that appears on the button when it’s in an off state, or nil if there is no such image.
-    @available(macOS 11.0, *)
     @discardableResult
     func symbolImage(_ symbolName: String) -> Self {
         image(NSImage(systemSymbolName: symbolName))
@@ -805,7 +781,6 @@ public extension NSButton {
     }
     
     /// Sets the alternate symbol image that appears on the button when the button is in an on state.
-    @available(macOS 11.0, *)
     @discardableResult
     func alternateSymbolImage(_ symbolName: String) -> Self {
         self.alternateImage = NSImage(systemSymbolName: symbolName)
@@ -956,7 +931,6 @@ public extension NSButton {
         return button
     }
     
-    @available(macOS 11.0, *)
     internal static func button(_ title: String? = nil, symbolName: String, style: BezelStyle? = nil, action: ActionBlock? = nil) -> Self {
         let button = Self.init(title: title ?? "", target: nil, action: nil)
         button.image = NSImage(systemSymbolName: symbolName)
@@ -978,7 +952,6 @@ public extension NSButton {
     }
     
     /*
-    @available(macOS 11.0, *)
     internal convenience init(_ title: String? = nil, symbolName: String, style: BezelStyle? = nil) {
         self.init(title: title ?? "", target: nil, action: nil)
         image = NSImage(systemSymbolName: symbolName)

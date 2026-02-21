@@ -9,7 +9,6 @@
 #if os(macOS)
     import Foundation
 
-    @available(macOS 12.0, *)
     /**
      A structure that encapsulates state for a content-unavailable view.
       

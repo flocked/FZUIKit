@@ -101,7 +101,6 @@ extension Toolbar {
         }
         
         /// Sets the symbol image of the button with the symbol name.
-        @available(macOS 11.0, *)
         @discardableResult
         open func symbolImage(_ symbolName: String) -> Self {
             image(NSImage(systemSymbolName: symbolName))
@@ -284,7 +283,6 @@ extension Toolbar {
             - symbolName: The image of the button.
             - popoverViewController: The view controller that manages the content of the popover.
          */
-        @available(macOS 11.0, *)
         public init(_ identifier: NSToolbarItem.Identifier? = nil,
                                 symbolName: String,
                                 popoverViewController: NSViewController) {
@@ -325,7 +323,6 @@ extension Toolbar {
             - symbolName: The image of the button.
             - popoverView: The view of the popover.
          */
-        @available(macOS 11.0, *)
         public init(_ identifier: NSToolbarItem.Identifier? = nil,
                                 symbolName: String,
                                 popoverView: NSView) {

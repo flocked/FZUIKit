@@ -8,7 +8,6 @@
 import SwiftUI
 
 public extension View {
-    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
     @ViewBuilder
     func background<S: ShapeStyle>(_ style: S?, ignoresSafeAreaEdges edges: Edge.Set = .all) -> some View {
         if let style = style {
@@ -45,7 +44,6 @@ public extension View {
         }
     }
 
-    @available(macOS 11.0, iOS 13.0, *)
     @ViewBuilder
     func imageScale(_ scale: Image.Scale?) -> some View {
         if let scale = scale {
@@ -55,7 +53,6 @@ public extension View {
         }
     }
 
-    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
     @ViewBuilder
     func foregroundStyle(_ primary: Color?, _ secondary: Color?, _ tertiary: Color?) -> some View {
         if let primary = primary {
@@ -74,7 +71,6 @@ public extension View {
     }
 
     @ViewBuilder
-    @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     func help(_ helpKey: LocalizedStringKey?) -> some View {
         if let helpKey = helpKey {
             help(helpKey)

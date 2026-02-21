@@ -23,7 +23,6 @@ public extension NSUIImage {
         - systemName: The name of the system symbol image.
         - description: The accessibility description for the symbol image, if any.
      */
-    @available(macOS 11.0, *)
     static func symbol(_ systemName: String, accessibilityDescription description: String? = nil) -> NSUIImage? {
         NSImage(systemSymbolName: systemName, accessibilityDescription: description)
     }

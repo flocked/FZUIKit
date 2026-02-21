@@ -141,7 +141,6 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
     }
     
     /// A Boolean value indicating whether to apply the ``sectionInset`` to the  safe area of the collection view.
-    @available(macOS 11.0, iOS 13.0, tvOS 13.0, *)
     public var sectionInsetUsesSafeArea: Bool {
         get { _sectionInsetUsesSafeArea }
         set { _sectionInsetUsesSafeArea = newValue }

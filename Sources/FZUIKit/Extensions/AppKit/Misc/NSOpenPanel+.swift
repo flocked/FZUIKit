@@ -80,7 +80,6 @@ extension NSOpenPanel {
      
      - Returns: The panel for selecting files.
      */
-    @available(macOS 11.0, *)
     convenience init(_ allowedContentTypes: [UTType], allowsMultiple: Bool, message: String? = nil, openButton: String? = nil, directory: URL? = nil) {
         self.init()
         self.allowedContentTypes = allowedContentTypes
@@ -104,7 +103,6 @@ extension NSOpenPanel {
      
      - Returns: The panel for selecting files.
      */
-    @available(macOS 11.0, *)
     @discardableResult
     public static func openFiles(_ allowedContentTypes: [UTType], allowsMultiple: Bool, message: String? = nil, openButton: String? = nil, directory: URL? = nil, completionHandler: @escaping (_ response: Response)->()) -> NSOpenPanel {
         let openPanel = NSOpenPanel(allowedContentTypes, allowsMultiple: allowsMultiple, message: message, openButton: openButton, directory: directory)
@@ -128,7 +126,6 @@ extension NSOpenPanel {
      
      - Returns: The panel for selecting files.
      */
-    @available(macOS 11.0, *)
     @discardableResult
     public static func openFilesSheet(_ allowedContentTypes: [UTType], allowsMultiple: Bool, message: String? = nil, openButton: String? = nil, directory: URL? = nil, window: NSWindow, completionHandler: @escaping (_ response: Response)->()) -> NSOpenPanel {
         let openPanel = NSOpenPanel(allowedContentTypes, allowsMultiple: allowsMultiple, message: message, openButton: openButton, directory: directory)

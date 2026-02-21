@@ -130,7 +130,6 @@ open class Toolbar: NSObject {
     }
         
     /// The appearance and location of a toolbar in relation to the attached window's title bar.
-    @available(macOS 11.0, *)
     public enum Style: Int, Hashable, Codable {
         /// A style indicating that the system determines the toolbar’s appearance and location.
         case automatic
@@ -145,14 +144,12 @@ open class Toolbar: NSObject {
         /// The style specified by the attached window's `toolbarStyle`.
         case window = -100
         
-        @available(macOS 11.0, *)
         var style: NSWindow.ToolbarStyle? {
             .init(rawValue: rawValue)
         }
     }
     
     /// The style that determines the appearance and location of the toolbar in relation to the attached window's title bar.
-    @available(macOS 11.0, *)
     open var style: Style {
         get { toolbarStyle as? Style ?? .window }
         set {
@@ -163,7 +160,6 @@ open class Toolbar: NSObject {
     }
     
     /// Sets the style that determines the appearance and location of the toolbar in relation to the attached window's title bar.
-    @available(macOS 11.0, *)
     @discardableResult
     open func style(_ style: Style) -> Self {
         self.style = style

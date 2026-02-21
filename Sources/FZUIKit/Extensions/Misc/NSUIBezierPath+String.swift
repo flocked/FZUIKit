@@ -26,7 +26,6 @@ public extension NSUIBezierPath {
     }
 
     /// Creates and returns a new bezier path for the specified attributed string.
-    @available(macOS 12, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
     convenience init(attributedString: AttributedString) {
         self.init(cgPath: CGPath(attributedString: NSAttributedString(attributedString)))
     }
@@ -82,7 +81,6 @@ public extension CFType where Self == CGPath {
     }
 
     /// Creates and returns a new path for the specified attributed string.
-    @available(macOS 12, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
     init(attributedString: AttributedString) {
         self.init(attributedString: NSAttributedString(attributedString))
     }

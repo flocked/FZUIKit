@@ -107,7 +107,6 @@ open class ToolbarItem: NSObject {
      
      The value of this property is `true` when the item is visible in the toolbar, and `false` when it isn’t in the toolbar or is present in the toolbar’s overflow menu.
      */
-    @available(macOS 12.0, *)
     open var isVisible: Bool { item.isVisible }
     
     /// The toolbar that currently includes the item.

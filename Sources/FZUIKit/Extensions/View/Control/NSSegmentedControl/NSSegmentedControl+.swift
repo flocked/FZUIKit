@@ -103,7 +103,7 @@ public extension NSSegmentedControl {
      - Parameter segment:The index of the segment whose frame you want to get.
      */
     func frame(forSegment segment: Int) -> CGRect? {
-        segmentViews[safe: segment]?.frame ?? (cell as? NSSegmentedCell)?.frame(forSegment: segment)
+        segmentViews[safe: segment]?.frame ?? segmentedCell?.frame(forSegment: segment)
     }
     
     /// Returns the index of the segment at the specified location.
@@ -138,7 +138,7 @@ public extension NSSegmentedControl {
      The next segment is the one to the right of the currently selected segment. For the last segment, the selection wraps back to the beginning of the control.
      */
     func selectNextSegment() {
-        (cell as? NSSegmentedCell)?.makeNextSegmentKey()
+        segmentedCell?.makeNextSegmentKey()
     }
     
     /**
@@ -147,7 +147,7 @@ public extension NSSegmentedControl {
      The previous segment is the one to the left of the currently selected segment. For the first segment, the selection wraps around to the last segment of the control.
      */
     func selectPreviousSegment() {
-        (cell as? NSSegmentedCell)?.makePreviousSegmentKey()
+        segmentedCell?.makePreviousSegmentKey()
     }
     
     /**
@@ -177,6 +177,11 @@ public extension NSSegmentedControl {
                 selectsExclusivelyOnRightClickHook = nil
             }
         }
+    }
+    
+    /// The cell of the segmented control.
+    var segmentedCell: NSSegmentedCell? {
+        cell as? NSSegmentedCell
     }
     
     internal var segmentViews: [NSView] {

@@ -10,7 +10,6 @@
     import FZSwiftUtils
     import SwiftUI
 
-    @available(macOS 12.0, *)
     public extension NSContentUnavailableConfiguration {
         /// Properties that affect the cell content configuration’s image.
         struct ImageProperties: Hashable {
@@ -82,7 +81,6 @@
         }
     }
 
-    @available(macOS 12.0, *)
     extension Image {
         @ViewBuilder
         func scaling(_ scaling: NSContentUnavailableConfiguration.ImageProperties.Scaling) -> some View {

@@ -14,7 +14,6 @@
 
      A content-unavailable configuration is a composable description of a view indicating your app can’t display content. Using a content-unavailable configuration, you can obtain system default styling for a variety of different empty states. Fill the configuration with placeholder content, and then assign it to a view’s contentUnavailableConfiguration, or to a NSContentUnavailableView.
      */
-    @available(macOS 12.0, *)
     public struct NSContentUnavailableConfiguration: NSContentConfiguration, Hashable {
         /// The image to display.
         public var image: NSImage?
@@ -183,7 +182,6 @@
         }
     }
 
-    @available(macOS 12.0, *)
     public extension NSContentUnavailableConfiguration {
         /// Creates the default configuration for unavailable content.
         static func empty() -> NSContentUnavailableConfiguration {

@@ -33,7 +33,6 @@ extension NSStatusItem {
     }
     
     /// Sets the symbol image of the status item.
-    @available(macOS 11.0, *)
     @discardableResult
     public func symbolImage(_ symbolName: String?) -> Self {
         if let symbolName = symbolName {
@@ -45,7 +44,6 @@ extension NSStatusItem {
     }
     
     /// Sets the symbol configuration of the status item.
-    @available(macOS 11.0, *)
     @discardableResult
     public func symbolConfiguration(_ configuration: NSImage.SymbolConfiguration?) -> Self {
         button?.symbolConfiguration = configuration
@@ -296,7 +294,6 @@ extension NSStatusItem {
     }
     
     /// A status item with the specified symbol image.
-    @available(macOS 11.0, *)
     public static func symbolImage(_ symbolName: String, symbolConfiguration: NSImage.SymbolConfiguration? = nil) -> NSStatusItem {
         .squareWidth.symbolImage(symbolName).symbolConfiguration(symbolConfiguration)
     }

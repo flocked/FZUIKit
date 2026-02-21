@@ -279,7 +279,6 @@ public extension NSTableView {
     }
         
     /// Sets the style that the table view uses.
-    @available(macOS 11.0, *)
     @discardableResult
     func style(_ style: Style) -> Self {
         self.style = style

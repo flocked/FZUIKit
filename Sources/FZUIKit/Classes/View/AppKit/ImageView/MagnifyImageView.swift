@@ -164,7 +164,6 @@ open class MagnifyImageView: NSControl {
     }
     
     /// The symbol configuration of the image.
-    @available(macOS 11.0, *)
     open var symbolConfiguration: NSImage.SymbolConfiguration? {
         get { imageView.symbolConfiguration }
         set { imageView.symbolConfiguration = newValue }
@@ -172,14 +171,12 @@ open class MagnifyImageView: NSControl {
     
     /// Sets the symbol configuration of the image.
     @discardableResult
-    @available(macOS 11.0, *)
     open func symbolConfiguration(_ symbolConfiguration: NSImage.SymbolConfiguration?) -> Self {
         self.symbolConfiguration = symbolConfiguration
         return self
     }
     
     /// Sets the symbol configuration of the image.
-    @available(macOS 12.0, *)
     @discardableResult
     open func imageSymbolConfiguration(_ symbolConfiguration: ImageSymbolConfiguration?) -> Self {
         self.symbolConfiguration = symbolConfiguration?.nsSymbolConfiguration()

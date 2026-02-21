@@ -117,7 +117,6 @@ open class ImageView: NSControl {
     }
     
     /// The symbol configuration of the image.
-    @available(macOS 11.0, *)
     open var symbolConfiguration: NSImage.SymbolConfiguration? {
         get { imageView.symbolConfiguration }
         set { imageView.symbolConfiguration = newValue }
@@ -132,7 +131,6 @@ open class ImageView: NSControl {
     
     /// Sets the symbol configuration of the image.
     @discardableResult
-    @available(macOS 11.0, *)
     open func symbolConfiguration(_ symbolConfiguration: NSImage.SymbolConfiguration?) -> Self {
         self.symbolConfiguration = symbolConfiguration
         return self
@@ -159,7 +157,6 @@ open class ImageView: NSControl {
      - The system centers symbol images inside a predefined reserved layout size that scales with the content size category.
      - Nonsymbol images use a reserved layout size equal to the actual size of the displayed image.
      */
-    @available(macOS 11.0, *)
     public var reservedLayoutSize: CGSize? {
         get { imageView.reservedLayoutSize }
         set { imageView.reservedLayoutSize = newValue }
@@ -167,7 +164,6 @@ open class ImageView: NSControl {
     
     /// Sets the layout size that the system reserves for the image, and then centers the image within.
     @discardableResult
-    @available(macOS 11.0, *)
     public func reservedLayoutSize(_ size: CGSize?) -> Self {
         reservedLayoutSize = size
         return self
@@ -860,7 +856,6 @@ open class ImageView: NSControl {
      
      - Returns: An initialized image view object.
      */
-    @available(macOS 11.0, *)
     public init(symbolName: String) {
         super.init(frame: .zero)
         sharedInit()

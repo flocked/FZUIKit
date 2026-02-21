@@ -10,7 +10,6 @@
     import FZSwiftUtils
     import SwiftUI
 
-    @available(macOS 12.0, *)
     public extension NSContentUnavailableConfiguration {
         /// Properties that affect the cell content configuration’s text.
         struct TextProperties: Hashable {

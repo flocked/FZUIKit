@@ -67,7 +67,6 @@ public extension NSMenuItem {
      
      - Returns: An instance of `NSMenuItem`.
      */
-    @available(macOS 12, *)
     convenience init(_ localizedTitle: String.LocalizationValue, table: String? = nil, bundle: Bundle? = nil, locale: Locale = .current, comment: StaticString? = nil, action: ActionBlock? = nil) {
         self.init(String(localized: localizedTitle, table: table, bundle: bundle, locale: locale, comment: comment), action: action)
     }
@@ -444,7 +443,6 @@ public extension NSMenuItem {
     }
     
     /// A Boolean value that determines whether the system automatically remaps the keyboard shortcut to support localized keyboards.
-    @available(macOS 12.0, *)
     @discardableResult
     func allowsAutomaticKeyEquivalentLocalization(_ allows: Bool) -> Self {
         self.allowsAutomaticKeyEquivalentLocalization = allows
@@ -452,7 +450,6 @@ public extension NSMenuItem {
     }
     
     /// A Boolean value that determines whether the system automatically swaps input strings for some keyboard shortcuts when the interface direction changes.
-    @available(macOS 12.0, *)
     @discardableResult
     func allowsAutomaticKeyEquivalentMirroring(_ allows: Bool) -> Self {
         self.allowsAutomaticKeyEquivalentMirroring = allows

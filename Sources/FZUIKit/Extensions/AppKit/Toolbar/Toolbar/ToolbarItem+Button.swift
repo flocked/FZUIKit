@@ -84,7 +84,6 @@ extension Toolbar {
         }
         
         /// Sets the symbol image of the button.
-        @available(macOS 11.0, *)
         @discardableResult
         public func symbolImage(_ symbolName: String) -> Self {
             button.image = NSImage(systemSymbolName: symbolName) ?? button.image
@@ -99,7 +98,6 @@ extension Toolbar {
         }
         
         /// Sets the alternate symbol image of the button.
-        @available(macOS 11.0, *)
         @discardableResult
         public func alternateImage(symbolName: String) -> Self {
             button.alternateImage = NSImage(systemSymbolName: symbolName) ?? button.image
@@ -263,7 +261,6 @@ extension Toolbar {
             - symbolName: The name for the symbol image of the button.
             - action: The handler that is called when the user clicks the button.
          */
-        @available(macOS 11.0, *)
         public init?(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, symbolName: String, action: ((_ item: Toolbar.Button)->())? = nil) {
             guard let image = NSImage(systemSymbolName: symbolName) else { return nil }
             self.button = NSButton.toolbar("", image: image).translatesAutoresizingMaskIntoConstraints(false)

@@ -646,13 +646,11 @@ extension NSUIImage.SymbolConfiguration {
 
     
     /*
-     @available(macOS 12.0, *)
      static func monochrome(_ color: NSUIColor) -> NSUIImage.SymbolConfiguration {
      .color(.monochrome(color))
      }
      
      
-     @available(macOS 12.0, *)
      static func multicolor(_ color: NSUIColor) -> NSUIImage.SymbolConfiguration {
      .color(.multicolor(color))
      }

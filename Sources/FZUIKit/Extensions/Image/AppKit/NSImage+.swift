@@ -33,13 +33,11 @@ public extension NSImage {
     }
 
     /// A Boolean value indicating whether the image is a symbol.
-    @available(macOS 11.0, *)
     var isSymbolImage: Bool {
         value(forKeySafely: "_isSymbolImage") as? Bool ?? (symbolName != nil)
     }
 
     /// Returns the image types supported by `NSImage`.
-    @available(macOS 11.0, *)
     static var imageContentTypes: [UTType] {
         imageTypes.compactMap({ UTType($0) })
     }

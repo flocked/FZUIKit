@@ -52,7 +52,6 @@ extension NSTableViewRowAction {
             - action: The action object representing the action that the user selected.
             - rowIndex: The table row that the user acted on.
      */
-    @available(macOS 11.0, *)
     public static func regular(_ title: String? = nil, symbolName: String, color: NSColor? = nil, handler: @escaping (NSTableViewRowAction, Int) -> Void) -> NSTableViewRowAction {
         let action = NSTableViewRowAction(style: .regular, title: title ?? "", handler: handler)
         action.backgroundColor = color ?? action.backgroundColor
@@ -71,7 +70,6 @@ extension NSTableViewRowAction {
             - action: The action object representing the action that the user selected.
             - rowIndex: The table row that the user acted on.
      */
-    @available(macOS 11.0, *)
     public static func destructive(_ title: String? = nil, symbolName: String, color: NSColor? = nil, handler: @escaping (NSTableViewRowAction, Int) -> Void) -> NSTableViewRowAction {
         let action = NSTableViewRowAction(style: .destructive, title: title ?? "", handler: handler)
         action.backgroundColor = color ?? action.backgroundColor

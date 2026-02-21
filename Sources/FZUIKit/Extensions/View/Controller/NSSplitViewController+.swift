@@ -35,7 +35,6 @@ extension NSSplitViewController {
      
      Changing the property is animatable by using `animator().isInspectorVisible`.
      */
-    @available(macOS 11.0, *)
     public var isInspectorVisible: Bool {
         get {
             guard let item = splitViewItems.last(where: { $0.behavior == .inspector }) else { return false }

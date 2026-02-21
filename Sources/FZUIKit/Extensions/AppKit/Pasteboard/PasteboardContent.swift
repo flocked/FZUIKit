@@ -91,7 +91,6 @@ public class PasteboardContent {
         value(for: NSFilePromiseReceiver.self)
     }
     
-    @available(macOS 11.0, *)
     /// The urls with the specified content types on the pasteboard.
     public func urls(contentTypes: [UTType]) -> [URL] {
         urls.filter { $0.contentType?.conforms(toAny: contentTypes) == true }
@@ -102,7 +101,6 @@ public class PasteboardContent {
         urls.filter { $0.fileType?.exists(in: types) == true }
     }
     
-    @available(macOS 11.0, *)
     /// The file urls with the specified content types on the pasteboard.
     public func fileURLs(contentTypes: [UTType]) -> [URL] {
         fileURLs.filter { $0.contentType?.conforms(toAny: contentTypes) == true }
@@ -129,7 +127,6 @@ public class PasteboardContent {
 }
 
 extension PasteboardContent {
-    @available(macOS 11.0, *)
     /// Returns a Boolean value indiciating whether the pasteboard contains items conforming to the specified content types.
     public func hasItems(conformingTo contentTypes: [UTType]) -> Bool {
         pasteboard?.canReadItem(withDataConformingToTypes: contentTypes.map { $0.identifier }) ?? false
@@ -191,7 +188,6 @@ extension PasteboardContent {
     }
     
     /// Returns a Boolean value indiciating whether the pasteboard contains URLs conforming to the specified content types.
-    @available(macOS 11.0, *)
     public func hasURLs(contentTypes: [UTType]) -> Bool {
         hasURLs(types: contentTypes.compactMap({$0.identifier}))
     }
@@ -202,7 +198,6 @@ extension PasteboardContent {
     }
     
     /// Returns a Boolean value indiciating whether the pasteboard contains file URLs conforming to the specified content types.
-    @available(macOS 11.0, *)
     public func hasFileURLs(contentTypes: [UTType]) -> Bool {
         hasURLs(fileOnly: true, types: contentTypes.compactMap({$0.identifier}))
     }

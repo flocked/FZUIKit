@@ -25,7 +25,6 @@ extension NSSplitViewItem {
     }
     
     /// Creates a split view item that represents a inspector for the specified view controller.
-    @available(macOS 11.0, *)
     public class func inspector(_ viewController: NSViewController) -> Self {
         Self(inspectorWithViewController: viewController)
     }

@@ -84,7 +84,6 @@ extension WKWebView {
         public var didFail: ((_ download: WKDownload, _ error: Error, _ resumeData: Data?) -> ())?
         
         /// The handler that provides the placeholder policy for a download.
-        @available(macOS 11.3, iOS 18.2, *)
         public var placeholderPolicy: ((_ download: WKDownload) -> (policy: WKDownload.PlaceholderPolicy, destination: URL?))? {
             get { _placeholderPolicy as? ((WKDownload) -> (WKDownload.PlaceholderPolicy, URL?)) }
             set { _placeholderPolicy = newValue }
@@ -93,7 +92,6 @@ extension WKWebView {
         var _placeholderPolicy: Any?
         
         /// The handler called when a placeholder URL is received during download.
-        @available(macOS 11.3, iOS 18.2, *)
         public var didReceivePlaceholderURL: ((_ download: WKDownload, _ url: URL) -> Void)? {
             get { _didReceivePlaceholderURL as? ((WKDownload, URL) -> ()) }
             set { _didReceivePlaceholderURL = newValue }
@@ -102,7 +100,6 @@ extension WKWebView {
         var _didReceivePlaceholderURL: Any?
         
         /// The handler called when the final URL is received during download.
-        @available(macOS 11.3, iOS 18.2, *)
         public var didReceiveFinalURL: ((_ download: WKDownload, _ url: URL) -> Void)? {
             get { _didReceiveFinalURL as? ((WKDownload, URL) -> ()) }
             set { _didReceiveFinalURL = newValue }
@@ -361,12 +358,10 @@ extension WKWebView {
             }
         }
         
-        @available(macOS 11.3, iOS 18.2, *)
         func download(_ download: WKDownload, didReceivePlaceholderURL url: URL, completionHandler: @escaping @MainActor () -> Void) {
             webView?.downloadHandlers.didReceivePlaceholderURL?(download, url)
         }
         
-        @available(macOS 11.3, iOS 18.2, *)
         func download(_ download: WKDownload, decidePlaceholderPolicy completionHandler: @escaping @MainActor (WKDownload.PlaceholderPolicy, URL?) -> Void) {
             if let policy = webView?.downloadHandlers.placeholderPolicy?(download) {
                 completionHandler(policy.policy, policy.destination)
@@ -375,7 +370,6 @@ extension WKWebView {
             }
         }
         
-        @available(macOS 11.3, iOS 18.2, *)
         func download(_ download: WKDownload, didReceiveFinalURL url: URL) {
             webView?.downloadHandlers.didReceiveFinalURL?(download, url)
         }

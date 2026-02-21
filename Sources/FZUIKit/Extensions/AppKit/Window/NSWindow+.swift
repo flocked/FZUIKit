@@ -769,7 +769,6 @@ extension NSWindow {
 
      Changing the property is animatable by using `window.animator().isInspectorVisible`.
      */
-    @available(macOS 11.0, *)
     public var isInspectorVisible: Bool {
         get { (contentViewController as? NSSplitViewController)?.isInspectorVisible ?? false }
         set { (contentViewController as? NSSplitViewController)?.animator(isProxy()).isInspectorVisible = newValue }

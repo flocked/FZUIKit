@@ -118,7 +118,6 @@ extension NSSavePanel {
     }
     
     /// Sets the files types to which you can save.
-    @available(macOS 11.0, *)
     @discardableResult
     @objc open func allowedContentTypes(_ allowedContentTypes: [UTType]) -> Self {
         self.allowedContentTypes = allowedContentTypes

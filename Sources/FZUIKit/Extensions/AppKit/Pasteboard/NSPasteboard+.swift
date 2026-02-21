@@ -97,7 +97,6 @@ extension NSPasteboard {
     }
     
     /// Returns a Boolean value indicating whether the receiver contains any items that conform to the specified content types.
-    @available(macOS 11.0, *)
     func canReadItem(withDataConformingToTypes types: [UTType]) -> Bool {
         canReadItem(withDataConformingToTypes: types.compactMap({ $0.identifier }))
     }
@@ -188,7 +187,6 @@ extension NSPasteboard.PasteboardType {
     /// Source app bundle identifier.
     public static let sourceAppBundleIdentifier = Self("org.nspasteboard.source")
     
-    @available(macOS 11.0, *)
     /// The `UTType` that the pasteboard type represents.
     public var uttype: UTType? {
         UTType(rawValue)

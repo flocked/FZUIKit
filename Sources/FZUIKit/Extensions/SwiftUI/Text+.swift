@@ -23,7 +23,6 @@ public extension Text {
      
      - Parameter attributedContent: An attributed string to style and display, in accordance with its attributes.
      */
-    @available(macOS 12, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
     init(_ attributedContent: NSAttributedString) {
         self = Text(AttributedString(attributedContent))
     }

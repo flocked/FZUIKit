@@ -150,15 +150,9 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     }
             
     func insetRect(for rect: CGRect) -> CGRect {
-        var newRect = rect
-        newRect.origin.x += textPadding.left
-        newRect.origin.y += textPadding.top
-        newRect.size.width -= textPadding.width
-        newRect.size.height -= textPadding.height
-        
-        
+        var newRect = rect.inset(by: textPadding)
         if isVerticallyCentered {
-            let textSize = self.cellSize(forBounds: rect)
+            let textSize = cellSize(forBounds: rect)
             let heightDelta = newRect.size.height - textSize.height
             if heightDelta > 0 {
                 newRect.size.height -= heightDelta
@@ -198,7 +192,17 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     override func focusRingMaskBounds(forFrame cellFrame: NSRect, in controlView: NSView) -> NSRect {
         var bounds = super.focusRingMaskBounds(forFrame: cellFrame, in: controlView)
         if focusType == .capsule {
+            let radius = cellFrame.height / 2.0
+                    
+                    // 2. We need to expand the mask slightly so the "glow" of the focus ring
+                    // doesn't get clipped by the bounding box of the cell.
+                    // A small negative inset expands the rect.
+                    let padding: CGFloat = 2.0
+                    return bounds.insetBy(dx: -padding, dy: -padding)
             
+            
+            return bounds.insetBy(dx: -3, dy: -3)
+
             let leftRight = bounds.height/3.0
             let topBottom = bounds.height/10.0
             bounds.origin.x -= leftRight
@@ -213,7 +217,6 @@ class ExtendedTextFieldCell: NSTextFieldCell {
         guard focusType != .none else {
             return
         }
-        
         var cornerRadius: CGFloat = 0
         switch focusType {
         case .capsule:

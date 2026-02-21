@@ -154,7 +154,6 @@ extension TextFieldAdvanced {
         return view
     }
     
-    @available(macOS 11.0, *)
     public func foregroundStyle<S>(_ style: S) -> Self where S : ShapeStyle {
         var view = self
         view.textColor = (style as? Color)?.nsColor ?? view.textColor
@@ -203,7 +202,6 @@ extension TextFieldAdvanced {
         return view
     }
     
-    @available(macOS 12.0, *)
     public func textSelection<S>(_ selectability: S) -> Self where S : TextSelectability {
         var view = self
         if selectability is EnabledTextSelectability {

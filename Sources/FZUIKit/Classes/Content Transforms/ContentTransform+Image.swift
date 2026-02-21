@@ -42,13 +42,11 @@ public struct ImageTransformer: ContentTransform {
     }
     
     /// Creates a image transformer that generates a thumbnail of the image at the specified size.
-    @available(macOS 10.15, iOS 15.0, tvOS 15.0, *)
     public static func thumbnail(size: CGSize) -> Self {
         Self("thumbnail: \(size)") { $0.preparingThumbnail(of: size) ?? $0 }
     }
     
     /// Creates a image transformer that generates a version of the image prepared for display.
-    @available(macOS 10.15, iOS 15.0, tvOS 15.0, *)
     public static let preparedForDisplay = Self("preparedForDisplay") { $0.preparingForDisplay() ?? $0 }
 
     /// Creates a image transformer that generates a rounded version of the image with the specified radius.
@@ -71,7 +69,6 @@ public struct ImageTransformer: ContentTransform {
     }
 
     /// Creates a image transformer that generates a version of the image with the specified symbol configuration.
-    @available(macOS 11.0, iOS 14.0, *)
     public static func symbolConfiguration(_ value: NSUIImage.SymbolConfiguration) -> Self {
         #if os(macOS)
         return Self { $0.withSymbolConfiguration(value) ?? $0 }

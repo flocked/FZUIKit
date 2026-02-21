@@ -45,7 +45,6 @@ extension AVPlayerView {
             }
         }
         
-        @available(macOS 11.0, *)
         var contentType: UTType {
             switch self {
             case .video: return .audiovisualContent

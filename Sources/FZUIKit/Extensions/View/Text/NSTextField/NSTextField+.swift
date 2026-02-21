@@ -29,26 +29,35 @@ public extension NSTextField {
     }
         
     /**
-     Creates a text field for use as a label.
-         
-     - Parameter string: The string value of the text field.
+     Creates a text field for use as a static label.
+
+     - Parameter stringValue: The string value of the text field.
      */
     static func label(_ stringValue: String = "") -> Self {
         Self(labelWithString: stringValue).backgroundColor(nil)
+    }
+    
+    /**
+     Creates a text field for use as a static label.
+         
+     - Parameter attributedStringValue: The string value of the text field.
+     */
+    public func label(_ attributedStringValue: NSAttributedString) -> Self {
+        Self(labelWithAttributedString: attributedStringValue).backgroundColor(nil)
     }
         
     /**
      Creates a wrapping text field for use as a multiline label.
          
-     - Parameter string: The string value of the text field.
+     - Parameter stringValue: The string value of the text field.
      */
     static func wrapping(_ stringValue: String = "") -> Self {
         Self(wrappingLabelWithString: stringValue).isSelectable(false).isEditable(false)
     }
         
     /**
-     Creates a bordered and bezeled editing text field.
-         
+     Creates a single-line editable text field for user input that is bordered and bezeled.
+     
      - Parameters:
         - string: The string value of the text field.
         - placeholder: The place holder of the text field.
@@ -77,7 +86,7 @@ public extension NSTextField {
         return textField
     }
         
-    /// The text field’s number formatter.
+    /// The number formatter of the text field.
     var numberFormatter: NumberFormatter? {
         get { formatter as? NumberFormatter }
         set {
@@ -89,7 +98,7 @@ public extension NSTextField {
         }
     }
         
-    /// Sets the text field’s number formatter.
+    /// Sets the number formatter of the text field.
     @discardableResult
     func numberFormatter(_ formatter: NumberFormatter?) -> Self {
         numberFormatter = formatter
@@ -175,12 +184,6 @@ public extension NSTextField {
         DispatchQueue.main.async { [weak self] in
             self?.currentEditor()?.selectedRange = range
         }
-    }
-        
-    /// The location of the cursor while editing.
-    var editingCursorLocation: Int? {
-        let currentEditor = currentEditor() as? NSTextView
-        return currentEditor?.selectedRanges.first?.rangeValue.location
     }
 
     /**

@@ -138,7 +138,6 @@ public class NSSegment: NSObject, ExpressibleByStringLiteral {
     }
     
     /// Sets the symbol image of the segment.
-    @available(macOS 11.0, *)
     public func symbolImage(_ symbolName: String?) -> Self {
         if let symbolName = symbolName {
             return image(.symbol(symbolName))
@@ -254,7 +253,6 @@ public class NSSegment: NSObject, ExpressibleByStringLiteral {
      
      - Returns: A `NSSegmentedControl.Segment` object with a symbol image,  or `nil` if no image with the specified symbol name could be found.
      */
-    @available(macOS 11.0, *)
     public init?(symbolName: String) {
         guard let image = NSImage(systemSymbolName: symbolName) else {
             return nil

@@ -134,7 +134,7 @@ extension NSTextField {
                 Swift.print(error)
             }
         }
-        guard isFirstResponder, let editor = currentEditor() as? NSTextView else { return }
+        guard let editor = currentEditor() as? NSTextView else { return }
         editor.selectedTextAttributes[.backgroundColor] = selectionColor
         editor.selectedTextAttributes[.foregroundColor] = selectionTextColor
     }

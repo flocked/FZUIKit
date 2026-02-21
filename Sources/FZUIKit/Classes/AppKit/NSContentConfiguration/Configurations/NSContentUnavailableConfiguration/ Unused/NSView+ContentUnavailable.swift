@@ -10,7 +10,6 @@
  import AppKit
  import FZSwiftUtils
 
- @available(macOS 12.0, *)
  public extension NSView {
      /**
       The current content-unavailable configuration of the view.

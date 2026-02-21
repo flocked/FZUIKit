@@ -49,7 +49,6 @@ open class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDele
         - fileType: The file content type.
         - handler: The handler for writing the file.
      */
-    @available(macOS 11.0, *)
     public convenience init(fileName: String, fileType: UTType, handler: @escaping Handler) {
         self.init(fileName: fileName, fileType: fileType.identifier, handler: handler)
     }
@@ -84,7 +83,6 @@ open class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDele
         - fileType: The file content type.
         - existingFileStrategy: The strategy for handling an existing file.
      */
-    @available(macOS 11.0, *)
     public convenience init(data: Data, fileName: String, fileType: UTType, existingFileStrategy: ExistingFileStrategy = .skip) {
         self.init(data: data, fileName: fileName, fileType: fileType.identifier, existingFileStrategy: existingFileStrategy)
     }
@@ -124,7 +122,6 @@ open class FilePromiseProvider: NSFilePromiseProvider, NSFilePromiseProviderDele
         - fileType: The file content type.
         - existingFileStrategy: The strategy for handling an existing file.
      */
-    @available(macOS 11.0, *)
     public convenience init<Content: Encodable>(content: Content, fileName: String, fileType: UTType, existingFileStrategy: ExistingFileStrategy = .skip) {
         self.init(content: content, fileName: fileName, fileType: fileType.identifier, existingFileStrategy: existingFileStrategy)
     }
@@ -193,7 +190,6 @@ public extension FileConvertible {
     }
     
     /// Creates a file promise provider for the receiver.
-    @available(macOS 11.0, *)
     func filePromiseProvider(fileName: String, fileType: UTType, existingFileStrategy: FilePromiseProvider.ExistingFileStrategy = .skip) -> FilePromiseProvider {
         FilePromiseProvider(content: self, fileName: fileName, fileType: fileType, existingFileStrategy: existingFileStrategy)
     }

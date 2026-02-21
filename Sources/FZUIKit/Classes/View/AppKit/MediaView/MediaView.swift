@@ -263,14 +263,12 @@ open class MediaView: NSControl {
     }
         
     /// The image symbol configuration.
-    @available(macOS 11.0, *)
     open var imageSymbolConfiguration: NSUIImage.SymbolConfiguration? {
         get { imageView.symbolConfiguration }
         set { imageView.symbolConfiguration = newValue }
     }
         
     /// Sets the image symbol configuration.
-    @available(macOS 11.0, *)
     @discardableResult
     open func imageSymbolConfiguration(_ symbolConfiguration: NSUIImage.SymbolConfiguration?) -> Self {
         self.imageSymbolConfiguration = symbolConfiguration
@@ -278,7 +276,6 @@ open class MediaView: NSControl {
     }
         
     /// Sets the image symbol configuration.
-    @available(macOS 12.0, *)
     @discardableResult
     open func imageSymbolConfiguration(_ symbolConfiguration: ImageSymbolConfiguration?) -> Self {
         self.imageSymbolConfiguration = symbolConfiguration?.nsSymbolConfiguration()

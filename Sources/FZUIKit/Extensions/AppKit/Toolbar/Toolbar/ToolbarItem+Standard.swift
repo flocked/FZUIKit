@@ -33,7 +33,6 @@ public extension Toolbar {
      
      The item’s tracking separator visually aligns itself with the sidebar divider of a vertical split view in the same window.
      */
-    @available(macOS 11.0, *)
     static func sidebarTrackingSeparator() -> ToolbarItem {
         ToolbarItem(.sidebarTrackingSeparator)
     }

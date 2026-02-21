@@ -427,7 +427,6 @@ public class DraggingItem {
         }
         
         /// Initializes and returns a dragging image component with the specified symbol image and key.
-        @available(macOS 11.0, *)
         public static func symbolImage(_ symbolName: String, key: ImageComponentKey = .icon) -> Self {
             Self(key: key, image: .init(systemSymbolName: symbolName))
         }

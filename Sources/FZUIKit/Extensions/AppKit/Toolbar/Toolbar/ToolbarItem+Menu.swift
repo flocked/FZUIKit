@@ -50,7 +50,6 @@ extension Toolbar {
         }
         
         /// Sets the image of the item.
-        @available(macOS 11.0, *)
         open func symbolImage(_ symbolName: String) -> Self {
             menuItem.image = NSImage(systemSymbolName: symbolName)
             return self
@@ -215,7 +214,6 @@ extension Toolbar {
             - symbolName: The symbol name for the image of the item.
             - menu: The menu.
          */
-        @available(macOS 11.0, *)
         public init(_ identifier: NSToolbarItem.Identifier? = nil, symbolName: String, menu: NSMenu) {
             super.init(identifier)
             menuItem.menu = menu
@@ -264,7 +262,6 @@ extension Toolbar {
             - symbolName: The symbol name for the image of the item.
             - items: The items of the menu.
          */
-        @available(macOS 11.0, *)
         public init(_ identifier: NSToolbarItem.Identifier? = nil, symbolName: String, @MenuBuilder _ items: () -> [NSMenuItem]) {
             super.init(identifier)
             menuItem.menu = NSMenu(items: items())

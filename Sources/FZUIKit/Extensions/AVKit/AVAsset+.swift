@@ -53,7 +53,6 @@ public extension AVAsset {
     }
     
     /// The duration of the asset.
-    @available(macOS 12, iOS 15, tvOS 15, watchOS 8, *)
     var timeDuration: TimeDuration? {
         (try? load(.duration))?.timeDuration
     }

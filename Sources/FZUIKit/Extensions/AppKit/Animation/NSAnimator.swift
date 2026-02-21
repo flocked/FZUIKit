@@ -116,7 +116,6 @@ public class NSAnimator: NSObject {
     }
     
     /// The preferred frame rate range.
-    @available(macOS 12.0, *)
     public var preferredFrameRateRange: CAFrameRateRange {
         get { _preferredFrameRateRange as? CAFrameRateRange ?? .default }
         set { _preferredFrameRateRange = newValue }

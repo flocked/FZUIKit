@@ -67,7 +67,6 @@ extension NSControl {
     }
     
     /// Sets the attributed string value.
-    @available(macOS 12, *)
     @discardableResult
     public func attributedStringValue(_ string: AttributedString) -> Self {
         attributedStringValue = NSAttributedString(string)
