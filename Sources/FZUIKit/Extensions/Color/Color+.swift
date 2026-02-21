@@ -116,7 +116,7 @@ extension Color {
     
     /// A Boolean value indicating whether the color contains a different light and dark color variant.
     public var isDynamic: Bool {
-        dynamicColors.isDynamic
+        nsUIColor.isDynamic
     }
     
     /// The dynamic light and dark variations of a color.

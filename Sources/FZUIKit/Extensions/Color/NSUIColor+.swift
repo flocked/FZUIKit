@@ -218,8 +218,14 @@ public extension NSUIColor {
     
     /// A Boolean value indicating whether the color contains a different light and dark color variant.
     var isDynamic: Bool {
-        dynamicColors.isDynamic
+        #if os(macOS)
+        isSubclass(of: Self.dynamicColorClass)
+        #else
+        value(forKey: "_isDynamic") ?? false
+        #endif
     }
+    
+    private static let dynamicColorClass = NSClassFromString("NSDynamicNamedColor")!
     
     /// The dynamic light and dark variations of a color.
     struct DynamicColor {

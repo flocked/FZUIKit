@@ -22,8 +22,8 @@ public extension NSUIColor {
      */
     func tinted(by amount: CGFloat = 0.2) -> NSUIColor {
         #if os(macOS) || os(iOS) || os(tvOS)
-        let dynamic = dynamicColors
-        if dynamic.isDynamic {
+        if isDynamic {
+            let dynamic = dynamicColors
             return NSUIColor(light: dynamic.light.cgColor.tinted(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.tinted(by: amount).nsUIColor!)
         }
         #endif
@@ -37,8 +37,8 @@ public extension NSUIColor {
      */
     func shaded(by amount: CGFloat = 0.2) -> NSUIColor {
         #if os(macOS) || os(iOS) || os(tvOS)
-        let dynamic = dynamicColors
-        if dynamic.isDynamic {
+        if isDynamic {
+            let dynamic = dynamicColors
             return NSUIColor(light: dynamic.light.cgColor.shaded(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.shaded(by: amount).nsUIColor!)
         }
         #endif
@@ -52,8 +52,8 @@ public extension NSUIColor {
      */
     func lighter(by amount: CGFloat = 0.2) -> NSUIColor {
         #if os(macOS) || os(iOS) || os(tvOS)
-        let dynamic = dynamicColors
-        if dynamic.isDynamic {
+        if isDynamic {
+            let dynamic = dynamicColors
             return NSUIColor(light: dynamic.light.cgColor.lighter(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.lighter(by: amount).nsUIColor!)
         }
         #endif
@@ -67,8 +67,8 @@ public extension NSUIColor {
      */
     func darkened(by amount: CGFloat = 0.2) -> NSUIColor {
         #if os(macOS) || os(iOS) || os(tvOS)
-        let dynamic = dynamicColors
-        if dynamic.isDynamic {
+        if isDynamic {
+            let dynamic = dynamicColors
             return NSUIColor(light: dynamic.light.cgColor.darkened(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.darkened(by: amount).nsUIColor!)
         }
         #endif
@@ -82,8 +82,8 @@ public extension NSUIColor {
      */
     func saturated(by amount: CGFloat = 0.2) -> NSUIColor {
         #if os(macOS) || os(iOS) || os(tvOS)
-        let dynamic = dynamicColors
-        if dynamic.isDynamic {
+        if isDynamic {
+            let dynamic = dynamicColors
             return NSUIColor(light: dynamic.light.cgColor.saturated(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.saturated(by: amount).nsUIColor!)
         }
         #endif
@@ -97,8 +97,8 @@ public extension NSUIColor {
      */
     func desaturated(by amount: CGFloat = 0.2) -> NSUIColor {
         #if os(macOS) || os(iOS) || os(tvOS)
-        let dynamic = dynamicColors
-        if dynamic.isDynamic {
+        if isDynamic {
+            let dynamic = dynamicColors
             return NSUIColor(light: dynamic.light.cgColor.desaturated(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.desaturated(by: amount).nsUIColor!)
         }
         #endif
@@ -113,8 +113,8 @@ public extension NSUIColor {
      */
     func adjustedHue(by amount: CGFloat) -> NSUIColor {
         #if os(macOS) || os(iOS) || os(tvOS)
-        let dynamic = dynamicColors
-        if dynamic.isDynamic {
+        if isDynamic {
+            let dynamic = dynamicColors
             return NSUIColor(light: dynamic.light.cgColor.adjustedHue(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.adjustedHue(by: amount).nsUIColor!)
         }
         #endif

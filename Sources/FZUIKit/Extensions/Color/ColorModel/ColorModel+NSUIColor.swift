@@ -176,9 +176,9 @@ extension NSUIColor {
      */
     public func mixed(with other: NSUIColor, by fraction: Double, in colorSpace: ColorModels.ColorSpace = .srgb) -> NSUIColor {
         #if os(macOS) || os(iOS) || os(tvOS)
-        let dynamic = dynamicColors
-        let otherDynamic = other.dynamicColors
-        if dynamic.isDynamic || otherDynamic.isDynamic {
+        if isDynamic || other.isDynamic {
+            let dynamic = dynamicColors
+            let otherDynamic = other.dynamicColors
             return NSUIColor(light: dynamic.light.cgColor.mixed(with: otherDynamic.light.cgColor, by: fraction, in: colorSpace).nsUIColor!, dark: dynamic.dark.cgColor.mixed(with: otherDynamic.dark.cgColor, by: fraction, in: colorSpace).nsUIColor!)
         }
         #endif
