@@ -317,5 +317,10 @@ public extension NSTextField {
     var textRect: CGRect {
         cell?.titleRect(forBounds: bounds) ?? bounds
     }
+    
+    /// The cell of the text field.
+    public var textFieldCell: NSTextFieldCell? {
+        cell as? NSTextFieldCell
+    }
 }
 #endif
