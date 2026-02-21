@@ -139,7 +139,7 @@ extension NSTextField {
     }
     
     func withoutPlaceholder(_ without: Bool, handler: @escaping ()->()) {
-        if without, let cell = cell as? NSTextFieldCell, placeholderAttributedString != nil || placeholderString != nil {
+        if without, let cell = textFieldCell, placeholderAttributedString != nil || placeholderString != nil {
             if let placeholder = placeholderAttributedString {
                 cell.placeholderAttributedString = nil
                 handler()

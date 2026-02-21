@@ -319,7 +319,7 @@ public extension NSTextField {
     }
     
     /// The cell of the text field.
-    public var textFieldCell: NSTextFieldCell? {
+    var textFieldCell: NSTextFieldCell? {
         cell as? NSTextFieldCell
     }
 }

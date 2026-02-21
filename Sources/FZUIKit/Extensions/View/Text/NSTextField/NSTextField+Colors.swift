@@ -106,7 +106,7 @@ extension NSTextField {
     }
     
     private func setPlaceholderColor(_ color: NSColor) {
-        guard let cell = cell as? NSTextFieldCell else { return }
+        guard let cell = textFieldCell else { return }
         if let placeholder = placeholderString {
             cell.placeholderAttributedString = .init(string: placeholder, attributes: [.foregroundColor: color])
         } else if let placeholder = placeholderAttributedString {

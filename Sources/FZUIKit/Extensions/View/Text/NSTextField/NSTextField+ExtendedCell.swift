@@ -115,7 +115,7 @@ extension NSTextField {
     }
     
     fileprivate func convertToExtendedTextFieldCell() {
-        guard extendedTextFieldCell == nil, let textFieldCell = cell as? NSTextFieldCell else { return }
+        guard extendedTextFieldCell == nil, let textFieldCell = textFieldCell else { return }
         wantsLayer = true
         let layer = layer
         do {

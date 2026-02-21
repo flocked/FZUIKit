@@ -91,7 +91,7 @@ open class ResizingTextField: NSTextField {
         editingActionOnEnterKeyDown = .endEditing
         editingActionOnEscapeKeyDown = .endEditing
         focusType = .roundedCorners(4.0)
-        (cell as? NSTextFieldCell)?.setWantsNotificationForMarkedText(true)
+        textFieldCell?.setWantsNotificationForMarkedText(true)
         translatesAutoresizingMaskIntoConstraints = false
 
         lastContentSize = stringValueSize()
