@@ -18,7 +18,6 @@ extension NSImageView {
     }
     
     /// Sets the symbol configuration.
-    @available(macOS 11, *)
     @discardableResult
     public func symbolConfiguration(_ configuration: NSImage.SymbolConfiguration?) -> Self {
         self.symbolConfiguration = configuration
@@ -289,7 +288,6 @@ extension NSImageView {
     }
 }
 
-@available(macOS 11.0, *)
 extension NSImageView {
     /**
      The layout size that the system reserves for the image, and then centers the image within.
@@ -428,13 +426,6 @@ extension NSImageView {
     }
 }
 
-public extension NSImageCell {
-    @objc dynamic var symbolConfiguration: NSImage.SymbolConfiguration? {
-        value(forKey: "_symbolConfiguration")
-    }
-}
-
-@available(macOS 11.0, *)
 fileprivate extension NSImageView {
     static func reservedLayoutSize(for configuration: NSImage.SymbolConfiguration) -> CGSize {
         if let size = symbolConfigurationSizes[configuration] {
@@ -453,15 +444,10 @@ fileprivate extension NSImageView {
     }
     
     var currentSymbolConfiguration: NSImage.SymbolConfiguration {
-        if #available(macOS 12.0, *) {
-            return symbolConfiguration ?? image?.symbolConfiguration ?? .default
-        } else {
-            return symbolConfiguration ?? .default
-        }
+        symbolConfiguration ?? image?.symbolConfiguration ?? .default
     }
 }
 
-@available(macOS 11.0, *)
 fileprivate extension NSImage.SymbolConfiguration {
     static let `default` = NSImage.SymbolConfiguration(textStyle: .body)
 }
@@ -470,6 +456,18 @@ public extension NSImageCell {
     /// The image view associated with this cell.
     var imageView: NSImageView? {
         controlView as? NSImageView
+    }
+    
+    /// The symbol configuration to use when rendering the image.
+    @objc dynamic var symbolConfiguration: NSImage.SymbolConfiguration? {
+        get { imageView?.symbolConfiguration ?? value(forKey: "_symbolConfiguration") }
+        set {
+            if let imageView = imageView {
+                imageView.symbolConfiguration = newValue
+            } else {
+                setValue(safely: newValue, forKey: "_symbolConfiguration")
+            }
+        }
     }
 }
 

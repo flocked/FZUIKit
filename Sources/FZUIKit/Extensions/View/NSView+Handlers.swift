@@ -847,16 +847,16 @@ extension NSView {
             subviewHooks = []
         } else if subviewHooks.isEmpty {
             do {
-                subviewHooks += try hookAfter(#selector(setter: NSView.subviews)) { view, _ in
+                subviewHooks += try hookAfter(#selector(setter: NSView.subviews)) { view in
                     view.setSubviewIDs(view.subviews.map({ ObjectIdentifier($0) }))
                 }
-                subviewHooks += try hookAfter(#selector(NSView.didAddSubview(_:))) { view, _ in
+                subviewHooks += try hookAfter(#selector(NSView.didAddSubview(_:))) { view in
                     view.setSubviewIDs(view.subviews.map({ ObjectIdentifier($0) }))
                 }
                 subviewHooks += try hookAfter(#selector(NSView.willRemoveSubview(_:)), closure: { view, _, removed in
                     view.setSubviewIDs(view.subviews.filter({ $0 !== removed }).map({ ObjectIdentifier($0) }))
                 } as @convention(block) (NSView, Selector, NSView) -> Void )
-                subviewHooks += try hookAfter(#selector(NSView.addSubview(_:positioned:relativeTo:))) { view, _ in
+                subviewHooks += try hookAfter(#selector(NSView.addSubview(_:positioned:relativeTo:))) { view in
                     view.setSubviewIDs(view.subviews.map({ ObjectIdentifier($0) }))
                 }
                 subviewIDs = subviews.map({ ObjectIdentifier($0) })

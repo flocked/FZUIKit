@@ -30,7 +30,7 @@ extension CAShapeLayer {
             try? layoutSublayersHook?.revert()
             if let newValue = newValue {
                 do {
-                    try hookAfter(#selector(CALayer.layoutSublayers)) { layer, selector in
+                    try hookAfter(#selector(CALayer.layoutSublayers)) { layer in
                         layer.path = newValue.path(in: layer.bounds).cgPath
                     }
                     setNeedsLayout()

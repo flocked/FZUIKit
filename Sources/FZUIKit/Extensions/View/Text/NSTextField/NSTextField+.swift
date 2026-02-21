@@ -133,13 +133,13 @@ public extension NSTextField {
     }
                 
     /// The selected string value.
-    var selectedStringValue: String? {
-        get { selectedStringRange.map({ String(stringValue[$0])}) }
-        set { selectedStringRange = newValue != nil ? stringValue.nsRange(of: newValue!) : nil }
+    var selectedString: String? {
+        get { selectedRange.map({ String(stringValue[$0]) }) }
+        set { selectedRange = newValue != nil ? stringValue.nsRange(of: newValue!) : nil }
     }
         
     /// The range of the selected string.
-    var selectedStringRange: NSRange? {
+    var selectedRange: NSRange? {
         get { currentEditor()?.selectedRange }
         set {
             let newValue = newValue ?? NSRange(location: 0, length: 0)
@@ -311,15 +311,6 @@ public extension NSTextField {
         }
         self.maximumNumberOfLines = _maximumNumberOfLines
         return .zero
-    }
-
-    /// A Boolean value indicating whether the text field is truncating the text.
-    var isTruncatingText: Bool {
-        guard let cell = cell else { return false }
-        let isTruncating = cell.expansionFrame(withFrame: frame, in: self) != .zero
-        guard !isTruncating, maximumNumberOfLines == 1 else { return isTruncating }
-        let cellSize = cell.cellSize(forBounds: CGRect(0, 0, CGFloat.greatestFiniteMagnitude, frame.height-0.5))
-        return cellSize.width > frame.width
     }
     
     /// The rectangle of the text.

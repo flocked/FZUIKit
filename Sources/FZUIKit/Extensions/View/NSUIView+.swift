@@ -788,13 +788,12 @@ extension NSUIView {
      If set to `true`, autolayout problems are printed to the console.
      */
     public static var debugAutoLayoutProblems: Bool {
-        get { isMethodHooked(NSSelectorFromString("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:")) }
+        get { isMethodHooked(.string("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:")) }
         set {
             guard newValue != debugAutoLayoutProblems else { return }
             if newValue {
                 do {
-                    #if os(macOS) || os(iOS)
-                    try hook("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:", closure: { original, object, sel, engine, constraint, constraints in
+                    try hook(.string("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:"), closure: { original, object, sel, engine, constraint, constraints in
                         Swift.print()
                         Swift.print("Autolayout Error:")
                         Swift.print("- willBreak:", constraint)
@@ -805,26 +804,11 @@ extension NSUIView {
                     } as @convention(block) (
                         (AnyObject, Selector, NSObject, NSLayoutConstraint, [NSLayoutConstraint]) -> Void,
                         AnyObject, Selector, NSObject, NSLayoutConstraint, [NSLayoutConstraint]) -> Void)
-                    #else
-                    try hook(NSSelectorFromString("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:"),
-                             methodSignature: (@convention(c)  (AnyObject, Selector, NSObject, NSLayoutConstraint, [NSLayoutConstraint]) -> ()).self,
-                             hookSignature: (@convention(block)  (AnyObject, NSObject, NSLayoutConstraint, [NSLayoutConstraint]) -> ()).self) { store in {
-                        object, engine, constraint, constraints in
-                        Swift.print()
-                        Swift.print("Autolayout Error:")
-                        Swift.print("- willBreak:", constraint)
-                        Swift.print("- dueToMutuallyExclusive:", constraints)
-                        Swift.print(engine)
-                        Swift.print()
-                        store.original(object, store.selector, engine, constraint, constraints)
-                    }
-                    }
-                    #endif
                 } catch {
                     debugPrint(error)
                 }
             } else {
-                revertHooks(for: NSSelectorFromString("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:"))
+                revertHooks(for: .string("engine:willBreakConstraint:dueToMutuallyExclusiveConstraints:"))
             }
         }
     }

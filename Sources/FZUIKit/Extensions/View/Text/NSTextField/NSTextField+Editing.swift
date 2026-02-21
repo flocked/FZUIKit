@@ -31,7 +31,7 @@ extension NSTextField {
     }
 
     /// The action to perform when the user presses the escape key while editing.
-    public enum EscapeKeyAction: Int, Hashable {
+    public enum EscapeKeyAction {
         /// No action.
         case none
         /// Ends editing the text.
@@ -42,13 +42,37 @@ extension NSTextField {
         case delete
         /// Resets the text to the the state before editing.
         case reset
+        /// Calls the specified handler.
+        case custom((_ textField: NSTextField)->())
         
-        var shouldReset: Bool { self == .reset || self == .endEditingAndReset }
-        var shouldEnd: Bool { self == .endEditing || self == .endEditingAndReset }
+        var needsSwizzle: Bool {
+            switch self {
+            case .none: false
+            default: true
+            }
+        }
+        
+        var needsObserveEditing: Bool {
+            switch self {
+            case .endEditing, .none: false
+            default: true
+            }
+        }
+        
+        var rawValue: Int {
+            switch self {
+            case .none: 0
+            case .endEditing: 1
+            case .endEditingAndReset: 2
+            case .delete: 3
+            case .reset: 4
+            case .custom: Int.random(max: .max)
+            }
+        }
     }
 
     /// The action to perform when the user presses the enter key while editing.
-    public enum EnterKeyAction: Int, Hashable {
+    public enum EnterKeyAction {
         /// Ends editing the text.
         case endEditing
         /// Selects all text.
@@ -57,6 +81,25 @@ extension NSTextField {
         case newLine
         /// No action.
         case none
+        /// Calls the specified handler.
+        case custom((_ textField: NSTextField)->())
+        
+        var needsSwizzle: Bool {
+            switch self {
+            case .selectAll: false
+            default: true
+            }
+        }
+        
+        var rawValue: Int {
+            switch self {
+            case .endEditing: 0
+            case .selectAll: 1
+            case .newLine: 2
+            case .none: 3
+            case .custom: Int.random(max: .max)
+            }
+        }
     }
     
     /// The allowed characters the user can enter when editing.
@@ -168,7 +211,7 @@ extension NSTextField {
     public var editingActionOnEnterKeyDown: EnterKeyAction {
         get { getAssociatedValue("actionOnEnterKeyDown", initialValue: .selectAll) }
         set {
-            guard editingActionOnEnterKeyDown != newValue else { return }
+            guard editingActionOnEnterKeyDown.rawValue != newValue.rawValue else { return }
             setAssociatedValue(newValue, key: "actionOnEnterKeyDown")
             swizzleDoCommandBy()
         }
@@ -189,7 +232,7 @@ extension NSTextField {
     public var editingActionOnEscapeKeyDown: EscapeKeyAction {
         get { getAssociatedValue("actionOnEscapeKeyDown", initialValue: self is NSSearchField ? .delete : .none) }
         set {
-            guard editingActionOnEscapeKeyDown != newValue else { return }
+            guard editingActionOnEscapeKeyDown.rawValue != newValue.rawValue else { return }
             setAssociatedValue(newValue, key: "actionOnEscapeKeyDown")
             swizzleDoCommandBy()
             observeEditing()
@@ -262,8 +305,7 @@ extension NSTextField {
         set {
             guard newValue != isEditableByDoubleClick else { return }
             if newValue {
-                doubleClickEditGestureRecognizer = DoubleClickEditGestureRecognizer(self)
-                doubleClickEditGestureRecognizer?.addToView(self)
+                doubleClickEditGestureRecognizer = DoubleClickEditGestureRecognizer(for: self)
             } else  {
                 doubleClickEditGestureRecognizer?.removeFromView()
                 doubleClickEditGestureRecognizer = nil
@@ -284,34 +326,32 @@ extension NSTextField {
             stringValue = String(newString.prefix(maxCharCount))
         } else if let minCharCount = minimumNumberOfCharacters, newString.count < minCharCount {
             stringValue = previousString
-            currentEditor()?.selectedRange = editingRange
+            selectedRange = editingRange
         } else if editingHandlers.shouldEdit?(stringValue) == false {
             stringValue = previousString
-            currentEditor()?.selectedRange = editingRange
+            selectedRange = editingRange
         } else {
             stringValue = newString
             if previousString == newString {
-                currentEditor()?.selectedRange = editingRange
+                selectedRange = editingRange
             }
             editingHandlers.didEdit?()
         }
         previousString = stringValue
-        guard let editingRange = currentEditor()?.selectedRange else { return }
+        guard let editingRange = selectedRange else { return }
         self.editingRange = editingRange
     }
 
     func observeEditing() {
-        if editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit || needsFontAdjustments || isVerticallyCentered || editingActionOnEscapeKeyDown == .endEditingAndReset {
+        if editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit || needsFontAdjustments || isVerticallyCentered || editingActionOnEscapeKeyDown.needsObserveEditing {
             guard editingNotificationTokens.isEmpty else { return }
             setupTextFieldObserver()
             editingNotificationTokens += .init(NSTextField.textDidBeginEditingNotification, object: self) {  [weak self] _ in
                 guard let self = self else { return }
-                self.isEditingText = true
                 self.editStartString = self.stringValue
                 self.previousString = self.stringValue
                 self.editingHandlers.didBegin?()
-                guard let editingRange = self.currentEditor()?.selectedRange else { return }
-                self.editingRange = editingRange
+                self.editingRange = self.selectedRange ?? .zero
             }
             editingNotificationTokens += .init(NSTextField.textDidChangeNotification, object: self) {  [weak self] _ in
                 guard let self = self else { return }
@@ -324,11 +364,7 @@ extension NSTextField {
             }
             editingNotificationTokens += .init(NSTextField.textDidEndEditingNotification, object: self) {  [weak self] _ in
                 guard let self = self else { return }
-                self.isEditingText = false
                 self.editingHandlers.didEnd?()
-                guard previousString != self.stringValue else { return }
-              //  self.resizeToFit()
-              //  self.adjustFontSize()
             }
         } else {
             setupTextFieldObserver()
@@ -337,45 +373,45 @@ extension NSTextField {
     }
         
     func swizzleDoCommandBy() {
-        if editingActionOnEscapeKeyDown != .none || editingActionOnEnterKeyDown != .selectAll {
+        if editingActionOnEscapeKeyDown.needsSwizzle || editingActionOnEnterKeyDown.needsSwizzle {
             if doCommandHook == nil {
                 textFieldObserver = nil
                 do {
                     doCommandHook = try hook(#selector(NSTextViewDelegate.textView(_:doCommandBy:)), closure: { original, textField, sel, textView, selector in
                         switch selector {
                         case #selector(NSControl.cancelOperation(_:)):
-                            guard textField.editingActionOnEscapeKeyDown != .none else { break }
-                            if textField.editingActionOnEscapeKeyDown.shouldReset {
-                                textField.stringValue = textField.editStartString
-                            } else if textField.editingActionOnEscapeKeyDown == .delete {
-                                textField.stringValue = ""
-                            }
-                            if textField.editingActionOnEscapeKeyDown.shouldEnd {
+                            switch textField.editingActionOnEscapeKeyDown {
+                            case .none:
+                                return original(textField, sel, textView, selector)
+                            case .endEditing:
                                 textView.resignAsFirstResponder()
+                            case .endEditingAndReset:
+                                textField.stringValue = textField.editStartString
+                                textView.resignAsFirstResponder()
+                            case .delete:
+                                textField.stringValue = ""
+                            case .reset:
+                                textField.stringValue = textField.editStartString
+                            case .custom(let handler):
+                                handler(self)
                             }
-                            return true
-                            guard textField.editingActionOnEscapeKeyDown.shouldEnd else { break }
-                            textView.resignAsFirstResponder()
                             return true
                         case #selector(NSControl.insertNewline(_:)):
                             switch textField.editingActionOnEnterKeyDown {
                             case .endEditing:
                                 textView.resignAsFirstResponder()
-                                return true
                             case .selectAll:
                                 return original(textField, sel, textView, selector)
-                            case .none:
-                                return true
                             case .newLine:
                                 textView.insertNewlineIgnoringFieldEditor(textField)
-                                return true
+                            case .custom(let handler):
+                                handler(self)
+                            case .none: break
                             }
-                            guard textField.editingActionOnEnterKeyDown == .endEditing else { break }
-                            textView.resignAsFirstResponder()
                             return true
-                        default: break
+                        default:
+                            return original(textField, sel, textView, selector)
                         }
-                        return original(textField, sel, textView, selector)
                     } as @convention(block) ((NSTextField, Selector, NSTextView, Selector) -> Bool, NSTextField, Selector, NSTextView, Selector) -> Bool)
                     setupTextFieldObserver()
                 } catch {
@@ -396,82 +432,70 @@ extension NSTextField {
         } else if textFieldObserver == nil {
             textFieldObserver = KeyValueObserver(self)
         }
-        guard let textFieldObserver = textFieldObserver else { return }
+        guard let observer = textFieldObserver else { return }
         if needsFontAdjustments || automaticallyResizesToFit {
-            guard textFieldObserver.isObserving(\.stringValue) == false else { return }
-            textFieldObserver.add(\.stringValue, handler: { [weak self] old, new in
-                guard let self = self, old != new, self.isEditingText else { return }
+            guard !observer.isObserving(\.stringValue) else { return }
+            observer.add(\.stringValue) { [weak self] _,_ in
+                self?.resizeToFit()
+                self?.adjustFontSize()
+            }
+            observer.add(\.preferredMaxLayoutWidth) { [weak self] _,_ in
+                self?.resizeToFit()
+                self?.adjustFontSize()
+            }
+            observer.add(\.maximumNumberOfLines) { [weak self] _,_ in
+                self?.resizeToFit()
+                self?.adjustFontSize()
+            }
+            observer.add(\.isBezeled) { [weak self] _,_ in
+                self?.resizeToFit()
+                self?.adjustFontSize()
+            }
+            observer.add(\.isBordered) { [weak self] _,_ in
+                self?.resizeToFit()
+                self?.adjustFontSize()
+            }
+            observer.add(\.bezelStyle) { [weak self] _,_ in
+                guard let self = self, self.isBezeled else { return }
                 self.resizeToFit()
                 self.adjustFontSize()
-            })
-            textFieldObserver.add(\.preferredMaxLayoutWidth, handler: { [weak self] old, new in
-                guard let self = self, old != new else { return }
-                self.resizeToFit()
-                self.adjustFontSize()
-            })
-            textFieldObserver.add(\.maximumNumberOfLines, handler: { [weak self] old, new in
-                guard let self = self, old != new else { return }
-                self.resizeToFit()
-                self.adjustFontSize()
-            })
-            textFieldObserver.add(\.isBezeled, handler: { [weak self] old, new in
-                guard let self = self, old != new else { return }
-                self.resizeToFit()
-                self.adjustFontSize()
-            })
-            textFieldObserver.add(\.isBordered, handler: { [weak self] old, new in
-                guard let self = self, old != new else { return }
-                self.resizeToFit()
-                self.adjustFontSize()
-            })
-            textFieldObserver.add(\.bezelStyle, handler: { [weak self] old, new in
-                guard let self = self, self.isBezeled, old != new else { return }
-                self.resizeToFit()
-                self.adjustFontSize()
-            })
+            }
         } else {
-            textFieldObserver.remove([\.stringValue, \.isBezeled, \.isBordered, \.bezelStyle, \.preferredMaxLayoutWidth, \.maximumNumberOfLines])
+            observer.remove([\.stringValue, \.isBezeled, \.isBordered, \.bezelStyle, \.preferredMaxLayoutWidth, \.maximumNumberOfLines])
         }
         if needsFontAdjustments {
-            guard textFieldObserver.isObserving(\.allowsDefaultTighteningForTruncation) == false else { return }
-            textFieldObserver.add(\.allowsDefaultTighteningForTruncation, handler: { [weak self] old, new in
-                guard let self = self, old != new else { return }
-                self.adjustFontSize()
-            })
-            textFieldObserver.add(\.frame, handler: { [weak self] old, new in
+            guard !observer.isObserving(\.frame) else { return }
+            observer.add(\.allowsDefaultTighteningForTruncation) { [weak self] _,_ in
+                self?.adjustFontSize()
+            }
+            observer.add(\.frame) { [weak self] old, new in
                 guard let self = self, old.size != new.size else { return }
                 self.adjustFontSize()
-            })
+            }
         } else {
-            textFieldObserver.remove([\.allowsDefaultTighteningForTruncation, \.frame])
+            observer.remove([\.allowsDefaultTighteningForTruncation, \.frame])
         }
         if automaticallyResizesToFit {
-            guard textFieldObserver.isObserving(\.attributedStringValue) == false else { return }
-            textFieldObserver.add(\.attributedStringValue) { [weak self] old, new in
-                guard let self = self, self.automaticallyResizesToFit, !isEditingText else { return }
+            guard !observer.isObserving(\.attributedStringValue) else { return }
+            observer.add(\.attributedStringValue) { [weak self] _,_ in
+                self?.resizeToFit()
+            }
+            observer.add(\.placeholderString) { [weak self] _,_ in
+                guard let self = self, self.preferredMinLayoutWidth == Self.placeholderWidth else { return }
                 self.resizeToFit()
             }
-            textFieldObserver.add(\.placeholderString) { [weak self] old, new in
-                guard let self = self, self.automaticallyResizesToFit, self.preferredMinLayoutWidth == Self.placeholderWidth else { return }
-                self.resizeToFit()
-            }
-            textFieldObserver.add(\.placeholderAttributedString) { [weak self] old, new in
-                guard let self = self, self.automaticallyResizesToFit, self.preferredMinLayoutWidth == Self.placeholderWidth else { return }
+            observer.add(\.placeholderAttributedString) { [weak self] _,_ in
+                guard let self = self, self.preferredMinLayoutWidth == Self.placeholderWidth else { return }
                 self.resizeToFit()
             }
         } else {
-            textFieldObserver.remove([\.attributedStringValue, \.placeholderString, \.placeholderAttributedString])
+            observer.remove([\.attributedStringValue, \.placeholderString, \.placeholderAttributedString])
         }
     }
     
     private var doCommandHook: Hook? {
         get { getAssociatedValue("doCommandHook") }
         set { setAssociatedValue(newValue, key: "doCommandHook") }
-    }
-    
-    private var isEditingText: Bool {
-        get { getAssociatedValue("isEditingText", initialValue: false) }
-        set { setAssociatedValue(newValue, key: "isEditingText") }
     }
         
     var textFieldObserver: KeyValueObserver<NSTextField>? {
@@ -508,9 +532,10 @@ extension NSTextField {
         var isSelectableEditableState: (isSelectable: Bool, isEditable: Bool) = (false, false)
         var observations: [KeyValueObservation] = []
 
-        init(_ view: NSTextField) {
+        init(for view: NSTextField) {
             super.init(target: nil, action: nil)
             reattachesAutomatically = true
+            view.addGestureRecognizer(self)
         }
             
         required init?(coder: NSCoder) {

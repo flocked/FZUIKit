@@ -12,14 +12,14 @@ import FZSwiftUtils
 extension NSTextField {
     /// The color for selected text.
     public var selectionColor: NSColor? {
-        get { _electionColor }
+        get { _selectionColor }
         set {
             NSView.swizzleAnimationForKey()
-            _electionColor = newValue
+            _selectionColor = newValue
         }
     }
     
-    @objc var _electionColor: NSColor? {
+    @objc var _selectionColor: NSColor? {
         get { getAssociatedValue("selectionColor") }
         set {
             guard newValue != selectionColor else { return }
@@ -75,19 +75,37 @@ extension NSTextField {
             guard newValue != placeholderTextColor else { return }
             setAssociatedValue(newValue, key: "placeholderTextColor")
             if let color = newValue {
+                var aaaa: PartialKeyPath<NSTextField> = \.stringValue
+                aaaa.getterName()
                 setPlaceholderColor(color)
                 if placeholderObservations.isEmpty {
-                    placeholderObservations = [observeChanges(for: \.placeholderString) { [weak self] old, new in
-                        guard let self = self, new != nil, let color = self.placeholderTextColor else { return }
-                        self.setPlaceholderColor(color)
-                    }, observeChanges(for: \.placeholderAttributedString) { [weak self] old, new in
-                        guard let self = self, !self.isUpdatingPlaceholderColor, new != nil, let color = self.placeholderTextColor else { return }
-                        self.setPlaceholderColor(color)
-                    }].nonNil
+                    _placeholderString = placeholderString
+                    /*
+                    placeholderHook = try? hook(#selector(getter: NSTextField.placeholderString), closure: {
+                        original, textField, selector in
+                        return textField._placeholderString ?? original(textField, selector)
+                     } as @convention(block) (
+                         (NSTextField, Selector) -> String?,
+                         NSTextField, Selector) -> String?)
+                    */
+                    placeholderHook = try? hook(\.placeholderString) { textField, value in
+                        Swift.print("SWWWWW", value)
+                        Swift.print("_----")
+                       return textField._placeholderString ?? value
+                    }
+                    placeholderObservations += observeChanges(for: \.placeholderString) { [weak self] _,new in
+                        self?._placeholderString = new
+                        self?.setPlaceholderColor(color)
+                    }
+                    placeholderObservations += observeChanges(for: \.placeholderAttributedString) { [weak self] _,_ in
+                        self?._placeholderString = nil
+                    //    self?.setPlaceholderColor(color)
+                    }
                 }
             } else {
-                setPlaceholderColor(.secondaryLabelColor)
+                placeholderHook = nil
                 placeholderObservations = []
+                placeholderString = _placeholderString
             }
         }
     }
@@ -101,13 +119,12 @@ extension NSTextField {
     }
     
     func setPlaceholderColor(_ color: NSColor) {
-        isUpdatingPlaceholderColor = true
+        guard let cell = cell as? NSTextFieldCell else { return }
         if let placeholder = placeholderString {
-            placeholderAttributedString = .init(string: placeholder, attributes: [.foregroundColor: color])
+            cell.placeholderAttributedString = .init(string: placeholder, attributes: [.foregroundColor: color])
         } else if let placeholder = placeholderAttributedString {
-            placeholderAttributedString = placeholder.color(color)
+            cell.placeholderAttributedString = placeholder.color(color)
         }
-        isUpdatingPlaceholderColor = false
     }
     
     func updateSelectionObservation() {
@@ -139,14 +156,19 @@ extension NSTextField {
         set { setAssociatedValue(newValue, key: "selectionColorObservation") }
     }
     
+    var _placeholderString: String? {
+        get { getAssociatedValue("_placeholderString") }
+        set { setAssociatedValue(newValue, key: "_placeholderString") }
+    }
+    
+    var placeholderHook: Hook? {
+        get { getAssociatedValue("placeholderHook") }
+        set { setAssociatedValue(newValue, key: "placeholderHook") }
+    }
+    
     var selectionIsFirstResponder: Bool {
         get { getAssociatedValue("selectionColorIsFirstResponder") ?? false }
         set { setAssociatedValue(newValue, key: "selectionColorIsFirstResponder") }
-    }
-    
-    var isUpdatingPlaceholderColor: Bool {
-        get { getAssociatedValue("isUpdatingPlaceholderColor") ?? false }
-        set { setAssociatedValue(newValue, key: "isUpdatingPlaceholderColor") }
     }
     
     var placeholderObservations: [KeyValueObservation] {

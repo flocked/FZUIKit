@@ -254,28 +254,6 @@ fileprivate class ValidateSearchToolbarItem: NSSearchToolbarItem, NSSearchFieldD
         item?.textDidEndEditing()
     }
     
-    func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
-        if commandSelector == #selector(NSControl.cancelOperation(_:)) {
-            if searchField.editingActionOnEscapeKeyDown == .endEditingAndReset {
-                searchField.stringValue = startingString ?? searchField.stringValue
-                startingString = nil
-                searchField.resignAsFirstResponder()
-                return true
-            } else if searchField.editingActionOnEscapeKeyDown == .endEditing {
-                startingString = nil
-                searchField.resignAsFirstResponder()
-                return true
-            }
-        } else if commandSelector == #selector(NSControl.insertNewline(_:)) {
-            if searchField.editingActionOnEnterKeyDown == .endEditing {
-                startingString = nil
-                searchField.resignAsFirstResponder()
-                return true
-            }
-        }
-        return false
-    }
-    
     override var searchField: NSSearchField {
         didSet { searchField.delegate = self }
     }

@@ -19,32 +19,29 @@ public extension NSUIView {
     /// A value indicating whether a view is movable by clicking and dragging anywhere in its background.
     enum BackgroundDragOption: Hashable, ExpressibleByBooleanLiteral {
         /// The view is movable.
-        case on
-
+        case enabled
         /// The view isn't movable.
-        case off
-
-        /// The view is movable and bounds to it's superview by the specified margins.
-        case boundsToSuperview(margins: NSDirectionalEdgeInsets)
-
-        /// The view is movable and bounds to it's superview.
-        public static let boundsToSuperview = BackgroundDragOption.boundsToSuperview(margins: .zero)
+        case disabled
+        /// The view is movable, but constrained to the superview edges with the specified margins.
+        case constrainedToSuperview(margins: NSDirectionalEdgeInsets)
+        /// The view is movable, but constrained to the superview edges.
+        public static let constrainedToSuperview = Self.constrainedToSuperview(margins: .zero)
 
         var margins: NSDirectionalEdgeInsets? {
             switch self {
-            case .boundsToSuperview(let margins):
-                return margins
-            default: return nil
+            case .constrainedToSuperview(let margins): margins
+            default: nil
             }
         }
+        
         public init(booleanLiteral value: Bool) {
-            self = value == true ? .on : .off
+            self = value == true ? .enabled : .disabled
         }
     }
 
     /// A value indicating whether the view is movable by clicking and dragging anywhere in its background.
     var isMovableByViewBackground: BackgroundDragOption {
-        get { getAssociatedValue("isMovableByViewBackground", initialValue: .off) }
+        get { getAssociatedValue("isMovableByViewBackground") ?? .disabled }
         set {
             guard newValue != isMovableByViewBackground else { return }
             setAssociatedValue(newValue, key: "isMovableByViewBackground")
@@ -59,20 +56,20 @@ public extension NSUIView {
     }
 
     internal func setupDragResizeGesture() {
-        if isMovableByViewBackground != .off {
+        if isMovableByViewBackground != .disabled {
             if panGesture == nil {
                 let gesture = NSUIPanGestureRecognizer { [weak self] gesture in
                     guard let self = self else { return }
                     let velocity = gesture.velocity(in: self)
                     switch gesture.state {
                     case .began:                        
-                        backgroundDragVelocity?(.began, velocity)
+                        self.backgroundDragVelocity?(.began, velocity)
                         self.dragPoint = self.frame.origin
                     case .ended:
-                        backgroundDragVelocity?(.ended, velocity)
+                        self.backgroundDragVelocity?(.ended, velocity)
                         self.dragPoint = self.frame.origin
                     case .changed:
-                        backgroundDragVelocity?(.changed, velocity)
+                        self.backgroundDragVelocity?(.changed, velocity)
                         let translation = gesture.translation(in: self)
                         var dragPoint = self.dragPoint
                         dragPoint.x += translation.x
@@ -82,9 +79,9 @@ public extension NSUIView {
                         dragPoint.y += translation.y
                         #endif
                         self.frame.origin = dragPoint
-                        if var margins = isMovableByViewBackground.margins {
-                            margins.leading += border.width
-                            margins.trailing += border.width
+                        if var margins = self.isMovableByViewBackground.margins {
+                            margins.leading += self.border.width
+                            margins.trailing += self.border.width
                             margins.bottom += border.width
                             margins.top += border.width
                             if self.frame.origin.x < 0 + margins.leading {

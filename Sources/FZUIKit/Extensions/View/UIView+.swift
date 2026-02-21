@@ -271,6 +271,21 @@ extension UIView {
         }
     }
     
+    /**
+     Returns the optimal size of the view for the specified width and height based on its current constraints.
+     
+     This method returns a size value for the view that optimally satisfies the view's current constraints and is as close to the specified width and height as possible. This method does not actually change the size of the view.
+     
+     - Parameters:
+        - width: The width that you prefer for the view, or `nil` to get the fitting width.
+        - height: The height that you prefer for the view, or `nil` to get the fitting height.
+     
+     - Returns: The optimal size for the view.
+     */
+    public func systemLayoutSizeFitting(width: CGFloat? = nil, height: CGFloat? = nil) -> CGSize {
+        systemLayoutSizeFitting(CGSize(width ?? 0, height ?? 0), withHorizontalFittingPriority: width != nil ? .required : .fittingSizeLevel, verticalFittingPriority: height != nil ? .required : .fittingSizeLevel)
+    }
+    
     func setupTraitObservation() {
         if !viewHandlers.needsTraitObservation && !dynamicColors.needsObserving {
             traitObserverView?.removeFromSuperview()

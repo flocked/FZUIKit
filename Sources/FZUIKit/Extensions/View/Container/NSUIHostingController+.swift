@@ -66,7 +66,6 @@ fileprivate extension NSUIHostingController {
             _heightAnchor.isActive = newValue
             if newValue {
                 do {
-                    #if os(macOS) || os(iOS)
                     try hook(autoAdjustHeightSelector, closure: { original, controller, selector in
                         if controller.view.frame.size.width != controller._previousWidth {
                             controller._previousWidth = controller.view.frame.size.width
@@ -75,22 +74,6 @@ fileprivate extension NSUIHostingController {
                         }
                         original(controller, selector)
                     } as @convention(block) ((Self, Selector) -> Void, Self, Selector) -> Void)
-                    #else
-                    try hook(autoAdjustHeightSelector,
-                             methodSignature: (@convention(c)  (AnyObject, Selector) -> ()).self,
-                             hookSignature: (@convention(block)  (AnyObject) -> ()).self) { store in {
-                        object in
-                        if let controller = object as? Self {
-                            if controller.view.frame.size.width != controller._previousWidth {
-                                controller._previousWidth = controller.view.frame.size.width
-                                let fittingSize = controller.sizeThatFits(in: CGSize(width: controller._previousWidth, height: 40000))
-                                controller._heightAnchor.constant = fittingSize.height
-                            }
-                        }
-                        store.original(object, store.selector)
-                    }
-                    }
-                    #endif
                 } catch {
                     // handle error
                     debugPrint(error)
@@ -115,17 +98,7 @@ fileprivate extension NSUIView {
         revertHooks(for: #selector(getter: NSUIView.safeAreaInsets))
         if let newSafeAreaInsets = newSafeAreaInsets {
             do {
-                #if os(macOS) || os(iOS)
                 try hook(\.safeAreaInsets) { _,_ in return newSafeAreaInsets }
-                #else
-                try hook(#selector(getter: NSUIView.safeAreaInsets),
-                         methodSignature: (@convention(c)  (AnyObject, Selector) -> NSUIEdgeInsets).self,
-                         hookSignature: (@convention(block)  (AnyObject) -> NSUIEdgeInsets).self) { store in {
-                    object in
-                    return newSafeAreaInsets
-                }
-                }
-                #endif
             } catch {
                 Swift.debugPrint(error)
             }

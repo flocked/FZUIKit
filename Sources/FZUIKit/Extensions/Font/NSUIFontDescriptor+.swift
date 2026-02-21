@@ -147,13 +147,13 @@ public extension NSUIFontDescriptor {
     /// The system design of the font.
     var design: SystemDesign {
         guard let rawValue = traits?[.design] as? String else { return .default }
-        return SystemDesign(rawValue: rawValue) ?? .default
+        return SystemDesign(rawValue: rawValue)
     }
 
     /// The weight of the font.
     var weight: NSUIFont.Weight {
         guard let rawValue = traits?[.weight] as? CGFloat else { return .regular }
-        return .init(rawValue: rawValue) ?? .regular
+        return .init(rawValue: rawValue)
     }
     
     /// Returns a new font descriptor based on the current object, but with the specified weight.
