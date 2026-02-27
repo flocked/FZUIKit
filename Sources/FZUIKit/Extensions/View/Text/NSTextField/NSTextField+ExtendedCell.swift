@@ -28,7 +28,7 @@ extension NSTextField {
     /**
      The focus type of the text field.
      
-     - Note: This property isn't working with [NSSearchField](https://developer.apple.com/documentation/AppKit/NSSearchField).
+     - Note: This property can't be used with [NSSearchField](https://developer.apple.com/documentation/AppKit/NSSearchField).
      */
     public var focusType: FocusType {
         get { extendedTextFieldCell?.focusType ?? .default }
@@ -44,7 +44,7 @@ extension NSTextField {
     /**
      Sets the focus type of the text field.
      
-     - Note: This property isn't working with [NSSearchField](https://developer.apple.com/documentation/AppKit/NSSearchField).
+     - Note: This property can't be used with [NSSearchField](https://developer.apple.com/documentation/AppKit/NSSearchField).
      */
     @discardableResult
     public func focusType(_ focusType: FocusType) -> Self {
@@ -55,7 +55,7 @@ extension NSTextField {
     /**
      A Boolean value indicating whether the text is vertically centered.
      
-     - Note: This property isn't working with [NSSearchField](https://developer.apple.com/documentation/AppKit/NSSearchField).
+     - Note: This property can't be used with [NSSearchField](https://developer.apple.com/documentation/AppKit/NSSearchField).
      */
     public var isVerticallyCentered: Bool {
         get { extendedTextFieldCell?.isVerticallyCentered ?? false }
@@ -72,7 +72,7 @@ extension NSTextField {
     /**
      Sets the Boolean value indicating whether the text is vertically centered.
      
-     - Note: This property isn't working with [NSSearchField](https://developer.apple.com/documentation/AppKit/NSSearchField).
+     - Note: This property can't be used with [NSSearchField](https://developer.apple.com/documentation/AppKit/NSSearchField).
      */
     @discardableResult
     public func isVerticallyCentered(_ isCentered: Bool) -> Self {
@@ -83,7 +83,7 @@ extension NSTextField {
     /**
      The padding of the text.
      
-     - Note: This property isn't working with [NSSearchField](https://developer.apple.com/documentation/AppKit/NSSearchField).
+     - Note: This property can't be used with [NSSearchField](https://developer.apple.com/documentation/AppKit/NSSearchField).
      */
     public var textPadding: NSEdgeInsets {
         get { extendedTextFieldCell?.textPadding ?? .zero }
@@ -102,7 +102,7 @@ extension NSTextField {
     /**
      Sets the padding of the text.
      
-     - Note: This property isn't working with [NSSearchField](https://developer.apple.com/documentation/AppKit/NSSearchField).
+     - Note: This property can't be used with [NSSearchField](https://developer.apple.com/documentation/AppKit/NSSearchField).
      */
     @discardableResult
     public func textPadding(_ textPadding: NSEdgeInsets) -> Self {
@@ -151,7 +151,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
             
     func insetRect(for rect: CGRect) -> CGRect {
         var newRect = rect.inset(by: textPadding)
-        if isVerticallyCentered {
+        if isVerticallyCentered, !isEditingOrSelecting {
             let textSize = cellSize(forBounds: rect)
             let heightDelta = newRect.size.height - textSize.height
             if heightDelta > 0 {
@@ -170,7 +170,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     }
     
     override func drawingRect(forBounds rect: NSRect) -> NSRect {
-      return super.drawingRect(forBounds: insetRect(for: rect))
+        return super.drawingRect(forBounds: insetRect(for: rect))
     }
     
     override func titleRect(forBounds rect: NSRect) -> NSRect {
@@ -178,31 +178,22 @@ class ExtendedTextFieldCell: NSTextFieldCell {
     }
     
     override func edit(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, event: NSEvent?) {
+        let aRect = drawingRect(forBounds: rect)
         isEditingOrSelecting = true
-        super.edit(withFrame: insetRect(for: rect), in: controlView, editor: textObj, delegate: delegate, event: event)
+        super.edit(withFrame: aRect, in: controlView, editor: textObj, delegate: delegate, event: event)
         isEditingOrSelecting = false
     }
     
     override func select(withFrame rect: NSRect, in controlView: NSView, editor textObj: NSText, delegate: Any?, start selStart: Int, length selLength: Int) {
+        let aRect = drawingRect(forBounds: rect)
         isEditingOrSelecting = true
-        super.select(withFrame: insetRect(for: rect), in: controlView, editor: textObj, delegate: delegate, start: selStart, length: selLength)
+        super.select(withFrame: aRect, in: controlView, editor: textObj, delegate: delegate, start: selStart, length: selLength)
         isEditingOrSelecting = false
     }
     
     override func focusRingMaskBounds(forFrame cellFrame: NSRect, in controlView: NSView) -> NSRect {
         var bounds = super.focusRingMaskBounds(forFrame: cellFrame, in: controlView)
         if focusType == .capsule {
-            let radius = cellFrame.height / 2.0
-                    
-                    // 2. We need to expand the mask slightly so the "glow" of the focus ring
-                    // doesn't get clipped by the bounding box of the cell.
-                    // A small negative inset expands the rect.
-                    let padding: CGFloat = 2.0
-                    return bounds.insetBy(dx: -padding, dy: -padding)
-            
-            
-            return bounds.insetBy(dx: -3, dy: -3)
-
             let leftRight = bounds.height/3.0
             let topBottom = bounds.height/10.0
             bounds.origin.x -= leftRight
@@ -239,178 +230,178 @@ class ExtendedTextFieldCell: NSTextFieldCell {
 }
 
 /*
-extension NSTextField {
-    func _convertToExtendedTextFieldCell() {
-        guard let cell = cell as? NSTextFieldCell else { return }
-        guard !cell.isMethodHooked(#selector(NSTextFieldCell.cellSize(forBounds:))) else { return }
-        do {
-            try cell.hook(#selector(NSTextFieldCell.cellSize(forBounds:)), closure: {
-                [weak self] original, object, selector, rect in
-                var size = original(object, selector, rect)
-                size.height += self?.textPadding.height ?? 0.0
-                size.width += self?.textPadding.width ?? 0.0
-                return size
-             } as @convention(block) (
-                 (NSTextFieldCell, Selector, CGRect) -> CGSize,
-                 NSTextFieldCell, Selector, CGRect) -> CGSize)
-            try cell.hook(#selector(NSTextFieldCell.drawingRect(forBounds:)), closure: {
-                [weak self] original, object, selector, rect in
-                original(object, selector, self?._insetRect(for: rect) ?? rect)
-             } as @convention(block) (
-                 (NSTextFieldCell, Selector, CGRect) -> CGRect,
-                 NSTextFieldCell, Selector, CGRect) -> CGRect)
-            try cell.hook(#selector(NSTextFieldCell.titleRect(forBounds:)), closure: {
-                [weak self] original, object, selector, rect in
-                self?._insetRect(for: rect) ?? original(object, selector, rect)
-             } as @convention(block) (
-                 (NSTextFieldCell, Selector, CGRect) -> CGRect,
-                 NSTextFieldCell, Selector, CGRect) -> CGRect)
-            try cell.hook(#selector(NSTextFieldCell.edit(withFrame:in:editor:delegate:event:)), closure: {
-                [weak self] original, object, selector, rect, controlView, textObj, delegate, event in
-                object._isEditingOrSelecting = true
-                original(object, selector, self?._insetRect(for: rect) ?? rect, controlView, textObj, delegate, event)
-                object._isEditingOrSelecting = false
-             } as @convention(block) (
-                 (NSTextFieldCell, Selector, CGRect, NSView, NSText, Any?, NSEvent?) -> Void,
-                 NSTextFieldCell, Selector, CGRect, NSView, NSText, Any?, NSEvent?) -> Void)
-            try cell.hook(#selector(NSTextFieldCell.select(withFrame:in:editor:delegate:start:length:)), closure: {
-                [weak self] original, object, selector, rect, controlView, textObj, delegate, selStart, selLength in
-                object._isEditingOrSelecting = true
-                original(object, selector, self?._insetRect(for: rect) ?? rect, controlView, textObj, delegate, selStart, selLength)
-                object._isEditingOrSelecting = false
-             } as @convention(block) (
-                 (NSTextFieldCell, Selector, CGRect, NSView, NSText, Any?, Int, Int) -> Void,
-                 NSTextFieldCell, Selector, CGRect, NSView, NSText, Any?, Int, Int) -> Void)
-            try cell.hook(#selector(NSTextFieldCell.focusRingMaskBounds(forFrame:in:)), closure: {
-                [weak self] original, object, selector, cellFrame, controlView in
-                var bounds = original(object, selector, cellFrame, controlView)
-                guard let self = self else { return bounds }
-                if self.focusType == .capsule {
-                    let leftRight = bounds.height/3.0
-                    let topBottom = bounds.height/10.0
-                    bounds.origin.x -= leftRight
-                    bounds.origin.y -= topBottom
-                    bounds.size.width += leftRight + leftRight
-                    bounds.size.height += topBottom + topBottom
-                }
-                return bounds
-             } as @convention(block) (
-                 (NSTextFieldCell, Selector, CGRect, NSView) -> CGRect,
-                 NSTextFieldCell, Selector, CGRect, NSView) -> CGRect)
+ extension NSTextField {
+     func _convertToExtendedTextFieldCell() {
+         guard let cell = cell as? NSTextFieldCell else { return }
+         guard !cell.isMethodHooked(#selector(NSTextFieldCell.cellSize(forBounds:))) else { return }
+         do {
+             try cell.hook(#selector(NSTextFieldCell.cellSize(forBounds:)), closure: {
+                 [weak self] original, object, selector, rect in
+                 var size = original(object, selector, rect)
+                 size.height += self?.textPadding.height ?? 0.0
+                 size.width += self?.textPadding.width ?? 0.0
+                 return size
+              } as @convention(block) (
+                  (NSTextFieldCell, Selector, CGRect) -> CGSize,
+                  NSTextFieldCell, Selector, CGRect) -> CGSize)
+             try cell.hook(#selector(NSTextFieldCell.drawingRect(forBounds:)), closure: {
+                 [weak self] original, object, selector, rect in
+                 original(object, selector, self?._insetRect(for: rect) ?? rect)
+              } as @convention(block) (
+                  (NSTextFieldCell, Selector, CGRect) -> CGRect,
+                  NSTextFieldCell, Selector, CGRect) -> CGRect)
+             try cell.hook(#selector(NSTextFieldCell.titleRect(forBounds:)), closure: {
+                 [weak self] original, object, selector, rect in
+                 self?._insetRect(for: rect) ?? original(object, selector, rect)
+              } as @convention(block) (
+                  (NSTextFieldCell, Selector, CGRect) -> CGRect,
+                  NSTextFieldCell, Selector, CGRect) -> CGRect)
+             try cell.hook(#selector(NSTextFieldCell.edit(withFrame:in:editor:delegate:event:)), closure: {
+                 [weak self] original, object, selector, rect, controlView, textObj, delegate, event in
+                 object._isEditingOrSelecting = true
+                 original(object, selector, self?._insetRect(for: rect) ?? rect, controlView, textObj, delegate, event)
+                 object._isEditingOrSelecting = false
+              } as @convention(block) (
+                  (NSTextFieldCell, Selector, CGRect, NSView, NSText, Any?, NSEvent?) -> Void,
+                  NSTextFieldCell, Selector, CGRect, NSView, NSText, Any?, NSEvent?) -> Void)
+             try cell.hook(#selector(NSTextFieldCell.select(withFrame:in:editor:delegate:start:length:)), closure: {
+                 [weak self] original, object, selector, rect, controlView, textObj, delegate, selStart, selLength in
+                 object._isEditingOrSelecting = true
+                 original(object, selector, self?._insetRect(for: rect) ?? rect, controlView, textObj, delegate, selStart, selLength)
+                 object._isEditingOrSelecting = false
+              } as @convention(block) (
+                  (NSTextFieldCell, Selector, CGRect, NSView, NSText, Any?, Int, Int) -> Void,
+                  NSTextFieldCell, Selector, CGRect, NSView, NSText, Any?, Int, Int) -> Void)
+             try cell.hook(#selector(NSTextFieldCell.focusRingMaskBounds(forFrame:in:)), closure: {
+                 [weak self] original, object, selector, cellFrame, controlView in
+                 var bounds = original(object, selector, cellFrame, controlView)
+                 guard let self = self else { return bounds }
+                 if self.focusType == .capsule {
+                     let leftRight = bounds.height/3.0
+                     let topBottom = bounds.height/10.0
+                     bounds.origin.x -= leftRight
+                     bounds.origin.y -= topBottom
+                     bounds.size.width += leftRight + leftRight
+                     bounds.size.height += topBottom + topBottom
+                 }
+                 return bounds
+              } as @convention(block) (
+                  (NSTextFieldCell, Selector, CGRect, NSView) -> CGRect,
+                  NSTextFieldCell, Selector, CGRect, NSView) -> CGRect)
             
-            try cell.hook(#selector(NSTextFieldCell.drawFocusRingMask(withFrame:in:)), closure: {
-                [weak self] original, object, selector, cellFrame, controlView in
-                guard let self = self else { return }
-                guard focusType != .none else {
-                    return
-                }
+             try cell.hook(#selector(NSTextFieldCell.drawFocusRingMask(withFrame:in:)), closure: {
+                 [weak self] original, object, selector, cellFrame, controlView in
+                 guard let self = self else { return }
+                 guard focusType != .none else {
+                     return
+                 }
                 
-                var cornerRadius: CGFloat = 0
-                switch self.focusType {
-                case .capsule:
-                    cornerRadius = cellFrame.size.height / 2.0
-                case let .roundedCorners(radius):
-                    cornerRadius = radius
-                case let .roundedCornersRelative(relative):
-                    cornerRadius = (cellFrame.height/2.0) * relative.clamped(to: 0.0...1.0)
-                default:
-                    break
-                }
+                 var cornerRadius: CGFloat = 0
+                 switch self.focusType {
+                 case .capsule:
+                     cornerRadius = cellFrame.size.height / 2.0
+                 case let .roundedCorners(radius):
+                     cornerRadius = radius
+                 case let .roundedCornersRelative(relative):
+                     cornerRadius = (cellFrame.height/2.0) * relative.clamped(to: 0.0...1.0)
+                 default:
+                     break
+                 }
                 
-                let cellFrame = object.focusRingMaskBounds(forFrame: cellFrame, in: controlView)
-                guard focusType != .default, cornerRadius != 0 else {
-                    original(object, selector, cellFrame, controlView)
-                    return
-                }
-                NSBezierPath(roundedRect: cellFrame, cornerRadius: cornerRadius).fill()
-             } as @convention(block) (
-                 (NSTextFieldCell, Selector, CGRect, NSView) -> Void,
-                 NSTextFieldCell, Selector, CGRect, NSView) -> Void)
+                 let cellFrame = object.focusRingMaskBounds(forFrame: cellFrame, in: controlView)
+                 guard focusType != .default, cornerRadius != 0 else {
+                     original(object, selector, cellFrame, controlView)
+                     return
+                 }
+                 NSBezierPath(roundedRect: cellFrame, cornerRadius: cornerRadius).fill()
+              } as @convention(block) (
+                  (NSTextFieldCell, Selector, CGRect, NSView) -> Void,
+                  NSTextFieldCell, Selector, CGRect, NSView) -> Void)
             
             
-        } catch {
-            Swift.print(error)
-        }
-    }
+         } catch {
+             Swift.print(error)
+         }
+     }
     
-    func _insetRect(for rect: CGRect) -> CGRect {
-        guard let cell = cell as? NSTextFieldCell else { return .zero }
-        var newRect = rect
-        newRect.origin.x += textPadding.left
-        newRect.origin.y += textPadding.top
-        newRect.size.width -= textPadding.width
-        newRect.size.height -= textPadding.height
+     func _insetRect(for rect: CGRect) -> CGRect {
+         guard let cell = cell as? NSTextFieldCell else { return .zero }
+         var newRect = rect
+         newRect.origin.x += textPadding.left
+         newRect.origin.y += textPadding.top
+         newRect.size.width -= textPadding.width
+         newRect.size.height -= textPadding.height
         
         
-        if isVerticallyCentered {
-            let textSize = cell.cellSize(forBounds: rect)
-            let heightDelta = newRect.size.height - textSize.height
-            if heightDelta > 0 {
-                newRect.size.height -= heightDelta
-                newRect.origin.y += heightDelta/2
-            }
-        }
-        return newRect
-    }
-}
+         if isVerticallyCentered {
+             let textSize = cell.cellSize(forBounds: rect)
+             let heightDelta = newRect.size.height - textSize.height
+             if heightDelta > 0 {
+                 newRect.size.height -= heightDelta
+                 newRect.origin.y += heightDelta/2
+             }
+         }
+         return newRect
+     }
+ }
 
-extension NSTextFieldCell {
-    var _isEditingOrSelecting: Bool {
-        get { getAssociatedValue("isEditingOrSelecting") ?? false }
-        set { setAssociatedValue(newValue, key: "isEditingOrSelecting") }
-    }
-}
- */
+ extension NSTextFieldCell {
+     var _isEditingOrSelecting: Bool {
+         get { getAssociatedValue("isEditingOrSelecting") ?? false }
+         set { setAssociatedValue(newValue, key: "isEditingOrSelecting") }
+     }
+ }
+  */
 
 /*
-func convertToExtendedTextFieldCell() {
-    guard extendedTextFieldCell == nil, let textFieldCell = cell as? NSTextFieldCell else { return }
-    wantsLayer = true
-    let layer = layer
-    do {
-        let convertedCell = try textFieldCell.archiveBasedCopy(as: ExtendedTextFieldCell.self)
-        let backgroundColor = layer?.backgroundColor
-        let border = border
-        let innerShadow = innerShadow
-        let outerShadow = outerShadow
-        let cornerRadius = cornerRadius
-        let cornerCurve = cornerCurve
-        let roundedCorners = roundedCorners
-        let isOpaque = isOpaque
-        let mask = mask
-        let anchorPoint = anchorPoint
-        let transform = transform
-        let transform3D = transform3D
-        let shadowPath = shadowPath
-        let clipsToBounds = clipsToBounds
-      //  layer.delegate = nil
-     //   self.layer = nil
-        cell = convertedCell
-        layer?.delegate = self as? any CALayerDelegate
-        Swift.print("layerCheck", self.layer === layer, self.layer, layer)
-        self.layer = layer
-        self.layer?.backgroundColor = backgroundColor
-        self.border = border
-        self.innerShadow = innerShadow
-        self.outerShadow = outerShadow
-        self.roundedCorners = roundedCorners
-        self.cornerCurve = cornerCurve
-        self.cornerRadius = cornerRadius
-        self.clipsToBounds = clipsToBounds
-        self.isOpaque = isOpaque
-        self.mask = mask
-        self.anchorPoint = anchorPoint
-        self.shadowPath = shadowPath
-        if transform != CGAffineTransformIdentity {
-            self.transform = transform
-        }
-        if transform3D != CATransform3DIdentity {
-            self.transform3D = transform3D
-        }
-    } catch {
-        debugPrint(error)
-    }
-}
-*/
+ func convertToExtendedTextFieldCell() {
+     guard extendedTextFieldCell == nil, let textFieldCell = cell as? NSTextFieldCell else { return }
+     wantsLayer = true
+     let layer = layer
+     do {
+         let convertedCell = try textFieldCell.archiveBasedCopy(as: ExtendedTextFieldCell.self)
+         let backgroundColor = layer?.backgroundColor
+         let border = border
+         let innerShadow = innerShadow
+         let outerShadow = outerShadow
+         let cornerRadius = cornerRadius
+         let cornerCurve = cornerCurve
+         let roundedCorners = roundedCorners
+         let isOpaque = isOpaque
+         let mask = mask
+         let anchorPoint = anchorPoint
+         let transform = transform
+         let transform3D = transform3D
+         let shadowPath = shadowPath
+         let clipsToBounds = clipsToBounds
+       //  layer.delegate = nil
+      //   self.layer = nil
+         cell = convertedCell
+         layer?.delegate = self as? any CALayerDelegate
+         Swift.print("layerCheck", self.layer === layer, self.layer, layer)
+         self.layer = layer
+         self.layer?.backgroundColor = backgroundColor
+         self.border = border
+         self.innerShadow = innerShadow
+         self.outerShadow = outerShadow
+         self.roundedCorners = roundedCorners
+         self.cornerCurve = cornerCurve
+         self.cornerRadius = cornerRadius
+         self.clipsToBounds = clipsToBounds
+         self.isOpaque = isOpaque
+         self.mask = mask
+         self.anchorPoint = anchorPoint
+         self.shadowPath = shadowPath
+         if transform != CGAffineTransformIdentity {
+             self.transform = transform
+         }
+         if transform3D != CATransform3DIdentity {
+             self.transform3D = transform3D
+         }
+     } catch {
+         debugPrint(error)
+     }
+ }
+ */
 
 #endif

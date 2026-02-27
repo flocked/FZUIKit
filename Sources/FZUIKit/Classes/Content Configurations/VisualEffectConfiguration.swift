@@ -5,7 +5,6 @@
 //  Created by Florian Zand on 03.09.22.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
 #if os(macOS)
 import AppKit
 
@@ -178,86 +177,4 @@ extension VisualEffectConfiguration: ReferenceConvertible {
         description
     }
 }
-
-#elseif os(iOS) || os(tvOS)
-import UIKit
-/**
- A configuration that specifies the appearance of a visual effect view.
-
- `UIVisualEffectView` can be configurated by passing the configuration to `configurate(using configuration: VisualEffectConfiguration)`.
-
- `UIView` can be configurated via it's ``UIKIT/UIView/visualEffect`` property.  It adds a visual effect view as background to the view.
- */
-public struct VisualEffectConfiguration: Hashable {
-
-    /// The visual effect.
-    public var effect: UIVisualEffect?
-
-    /// Creates a visual effect configuration.
-    public init(effect: UIVisualEffect? = nil) {
-        self.effect = effect
-    }
-
-    /// A visual blurring effect.
-    public static func blur(_ style: UIBlurEffect.Style) -> Self { Self(effect: UIBlurEffect(style: style)) }
-
-    /// A visual vibrancy effect.
-    public static func vibrancy(blur: UIBlurEffect.Style) -> Self { Self(effect: UIVibrancyEffect(blurEffect: UIBlurEffect(style: blur))) }
-
-    #if os(iOS)
-    /// A visual blurring vibrancy effect.
-    public static func vibrancy(_ vibrancy: UIVibrancyEffectStyle, blur: UIBlurEffect.Style) -> Self { Self(effect: UIVibrancyEffect(blurEffect: UIBlurEffect(style: blur), style: vibrancy)) }
-    #endif
-}
-
-/// The Objective-C class for ``VisualEffectConfiguration``.
-public class __VisualEffectConfiguration: NSObject, NSCopying {
-    public var effect: UIVisualEffect?
-
-    public init(effect: UIVisualEffect? = nil) {
-        self.effect = effect
-    }
-
-    public func copy(with zone: NSZone? = nil) -> Any {
-        __VisualEffectConfiguration(effect: effect)
-    }
-
-    public override func isEqual(_ object: Any?) -> Bool {
-        effect == (object as? __VisualEffectConfiguration)?.effect
-    }
-}
-
-extension VisualEffectConfiguration: ReferenceConvertible {
-    /// The Objective-C type for the configuration.
-    public typealias ReferenceType = __VisualEffectConfiguration
-
-    public func _bridgeToObjectiveC() -> __VisualEffectConfiguration {
-        return __VisualEffectConfiguration(effect: effect)
-    }
-
-    public static func _forceBridgeFromObjectiveC(_ source: __VisualEffectConfiguration, result: inout VisualEffectConfiguration?) {
-        result = VisualEffectConfiguration(effect: source.effect)
-    }
-
-    public static func _conditionallyBridgeFromObjectiveC(_ source: __VisualEffectConfiguration, result: inout VisualEffectConfiguration?) -> Bool {
-        _forceBridgeFromObjectiveC(source, result: &result)
-        return true
-    }
-
-    public static func _unconditionallyBridgeFromObjectiveC(_ source: __VisualEffectConfiguration?) -> VisualEffectConfiguration {
-        if let source = source {
-            var result: VisualEffectConfiguration?
-            _forceBridgeFromObjectiveC(source, result: &result)
-            return result!
-        }
-        return VisualEffectConfiguration()
-    }
-
-    public var description: String { "" }
-
-    public var debugDescription: String {
-        description
-    }
-}
-#endif
 #endif

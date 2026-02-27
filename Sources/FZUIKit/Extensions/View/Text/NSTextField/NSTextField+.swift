@@ -325,5 +325,20 @@ public extension NSTextField {
     var textFieldCell: NSTextFieldCell? {
         cell as? NSTextFieldCell
     }
+    
+    /// The tint configuration of the text field.
+    var tintConfiguration: NSTintConfiguration? {
+        get { (cell as? NSTextFieldCell)?.tintConfiguration }
+        set { (cell as? NSTextFieldCell)?.tintConfiguration = newValue }
+    }
 }
+
+extension NSTextFieldCell {
+    /// The tint configuration of the text field cell.
+    public var tintConfiguration: NSTintConfiguration? {
+        get { value(forKey: "_sidebarTintConfiguration") as? NSTintConfiguration }
+        set { setValue(newValue, forKey: "_sidebarTintConfiguration") }
+    }
+}
+
 #endif

@@ -210,7 +210,7 @@ extension NSProgressIndicator {
     }
     
     /// Sets the progress object to use for updating the progress indicator.
-    @available (macOS 14.0, *)
+    @available(macOS 14.0, *)
     @discardableResult
     public func observeredProgress(_ progress: Progress?) -> Self {
         self.observedProgress = progress

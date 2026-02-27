@@ -84,6 +84,7 @@ extension WKWebView {
         public var didFail: ((_ download: WKDownload, _ error: Error, _ resumeData: Data?) -> ())?
         
         /// The handler that provides the placeholder policy for a download.
+        @available(macOS 12.0, iOS 18.2, tvOS 18.2, *)
         public var placeholderPolicy: ((_ download: WKDownload) -> (policy: WKDownload.PlaceholderPolicy, destination: URL?))? {
             get { _placeholderPolicy as? ((WKDownload) -> (WKDownload.PlaceholderPolicy, URL?)) }
             set { _placeholderPolicy = newValue }
@@ -362,6 +363,7 @@ extension WKWebView {
             webView?.downloadHandlers.didReceivePlaceholderURL?(download, url)
         }
         
+        @available(macOS 12.0, iOS 18.2, tvOS 18.2, *)
         func download(_ download: WKDownload, decidePlaceholderPolicy completionHandler: @escaping @MainActor (WKDownload.PlaceholderPolicy, URL?) -> Void) {
             if let policy = webView?.downloadHandlers.placeholderPolicy?(download) {
                 completionHandler(policy.policy, policy.destination)

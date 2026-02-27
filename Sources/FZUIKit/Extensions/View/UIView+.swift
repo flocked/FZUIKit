@@ -330,7 +330,7 @@ extension UIView {
     }
 }
 
-extension UIView.ContentMode: CaseIterable {
+extension UIView.ContentMode: Swift.CaseIterable {
     /// All content modes.
     public static var allCases: [UIView.ContentMode] = [.scaleToFill, .scaleAspectFit, .scaleAspectFill, .redraw, .center, .top, .bottom, .left, .right, .topLeft, .topRight, .bottomLeft, .bottomRight]
 }

@@ -14,23 +14,19 @@ import UIKit
 import FZSwiftUtils
 
 extension NSUIView {
+    #if os(macOS)
     /**
      The visual effect of the view.
      
-     The property adds a `VisualEffectView` as background to the view. The default value is `nil`.
+     The property adds a [NSVisualEffectView](https://developer.apple.com/documentation/appkit/nsvisualeffectview) as background to the view.
+     
+     The default value is `nil`.
      */
     @objc open var visualEffect: VisualEffectConfiguration? {
-        get {
-            #if os(macOS)
-            (self as? NSVisualEffectView)?.configuration ?? visualEffectBackgroundView?.configuration
-            #else
-            (self as? UIVisualEffectView)?.configuration ?? visualEffectBackgroundView?.configuration
-            #endif
-        }
+        get { (self as? NSUIVisualEffectView)?.configuration ?? visualEffectBackgroundView?.configuration }
         set {
             if let newValue = newValue {
-            #if os(macOS)
-                if let view = self as? NSVisualEffectView {
+                if let view = self as? NSUIVisualEffectView {
                     view.configuration = newValue
                 } else {
                     if visualEffectBackgroundView == nil {
@@ -39,16 +35,6 @@ extension NSUIView {
                     visualEffectBackgroundView?.configuration = newValue
                     appearance = newValue.appearance ?? appearance
                 }
-            #else
-                if let view = self as? UIVisualEffectView {
-                    view.configuration = newValue
-                } else {
-                    if visualEffectBackgroundView == nil {
-                        visualEffectBackgroundView = BackgroundVisualEffectView()
-                    }
-                    visualEffectBackgroundView?.configuration = newValue
-                }
-            #endif
             } else {
                 visualEffectBackgroundView = nil
             }
@@ -61,6 +47,39 @@ extension NSUIView {
         self.visualEffect = visualEffect
         return self
     }
+    #else
+    /**
+     The visual effect of the view.
+     
+     The property adds a [UIVisualEffectView](https://developer.apple.com/documentation/uikit/uivisualeffectview) as background to the view.
+     
+     The default value is `nil`.
+     */
+    @objc open var visualEffect: UIVisualEffect? {
+        get { (self as? NSUIVisualEffectView)?.effect ?? visualEffectBackgroundView?.effect }
+        set {
+            if let newValue = newValue {
+                if let view = self as? NSUIVisualEffectView {
+                    view.effect = newValue
+                } else {
+                    if visualEffectBackgroundView == nil {
+                        visualEffectBackgroundView = BackgroundVisualEffectView()
+                    }
+                    visualEffectBackgroundView?.effect = newValue
+                }
+            } else {
+                visualEffectBackgroundView = nil
+            }
+        }
+    }
+    
+    /// Sets the visual effect of the view.
+    @discardableResult
+    @objc open func visualEffect(_ visualEffect: UIVisualEffect?) -> Self {
+        self.visualEffect = visualEffect
+        return self
+    }
+    #endif
     
     var visualEffectBackgroundView: BackgroundVisualEffectView? {
         get { viewWithTag(3_443_024) as? BackgroundVisualEffectView }
@@ -75,16 +94,6 @@ extension NSUIView {
 
 class BackgroundVisualEffectView: NSUIVisualEffectView {
     var observer: KeyValueObserver<NSUIVisualEffectView>!
-
-    #if os(macOS)
-    override var acceptsFirstResponder: Bool {
-        false
-    }
-    
-    override func hitTest(_ point: NSPoint) -> NSView? {
-        return nil
-    }
-    #endif
         
     init() {
         #if os(macOS)
@@ -93,7 +102,7 @@ class BackgroundVisualEffectView: NSUIVisualEffectView {
         super.init(effect: nil)
         tag = 3_443_024
         #endif
-        optionalLayer?.zPosition = -.greatestFiniteMagnitude
+        zPosition = -.greatestFiniteMagnitude
         clipsToBounds = true
         observer = KeyValueObserver(self)
         #if os(macOS)
@@ -122,16 +131,13 @@ class BackgroundVisualEffectView: NSUIVisualEffectView {
     }
     
     #if os(macOS)
-    static var Tag: Int { 3_443_024 }
-    override var tag: Int { Self.Tag }
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        return nil
+    }
+    
+    override var acceptsFirstResponder: Bool { false }
+    
+    override var tag: Int { 3_443_024 }
     #endif
 }
-#if os(iOS) || os(tvOS)
-extension UIVisualEffectView {
-    var configuration: VisualEffectConfiguration {
-        get { VisualEffectConfiguration(effect: effect) }
-        set { effect = newValue.effect }
-    }
-}
-#endif
 #endif

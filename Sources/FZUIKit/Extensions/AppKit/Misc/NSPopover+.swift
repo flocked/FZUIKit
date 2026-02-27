@@ -555,15 +555,13 @@ extension NSPopover {
         }
         
         func popoverShouldDetach(_ popover: NSPopover) -> Bool {
-            return popover.handlers.shouldDetach?() ?? delegate?.popoverShouldDetach?(popover) ?? popover.isDetachable
+            popover.handlers.shouldDetach?() ?? delegate?.popoverShouldDetach?(popover) ?? popover.isDetachable
         }
         
         func popoverDidDetach(_ popover: NSPopover) {
             delegate?.popoverDidDetach?(popover)
             popover.handlers.didDetach?()
-            if popover == self.popover {
-                self.popover.closeButton?.isHidden = self.popover.hidesDetachedCloseButton
-            }
+            popover.closeButton?.isHidden = popover.hidesDetachedCloseButton
         }
     }
 }
