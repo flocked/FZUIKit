@@ -55,15 +55,6 @@ public extension NSEvent {
     }
     
     /**
-     The window associated with the event.
-     
-     Periodic events do not have a window.
-     */
-    var window: NSWindow? {
-        NSApp.window(withWindowNumber: windowNumber)
-    }
-    
-    /**
      Creates and returns a new key down event with the specified key code.
      
      - Parameters:

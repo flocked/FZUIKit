@@ -140,31 +140,105 @@ extension NSWindow {
         return self
     }
     
-    public enum FullscreenTilingBehaviour {
+    /// Defines how a window participates in spaces.
+    public enum SpaceParticipation: Int, CustomStringConvertible {
+        /// The window appears in every spaces.
+        case allSpaces
+        /// The window moves to the active space when it becomes active.
+        case followsActiveSpace
+        /// The window remains in its assigned space. Activating it switches to that space.
+        case assignedSpace
+        
+        public var description: String {
+            switch self {
+            case .allSpaces: return "allSpaces"
+            case .followsActiveSpace: return "followsActiveSpace"
+            case .assignedSpace: return "assignedSpace"
+            }
+        }
+    }
+    
+    /// The value that determinates how the window participates in spaces.
+    public var spaceParticipation: SpaceParticipation {
+        get { collectionBehavior.contains(.canJoinAllSpaces) ? .allSpaces : collectionBehavior.contains(.moveToActiveSpace) ? .followsActiveSpace : .assignedSpace }
+        set {
+            collectionBehavior[.canJoinAllSpaces] = newValue == .allSpaces
+            collectionBehavior[.moveToActiveSpace] = newValue == .followsActiveSpace
+        }
+    }
+    
+    /// A Boolean value indicating whether the window joins Mission Control or stays visible and stationary, like the desktop window.
+    public var joinsMissionControl: Bool {
+        get { !collectionBehavior.contains(.stationary) }
+        set { collectionBehavior[.stationary] = !newValue }
+    }
+    
+    /// A Boolean value indicating whether the window participates in the window cycle for use with the Cycle Through Windows menu item.
+    public var participatesInWindowCycle: Bool {
+        get { !collectionBehavior.contains(.ignoresCycle) }
+        set {
+            collectionBehavior[.ignoresCycle] = !newValue
+            collectionBehavior[.participatesInCycle] = newValue
+        }
+    }
+    
+    /// Defines the window’s grouping role in Full Screen and Stage Manager.
+    @available(macOS 13.0, *)
+    @objc public enum PresentationRole: Int {
+        /// The window acts as the primary window.
+        case primary
+        /// The window appears alongside a primary window.
+        case auxiliary
+        /// The window may appear with windows from other applications.
+        case crossApplication
+    }
+    
+    @available(macOS 13.0, *)
+    public var presentationRole: PresentationRole {
+        get { collectionBehavior.contains(.canJoinAllApplications) ? .crossApplication : collectionBehavior.contains(.auxiliary) ? .auxiliary : .primary }
+        set {
+            collectionBehavior.remove([.canJoinAllApplications, .auxiliary, .primary])
+            collectionBehavior[.primary] = newValue == .primary
+            collectionBehavior[.auxiliary] = newValue == .auxiliary
+            collectionBehavior[.canJoinAllApplications] = newValue == .crossApplication
+        }
+    }
+    
+    /// Determines how a window participates in full-screen tiling (split view).
+    @objc public enum FullscreenTilingBehaviour: Int, CustomStringConvertible {
         /**
-         The system determines whether the window can participate in full-screen tiling.
+         The system decides automatically whether the window can participate in full-screen tiling (split view).
          
          This is the default behavior. Most resizable windows that are not panels or sheets will automatically support tiling.
          */
-        case `default`
+        case automatic
         
         /**
-         Explicitly allows the window to participate in full-screen tiling (Split View).
+         Always allows the window to participate in full-screen tiling (split view).
          
          Use this for custom or nonstandard windows that would not otherwise qualify for tiling.
          */
         case allows
         
         /**
-         Explicitly disallows the window from participating in full-screen tiling.
-         
-         Use this for utility panels, inspectors, or other windows that should not appear in Split View or allow other windows to tile alongside them.
+         Prevents the window from participating in full-screen tiling (split view).
+                  
+         Use this for utility panels, inspectors, or other windows that should not appear in split view or allow other windows to tile alongside them.
          */
         case disallows
+        
+        public var description: String {
+            switch self {
+            case .automatic: "automatic"
+            case .allows: "allows"
+            case .disallows: "disallows"
+            }
+        }
     }
     
-    var fullscreenTilingBehaviour: FullscreenTilingBehaviour {
-        get { collectionBehavior.contains(.fullScreenAllowsTiling) ? .allows : collectionBehavior.contains(.fullScreenDisallowsTiling) ? .disallows : .default }
+    /// The value that determines how the window participates in full-screen tiling (split view).
+    @objc open var fullscreenTilingBehaviour: FullscreenTilingBehaviour {
+        get { collectionBehavior.contains(.fullScreenAllowsTiling) ? .allows : collectionBehavior.contains(.fullScreenDisallowsTiling) ? .disallows : .automatic }
         set {
             switch newValue {
             case .allows:
@@ -173,23 +247,31 @@ extension NSWindow {
             case .disallows:
                 collectionBehavior.remove(.fullScreenAllowsTiling)
                 collectionBehavior.insert(.fullScreenDisallowsTiling)
-            case .default:
+            case .automatic:
                 collectionBehavior.remove([.fullScreenAllowsTiling, .fullScreenDisallowsTiling])
             }
         }
     }
     
-    public enum FullscreenSupport {
+    @objc public enum FullscreenSupport: Int, CustomStringConvertible {
         /// The window can enter full-screen mode.
         case regular
         /// The window displays on the same space as the full screen window.
         case auxiliary
         /// The window doesn’t support full-screen mode.
         case none
+        
+        public var description: String {
+            switch self {
+            case .regular: "regular"
+            case .auxiliary: "auxiliary"
+            case .none: "none"
+            }
+        }
     }
     
-    public var fullscreenSupport: FullscreenSupport {
-        get { collectionBehavior.contains(.fullScreenPrimary) ? .regular : collectionBehavior.contains(.fullScreenAuxiliary) ? .auxiliary : .none }
+    @objc open var fullscreenSupport: FullscreenSupport {
+        get { collectionBehavior.contains(.fullScreenNone) ? .none : collectionBehavior.contains(.fullScreenAuxiliary) ? .auxiliary : .regular }
         set {
             collectionBehavior[.fullScreenNone] = newValue == .none
             collectionBehavior[.fullScreenPrimary] = newValue == .regular
@@ -631,7 +713,7 @@ extension NSWindow {
      
      The value takes into account the tab bar, as well as transparent title bars and full size content.
      */
-    public var titlebarHeight: CGFloat {
+    public var _titlebarHeight: CGFloat {
         if hasFullSizeContentView, let windowFrameHeight = contentView?.frame.height {
             return windowFrameHeight - contentLayoutRect.height
         }
@@ -773,23 +855,6 @@ extension NSWindow {
         get { (contentViewController as? NSSplitViewController)?.isInspectorVisible ?? false }
         set { (contentViewController as? NSSplitViewController)?.animator(isProxy()).isInspectorVisible = newValue }
     }
-    
-    var mainWindowObservation: KeyValueObservation? {
-        get { getAssociatedValue("mainWindowObservation") }
-        set { setAssociatedValue(newValue, key: "mainWindowObservation") }
-    }
-    
-    var keyWindowObservation: KeyValueObservation? {
-        get { getAssociatedValue("keyWindowObservation") }
-        set { setAssociatedValue(newValue, key: "keyWindowObservation") }
-    }
-    
-    func set(_ keyPath: KeyPath<NSWindow, Bool>, _ writable: ReferenceWritableKeyPath<NSWindow, Bool?>, to value: Bool?) {
-        guard value != nil else { return }
-        willChangeValue(for: keyPath)
-        self[keyPath: writable] = nil
-        didChangeValue(for: keyPath)
-    }
 }
 
 extension NSWindow.Level {
@@ -804,6 +869,22 @@ extension NSWindow.Level {
     public static let desktopIcons = Self(.desktopIconWindow)
     /// The level for the cursor.
     public static let cursor = Self(.cursorWindow)
+    
+    public static func + (lhs: Self, rhs: Int) -> Self {
+        Self(rawValue: lhs.rawValue + rhs)
+    }
+    
+    public static func += (lhs: inout Self, rhs: Int) {
+        lhs = Self(rawValue: lhs.rawValue + rhs)
+    }
+    
+    public static func - (lhs: Self, rhs: Int) -> Self {
+        Self(rawValue: lhs.rawValue - rhs)
+    }
+    
+    public static func -= (lhs: inout Self, rhs: Int) {
+        lhs = Self(rawValue: lhs.rawValue - rhs)
+    }
 }
 
 extension Collection where Element == NSWindow {
@@ -818,6 +899,38 @@ extension Collection where Element == NSWindow {
                 window.order(above: current)
             }
             current = window
+        }
+    }
+}
+
+extension NSWindow.CollectionBehavior: Swift.CustomStringConvertible {
+    public var description: String {
+        "[\(elements().map({$0.string}).joined(separator: ", "))]"
+    }
+    
+    private var string: String {
+        switch self {
+        case .canJoinAllSpaces: ".canJoinAllSpaces"
+        case .fullScreenNone: ".fullScreenNone"
+        case .fullScreenPrimary: ".fullScreenPrimary"
+        case .fullScreenAuxiliary: ".fullScreenAuxiliary"
+        case .fullScreenAllowsTiling: ".fullScreenAllowsTiling"
+        case .fullScreenDisallowsTiling: ".fullScreenDisallowsTiling"
+        case .participatesInCycle: ".participatesInCycle"
+        case .ignoresCycle: ".ignoresCycle"
+        case .moveToActiveSpace: ".moveToActiveSpace"
+        case .managed: ".managed"
+        case .transient: ".transient"
+        case .stationary: ".stationary"
+        case .moveToActiveSpace: ".moveToActiveSpace"
+        case .canJoinAllSpaces: ".canJoinAllSpaces"
+        default:
+            switch rawValue {
+            case 65536: ".primary"
+            case 131072: ".auxiliary"
+            case 262144: ".canJoinAllApplications"
+            default: "\(rawValue)"
+            }
         }
     }
 }

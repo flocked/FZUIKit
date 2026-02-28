@@ -176,7 +176,7 @@ extension NSTableRowView {
                         if rowView.drawTinted {
                             NSColor.unemphasizedSelectedContentBackgroundColor.withAlphaComponent(0.4).setFill()
                         } else {
-                            (rowView.selectionColor ?? .controlAccentColor).setFill()
+                            (rowView.selectionColor ?? .selectedContentBackgroundColor).setFill()
                         }
                     } else {
                         NSColor.unemphasizedSelectedContentBackgroundColor.withAlphaComponent(0.4).setFill()
@@ -291,7 +291,7 @@ class CustomSelectionRowView: NSTableRowView {
             if tintedSelection {
                 NSColor.unemphasizedSelectedContentBackgroundColor.withAlphaComponent(0.4).setFill()
             } else {
-                (selectionColor ?? .controlAccentColor).setFill()
+                (selectionColor ?? .selectedContentBackgroundColor).setFill()
             }
         } else {
             NSColor.unemphasizedSelectedContentBackgroundColor.withAlphaComponent(0.4).setFill()
