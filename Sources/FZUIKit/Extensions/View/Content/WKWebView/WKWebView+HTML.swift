@@ -48,6 +48,16 @@ extension WKWebView {
             Button(self, name: name)
         }
         
+        /// The button with the specified identifier.
+        public func input(id: String) -> Input {
+            Input(self, id: id)
+        }
+        
+        /// The name with the specified name.
+        public func input(name: String) -> Input {
+            Input(self, name: name)
+        }
+        
         private func evalute<ReturnType>(_ js: String, completion: @escaping (ReturnType?) -> Void) {
             guard let webView = webView else {
                 completion(nil)
@@ -74,7 +84,7 @@ extension WKWebView {
                             print("Error setting value: \(error)")
                             completion(false)
                         } else {
-                            completion(result as? Bool ?? false)
+                            completion((result as? Bool) ?? (result as? NSNumber)?.safeBoolValue ?? false)
                         }
                     }
                 }
@@ -209,9 +219,69 @@ extension WKWebView.HTML {
             interaction.evalute(script, completion: completion)
         }
     }
-}
+    
+    /// An input HTML element.
+    public class Input: Element {
+        /**
+         Sets the value of the attribute.
+         
+         - Parameters:
+            - input: The input to set.
+            - pressEnter: A Boolean value indicating whether to press enter enter after setting the input value.
+            - completion: The handler that returns a Boolean value indiciating whether the value was set.
+         */
+        public func setValue(_ value: String, pressEnter: Bool, completion: @escaping (_ didSet: Bool) -> Void) {
+             let valueJS = value.jsEscaped ?? value
+             let pressEnterJS = pressEnter ? "true" : "false"
+             let script = """
+             (() => {
+               const value = \(valueJS);
+               const pressEnter = \(pressEnterJS);
 
-extension WKWebView.HTML {
+                var el = \(valueString)[0];
+                if (!el) return false;
+
+               if (!(el instanceof HTMLInputElement)) return false;
+
+               // Native setter (more reliable with frameworks like React).
+               const proto = Object.getPrototypeOf(el);
+               const desc =
+                   Object.getOwnPropertyDescriptor(proto, "value") ||
+                   Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value");
+               const setter = desc && desc.set;
+               if (!setter) return false;
+
+               el.focus();
+               setter.call(el, value);
+
+               // Notify listeners/frameworks.
+               el.dispatchEvent(new Event("input",  { bubbles: true }));
+               el.dispatchEvent(new Event("change", { bubbles: true }));
+
+               if (pressEnter) {
+                 // Prefer actual form submission over synthetic key events.
+                 if (el.form) {
+                   if (typeof el.form.requestSubmit === "function") {
+                     el.form.requestSubmit();
+                   } else if (typeof el.form.submit === "function") {
+                     el.form.submit();
+                   }
+                 } else {
+                   const keyInit = { key: "Enter", code: "Enter", keyCode: 13, which: 13, bubbles: true, cancelable: true };
+                   el.dispatchEvent(new KeyboardEvent("keydown", keyInit));
+                   el.dispatchEvent(new KeyboardEvent("keypress", keyInit));
+                   el.dispatchEvent(new KeyboardEvent("keyup", keyInit));
+                 }
+               }
+
+               el.blur();
+               return true;
+             })();
+             """
+            interaction.evalute(script, completion: completion)
+         }
+    }
+
     /// A checkbox HTML element.
     public class Checkbox: Element {
         /**
@@ -277,7 +347,9 @@ extension WKWebView.HTML.Element {
         /**
          Sets the value of the attribute.
          
-         - Parameter completion: The handler that returns a Boolean value indiciating whether the value was set.
+         - Parameters:
+            - input: The input to set.
+            - completion: The handler that returns a Boolean value indiciating whether the value was set.
          */
         public func setValue(_ value: String, completion: @escaping (_ didSetValue: Bool) -> Void) {
             guard let value = value.jsEscaped else {
