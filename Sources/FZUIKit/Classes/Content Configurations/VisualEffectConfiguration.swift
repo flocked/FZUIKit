@@ -126,11 +126,16 @@ public class __VisualEffectConfiguration: NSObject, NSCopying {
     }
 
     public func copy(with zone: NSZone? = nil) -> Any {
-        __VisualEffectConfiguration(configuration: configuration)
+        self
     }
 
     public override func isEqual(_ object: Any?) -> Bool {
-        configuration == (object as? __VisualEffectConfiguration)?.configuration
+        guard let other = object as? Self else { return false }
+        return self === other || configuration == other.configuration
+    }
+    
+    public override var hash: Int {
+        Hasher.hash(configuration)
     }
 }
 
@@ -138,20 +143,20 @@ extension VisualEffectConfiguration: ReferenceConvertible {
     /// The Objective-C type for the configuration.
     public typealias ReferenceType = __VisualEffectConfiguration
 
-    public func _bridgeToObjectiveC() -> __VisualEffectConfiguration {
+    public func _bridgeToObjectiveC() -> ReferenceType {
         return __VisualEffectConfiguration(configuration: self)
     }
 
-    public static func _forceBridgeFromObjectiveC(_ source: __VisualEffectConfiguration, result: inout VisualEffectConfiguration?) {
+    public static func _forceBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) {
         result = source.configuration
     }
 
-    public static func _conditionallyBridgeFromObjectiveC(_ source: __VisualEffectConfiguration, result: inout VisualEffectConfiguration?) -> Bool {
+    public static func _conditionallyBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) -> Bool {
         _forceBridgeFromObjectiveC(source, result: &result)
         return true
     }
 
-    public static func _unconditionallyBridgeFromObjectiveC(_ source: __VisualEffectConfiguration?) -> VisualEffectConfiguration {
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: ReferenceType?) -> Self {
         if let source = source {
             var result: VisualEffectConfiguration?
             _forceBridgeFromObjectiveC(source, result: &result)

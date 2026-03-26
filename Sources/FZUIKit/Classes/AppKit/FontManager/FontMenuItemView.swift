@@ -7,6 +7,7 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
 public class FontMenuItemView: NSMenuItemView {
     let _contentView = ContentView()
@@ -15,7 +16,7 @@ public class FontMenuItemView: NSMenuItemView {
         get { _contentView.font }
         set { _contentView.font = newValue }
     }
-    
+        
     public var title: String? {
         get { _contentView.title }
         set { _contentView.title = newValue }
@@ -36,6 +37,13 @@ public class FontMenuItemView: NSMenuItemView {
         sharedInit()
         self.title = title
         self.font = font
+    }
+    
+    public override func mouseUp(with event: NSEvent) {
+        NSAnimationContext.performWithoutAnimation {
+            (self.enclosingMenuItem?.target as? NSPopUpButtonCell)?.font = self.font
+        }
+        super.mouseUp(with: event)
     }
     
     public override init(frame frameRect: NSRect) {
@@ -134,13 +142,11 @@ extension FontMenuItemView {
                 imageView.symbolConfiguration = .init(pointSize: NSFont.systemFontSize, weight: .heavy)
             }
             imageView.contentTintColor = .labelColor
-            
             textField.isSelectable = false
             textField.lineBreakMode = .byTruncatingTail
             textField.maximumNumberOfLines = 1
             textField.translatesAutoresizingMaskIntoConstraints = false
             addSubview(textField)
-            
             setupConstraints()
         }
         
@@ -168,7 +174,7 @@ extension FontMenuItemView {
             update()
         }
         
-        private func adjustFont(height: CGFloat? = 28.0){
+        private func adjustFont(height: CGFloat? = 28.0) {
             let height: CGFloat = height ?? frame.height
             var current = font
             if let familyName = font.familyName, specialFontNames.contains(familyName) {

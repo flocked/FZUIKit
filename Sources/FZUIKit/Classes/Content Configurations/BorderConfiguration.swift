@@ -302,11 +302,16 @@ public class __BorderConfiguration: NSObject, NSCopying {
     }
     
     public func copy(with zone: NSZone? = nil) -> Any {
-        __BorderConfiguration(configuration: configuration)
+        self
     }
     
     public override func isEqual(_ object: Any?) -> Bool {
-        configuration == (object as? __BorderConfiguration)?.configuration
+        guard let other = object as? Self else { return false }
+        return self === other || configuration == other.configuration
+    }
+    
+    public override var hash: Int {
+        Hasher.hash(configuration)
     }
 }
 
@@ -314,20 +319,20 @@ extension BorderConfiguration: ReferenceConvertible {
     /// The Objective-C type for the configuration.
     public typealias ReferenceType = __BorderConfiguration
     
-    public func _bridgeToObjectiveC() -> __BorderConfiguration {
+    public func _bridgeToObjectiveC() -> ReferenceType {
         return __BorderConfiguration(configuration: self)
     }
     
-    public static func _forceBridgeFromObjectiveC(_ source: __BorderConfiguration, result: inout BorderConfiguration?) {
+    public static func _forceBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) {
         result = source.configuration
     }
     
-    public static func _conditionallyBridgeFromObjectiveC(_ source: __BorderConfiguration, result: inout BorderConfiguration?) -> Bool {
+    public static func _conditionallyBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) -> Bool {
         _forceBridgeFromObjectiveC(source, result: &result)
         return true
     }
     
-    public static func _unconditionallyBridgeFromObjectiveC(_ source: __BorderConfiguration?) -> BorderConfiguration {
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: ReferenceType?) -> Self {
         if let source = source {
             var result: BorderConfiguration?
             _forceBridgeFromObjectiveC(source, result: &result)

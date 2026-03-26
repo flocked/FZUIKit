@@ -136,15 +136,95 @@ public extension NSPopUpButton {
         
     /// The arrow position.
     var arrowPosition: ArrowPosition {
-        get { (cell as? NSPopUpButtonCell)?.arrowPosition ?? .arrowAtBottom }
-        set { (cell as? NSPopUpButtonCell)?.arrowPosition = newValue }
+        get { getAssociatedValue("_arrowPosition", initialValue: (cell as? NSPopUpButtonCell)?.arrowPosition ?? .arrowAtBottom) }
+        set {
+            guard newValue != arrowPosition else { return }
+            setAssociatedValue(newValue, key: "_arrowPosition")
+            updateArrowVisibility()
+        }
     }
-        
+    
     /// Sets the arrow position.
     @discardableResult
     func arrowPosition(_ position: ArrowPosition) -> Self {
         self.arrowPosition = position
         return self
+    }
+    
+    /**
+     A Boolean value indicating whether the popup button displays the arrow only when the mouse is hovering the button.
+     
+     The default value is `false` and always displays the arrow at the `arrowPosition`.
+     */
+    var displaysArrowOnlyOnHover: Bool {
+        get { hoverTrackingArea != nil }
+        set {
+            guard newValue != displaysArrowOnlyOnHover else { return }
+            if newValue {
+                hoverTrackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeInActiveApp, .inVisibleRect])
+                do {
+                    hoverHooks += try hook(#selector(NSPopUpButton.updateTrackingAreas), closure: {
+                        original, button, selector in
+                        original(button, selector)
+                        button.hoverTrackingArea?.update()
+                    } as @convention(block) ((NSPopUpButton, Selector) -> (), NSPopUpButton, Selector) -> ())
+                    hoverHooks += try hook(#selector(NSPopUpButton.mouseEntered(with:)), closure: {
+                        original, button, selector, event in
+                        original(button, selector, event)
+                        button.mouseIsInside = true
+                        button.updateArrowVisibility()
+                    } as @convention(block) ((NSPopUpButton, Selector, NSEvent) -> (), NSPopUpButton, Selector, NSEvent) -> ())
+                    hoverHooks += try hook(#selector(NSPopUpButton.mouseExited(with:)), closure: {
+                        original, button, selector, event in
+                        original(button, selector, event)
+                        button.mouseIsInside = false
+                        button.updateArrowVisibility()
+                    } as @convention(block) ((NSPopUpButton, Selector, NSEvent) -> (), NSPopUpButton, Selector, NSEvent) -> ())
+                } catch {
+                    Swift.print(error)
+                }
+            } else {
+                hoverHooks.forEach({try? $0.revert() })
+                hoverHooks = []
+                hoverTrackingArea = nil
+            }
+            updateArrowVisibility()
+        }
+    }
+    
+    /**
+     Sets the Boolean value indicating whether the popup button displays the arrow only when the mouse is hovering the button.
+     
+     The default value is `false` and always displays the arrow at the `arrowPosition`.
+     */
+    @discardableResult
+    func displaysArrowOnlyOnHover(_ displaysArrowOnlyOnHover: Bool) -> Self {
+        self.displaysArrowOnlyOnHover = displaysArrowOnlyOnHover
+        return self
+    }
+    
+    private func updateArrowVisibility() {
+        guard let cell = self.cell as? NSPopUpButtonCell else { return }
+        if displaysArrowOnlyOnHover {
+            cell.arrowPosition = isMouseInside ? arrowPosition : .noArrow
+        } else {
+            cell.arrowPosition = arrowPosition
+        }
+    }
+    
+    private var isMouseInside: Bool {
+        get { getAssociatedValue("isMouseInside") ?? false }
+        set { setAssociatedValue(newValue, key: "isMouseInside") }
+    }
+    
+    private var hoverTrackingArea: TrackingArea? {
+        get { getAssociatedValue("hoverTrackingArea") }
+        set { setAssociatedValue(newValue, key: "hoverTrackingArea") }
+    }
+    
+    private var hoverHooks: [Hook] {
+        get { getAssociatedValue("hoverHooks") ?? [] }
+        set { setAssociatedValue(newValue, key: "hoverHooks") }
     }
         
     /**

@@ -349,6 +349,16 @@ open class ImageView: NSControl {
     }
     
     var currentBackgroundStyle: NSView.BackgroundStyle = .normal
+    
+    /*
+    open override var backgroundStyle: NSView.BackgroundStyle {
+        didSet {
+            guard oldValue != currentBackgroundStyle else { return }
+            currentBackgroundStyle = backgroundStyle
+            tintColorTransformer = backgroundStyle == .emphasized ? .color(.white) : nil
+        }
+    }
+     */
 
     open override func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
         guard backgroundStyle != currentBackgroundStyle else { return }

@@ -33,6 +33,11 @@ public extension NSUIFontDescriptor {
         object(forKey: .name) as? String
     }
     
+    /// The URL of the font.
+    var url: URL? {
+        object(forKey: .url) as? URL
+    }
+    
     /// Returns the font for the font descriptor.
     var font: NSUIFont {
         #if os(macOS)
@@ -217,11 +222,6 @@ public extension NSUIFontDescriptor {
         .init(rawValue: object(forKey: .format) ?? 0) ?? .unrecognized
     }
     
-    /// The URL to the font.
-    var url: URL? {
-        object(forKey: .url)
-    }
-    
     /**
      Returns the font attribute specified by the given key.
      
@@ -280,7 +280,7 @@ public extension NSUIFontDescriptor.TraitKey {
     static let design = Self(rawValue: "NSCTFontUIFontDesignTrait")
 }
 
-extension NSUIFontDescriptor.AttributeName: ExpressibleByStringLiteral {
+extension NSUIFontDescriptor.AttributeName: Swift.ExpressibleByStringLiteral {
     public init(stringLiteral value: String) {
         self.init(rawValue: value)
     }

@@ -24,15 +24,21 @@ extension NSFont {
     
     /// The font members of the font family with the specified name.
     public static func availableFontMembers(ofFontFamily fontFamily: String) -> [FontMember]? {
-        NSFontManager.shared.availableMembers(ofFontFamily: fontFamily)?.map({FontMember($0, fontFamily)})
+        NSFontManager.shared.availableMembers(ofFontFamily: fontFamily)?.compactMap({FontMember($0, fontFamily)})
+    }
+        
+    /// The font family of the specified font name.
+    public static func fontFamily(forFontName fontName: String) -> FontFamily? {
+        NSFont(name: fontName, size: 0)?.fontFamily
     }
     
-    /// The font family.
+    /// The font family of the font.
     public var fontFamily: FontFamily? {
         guard let familyName = familyName, NSFontManager.shared.availableFontFamilies.contains(familyName) else { return nil }
         return FontFamily(familyName)
     }
     
+    /// The font member.
     public var fontMember: FontMember? {
         fontFamily?.members.first(where: {$0.fontName == fontName})
     }
@@ -58,12 +64,12 @@ extension NSFont {
         
         /// The members of the font family (e.g. `regular`, `light` or `bold`).
         public var members: [FontMember] {
-            (NSFontManager.shared.availableMembers(ofFontFamily: name) ?? []).map({FontMember($0, name)})
+            (NSFontManager.shared.availableMembers(ofFontFamily: name) ?? []).compactMap({FontMember($0, name)})
         }
         
         /// The font with the specified size.
         public func font(withSize size: CGFloat = NSFont.systemFontSize) -> NSFont? {
-            NSFont(name: name, size: size)
+            NSFontManager.shared.font(withFamily: name, traits: [], weight: 5, size: size)
         }
         
         init(_ name: String) {
@@ -87,7 +93,7 @@ extension NSFont {
         }
         
         public var debugDescription: String {
-            "(\(fontName), face: \(faceName)"
+            "(\(fontName), face: \(faceName))"
         }
         
         /// The localized face name of the font.
@@ -106,16 +112,17 @@ extension NSFont {
         public let traits: NSFontDescriptor.SymbolicTraits
         
         /// The font with the specified size.
-        public func font(withSize size: CGFloat = 0.0) -> NSFont? {
+        public func font(withSize size: CGFloat = NSFont.systemFontSize) -> NSFont? {
             NSFont(name: fontName, size: size)
         }
         
-        init(_ value: [Any], _ familyName: String) {
-            self.fontName = value[0] as! String
-            self.faceName = value[1] as! String
+        init?(_ value: [Any], _ familyName: String) {
+            guard value.count >= 4, let fontName = value[0] as? String, let faceName = value[1] as? String, let weight = value[2] as? CGFloat, let rawTraits = value[3] as? UInt32 else { return nil }
+            self.fontName = fontName
+            self.faceName = faceName
             self.familyName = familyName
-            self.traits = .init(rawValue: value[3] as! UInt32)
-            self.weight = value[2] as! CGFloat
+            self.weight = weight
+            self.traits = .init(rawValue: rawTraits)
         }
     }
 }

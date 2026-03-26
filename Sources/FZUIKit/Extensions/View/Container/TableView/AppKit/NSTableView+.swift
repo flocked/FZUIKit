@@ -170,6 +170,26 @@ public extension NSTableView {
         guard let rowView = rowView(at: location) else { return nil }
         return rowView.cellViews.first(where: { $0.frame.contains(location) })
     }
+    
+    /**
+     Scrolls the view so the specified row is at the top.
+     
+     - Parameters:
+        - row: The row index.
+        - padding: The padding of the row from the top.
+     */
+    func scrollRowToTop(_ row: Int, padding: CGFloat = 0) {
+        guard row >= 0, row < numberOfRows, let scrollView = enclosingScrollView else { return }
+        let rowRect = rect(ofRow: row)
+        var newOrigin = rowRect.origin
+        newOrigin.y -= scrollView.contentInsets.top + padding
+        let contentHeight = bounds.height
+        let visibleHeight = scrollView.contentView.bounds.height
+        let maxY = max(0, contentHeight - visibleHeight)
+        newOrigin.y = max(0, min(newOrigin.y, maxY))
+        scrollView.contentView.scroll(to: newOrigin)
+        scrollView.reflectScrolledClipView(scrollView.contentView)
+    }
         
     /// Creates a table view with the specified table columns.
     convenience init(@ColumnBuilder columns: () -> [NSTableColumn]) {

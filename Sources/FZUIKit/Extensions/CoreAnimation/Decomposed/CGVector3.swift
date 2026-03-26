@@ -107,11 +107,16 @@ public class __CGVector3: NSObject, NSCopying {
     }
     
     public func copy(with zone: NSZone? = nil) -> Any {
-        __CGVector3(storage)
+        self
     }
     
     public override func isEqual(_ object: Any?) -> Bool {
-        storage == (object as? __CGVector3)?.storage
+        guard let other = object as? Self else { return false }
+        return self === other || storage == other.storage
+    }
+    
+    public override var hash: Int {
+        Hasher.hash(storage)
     }
 }
 
@@ -119,20 +124,20 @@ extension CGVector3: ReferenceConvertible {
     /// The Objective-C type for the configuration.
     public typealias ReferenceType = __CGVector3
     
-    public func _bridgeToObjectiveC() -> __CGVector3 {
+    public func _bridgeToObjectiveC() -> ReferenceType {
         return __CGVector3(self)
     }
     
-    public static func _forceBridgeFromObjectiveC(_ source: __CGVector3, result: inout CGVector3?) {
+    public static func _forceBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) {
         result = source.storage
     }
     
-    public static func _conditionallyBridgeFromObjectiveC(_ source: __CGVector3, result: inout CGVector3?) -> Bool {
+    public static func _conditionallyBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) -> Bool {
         _forceBridgeFromObjectiveC(source, result: &result)
         return true
     }
     
-    public static func _unconditionallyBridgeFromObjectiveC(_ source: __CGVector3?) -> CGVector3 {
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: ReferenceType?) -> Self {
         if let source = source {
             var result: CGVector3?
             _forceBridgeFromObjectiveC(source, result: &result)

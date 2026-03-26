@@ -228,7 +228,7 @@ public class NumberTextField: NSControl {
     }
 
 
-    @IBInspectable public var backgroundColor: NSColor? {
+    @IBInspectable public override var backgroundColor: NSColor? {
         get { textField.backgroundColor }
         set { 
             textField.backgroundColor = newValue
@@ -238,7 +238,7 @@ public class NumberTextField: NSControl {
 
     /// Sets the highest number allowed as input by the text field.
     @discardableResult
-    public func backgroundColor(_ color: NSColor?) -> Self {
+    public override func backgroundColor(_ color: NSColor?) -> Self {
         self.backgroundColor = color
         return self
     }

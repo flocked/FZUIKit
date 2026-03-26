@@ -32,7 +32,11 @@ open class BorderLayer: CALayer {
     
     private func upateBorder(old: BorderConfiguration) {
         borderedLayer.lineWidth = configuration.width
-        borderedLayer.strokeColor = configuration.resolvedColor()?.cgColor
+        if let parentView = parentView {
+            borderedLayer.strokeColor = configuration.resolvedColor()?.resolvedColor(for: parentView).cgColor
+        } else {
+            borderedLayer.strokeColor = configuration.resolvedColor()?.cgColor
+        }
         borderedLayer.lineDashPattern = configuration.dash.pattern as [NSNumber]
         borderedLayer.lineDashPhase = configuration.dash.phase
         borderedLayer.lineJoin = configuration.dash.lineJoin.shapeLayerLineJoin

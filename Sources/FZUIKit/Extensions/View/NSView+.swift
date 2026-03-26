@@ -11,39 +11,37 @@ import FZSwiftUtils
 import SwiftUI
 
 extension NSView {
+    /**
+     The background color of the view.
+     
+     Using this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
+     */
+    @_disfavoredOverload
+    @objc open var backgroundColor: NSColor? {
+        get { layer?.configurations.backgroundColor }
+        set { optionalLayer?.configurations.backgroundColor = animationColor(newValue, \.configurations.backgroundColor, \.backgroundColorIsVisible)
+        }
+    }
+    
+    /**
+     Sets the background color of the view.
+     
+     Using this property turns the view into a layer-backed view.
+     */
+    @_disfavoredOverload
+    @discardableResult
+    @objc open func backgroundColor(_ color: NSUIColor?) -> Self {
+        backgroundColor = color
+        return self
+    }
+    
     /// Sets type of focus ring drawn around the view.
     @discardableResult
     @objc open func focusRingType(_ type: NSFocusRingType) -> Self {
         focusRingType = type
         return self
-    }
-
-    /**
-     Embeds the view in a scroll view and returns that scroll view.
-
-     If the view is already emedded in a scroll view, it will return that.
-
-     The scroll view can be accessed via the view's `enclosingScrollView` property.
-
-     - Parameters:
-        - managed: A Boolean value indicating whether the scroll view should automatically manage the view.
-        - bordered: A Boolean value indicating whether the scroll view is bordered.
-        - drawsBackground: A Boolean value indicating whether the scroll view draws it's background.
-     - Returns: The scroll view.
-     */
-    @discardableResult
-    @objc open func addEnclosingScrollView(managed: Bool = true, bordered: Bool = false, drawsBackground: Bool = false) -> NSScrollView {
-        if let scrollView = enclosingScrollView {
-            return scrollView.managesDocumentView(managed)
-        }
-        return NSScrollView()
-            .size(bounds.size)
-            .drawsBackground(drawsBackground)
-            .backgroundColor(drawsBackground ? .controlBackgroundColor : .clear)
-            .borderType(bordered ? .lineBorder : .noBorder)
-            .documentView(self)
-            .hasScroller(true)
-            .managesDocumentView(managed)
     }
 
     /**
@@ -499,6 +497,34 @@ extension NSView {
         }
         return color
     }
+    
+    /**
+     Embeds the view in a scroll view and returns that scroll view.
+
+     If the view is already emedded in a scroll view, it will return that.
+
+     The scroll view can be accessed via the view's `enclosingScrollView` property.
+
+     - Parameters:
+        - managed: A Boolean value indicating whether the scroll view should automatically manage the view.
+        - bordered: A Boolean value indicating whether the scroll view is bordered.
+        - drawsBackground: A Boolean value indicating whether the scroll view draws it's background.
+     - Returns: The scroll view.
+     */
+    @discardableResult
+    @objc open func addEnclosingScrollView(managed: Bool = true, bordered: Bool = false, drawsBackground: Bool = false) -> NSScrollView {
+        if let scrollView = enclosingScrollView {
+            return scrollView.managesDocumentView(managed)
+        }
+        return NSScrollView()
+            .size(bounds.size)
+            .drawsBackground(drawsBackground)
+            .backgroundColor(drawsBackground ? .controlBackgroundColor : .clear)
+            .borderType(bordered ? .lineBorder : .noBorder)
+            .documentView(self)
+            .hasScroller(true)
+            .managesDocumentView(managed)
+    }
 
     /// Removes all tracking areas.
     @objc open func removeAllTrackingAreas() {
@@ -684,29 +710,6 @@ public extension NSView.AutoresizingMask {
 }
 
 extension NSViewProtocol {
-    /**
-     The background color of the view.
-     
-     Using this property turns the view into a layer-backed view.
-     
-     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
-     */
-    public var backgroundColor: NSColor? {
-        get { layer?.configurations.backgroundColor }
-        set { optionalLayer?.configurations.backgroundColor = newValue }
-    }
-    
-    /**
-     Sets the background color of the view.
-     
-     Using this property turns the view into a layer-backed view.
-     */
-    @discardableResult
-    public func backgroundColor(_ color: NSUIColor?) -> Self {
-        backgroundColor = color
-        return self
-    }
-    
     /// Scrolls the enclosing scroll view to the top.
     public func scrollToTop() {
         enclosingScrollView?.animator(isProxy()).scrollToTop()
@@ -797,6 +800,167 @@ extension NSView {
                 self.view?.alphaValue = new
             }
         }
+    }
+}
+
+extension CALayer {
+    var _border: BorderConfiguration {
+        get {
+            .init(color: getAssociatedValue("_borderColor") ?? borderLayer.configuration.color ?? __borderColor, colorTransformer: borderColorTransformer, width: borderLayer.configuration.width ?? borderWidth, dash: borderLayer.configuration.dash ?? .none, insets: borderLayer.configuration.insets ?? .zero)
+        }
+        set {
+            /*
+            borderColorTransformer = newValue.colorTransformer
+            let needsBorderLayer = (maskShape != nil && newValue.isVisible) || newValue.needsDashedBorder
+            __borderColor = needsBorderLayer ? newValue.color : nil
+            borderWidth = needsBorderLayer ? 0 : newValue.width
+            if needsBorderLayer {
+                if borderLayer == nil {
+                    borderLayer = BorderLayer(for: self)
+                }
+                borderLayer.shape = maskShape
+                borderLayer.configuration = _border
+            } else {
+                borderLayer.removeFromSuperlayer()
+                borderLayer = nil
+            }
+            let color = newValue.color
+            setAssociatedValue(color, key: "_borderLayer")
+            if let parentView = parentView {
+                if needsBorderLayer {
+                    borderLayer?.strokeColor = color?.resolvedColor(for: parentView).cgColor
+                } else {
+                    borderColor = color?.resolvedColor(for: parentView).cgColor
+                }
+            } else {
+                if needsBorderLayer {
+                    borderLayer?.strokeColor = color?.cgColor
+                } else {
+                    borderColor = color?.cgColor
+                }
+            }
+            guard let newValue = color else { return }
+            if newValue.isDynamic {
+                let light = newValue.resolvedColor(for: .aqua).cgColor
+                let dark = newValue.resolvedColor(for: .darkAqua).cgColor
+                #if os(macOS)
+                colorObservations[\.borderColor, default: []] += observeChanges(for: \.parentViewAppearance) { [weak self] oldValue, newValue in
+                    guard oldValue.isLight != newValue.isLight else { return }
+                    if needsBorderLayer {
+                        self?.borderLayer?.strokeColor = newValue.isLight ? light : dark
+                    } else {
+                        self?.borderColor = newValue.isLight ? light : dark
+                    }
+                }
+                #elseif os(iOS) || os(tvOS)
+                colorObservations[\.borderColor, default: []] += observeChanges(for: \.parentTraitCollection) { [weak self] oldValue, newValue in
+                    guard oldValue.userInterfaceStyle != newValue.userInterfaceStyle else { return }
+                    if needsBorderLayer {
+                        self?.borderLayer?.strokeColor = newValue.userInterfaceStyle == .light ? light : dark
+                    } else {
+                        self?.borderColor = newValue.userInterfaceStyle == .light ? light : dark
+                    }
+                }
+                #endif
+                colorObservations[\.borderColor, default: []] += observeChanges(for: \.borderColor) { [weak self] oldValue, newValue in
+                    guard newValue != light && newValue != dark else { return }
+                    self?.colorObservations[\.borderColor] = []
+                    self?.setAssociatedValue(nil as NSColor?, key: "_borderLayer")
+                    guard needsBorderLayer else { return }
+                }
+            } else {
+                let color = newValue.cgColor
+                colorObservations[\.borderColor, default: []] += observeChanges(for: \.borderColor) { [weak self] oldValue, newValue in
+                    self?.colorObservations[\.borderColor] = []
+                    self?.setAssociatedValue(nil as NSColor?, key: "_borderLayer")
+                }
+            }
+             */
+        }
+    }
+    
+    var borderColorTransformer: ColorTransformer? {
+        get { getAssociatedValue("borderColorTransformer") }
+        set { setAssociatedValue(newValue, key: "borderColorTransformer") }
+    }
+    
+    var _shaodw: ShadowConfiguration {
+        get {
+            .init(color: _shadowColor, colorTransformer: shadowColorTransformer, opacity: CGFloat(shadowOpacity), radius: shadowRadius, offset: shadowOffset.point) }
+        set {
+            shadowColorTransformer = newValue.colorTransformer
+            _shadowColor = newValue.color
+            shadowOffset = newValue.offset.size
+            shadowRadius = newValue.radius
+            shadowOpacity = Float(newValue.opacity)
+        }
+    }
+    
+    var _shadowColor: NSUIColor? {
+        get { getColor(for: \.shadowColor) }
+        set { setColor(newValue, for: \.shadowColor) }
+    }
+    
+    var shadowColorTransformer: ColorTransformer? {
+        get { getAssociatedValue("shadowColorTransformer") }
+        set { setAssociatedValue(newValue, key: "shadowColorTransformer") }
+    }
+    
+    var _backgroundColor: NSUIColor? {
+        get { getColor(for: \.backgroundColor) }
+        set { setColor(newValue, for: \.backgroundColor) }
+    }
+    
+    var __borderColor: NSUIColor? {
+        get { getColor(for: \.borderColor) }
+        set { setColor(newValue, for: \.borderColor) }
+    }
+    
+    func getColor(for keyPath: ReferenceWritableKeyPath<CALayer, CGColor?>) -> NSUIColor? {
+        getAssociatedValue("_" + keyPath.stringValue) ?? self[keyPath: keyPath]?.nsUIColor
+    }
+    
+    func setColor(_ color: NSUIColor?, for keyPath: ReferenceWritableKeyPath<CALayer, CGColor?>) {
+        setAssociatedValue(color, key: "_" + keyPath.stringValue)
+        colorObservations[keyPath] = []
+        if let parentView = parentView {
+            self[keyPath: keyPath] = color?.resolvedColor(for: parentView).cgColor
+        } else {
+            self[keyPath: keyPath] = color?.cgColor
+        }
+        if let newValue = color {
+            if newValue.isDynamic {
+                let light = newValue.resolvedColor(for: .aqua).cgColor
+                let dark = newValue.resolvedColor(for: .darkAqua).cgColor
+                #if os(macOS)
+                colorObservations[keyPath, default: []] += observeChanges(for: \.parentViewAppearance) { [weak self] oldValue, newValue in
+                    guard oldValue.isLight != newValue.isLight else { return }
+                    self?[keyPath: keyPath] = newValue.isLight ? light : dark
+                }
+                #elseif os(iOS) || os(tvOS)
+                colorObservations[keyPath, default: []] += observeChanges(for: \.parentTraitCollection) { [weak self] oldValue, newValue in
+                    guard oldValue.userInterfaceStyle != newValue.userInterfaceStyle else { return }
+                    self?[keyPath: keyPath] = newValue.userInterfaceStyle == .light ? light : dark
+                }
+                #endif
+                colorObservations[keyPath, default: []] += observeChanges(for: keyPath) { [weak self] oldValue, newValue in
+                    guard newValue != light && newValue != dark else { return }
+                    self?._borderColor = nil
+                    self?.setColor(nil, for: keyPath)
+                }
+            } else {
+                let color = newValue.cgColor
+                colorObservations[keyPath, default: []] += observeChanges(for: keyPath) { [weak self] oldValue, newValue in
+                    guard newValue != color else { return }
+                    self?.setColor(nil, for: keyPath)
+                }
+            }
+        }
+    }
+    
+    var colorObservations: [PartialKeyPath<CALayer>: [KeyValueObservation]] {
+        get { getAssociatedValue("colorObservations") ?? [:] }
+        set { setAssociatedValue(newValue, key: "colorObservations") }
     }
 }
 

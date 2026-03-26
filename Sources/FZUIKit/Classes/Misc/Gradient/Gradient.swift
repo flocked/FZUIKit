@@ -278,11 +278,16 @@ public class __Gradient: NSObject, NSCopying {
     }
     
     public func copy(with zone: NSZone? = nil) -> Any {
-        __Gradient(gradient)
+        self
     }
     
     public override func isEqual(_ object: Any?) -> Bool {
-        gradient == (object as? __Gradient)?.gradient
+        guard let other = object as? Self else { return false }
+        return self === other || gradient == other.gradient
+    }
+    
+    public override var hash: Int {
+        Hasher.hash(gradient)
     }
 }
 
@@ -290,20 +295,20 @@ extension Gradient: ReferenceConvertible {
     /// The Objective-C type for the configuration.
     public typealias ReferenceType = __Gradient
     
-    public func _bridgeToObjectiveC() -> __Gradient {
+    public func _bridgeToObjectiveC() -> ReferenceType {
         return __Gradient(self)
     }
     
-    public static func _forceBridgeFromObjectiveC(_ source: __Gradient, result: inout Gradient?) {
+    public static func _forceBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) {
         result = source.gradient
     }
     
-    public static func _conditionallyBridgeFromObjectiveC(_ source: __Gradient, result: inout Gradient?) -> Bool {
+    public static func _conditionallyBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) -> Bool {
         _forceBridgeFromObjectiveC(source, result: &result)
         return true
     }
     
-    public static func _unconditionallyBridgeFromObjectiveC(_ source: __Gradient?) -> Gradient {
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: ReferenceType?) -> Self {
         if let source = source {
             var result: Gradient?
             _forceBridgeFromObjectiveC(source, result: &result)

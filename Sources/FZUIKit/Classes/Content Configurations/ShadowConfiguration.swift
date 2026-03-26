@@ -394,11 +394,16 @@ public class __ShadowConfiguration: NSObject, NSCopying {
     }
     
     public func copy(with zone: NSZone? = nil) -> Any {
-        __ShadowConfiguration(configuration: configuration)
+        self
     }
     
     public override func isEqual(_ object: Any?) -> Bool {
-        configuration == (object as? __ShadowConfiguration)?.configuration
+        guard let other = object as? Self else { return false }
+        return self === other || configuration == other.configuration
+    }
+    
+    public override var hash: Int {
+        Hasher.hash(configuration)
     }
 }
 
@@ -406,20 +411,20 @@ extension ShadowConfiguration: ReferenceConvertible {
     /// The Objective-C type for the configuration.
     public typealias ReferenceType = __ShadowConfiguration
     
-    public func _bridgeToObjectiveC() -> __ShadowConfiguration {
+    public func _bridgeToObjectiveC() -> ReferenceType {
         return __ShadowConfiguration(configuration: self)
     }
     
-    public static func _forceBridgeFromObjectiveC(_ source: __ShadowConfiguration, result: inout ShadowConfiguration?) {
+    public static func _forceBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) {
         result = source.configuration
     }
     
-    public static func _conditionallyBridgeFromObjectiveC(_ source: __ShadowConfiguration, result: inout ShadowConfiguration?) -> Bool {
+    public static func _conditionallyBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) -> Bool {
         _forceBridgeFromObjectiveC(source, result: &result)
         return true
     }
     
-    public static func _unconditionallyBridgeFromObjectiveC(_ source: __ShadowConfiguration?) -> ShadowConfiguration {
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: ReferenceType?) -> Self {
         if let source = source {
             var result: ShadowConfiguration?
             _forceBridgeFromObjectiveC(source, result: &result)

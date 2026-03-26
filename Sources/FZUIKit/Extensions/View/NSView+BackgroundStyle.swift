@@ -35,8 +35,8 @@ extension NSView {
             view.backgroundStyle = backgroundStyle
         } else {
             (self as? NSControl)?.backgroundStyle = backgroundStyle
-            if #available(macOS 12.0, *), let view = self as? NSImageView {
-                view.updateSymbolConfiguration()
+            if #available(macOS 12.0, *) {
+                (self as? NSImageView)?.updateSymbolConfiguration()
             }
             subviews.forEach({ $0.setBackgroundStyle(backgroundStyle) })
             /*
@@ -86,5 +86,35 @@ fileprivate extension NSImageView {
         set { setAssociatedValue(newValue, key: "previousConfiguration") }
     }
 }
+
+/*
+/**
+ The background style of the view..
+      
+ The background style describes the surface the view is drawn onto in the [draw(withFrame:in:)](https://developer.apple.com/documentation/appkit/nscell/draw(withframe:in:)) method. A control may draw differently based on background characteristics. For example, a text cell might decide to render its text white, if the backgroundStyle is [emphasized](https://developer.apple.com/documentation/appkit/nsview/backgroundstyle/emphasized). A rating-style level indicator might draw its stars white instead of gray.
+ */
+@_disfavoredOverload
+@objc dynamic open var backgroundStyle: BackgroundStyle {
+    get {
+        if let view = self as? NSControl {
+            return view.cell?.backgroundStyle ?? .normal
+        } else if let view = self as? NSTableCellView {
+            return view.backgroundStyle
+        }
+        return getAssociatedValue("backgroundStyle") ?? .normal
+    }
+    set {
+        if let view = self as? NSControl {
+            view.cell?.backgroundStyle = newValue
+            subviews.forEach({ $0.backgroundStyle = newValue })
+        } else if let view = self as? NSTableCellView {
+            view.backgroundStyle = newValue
+        } else {
+            setAssociatedValue(newValue, key: "backgroundStyle")
+            subviews.forEach({ $0.backgroundStyle = newValue })
+        }
+    }
+}
+ */
 
 #endif

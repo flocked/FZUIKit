@@ -23,8 +23,9 @@ public extension NSUIFont {
      - Returns: A font object for the specified name and transformation matrix.
      */
     convenience init?(name: String, matrix: CGAffineTransform) {
-        var matrix = [matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty]
-        self.init(name: name, matrix: &matrix)
+        guard NSUIFont(name: name, size: 0) != nil else { return nil }
+        var matrix = matrix
+        self.init(descriptor: (CTFontCreateWithName(name as CFString, 0, &matrix) as NSUIFont).fontDescriptor)
     }
     
     #else

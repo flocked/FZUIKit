@@ -227,11 +227,16 @@ public class __TextConfiguration: NSObject, NSCopying {
     }
     
     public func copy(with zone: NSZone? = nil) -> Any {
-        __TextConfiguration(configuration: configuration)
+        self
     }
     
     public override func isEqual(_ object: Any?) -> Bool {
-        configuration == (object as? __TextConfiguration)?.configuration
+        guard let other = object as? Self else { return false }
+        return self === other || configuration == other.configuration
+    }
+    
+    public override var hash: Int {
+        Hasher.hash(configuration)
     }
 }
 
@@ -240,20 +245,20 @@ extension TextConfiguration: ReferenceConvertible {
     /// The Objective-C type for the configuration.
     public typealias ReferenceType = __TextConfiguration
     
-    public func _bridgeToObjectiveC() -> __TextConfiguration {
+    public func _bridgeToObjectiveC() -> ReferenceType {
         return __TextConfiguration(configuration: self)
     }
     
-    public static func _forceBridgeFromObjectiveC(_ source: __TextConfiguration, result: inout TextConfiguration?) {
+    public static func _forceBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) {
         result = source.configuration
     }
     
-    public static func _conditionallyBridgeFromObjectiveC(_ source: __TextConfiguration, result: inout TextConfiguration?) -> Bool {
+    public static func _conditionallyBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) -> Bool {
         _forceBridgeFromObjectiveC(source, result: &result)
         return true
     }
     
-    public static func _unconditionallyBridgeFromObjectiveC(_ source: __TextConfiguration?) -> TextConfiguration {
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: ReferenceType?) -> Self {
         if let source = source {
             var result: TextConfiguration?
             _forceBridgeFromObjectiveC(source, result: &result)

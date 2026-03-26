@@ -119,7 +119,7 @@ public extension NSUIView {
         }
         
         /// The position of the view inside another view.
-        public enum Position: Int, Hashable, Codable {
+        public enum Position: Int, Hashable, Codable, CustomStringConvertible {
             /// Top.
             case top
             /// Top leading.
@@ -138,6 +138,20 @@ public extension NSUIView {
             case bottomLeading
             /// Bottom trailing.
             case bottomTrailing
+            
+            public var description: String {
+                switch self {
+                case .top: "top"
+                case .topLeading: "topLeading"
+                case .topTrailing: "topTrailing"
+                case .center: "center"
+                case .leading: "leading"
+                case .trailing: "trailing"
+                case .bottom: "bottom"
+                case .bottomLeading: "bottomLeading"
+                case .bottomTrailing: "bottomTrailing"
+                }
+            }
         }
     }
         
@@ -414,11 +428,16 @@ public class __ViewConstraintMode: NSObject, NSCopying {
     }
     
     public func copy(with zone: NSZone? = nil) -> Any {
-        __ViewConstraintMode(mode: mode)
+        self
     }
     
     public override func isEqual(_ object: Any?) -> Bool {
-        mode == (object as? __ViewConstraintMode)?.mode
+        guard let other = object as? Self else { return false }
+        return self === other || mode == other.mode
+    }
+    
+    public override var hash: Int {
+        Hasher.hash(mode)
     }
 }
 
@@ -426,20 +445,20 @@ extension NSUIView.ConstraintMode: ReferenceConvertible {
     /// The Objective-C type for the configuration.
     public typealias ReferenceType = __ViewConstraintMode
     
-    public func _bridgeToObjectiveC() -> __ViewConstraintMode {
+    public func _bridgeToObjectiveC() -> ReferenceType {
         return __ViewConstraintMode(mode: self)
     }
     
-    public static func _forceBridgeFromObjectiveC(_ source: __ViewConstraintMode, result: inout NSUIView.ConstraintMode?) {
+    public static func _forceBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) {
         result = source.mode
     }
     
-    public static func _conditionallyBridgeFromObjectiveC(_ source: __ViewConstraintMode, result: inout NSUIView.ConstraintMode?) -> Bool {
+    public static func _conditionallyBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) -> Bool {
         _forceBridgeFromObjectiveC(source, result: &result)
         return true
     }
     
-    public static func _unconditionallyBridgeFromObjectiveC(_ source: __ViewConstraintMode?) -> NSUIView.ConstraintMode {
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: ReferenceType?) -> Self {
         if let source = source {
             var result: NSUIView.ConstraintMode?
             _forceBridgeFromObjectiveC(source, result: &result)
@@ -449,7 +468,15 @@ extension NSUIView.ConstraintMode: ReferenceConvertible {
     }
     
     public var description: String {
-              "\(self)"
+        switch self {
+        case .full: "full"
+        case .relative: "relative"
+        case .absolute: "absolute"
+        case .insets(let top, let leading, let bottom, let trailing):
+            "insets(top: \(top != nil ? "\(top!)" : "nil"), leading: \(leading != nil ? "\(leading!)" : "nil"), bottom: \(bottom != nil ? "\(bottom!)" : "nil"), trailing: \(trailing != nil ? "\(trailing!)" : "nil"))"
+        case .positioned(let position, let padding):
+            "positioned(position: \(position), padding: \(padding))"
+        }
     }
     
     public var debugDescription: String {

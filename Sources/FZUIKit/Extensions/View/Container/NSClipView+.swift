@@ -19,7 +19,7 @@ extension NSClipView {
     
     /// Sets the Boolean value indicating whether the clip view draws its background.
     @discardableResult
-    @objc open func backgroundColor(_ color: NSColor?) -> Self {
+    @objc open override func backgroundColor(_ color: NSColor?) -> Self {
         backgroundColor = color ?? .clear
         drawsBackground = color != nil
         return self

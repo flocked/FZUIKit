@@ -43,22 +43,6 @@ extension NSTextView {
     }
         
     /**
-     Returns a text view with an enclosing scroll view.
-         
-     The scroll view can be accessed via the text view's `enclosingScrollView` property.
-         
-     - Parameters:
-        - scrollsHorizontal: A Boolean value indicating whether the text view is horizontal scrollable.
-        - bordered: A Boolean value indicating whether the scroll view is bordered.
-     - Returns: The scroll view.
-          */
-    public static func scrollable(scrollsHorizontal: Bool = false, bordered: Bool = false) -> NSTextView {
-        let textView = NSTextView()
-        textView.addEnclosingScrollView(scrollsHorizontal: scrollsHorizontal, bordered: bordered)
-        return textView
-    }
-        
-    /**
      Embeds the text view in a scroll view and returns that scroll view.
          
      If the text view is already emedded in a scroll view, it will return that.
@@ -240,7 +224,7 @@ extension NSTextView {
         
     /// Sets the text view’s background color.
     @discardableResult
-    public func backgroundColor(_ color: NSColor?) -> Self {
+    public override func backgroundColor(_ color: NSColor?) -> Self {
         backgroundColor = color ?? .clear
         drawsBackground = color != nil
         return self
@@ -416,9 +400,9 @@ extension NSTextView {
     }
                 
                 
-    /// The attributed string.
-    public var attributedString: NSAttributedString! {
-        get { attributedString() }
+    /// The attributed string of the text view.
+    public var attributedString: NSAttributedString {
+        get { self.attributedString() }
         set { textStorage?.setAttributedString(newValue) }
     }
         
@@ -510,6 +494,26 @@ extension NSTextView {
     public func actionOnEscapeKeyDown(_ escapeAction: EscapeKeyAction) -> Self {
         actionOnEscapeKeyDown = escapeAction
         return self
+    }
+    
+    /**
+     Scrolls to and briefly highlights the first occurrence of the specified string in the text view.
+
+     If the string does not occur in the text view, the method performs no action.
+
+     - Parameters:
+       - string: The string to search for in the text view’s contents.
+       - options: Options that control how the search is performed.
+     */
+    func showFindIndicator(for string: String, options: String.CompareOptions = [.caseInsensitive]) {
+        guard !string.isEmpty else { return }
+        let fullText = self.string
+        guard let foundRange = fullText.range(of: string, options: options, range: fullText.range, locale: nil) else {
+            return
+        }
+        let nsRange = NSRange(foundRange, in: fullText)
+        scrollRangeToVisible(nsRange)
+        showFindIndicator(for: nsRange)
     }
             
     fileprivate var textViewDelegate: TextViewDelegate? {

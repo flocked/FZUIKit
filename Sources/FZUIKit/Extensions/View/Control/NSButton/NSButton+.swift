@@ -592,7 +592,7 @@ public extension NSButton {
     func setContentTintColor(_ color: NSColor?, for state: StateValue) -> Self {
         stateContentTintColor[state] = color
         updateButtonStateObserver()
-        if self.state == state, let color = color {
+        if self.state == state {
             contentTintColor = color
         }
         return self
@@ -605,7 +605,7 @@ public extension NSButton {
      - Returns: The color of the content tint for the specified state.
      */
     func contentTintColor(for state: StateValue) -> NSColor? {
-        stateContentTintColor[state]
+        stateContentTintColor[state]?.optional
     }
     
     /**
@@ -647,15 +647,15 @@ public extension NSButton {
      - Returns: The symbol configuration for the specified state.
      */
     func symbolConfiguration(for state: StateValue) -> NSImage.SymbolConfiguration? {
-        stateSymbolConfiguration[state]
+        stateSymbolConfiguration[state]?.optional
     }
     
-    internal var stateContentTintColor: [StateValue: NSColor] {
+    internal var stateContentTintColor: [StateValue: NSColor?] {
         get { getAssociatedValue("stateContentTintColor") ?? [:] }
         set { setAssociatedValue(newValue, key: "stateContentTintColor") }
     }
     
-    internal var stateSymbolConfiguration: [StateValue: NSImage.SymbolConfiguration] {
+    internal var stateSymbolConfiguration: [StateValue: NSImage.SymbolConfiguration?] {
         get { getAssociatedValue("stateSymbolConfiguration") ?? [:] }
         set { setAssociatedValue(newValue, key: "stateSymbolConfiguration") }
     }
@@ -670,17 +670,15 @@ public extension NSButton {
     }
     
     internal func updateButtonStateObserver() {
-        var shouldObserveState = !stateContentTintColor.isEmpty
-        shouldObserveState = !self.stateContentTintColor.isEmpty || !self.stateSymbolConfiguration.isEmpty
-        if !shouldObserveState {
+        if stateContentTintColor.isEmpty && stateSymbolConfiguration.isEmpty {
             buttonStateObserver = nil
         } else if buttonStateObserver == nil {
             buttonStateObserver = observeChanges(for: \.cell?.state) { [weak self] _, state in
                 guard let self = self, let state = state else { return }
-                if let contentTintColor = self.contentTintColor(for: state) {
-                    self.contentTintColor = contentTintColor
+                if let tintColor = self.stateContentTintColor[state] {
+                    self.contentTintColor = tintColor
                 }
-                if let symbolConfiguration = self.symbolConfiguration(for: state) {
+                if let symbolConfiguration = self.stateSymbolConfiguration[state] {
                     self.symbolConfiguration = symbolConfiguration
                 }
             }

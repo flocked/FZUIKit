@@ -47,6 +47,13 @@ extension NSMenu {
         }
     }
     
+    /// Sets the handler that is called before the menu is displayed allowing you to update it.
+    @discardableResult
+    public func updateHandler(_ handler: ((_ menu: NSMenu)->())?) -> Self {
+        handlers.update = handler
+        return self
+    }
+    
     fileprivate var effectiveAppearanceObservation: KeyValueObservation? {
         get { getAssociatedValue("effectiveAppearanceObservation") }
         set { setAssociatedValue(newValue, key: "effectiveAppearanceObservation") }

@@ -18,7 +18,7 @@ extension NSMatrix {
     
     /// Sets the background color of the matrix.
     @discardableResult
-    public func backgroundColor(_ color: NSColor?) -> Self {
+    public override func backgroundColor(_ color: NSColor?) -> Self {
         backgroundColor = color ?? .clear
         drawsBackground = color != nil
         return self

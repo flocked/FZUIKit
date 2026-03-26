@@ -20,84 +20,133 @@ public extension NSFont {
         .systemFont(ofSize: NSFont.systemFontSize(for: size), weight: weight, design: design)
     }
     
-    /// Returns the font used for standard interface labels in the specified size.
-    static func labelFont(ofSize size: NSControl.ControlSize) -> NSFont {
-        .labelFont(ofSize: NSFont.systemFontSize(for: size))
+    /// Returns the standard system font in boldface type, with default size.
+    static var boldSystemFont: NSFont {
+        .boldSystemFont(ofSize: 0)
     }
     
-    /// Returns the font used for standard interface items, such as button labels, menu items, and so on, in the specified size.
-    static func messageFont(ofSize size: NSControl.ControlSize) -> NSFont {
-        .messageFont(ofSize: NSFont.systemFontSize(for: size))
+    /// Returns the standard system font in boldface type with the specified size.
+    static func boldSystemFont(ofSize size: NSControl.ControlSize) -> NSFont {
+        .boldSystemFont(ofSize: NSFont.systemFontSize(for: size))
     }
     
-    /// Returns the font used for menu bar items, in the specified size.
-    static func menuBarFont(ofSize size: NSControl.ControlSize) -> NSFont {
-        .menuBarFont(ofSize: NSFont.systemFontSize(for: size))
+    /// Returns a monospace version of the system font, with default size.
+    static var monospacedSystemFont: NSFont {
+        .monospacedSystemFont(ofSize: 0, weight: .regular)
     }
     
-    /// Returns the font used for menu items, in the specified size.
-    static func menuFont(ofSize size: NSControl.ControlSize) -> NSFont {
-        .menuFont(ofSize: NSFont.systemFontSize(for: size))
+    /// Returns a monospace version of the system font with the specified size.
+    static func monospacedSystemFont(ofSize fontSize: CGFloat) -> NSFont {
+        .monospacedSystemFont(ofSize: fontSize, weight: .regular)
+    }
+    /// Returns a version of the standard system font that contains monospaced digit glyphs with the specified weight and default size.
+    static func monospacedSystemFont(weight: NSFont.Weight) -> NSFont {
+        .monospacedSystemFont(ofSize: 0, weight: weight)
     }
     
-    /// Returns the font used for the content of controls in the specified size.
-    static func controlContentFont(ofSize size: NSControl.ControlSize) -> NSFont {
-        .controlContentFont(ofSize: NSFont.systemFontSize(for: size))
+    /// Returns a version of the standard system font that contains monospaced digit glyphs with the specified size and weight.
+    static func monospacedSystemFont(ofSize size: NSControl.ControlSize, weight: NSFont.Weight = .regular) -> NSFont {
+        .monospacedSystemFont(ofSize: NSFont.systemFontSize(for: size), weight: weight)
     }
     
-    /// Returns the font used for window title bars, in the specified size.
-    static func titleBarFont(ofSize size: NSControl.ControlSize) -> NSFont {
-        .titleBarFont(ofSize: NSFont.systemFontSize(for: size))
+    /// Returns a version of the standard system font that contains monospaced digit glyphs, with default size.
+    static var monospacedDigitSystemFont: NSFont {
+        .monospacedDigitSystemFont(ofSize: 0, weight: .regular)
     }
     
-    /// Returns the font used for palette window title bars, in the specified size.
-    static func paletteFont(ofSize size: NSControl.ControlSize) -> NSFont {
-        .paletteFont(ofSize: NSFont.systemFontSize(for: size))
+    /// Returns a version of the standard system font that contains monospaced digit glyphs with the specified size.
+    static func monospacedDigitSystemFont(ofSize fontSize: CGFloat) -> NSFont {
+        .monospacedDigitSystemFont(ofSize: fontSize, weight: .regular)
     }
     
-    /// Returns the font used for tool tips labels, in the specified size.
-    static func toolTipsFont(ofSize size: NSControl.ControlSize) -> NSFont {
-        .toolTipsFont(ofSize: NSFont.systemFontSize(for: size))
+    /// Returns a version of the standard system font that contains monospaced digit glyphs with the specified weight and default size.
+    static func monospacedDigitSystemFont(weight: NSFont.Weight) -> NSFont {
+        .monospacedDigitSystemFont(ofSize: 0, weight: weight)
+    }
+    
+    /// Returns a version of the standard system font that contains monospaced digit glyphs with the specified size and weight.
+    static func monospacedDigitSystemFont(ofSize size: NSControl.ControlSize, weight: NSFont.Weight = .regular) -> NSFont {
+        .monospacedDigitSystemFont(ofSize: NSFont.systemFontSize(for: size), weight: weight)
     }
     
     /// The font used for standard interface labels, with default size.
     static var labelFont: NSFont {
         .labelFont(ofSize: 0)
     }
+    
+    /// Returns the font used for standard interface labels in the specified size.
+    static func labelFont(ofSize size: NSControl.ControlSize) -> NSFont {
+        .labelFont(ofSize: NSFont.systemFontSize(for: size))
+    }
 
     /// The font used for standard interface items, such as button labels, menu items, and so on, with default size.
     static var messageFont: NSFont {
         .messageFont(ofSize: 0)
+    }
+    
+    /// Returns the font used for standard interface items, such as button labels, menu items, and so on, in the specified size.
+    static func messageFont(ofSize size: NSControl.ControlSize) -> NSFont {
+        .messageFont(ofSize: NSFont.systemFontSize(for: size))
     }
 
     /// The font used for menu bar items, with default size.
     static var menuBarFont: NSFont {
         .menuBarFont(ofSize: 0)
     }
+    
+    /// Returns the font used for menu bar items, in the specified size.
+    static func menuBarFont(ofSize size: NSControl.ControlSize) -> NSFont {
+        .menuBarFont(ofSize: NSFont.systemFontSize(for: size))
+    }
 
     /// The font used for menu items, with default size.
     static var menuFont: NSFont {
         .menuFont(ofSize: 0)
+    }
+    
+    /// Returns the font used for menu items, in the specified size.
+    static func menuFont(ofSize size: NSControl.ControlSize) -> NSFont {
+        .menuFont(ofSize: NSFont.systemFontSize(for: size))
     }
 
     /// The font used for the content of controls, with default size.
     static var controlContentFont: NSFont {
         .controlContentFont(ofSize: 0)
     }
+    
+    /// Returns the font used for the content of controls in the specified size.
+    static func controlContentFont(ofSize size: NSControl.ControlSize) -> NSFont {
+        .controlContentFont(ofSize: NSFont.systemFontSize(for: size))
+    }
 
     /// The font used for window title bars, with default size.
     static var titleBarFont: NSFont {
         .titleBarFont(ofSize: 0)
+    }
+    
+    /// Returns the font used for window title bars, in the specified size.
+    static func titleBarFont(ofSize size: NSControl.ControlSize) -> NSFont {
+        .titleBarFont(ofSize: NSFont.systemFontSize(for: size))
     }
 
     /// The font used for palette window title bars, with default size.
     static var paletteFont: NSFont {
         .paletteFont(ofSize: 0)
     }
+    
+    /// Returns the font used for palette window title bars, in the specified size.
+    static func paletteFont(ofSize size: NSControl.ControlSize) -> NSFont {
+        .paletteFont(ofSize: NSFont.systemFontSize(for: size))
+    }
 
     /// The font used for tool tips labels, with default size.
     static var toolTipsFont: NSFont {
         .toolTipsFont(ofSize: 0)
+    }
+    
+    /// Returns the font used for tool tips labels, in the specified size.
+    static func toolTipsFont(ofSize size: NSControl.ControlSize) -> NSFont {
+        .toolTipsFont(ofSize: NSFont.systemFontSize(for: size))
     }
     
     /**

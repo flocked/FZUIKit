@@ -151,11 +151,16 @@ public class __ControlConfigurationState: NSObject, NSCopying {
     }
     
     public func copy(with zone: NSZone? = nil) -> Any {
-        __ControlConfigurationState(state: state)
+        self
     }
     
     public override func isEqual(_ object: Any?) -> Bool {
-        state == (object as? __ControlConfigurationState)?.state
+        guard let other = object as? Self else { return false }
+        return self === other || state == other.state
+    }
+    
+    public override var hash: Int {
+        Hasher.hash(state)
     }
 }
 

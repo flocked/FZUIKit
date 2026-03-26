@@ -400,6 +400,7 @@ extension CALayer {
                 shadowShape = newValue
                 didUpdateShadowShapManually = false
             }
+            _maskShape = String(describing: newValue)
             innerShadowLayer?.shape = newValue
             configurations.setupBorder()
             #if os(macOS)
@@ -408,6 +409,11 @@ extension CALayer {
             setupShadowShapeLayer()
             #endif
         }
+    }
+    
+    @objc dynamic var _maskShape: String? {
+        get { getAssociatedValue("_maskShape") }
+        set { setAssociatedValue(newValue, key: "_maskShape") }
     }
     
     /// Sets the shape that is used for masking the layer.
@@ -475,20 +481,13 @@ extension CALayer {
         return self
     }
     
-    fileprivate var borderLayer: BorderLayer? {
-        get { getAssociatedValue("borderLayer") }
-        set { setAssociatedValue(newValue, key: "borderLayer") }
+    var borderLayer: BorderLayer {
+        BorderLayer(for: self)
     }
     
     var _borderColor: CGColor? {
-        get { borderLayer?.configuration.color?.cgColor ?? borderColor }
-        set {
-            if let borderLayer = borderLayer {
-                borderLayer.strokeColor = newValue
-            } else {
-                borderColor = newValue
-            }
-        }
+        get { borderLayer.configuration.color?.cgColor ?? borderColor }
+        set { borderLayer.strokeColor = newValue }
     }
     
     /// The gradient of the layer.
@@ -573,15 +572,7 @@ extension CALayer {
 
     class Configurations {
         var border: BorderConfiguration {
-            get {
-                guard let layer = layer else { return .none }
-                if let borderLayer = layer.borderLayer {
-                    return borderLayer.configuration
-                }
-                _border.color = layer.parentView?.dynamicColors[\._borderColor] ?? layer._borderColor?.nsUIColor
-                _border.width = layer.borderWidth
-                return _border
-            }
+            get { layer?.borderLayer.configuration ?? .none }
             set {
                 guard let layer = layer else { return }
                 _border = newValue
@@ -597,6 +588,8 @@ extension CALayer {
                         }
                         CATransaction.disabledActions {
                             setupBorder()
+                            layer.borderLayer.shape = layer.maskShape
+                            layer.borderLayer.configuration = self._border
                         }
                     }
                 }
@@ -607,21 +600,8 @@ extension CALayer {
         
         func setupBorder() {
             guard let layer = layer else { return }
-            if (layer.maskShape != nil && _border.isVisible) || _border.needsDashedBorder {
-                if layer.borderLayer == nil {
-                    layer.borderLayer = BorderLayer(for: layer)
-                }
-                layer.borderLayer?.shape = layer.maskShape
-                layer.borderLayer?.configuration = _border
-                layer.borderWidth = 0.0
-                layer.borderColor = nil
-            } else {
-                layer.borderColor = layer.borderLayer?.borderColor ?? layer.borderColor
-                layer.borderLayer?.removeFromSuperlayer()
-                layer.borderLayer = nil
-                layer.borderColor = layer.resolvedColor(for: _border.resolvedColor())
-                layer.borderWidth = _border.width
-            }
+            layer.borderLayer.shape = layer.maskShape
+            layer.borderLayer.configuration = _border
         }
         
         var shadow: ShadowConfiguration {
@@ -785,6 +765,11 @@ extension CALayer {
         getAssociatedValue("LayerConfigurations", initialValue: Configurations(for: self))
     }
     
+    var backgroundColorIsVisible: Bool {
+        guard let backgroundColor = backgroundColor else { return false }
+        return backgroundColor.alpha > 0.0
+    }
+    
     func resolvedColor(for color: NSUIColor?) -> CGColor? {
         guard let view = parentView, let color = color else { return nil }
         return color.resolvedColor(for: view).cgColor
@@ -876,16 +861,17 @@ extension CALayer {
         }
         if includeAppearance {
             constrainLayerObserver?.add(\.cornerRadius) { [weak self] old, new in
-                guard let self = self, old != new else { return }
-                self.cornerRadius = new
+                self?.cornerRadius = new
             }
             constrainLayerObserver?.add(\.cornerCurve) { [weak self] old, new in
-                guard let self = self, old != new else { return }
-                self.cornerCurve = new
+                self?.cornerCurve = new
             }
             constrainLayerObserver?.add(\.maskedCorners) { [weak self] old, new in
-                guard let self = self, old != new else { return }
-                self.maskedCorners = new
+                self?.maskedCorners = new
+            }
+            constrainLayerObserver?.add(\._maskShape) { [weak self] old, new in
+                guard let self = self, let layer = self.constrainLayerObserver?.observedObject else { return }
+                self.maskShape = layer.maskShape
             }
         } else {
             constrainLayerObserver?.remove([\.cornerRadius, \.cornerCurve, \.maskedCorners])
@@ -918,8 +904,13 @@ extension CALayer {
     }
     
     /// The associated view using the layer.
-    @objc open var parentView: NSUIView? {
+    @objc dynamic open var parentView: NSUIView? {
         delegate as? NSUIView ?? superlayer?.parentView
+    }
+    
+    @objc class func keyPathsForValuesAffectingParentView() -> Set<String> {
+        Swift.print("keyPathsForValuesAffectingParentView")
+        return ["delegate", "superlayer", "superlayer.parentView"]
     }
     
     /// A rendered image of the layer.

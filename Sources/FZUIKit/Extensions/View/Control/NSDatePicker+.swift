@@ -81,7 +81,7 @@ extension NSDatePicker {
         
     /// Sets the background color of the date picker.
     @discardableResult
-    public func backgroundColor(_ color: NSColor?) -> Self {
+    public override func backgroundColor(_ color: NSColor?) -> Self {
         backgroundColor = color ?? .clear
         drawsBackground = color != nil
         return self
