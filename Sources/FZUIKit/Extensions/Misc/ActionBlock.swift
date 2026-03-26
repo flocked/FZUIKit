@@ -85,6 +85,20 @@ public extension TargetActionProvider {
         return self
     }
     
+    /// Sets the action-message selector.
+    @discardableResult
+    func action(_ action: Selector?) -> Self {
+        self.action = action
+        return self
+    }
+    
+    /// Sets the target object that receives action messages from the object.
+    @discardableResult
+    func target(_ target: AnyObject?) -> Self {
+        self.target = target
+        return self
+    }
+    
     private var actionTrampoline: ActionTrampoline<Self>? {
         get { FZSwiftUtils.getAssociatedValue("actionTrampoline", object: self) }
         set { FZSwiftUtils.setAssociatedValue(newValue, key: "actionTrampoline", object: self) }
