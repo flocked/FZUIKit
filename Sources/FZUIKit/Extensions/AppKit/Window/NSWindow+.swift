@@ -624,15 +624,15 @@ extension NSWindow {
     
     private func setupFullscreenObservation() {
         guard fullscreenTokens.isEmpty else { return }
-        fullscreenTokens = [NotificationToken(NSWindow.willEnterFullScreenNotification, object: self, block: { [weak self] _ in
+        fullscreenTokens = [observeNotification(\.willEnterFullScreenNotification) { [weak self] _ in
             self?.willChangeValue(for: \.isFullscreen)
-        }), NotificationToken(NSWindow.willExitFullScreenNotification, object: self, block: { [weak self] _ in
+        }, observeNotification(\.willExitFullScreenNotification) { [weak self] _ in
             self?.willChangeValue(for: \.isFullscreen)
-        }), NotificationToken(NSWindow.didExitFullScreenNotification, object: self, block: { [weak self] _ in
+        }, observeNotification(\.didExitFullScreenNotification) { [weak self] _ in
             self?.didChangeValue(for: \.isFullscreen)
-        }), NotificationToken(NSWindow.didEnterFullScreenNotification, object: self, block: { [weak self] _ in
+        }, observeNotification(\.didEnterFullScreenNotification) { [weak self] _ in
             self?.didChangeValue(for: \.isFullscreen)
-        })]
+        }]
     }
     
     private var fullscreenTokens: [NotificationToken] {

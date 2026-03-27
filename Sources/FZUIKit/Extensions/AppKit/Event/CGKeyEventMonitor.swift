@@ -69,7 +69,7 @@ public final class CGKeyEventMonitor {
             shortcutObservation = nil
             _shortcut = name?.shortcut ?? nil
             guard let name = name else { return }
-            shortcutObservation = .init(KeyboardShortcut.didChangeKeyboardShortcutNotification) { [weak self] notification in
+            shortcutObservation = .init(for: KeyboardShortcut.didChangeKeyboardShortcutNotification, postedBy: name) { [weak self] notification in
                 guard let self = self, (notification.object as? String) == name.rawValue else { return }
                 self._shortcut = name.shortcut ?? nil
             }

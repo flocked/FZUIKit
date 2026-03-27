@@ -12,7 +12,7 @@ import FZSwiftUtils
 public extension NSTableRowView {
     /// The cell views that the row view is displaying.
     var cellViews: [NSTableCellView] {
-        (0 ..< numberOfColumns).compactMap { view(atColumn: $0) as? NSTableCellView }
+        (0..<numberOfColumns).compactMap { view(atColumn: $0) as? NSTableCellView }
     }
 
     /// The  cell view for the specified column.

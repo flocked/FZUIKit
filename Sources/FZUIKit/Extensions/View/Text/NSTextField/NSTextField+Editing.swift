@@ -346,14 +346,14 @@ extension NSTextField {
         if editingHandlers.needsSwizzle || allowedCharacters.needsSwizzling || minimumNumberOfCharacters != nil || maximumNumberOfCharacters != nil || automaticallyResizesToFit || needsFontAdjustments || isVerticallyCentered || editingActionOnEscapeKeyDown.needsObserveEditing {
             guard editingNotificationTokens.isEmpty else { return }
             setupTextFieldObserver()
-            editingNotificationTokens += .init(NSTextField.textDidBeginEditingNotification, object: self) {  [weak self] _ in
+            editingNotificationTokens += observeNotification(\.textDidBeginEditingNotification) {  [weak self] _ in
                 guard let self = self else { return }
                 self.editStartString = self.stringValue
                 self.previousString = self.stringValue
                 self.editingHandlers.didBegin?()
                 self.editingRange = self.selectedRange ?? .zero
             }
-            editingNotificationTokens += .init(NSTextField.textDidChangeNotification, object: self) {  [weak self] _ in
+            editingNotificationTokens += observeNotification(\.textDidChangeNotification) {  [weak self] _ in
                 guard let self = self else { return }
                 self.updateString()
                 self.resizeToFit()
@@ -362,7 +362,7 @@ extension NSTextField {
                 self.frame.size.height += 0.0001
                 self.frame.size.height -= 0.0001
             }
-            editingNotificationTokens += .init(NSTextField.textDidEndEditingNotification, object: self) {  [weak self] _ in
+            editingNotificationTokens += observeNotification(\.textDidEndEditingNotification) {  [weak self] _ in
                 guard let self = self else { return }
                 self.editingHandlers.didEnd?()
             }
