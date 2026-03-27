@@ -22,5 +22,11 @@ public extension NSSwitch {
         self.state = state ? .on : .off
         return self
     }
+    
+    /// A Boolean value indicating whether the switch's state is `on`.
+    var isToggled: Bool {
+        get { state == .on }
+        set { state = newValue ? .on : .off }
+    }
 }
 #endif

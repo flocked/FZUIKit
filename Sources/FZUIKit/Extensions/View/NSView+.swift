@@ -128,9 +128,11 @@ extension NSView {
 
      Use this property to scale or rotate the view's frame rectangle within its superview's coordinate system. (To change the position of the view, modify the center property instead.). Transformations occur relative to the view's ``anchorPoint``.
 
-     Using this property turns the view into a layer-backed view. The value can be animated via `animator()`.
+     Using this property turns the view into a layer-backed view.
+     
+     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
 
-     The default value is `CGAffineTransformIdentity`, which results in a view with no transformation.
+     The default value is [CGAffineTransformIdentity](https://developer.apple.com/documentation/coregraphics/cgaffinetransformidentity), which results in a view with no transformation.
      */
     @objc open var transform: CGAffineTransform {
         get { layer?.affineTransform() ?? CGAffineTransformIdentity }

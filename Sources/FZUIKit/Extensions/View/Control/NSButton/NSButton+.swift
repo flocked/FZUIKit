@@ -591,7 +591,7 @@ public extension NSButton {
     @discardableResult
     func setContentTintColor(_ color: NSColor?, for state: StateValue) -> Self {
         stateContentTintColor[state] = color
-        updateButtonStateObserver()
+        updateStateObservation()
         if self.state == state {
             contentTintColor = color
         }
@@ -620,7 +620,7 @@ public extension NSButton {
     @discardableResult
     func setSymbolConfiguration(_ configuration: NSImage.SymbolConfiguration?, for state: StateValue) -> Self {
         stateSymbolConfiguration[state] = configuration
-        updateButtonStateObserver()
+        updateStateObservation()
         if self.state == state, let configuration = configuration {
             symbolConfiguration = configuration
         }
@@ -660,20 +660,20 @@ public extension NSButton {
         set { setAssociatedValue(newValue, key: "stateSymbolConfiguration") }
     }
     
-    internal var buttonStateObserver: KeyValueObservation? {
-        get { getAssociatedValue("buttonStateObserver") }
-        set { setAssociatedValue(newValue, key: "buttonStateObserver") }
+    internal var stateObservation: KeyValueObservation? {
+        get { getAssociatedValue("stateObservation") }
+        set { setAssociatedValue(newValue, key: "stateObservation") }
     }
     
     internal var buttonObserver: KeyValueObserver<NSButton> {
         get { getAssociatedValue("buttonObserver", initialValue: KeyValueObserver(self)) }
     }
     
-    internal func updateButtonStateObserver() {
+    internal func updateStateObservation() {
         if stateContentTintColor.isEmpty && stateSymbolConfiguration.isEmpty {
-            buttonStateObserver = nil
-        } else if buttonStateObserver == nil {
-            buttonStateObserver = observeChanges(for: \.cell?.state) { [weak self] _, state in
+            stateObservation = nil
+        } else if stateObservation == nil {
+            stateObservation = observeChanges(for: \.cell?.state) { [weak self] _, state in
                 guard let self = self, let state = state else { return }
                 if let tintColor = self.stateContentTintColor[state] {
                     self.contentTintColor = tintColor
@@ -897,23 +897,6 @@ public extension NSButton {
         state == .on ? alternateImage ?? image : image
     }
     
-    /*
-    internal convenience init(_ title: String? = nil, image: NSImage? = nil, style: BezelStyle? = nil) {
-        self.init(title: title ?? "", target: nil, action: nil)
-        self.image = image
-        if image != nil {
-            imagePosition = .imageLeading
-        }
-        if let style = style {
-            bezelStyle = style
-        } else if title == nil {
-            bezelStyle = .smallSquare
-            isBordered = false
-        }
-        sizeToFit(imageToTitleSpacing: 4.0)
-    }
-     */
-    
     internal static func button(_ title: String? = nil, image: NSImage? = nil, style: BezelStyle? = nil, action: ActionBlock? = nil) -> Self {
         let button = Self.init(title: title ?? "", target: nil, action: nil)
         button.image = image
@@ -948,6 +931,23 @@ public extension NSButton {
         let hasTitle = title != ""
         imagePosition = image != nil ? hasTitle ? .imageLeading : .imageOnly : .noImage
     }
+    
+    /*
+    internal convenience init(_ title: String? = nil, image: NSImage? = nil, style: BezelStyle? = nil) {
+        self.init(title: title ?? "", target: nil, action: nil)
+        self.image = image
+        if image != nil {
+            imagePosition = .imageLeading
+        }
+        if let style = style {
+            bezelStyle = style
+        } else if title == nil {
+            bezelStyle = .smallSquare
+            isBordered = false
+        }
+        sizeToFit(imageToTitleSpacing: 4.0)
+    }
+     */
     
     /*
     internal convenience init(_ title: String? = nil, symbolName: String, style: BezelStyle? = nil) {
