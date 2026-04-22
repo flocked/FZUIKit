@@ -31,6 +31,13 @@ public extension NSImage {
             return nil
         }
     }
+    
+    /// Sets the size of the image.
+    @discardableResult
+    func size(_ size: CGSize) -> Self {
+        self.size = size
+        return self
+    }
 
     /// A Boolean value indicating whether the image is a symbol.
     var isSymbolImage: Bool {
@@ -202,19 +209,29 @@ public extension NSImage {
         bitmapImageRep?.jpegData(compressionFactor: compressionQuality, progressive: progressive, fallbackBackgroundColor: fallbackBackgroundColor)
     }
 
-    /**
-     Returns the image flipped.
+    /*
+    /// Returns a vertically flipped copy of the image.
+    func verticallyFlipped() -> NSImage {
+        _flipped(scaleX: 1, y: -1, translateX: 0, y: size.height)
+    }
 
-     - Parameter shouldFlip: A Boolean value indicating whether the image should be flipped.
-     - Returns: The flipped image.
-     */
-    func flipped(_ shouldFlip: Bool = true) -> NSImage {
-        let newImage = NSImage(size: size, flipped: shouldFlip) { rect in
-            self.draw(in: rect, from: .zero, operation: .sourceOver, fraction: 1.0, respectFlipped: false, hints: nil)
-            return true
-        }
+    /// Returns a horizontally flipped copy of the image.
+    func horizontallyFlipped() -> NSImage {
+        _flipped(scaleX: -1, y: 1, translateX: size.width, y: 0)
+    }
+
+    private func _flipped(scaleX sx: CGFloat, y sy: CGFloat, translateX tx: CGFloat, y ty: CGFloat) -> NSImage {
+        let newImage = NSImage(size: size)
+        newImage.lockFocus()
+        let transform = NSAffineTransform()
+        transform.translateX(by: tx, yBy: ty)
+        transform.scaleX(by: sx, yBy: sy)
+        transform.concat()
+        draw(at: .zero, from: .zero, operation: .copy, fraction: 1.0)
+        newImage.unlockFocus()
         return newImage
     }
+    */
     
     internal struct Hint {
         public var transform: NSAffineTransform?

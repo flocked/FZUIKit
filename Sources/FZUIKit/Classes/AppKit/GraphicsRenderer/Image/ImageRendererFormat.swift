@@ -11,13 +11,11 @@ import AppKit
 /**
  A set of drawing attributes that represents the configuration of an image renderer context.
  
- Use an instance of UIGraphicsImageRendererFormat to initialize a ``NSGraphicsImageRenderer`` object with nondefault attributes.
+ Use an instance of ``GraphicsImageRendererFormat`` to initialize a ``GraphicsImageRenderer`` object with nondefault attributes.
  
- The image renderer format object contains properties that determine the attributes of the underlying Core Graphics contexts that the image renderer creates. Use the `default()` static method to create an image renderer format instance optimized for the current device.
+ The image renderer format object contains properties that determine the attributes of the underlying Core Graphics contexts that the image renderer creates. Use the ``default()`` static method to create an image renderer format instance optimized for the current device.
  */
 public final class GraphicsImageRendererFormat: GraphicsRendererFormat {
-    var isRendering = false
-    
     /**
      The display scale of the image renderer context.
      
@@ -60,7 +58,11 @@ public final class GraphicsImageRendererFormat: GraphicsRendererFormat {
         set { renderingBounds = newValue }
     }
     
+    var cgColorSpace: CGColorSpace? = nil
+    var bitmapInfo: CGBitmapInfo? = nil
+    var bitsPerComponent: Int? = nil
     var renderingBounds: CGRect = .zero
+    var isRendering = false
     
     /**
      Creates a image render format with the specified values.
@@ -135,6 +137,8 @@ extension GraphicsImageRendererFormat {
         case extended
         /// The image renderer context doesn’t support extended colors.
         case standard
+        /// The image renderer context doesn’t specify a color range.
+        case undefined
         
         func bitmapInfo(opaque: Bool) -> CGBitmapInfo {
             self == .extended ?
@@ -143,27 +147,45 @@ extension GraphicsImageRendererFormat {
         }
 
         var cgColorSpace: CGColorSpace {
-            self == .extended ? CGColorSpace(name: .extendedSRGB)! : CGColorSpace(name: .sRGB)!
+            CGColorSpace(name: self == .extended ? .extendedSRGB : .sRGB)!
         }
         
         var resolved: Range {
             guard self == .automatic else { return self }
-            if (NSScreen.main ?? NSScreen.screens.first)?.colorSpace?.isExtended == true {
-                return .extended
-            }
-            return .standard
+            return (NSScreen.main ?? NSScreen.screens.first)?.colorSpace?.isExtended == true ? .extended : .standard
         }
     }
 }
 
-private extension NSColorSpace {
+extension NSImage {
+    /// The preferred image renderer format for the image.
+    public var imageRendererFormat: GraphicsImageRendererFormat {
+        let cgImage = cgImage
+        cgImage?.bitsPerComponent
+        var scale: CGFloat = 1.0
+        if let cgSize = cgImage?.size, cgSize != .zero, size != .zero {
+            scale = max(cgSize.width / size.width, cgSize.height / size.height)
+        }
+        var format = GraphicsImageRendererFormat(scale: scale, isOpaque: cgImage?.isOpaque ?? false, preferredRange: .undefined)
+        format.bitmapInfo = cgImage?.bitmapInfo
+        format.cgColorSpace = cgImage?.colorSpace
+        format.bitsPerComponent = cgImage?.bitsPerComponent
+        return format
+    }
+}
+
+fileprivate extension CGImage {
+    var isOpaque: Bool {
+        switch alphaInfo {
+        case .none, .noneSkipFirst, .noneSkipLast: return true
+        default: return false
+        }
+    }
+}
+
+fileprivate extension NSColorSpace {
     var isExtended: Bool {
         isHDR || usesExtendedRange
     }
 }
-
-extension NSColorSpaceName {
-    static let genericRGB = NSColorSpaceName(rawValue: "NSCalibratedRGBColorSpace")
-}
-
 #endif

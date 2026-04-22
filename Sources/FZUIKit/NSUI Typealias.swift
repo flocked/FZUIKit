@@ -55,6 +55,7 @@ public typealias NSUIScrollView = NSScrollView
 public typealias NSUITableView = NSTableView
 public typealias NSUIGestureRecognizerDelegate = NSGestureRecognizerDelegate
 public typealias NSUITouch = NSTouch
+public typealias NSUIGraphicsImageRenderer = GraphicsImageRenderer
 #elseif canImport(UIKit)
 import UIKit
 public typealias NSUIBezierPath = UIBezierPath
@@ -91,6 +92,7 @@ public typealias NSUITextView = UITextView
 public typealias NSUIPanGestureRecognizer = UIPanGestureRecognizer
 public typealias NSUIGestureRecognizer = UIGestureRecognizer
 public typealias NSUIButton = UIButton
+public typealias NSUIGraphicsImageRenderer = UIGraphicsImageRenderer
 #if os(iOS)
 public typealias NSUIMagnificationGestureRecognizer = UIPinchGestureRecognizer
 #endif

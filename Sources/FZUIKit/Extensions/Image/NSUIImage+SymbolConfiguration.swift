@@ -375,8 +375,13 @@ extension NSUIImage.SymbolConfiguration {
     
     var weight: NSUISymbolWeight {
         get {
+            #if os(macOS)
             guard let weight: Double = value(forKey: "weight") else { return .unspecified }
             return NSUISymbolWeight(rawValue: weight)
+            #else
+            guard let weight: Int = value(forKey: "weight") else { return .unspecified }
+            return NSUISymbolWeight(rawValue: weight) ?? .regular
+            #endif
         }
         set {
             #if os(macOS)
@@ -453,10 +458,9 @@ extension NSUIImage.SymbolConfiguration {
     var textStyle: NSUIFont.TextStyle? {
         get { value(forKey: "textStyle") }
         set {
-            let value = newValue?.uictName
-            setIvarValue(value, named: "_textStyle")
-            guard value != nil else { return }
-            pointSize = nil
+            setValue(safely: newValue, forKey: "textStyle")
+            guard newValue != nil else { return }
+            pointSize = 0
         }
     }
     #endif
@@ -465,10 +469,9 @@ extension NSUIImage.SymbolConfiguration {
     var font: NSUIFont? {
         if let textStyle = textStyle {
             return .systemFont(textStyle).weight(weight.fontWeight())
-        } else if let pointSize = pointSize {
+        } else {
             return .systemFont(ofSize: pointSize, weight: weight.fontWeight())
         }
-        return nil
     }
     
     var uiFont: Font? {

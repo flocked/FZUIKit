@@ -17,9 +17,9 @@ public extension NSApplication.ModalResponse {
      */
     static let suppress = NSApplication.ModalResponse((1 << 14))
     
-    /// The user clicked the button at the specified index on the dialog or sheet.
-    static func button(at index: Int) -> NSApplication.ModalResponse {
-        return NSApplication.ModalResponse(1000+index)
+    /// The index of the button, counted from the right edge, that the user clicked in the dialog or sheet.
+    var clickedButtonIndex: Int? {
+        rawValue >= 1000 ? rawValue - 1000 : nil
     }
 }
 
@@ -151,7 +151,6 @@ extension NSAlert {
         set { setAssociatedValue(newValue, key: "helpDelegate") }
     }
     
-    
     class HelpDelegate: NSObject, NSAlertDelegate {
         func alertShowHelp(_ alert: NSAlert) -> Bool {
             alert.helpHandler?()
@@ -213,18 +212,18 @@ extension NSAlert {
      If you want to reset all supressions, remove all keys from the set.
      */
     public static var supressionKeys: Set<String> {
-        get { Defaults.shared.get("AlertSupressions", initialValue: []) }
+        get { Defaults.shared.get("AlertSupressions") ?? [] }
         set { Defaults.shared.set(newValue, for: "AlertSupressions") }
     }
     
-    func swizzleRunModal() {
-        guard !isMethodHooked(#selector(self.runModal)) else { return }
+    private func swizzleRunModal() {
+        guard !isMethodHooked(#selector(runModal)) else { return }
         do {
-            try hook(#selector(self.runModal), closure: { original, alert, sel in
+            try hook(#selector(runModal), closure: { original, alert, sel in
                 guard let suppressionKey = alert.suppressionKey else {
                     return original(alert, sel)
                 }
-                if let supressionKeys: [String] = Defaults.shared["AlertSupressions"], supressionKeys.contains(suppressionKey) {
+                if NSAlert.supressionKeys.contains(suppressionKey) {
                     return .suppress
                 }
                 alert.showsSuppressionButton = true
@@ -235,12 +234,12 @@ extension NSAlert {
                 return runModal
             } as @convention(block) ((NSAlert, Selector) -> NSApplication.ModalResponse, NSAlert, Selector) -> NSApplication.ModalResponse)
             
-            try hook(#selector(self.beginSheetModal(for:completionHandler:)), closure: { original, alert, sel, window, handler in
+            try hook(#selector(beginSheetModal(for:completionHandler:)), closure: { original, alert, sel, window, handler in
                 guard let suppressionKey = alert.suppressionKey else {
                     original(alert, sel, window, handler)
                     return
                 }
-                if let supressionKeys: [String] = Defaults.shared["AlertSupressions"], supressionKeys.contains(suppressionKey) {
+                if NSAlert.supressionKeys.contains(suppressionKey) {
                     handler?(.suppress)
                 } else {
                     alert.showsSuppressionButton = true

@@ -17,7 +17,7 @@ public extension NSUIImage {
     func cropped(to rect: CGRect) -> NSUIImage? {
         cgImage?.cropping(to: rect)?.nsUIImage
     }
-    
+
     /**
      Creates a bitmap image from an existing image and an image mask.
      
@@ -204,39 +204,27 @@ public extension NSUIImage {
 public extension NSUIImage {
     /// Returns the image resized to the specified size.
     func resized(to size: CGSize) -> UIImage {
-        #if os(iOS) || os(tvOS)
-        let format = UIGraphicsImageRendererFormat.default()
-        format.opaque = false
-        let renderer = UIGraphicsImageRenderer(size: size, format: format)
-        return renderer.image { _ in
-            self.draw(in: size.rect)
-        }
-        #else
         UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
+        defer { UIGraphicsEndImageContext() }
         draw(in: size.rect)
-        let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return resizedImage ?? self
-        #endif
+        return UIGraphicsGetImageFromCurrentImageContext() ?? self
     }
 
     /// Returns the image rotated to the specified degree.
-    func rotated(degrees: Float) -> NSUIImage {
-        var newSize = size.rect.applying(CGAffineTransform(rotationAngle: CGFloat(degrees))).size
-        newSize.width = floor(newSize.width)
-        newSize.height = floor(newSize.height)
-
+    func rotated(degrees: CGFloat) -> NSUIImage {
+        rotated(radians: degrees * .pi / 180)
+    }
+    
+    /// Returns the image rotated to the specified radians.
+    func rotated(radians: CGFloat) -> UIImage {
+        let newSize = CGRect(origin: .zero, size: size).applying(CGAffineTransform(rotationAngle: radians)).integral.size
         UIGraphicsBeginImageContextWithOptions(newSize, false, scale)
-        let context = UIGraphicsGetCurrentContext()!
-
+        defer { UIGraphicsEndImageContext() }
+        guard let context = UIGraphicsGetCurrentContext() else { return self }
         context.translateBy(x: newSize.width / 2, y: newSize.height / 2)
-        context.rotate(by: CGFloat(degrees))
-        draw(in: CGRect(x: -size.width / 2, y: -size.height / 2, width: size.width, height: size.height))
-
-        let newImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-
-        return newImage!
+        context.rotate(by: radians)
+        draw(in: CGRect(x: -size.width / 2,  y: -size.height / 2, width: size.width, height: size.height))
+        return UIGraphicsGetImageFromCurrentImageContext() ?? self
     }
 
     #if os(iOS) || os(tvOS)
@@ -251,13 +239,11 @@ public extension NSUIImage {
 
      - Returns: A new `UIImage` masked by the given path, or `nil` if the operation fails.
      */
-    func image(maskedBy path: UIBezierPath, size: CGSize) -> UIImage {
-        let renderer = UIGraphicsImageRenderer(size: size)
-        let maskedImage = renderer.image { context in
+    func image(maskedBy path: NSUIBezierPath, size: CGSize) -> NSUIImage {
+        UIGraphicsImageRenderer(size: size, format: imageRendererFormat).image { context in
             path.addClip()
             draw(at: .zero)
         }
-        return maskedImage
     }
 
     /// Returns the image as circle.
@@ -267,44 +253,38 @@ public extension NSUIImage {
     
     /// Returns the image elipsed.
     func elipsed() -> UIImage {
-        guard size.width > 0 && size.height > 0 else { return self }
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = scale
-        let renderer = UIGraphicsImageRenderer(size: size, format: format)
-        return renderer.image { ctx in
-            let bounds = CGRect(origin: .zero, size: size)
-            UIBezierPath(ovalIn: bounds).addClip()
-            draw(in: bounds)
-        }
+        image(maskedBy: UIBezierPath(ovalIn: CGRect(origin: .zero, size: size)), size: size)
     }
 
     /// Returns the image rounded with the specified corner radius.
-    func rounded(cornerRadius: CGFloat) -> NSUIImage {
-        let widthRatio: CGFloat = 1.0
-        let heightRatio: CGFloat = 1.0
-
-        let scaleFactor = min(widthRatio, heightRatio)
-
-        let scaledImageSize = CGSize(
-            width: size.width * scaleFactor,
-            height: size.height * scaleFactor
-        )
-
-        let newRect = scaledImageSize.rect
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = scale
-        let renderer = UIGraphicsImageRenderer(size: newRect.size, format: format)
-        let scaledImage = renderer.image { _ in
-            UIBezierPath(roundedRect: newRect, cornerRadius: cornerRadius).addClip()
-            draw(in: newRect)
-        }
-        return scaledImage
-    }
+    func rounded(cornerRadius: CGFloat) -> UIImage {
+        image(maskedBy: UIBezierPath(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: cornerRadius), size: size)
+     }
 
     /// Returns the image with the specified opacity value.
     func withOpacity(_ value: CGFloat) -> NSUIImage {
         UIGraphicsImageRenderer(size: size, format: imageRendererFormat).image { _ in
             draw(in: size.rect, blendMode: .normal, alpha: value)
+        }
+    }
+    
+    /// Returns a vertically flipped copy of the image.
+    func verticallyFlipped() -> NSUIImage {
+        _flipped(scaleX: 1, y: -1, translateX: 0, y: size.height)
+    }
+
+    /// Returns a horizontally flipped copy of the image.
+    func horizontallyFlipped() -> NSUIImage {
+        _flipped(scaleX: -1, y: 1, translateX: size.width, y: 0)
+    }
+
+    /// Internal helper that applies a transform and redraws the image.
+    private func _flipped(scaleX sx: CGFloat, y sy: CGFloat, translateX tx: CGFloat, y ty: CGFloat) -> NSUIImage {
+        NSUIGraphicsImageRenderer(size: size).image { context in
+            let cg = context.cgContext
+            cg.translateBy(x: tx, y: ty)
+            cg.scaleBy(x: sx, y: sy)
+            draw(in: CGRect(origin: .zero, size: size))
         }
     }
     #endif

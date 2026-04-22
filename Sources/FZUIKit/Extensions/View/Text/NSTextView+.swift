@@ -14,6 +14,32 @@ import AppKit
 import FZSwiftUtils
 
 extension NSTextView {
+    /// The color used to indicate the selection.
+    public var selectionColor: NSColor? {
+        get { selectedTextAttributes[.backgroundColor] as? NSColor }
+        set { selectedTextAttributes[.backgroundColor] = newValue }
+    }
+    
+    /// Sets the color used to indicate the selection.
+    @discardableResult
+    public func selectionColor(_ color: NSColor?) -> Self {
+        self.selectionColor = color
+        return self
+    }
+    
+    /// The text color used to indicate the selection.
+    public var selectionTextColor: NSColor? {
+        get { selectedTextAttributes[.foregroundColor] as? NSColor }
+        set { selectedTextAttributes[.foregroundColor] = newValue }
+    }
+    
+    /// Sets the text color used to indicate the selection.
+    @discardableResult
+    public func selectionTextColor(_ color: NSColor?) -> Self {
+        self.selectionTextColor = color
+        return self
+    }
+    
     /// Handlers for editing the text of a text view.
     public struct EditingHandler {
         /// Handler that is called whenever editing the text did begin.
@@ -209,10 +235,8 @@ extension NSTextView {
     }
         
     /// Creates a text view with an enclosing scroll view.
-    public static func scrolling() -> NSTextView {
-        let textView = NSTextView()
-        textView.addEnclosingScrollView()
-        return textView
+    public static func scrolling() -> Self {
+        Self.scrollableTextView().documentView as! Self
     }
         
     /// Sets the Boolean value indicating whether the text view draws its background.
@@ -535,17 +559,25 @@ extension NSTextView {
         weak var delegate: NSTextViewDelegate?
         weak var textView: NSTextView!
         var delegateObservation: KeyValueObservation!
-            
-        func textView(_ textView: NSTextView, clickedOn cell: NSTextAttachmentCellProtocol, in cellFrame: NSRect, at charIndex: Int) {
-            delegate?.textView?(textView, clickedOn: cell, in: cellFrame, at: charIndex)
+        
+        override func responds(to aSelector: Selector!) -> Bool {
+            switch aSelector {
+            case #selector(NSTextDelegate.textDidChange(_:)): true
+            case #selector(NSTextDelegate.textDidEndEditing(_:)): true
+            case #selector(NSTextDelegate.textDidBeginEditing(_:)): true
+            case #selector(NSTextViewDelegate.textView(_:doCommandBy:)): true
+            default: delegate?.responds(to: aSelector) ?? false
+            }
         }
-            
-        func textView(_ textView: NSTextView, doubleClickedOn cell: NSTextAttachmentCellProtocol, in cellFrame: NSRect, at charIndex: Int) {
-            delegate?.textView?(textView, doubleClickedOn: cell, in: cellFrame, at: charIndex)
-        }
-            
-        func textView(_ view: NSTextView, draggedCell cell: NSTextAttachmentCellProtocol, in rect: NSRect, event: NSEvent, at charIndex: Int) {
-            delegate?.textView?(view, draggedCell: cell, in: rect, event: event, at: charIndex)
+        
+        override func forwardingTarget(for aSelector: Selector!) -> Any? {
+            switch aSelector {
+            case #selector(NSTextDelegate.textDidChange(_:)): nil
+            case #selector(NSTextDelegate.textDidEndEditing(_:)): nil
+            case #selector(NSTextDelegate.textDidBeginEditing(_:)): nil
+            case #selector(NSTextViewDelegate.textView(_:doCommandBy:)): nil
+            default: delegate?.responds(to: aSelector) ?? delegate
+            }
         }
             
         func textView(_ textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
@@ -628,7 +660,7 @@ extension NSTextView {
         }
             
         init(_ textView: NSTextView) {
-            delegate = textView.delegate
+            self.delegate = textView.delegate
             self.editingStartString = textView.string
             self.textView = textView
             super.init()
@@ -639,6 +671,120 @@ extension NSTextView {
                 self.textView?.delegate = self
             }
         }
+    }
+}
+
+extension NSTextView {
+    /// The range of the selected line.
+    public var selectedLineRange: NSRange? {
+        let string = string as NSString
+        let selectedRange = selectedRange()
+        guard selectedRange.location != NSNotFound, selectedRange.location <= string.length else { return nil
+        }
+        if string.length == 0 {
+            return NSRange(location: 0, length: 0)
+        }
+        return string.lineRange(for: NSRange(location: min(selectedRange.location, max(string.length - 1, 0)), length: 0))
+    }
+    
+    /// Sets the highlight color used to indicate the selection line.
+    @discardableResult
+    public func selectionLineHighlightColor(_ color: NSColor?) -> Self {
+        selectionLineHighlightColor = color
+        return self
+    }
+    
+    /// The highlight color used to indicate the selection line.
+    public var selectionLineHighlightColor: NSColor? {
+        get { getAssociatedValue("selectionLineHighlightColor") }
+        set {
+            guard newValue != selectionLineHighlightColor else { return }
+            setAssociatedValue(newValue, key: "selectionLineHighlightColor")
+            if newValue != nil, currentLineHooks.isEmpty, let layoutManager = layoutManager {
+                do {
+                    currentLineHooks += try hookAfter(#selector(NSTextView.didChangeText)) { object in
+                        object.updateCurrentLineHighlight()
+                    }
+                    currentLineHooks += try hookAfter(#selector(NSTextView.viewDidMoveToWindow)) { object in
+                        object.updateCurrentLineHighlight()
+                    }
+                    currentLineHooks += try hookAfter(#selector(NSTextView.viewDidChangeEffectiveAppearance)) { object in
+                        object.updateCurrentLineHighlight()
+                        guard let range = object.currentLineRange else { return }
+                        object.layoutManager?.invalidateDisplay(forCharacterRange: range)
+                    }
+                    currentLineHooks += try hookAfter(#selector(NSTextView.setSelectedRange(_:affinity:stillSelecting:))) { object in
+                        object.updateCurrentLineHighlight()
+                    }
+                    currentLineHooks += try hookAfter(#selector(setter: NSTextView.isEditable)) { object in
+                        object.updateCurrentLineHighlight()
+                    }
+                    currentLineHooks += try hookAfter(#selector(setter: NSTextView.isSelectable)) { object in
+                        object.updateCurrentLineHighlight()
+                    }
+                    currentLineHooks += try layoutManager.hook(#selector(NSLayoutManager.drawBackground(forGlyphRange:at:)), closure: {
+                        original, object, selector, glyphsToShow, origin in
+                        defer { original(object, selector, glyphsToShow, origin) }
+                        guard let textContainer = object.textContainers.first, let textView = textContainer.textView, let color = textView.selectionLineHighlightColor, let characterRange = textView.currentLineRange else { return }
+                        let glyphRange = object.glyphRange(forCharacterRange: characterRange, actualCharacterRange: nil)
+                        guard NSIntersectionRange(glyphRange, glyphsToShow).length > 0, glyphRange.location != NSNotFound else { return }
+                        
+                        var rect = object.boundingRect(forGlyphRange: glyphRange, in: textContainer)
+                        guard !rect.isEmpty else { return }
+                        rect.origin.x = 0
+                        rect.size.width = textView.bounds.width - textView.textContainerInset.width
+                        rect = rect.offsetBy(origin)
+                        textView.effectiveAppearance.performAsCurrentDrawingAppearance {
+                            color.setFill()
+                        }
+                        NSBezierPath(roundedRect: rect, xRadius: 2, yRadius: 2).fill()
+                    } as @convention(block) ((NSLayoutManager, Selector, NSRange, NSPoint) -> (), NSLayoutManager, Selector, NSRange, NSPoint) -> ())
+                } catch {
+                    Swift.print(error)
+                }
+            } else {
+                currentLineHooks.forEach({ try? $0.revert() })
+                currentLineHooks = []
+            }
+            updateCurrentLineHighlight()
+        }
+    }
+    
+    fileprivate var currentLineHooks: [Hook] {
+        get { getAssociatedValue("currentLineHooks") ?? [] }
+        set { setAssociatedValue(newValue, key: "currentLineHooks") }
+    }
+    
+    fileprivate var currentLineRange: NSRange? {
+        get { getAssociatedValue("currentLineRange") }
+        set {
+            if let oldValue = currentLineRange {
+                layoutManager?.invalidateDisplay(forCharacterRange: oldValue)
+            }
+            setAssociatedValue(newValue, key: "currentLineRange")
+            guard let newValue = newValue else { return }
+            layoutManager?.invalidateDisplay(forCharacterRange: newValue)
+        }
+    }
+    
+    fileprivate func updateCurrentLineHighlight() {
+        currentLineRange = isSelectable ? selectedLineRange : nil
+    }
+    
+    fileprivate func highlightedLineRect(for glyphRange: NSRange, in textContainer: NSTextContainer) -> NSRect? {
+        guard glyphRange.location != NSNotFound else {
+            return nil
+        }
+
+        let glyphRect = layoutManager?.boundingRect(forGlyphRange: glyphRange, in: textContainer) ?? .zero
+        guard !glyphRect.isEmpty else {
+            return nil
+        }
+
+        var rect = glyphRect
+        rect.origin.x = 0
+        rect.size.width = bounds.width
+        return rect.integral
     }
 }
 #endif

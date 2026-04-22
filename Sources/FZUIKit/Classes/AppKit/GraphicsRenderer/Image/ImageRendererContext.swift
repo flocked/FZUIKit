@@ -61,12 +61,18 @@ public final class GraphicsImageRendererContext: GraphicsRendererContext {
     }
     
     init?(format: GraphicsImageRendererFormat) {
-        let size = format.bounds.size * format.scale
+        let size = (format.renderingBounds.size * format.scale).rounded(.up)
+        format.renderingBounds.size.rounded(.up)
         let range = format.preferredRange.resolved
-        let bitmapInfo = range.bitmapInfo(opaque: format.isOpaque)
-        guard let context = CGContext(size: size, scale: format.scale, bitmapInfo: bitmapInfo, space: range.cgColorSpace) else { return nil }
-        self.context = NSGraphicsContext(cgContext: context, flipped: format.isFlipped)
+        let bitmapInfo = format.bitmapInfo ?? range.bitmapInfo(opaque: format.isOpaque)
+        let bitsPerComponent = format.bitsPerComponent ?? bitmapInfo.bitsPerComponent
+        let colorSpace = format.cgColorSpace ?? range.cgColorSpace
+        guard let cgContext = CGContext(data: nil, width: Int(size.width), height: Int(size.height), bitsPerComponent: bitsPerComponent, bytesPerRow: 0, space: colorSpace, bitmapInfo: bitmapInfo) else { return nil }
+        self.context = NSGraphicsContext(cgContext: cgContext, flipped: format.isFlipped)
         self.format = format
+        if format.scale != 1.0 {
+            cgContext.scaleBy(x: format.scale, y: format.scale)
+        }
         if format.isOpaque {
             cgContext.fill(.white)
         }
