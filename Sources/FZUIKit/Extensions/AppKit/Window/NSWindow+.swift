@@ -713,7 +713,7 @@ extension NSWindow {
      
      The value takes into account the tab bar, as well as transparent title bars and full size content.
      */
-    public var _titlebarHeight: CGFloat {
+    public var titlebarHeight: CGFloat {
         if hasFullSizeContentView, let windowFrameHeight = contentView?.frame.height {
             return windowFrameHeight - contentLayoutRect.height
         }
