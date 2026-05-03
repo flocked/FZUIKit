@@ -143,6 +143,7 @@ public class DropInfo: NSObject {
     init(for draggingInfo: NSDraggingInfo, view: NSView) {
         self.draggingInfo = draggingInfo
         self.view = view
+        super.init()
         self.content.fileURLFilters = ((view as? DropView)?.handlers ?? view.dropHandlers).allowedFiles.filters
     }
 }
