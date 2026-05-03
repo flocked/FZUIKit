@@ -14,7 +14,6 @@ import ServiceManagement
 import AppKit
 #endif
 
-
 @available(macOS 13.0, *)
 public enum LaunchAtLogin {
 	/// A Boolean value indicating whether the app automatically launches at login.

@@ -33,6 +33,12 @@ public extension NSWorkspace {
         public var screensDidSleep: (()->())?
         /// Handler that is called whenever the device’s screens wake.
         public var screensDidWake: (()->())?
+        /// Handler that is called whenever the running applications change.
+        public var runningApplications: (([NSRunningApplication])->())?
+        /// Handler that is called whenever the frontmost application changes.
+        public var frontmostApplication: ((NSRunningApplication?)->())?
+        /// Handler that is called whenever the menubar owning application. changes.
+        public var menuBarOwningApplication: ((NSRunningApplication?)->())?
     }
     
     /// The handlers for the workspace.
@@ -49,6 +55,7 @@ public extension NSWorkspace {
                     notificationTokens[name] = nil
                 }
             }
+            
             setup(NSWorkspace.activeSpaceDidChangeNotification, keyPath: \.activeSpaceChanged)
             setup(NSWorkspace.screensDidWakeNotification, keyPath: \.screensDidWake)
             setup(NSWorkspace.screensDidSleepNotification, keyPath: \.screensDidSleep)
@@ -83,12 +90,38 @@ public extension NSWorkspace {
             } else {
                 notificationTokens[NSWorkspace.didUnmountNotification] = nil
             }
+            if let handler = newValue.frontmostApplication {
+                keyValueObservations[\.frontmostApplication] = NSWorkspace.shared.observeChanges(for: \.frontmostApplication) { oldValue, newValue in
+                    handler(newValue)
+                }
+            } else {
+                keyValueObservations[\.frontmostApplication] = nil
+            }
+            if let handler = newValue.menuBarOwningApplication {
+                keyValueObservations[\.menuBarOwningApplication] = NSWorkspace.shared.observeChanges(for: \.menuBarOwningApplication) { oldValue, newValue in
+                    handler(newValue)
+                }
+            } else {
+                keyValueObservations[\.menuBarOwningApplication] = nil
+            }
+            if let handler = newValue.runningApplications {
+                keyValueObservations[\.runningApplications] = NSWorkspace.shared.observeChanges(for: \.runningApplications) { oldValue, newValue in
+                    handler(newValue)
+                }
+            } else {
+                keyValueObservations[\.runningApplications] = nil
+            }
         }
     }
     
     internal var notificationTokens: [Notification.Name: NotificationToken] {
-        get { getAssociatedValue("notificationTokens", initialValue: [:]) }
+        get { getAssociatedValue("notificationTokens") ?? [:] }
         set { setAssociatedValue(newValue, key: "notificationTokens") }
+    }
+    
+    internal var keyValueObservations: [PartialKeyPath<NSWorkspace>: KeyValueObservation] {
+        get { getAssociatedValue("keyValueObservations") ?? [:] }
+        set { setAssociatedValue(newValue, key: "keyValueObservations") }
     }
     
     /**
@@ -180,6 +213,20 @@ public extension NSWorkspace.OpenConfiguration {
     @discardableResult
     func promptsUserIfNeeded(_ prompts: Bool) -> Self {
         promptsUserIfNeeded = prompts
+        return self
+    }
+    
+    /// Sets the Boolean value indicating whether you want the system to launch a new instance of the app.
+    @discardableResult
+    func createsNewApplicationInstance(_ creates: Bool) -> Self {
+        createsNewApplicationInstance = creates
+        return self
+    }
+    
+    /// Boolean value that indicates whether to use a running instance of an application even if it’s at a different URL.
+    @discardableResult
+    func allowsRunningApplicationSubstitution(_ allows: Bool) -> Self {
+        allowsRunningApplicationSubstitution = allows
         return self
     }
     

@@ -50,7 +50,7 @@ public struct CGWindowInfo: Hashable, Identifiable {
     public let backingStore: CGWindowBackingType
     
     /// A Boolean value indicating whether the window's backing store is in video memory.
-    public let backingStoreIsInVideoMemory: Bool
+    public let backingStoreIsInVideoMemory: Bool?
     
     /// The screen of the window.
     public var screen: NSScreen? {
@@ -134,7 +134,7 @@ public struct CGWindowInfo: Hashable, Identifiable {
         self.sharingState = sharingState
         self.alpha = alpha
         self.memoryUsage = .bytes(memoryUsage)
-        self.backingStoreIsInVideoMemory = dict[typed: kCGWindowBackingLocationVideoMemory] ?? false
+        self.backingStoreIsInVideoMemory = dict[typed: kCGWindowBackingLocationVideoMemory]
         self.ownerName = dict[typed: kCGWindowOwnerName]
     }
 }

@@ -40,16 +40,17 @@ public extension NSApplication {
         ] as CFDictionary)
     }
 
-    /// Relaunches the application (works only for non-sandboxed applications).
+    /// Relaunches the application.
     func relaunch() {
-        launchAnotherInstance()
-        NSApp.terminate(self)
+        NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: .init().createsNewApplicationInstance(true)) { app, error in
+            guard error == nil else { return }
+            NSApp.terminate(self)
+        }
     }
 
-    /// Launches another instance of the application (works only for-non sandboxed applications).
+    /// Launches another instance of the application.
     func launchAnotherInstance() {
-        let path = Bundle.main.bundleURL.path.replacingOccurrences(of: " ", with: "\\ ")
-        shell("open -n \(path)")
+        NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: .init().createsNewApplicationInstance(true))
     }
         
     /// The amount of seconds the user have to press `CMD+Q` to close the application.
@@ -184,24 +185,6 @@ public extension NSApplication {
         get { getAssociatedValue("delayedTerminationWindow") }
         set { setAssociatedValue(newValue, key: "delayedTerminationWindow") }
     }
-}
-
-@discardableResult
-fileprivate func shell(_ command: String) -> String {
-    let task = Process()
-    let pipe = Pipe()
-    
-    task.standardOutput = pipe
-    task.standardError = pipe
-    task.arguments = ["-c", command]
-    task.launchPath = "/bin/zsh"
-    task.standardInput = nil
-    task.launch()
-    
-    let data = pipe.fileHandleForReading.readDataToEndOfFile()
-    let output = String(data: data, encoding: .utf8)!
-    
-    return output
 }
 
 fileprivate class HudView: NSVisualEffectView {
