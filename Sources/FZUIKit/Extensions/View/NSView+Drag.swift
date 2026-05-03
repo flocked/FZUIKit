@@ -48,7 +48,7 @@ extension NSView {
          */
         public var canDrag: ((_ mouseLocation: CGPoint) -> ([PasteboardWriting]?))?
         /// An optional image used for dragging. If `nil`, a rendered image of the view is used.
-        public var dragImage: ((_ screenLocation: CGPoint, _ content: PasteboardWriting) -> ((image: NSImage?, imageFrame: CGRect?)))?
+        public var dragImage: ((_ location: CGPoint, _ content: PasteboardWriting) -> ((image: NSImage?, imageFrame: CGRect?)))?
         /// The handler that is called when the user did drag the content to a supported destination.
         public var didDrag: ((_ dragSession: DraggingSession, _ dragOperation: NSDragOperation) -> ())?
         
@@ -134,9 +134,9 @@ fileprivate class DraggingGestureRecognizer: NSGestureRecognizer, NSDraggingSour
         guard mouseDownLocation.distance(to: event.location(in: view)) >= Self.minimumDragDistance else { return }
         guard let content = canDrag(location), !content.isEmpty else { return }
         draggingItems = content.compactMap({ .init($0) })
-        if let screenLocation = event.screenLocation, let handler = view.dragHandlers.dragImage {
+        if let handler = view.dragHandlers.dragImage {
             draggingItems.editEach({
-                let dragImageData = handler(screenLocation, $0.content)
+                let dragImageData = handler(location, $0.content)
                 $0.imageData = dragImageData
                 $0.item.setDraggingFrame(dragImageData.imageFrame ?? CGRect(.zero, dragImageData.image?.size ?? view.bounds.size), contents: dragImageData.image)
             })

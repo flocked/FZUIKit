@@ -44,7 +44,9 @@ public extension NSApplication {
     func relaunch() {
         NSWorkspace.shared.openApplication(at: Bundle.main.bundleURL, configuration: .init().createsNewApplicationInstance(true)) { app, error in
             guard error == nil else { return }
-            NSApp.terminate(self)
+            DispatchQueue.main.async {
+                NSApp.terminate(self)
+            }
         }
     }
 

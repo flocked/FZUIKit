@@ -154,14 +154,9 @@ extension NSView {
             }
             
             /// The allowed file content types that can be dropped to the view.
-            public var contentTypes: [UTType] {
-                get { _contentTypes as? [UTType] ?? [] }
-                set {
-                    let contentTypes = newValue.uniqued()
-                    _contentTypes = contentTypes.isEmpty ? nil : contentTypes
-                }
+            public var contentTypes: [UTType] = [] {
+                didSet { contentTypes = contentTypes.uniqued() }
             }
-            var _contentTypes: Any?
             
             /// A Boolean value that determines whether the user can drop multiple files with the specified content types  to the view.
             public var allowsMultipleFiles: Bool = true
@@ -169,7 +164,7 @@ extension NSView {
             init() { }
             
             var isValid: Bool {
-                !extensions.isEmpty || !fileTypes.isEmpty || _contentTypes != nil
+                !extensions.isEmpty || !fileTypes.isEmpty || !contentTypes.isEmpty
             }
             
             var filters: [(URL)->Bool] {
@@ -366,6 +361,5 @@ extension NSDragOperation {
     }
 }
  */
-
 
 #endif

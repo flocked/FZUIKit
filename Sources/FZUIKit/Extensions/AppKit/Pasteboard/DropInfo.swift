@@ -9,7 +9,7 @@
 import AppKit
 
 /// An object that provides information about a drop session.
-public class DropInfo {
+public class DropInfo: NSObject {
     let draggingInfo: NSDraggingInfo
     weak var view: NSView?
     
