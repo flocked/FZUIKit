@@ -179,7 +179,7 @@ extension UIView {
      
      The property can be animated. The default value is `none`, which results in a view with no shadow.
      */
-    public var shadow: ShadowConfiguration {
+    public var outerShadow: ShadowConfiguration {
         get { layer.configurations.shadow }
         set { layer.configurations.shadow = newValue }
     }

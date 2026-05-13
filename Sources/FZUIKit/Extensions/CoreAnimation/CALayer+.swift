@@ -333,8 +333,8 @@ extension CALayer {
         return self
     }
     
-    /// The shadow of the layer.
-    @objc open var shadow: ShadowConfiguration {
+    /// The outer shadow of the layer.
+    @objc open var outerShadow: ShadowConfiguration {
         get { configurations.shadow }
         set {
             configurations.shadow = newValue
@@ -346,10 +346,10 @@ extension CALayer {
         }
     }
     
-    /// Sets the shadow of the layer.
+    /// Sets the outer shadow of the layer.
     @discardableResult
-    public func shadow(_ shadow: ShadowConfiguration) -> Self {
-        self.shadow = shadow
+    public func outerShadow(_ outerShadow: ShadowConfiguration) -> Self {
+        self.outerShadow = outerShadow
         return self
     }
     
