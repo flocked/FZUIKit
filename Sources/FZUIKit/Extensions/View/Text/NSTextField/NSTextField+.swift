@@ -42,7 +42,7 @@ public extension NSTextField {
          
      - Parameter attributedStringValue: The string value of the text field.
      */
-    public func label(_ attributedStringValue: NSAttributedString) -> Self {
+    func label(_ attributedStringValue: NSAttributedString) -> Self {
         Self(labelWithAttributedString: attributedStringValue).backgroundColor(nil)
     }
         
