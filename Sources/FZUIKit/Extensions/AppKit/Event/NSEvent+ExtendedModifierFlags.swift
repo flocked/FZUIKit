@@ -221,11 +221,14 @@ extension NSEvent {
     public static func flagsChanged(for modifierFlags: ExtendedModifierFlags, location: CGPoint, window: NSWindow) -> (down: [NSEvent], up: [NSEvent]) {
         var currentFlags: NSEvent.ModifierFlags = []
         let downEvents = modifierFlags.keyCodes.compactMap({
-            currentFlags.insert(ExtendedModifierFlags(keyCode: $0)?.modifierFlags ?? [])
+            currentFlags.insert(self.modifierFlags(for: $0))
+
+           /// currentFlags.insert(ExtendedModifierFlags(keyCode: $0)?.modifierFlags ?? [])
             return event(for: $0, modifierFlags: currentFlags, location: location, window: window)
         })
         let upEvents = modifierFlags.keyCodes.reversed().compactMap({
-            currentFlags.remove(ExtendedModifierFlags(keyCode: $0)?.modifierFlags ?? [])
+            currentFlags.remove(self.modifierFlags(for: $0))
+            // currentFlags.remove(ExtendedModifierFlags(keyCode: $0)?.modifierFlags ?? [])
             return event(for: $0, modifierFlags: currentFlags, location: location, window: window)
         })
         return (downEvents, upEvents)
@@ -257,7 +260,6 @@ extension NSEvent {
         return NSEvent.keyEvent(with: event.type, location: location, modifierFlags: modifierFlags, timestamp: .now, windowNumber: window?.windowNumber ?? 0, context: nil, characters: "", charactersIgnoringModifiers: "", isARepeat: false, keyCode: keyCode) ?? event
     }
     
-    /*
     private static func modifierFlags(for keyCode: UInt16) -> NSEvent.ModifierFlags {
         switch keyCode {
         case 0x38, 0x3C:
@@ -276,6 +278,5 @@ extension NSEvent {
             return []
         }
     }
-     */
 }
 #endif
