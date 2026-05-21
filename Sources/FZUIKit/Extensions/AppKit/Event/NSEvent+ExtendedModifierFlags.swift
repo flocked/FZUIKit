@@ -206,6 +206,7 @@ extension NSEvent {
             currentFlags.remove(ExtendedModifierFlags(keyCode: $0)?.modifierFlags ?? [])
             return event(for: $0, modifierFlags: currentFlags, location: location, window: nil)
         })
+        
         return (downEvents, upEvents)
     }
     
