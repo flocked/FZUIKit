@@ -206,7 +206,6 @@ extension NSEvent {
             currentFlags.remove(ExtendedModifierFlags(keyCode: $0)?.modifierFlags ?? [])
             return event(for: $0, modifierFlags: currentFlags, location: location, window: nil)
         })
-        
         return (downEvents, upEvents)
     }
     
@@ -219,12 +218,17 @@ extension NSEvent {
         - window: The window of the events.
      - Returns: The events for the specified modifier flags.
      */
-    public static func flagsChanged(for modifierFlags: ExtendedModifierFlags, location: CGPoint, window: NSWindow) -> [NSEvent] {
+    public static func flagsChanged(for modifierFlags: ExtendedModifierFlags, location: CGPoint, window: NSWindow) -> (down: [NSEvent], up: [NSEvent]) {
         var currentFlags: NSEvent.ModifierFlags = []
-        return modifierFlags.keyCodes.compactMap({
+        let downEvents = modifierFlags.keyCodes.compactMap({
             currentFlags.insert(ExtendedModifierFlags(keyCode: $0)?.modifierFlags ?? [])
             return event(for: $0, modifierFlags: currentFlags, location: location, window: window)
         })
+        let upEvents = modifierFlags.keyCodes.reversed().compactMap({
+            currentFlags.remove(ExtendedModifierFlags(keyCode: $0)?.modifierFlags ?? [])
+            return event(for: $0, modifierFlags: currentFlags, location: location, window: window)
+        })
+        return (downEvents, upEvents)
     }
     
     /**
@@ -236,8 +240,8 @@ extension NSEvent {
         - view: The view of the events.
      - Returns: The events for the specified modifier flags.
      */
-    public static func flagsChanged(for modifierFlags: ExtendedModifierFlags, location: CGPoint, view: NSView) -> [NSEvent] {
-        guard let window = view.window else { return [] }
+    public static func flagsChanged(for modifierFlags: ExtendedModifierFlags, location: CGPoint, view: NSView) -> (down: [NSEvent], up: [NSEvent]) {
+        guard let window = view.window else { return ([], []) }
         return flagsChanged(for: modifierFlags, location: view.convert(location, to: nil), window: window)
     }
     
