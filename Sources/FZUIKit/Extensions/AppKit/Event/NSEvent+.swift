@@ -55,8 +55,8 @@ public extension NSEvent {
     }
     
     /**
-     Creates and returns a new key down event with the specified key code.
-     
+     Creates and returns a new key down event with the given key code in the specified window.
+
      - Parameters:
         - key: The virtual code for the pressed key.
         - modifierFlags: The pressed modifier keys.
@@ -66,6 +66,23 @@ public extension NSEvent {
      */
     static func keyDown(key: UInt16, modifierFlags: NSEvent.ModifierFlags = [], location: CGPoint = .zero, window: NSWindow, isARepeat: Bool = false) -> NSEvent? {
         keyEvent(keyCode: key, modifierFlags: modifierFlags, location: location, keyDown: true, window: window, isARepeat: isARepeat)
+    }
+    
+    /**
+     Creates and returns a new key down event with the given key code in the specified view.
+     
+     - Note: The view must have a window.
+     
+     - Parameters:
+        - key: The virtual code for the pressed key.
+        - modifierFlags: The pressed modifier keys.
+        - location: The cursor location in the view.
+        - view: The view of the event.
+        - isARepeat: A Boolean value indicating whether the event is a repeat caused by the user holding the key down.
+     */
+    static func keyDown(key: UInt16, modifierFlags: NSEvent.ModifierFlags = [], location: CGPoint = .zero, view: NSView, isARepeat: Bool = false) -> NSEvent? {
+        guard let window = view.window else { return nil }
+        return keyEvent(keyCode: key, modifierFlags: modifierFlags, location: view.convert(location, to: nil), keyDown: true, window: window, isARepeat: isARepeat)
     }
     
     /**
@@ -82,8 +99,8 @@ public extension NSEvent {
     }
     
     /**
-     Creates and returns a new key down event with the specified key.
-     
+     Creates and returns a new key down event with the given key for the specified window.
+
      - Parameters:
         - key: The pressed key.
         - modifierFlags: The pressed modifier keys.
@@ -93,6 +110,23 @@ public extension NSEvent {
      */
     static func keyDown(key: Key, modifierFlags: NSEvent.ModifierFlags = [], location: CGPoint = .zero, window: NSWindow, isARepeat: Bool = false) -> NSEvent? {
         keyEvent(keyCode: key.rawValue, modifierFlags: modifierFlags, location: location, keyDown: true, window: window, isARepeat: isARepeat)
+    }
+    
+    /**
+     Creates and returns a new key down event with the given key for the specified view.
+     
+     - Note: The view must have a window.
+     
+     - Parameters:
+        - key: The pressed key.
+        - modifierFlags: The pressed modifier keys.
+        - location: The cursor location in the view.
+        - view: The view of the event.
+        - isARepeat: A Boolean value indicating whether the event is a repeat caused by the user holding the key down.
+     */
+    static func keyDown(key: Key, modifierFlags: NSEvent.ModifierFlags = [], location: CGPoint = .zero, view: NSView, isARepeat: Bool = false) -> NSEvent? {
+        guard let window = view.window else { return nil }
+        return keyEvent(keyCode: key.rawValue, modifierFlags: modifierFlags, location: view.convert(location, to: nil), keyDown: true, window: window, isARepeat: isARepeat)
     }
     
     /**
@@ -109,8 +143,8 @@ public extension NSEvent {
     }
     
     /**
-     Creates and returns a new key up event with the specified key code.
-     
+     Creates and returns a new key up event with the given key code in the specified window.
+
      - Parameters:
         - key: The virtual code for the pressed key.
         - modifierFlags: The pressed modifier keys.
@@ -119,6 +153,22 @@ public extension NSEvent {
      */
     static func keyUp(key: UInt16, modifierFlags: NSEvent.ModifierFlags = [], location: CGPoint = .zero, window: NSWindow) -> NSEvent? {
         keyEvent(keyCode: key, modifierFlags: modifierFlags, location: location, keyDown: false, window: window)
+    }
+    
+    /**
+     Creates and returns a new key up event with the given key code in the specified view.
+     
+     - Note: The view must have a window.
+     
+     - Parameters:
+        - key: The virtual code for the pressed key.
+        - modifierFlags: The pressed modifier keys.
+        - location: The cursor location in the view.
+        - view: The view of the event.
+     */
+    static func keyUp(key: UInt16, modifierFlags: NSEvent.ModifierFlags = [], location: CGPoint = .zero, view: NSView) -> NSEvent? {
+        guard let window = view.window else { return nil }
+        return keyEvent(keyCode: key, modifierFlags: modifierFlags, location: view.convert(location, to: nil), keyDown: false, window: window)
     }
     
     /**
@@ -134,7 +184,7 @@ public extension NSEvent {
     }
     
     /**
-     Creates and returns a new key up event with the specified key.
+     Creates and returns a new key up event with the given key in the specified window.
      
      - Parameters:
         - key: The pressed key.
@@ -144,6 +194,22 @@ public extension NSEvent {
      */
     static func keyUp(key: Key, modifierFlags: NSEvent.ModifierFlags = [], location: CGPoint = .zero, window: NSWindow, isARepeat: Bool = false) -> NSEvent? {
         keyEvent(keyCode: key.rawValue, modifierFlags: modifierFlags, location: location, keyDown: false, window: window)
+    }
+    
+    /**
+     Creates and returns a new key up event with the given key in the specified window.
+     
+     - Note: The view must have a window.
+     
+     - Parameters:
+        - key: The pressed key.
+        - modifierFlags: The pressed modifier keys.
+        - location: The cursor location in the view.
+        - view: The view of the event.
+     */
+    static func keyUp(key: Key, modifierFlags: NSEvent.ModifierFlags = [], location: CGPoint = .zero, view: NSView, isARepeat: Bool = false) -> NSEvent? {
+        guard let window = view.window else { return nil }
+        return keyEvent(keyCode: key.rawValue, modifierFlags: modifierFlags, location: view.convert(location, to: nil), keyDown: false, window: window)
     }
     
     /**
@@ -167,7 +233,7 @@ public extension NSEvent {
     }
     
     /**
-     Creates and returns a new mouse event.
+     Creates and returns a new mouse event in the specified window.
      
      - Parameters:
         - type: The mouse event type.
@@ -179,6 +245,24 @@ public extension NSEvent {
      */
     static func mouse(_ type: MouseEventType, location: CGPoint, modifierFlags: NSEvent.ModifierFlags = [], clickCount: Int = 1, pressure: Float = 1.0, window: NSWindow) -> NSEvent? {
         NSEvent.mouseEvent(with: type.type, location: location, modifierFlags: modifierFlags, timestamp: .now, windowNumber: window.windowNumber, context: nil, eventNumber: Int.random(in: 0...Int.max), clickCount: clickCount, pressure: pressure.clamped(max: 1.0))
+    }
+    
+    /**
+     Creates and returns a new mouse event in the specified view.
+     
+     - Note: The view must have a window.
+     
+     - Parameters:
+        - type: The mouse event type.
+        - location: The cursor location on the specified window.
+        - modifierFlags: The modifier flags pressed.
+        - clickCount: The number of mouse clicks associated with the mouse event.
+        - pressure: The pressure (between `0.0` to `1.0`) applied to the input device (such as a graphics tablet).
+        - view: The view of the event.
+     */
+    static func mouse(_ type: MouseEventType, location: CGPoint, modifierFlags: NSEvent.ModifierFlags = [], clickCount: Int = 1, pressure: Float = 1.0, view: NSView) -> NSEvent? {
+        guard let window = view.window else { return nil }
+        return mouse(type, location: view.convert(location, to: nil), modifierFlags: modifierFlags, clickCount: clickCount, pressure: pressure, window: window)
     }
     
     /**
