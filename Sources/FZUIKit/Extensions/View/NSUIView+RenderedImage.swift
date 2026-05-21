@@ -31,6 +31,31 @@ public extension NSView {
         image.addRepresentation(rep)
         return image
     }
+    
+    /**
+     A rendered image of the view with the specified backing scale factor.
+
+     - Parameter scale: The backing scale factor to use for the bitmap representation.
+     - Returns: An image containing the rendered contents of the view.
+     */
+    func renderedImage(scale: CGFloat) -> NSImage {
+        let hidden = isHidden
+        isHidden = false
+        defer { isHidden = hidden }
+        layoutSubtreeIfNeeded()
+        displayIfNeeded()
+        guard let rep = bitmapImageRepForCachingDisplay(in: bounds) else {
+            return NSImage(size: bounds.size)
+        }
+
+        rep.pixelsWide = Int((bounds.width * scale).rounded(.up))
+        rep.pixelsHigh = Int((bounds.height * scale).rounded(.up))
+        cacheDisplay(in: bounds, to: rep)
+        rep.size = bounds.size
+        let image = NSImage(size: bounds.size)
+        image.addRepresentation(rep)
+        return image
+    }
 
     /// Renders a compound image from multiple views.
     static func renderedImage(from views: [NSView]) -> NSImage {
