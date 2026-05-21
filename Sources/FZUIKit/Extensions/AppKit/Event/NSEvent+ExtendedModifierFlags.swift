@@ -83,41 +83,34 @@ extension NSEvent {
         
         /// The virtual key codes represented by the modifier flags.
         public var keyCodes: [UInt16] {
-            var keyCodes: [UInt16] = []
-            if contains(.shift) {
-                keyCodes += UInt16(kVK_Shift)
-            }
-            if contains(.rightShift) {
-                keyCodes += UInt16(kVK_RightShift)
-            }
-            if contains(.control) {
-                keyCodes += UInt16(kVK_Control)
-            }
-            if contains(.rightControl) {
-                keyCodes += UInt16(kVK_RightControl)
-            }
-            if contains(.option) {
-                keyCodes += UInt16(kVK_Option)
-            }
-            if contains(.rightOption) {
-                keyCodes += UInt16(kVK_RightOption)
-            }
-            if contains(.command) {
-                keyCodes += UInt16(kVK_Command)
-            }
-            if contains(.rightCommand) {
-                keyCodes += UInt16(kVK_RightCommand)
-            }
-            if contains(.capsLock) {
-                keyCodes += UInt16(kVK_CapsLock)
-            }
-            if contains(.function) {
-                keyCodes += UInt16(kVK_Function)
-            }
-            if contains(.help) {
-                keyCodes += UInt16(kVK_Help)
-            }
-            return keyCodes
+            elements().compactMap({
+                switch $0 {
+                case .shift:
+                     UInt16(kVK_Shift)
+                case .rightShift:
+                    UInt16(kVK_RightShift)
+                case .control:
+                    UInt16(kVK_Control)
+                case .rightControl:
+                     UInt16(kVK_RightControl)
+                case .option:
+                    UInt16(kVK_Option)
+                case .rightOption:
+                     UInt16(kVK_RightOption)
+                case .command:
+                    UInt16(kVK_Command)
+                case .rightCommand:
+                    UInt16(kVK_RightCommand)
+                case .capsLock:
+                    UInt16(kVK_CapsLock)
+                case .function:
+                    UInt16(kVK_Function)
+                case .help:
+                    UInt16(kVK_Help)
+                default:
+                    nil
+                }
+            })
         }
         
         /// The event modifier flags represented by the modifier key flags.
