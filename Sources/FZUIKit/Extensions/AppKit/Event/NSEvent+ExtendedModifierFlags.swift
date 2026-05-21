@@ -52,6 +52,17 @@ extension NSEvent {
             self.rawValue = rawValue
         }
         
+        public init(modifierFlags: NSEvent.ModifierFlags) {
+            self = []
+            if modifierFlags.contains(.command) { insert(.command) }
+            if modifierFlags.contains(.control) { insert(.control) }
+            if modifierFlags.contains(.shift) { insert(.shift) }
+            if modifierFlags.contains(.option) { insert(.option) }
+            if modifierFlags.contains(.help) { insert(.help) }
+            if modifierFlags.contains(.function) { insert(.function) }
+            if modifierFlags.contains(.capsLock) { insert(.capsLock) }
+        }
+        
         public init?(keyCode: UInt16) {
             switch keyCode {
             case UInt16(kVK_Shift):
@@ -196,7 +207,8 @@ extension NSEvent {
         - location: The cursor location on the screen.
      - Returns: The events for the specified modifier flags.
      */
-    public static func flagsChanged(for modifierFlags: ExtendedModifierFlags, location: CGPoint) -> (down: [NSEvent], up: [NSEvent]) {
+    @_disfavoredOverload
+    public static func flagsChanged(for modifierFlags: ExtendedModifierFlags, location: CGPoint = .zero) -> (down: [NSEvent], up: [NSEvent]) {
         var currentFlags: NSEvent.ModifierFlags = []
         let downEvents = modifierFlags.keyCodes.compactMap({
             currentFlags.insert(ExtendedModifierFlags(keyCode: $0)?.modifierFlags ?? [])
@@ -210,6 +222,18 @@ extension NSEvent {
     }
     
     /**
+     Creates and returns new flags changed events for the given modifier flags.
+     
+     - Parameters:
+        - modifierFlags: The modifier flags of the events.
+        - location: The cursor location on the screen.
+     - Returns: The events for the specified modifier flags.
+     */
+    public static func flagsChanged(for modifierFlags: ModifierFlags, location: CGPoint = .zero) -> (down: [NSEvent], up: [NSEvent]) {
+        flagsChanged(for: ExtendedModifierFlags(modifierFlags: modifierFlags), location: location)
+    }
+    
+    /**
      Creates and returns new flags changed events for the given modifier flags in the specified window.
      
      - Parameters:
@@ -218,6 +242,7 @@ extension NSEvent {
         - window: The window of the events.
      - Returns: The events for the specified modifier flags.
      */
+    @_disfavoredOverload
     public static func flagsChanged(for modifierFlags: ExtendedModifierFlags, location: CGPoint, window: NSWindow) -> (down: [NSEvent], up: [NSEvent]) {
         var currentFlags: NSEvent.ModifierFlags = []
         let downEvents = modifierFlags.keyCodes.compactMap({
@@ -236,13 +261,40 @@ extension NSEvent {
      
      - Parameters:
         - modifierFlags: The modifier flags of the events.
+        - location: The cursor location in the window.
+        - window: The window of the events.
+     - Returns: The events for the specified modifier flags.
+     */
+    public static func flagsChanged(for modifierFlags: ModifierFlags, location: CGPoint, window: NSWindow) -> (down: [NSEvent], up: [NSEvent]) {
+        flagsChanged(for: ExtendedModifierFlags(modifierFlags: modifierFlags), location: location, window: window)
+    }
+    
+    /**
+     Creates and returns new flags changed events for the given modifier flags in the specified window.
+     
+     - Parameters:
+        - modifierFlags: The modifier flags of the events.
         - location: The cursor location in the view.
         - view: The view of the events.
      - Returns: The events for the specified modifier flags.
      */
+    @_disfavoredOverload
     public static func flagsChanged(for modifierFlags: ExtendedModifierFlags, location: CGPoint, view: NSView) -> (down: [NSEvent], up: [NSEvent]) {
         guard let window = view.window else { return ([], []) }
         return flagsChanged(for: modifierFlags, location: view.convert(location, to: nil), window: window)
+    }
+    
+    /**
+     Creates and returns new flags changed events for the given modifier flags in the specified window.
+     
+     - Parameters:
+        - modifierFlags: The modifier flags of the events.
+        - location: The cursor location in the view.
+        - view: The view of the events.
+     - Returns: The events for the specified modifier flags.
+     */
+    public static func flagsChanged(for modifierFlags: ModifierFlags, location: CGPoint, view: NSView) -> (down: [NSEvent], up: [NSEvent]) {
+        flagsChanged(for: ExtendedModifierFlags(modifierFlags: modifierFlags), location: location, view: view)
     }
     
     private static func event(for keyCode: UInt16, modifierFlags: NSEvent.ModifierFlags, location: CGPoint = .zero, window: NSWindow? = nil) -> NSEvent? {
