@@ -196,12 +196,17 @@ extension NSEvent {
         - location: The cursor location on the screen.
      - Returns: The events for the specified modifier flags.
      */
-    public static func flagsChanged(for modifierFlags: ExtendedModifierFlags, location: CGPoint) -> [NSEvent] {
+    public static func flagsChanged(for modifierFlags: ExtendedModifierFlags, location: CGPoint) -> (down: [NSEvent], up: [NSEvent]) {
         var currentFlags: NSEvent.ModifierFlags = []
-        return modifierFlags.keyCodes.compactMap({
+        let downEvents = modifierFlags.keyCodes.compactMap({
             currentFlags.insert(ExtendedModifierFlags(keyCode: $0)?.modifierFlags ?? [])
             return event(for: $0, modifierFlags: currentFlags, location: location, window: nil)
         })
+        let upEvents = modifierFlags.keyCodes.reversed().compactMap({
+            currentFlags.remove(ExtendedModifierFlags(keyCode: $0)?.modifierFlags ?? [])
+            return event(for: $0, modifierFlags: currentFlags, location: location, window: nil)
+        })
+        return (downEvents, upEvents)
     }
     
     /**
