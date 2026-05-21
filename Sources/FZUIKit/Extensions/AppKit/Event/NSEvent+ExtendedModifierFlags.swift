@@ -256,26 +256,5 @@ extension NSEvent {
         }
         return NSEvent.keyEvent(with: event.type, location: location, modifierFlags: modifierFlags, timestamp: .now, windowNumber: window?.windowNumber ?? 0, context: nil, characters: "", charactersIgnoringModifiers: "", isARepeat: false, keyCode: keyCode) ?? event
     }
-    
-    /*
-    private static func modifierFlags(for keyCode: UInt16) -> NSEvent.ModifierFlags {
-        switch keyCode {
-        case 0x38, 0x3C:
-            return .shift
-        case 0x3B, 0x3E:
-            return .control
-        case 0x3A, 0x3D:
-            return .option
-        case 0x37, 0x36:
-            return .command
-        case 0x39:
-            return .capsLock
-        case 0x3F:
-            return .function
-        default:
-            return []
-        }
-    }
-     */
 }
 #endif
