@@ -212,11 +212,11 @@ extension NSEvent {
         var currentFlags: NSEvent.ModifierFlags = []
         let downEvents = modifierFlags.keyCodes.compactMap({
             currentFlags.insert(ExtendedModifierFlags(keyCode: $0)?.modifierFlags ?? [])
-            return event(for: $0, modifierFlags: currentFlags, location: location, window: nil)
+            return event(for: $0, modifierFlags: currentFlags)
         })
         let upEvents = modifierFlags.keyCodes.reversed().compactMap({
             currentFlags.remove(ExtendedModifierFlags(keyCode: $0)?.modifierFlags ?? [])
-            return event(for: $0, modifierFlags: currentFlags, location: location, window: nil)
+            return event(for: $0, modifierFlags: currentFlags)
         })
         return (downEvents, upEvents)
     }
