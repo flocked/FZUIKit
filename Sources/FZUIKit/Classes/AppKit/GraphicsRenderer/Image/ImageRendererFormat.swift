@@ -161,12 +161,11 @@ extension NSImage {
     /// The preferred image renderer format for the image.
     public var imageRendererFormat: GraphicsImageRendererFormat {
         let cgImage = cgImage
-        cgImage?.bitsPerComponent
         var scale: CGFloat = 1.0
         if let cgSize = cgImage?.size, cgSize != .zero, size != .zero {
             scale = max(cgSize.width / size.width, cgSize.height / size.height)
         }
-        var format = GraphicsImageRendererFormat(scale: scale, isOpaque: cgImage?.isOpaque ?? false, preferredRange: .undefined)
+        let format = GraphicsImageRendererFormat(scale: scale, isOpaque: cgImage?.isOpaque ?? false, preferredRange: .undefined)
         format.bitmapInfo = cgImage?.bitmapInfo
         format.cgColorSpace = cgImage?.colorSpace
         format.bitsPerComponent = cgImage?.bitsPerComponent

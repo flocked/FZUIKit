@@ -7,9 +7,10 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
 /// Constants that you use to filter out specific event types from the stream of incoming events.
-public struct CGEventTypeMask: OptionSet, Hashable, Codable {
+public struct CGEventTypeMask: OptionSet, Hashable, Codable, CustomStringConvertible {
     /// A null event.
     public static let null = Self(1 << CGEventType.null.rawValue)
     /// A left mouse button down event.
@@ -112,6 +113,30 @@ public struct CGEventTypeMask: OptionSet, Hashable, Codable {
         case .tapDisabledByUserInput: self = .tapDisabledByUserInput
         default: self = []
         }
+    }
+    
+    public var description: String {
+        var strings: [String] = []
+        if contains(.null) { strings += ".null" }
+        if contains(.leftMouseDown) { strings += ".leftMouseDown" }
+        if contains(.leftMouseUp) { strings += ".leftMouseUp" }
+        if contains(.leftMouseDragged) { strings += ".leftMouseDragged" }
+        if contains(.rightMouseDown) { strings += ".rightMouseDown" }
+        if contains(.rightMouseUp) { strings += ".rightMouseUp" }
+        if contains(.rightMouseDragged) { strings += ".rightMouseDragged" }
+        if contains(.otherMouseDown) { strings += ".otherMouseDown" }
+        if contains(.otherMouseUp) { strings += ".otherMouseUp" }
+        if contains(.otherMouseDragged) { strings += ".otherMouseDragged" }
+        if contains(.mouseMoved) { strings += ".mouseMoved" }
+        if contains(.scrollWheel) { strings += ".scrollWheel" }
+        if contains(.keyDown) { strings += ".keyDown" }
+        if contains(.keyUp) { strings += ".keyUp" }
+        if contains(.flagsChanged) { strings += ".flagsChanged" }
+        if contains(.tabletPointer) { strings += ".tabletPointer" }
+        if contains(.tabletProximity) { strings += ".tabletProximity" }
+        if contains(.tapDisabledByTimeout) { strings += ".tapDisabledByTimeout" }
+        if contains(.tapDisabledByUserInput) { strings += ".tapDisabledByUserInput" }
+        return "[\(strings.joined(separator: ", "))]"
     }
 }
 

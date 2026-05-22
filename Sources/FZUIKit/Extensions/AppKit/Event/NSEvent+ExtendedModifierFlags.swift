@@ -1,6 +1,6 @@
 //
 //  NSEvent+ModifierFlags+.swift
-//  
+//
 //
 //  Created by Florian Zand on 21.05.26.
 //
@@ -70,7 +70,7 @@ extension NSEvent {
             case UInt16(kVK_RightShift):
                 self = .rightShift
             case UInt16(kVK_Control):
-               self = .control
+                self = .control
             case UInt16(kVK_RightControl):
                 self = .rightControl
             case UInt16(kVK_Option):
@@ -97,17 +97,17 @@ extension NSEvent {
             elements().compactMap({
                 switch $0 {
                 case .shift:
-                     UInt16(kVK_Shift)
+                    UInt16(kVK_Shift)
                 case .rightShift:
                     UInt16(kVK_RightShift)
                 case .control:
                     UInt16(kVK_Control)
                 case .rightControl:
-                     UInt16(kVK_RightControl)
+                    UInt16(kVK_RightControl)
                 case .option:
                     UInt16(kVK_Option)
                 case .rightOption:
-                     UInt16(kVK_RightOption)
+                    UInt16(kVK_RightOption)
                 case .command:
                     UInt16(kVK_Command)
                 case .rightCommand:
@@ -198,13 +198,13 @@ extension NSEvent {
     public var extendedModifierFlags: ExtendedModifierFlags {
         ExtendedModifierFlags(keyCode: keyCode) ?? []
     }
-
+    
     /**
      Creates and returns new flags changed events for the given modifier flags.
      
      - Parameters:
-        - modifierFlags: The modifier flags of the events.
-        - location: The cursor location on the screen.
+     - modifierFlags: The modifier flags of the events.
+     - location: The cursor location on the screen.
      - Returns: The events for the specified modifier flags.
      */
     @_disfavoredOverload
@@ -225,8 +225,8 @@ extension NSEvent {
      Creates and returns new flags changed events for the given modifier flags.
      
      - Parameters:
-        - modifierFlags: The modifier flags of the events.
-        - location: The cursor location on the screen.
+     - modifierFlags: The modifier flags of the events.
+     - location: The cursor location on the screen.
      - Returns: The events for the specified modifier flags.
      */
     public static func flagsChanged(for modifierFlags: ModifierFlags, location: CGPoint = .zero) -> (down: [NSEvent], up: [NSEvent]) {
@@ -237,9 +237,9 @@ extension NSEvent {
      Creates and returns new flags changed events for the given modifier flags in the specified window.
      
      - Parameters:
-        - modifierFlags: The modifier flags of the events.
-        - location: The cursor location in the window.
-        - window: The window of the events.
+     - modifierFlags: The modifier flags of the events.
+     - location: The cursor location in the window.
+     - window: The window of the events.
      - Returns: The events for the specified modifier flags.
      */
     @_disfavoredOverload
@@ -260,9 +260,9 @@ extension NSEvent {
      Creates and returns new flags changed events for the given modifier flags in the specified window.
      
      - Parameters:
-        - modifierFlags: The modifier flags of the events.
-        - location: The cursor location in the window.
-        - window: The window of the events.
+     - modifierFlags: The modifier flags of the events.
+     - location: The cursor location in the window.
+     - window: The window of the events.
      - Returns: The events for the specified modifier flags.
      */
     public static func flagsChanged(for modifierFlags: ModifierFlags, location: CGPoint, window: NSWindow) -> (down: [NSEvent], up: [NSEvent]) {
@@ -273,9 +273,9 @@ extension NSEvent {
      Creates and returns new flags changed events for the given modifier flags in the specified window.
      
      - Parameters:
-        - modifierFlags: The modifier flags of the events.
-        - location: The cursor location in the view.
-        - view: The view of the events.
+     - modifierFlags: The modifier flags of the events.
+     - location: The cursor location in the view.
+     - view: The view of the events.
      - Returns: The events for the specified modifier flags.
      */
     @_disfavoredOverload
@@ -288,9 +288,9 @@ extension NSEvent {
      Creates and returns new flags changed events for the given modifier flags in the specified window.
      
      - Parameters:
-        - modifierFlags: The modifier flags of the events.
-        - location: The cursor location in the view.
-        - view: The view of the events.
+     - modifierFlags: The modifier flags of the events.
+     - location: The cursor location in the view.
+     - view: The view of the events.
      - Returns: The events for the specified modifier flags.
      */
     public static func flagsChanged(for modifierFlags: ModifierFlags, location: CGPoint, view: NSView) -> (down: [NSEvent], up: [NSEvent]) {
