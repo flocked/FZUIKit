@@ -8,7 +8,6 @@
 #if os(macOS)
 
 import AppKit
-import Foundation
 import FZSwiftUtils
 
 public extension NSApplication {
