@@ -360,6 +360,42 @@ public extension NSTableView {
         self.allowsMultipleSelection = allows
         return self
     }
+    
+    /**
+     Informs the table view that the rows specified in indexSet have changed height.
+     
+     - Parameters:
+        - indexSet: Index set of rows that have changed their height.
+        - animated: A Boolean value indicating whether changes to the row height should be animated.
+     
+     If the delegate implements [tableView(_:heightOfRow:)](https://developer.apple.com/documentation/appkit/nstableviewdelegate/tableview(_:heightofrow:)) this method immediately retiles the table view using the row heights the delegate provides.
+     */
+    func noteHeightOfRows(withIndexesChanged indexSet: IndexSet, animated: Bool) {
+        if animated {
+            noteHeightOfRows(withIndexesChanged: indexSet)
+        } else {
+            NSView.performWithoutAnimation {
+                self.noteHeightOfRows(withIndexesChanged: indexSet)
+            }
+        }
+    }
+    
+    /**
+    Performs the updates to the table view provided be the specified handler.
+     
+     - Parameter updates: The handler that provides updates to the table view.
+     
+     For view-based table views, multiple row changes—that is, insertions, deletions, and moves—are animated simultaneously by calling those methods inside the provided handler. This method is nestable.
+     
+     The selected rows are maintained during the series of insertions, deletions, moves, and scrolling. If a selected row is deleted, a selection changed notification occurs after [removeRowsAtIndexes:withAnimation:](https://developer.apple.com/documentation/appkit/nstableview/removerows(at:withanimation:)) is called.
+     
+     It is not necessary to call this method if only one insertion, deletion, or move is occurring.
+     */
+    func performUpdates(_ updates: ()->()) {
+        beginUpdates()
+        updates()
+        endUpdates()
+    }
         
     /// A function builder type that produces an array of table columns.
     @resultBuilder
