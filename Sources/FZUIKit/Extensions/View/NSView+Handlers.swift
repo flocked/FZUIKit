@@ -35,113 +35,31 @@ extension NSView {
      - Parameter locationInView: The location of the right click inside the view.
      - Returns: A menu for the location or `nil`, if there shouldn't be a menu displayed.
      */
-    public var menuProvider: ((_ locationInView: CGPoint)->(NSMenu?))? {
-        get { _menuProvider }
+    public var menuProvider: ((CGPoint) -> NSMenu?)? {
+        get { getAssociatedValue("menuProvider") }
         set {
-            _menuProvider = newValue
-            if newValue != nil, menuProviderHook == nil {
-                do {
-                    menuProviderHook = try hook(#selector(NSView.menu(for:)), closure: {
-                        original, view, selector, event in
-                        let location = event.location(in: view)
-                        /*
-                        var _location = location
-                        if let superview = view.superview {
-                            _location = event.location(in: superview)
-                        }
-                        if let hitView = view.hitTest(_location), hitView !== view {
-                            if let textProvider = hitView as? TextProvider {
-                                if textProvider.isLocationOnText(view.convert(location, to: hitView)) {
-                                    return nil
-                                }
-                            } else {
-                                return nil
-                            }
-                        }
-                        */
-                        return view._menuProvider?(location) ?? nil
-                    } as @convention(block) ((NSView, Selector, NSEvent) -> NSMenu?, NSView, Selector, NSEvent) -> NSMenu?)
-                } catch {
-                    _menuProvider = nil
-                    Swift.print(error)
-                }
-            } else if newValue == nil {
-                try? menuProviderHook?.revert()
-                menuProviderHook = nil
+            menuProviderMenuObservation = nil
+            menu?.viewMenuProvider = nil
+            setAssociatedValue(newValue, key: "menuProvider")
+            guard let menuProvider = newValue  else { return }
+            let menu = menu ?? NSMenu()
+            menu.viewMenuProvider = { [weak self] in
+                guard let self, let event = NSEvent.current else { return nil }
+                return menuProvider(event.location(in: self))
             }
-        }
-    }
-    
-    public var menuProviderAlz: ((CGPoint) -> NSMenu?)? {
-        get { menu?.menuProviderDelegate?.menuProvider }
-        set {
-            guard let newValue else {
-                menu?.menuProviderDelegate = nil
-                return
-            }
-            let menu = self.menu ?? NSMenu()
-            menu.menuProviderDelegate = MenuProviderDelegate(view: self, menuProvider: newValue)
             self.menu = menu
-        }
-    }
-
-    fileprivate final class MenuProviderDelegate: NSObject, NSMenuDelegate {
-        weak var view: NSView?
-        weak var originalMenu: NSMenu?
-        weak var providerMenu: NSMenu?
-        let menuProvider: (CGPoint) -> NSMenu?
-
-        init(view: NSView, menuProvider: @escaping (CGPoint) -> NSMenu?) {
-            self.view = view
-            self.menuProvider = menuProvider
-            super.init()
-            let menu = view.menu ?? NSMenu()
-            menu.menuProviderDelegate = self
-            menu.delegate = self
-        }
-
-        func menuNeedsUpdate(_ menu: NSMenu) {
-            menu.removeAllItems()
-            providerMenu = nil
-
-            guard
-                let event = NSApp.currentEvent,
-                let view,
-                let providedMenu = menuProvider(event.location(in: view)),
-                !providedMenu.items.isEmpty
-            else { return }
-
-            providerMenu = providedMenu
-
-            while let item = providedMenu.items.first {
-                providedMenu.removeItem(item)
-                menu.addItem(item)
-            }
-        }
-
-        func menuDidClose(_ menu: NSMenu) {
-            defer { providerMenu = nil }
-
-            guard let providedMenu = providerMenu else {
-                menu.removeAllItems()
-                return
-            }
-
-            while let item = menu.items.first {
-                menu.removeItem(item)
-                providedMenu.addItem(item)
+            menuProviderMenuObservation = observeChanges(for: \.menu) { [weak self] old, new in
+                guard let self else { return }
+                old?.viewMenuProvider = nil
+                self.setAssociatedValue(nil as ((CGPoint) -> NSMenu?)?, key: "menuProvider")
+                self.menuProviderMenuObservation = nil
             }
         }
     }
     
-    fileprivate var _menuProvider: ((_ locationInView: CGPoint)->(NSMenu?))? {
-        get { getAssociatedValue("_menuProvider") }
-        set { setAssociatedValue(newValue, key: "_menuProvider") }
-    }
-    
-    fileprivate var menuProviderHook: Hook? {
-        get { getAssociatedValue("menuProviderHook") }
-        set { setAssociatedValue(newValue, key: "menuProviderHook") }
+    fileprivate var menuProviderMenuObservation: KeyValueObservation? {
+        get { getAssociatedValue("menuProviderMenuObservation") }
+        set { setAssociatedValue(newValue, key: "menuProviderMenuObservation") }
     }
     
     /// The handlers for the window state.
@@ -319,20 +237,20 @@ extension NSView {
     }
     
     /*
-    func setupEventMonitors() {
-        if mouseHandlers.needsGestureObserving {
-            if let observerGestureRecognizer = observerGestureRecognizer, gestureRecognizers.contains(observerGestureRecognizer) == false {
-                addGestureRecognizer(observerGestureRecognizer)
-            } else if observerGestureRecognizer == nil {
-                observerGestureRecognizer = ObserverGestureRecognizer()
-                addGestureRecognizer(observerGestureRecognizer!)
-            }
-        } else {
-            observerGestureRecognizer?.removeFromView()
-            observerGestureRecognizer = nil
-        }
-    }
-    */
+     func setupEventMonitors() {
+         if mouseHandlers.needsGestureObserving {
+             if let observerGestureRecognizer = observerGestureRecognizer, gestureRecognizers.contains(observerGestureRecognizer) == false {
+                 addGestureRecognizer(observerGestureRecognizer)
+             } else if observerGestureRecognizer == nil {
+                 observerGestureRecognizer = ObserverGestureRecognizer()
+                 addGestureRecognizer(observerGestureRecognizer!)
+             }
+         } else {
+             observerGestureRecognizer?.removeFromView()
+             observerGestureRecognizer = nil
+         }
+     }
+     */
     
     fileprivate var windowObservation: [String: [NotificationToken]] {
         get { getAssociatedValue("windowObservation") ?? [:] }
@@ -347,12 +265,12 @@ extension NSView {
     fileprivate func setupObservation() {
         func observe<Value: Equatable>(_ keyPath: KeyPath<NSView, Value>, handler: KeyPath<NSView, ((Value)->())?>) {
             if self[keyPath: handler] == nil {
-                 viewObserver.remove(keyPath)
+                viewObserver.remove(keyPath)
             } else if !viewObserver.isObserving(keyPath) {
                 viewObserver.add(keyPath) { [weak self] old, new in
-                   guard let self = self else { return }
-                   self[keyPath: handler]?(new)
-               }
+                    guard let self = self else { return }
+                    self[keyPath: handler]?(new)
+                }
             }
         }
         
@@ -399,9 +317,9 @@ extension NSView {
             viewObserver.remove(\.window?.firstResponder)
         } else if !viewObserver.isObserving(\.window?.firstResponder) {
             viewObserver.add(\.window?.firstResponder) { [weak self] _, firstResponder in
-               guard let self = self else { return }
+                guard let self = self else { return }
                 self._isFirstResponder = self.isFirstResponder
-           }
+            }
         }
     }
     
@@ -474,7 +392,7 @@ extension NSView {
                         object._inLiveResize ?? original(object, sel)
                     } as @convention(block) ((NSView, Selector) -> Bool, NSView, Selector) -> Bool)
                 } catch {
-                   debugPrint(error)
+                    debugPrint(error)
                 }
             } else {
                 revertHooks(for: #selector(NSView.viewWillStartLiveResize))
@@ -507,8 +425,8 @@ extension NSView {
                 object._inLiveResize ?? original(object, sel)
             } as @convention(block) ((NSView, Selector) -> Bool, NSView, Selector) -> Bool)
         } catch {
-           // handle error
-           debugPrint(error)
+            // handle error
+            debugPrint(error)
         }
     }
     
@@ -814,25 +732,25 @@ extension NSView {
         }
         
         /*
-        override func viewDidMoveToWindow() {
-            super.viewDidMoveToWindow()
-            superview?.windowHandlers.window?(window)
-            setupFirstResponderObservation()
-        }
+         override func viewDidMoveToWindow() {
+             super.viewDidMoveToWindow()
+             superview?.windowHandlers.window?(window)
+             setupFirstResponderObservation()
+         }
         
-        func setupFirstResponderObservation() {
-            if let window = window, superview?.viewHandlers.isFirstResponder != nil {
-                firstResponderObservation = window.observeChanges(for: \.firstResponder) { [weak self] old, new in
-                    guard let self = self, let superview = self.superview, superview.viewHandlers.isFirstResponder != nil else { return }
-                    superview._isFirstResponder = superview.isFirstResponder
-                }
-            } else {
-                firstResponderObservation = nil
-            }
-        }
+         func setupFirstResponderObservation() {
+             if let window = window, superview?.viewHandlers.isFirstResponder != nil {
+                 firstResponderObservation = window.observeChanges(for: \.firstResponder) { [weak self] old, new in
+                     guard let self = self, let superview = self.superview, superview.viewHandlers.isFirstResponder != nil else { return }
+                     superview._isFirstResponder = superview.isFirstResponder
+                 }
+             } else {
+                 firstResponderObservation = nil
+             }
+         }
         
-        var firstResponderObservation: KeyValueObservation?
-        */
+         var firstResponderObservation: KeyValueObservation?
+         */
     }
     
     fileprivate class TouchRecognizerView: NSView {
@@ -948,16 +866,4 @@ fileprivate class BackgroundStyleObserverView: NSControl {
     }
 }
 
-extension NSMenu {
-    fileprivate var menuProviderDelegate: NSView.MenuProviderDelegate? {
-        get { getAssociatedValue("menuProviderDelegate") }
-        set {
-            setAssociatedValue(newValue, key: "menuProviderDelegate")
-            delegate = newValue
-        }
-    }
-}
-
-    
 #endif
-

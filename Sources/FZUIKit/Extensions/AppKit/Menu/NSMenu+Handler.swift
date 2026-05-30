@@ -59,13 +59,21 @@ extension NSMenu {
         set { setAssociatedValue(newValue, key: "effectiveAppearanceObservation") }
     }
     
-    fileprivate var delegateProxy: Delegate? {
+    var delegateProxy: Delegate? {
         get { getAssociatedValue("delegateProxy") }
         set { setAssociatedValue(newValue, key: "delegateProxy") }
     }
     
+    var viewMenuProvider: (() -> NSMenu?)? {
+        get { getAssociatedValue("viewMenuProvider") }
+        set {
+            setAssociatedValue(newValue, key: "viewMenuProvider")
+            setupDelegateProxy()
+        }
+    }
+    
     func setupDelegateProxy() {
-        if handlers.needsDelegate || items.contains(where: { $0.needsDelegateProxy }) {
+        if handlers.needsDelegate || viewMenuProvider != nil || items.contains(where: { $0.needsDelegateProxy }) {
             guard delegateProxy == nil else { return }
             delegateProxy = .init(self)
         } else if delegateProxy != nil {
@@ -75,8 +83,9 @@ extension NSMenu {
         }
     }
     
-    fileprivate class Delegate: NSObject, NSMenuDelegate {
+   class Delegate: NSObject, NSMenuDelegate {
         weak var delegate: NSMenuDelegate?
+        var providerMenu: NSMenu?
         var eventObserver: CFRunLoopObserver?
         var delegateObservation: KeyValueObservation?
         var menuMinimumWidth: CGFloat?
@@ -113,9 +122,10 @@ extension NSMenu {
         }
         
         func menuDidClose(_ menu: NSMenu) {
-            menu.items = menu.items.withoutAlternates()
+            menu.items.forEach({ $0.alternateItem?.removeFromMenu() })
             menu.handlers.didClose?()
             delegate?.menuDidClose?(menu)
+            restoreProvidedMenuItems(for: menu)
             if eventObserver != nil {
                 CFRunLoopObserverInvalidate(eventObserver)
                 eventObserver = nil
@@ -127,6 +137,7 @@ extension NSMenu {
         }
         
         func menuNeedsUpdate(_ menu: NSMenu) {
+            updateProvidedMenuItems(for: menu)
             menu.handlers.update?(menu)
             delegate?.menuNeedsUpdate?(menu)
             let optionPressed = NSEvent.modifierFlags.contains([.option])
@@ -138,15 +149,46 @@ extension NSMenu {
                 })
                 CFRunLoopAddObserver(CFRunLoopGetCurrent(), eventObserver, CFRunLoopMode.commonModes)
             }
-            let itemsCount = menu.items.count
-            menu.items = menu.items.withAlternates()
+ 
+            let originalItems = menu.items
+            var insertedCount = 0
+            for (index, item) in originalItems.enumerated() {
+                guard let alternateItem = item.alternateItem, !alternateItem.keyEquivalentModifierMask.isEmpty else { continue }
+                alternateItem.removeFromMenu()
+                alternateItem.isAlternate = true
+                menu.insertItem(alternateItem, at: index + insertedCount + 1)
+                insertedCount += 1
+            }
+            
             menu.items.forEach({ $0.updateHandler?($0) })
-            if menu.autoUpdatesWidth, itemsCount != menu.items.count {
+            if menu.autoUpdatesWidth, originalItems.count != menu.items.count {
                 menuMinimumWidth = menu.minimumWidth
                 menu.minimumWidth = max(menu.minimumWidth, menu.size.width)
             } else if let minimumWidth = menuMinimumWidth {
                 menu.minimumWidth = minimumWidth
             }
+        }
+        
+        private func updateProvidedMenuItems(for menu: NSMenu) {
+            restoreProvidedMenuItems(for: menu)
+            guard let providedMenu = menu.viewMenuProvider?(), !providedMenu.items.isEmpty else { return }
+            self.providerMenu = providedMenu
+            let itemsToAdd = providedMenu.items
+            providedMenu.removeAllItems()
+            menu.items = itemsToAdd
+        }
+        
+        private func restoreProvidedMenuItems(for menu: NSMenu) {
+            guard let providedMenu = providerMenu else {
+                if menu.viewMenuProvider != nil {
+                    menu.removeAllItems()
+                }
+                return
+            }
+            let itemsToRestore = menu.items
+            menu.removeAllItems()
+            providedMenu.items = itemsToRestore
+            providerMenu = nil
         }
         
         func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {
@@ -159,7 +201,13 @@ extension NSMenu {
 
 fileprivate extension [NSMenuItem] {
     func withAlternates() -> [NSMenuItem] {
-        flatMap { if let alternate = $0.alternateItem, !alternate.keyEquivalentModifierMask.isEmpty { return [$0, alternate] } else { return [$0] } }.uniqued()
+        flatMap {
+            if let alternate = $0.alternateItem, !alternate.keyEquivalentModifierMask.isEmpty {
+                alternate.removeFromMenu()
+                return [$0, alternate]
+            }
+            return [$0]
+        }.uniqued()
     }
     
     func withoutAlternates() -> [Element] {

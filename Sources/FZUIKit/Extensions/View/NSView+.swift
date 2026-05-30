@@ -11,6 +11,11 @@ import FZSwiftUtils
 import SwiftUI
 
 extension NSView {
+    /// The mouse location from the current event in the view's coordinate system.
+    public var mouseLocationInCurrentEvent: CGPoint? {
+        NSApp.currentEvent?.location(in: self)
+    }
+    
     /**
      The background color of the view.
      
