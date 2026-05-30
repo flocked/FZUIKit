@@ -508,13 +508,13 @@ extension CALayer {
     #if !os(macOS)
     func setupShadowShapeLayer() {
         guard !(self is ShadowShapeLayer) else { return }
-        if shadowShape == nil || maskShape == nil || !shadow.isVisible {
+        if shadowShape == nil || maskShape == nil || !outerShadow.isVisible {
             shadowShapeLayer?.removeFromSuperlayer()
             shadowShapeLayer = nil
         } else if shadowShapeLayer == nil {
             shadowShapeLayer = ShadowShapeLayer(for: self)
         }
-        shadowShapeLayer?.shadow = shadow
+        shadowShapeLayer?.outerShadow = outerShadow
         shadowShapeLayer?.shadowShape = shadowShape
     }
     

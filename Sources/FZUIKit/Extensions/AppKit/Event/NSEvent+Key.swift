@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 22.05.26.
 //
 
+#if os(macOS)
 import AppKit
 import Carbon
 import FZSwiftUtils
@@ -1039,3 +1040,4 @@ fileprivate extension String {
         self = String(format: "%C", unicodeInt)
     }
 }
+#endif

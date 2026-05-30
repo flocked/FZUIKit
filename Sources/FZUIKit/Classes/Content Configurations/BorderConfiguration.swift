@@ -122,6 +122,28 @@ public struct BorderConfiguration: Hashable {
         self.insets = insets
     }
     
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.color == rhs.color
+            && lhs.colorTransformer == rhs.colorTransformer
+            && lhs.width == rhs.width
+            && lhs.insets.top == rhs.insets.top
+            && lhs.insets.leading == rhs.insets.leading
+            && lhs.insets.bottom == rhs.insets.bottom
+            && lhs.insets.trailing == rhs.insets.trailing
+            && lhs.dash == rhs.dash
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(color)
+        hasher.combine(colorTransformer)
+        hasher.combine(width)
+        hasher.combine(insets.top)
+        hasher.combine(insets.leading)
+        hasher.combine(insets.bottom)
+        hasher.combine(insets.trailing)
+        hasher.combine(dash)
+    }
+    
     /// A configuration without a border.
     public static let none = Self()
     

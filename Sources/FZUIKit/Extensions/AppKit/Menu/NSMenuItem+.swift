@@ -590,14 +590,14 @@ public extension NSMenuItem {
      The default value is `true`.
      */
     var alternateItemIsDisplayableWhenHidden: Bool {
-        get { alternateItemIsHiddenObservation == nil }
+        get { isHiddenObservationForAlternateItem == nil }
         set {
             guard newValue != alternateItemIsDisplayableWhenHidden else { return }
             if newValue {
-                alternateItemIsHiddenObservation = nil
+                isHiddenObservationForAlternateItem = nil
                 alternateItem?.keyEquivalentModifierMask = [.option]
             } else {
-                alternateItemIsHiddenObservation = observeChanges(for: \.isHidden) { [weak self] old, new in
+                isHiddenObservationForAlternateItem = observeChanges(for: \.isHidden) { [weak self] old, new in
                     guard let self = self else { return }
                     self.alternateItem?.keyEquivalentModifierMask = new ? [] : [.option]
                 }
@@ -617,9 +617,9 @@ public extension NSMenuItem {
         return self
     }
     
-    private var alternateItemIsHiddenObservation: KeyValueObservation? {
-        get { getAssociatedValue("alternateItemIsHiddenObservation") }
-        set { setAssociatedValue(newValue, key: "alternateItemIsHiddenObservation") }
+    private var isHiddenObservationForAlternateItem: KeyValueObservation? {
+        get { getAssociatedValue("isHiddenObservationForAlternateItem") }
+        set { setAssociatedValue(newValue, key: "isHiddenObservationForAlternateItem") }
     }
     
     /// Removes the item from it's menu.

@@ -80,6 +80,7 @@ extension NSMenu {
         var eventObserver: CFRunLoopObserver?
         var delegateObservation: KeyValueObservation?
         var menuMinimumWidth: CGFloat?
+        static let supportedSelectors = [#selector(NSMenuDelegate.menuWillOpen(_:)), #selector(NSMenuDelegate.menuDidClose(_:)), #selector(NSMenuDelegate.menuNeedsUpdate(_:)), #selector(NSMenuDelegate.menu(_:willHighlight:))]
 
         init(_ menu: NSMenu) {
             self.delegate = menu.delegate
@@ -92,15 +93,27 @@ extension NSMenu {
             }
         }
         
+        override func responds(to selector: Selector!) -> Bool {
+            if Self.supportedSelectors.contains(selector) {
+                return true
+            }
+            return delegate?.responds(to: selector) ?? false
+        }
+        
+        override func forwardingTarget(for selector: Selector!) -> Any? {
+            if delegate?.responds(to: selector) == true {
+                return delegate
+            }
+            return super.forwardingTarget(for: selector)
+        }
+        
         func menuWillOpen(_ menu: NSMenu) {
-            guard menu.delegate === self else { return }
             menu.handlers.willOpen?()
             delegate?.menuWillOpen?(menu)
         }
         
         func menuDidClose(_ menu: NSMenu) {
             menu.items = menu.items.withoutAlternates()
-            guard menu.delegate === self else { return }
             menu.handlers.didClose?()
             delegate?.menuDidClose?(menu)
             if eventObserver != nil {
@@ -113,12 +126,7 @@ extension NSMenu {
             }
         }
         
-        func numberOfItems(in menu: NSMenu) -> Int {
-            return delegate?.numberOfItems?(in: menu) ?? menu.items.count
-        }
-        
         func menuNeedsUpdate(_ menu: NSMenu) {
-            guard menu.delegate === self else { return }
             menu.handlers.update?(menu)
             delegate?.menuNeedsUpdate?(menu)
             let optionPressed = NSEvent.modifierFlags.contains([.option])
@@ -141,27 +149,9 @@ extension NSMenu {
             }
         }
         
-        func menuHasKeyEquivalent(_ menu: NSMenu, for event: NSEvent, target: AutoreleasingUnsafeMutablePointer<AnyObject?>, action: UnsafeMutablePointer<Selector?>) -> Bool {
-            if let menuHasKeyEquivalent = delegate?.menuHasKeyEquivalent?(menu, for: event, target: target, action: action) {
-                return menuHasKeyEquivalent
-            }
-            let keyEquivalent = event.readableKeyCode.lowercased()
-            return menu.items.contains(where: {$0.keyEquivalent == keyEquivalent && $0.isEnabled})
-        }
-        
-        func confinementRect(for menu: NSMenu, on screen: NSScreen?) -> NSRect {
-            delegate?.confinementRect?(for: menu, on: screen) ?? .zero
-        }
-        
-        func menu(_ menu: NSMenu, update item: NSMenuItem, at index: Int, shouldCancel: Bool) -> Bool {
-            delegate?.menu?(menu, update: item, at: index, shouldCancel: shouldCancel) ?? true
-        }
-        
         func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {
             menu.items.forEach({($0.view as? NSMenuItemView)?.isHighlighted = $0 === item })
-            if menu.delegate === self {
-                menu.handlers.willHighlight?(item)
-            }
+            menu.handlers.willHighlight?(item)
             delegate?.menu?(menu, willHighlight: item)
         }
     }

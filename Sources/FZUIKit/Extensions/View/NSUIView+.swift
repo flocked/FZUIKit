@@ -498,7 +498,7 @@ extension NSUIView {
     /// Sets the outer shadow of the view.
     @discardableResult
     @objc open func shadow(_ shadow: ShadowConfiguration) -> Self {
-        self.shadow = shadow
+        outerShadow = shadow
         return self
     }
     #endif

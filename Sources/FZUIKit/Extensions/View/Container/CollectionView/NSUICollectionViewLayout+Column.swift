@@ -732,6 +732,24 @@ extension ColumnCollectionViewLayout {
          When this property is `true`, section header views scroll with content until they reach the top of the screen, at which point they are pinned to the upper bounds of the collection view. Each new header view that scrolls to the top of the screen pushes the previously pinned header view offscreen.
          */
         public var pinToVisibleBounds: Bool = false
+        
+        public static func == (lhs: Self, rhs: Self) -> Bool {
+            lhs.height == rhs.height
+                && lhs.inset.top == rhs.inset.top
+                && lhs.inset.left == rhs.inset.left
+                && lhs.inset.bottom == rhs.inset.bottom
+                && lhs.inset.right == rhs.inset.right
+                && lhs.pinToVisibleBounds == rhs.pinToVisibleBounds
+        }
+        
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(height)
+            hasher.combine(inset.top)
+            hasher.combine(inset.left)
+            hasher.combine(inset.bottom)
+            hasher.combine(inset.right)
+            hasher.combine(pinToVisibleBounds)
+        }
     }
     
     class HeaderFooterLayoutAttributes: NSUICollectionViewLayoutAttributes {

@@ -72,6 +72,68 @@ extension NSView {
         }
     }
     
+    public var menuProviderAlz: ((CGPoint) -> NSMenu?)? {
+        get { menu?.menuProviderDelegate?.menuProvider }
+        set {
+            guard let newValue else {
+                menu?.menuProviderDelegate = nil
+                return
+            }
+            let menu = self.menu ?? NSMenu()
+            menu.menuProviderDelegate = MenuProviderDelegate(view: self, menuProvider: newValue)
+            self.menu = menu
+        }
+    }
+
+    fileprivate final class MenuProviderDelegate: NSObject, NSMenuDelegate {
+        weak var view: NSView?
+        weak var originalMenu: NSMenu?
+        weak var providerMenu: NSMenu?
+        let menuProvider: (CGPoint) -> NSMenu?
+
+        init(view: NSView, menuProvider: @escaping (CGPoint) -> NSMenu?) {
+            self.view = view
+            self.menuProvider = menuProvider
+            super.init()
+            let menu = view.menu ?? NSMenu()
+            menu.menuProviderDelegate = self
+            menu.delegate = self
+        }
+
+        func menuNeedsUpdate(_ menu: NSMenu) {
+            menu.removeAllItems()
+            providerMenu = nil
+
+            guard
+                let event = NSApp.currentEvent,
+                let view,
+                let providedMenu = menuProvider(event.location(in: view)),
+                !providedMenu.items.isEmpty
+            else { return }
+
+            providerMenu = providedMenu
+
+            while let item = providedMenu.items.first {
+                providedMenu.removeItem(item)
+                menu.addItem(item)
+            }
+        }
+
+        func menuDidClose(_ menu: NSMenu) {
+            defer { providerMenu = nil }
+
+            guard let providedMenu = providerMenu else {
+                menu.removeAllItems()
+                return
+            }
+
+            while let item = menu.items.first {
+                menu.removeItem(item)
+                providedMenu.addItem(item)
+            }
+        }
+    }
+    
     fileprivate var _menuProvider: ((_ locationInView: CGPoint)->(NSMenu?))? {
         get { getAssociatedValue("_menuProvider") }
         set { setAssociatedValue(newValue, key: "_menuProvider") }
@@ -886,15 +948,16 @@ fileprivate class BackgroundStyleObserverView: NSControl {
     }
 }
 
-fileprivate extension NSView {
-    func subview(at location: CGPoint) -> NSView? {
-        for subview in subviews {
-            guard let subview = subview.subview(at: convert(location, to: subview)) else { continue }
-            return subview
+extension NSMenu {
+    fileprivate var menuProviderDelegate: NSView.MenuProviderDelegate? {
+        get { getAssociatedValue("menuProviderDelegate") }
+        set {
+            setAssociatedValue(newValue, key: "menuProviderDelegate")
+            delegate = newValue
         }
-        return bounds.contains(location) ? self : nil
     }
 }
+
     
 #endif
 

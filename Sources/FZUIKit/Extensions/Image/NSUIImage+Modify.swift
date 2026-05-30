@@ -139,8 +139,7 @@ public extension NSUIImage {
     }
 
     /// Returns the image rotated to the specified degree.
-    func rotated(degrees: Float) -> NSImage {
-        let degrees = CGFloat(degrees)
+    func rotated(degrees: CGFloat) -> NSImage {
         var imageBounds = NSRect.zero; imageBounds.size = size
         let pathBounds = NSBezierPath(rect: imageBounds)
         var transform = NSAffineTransform()

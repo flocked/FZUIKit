@@ -37,6 +37,35 @@ public extension NSUIView {
         public init(booleanLiteral value: Bool) {
             self = value == true ? .enabled : .disabled
         }
+        
+        public static func == (lhs: Self, rhs: Self) -> Bool {
+            switch (lhs, rhs) {
+            case (.enabled, .enabled), (.disabled, .disabled):
+                return true
+            case (.constrainedToSuperview(let lhsMargins), .constrainedToSuperview(let rhsMargins)):
+                return lhsMargins.top == rhsMargins.top
+                    && lhsMargins.leading == rhsMargins.leading
+                    && lhsMargins.bottom == rhsMargins.bottom
+                    && lhsMargins.trailing == rhsMargins.trailing
+            default:
+                return false
+            }
+        }
+        
+        public func hash(into hasher: inout Hasher) {
+            switch self {
+            case .enabled:
+                hasher.combine(0)
+            case .disabled:
+                hasher.combine(1)
+            case .constrainedToSuperview(let margins):
+                hasher.combine(2)
+                hasher.combine(margins.top)
+                hasher.combine(margins.leading)
+                hasher.combine(margins.bottom)
+                hasher.combine(margins.trailing)
+            }
+        }
     }
 
     /// A value indicating whether the view is movable by clicking and dragging anywhere in its background.
