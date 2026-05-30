@@ -51,22 +51,21 @@ public struct ImageTransformer: ContentTransform {
 
     /// Creates a image transformer that generates a rounded version of the image with the specified radius.
     public static func rounded(radius: CGFloat) -> Self {
-        Self("roundedCorners: \(radius)") { image in image.rounded(cornerRadius: radius) }
+        Self("roundedCorners: \(radius)") { $0.rounded(cornerRadius: radius) }
     }
 
 
     /// Creates a image transformer that generates a version of the image in a circle.
-    public static let rounded = Self("rounded") { image in image.rounded() }
+    public static let rounded = Self("rounded") { $0.rounded() }
     
     
     /// Creates a image transformer that generates a elipsed version of the image.
-    public static let elipsed = Self("elipsed") { image in image.elipsed() }
+    public static let elipsed = Self("elipsed") { $0.elipsed() }
     #endif
 
     /// Creates a image transformer that generates a rounded version of the image with the specified degrees.
     public static func rotated(degrees: CGFloat) -> Self {
-        let transform: (NSUIImage) -> NSUIImage = { image in
-            image.rotated(degrees: degrees)
+        let transform: (NSUIImage) -> NSUIImage = {$0.rotated(degrees: degrees)
         }
         return Self("rotated: \(degrees)", transform)
     }
@@ -74,15 +73,15 @@ public struct ImageTransformer: ContentTransform {
     /// Creates a image transformer that generates a version of the image with the specified symbol configuration.
     public static func symbolConfiguration(_ value: NSUIImage.SymbolConfiguration) -> Self {
         #if os(macOS)
-        return Self("symbolConfiguration: \(value)") { image in image.withSymbolConfiguration(value) ?? image }
+        return Self("symbolConfiguration: \(value)") { $0.withSymbolConfiguration(value) ?? $0 }
         #elseif canImport(UIKit)
-        return Self("symbolConfiguration: \(value)") { image in image.applyingSymbolConfiguration(value) ?? image }
+        return Self("symbolConfiguration: \(value)") {$0.applyingSymbolConfiguration(value) ?? $0 }
         #endif
     }
 
     /// Creates a image transformer that generates a version of the image resized to the specified size.
     public static func resized(to size: CGSize) -> Self {
-        Self("resized: \(size)") { image in image.resized(to: size) }
+        Self("resized: \(size)") { $0.resized(to: size) }
     }
 
     /// Creates a image transformer that generates a version of the image resized to fit the specified size.
