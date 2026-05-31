@@ -60,9 +60,81 @@ public extension WKWebView {
     }
     
     /// Returns all cookies for the current webpage asynchronously.
-    func WKHTTPCookieStoreObserver() async -> [HTTPCookie] {
+    func cookiesForCurrentPage() async -> [HTTPCookie] {
         guard let host = url?.host else { return [] }
-        return await configuration.websiteDataStore.httpCookieStore.allCookies().filter({ $0.domain.contains(host) })
+        return await cookies().filter({ $0.domain.contains(host) })
+    }
+
+    /**
+     Creates and returns an observation object that monitors changes to the web view's cookie store.
+
+     The returned observation begins observing immediately and invokes the handler whenever the cookie store changes.
+     
+     Retain the returned observation object for as long as observation is required. Observation automatically stops when the observation object is deallocated.
+
+     - Parameter handler: A closure invoked whenever the cookie store changes. The closure receives the previous cookies and the updated cookies.
+     - Returns: An active cookie observation object.
+     */
+    func observeCookies(handler: @escaping (_ old: [HTTPCookie], _ new: [HTTPCookie]) -> Void) -> WKWebViewCookiesObservation {
+        WKWebViewCookiesObservation(storage: configuration.websiteDataStore.httpCookieStore, handler: handler)
+    }
+}
+
+/**
+ An object that observes changes to the cookies of a `WKHTTPCookieStore`.
+
+ Instances begin observing immediately when created and continue observing until invalidated or deallocated.
+ 
+ Retain the observation for as long as observation is required.
+ */
+public final class WKWebViewCookiesObservation: NSObject {
+    private weak var storage: WKHTTPCookieStore?
+    private let observer: Observer
+    private var didAddObserver = false
+
+    init(storage: WKHTTPCookieStore, handler: @escaping (_ old: [HTTPCookie], _ new: [HTTPCookie]) -> Void) {
+        self.storage = storage
+        self.observer = Observer(handler: handler)
+        super.init()
+        storage.getAllCookies { [weak self] cookies in
+            guard let self = self else { return }
+            self.observer.cookies = cookies
+            storage.add(self.observer)
+            self.didAddObserver = true
+        }
+    }
+    
+    /**
+     Invalidates the observation.
+     
+     The method is automatically called when the observation is deinited.
+     */
+    public func invalidate() {
+        guard didAddObserver else { return }
+        didAddObserver = false
+        storage?.remove(observer)
+    }
+
+    deinit {
+        invalidate()
+    }
+
+    private final class Observer: NSObject, WKHTTPCookieStoreObserver {
+        var cookies: [HTTPCookie] = []
+        let handler: ([HTTPCookie], [HTTPCookie]) -> Void
+
+        init(handler: @escaping ([HTTPCookie], [HTTPCookie]) -> Void) {
+            self.handler = handler
+        }
+
+        func cookiesDidChange(in cookieStore: WKHTTPCookieStore) {
+            cookieStore.getAllCookies { [weak self] newCookies in
+                guard let self = self else { return }
+                let oldCookies = self.cookies
+                self.cookies = newCookies
+                self.handler(oldCookies, newCookies)
+            }
+        }
     }
 }
 
