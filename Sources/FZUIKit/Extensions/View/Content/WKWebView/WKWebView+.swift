@@ -92,16 +92,16 @@ public extension WKWebView {
 public final class WKWebViewCookiesObservation {
     private weak var storage: WKHTTPCookieStore?
     private let observer: Observer
-    private var didAddObserver = false
+    private var isActive = false
 
-    init(storage: WKHTTPCookieStore, sendInitial: Bool, handler: @escaping (_ old: [HTTPCookie], _ new: [HTTPCookie]) -> Void) {
+    init(storage: WKHTTPCookieStore, sendInitial: Bool, handler: @escaping ([HTTPCookie], [HTTPCookie]) -> Void) {
         self.storage = storage
         self.observer = Observer(handler: handler)
         storage.getAllCookies { [weak self] cookies in
             guard let self = self else { return }
             self.observer.cookies = cookies
             storage.add(self.observer)
-            self.didAddObserver = true
+            self.isActive = true
             guard sendInitial else { return }
             handler(cookies, cookies)
         }
@@ -113,8 +113,8 @@ public final class WKWebViewCookiesObservation {
      The method is automatically called when the observation is deinited.
      */
     public func invalidate() {
-        guard didAddObserver else { return }
-        didAddObserver = false
+        guard isActive else { return }
+        isActive = false
         storage?.remove(observer)
     }
 
