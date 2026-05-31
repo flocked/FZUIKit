@@ -99,11 +99,12 @@ public final class WKWebViewCookiesObservation {
         self.observer = Observer(handler: handler)
         storage.getAllCookies { [weak self] cookies in
             guard let self = self else { return }
+            if sendInitial {
+                handler(cookies, cookies)
+            }
             self.observer.cookies = cookies
             storage.add(self.observer)
             self.isActive = true
-            guard sendInitial else { return }
-            handler(cookies, cookies)
         }
     }
     
