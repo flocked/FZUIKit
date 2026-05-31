@@ -57,6 +57,9 @@ extension WKWebView {
         /// The handler deciding whether to navigate to a back-forward list item.
         public var shouldGoTo: ((_ item: WKBackForwardListItem, _ willUseInstantBack: Bool) -> Bool)?
         
+        /// The handler that gets called when the cookies change.
+        public var cookies: ((_ old: [HTTPCookie], _ new: [HTTPCookie]) -> ())?
+        
         var needsDelegate: Bool {
             navigationActionPolicy != nil || navigationResponsePolicy != nil || didStartProvisionalNavigation != nil || didReceiveServerRedirectForProvisionalNavigation != nil || didFinishNavigation != nil || didCommitNavigation != nil || authenticate != nil || shouldAllowDeprecatedTLS != nil || didFailNavigation != nil || didFailProvisionalNavigation != nil || webContentProcessDidTerminate != nil || navigationResponseDidBecomeDownload != nil || navigationActionDidBecomeDownload != nil || shouldGoTo != nil
         }
@@ -153,7 +156,13 @@ extension WKWebView {
         set {
             setAssociatedValue(newValue, key: "handlers")
             setupHandlerDelegate()
+            cookiesObservation = newValue.cookies.map({ observeCookies(handler: $0) })
         }
+    }
+    
+    private var cookiesObservation: WKWebViewCookiesObservation? {
+        get { getAssociatedValue("cookiesObservation") }
+        set { setAssociatedValue(newValue, key: "cookiesObservation") }
     }
 
     /// The handlers for downloading files.
