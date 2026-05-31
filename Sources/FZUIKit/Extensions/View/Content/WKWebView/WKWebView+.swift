@@ -89,7 +89,7 @@ public extension WKWebView {
  
  Retain the observation for as long as observation is required.
  */
-public final class WKWebViewCookiesObservation: NSObject {
+public final class WKWebViewCookiesObservation {
     private weak var storage: WKHTTPCookieStore?
     private let observer: Observer
     private var didAddObserver = false
@@ -97,7 +97,6 @@ public final class WKWebViewCookiesObservation: NSObject {
     init(storage: WKHTTPCookieStore, sendInitial: Bool, handler: @escaping (_ old: [HTTPCookie], _ new: [HTTPCookie]) -> Void) {
         self.storage = storage
         self.observer = Observer(handler: handler)
-        super.init()
         storage.getAllCookies { [weak self] cookies in
             guard let self = self else { return }
             self.observer.cookies = cookies
