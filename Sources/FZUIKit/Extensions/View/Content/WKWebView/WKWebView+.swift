@@ -72,11 +72,13 @@ public extension WKWebView {
      
      Retain the returned observation object for as long as observation is required. Observation automatically stops when the observation object is deallocated.
 
-     - Parameter handler: A closure invoked whenever the cookie store changes. The closure receives the previous cookies and the updated cookies.
+     - Parameters:
+        - sendInitial: A Boolean value indicating whether to send the initial cookies to the handler.
+        - handler: A closure invoked whenever the cookie store changes. The closure receives the previous cookies and the updated cookies.
      - Returns: An active cookie observation object.
      */
-    func observeCookies(handler: @escaping (_ old: [HTTPCookie], _ new: [HTTPCookie]) -> Void) -> WKWebViewCookiesObservation {
-        WKWebViewCookiesObservation(storage: configuration.websiteDataStore.httpCookieStore, handler: handler)
+    func observeCookies(sendInitial: Bool = false, handler: @escaping (_ old: [HTTPCookie], _ new: [HTTPCookie]) -> Void) -> WKWebViewCookiesObservation {
+        WKWebViewCookiesObservation(storage: configuration.websiteDataStore.httpCookieStore, sendInitial: sendInitial, handler: handler)
     }
 }
 
@@ -92,7 +94,7 @@ public final class WKWebViewCookiesObservation: NSObject {
     private let observer: Observer
     private var didAddObserver = false
 
-    init(storage: WKHTTPCookieStore, handler: @escaping (_ old: [HTTPCookie], _ new: [HTTPCookie]) -> Void) {
+    init(storage: WKHTTPCookieStore, sendInitial: Bool, handler: @escaping (_ old: [HTTPCookie], _ new: [HTTPCookie]) -> Void) {
         self.storage = storage
         self.observer = Observer(handler: handler)
         super.init()
@@ -101,6 +103,8 @@ public final class WKWebViewCookiesObservation: NSObject {
             self.observer.cookies = cookies
             storage.add(self.observer)
             self.didAddObserver = true
+            guard sendInitial else { return }
+            handler(cookies, cookies)
         }
     }
     
@@ -131,6 +135,7 @@ public final class WKWebViewCookiesObservation: NSObject {
             cookieStore.getAllCookies { [weak self] newCookies in
                 guard let self = self else { return }
                 let oldCookies = self.cookies
+                guard Set(oldCookies) != Set(newCookies) else { return }
                 self.cookies = newCookies
                 self.handler(oldCookies, newCookies)
             }
