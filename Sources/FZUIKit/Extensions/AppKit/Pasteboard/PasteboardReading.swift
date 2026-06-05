@@ -15,6 +15,12 @@ public protocol PasteboardReading {
     var pasteboardReading: NSPasteboardReading { get }
 }
 
+extension PasteboardReading {
+    static var readingClass: (any NSPasteboardReading).Type {
+        Self.PasteboardReadingType.self
+    }
+}
+
 extension PasteboardReading where Self: NSPasteboardReading {
     public typealias PasteboardReadingType = Self
     public var pasteboardReading: NSPasteboardReading { self }
@@ -42,7 +48,7 @@ extension AttributedString: PasteboardReading {
     public var pasteboardReading: NSPasteboardReading { NSAttributedString(self) }
 }
 
- public extension Collection where Element == (any PasteboardReading) {
+ public extension Sequence where Element == any PasteboardReading {
      /// The strings of the pasteboard content.
      var strings: [String] {
          compactMap({$0 as? String})
@@ -92,17 +98,17 @@ extension AttributedString: PasteboardReading {
 public extension NSPasteboardItem {
     /// The current `PasteboardReading` objects of the pasteboard item.
     var content: [PasteboardReading] {
-        var readings: [PasteboardReading] = []
-        readings += string
-        readings += attributedString
-        readings += color
-        readings += sound
-        readings += pngImage
-        readings += tiffImage
-        readings += url
-        readings += fileURL
-        readings += self
-        return readings
+        var content: [PasteboardReading] = []
+        content += string
+        content += attributedString
+        content += color
+        content += sound
+        content += pngImage
+        content += tiffImage
+        content += url
+        content += fileURL
+        content += self
+        return content
     }
 }
 #endif

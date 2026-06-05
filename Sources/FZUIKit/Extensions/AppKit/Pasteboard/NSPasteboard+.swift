@@ -162,13 +162,13 @@ extension NSPasteboard {
     }
     
     /// Returns the objects on the pasteboard for the specified `NSPasteboardReading` types.
-    public func read(_ types: [(any NSPasteboardReading).Type], options: [NSPasteboard.ReadingOptionKey : Any]? = nil) -> [Any] {
+    public func read(_ types: [(any NSPasteboardReading).Type], options: [ReadingOptionKey : Any]? = nil) -> [Any] {
         readObjects(forClasses: types, options: options) ?? []
     }
     
     /// Returns the objects on the pasteboard for the specified `PasteboardReading` types.
     @_disfavoredOverload
-    public func read(_ types: [(any PasteboardReading).Type], options: [NSPasteboard.ReadingOptionKey : Any]? = nil) -> [Any] {
+    public func read(_ types: [(any PasteboardReading).Type], options: [ReadingOptionKey : Any]? = nil) -> [Any] {
         readObjects(forClasses: types.map({$0.PasteboardReadingType}), options: options) ?? []
     }
     
@@ -179,7 +179,7 @@ extension NSPasteboard {
     
     /// Returns the objects on the pasteboard for the specified `PasteboardReading` types.
     @_disfavoredOverload
-    public func canRead(_ types: [(any PasteboardReading).Type], options: [NSPasteboard.ReadingOptionKey : Any]? = nil) -> Bool {
+    public func canRead(_ types: [(any PasteboardReading).Type], options: [ReadingOptionKey : Any]? = nil) -> Bool {
         canReadObject(forClasses: types.map({$0.PasteboardReadingType}), options: options)
     }
     

@@ -112,7 +112,35 @@ public struct CGWindowInfo: Hashable, Identifiable {
         self.init(windowNumber: CGWindowID(window.windowNumber))
     }
     
-    init?(_ dict: [CFString: Any]) {
+    /**
+     Creates a window information for the topmost window at the specified screen location.
+
+     The hit test uses the global Window Server ordering, so windows from other apps are considered.
+     
+     - Parameters:
+        - screenLocation: The screen location to test.
+        - windowNumber: The window number below which hit testing should begin, or `nil` to start at the topmost window.
+     */
+    public init?(screenLocation: CGPoint, below windowNumber: Int? = nil) {
+        let windowNumber = NSWindow.windowNumber(at: screenLocation, belowWindowWithWindowNumber: windowNumber ?? 0)
+        guard windowNumber != 0 else { return nil }
+        self.init(windowNumber: CGWindowID(windowNumber))
+    }
+    
+    /**
+     Creates a window information for the topmost window at the specified screen location below the given window.
+
+     The hit test uses the global Window Server ordering, so windows from other apps are considered.
+
+     - Parameters:
+        - screenLocation: The screen location to test.
+        - window: The window below which hit testing should begin.
+     */
+    public init?(screenLocation: CGPoint, below window: NSWindow) {
+        self.init(screenLocation: screenLocation, below: window.windowNumber)
+    }
+    
+    private init?(_ dict: [CFString: Any]) {
         guard let windowNumber: CGWindowID = dict[typed: kCGWindowNumber],
               let backingStore = CGWindowBackingType(rawValue: dict[typed: kCGWindowStoreType] ?? 111),
               let windowLayer: Int = dict[typed: kCGWindowLayer],

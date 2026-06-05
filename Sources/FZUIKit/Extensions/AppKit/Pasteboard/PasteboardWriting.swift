@@ -43,7 +43,7 @@ extension AttributedString: PasteboardWriting {
     public var pasteboardWriting: NSPasteboardWriting { NSAttributedString(self) }
 }
 
-public extension Collection where Element == (any PasteboardWriting) {
+public extension Sequence where Element == any PasteboardWriting {
     /// The strings of the pasteboard content.
     var strings: [String] {
         compactMap({$0 as? String})
@@ -92,8 +92,8 @@ public extension Collection where Element == (any PasteboardWriting) {
 
 extension NSDraggingItem {
     /// Creates and returns a dragging item using the specified content.
-    public convenience init(_ content: PasteboardWriting) {
-        self.init(pasteboardWriter: content.pasteboardWriting)
+    public convenience init(_ pasteboardWriter: PasteboardWriting) {
+        self.init(pasteboardWriter: pasteboardWriter.pasteboardWriting)
     }
 }
 
@@ -109,7 +109,7 @@ extension NSPasteboardItem {
         content.forEach({ setValue($0) })
     }
     
-    func setValue(_ value: PasteboardWriting) {
+    fileprivate func setValue(_ value: PasteboardWriting) {
         if let value = value as? String {
             string = value
         }
@@ -129,9 +129,8 @@ extension NSPasteboardItem {
             attributedString = value
         } else {
             for type in value.pasteboardWriting.writableTypes(for: .general) {
-                if let propertyList = value.pasteboardWriting.pasteboardPropertyList(forType: type) {
-                    setPropertyList(propertyList, forType: type)
-                }
+                guard let propertyList = value.pasteboardWriting.pasteboardPropertyList(forType: type) else { continue }
+                setPropertyList(propertyList, forType: type)
             }
         }
     }

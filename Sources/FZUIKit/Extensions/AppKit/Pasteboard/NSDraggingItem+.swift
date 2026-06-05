@@ -20,14 +20,9 @@ extension NSDraggingItem {
         setDraggingFrame(frame ?? CGRect(.zero, image.size), contents: image)
     }
     
-    /// Sets the item’s dragging image using the specified view.
+    /// Sets the item’s dragging image using a rendered snapshot of the specified view.
     public func setDraggingImage(view: NSView) {
         setDraggingImage(view.renderedImage)
-    }
-    
-    /// Creates and returns a dragging item using the specified content.
-    convenience init(pasteboardWriting: PasteboardWriting) {
-        self.init(pasteboardWriter: pasteboardWriting.pasteboardWriting)
     }
 }
 

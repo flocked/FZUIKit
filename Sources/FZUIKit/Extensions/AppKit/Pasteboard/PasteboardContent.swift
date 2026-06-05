@@ -10,36 +10,21 @@ import AppKit
 import FZSwiftUtils
 import UniformTypeIdentifiers
 
-/// Object to read the content of a pasteboard.
-public class PasteboardContent {
-    private weak var pasteboard: NSPasteboard?
+/// An object to read the content of a pasteboard.
+public class NSPasteboardContent {
+    private let pasteboard: NSPasteboard
     private var lastChangeCount = -1
-    private var values: [String : Any] = [:]
-    private var hasItems: [String: Bool] = [:]
+    private var values: [Key : Any] = [:]
+    private var hasItems: [Key: Bool] = [:]
     
     /// Creates the object to read the content of the specified pasteboard.
     public init(pasteboard: NSPasteboard) {
         self.pasteboard = pasteboard
     }
     
-    /// Returns the objects on the pasteboard for the specified `NSPasteboardReading` type.
-    public func objects<T: NSPasteboardReading>(ofType type: T.Type) -> [T] {
-        value(for: type)
-    }
-    
-    /// Returns the objects on the pasteboard for the specified `NSPasteboardReading` type.
-    public func objects<T>(ofType type: T.Type) -> [T] where T : _ObjectiveCBridgeable, T._ObjectiveCType : NSPasteboardReading {
-        value(for: T._ObjectiveCType.self)
-    }
-    
-    /// The pasteboard items on the pasteboard.
-    public var pasteboardItems: [NSPasteboardItem] {
-        pasteboard?.pasteboardItems ?? []
-    }
-    
     /// The strings on the pasteboard.
     public var strings: [String] {
-        value(for: NSString.self)
+        value(for: String.self)
     }
     
     /// The attributed strings on the pasteboard.
@@ -49,27 +34,34 @@ public class PasteboardContent {
     
     /// The urls on the pasteboard.
     public var urls: [URL] {
-        value(for: NSURL.self)
+        value(for: URL.self)
+    }
+    
+    /// The urls with the specified content types on the pasteboard.
+    public func urls(contentTypes: [UTType]) -> [URL] {
+        urls.filter { $0.contentType?.conforms(toAny: contentTypes) == true }
+    }
+    
+    /// The urls with the specified types  on the pasteboard.
+    public func urls(types: [FileType]) -> [URL] {
+        urls.filter { $0.fileType?.exists(in: types) == true }
     }
     
     /// The file urls on the pasteboard.
     public var fileURLs: [URL] {
-        value(for: NSURL.self, filesOnly: true)
+        value(for: URL.self, filesOnly: true)
     }
     
-    public lazy var fileURLsFiltered: [URL] = {
-        if !fileURLFilters.isEmpty {
-            var urls = fileURLs
-            var matching: [URL] = []
-            for fileURLFilter in fileURLFilters {
-                matching += urls.removeAll(where: fileURLFilter)
-            }
-            return matching
-        }
-        return fileURLs
-    }()
     
-    var fileURLFilters: [(URL)->(Bool)] = []
+    /// The file urls with the specified content types on the pasteboard.
+    public func fileURLs(contentTypes: [UTType]) -> [URL] {
+        fileURLs.filter { $0.contentType?.conforms(toAny: contentTypes) == true }
+    }
+    
+    /// The file urls with the specified file types on the pasteboard.
+    public func fileURLs(types: [FileType]) -> [URL] {
+        fileURLs.filter { $0.fileType?.exists(in: types) == true }
+    }
         
     /// The colors on the pasteboard.
     public var colors: [NSColor] {
@@ -91,62 +83,63 @@ public class PasteboardContent {
         value(for: NSFilePromiseReceiver.self)
     }
     
-    /// The urls with the specified content types on the pasteboard.
-    public func urls(contentTypes: [UTType]) -> [URL] {
-        urls.filter { $0.contentType?.conforms(toAny: contentTypes) == true }
+    /// The pasteboard items on the pasteboard.
+    public var pasteboardItems: [NSPasteboardItem] {
+        pasteboard.pasteboardItems ?? []
     }
     
-    /// The urls with the specified types  on the pasteboard.
-    public func urls(types: [FileType]) -> [URL] {
-        urls.filter { $0.fileType?.exists(in: types) == true }
+    /// Returns the objects on the pasteboard for the specified `NSPasteboardReading` type.
+    public func values<T: NSPasteboardReading>(for type: T.Type = T.self) -> [T] {
+        value(for: type)
     }
     
-    /// The file urls with the specified content types on the pasteboard.
-    public func fileURLs(contentTypes: [UTType]) -> [URL] {
-        fileURLs.filter { $0.contentType?.conforms(toAny: contentTypes) == true }
-    }
-    
-    /// The file urls with the specified file types on the pasteboard.
-    public func fileURLs(types: [FileType]) -> [URL] {
-        fileURLs.filter { $0.fileType?.exists(in: types) == true }
+    /// Returns the objects on the pasteboard for the specified `NSPasteboardReading` type.
+    public func values<T>(for type: T.Type = T.self) -> [T] where T : _ObjectiveCBridgeable, T._ObjectiveCType : NSPasteboardReading {
+        value(for: T._ObjectiveCType.self)
     }
     
     private func value<V>(for type: AnyClass, filesOnly: Bool = false) -> [V] {
-        guard let pasteboard = pasteboard else { return [] }
-        let typeName = NSStringFromClass(type)
-        if lastChangeCount != pasteboard.changeCount {
-            lastChangeCount = pasteboard.changeCount
-            values.removeAll()
-        } else if let values = values[typeName] as? [V] {
+        let key = Key(for: type, filesOnly: filesOnly)
+        if !didChange, let values = values[key] as? [V] {
             return values
         }
-        let values = pasteboard.readObjects(forClasses: [type], options: filesOnly ? [.urlReadingFileURLsOnly: true] : [:]) as? [V] ?? []
-        self.values[typeName] = values
+        let values = pasteboard.readObjects(forClasses: [type], options: key.options) as? [V] ?? []
+        self.values[key] = values
         return values
+    }
+    
+    private func value<T>(for type: T.Type, filesOnly: Bool = false) -> [T] where T : _ObjectiveCBridgeable, T._ObjectiveCType : NSPasteboardReading {
+        value(for: T._ObjectiveCType.self, filesOnly: filesOnly) as [T]
+    }
+    
+    private struct Key: Hashable {
+        let value: String
+        let contentTypes: [String]
+        let filesOnly: Bool
+        
+        var options: [NSPasteboard.ReadingOptionKey : Any]? {
+            var options: [NSPasteboard.ReadingOptionKey : Any] = [:]
+            options[.urlReadingFileURLsOnly] = filesOnly ? true : nil
+            options[.urlReadingContentsConformToTypes] = !contentTypes.isEmpty ? contentTypes : nil
+            return !options.isEmpty ? options : nil
+        }
+        
+        init(for cls: AnyClass, contentTypes: [String] = [], filesOnly: Bool = false) {
+            self.value = NSStringFromClass(cls)
+            self.contentTypes = contentTypes
+            self.filesOnly = filesOnly
+        }
+    }
+    
+    private var didChange: Bool {
+        guard pasteboard.changeCount != lastChangeCount else { return false }
+        values.removeAll()
+        hasItems.removeAll()
+        return true
     }
 }
 
-extension PasteboardContent {
-    /// Returns a Boolean value indiciating whether the pasteboard contains items conforming to the specified content types.
-    public func hasItems(conformingTo contentTypes: [UTType]) -> Bool {
-        pasteboard?.canReadItem(withDataConformingToTypes: contentTypes.map { $0.identifier }) ?? false
-    }
-    
-    /// Returns a Boolean value indiciating whether the pasteboard can read objects of the specified classes.
-    public func hasObjects<T: NSPasteboardReading>(ofType type: T.Type) -> Bool {
-        pasteboard?.canReadObject(forClasses: [type]) ?? false
-    }
-    
-    /// Returns a Boolean value indiciating whether the pasteboard can read objects of the specified classes.
-    public func hasObjects<T>(ofType type: T.Type) -> Bool where T : _ObjectiveCBridgeable, T._ObjectiveCType : NSPasteboardReading {
-        pasteboard?.canReadObject(forClasses: [T._ObjectiveCType.self]) ?? false
-    }
-        
-    /// The pastebord types that the pasteboard supports.
-    public var pasteboardTypes: [NSPasteboard.PasteboardType] {
-        pasteboard?.types ?? []
-    }
-    
+extension NSPasteboardContent {
     /// Returns a Boolean value indiciating whether the pasteboard contains strings.
     public var hasStrings: Bool {
         hasValues(for: NSString.self)
@@ -182,55 +175,65 @@ extension PasteboardContent {
         hasValues(for: NSURL.self)
     }
     
-    /// Returns a Boolean value indiciating whether the pasteboard contains file URLs.
-    public var hasFileURLs: Bool {
-        hasValues(for: NSURL.self, onlyFiles: true)
-    }
-    
     /// Returns a Boolean value indiciating whether the pasteboard contains URLs conforming to the specified content types.
     public func hasURLs(contentTypes: [UTType]) -> Bool {
-        hasURLs(types: contentTypes.compactMap({$0.identifier}))
+        hasValues(for: NSURL.self, contentTypes: contentTypes.map({$0.identifier}))
     }
     
     /// Returns a Boolean value indiciating whether the pasteboard contains URLs with the specified file types.
     public func hasURLs(types: [FileType]) -> Bool {
-        hasURLs(types: types.compactMap({$0.identifier}))
+        hasValues(for: NSURL.self, contentTypes: types.map({$0.identifier}))
+    }
+    
+    /// Returns a Boolean value indiciating whether the pasteboard contains file URLs.
+    public var hasFileURLs: Bool {
+        hasValues(for: NSURL.self, filesOnly: true)
     }
     
     /// Returns a Boolean value indiciating whether the pasteboard contains file URLs conforming to the specified content types.
     public func hasFileURLs(contentTypes: [UTType]) -> Bool {
-        hasURLs(fileOnly: true, types: contentTypes.compactMap({$0.identifier}))
+        hasValues(for: NSURL.self, filesOnly: true, contentTypes: contentTypes.map({$0.identifier}))
     }
     
     /// Returns a Boolean value indiciating whether the pasteboard contains file URLs with the specified file types.
     public func hasFileURLs(types: [FileType]) -> Bool {
-        hasURLs(fileOnly: true, types: types.compactMap({$0.identifier}))
+        hasValues(for: NSURL.self, filesOnly: true, contentTypes: types.map({$0.identifier}))
     }
     
-    
-    private func hasURLs(fileOnly: Bool = false, types: [String]) -> Bool {
-        pasteboard?.canReadObject(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly : fileOnly, .urlReadingContentsConformToTypes : types]) ?? false
+    /// Returns a Boolean value indiciating whether the pasteboard can read objects of the specified type.
+    public func canRead<T: NSPasteboardReading>(_ type: T.Type) -> Bool {
+        pasteboard.canRead(type)
     }
     
-    private func hasValues(for type: AnyClass, onlyFiles: Bool = false) -> Bool {
-        guard let pasteboard = pasteboard else { return false }
-        let typeName = NSStringFromClass(type)
-        if pasteboard.changeCount != lastChangeCount {
-            lastChangeCount = pasteboard.changeCount
-            hasItems.removeAll()
-        } else if let canRead = hasItems[typeName] {
+    /// Returns a Boolean value indiciating whether the pasteboard can read objects of the specified type.
+    public func canRead<T>(_ type: T.Type) -> Bool where T : _ObjectiveCBridgeable, T._ObjectiveCType : NSPasteboardReading {
+        pasteboard.canRead(type)
+    }
+    
+    /// Returns a Boolean value indiciating whether the pasteboard can read objects of the specified types.
+    public func canRead(_ types: [(any NSPasteboardReading).Type]) -> Bool {
+        pasteboard.canRead(types)
+    }
+    
+    /// Returns a Boolean value indiciating whether the pasteboard can read objects of the specified types.
+    public func canRead(_ types: [(any PasteboardReading).Type]) -> Bool {
+        pasteboard.canRead(types)
+    }
+    
+    private func hasValues(for type: AnyClass, filesOnly: Bool = false, contentTypes: [String] = []) -> Bool {
+        let key = Key(for: type, contentTypes: contentTypes, filesOnly: filesOnly)
+        if !didChange, let canRead = hasItems[key] {
             return canRead
         }
-        let canRead = pasteboard.canReadObject(forClasses: [type], options: onlyFiles ? [.urlReadingFileURLsOnly: true] : [:])
-        hasItems[typeName] = canRead
+        let canRead = pasteboard.canReadObject(forClasses: [type], options: key.options)
+        hasItems[key] = canRead
         return canRead
     }
 }
 
-
 extension NSDraggingInfo {
     /// The content of the pasteboard.
-    var pasteboardContent: PasteboardContent {
+    var pasteboardContent: NSPasteboardContent {
         FZSwiftUtils.getAssociatedValue("pasteboardContent", object: self, initialValue: .init(pasteboard: draggingPasteboard))
     }
 }

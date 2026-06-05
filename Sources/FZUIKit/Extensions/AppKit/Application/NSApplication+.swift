@@ -11,6 +11,18 @@ import AppKit
 import FZSwiftUtils
 
 public extension NSApplication {
+    /// Returns the visible window at the specified screen location.
+    func visibleWindow(at screenLoaction: CGPoint, below window: NSWindow) -> NSWindow? {
+        visibleWindow(at: screenLoaction, below: window.windowNumber)
+    }
+    
+    /// Returns the visible window at the specified screen location.
+    func visibleWindow(at screenLoaction: CGPoint, below windowNumber: Int? = nil) -> NSWindow? {
+        let windowNumber = NSWindow.windowNumber(at: screenLoaction, belowWindowWithWindowNumber: windowNumber ?? 0)
+        guard windowNumber != 0 else { return nil }
+        return windows.first { $0.windowNumber == windowNumber && $0.isVisible && !$0.isMiniaturized }
+    }
+    
     /// The app’s activation policy that control whether and how an app may be activated.
     var activationPolicy: NSApplication.ActivationPolicy {
         get { activationPolicy() }
