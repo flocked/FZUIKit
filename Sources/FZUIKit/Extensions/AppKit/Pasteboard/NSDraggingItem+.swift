@@ -11,27 +11,71 @@ import FZSwiftUtils
 
 public extension NSDraggingItem {
     /**
-     Creates and returns a dragging item using the specified content and view.
-     
-     - Parameters:
-        - content: The content of the dragging item.
-        - View: he view associated with the dragging item. When beginning a dragging session, an image representation of the view is used as dragging image.
+     Creates a dragging item for the specified content.
+
+     - Parameter content: The content of the dragging item.
      */
-    convenience init(_ content: PasteboardWriting, view: NSView) {
-        self.init(content.pasteboardWriting, view: view)
+    convenience init(for content: [any NSPasteboardWriting]) {
+        self.init(pasteboardWriter: NSPasteboardItem(content: content, for: .drag))
     }
     
     /**
-     Creates and returns a dragging item using the specified content and view.
+     Creates a dragging item for the specified content.
+
+     - Parameter content: The content of the dragging item.
+     */
+    @_disfavoredOverload
+    convenience init(for content: [any PasteboardWriting]) {
+        self.init(for: content.map({$0.pasteboardWriting}))
+    }
+    
+    /**
+     Creates a dragging item using the specified content and view.
      
      - Parameters:
         - content: The content of the dragging item.
         - View: he view associated with the dragging item. When beginning a dragging session, an image representation of the view is used as dragging image.
      */
-    convenience init(_ content: NSPasteboardWriting, view: NSView) {
+    convenience init(for content: PasteboardWriting, view: NSView) {
+        self.init(for: content.pasteboardWriting, view: view)
+    }
+    
+    /**
+     Creates a dragging item using the specified content and view.
+     
+     - Parameters:
+        - content: The content of the dragging item.
+        - View: he view associated with the dragging item. When beginning a dragging session, an image representation of the view is used as dragging image.
+     */
+    convenience init(for content: NSPasteboardWriting, view: NSView) {
         self.init(pasteboardWriter: content)
         self.view = view
         NSView.swizzleBeginDraggingSession()
+    }
+    
+    /**
+     Creates a dragging item using the specified content and view.
+     
+     - Parameters:
+        - content: The content of the dragging item.
+        - View: he view associated with the dragging item. When beginning a dragging session, an image representation of the view is used as dragging image.
+     */
+    convenience init(for content: [any NSPasteboardWriting], view: NSView) {
+        self.init(for: content)
+        self.view = view
+        NSView.swizzleBeginDraggingSession()
+    }
+    
+    /**
+     Creates a dragging item using the specified content and view.
+     
+     - Parameters:
+        - content: The content of the dragging item.
+        - View: he view associated with the dragging item. When beginning a dragging session, an image representation of the view is used as dragging image.
+     */
+    @_disfavoredOverload
+    convenience init(for content: [any PasteboardWriting], view: NSView) {
+        self.init(for: content.map({$0.pasteboardWriting}), view: view)
     }
     
     /**

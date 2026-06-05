@@ -17,12 +17,12 @@ extension NSView {
         set {
             setAssociatedValue(newValue, key: "dragHandlers")
             setupObserverView()
-            if newValue.canDrag == nil {
-                draggingGestureRecognizer?.removeFromView()
-                draggingGestureRecognizer = nil
-            } else if draggingGestureRecognizer == nil {
-                draggingGestureRecognizer = .init()
-                addGestureRecognizer(draggingGestureRecognizer!)
+            if !newValue.canDrag {
+                dragGestureRecognizer?.removeFromView()
+                dragGestureRecognizer = nil
+            } else if dragGestureRecognizer == nil {
+                dragGestureRecognizer = .init()
+                addGestureRecognizer(dragGestureRecognizer!)
             }
         }
     }
@@ -30,29 +30,30 @@ extension NSView {
     /// The handlers for dragging content outside the view.
     public struct DragHandlers {
         /**
-         The handler that determines whether the user can drag content outside the view.
+         The handler that provides the dragging items for a possible drag.
          
-         - Parameter location. The mouse location inside the view.
-         - Returns: The content that can be dragged outside the view, or `nil` if the view doesn't provide any draggable content.
-         
-         You can return an array with any values of:
-         
-         - [String](https://developer.apple.com/documentation/swift/String)
-         - [AttributedString](https://developer.apple.com/documentation/foundation/AttributedString) and [NSAttributedString](https://developer.apple.com/documentation/foundation/NSAttributedString)
-         - [URL](https://developer.apple.com/documentation/foundation/URL)
-         - [NSImage](https://developer.apple.com/documentation/appkit/NSImage)
-         - [NSColor](https://developer.apple.com/documentation/appkit/NSColor)
-         - [NSSound](https://developer.apple.com/documentation/appkit/NSSound)
-         - [NSFilePromiseProvider](https://developer.apple.com/documentation/appkit/NSFilePromiseProvider)
-         - [NSPasteboardItem](https://developer.apple.com/documentation/appkit/NSPasteboardItem)
+         You can either use this property or provide dragging content using ``draggingContent``.
          */
-        public var canDrag: ((_ mouseLocation: CGPoint) -> ([PasteboardWriting]?))?
-        /// An optional image used for dragging. If `nil`, a rendered image of the view is used.
-        public var dragImage: ((_ location: CGPoint, _ content: PasteboardWriting) -> ((image: NSImage?, imageFrame: CGRect?)))?
-        /// The handler that is called when the user did drag the content to a supported destination.
-        public var didDrag: ((_ dragSession: NSDraggingSession, _ dragOperation: NSDragOperation) -> ())?
+        public var draggingItems: ((_ viewLocation: CGPoint) -> ([NSDraggingItem]))?
         
-        public var dragUpdated: ((_ dragSession: NSDraggingSession) -> ())?
+        /**
+         The handler that provides the dragging content for a possible drag.
+         
+         You can either use this property or provide dragging items using ``draggingItems``.
+         */
+        public var draggingContent: ((_ viewLocation: CGPoint) -> ([any NSPasteboardWriting]))?
+        
+        /// The handler that gets called whenever a drag will begin.
+        public var dragWillBegin: ((_ session: NSDraggingSession) -> ())?
+        
+        /// The handler that gets called whenever a drag did move.
+        public var dragMoved: ((_ session: NSDraggingSession, _ screenLocation: CGPoint) -> ())?
+        
+        /// The handler that gets called whenever a drag did end.
+        public var dragEnded: ((_ session: NSDraggingSession, _ screenLocation: CGPoint, _ operation: NSDragOperation) -> ())?
+        
+        /// The handler that decides whether modifier keys are ignored for a drag.
+        public var ignoreModifierKeys: ((_ session: NSDraggingSession) -> (Bool))?
         
         /**
          The operation types allowed to be performent by drag destionations outside the application.
@@ -65,6 +66,8 @@ extension NSView {
          The visual format of multiple dragging items.
          
          The default value is `default`.
+         
+         You can update the property at the beginning of a drag, using the drag session provided by ``dragWillBegin``.
          */
         public var draggingFormation: NSDraggingFormation = .default
         
@@ -72,32 +75,31 @@ extension NSView {
          A Boolean value that determines whether the dragging image animates back to its starting point on a cancelled or failed drag.
          
          The default value is `true`.
+         
+         You can update the property at the beginning of a drag, using the drag session provided by ``dragWillBegin``.
          */
         public var animatesToStartingPositionsOnCancelOrFail: Bool = true
+        
+        var canDrag: Bool {
+            draggingItems != nil || draggingContent != nil
+        }
+        
+        func allDraggingItems(for location: CGPoint) -> [NSDraggingItem] {
+            (draggingItems?(location) ?? []) + (draggingContent?(location).map({ NSDraggingItem(pasteboardWriter: $0) }) ?? [])
+        }
     }
     
-    fileprivate var draggingGestureRecognizer: DraggingGestureRecognizer? {
-        get { getAssociatedValue("draggingGestureRecognizer") }
-        set { setAssociatedValue(newValue, key: "draggingGestureRecognizer") }
+    fileprivate var dragGestureRecognizer: DragGestureRecognizer? {
+        get { getAssociatedValue("dragGestureRecognizer") }
+        set { setAssociatedValue(newValue, key: "dragGestureRecognizer") }
     }
 }
 
-fileprivate class DraggingGestureRecognizer: NSGestureRecognizer, NSDraggingSource {
-    var mouseDownLocation: CGPoint = .zero
+fileprivate class DragGestureRecognizer: NSGestureRecognizer, NSDraggingSource {
     static let minimumDragDistance: CGFloat = 4.0
-    
-    var draggingItems: [DragItem] = []
-    var draggingSession: NSDraggingSession?
-    
-    struct DragItem {
-        let item: NSDraggingItem
-        let content: PasteboardWriting
-        var imageData: (image: NSImage?, imageFrame: CGRect?)?
-        init(_ content: PasteboardWriting) {
-            self.item = .init(content)
-            self.content = content
-        }
-    }
+    var didCheck = false
+    var mouseDownLocation: CGPoint = .zero
+    var draggingItems: [NSDraggingItem] = []
     
     init() {
         super.init(target: nil, action: nil)
@@ -124,30 +126,33 @@ fileprivate class DraggingGestureRecognizer: NSGestureRecognizer, NSDraggingSour
     
     override func mouseDragged(with event: NSEvent) {
         state = .began
-        setupDraggingSession(for: event)
-        state = .failed
-    }
-    
-    func setupDraggingSession(for event: NSEvent) {
-        guard let view = view, let canDrag = view.dragHandlers.canDrag else { return }
+        defer { state = .failed }
+        
+        guard let view = view, view.dragHandlers.canDrag else { return }
         let location = event.location(in: view)
         guard mouseDownLocation.distance(to: event.location(in: view)) >= Self.minimumDragDistance else { return }
-        guard let content = canDrag(location), !content.isEmpty else { return }
-        draggingItems = content.compactMap({ .init($0) })
-        if let handler = view.dragHandlers.dragImage {
-            draggingItems.editEach({
-                let dragImageData = handler(location, $0.content)
-                $0.imageData = dragImageData
-                $0.item.setDraggingFrame(dragImageData.imageFrame ?? CGRect(.zero, dragImageData.image?.size ?? view.bounds.size), contents: dragImageData.image)
-            })
-        } else {
-            draggingItems.forEach({ $0.item.setDraggingFrame(view.bounds, contents: nil) })
-            draggingItems.first?.item.setDraggingFrame(view.bounds, contents: view.renderedImage)
+        didCheck = true
+        draggingItems = view.dragHandlers.allDraggingItems(for: location)
+        guard !draggingItems.isEmpty else { return }
+        for draggingItem in draggingItems {
+            if draggingItem.imageComponentsProvider == nil, draggingItem.view == nil {
+                draggingItem.view = view
+            } else if draggingItem.draggingFrame == .zero {
+                draggingItem.draggingFrame =  view.bounds
+            }
         }
-        let session = view.beginDraggingSession(with: draggingItems.compactMap({$0.item}), event: event, source: self)
+        let session = view.beginDraggingSession(with: draggingItems, event: event, source: self)
         session.draggingFormation = view.dragHandlers.draggingFormation
         session.animatesToStartingPositionsOnCancelOrFail = view.dragHandlers.animatesToStartingPositionsOnCancelOrFail
-        draggingSession = session
+    }
+    
+    override func responds(to selector: Selector!) -> Bool {
+        guard selector == #selector(NSDraggingSource.ignoreModifierKeys(for:)) else { return true }
+        return view?.dragHandlers.ignoreModifierKeys != nil
+    }
+    
+    func ignoreModifierKeys(for session: NSDraggingSession) -> Bool {
+        view?.dragHandlers.ignoreModifierKeys?(session) ?? false
     }
     
     func draggingSession(_ session: NSDraggingSession, sourceOperationMaskFor context: NSDraggingContext) -> NSDragOperation {
@@ -155,36 +160,25 @@ fileprivate class DraggingGestureRecognizer: NSGestureRecognizer, NSDraggingSour
     }
 
     func draggingSession(_ session: NSDraggingSession, willBeginAt screenPoint: NSPoint) {
-        updateDraggingItems(for: session, screenPoint: screenPoint)
+        guard !draggingItems.isEmpty else { return }
+        view?.dragHandlers.dragWillBegin?(session)
     }
     
     func draggingSession(_ session: NSDraggingSession, movedTo screenPoint: NSPoint) {
         guard !draggingItems.isEmpty else { return }
-        guard let dragUpdated = view?.dragHandlers.dragUpdated else { return }
-        draggingSession = draggingSession ?? session
-        dragUpdated(draggingSession!)
-        updateDraggingItems(for: session, screenPoint: screenPoint)
+        guard let dragUpdated = view?.dragHandlers.dragMoved else { return }
+        dragUpdated(session, screenPoint)
     }
 
     func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
-        guard !draggingItems.isEmpty, let didDrag = view?.dragHandlers.didDrag else { return }
-        didDrag(draggingSession ?? session, operation)
+        didCheck = false
+        guard !draggingItems.isEmpty else { return }
+        view?.dragHandlers.dragEnded?(session, screenPoint, operation)
         draggingItems = []
-        draggingSession = nil
-    }
-    
-    func updateDraggingItems(for session: NSDraggingSession, screenPoint: NSPoint) {
-        guard let handler = view?.dragHandlers.dragImage else { return }
-        draggingItems.editEach({
-            let dragImageData = handler(screenPoint, $0.content)
-            if $0.imageData?.image != dragImageData.image || $0.imageData?.imageFrame != dragImageData.imageFrame {
-                $0.imageData = dragImageData
-                $0.item.setDraggingFrame(dragImageData.imageFrame ?? CGRect(.zero, dragImageData.image?.size ?? view?.bounds.size ?? .zero), contents: dragImageData.image)
-            }
-        })
     }
 }
 
+/*
 func renderImage(for view: NSView, visiblePath: NSBezierPath? = nil, shadowPath: NSBezierPath? = nil, backgroundColor: NSColor = .clear) -> NSImage {
     
     let size = view.bounds.size
@@ -259,5 +253,6 @@ func renderImage(for image: NSImage, visiblePath: NSBezierPath? = nil, shadowPat
 func renderImage(for cgImage: CGImage, visiblePath: NSBezierPath? = nil, shadowPath: NSBezierPath? = nil, backgroundColor: NSColor = .clear) -> NSImage {
     renderImage(for: cgImage.nsImage, visiblePath: visiblePath, shadowPath: shadowPath, backgroundColor: backgroundColor)
 }
+*/
 
 #endif

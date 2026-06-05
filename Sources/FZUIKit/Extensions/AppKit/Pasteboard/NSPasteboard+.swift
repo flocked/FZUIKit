@@ -11,6 +11,26 @@ import UniformTypeIdentifiers
 import FZSwiftUtils
 
 extension NSPasteboard {
+    /// The pasteboard that stores data to move as the result of a drag operation.
+    public static var drag: NSPasteboard {
+        NSPasteboard(name: .drag)
+    }
+    
+    /// The pasteboard that holds information about the current state of the active application’s find panel.
+    public static var find: NSPasteboard {
+        NSPasteboard(name: .find)
+    }
+    
+    /// The pasteboard that holds font and character information and supports Copy Font and Paste Font commands that the text editor may implement.
+    public static var font: NSPasteboard {
+        NSPasteboard(name: .font)
+    }
+    
+    /// The pasteboard you use to perform ordinary cut, copy, and paste operations.
+    public static var ruler: NSPasteboard {
+        NSPasteboard(name: .ruler)
+    }
+    
     /// The uniform type identifiers of the data types currently available on the pasteboard.
     public var contentTypes: [UTType] { types?.compactMap({ $0.uttype }) ?? [] }
     

@@ -11,6 +11,36 @@ import FZSwiftUtils
 import UniformTypeIdentifiers
 // Can I write a NSFilePromiseProvider or NSFilePromiseReceiver to NSPasteboardItem?
 extension NSPasteboardItem {
+    /// Creates a pasteboard item with the specified content.
+    public convenience init(content: PasteboardWriting, for pasteboard: NSPasteboard = .general) {
+        self.init(content: [content], for: pasteboard)
+    }
+    
+    /// Creates a pasteboard item with the specified content.
+    public convenience init(content: NSPasteboardWriting, for pasteboard: NSPasteboard = .general) {
+        self.init(content: [content], for: pasteboard)
+    }
+    
+    /// Creates a pasteboard item with the specified content.
+    public convenience init(content: [any PasteboardWriting], for pasteboard: NSPasteboard = .general) {
+        self.init(content: content.map({$0.pasteboardWriting}), for: pasteboard)
+    }
+    
+    /// Creates a pasteboard item with the specified content.
+    public convenience init(content: [any NSPasteboardWriting], for pasteboard: NSPasteboard = .general) {
+        self.init()
+        var providedTypes: Set<NSPasteboard.PasteboardType> = []
+        for value in content {
+            for type in value.writableTypes(for: pasteboard) {
+                guard !providedTypes.contains(type), let propertyList = value.pasteboardPropertyList(forType: type) else {
+                    continue
+                }
+                providedTypes.insert(type)
+                setPropertyList(propertyList, forType: type)
+            }
+        }
+    }
+    
     /// An array of uniform type identifiers of the data types that the receiver supports.
     public var contentTypes: [UTType] { types.compactMap({ $0.uttype }) }
     

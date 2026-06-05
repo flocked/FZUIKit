@@ -97,43 +97,4 @@ extension NSDraggingItem {
     }
 }
 
-extension NSPasteboardItem {
-    /// Creates a pasteboard item with the specified content.
-    public convenience init(content: PasteboardWriting) {
-        self.init(content: [content])
-    }
-    
-    /// Creates a pasteboard item with the specified content.
-    public convenience init(content: [any PasteboardWriting]) {
-        self.init()
-        content.forEach({ setValue($0) })
-    }
-    
-    fileprivate func setValue(_ value: PasteboardWriting) {
-        if let value = value as? String {
-            string = value
-        }
-        if let value = value as? NSImage {
-            tiffImage = value
-        } else if let value = value as? URL {
-            if value.isFileURL {
-                fileURL = value
-            } else {
-                url = value
-            }
-        } else if let value = value as? NSColor {
-            color = value
-        } else if let value = value as? NSSound {
-            sound = value
-        } else if let value = value as? NSAttributedString {
-            attributedString = value
-        } else {
-            for type in value.pasteboardWriting.writableTypes(for: .general) {
-                guard let propertyList = value.pasteboardWriting.pasteboardPropertyList(forType: type) else { continue }
-                setPropertyList(propertyList, forType: type)
-            }
-        }
-    }
-}
-
 #endif

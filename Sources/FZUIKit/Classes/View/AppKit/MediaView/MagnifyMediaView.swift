@@ -741,9 +741,9 @@ open class MagnifyMediaView: NSView {
         scrollView.documentView = mediaView
         addSubview(scrollView)
             
-        dragHandlers.canDrag = { _ in
-            guard self.isDraggable, let url = self.mediaURL else { return nil }
-            return [url]
+        dragHandlers.draggingItems = { _ in
+            guard self.isDraggable, let url = self.mediaURL else { return [] }
+            return [NSDraggingItem(url)]
         }
     }
         
