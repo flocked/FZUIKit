@@ -17,6 +17,63 @@ extension NSPasteboardItem {
         contentTypes.filter({ $0.conforms(to: contentType) })
     }
     
+    /**
+     Sets the value for a specified type as a data.
+     
+     - Parameters:
+        - data: The data containing the value for the representation specified by type.
+        - type: A uniform type identifier.
+     - Returns: `true` if the value was set successfully, otherwise `false`.
+     */
+    @_disfavoredOverload
+    public func setData(_ data: Data, forType type: UTType) -> Bool {
+        setData(data, forType: NSPasteboard.PasteboardType(type.identifier))
+    }
+    
+    /**
+     Sets the value for a specified type as a property list.
+     
+     - Parameters:
+        - propertyList: A property list object containing the value for the representation specified by type.
+        - type: A uniform type identifier.
+     - Returns: `true` if the value was set successfully, otherwise `false`.
+     */
+    @_disfavoredOverload
+    public func setPropertyList(_ propertyList: Any, forType type: UTType) -> Bool {
+        setPropertyList(propertyList, forType: NSPasteboard.PasteboardType(type.identifier))
+    }
+    
+    /**
+     Sets the value for a specified type as a string.
+     
+     - Parameters:
+        - string: A string for the representation specified by type.
+        - type: A uniform type identifier.
+     - Returns: `true` if the value was set successfully, otherwise `false`.
+     */
+    @_disfavoredOverload
+    public func setString(_ string: String, forType type: UTType) -> Bool {
+        setString(string, forType: NSPasteboard.PasteboardType(type.identifier))
+    }
+    
+    /// Returns a concatenation of the strings for the specified type from all the items in the receiver that contain the type.
+    @_disfavoredOverload
+    public func string(forType type: UTType) -> String? {
+        string(forType: NSPasteboard.PasteboardType(type.identifier))
+    }
+    
+    /// Returns the data for the specified type from the first item in the receiver that contains the type.
+    @_disfavoredOverload
+    public func data(forType type: UTType) -> Data? {
+        data(forType: NSPasteboard.PasteboardType(type.identifier))
+    }
+    
+    /// Returns the property list for the specified type from the first item in the receiver that contains the type.
+    @_disfavoredOverload
+    public func propertyList(forType type: UTType) -> Any? {
+        propertyList(forType: NSPasteboard.PasteboardType(type.identifier))
+    }
+    
     /// The string of the pasteboard item.
     public var string: String? {
         get { string(forType: .string) }

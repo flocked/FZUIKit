@@ -30,12 +30,51 @@ extension NSPasteboard {
     }
     
     /**
+     Sets the data as the representation for the specified type for the first item on the receiver.
+     
+     - Parameters:
+        - data: The data containing the value for the representation specified by type.
+        - type: A uniform type identifier.
+     - Returns: `true` if the data was written successfully, otherwise `false`.
+     */
+    @_disfavoredOverload
+    public func setData(_ data: Data, forType type: UTType) -> Bool {
+        setData(data, forType: PasteboardType(type.identifier))
+    }
+    
+    /**
+     Sets the given property list as the representation for the specified type for the first item on the receiver.
+     
+     - Parameters:
+        - propertyList: A property list object containing the value for the representation specified by type.
+        - type: A uniform type identifier.
+     - Returns: `true` if the data was written successfully, otherwise `false`.
+     */
+    @_disfavoredOverload
+    public func setPropertyList(_ propertyList: Any, forType type: UTType) -> Bool {
+        setPropertyList(propertyList, forType: PasteboardType(type.identifier))
+    }
+    
+    /**
+     Sets the given string as the representation for the specified type for the first item on the receiver.
+     
+     - Parameters:
+        - string: A string for the representation specified by type.
+        - type: A uniform type identifier.
+     - Returns: `true` if the data was written successfully, otherwise `false`.
+     */
+    @_disfavoredOverload
+    public func setString(_ string: String, forType type: UTType) -> Bool {
+        setString(string, forType: PasteboardType(type.identifier))
+    }
+    
+    /**
      The strings of the pasteboard.
      
      Setting this property replaces all current items in the pasteboard with the new items.
      */
     public var strings: [String] {
-        get { readObjects(for: String.self) }
+        get { read(String.self) }
         set { write(newValue) }
     }
     
@@ -45,7 +84,7 @@ extension NSPasteboard {
      Setting this property replaces all current items in the pasteboard with the new items.
      */
     public var attributedStrings: [NSAttributedString] {
-        get { readObjects(for: NSAttributedString.self) }
+        get { read(NSAttributedString.self) }
         set { write(newValue) }
     }
     
@@ -55,7 +94,7 @@ extension NSPasteboard {
      Setting this property replaces all current items in the pasteboard with the new items.
      */
     public var images: [NSImage] {
-        get { readObjects(for: NSImage.self) }
+        get { read(NSImage.self) }
         set { write(newValue) }
     }
     
@@ -65,7 +104,7 @@ extension NSPasteboard {
      Setting this property replaces all current items in the pasteboard with the new items.
      */
     public var fileURLs: [URL] {
-        get { readObjects(for: URL.self).filter({ $0.isFileURL }) }
+        get { read(URL.self).filter({ $0.isFileURL }) }
         set { write(newValue) }
     }
     
@@ -75,7 +114,7 @@ extension NSPasteboard {
      Setting this property replaces all current items in the pasteboard with the new items.
      */
     public var urls: [URL] {
-        get { readObjects(for: URL.self) }
+        get { read(URL.self) }
         set { write(newValue) }
     }
     
@@ -85,7 +124,7 @@ extension NSPasteboard {
      Setting this property replaces all current items in the pasteboard with the new items.
      */
     public var colors: [NSColor] {
-        get { readObjects(for: NSColor.self) }
+        get { read(NSColor.self) }
         set { write(newValue) }
     }
     
@@ -95,32 +134,54 @@ extension NSPasteboard {
      Setting this property replaces all current items in the pasteboard with the new items.
      */
     public var sounds: [NSSound] {
-        get { readObjects(for: NSSound.self) }
+        get { read(NSSound.self) }
         set { write(newValue) }
     }
     
     /// The file promise receivers of the pasteboard.
     public var filePromiseReceivers: [NSFilePromiseReceiver] {
-        get { readObjects(for: NSFilePromiseReceiver.self) }
+        get { read(NSFilePromiseReceiver.self) }
     }
     
     /// Returns the objects on the pasteboard for the specified `NSPasteboardReading` type.
-    public func readObjects<T>(for type: T.Type) -> [T] where T: NSPasteboardReading {
+    public func read<T>(_ type: T.Type) -> [T] where T: NSPasteboardReading {
         readObjects(forClasses: [type]) as? [T] ?? []
     }
     
     /// Returns the objects on the pasteboard for the specified `NSPasteboardReading` type.
-    public func readObjects<T>(for type: T.Type) -> [T] where T : _ObjectiveCBridgeable, T._ObjectiveCType : NSPasteboardReading {
+    public func read<T>(_ type: T.Type) -> [T] where T : _ObjectiveCBridgeable, T._ObjectiveCType : NSPasteboardReading {
         readObjects(forClasses: [T._ObjectiveCType.self]) as? [T] ?? []
     }
     
+    /// Returns the objects on the pasteboard for the specified `NSPasteboardReading` types.
+    public func read(_ types: [(any NSPasteboardReading).Type], options: [NSPasteboard.ReadingOptionKey : Any]? = nil) -> [Any] {
+        readObjects(forClasses: types, options: options) ?? []
+    }
+    
+    /// Returns the objects on the pasteboard for the specified `PasteboardReading` types.
+    @_disfavoredOverload
+    public func read(_ types: [(any PasteboardReading).Type], options: [NSPasteboard.ReadingOptionKey : Any]? = nil) -> [Any] {
+        readObjects(forClasses: types.map({$0.PasteboardReadingType}), options: options) ?? []
+    }
+    
+    /// Returns the objects on the pasteboard for the specified `NSPasteboardReading` types.
+    public func canRead(_ types: [(any NSPasteboardReading).Type], options: [NSPasteboard.ReadingOptionKey : Any]? = nil) -> Bool {
+        canReadObject(forClasses: types, options: options)
+    }
+    
+    /// Returns the objects on the pasteboard for the specified `PasteboardReading` types.
+    @_disfavoredOverload
+    public func canRead(_ types: [(any PasteboardReading).Type], options: [NSPasteboard.ReadingOptionKey : Any]? = nil) -> Bool {
+        canReadObject(forClasses: types.map({$0.PasteboardReadingType}), options: options)
+    }
+    
     /// Returns a Boolean value that indicates whether the receiver contains any items that can be represented as an instance of the specified class.
-    public func canReadObject<T>(for type: T.Type) -> Bool where T: NSPasteboardReading {
+    public func canRead<T>(_ type: T.Type) -> Bool where T: NSPasteboardReading {
         canReadObject(forClasses: [type])
     }
     
     /// Returns a Boolean value that indicates whether the receiver contains any items that can be represented as an instance of the specified type.
-    public func canReadObject<T>(for type: T.Type) -> Bool where T : _ObjectiveCBridgeable, T._ObjectiveCType : NSPasteboardReading {
+    public func canRead<T>(_ type: T.Type) -> Bool where T : _ObjectiveCBridgeable, T._ObjectiveCType : NSPasteboardReading {
         canReadObject(forClasses: [T._ObjectiveCType.self])
     }
     
@@ -265,12 +326,6 @@ extension NSPasteboard.PasteboardType {
         self.init(type.identifier)
     }
 }
-extension NSPasteboard {
-    func readObjects(for types: [PasteboardReading.Type]) -> [PasteboardReading] {
-        let values = readObjects(forClasses: types.map({$0.PasteboardReadingType})) ?? []
-        return values.compactMap({$0 as? PasteboardReading})
-    }
-}
 
 fileprivate extension NSPasteboardItem {
     func copied() -> NSPasteboardItem {
@@ -287,37 +342,4 @@ fileprivate extension NSPasteboardItem {
         return copy
     }
 }
-/*
- extension NSPasteboard {
-     func readObjects(for classes: [NSPasteboardReading.Type]) -> [NSPasteboardReading] {
-         let classReadableTypes = classes.map { ($0, $0.readableTypes(for: self)) }
-         return pasteboardItems?.compactMap { item in
-             for (type, readableTypes) in classReadableTypes {
-                    for readableType in readableTypes {
-                     let options = type.readingOptions?(forType: readableType, pasteboard: self) ?? .asData
-                      if let data = item.data(forType: readableType, options: options), let object = type.init(pasteboardPropertyList: data, ofType: readableType) {
-                         return object
-                      } else if options.contains(.asKeyedArchive), let data = item.data(forType: readableType), let object = try? NSKeyedUnarchiver.unarchive(data) as? NSPasteboardReading {
-                            return object
-                     }
-                 }
-             }
-             return nil
-         } ?? []
-     }
- }
-
- extension NSPasteboardItem {
-     func data(forType type: NSPasteboard.PasteboardType, options: NSPasteboard.ReadingOptions) -> Any? {
-         if options.contains(.asString) {
-             return string(forType: type)
-         } else if options.contains(.asPropertyList) {
-             return propertyList(forType: type)
-         } else if options.contains(.asData) {
-             return data(forType: type)
-         }
-         return nil
-     }
- }
- */
 #endif
