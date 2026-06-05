@@ -102,44 +102,6 @@ public struct CGWindowInfo: Hashable, Identifiable {
         self.init(dict)
     }
     
-    /**
-     Creates a window information for the specified window.
-     
-     - Parameter window: The window whose system-level information to retrieve.
-     - Returns: A `CGWindowInfo` instance describing the specified window, or `nil` if the window is no longer available.
-     */
-    public init?(window: NSWindow) {
-        self.init(windowNumber: CGWindowID(window.windowNumber))
-    }
-    
-    /**
-     Creates a window information for the topmost window at the specified screen location.
-
-     The hit test uses the global Window Server ordering, so windows from other apps are considered.
-     
-     - Parameters:
-        - screenLocation: The screen location to test.
-        - windowNumber: The window number below which hit testing should begin, or `nil` to start at the topmost window.
-     */
-    public init?(screenLocation: CGPoint, below windowNumber: Int? = nil) {
-        let windowNumber = NSWindow.windowNumber(at: screenLocation, belowWindowWithWindowNumber: windowNumber ?? 0)
-        guard windowNumber != 0 else { return nil }
-        self.init(windowNumber: CGWindowID(windowNumber))
-    }
-    
-    /**
-     Creates a window information for the topmost window at the specified screen location below the given window.
-
-     The hit test uses the global Window Server ordering, so windows from other apps are considered.
-
-     - Parameters:
-        - screenLocation: The screen location to test.
-        - window: The window below which hit testing should begin.
-     */
-    public init?(screenLocation: CGPoint, below window: NSWindow) {
-        self.init(screenLocation: screenLocation, below: window.windowNumber)
-    }
-    
     private init?(_ dict: [CFString: Any]) {
         guard let windowNumber: CGWindowID = dict[typed: kCGWindowNumber],
               let backingStore = CGWindowBackingType(rawValue: dict[typed: kCGWindowStoreType] ?? 111),
@@ -192,20 +154,8 @@ extension CGWindowInfo {
      - Parameter application: The running application whose windows should be returned.
      - Returns: An array of window information objects belonging to the application.
      */
-    public static func forApplication(_ application: NSRunningApplication) -> [CGWindowInfo] {
-        forProcess(application.processIdentifier)
-    }
-    
-    /**
-     Returns information for all windows belonging to the specified application.
-
-     - Parameter application: The running application whose windows should be returned.
-     - Returns: An array of window information objects belonging to the application.
-     */
-    @_disfavoredOverload
-    public static func forApplication(_ application: NSRunningApplication?) -> [CGWindowInfo] {
-        guard let application = application else { return [] }
-        return forApplication(application)
+    public static func windows(of application: NSRunningApplication) -> [CGWindowInfo] {
+        windows(ofProcess: application.processIdentifier)
     }
     
     /**
@@ -214,8 +164,9 @@ extension CGWindowInfo {
      - Parameter name: The name of a running application whose windows should be returned.
      - Returns: An array of window information objects belonging to the application with the specified name.
      */
-    public static func forApplication(named name: String) -> [CGWindowInfo] {
-        NSRunningApplication.runningApplications(named: name).flatMap(forApplication)
+    public static func windows(ofApplicationNamed name: String) -> [CGWindowInfo] {
+        let pids = Set(NSRunningApplication.runningApplications(named: name).map({$0.processIdentifier}))
+        return all().filter({ pids.contains($0.ownerPID) })
     }
     
     /**
@@ -224,10 +175,8 @@ extension CGWindowInfo {
      - Parameter pid: The process identifier.
      - Returns: An array of window information objects owned by the specified process.
      */
-    public static func forProcess(_ pid: pid_t) -> [CGWindowInfo] {
-        (CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID) as? [[CFString: Any]] ?? [])
-            .filter { pid == $0[typed: kCGWindowOwnerPID] }
-            .compactMap(CGWindowInfo.init)
+    public static func windows(ofProcess pid: pid_t) -> [CGWindowInfo] {
+        (CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID) as? [[CFString: Any]] ?? []).filter { pid == $0[typed: kCGWindowOwnerPID] }.compactMap(CGWindowInfo.init)
     }
     
     /**
@@ -236,8 +185,33 @@ extension CGWindowInfo {
      - Parameter identifier: The bundle identifier.
      - Returns: An array of window information objects belonging to matching applications.
      */
-    public static func forBundleIdentifier(_ identifier: String) -> [CGWindowInfo] {
-        NSRunningApplication.runningApplications(withBundleIdentifier: identifier).flatMap(forApplication)
+    public static func windows(withBundleIdentifier identifier: String) -> [CGWindowInfo] {
+        let pids = Set(NSRunningApplication.runningApplications(withBundleIdentifier: identifier).map({$0.processIdentifier}))
+        return all().filter({ pids.contains($0.ownerPID) })
+    }
+    
+    /**
+     Returns the frontmost window at the specified screen location.
+          
+     - Parameters:
+        - screenLocation: The screen location to test.
+        - windowNumber: The window number below which hit testing should begin, or `nil` to start at the topmost window.
+     */
+    public static func window(at screenLocation: CGPoint, below windowNumber: CGWindowID? = nil) -> CGWindowInfo? {
+        let windowNumber = NSWindow.windowNumber(at: screenLocation, belowWindowWithWindowNumber: Int(windowNumber ?? 0))
+        guard windowNumber != 0 else { return nil }
+        return CGWindowInfo(windowNumber: CGWindowID(windowNumber))
+    }
+    
+    /**
+     Returns the frontmost window at the specified screen location below the given window.
+
+     - Parameters:
+        - screenLocation: The screen location to test.
+        - window: The window below which the returned window should be.
+     */
+    public static func window(at screenLocation: CGPoint, below window: NSWindow) -> CGWindowInfo? {
+        self.window(at: screenLocation, below: CGWindowID(window.windowNumber))
     }
     
     // MARK: - On-Screen Windows
@@ -357,17 +331,10 @@ extension CGWindowInfo: CustomStringConvertible, CustomDebugStringConvertible {
     }
 }
 
-extension NSWindow {
-    /// Returns system-level information about the window.
-    public var info: CGWindowInfo? {
-        CGWindowInfo(window: self)
-    }
-}
-
 extension NSRunningApplication {
     /// Returns information for all windows belonging to this application.
     public var windows: [CGWindowInfo] {
-        CGWindowInfo.forApplication(self)
+        CGWindowInfo.windows(of: self)
     }
 }
 
