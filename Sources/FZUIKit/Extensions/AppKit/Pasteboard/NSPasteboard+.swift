@@ -11,6 +11,14 @@ import UniformTypeIdentifiers
 import FZSwiftUtils
 
 extension NSPasteboard {
+    /// The uniform type identifiers of the data types currently available on the pasteboard.
+    public var contentTypes: [UTType] { types?.compactMap({ $0.uttype }) ?? [] }
+    
+    /// Returns the content types currently available on the pasteboard that conform to the specified type.
+    public func contentTypes(conformingTo contentType: UTType) -> [UTType] {
+        contentTypes.filter({ $0.conforms(to: contentType) })
+    }
+    
     /// Returns a concatenation of the strings for the specified type from all the items in the receiver that contain the type.
     @_disfavoredOverload
     public func string(forType type: UTType) -> String? {
