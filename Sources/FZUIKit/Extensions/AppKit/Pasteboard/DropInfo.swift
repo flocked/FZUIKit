@@ -14,25 +14,41 @@ public class DropInfo: NSObject {
     let draggingInfo: NSDraggingInfo
     weak var view: NSView?
     
+    /// The destination window for the dragging operation.
+    public var draggingDestinationView: NSView? {
+        view
+    }
+    
     /// The current location of the mouse pointer inside the destination view.
-    public var draggingLocation: CGPoint { view != nil ? draggingInfo.location(in: view!) : draggingInfo.draggingLocation }
+    public var draggingLocation: CGPoint {
+        view.map({ draggingInfo.location(in: $0) }) ?? draggingInfo.draggingLocation
+    }
+    
     /**
      The source, or owner, of the dragged data.
      
-     This method returns `nil` if the source is not in the same application as the destination.
+     This property returns `nil` if the source is not in the same application as the destination.
      */
-    public var draggingSource: NSDraggingSource? { draggingInfo.draggingSource as? NSDraggingSource }
+    public var draggingSource: NSDraggingSource? {
+        draggingInfo.draggingSource as? NSDraggingSource
+    }
+    
     /**
      Information about the dragging operation and the data it contains.
      
-     The dragging source (`NSDraggingSource`) declares the dragging operation mask through `draggingSession(_:sourceOperationMaskFor:)`.
+     The ``draggingSource`` declares the dragging operation mask through [draggingSession(_:sourceOperationMaskFor:)](https://developer.apple.com/documentation/appkit/nsdraggingsource/draggingsession(_:sourceoperationmaskfor:)).
      
-     Returns the dragging operations that the dragging source (`NSDraggingSource`)  permits.
+     If the source doesn’t permit dragging operations, the value of the dragging source operation mask is `[]`.
      
      If the user holds down a modifier key during the dragging session and the dragging source allows modifier keys to affect the drag operation, the system combines the dragging source operation mask with the value that corresponds to the modifier key:
-     - option: `copy`
-     - command: `move`
-     - option and command: `link`
+
+     | Modifier Key | Dragging Operation |
+     | ------------ | ------------------ |
+     | Option | [copy](https://developer.apple.com/documentation/appkit/nsdragoperation/copy) |
+     | Command | [move](https://developer.apple.com/documentation/appkit/nsdragoperation/move) |
+     | Option and Command | [link](https://developer.apple.com/documentation/appkit/nsdragoperation/link) |
+     
+     You control whether the modifier keys can affect the drag operation using the dragging source’s [ignoreModifierKeys(for:)](https://developer.apple.com/documentation/appkit/nsdraggingsource/ignoremodifierkeys(for:)) method.
      */
     public var draggingSourceOperationMask: NSDragOperation { draggingInfo.draggingSourceOperationMask }
     
@@ -45,15 +61,85 @@ public class DropInfo: NSObject {
     /**
      The number of valid items for the drop information.
      
-     During `draggingEntered` or `draggingUpdated`, you are responsible for returning the drag operation. In some cases, you may accept some, but not all items on the dragging pasteboard. (For example, your application may only accept image files.)
+     During [draggingEntered(_:)](https://developer.apple.com/documentation/appkit/nsdraggingdestination/draggingentered(_:)) or [draggingUpdated(_:)](https://developer.apple.com/documentation/appkit/nsdraggingdestination/draggingUpdated(_:)), you are responsible for returning the drag operation. In some cases, you may accept some, but not all items on the dragging pasteboard. (For example, your application may only accept image files.)
      
      If you only accept some of the items, set this property to the number of items accepted so the drag manager can update the drag count badge.
      
-     When `updateDraggingItemsForDrag(_:)` is called, you should set the image of non-valid dragging items to `nil`. If none of the drag items are valid then you should not updateItems:, simply return none from your implementation of draggingEntered: and, or `draggingUpdated` and do not modify any drag item properties.
+     When [updateDraggingItemsForDrag(_:)](https://developer.apple.com/documentation/appkit/nsdraggingdestination/updatedraggingitemsfordrag(_:)) is called, you should set the image of non-valid dragging items to `nil`. If none of the drag items are valid then you should not updateItems:, simply return none from your implementation of `draggingEntered(_:)` and, or `draggingUpdated(_:)` and do not modify any drag item properties.
      */
     public var numberOfValidItemsForDrop: Int {
         get { draggingInfo.numberOfValidItemsForDrop }
         set { draggingInfo.numberOfValidItemsForDrop = newValue }
+    }
+    
+    /**
+     The current location of the dragged image’s origin, in the base coordinate system of the destination object’s window.
+     
+     The image moves along with the mouse pointer (the position of which is given by draggingLocation) but may be positioned at some offset.
+     */
+    public var draggedImageLocation: CGPoint {
+        draggingInfo.draggedImageLocation
+    }
+    
+    /**
+     Slides the image to a specified location.
+     
+     - Parameter screenPoint: A point that specifies a location in the screen coordinate system.
+     
+     This method can be used to adjust the location to which the dragged image will slide back if the drag is rejected.
+     
+     It should only be invoked from within the destination’s implementation of prepareForDragOperation:, and will only have effect if the destination rejects the drag.
+     
+     This method is invoked after the user has released the image but before it is removed from the screen.
+     */
+    @MainActor
+    public func slideDraggedImage(to screenPoint: CGPoint) {
+        draggingInfo.slideDraggedImage(to: screenPoint)
+    }
+    
+    /**
+     A Boolean value that indicates whether the dragging formation animates while the drag is over the destination.
+     
+     During the conclusion of an accepted drag, if this property is set to `true`, the drag manager will animate each dragging image to their `.none` locations. Otherwise, the drag images are removed without any animation.
+     
+     This property is inspected between [prepareForDragOperation(_:)](https://developer.apple.com/documentation/appkit/nsdraggingdestination/preparefordragoperation(_:)) and [performDragOperation(_:)](https://developer.apple.com/documentation/appkit/nsdraggingdestination/performdragoperation(_:)). You should enumerate through the dragging items during performDragOperation: to set the item’s [draggingFrame](https://developer.apple.com/documentation/appkit/nsdraggingitem/draggingframe) to the correct destinations.
+     */
+    public var animatesToDestination: Bool {
+        get { draggingInfo.animatesToDestination }
+        set { draggingInfo.animatesToDestination = newValue }
+    }
+    
+    /**
+     The formation of the dragging items while the drag is over the destination.
+     
+     Set this property to change the formation of the drag items. This is generally done during the [updateDraggingItemsForDrag(_:)](https://developer.apple.com/documentation/appkit/nsdraggingdestination/updatedraggingitemsfordrag(_:)) method or whenever you enumerate the dragging items.
+     
+     The default value is the current drag formation.
+     
+     - Note: Set this property before or after the [NSDraggingInfo](https://developer.apple.com/documentation/appkit/nsdragginginfo) or [NSDraggingSession](https://developer.apple.com/documentation/appkit/nsdraggingsession) class’s method [enumerateDraggingItems(options:for:classes:searchOptions:using:)](https://developer.apple.com/documentation/appkit/nsdragginginfo/enumeratedraggingitems(options:for:classes:searchoptions:using:)) not inside the enumeration Block.
+     */
+    public var draggingFormation: NSDraggingFormation {
+        get { draggingInfo.draggingFormation }
+        set { draggingInfo.draggingFormation = newValue }
+    }
+    
+    /**
+     A highlighting style for your app’s user interface to display during a spring-loading operation.
+     
+     During a spring-loaded operation, a destination may initiate animated highlighting to visually cue the user that spring-loading has been engaged or disengaged.
+     
+     Use this value to update your destination’s user interface accordingly to reflect the appropriate highlight style.
+     Important
+     
+     - Warning: Do not use highlighting as a means to determine whether spring-loading has actually been activated or deactivated. The [springLoadingActivated(_:draggingInfo:)](https://developer.apple.com/documentation/appkit/nsspringloadingdestination/springloadingactivated(_:dragginginfo:)) method alerts your app when spring-loading activation occurs.
+     */
+    public var springLoadingHighlight: NSSpringLoadingHighlight {
+        draggingInfo.springLoadingHighlight
+    }
+    
+    /// Resets a spring-loading operation to its initial state.
+    public func resetSpringLoading() {
+        draggingInfo.resetSpringLoading()
     }
     
     /**
@@ -186,59 +272,5 @@ extension NSDraggingInfo {
     }
 }
 
-/*
-public class DropItem<Content: PasteboardReading> {
-    /// The content of the drop item.
-    public var content: Content { draggingItem.item as! Content }
-    
-    /**
-     The frame of the dragging item.
-     
-     The dragging frame provides the spatial relationship between ``DropItem`` instances when you set the dragging formation to `NSDraggingFormation.none`.
-     */
-    public var draggingFrame: CGRect {
-        get { draggingItem.draggingFrame }
-        set { draggingItem.draggingFrame = newValue }
-    }
-    
-    /**
-     Sets the item’s dragging image.
-     
-     - Parameters:
-     - image: The dragging image.
-     - frame: The dragging image frame.
-     */
-    public func setDraggingImage(_ image: NSImage, frame: CGRect? = nil) {
-        draggingItem.setDraggingImage(image, frame: frame)
-    }
-    
-    /// Sets the item’s dragging image to display to preview the specified view.
-    public func setDraggingImage(view: NSView, frame: CGRect? = nil) {
-        draggingItem.setDraggingImage(view: view)
-    }
-    
-    /// The image components to use to create the drag image.
-    public var imageComponents: [NSDraggingImageComponent]? {
-        draggingItem.imageComponents
-    }
-    
-    /**
-     The handler that provides the image components to use to create the drag image.
-     
-     The dragging image is the composite of the array provided.
-     
-     You can set the block to `nil`, meaning that the drag item has no image.
-     */
-    public var imageComponentsProvider: (()->([NSDraggingImageComponent]))? {
-        get { draggingItem.imageComponentsProvider }
-        set { draggingItem.imageComponentsProvider = newValue }
-    }
-    
-    let draggingItem: NSDraggingItem
-    init(_ draggingItem: NSDraggingItem) {
-        self.draggingItem = draggingItem
-    }
-}
-*/
 
 #endif
