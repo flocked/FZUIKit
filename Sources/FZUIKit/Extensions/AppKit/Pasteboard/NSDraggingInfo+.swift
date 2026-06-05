@@ -28,9 +28,7 @@ public extension NSDraggingInfo {
      */
     @MainActor
     func setDraggedImage(_ image: NSImage, frame: CGRect? = nil) {
-        firstDraggingItem(clearOtherItems: true) {
-            $0.setDraggingImage(image, frame: frame)
-        }
+        firstDraggingItem(clearOtherItems: true) { $0.setDraggingImage(image, frame: frame) }
     }
     
     /// Sets the image that visually represents the pasteboard content during the drag operation using the specified view.
@@ -185,6 +183,17 @@ public extension NSDraggingInfo {
             handler(item, index, &shouldStop)
             stop.pointee = shouldStop ? true : false
         }
+    }
+    
+    /// The current location of the mouse pointer in the coordinate system of the destination's view.
+    var viewDraggingLocation: CGPoint? {
+        view.map({ location(in: $0) })
+    }
+    
+    
+    internal var view: NSView? {
+        get { (self as? NSObject)?.getAssociatedValue("destinationView") }
+        set { (self as? NSObject)?.setAssociatedValue(weak: newValue, key: "destinationView") }
     }
 }
 

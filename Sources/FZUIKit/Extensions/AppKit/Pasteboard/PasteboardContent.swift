@@ -10,6 +10,13 @@ import AppKit
 import FZSwiftUtils
 import UniformTypeIdentifiers
 
+extension NSDraggingInfo {
+    /// The content of the drag provided by the dragging pasteboard.
+    public var content: NSPasteboardContent {
+        FZSwiftUtils.getAssociatedValue("pasteboardContent", object: self, initialValue: .init(pasteboard: draggingPasteboard))
+    }
+}
+
 /// An object to read the content of a pasteboard.
 public class NSPasteboardContent {
     private let pasteboard: NSPasteboard
@@ -235,13 +242,6 @@ extension NSPasteboardContent {
         let canRead = pasteboard.canReadObject(forClasses: types, options: key.options)
         hasItems[key] = canRead
         return canRead
-    }
-}
-
-extension NSDraggingInfo {
-    /// The content of the pasteboard.
-    var pasteboardContent: NSPasteboardContent {
-        FZSwiftUtils.getAssociatedValue("pasteboardContent", object: self, initialValue: .init(pasteboard: draggingPasteboard))
     }
 }
 #endif
