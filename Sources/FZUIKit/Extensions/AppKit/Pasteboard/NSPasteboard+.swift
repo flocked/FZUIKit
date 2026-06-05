@@ -11,6 +11,24 @@ import UniformTypeIdentifiers
 import FZSwiftUtils
 
 extension NSPasteboard {
+    /// Returns a concatenation of the strings for the specified type from all the items in the receiver that contain the type.
+    @_disfavoredOverload
+    public func string(forType type: UTType) -> String? {
+        string(forType: PasteboardType(type.identifier))
+    }
+    
+    /// Returns the data for the specified type from the first item in the receiver that contains the type.
+    @_disfavoredOverload
+    public func data(forType type: UTType) -> Data? {
+        data(forType: PasteboardType(type.identifier))
+    }
+    
+    /// Returns the property list for the specified type from the first item in the receiver that contains the type.
+    @_disfavoredOverload
+    public func propertyList(forType type: UTType) -> Any? {
+        propertyList(forType: PasteboardType(type.identifier))
+    }
+    
     /**
      The strings of the pasteboard.
      
@@ -96,31 +114,71 @@ extension NSPasteboard {
         readObjects(forClasses: [T._ObjectiveCType.self]) as? [T] ?? []
     }
     
+    /// Returns a Boolean value that indicates whether the receiver contains any items that can be represented as an instance of the specified class.
+    public func canReadObject<T>(for type: T.Type) -> Bool where T: NSPasteboardReading {
+        canReadObject(forClasses: [type])
+    }
+    
+    /// Returns a Boolean value that indicates whether the receiver contains any items that can be represented as an instance of the specified type.
+    public func canReadObject<T>(for type: T.Type) -> Bool where T : _ObjectiveCBridgeable, T._ObjectiveCType : NSPasteboardReading {
+        canReadObject(forClasses: [T._ObjectiveCType.self])
+    }
+    
     /// Returns a Boolean value indicating whether the receiver contains any items that conform to the specified content types.
     func canReadItem(withDataConformingToTypes types: [UTType]) -> Bool {
-        canReadItem(withDataConformingToTypes: types.compactMap({ $0.identifier }))
+        canReadItem(withDataConformingToTypes: types.map({ $0.identifier }))
     }
     
-    func write<Value: NSPasteboardWriting>(_ values: [Value]) {
-        guard !values.isEmpty else { return }
+    /**
+     Writes the specified objects to the pasteboard.
+
+     If `preservingExisting` is `true`, existing pasteboard items whose types overlap with any of the writable types provided by `values` are removed, while all other items are preserved. The resulting pasteboard contents consist of the preserved items followed by the new objects.
+
+     For example, writing an `NSString` with `replace` set to `true` replaces existing string representations on the pasteboard while preserving unrelated content such as colors, images, or file URLs.
+
+     - Parameters:
+       - values: The objects to write to the pasteboard.
+       - preservingExisting: A Boolean value indicating whether existing items with matching pasteboard types should be replaced while preserving unrelated items.
+     - Returns: `true` if the array was successfully added, otherwise `false`.
+     */
+    @discardableResult
+    func write(_ values: [any NSPasteboardWriting], preservingExisting: Bool = true) -> Bool {
+        var keptItems: [NSPasteboardItem] = []
+        if preservingExisting {
+            let replacementTypes = Set(values.flatMap { $0.writableTypes(for: self) })
+            keptItems = pasteboardItems?.filter({ Set($0.types).isDisjoint(with: replacementTypes) }).map({$0.copied()}) ?? []
+        }
         clearContents()
-        writeObjects(values)
+        return writeObjects(keptItems + values)
     }
     
-    func readAll() -> [PasteboardReading] {
-        var content: [PasteboardReading] = (pasteboardItems ?? []) + strings + urls
-        content += images + colors + sounds
-        return content + filePromiseReceivers
+    /**
+     Writes the specified objects to the pasteboard.
+
+     If `preservingExisting` is `true`, existing pasteboard items whose types overlap with any of the writable types provided by `values` are removed, while all other items are preserved. The resulting pasteboard contents consist of the preserved items followed by the new objects.
+
+     For example, writing an `NSString` with `replace` set to `true` replaces existing string representations on the pasteboard while preserving unrelated content such as colors, images, or file URLs.
+
+     - Parameters:
+       - values: The objects to write to the pasteboard.
+       - preservingExisting: A Boolean value indicating whether existing items with matching pasteboard types should be replaced while preserving unrelated items.
+     - Returns: `true` if the array was successfully added, otherwise `false`.
+     */
+    @discardableResult
+    @_disfavoredOverload
+    func write(_ values: [any PasteboardWriting], preservingExisting: Bool = true) -> Bool {
+        write(values.map({$0.pasteboardWriting}), preservingExisting: preservingExisting)
     }
 
     /**
      Observes changes to the pasteboard.
      
+     To stop the observation of the property, either call ``PasteboardObservation/invalidate()`` on the returned object, or deinitialize it.
+     
      - Parameter handler: The handler that is called whenenver the pasteboard changes.
      - Returns: The ``PasteboardObservation`` object for the observation.
-     
      */
-    public func observeChanges(handler: @escaping ()->()) -> PasteboardObservation {
+    public func observeChanges(handler: @escaping (_ pasteboard: NSPasteboard)->()) -> PasteboardObservation {
         PasteboardObservation(for: self, handler: handler)
     }
     
@@ -130,19 +188,30 @@ extension NSPasteboard {
      To stop the observation of the property, either call ``invalidate()``, or deinitialize the object.
      */
     public class PasteboardObservation {
+        let id = UUID()
+        let handler: (NSPasteboard)->()
+        
         /// The pasteboard that is observered.
         public let pasteboard: NSPasteboard
-        let id = UUID()
-        let handler: ()->()
+        
+        /// A Boolean value indicating whether the observation is active.
+        public var isActive: Bool {
+            get { pasteboard.observations[id] != nil }
+            set {
+                guard newValue != isActive else { return }
+                pasteboard.observations[id] = newValue ? self : nil
+            }
+        }
         
         /// Invalidates the pasteboard observation.
         public func invalidate() {
-            pasteboard.observations.removeFirst(where: { $0.id == id })
+            isActive = false
         }
         
-        init(for pasteboard: NSPasteboard, handler: @escaping ()->()) {
+        init(for pasteboard: NSPasteboard, handler: @escaping (NSPasteboard)->()) {
             self.pasteboard = pasteboard
             self.handler = handler
+            pasteboard.observations[id] = self
         }
         
         deinit {
@@ -150,31 +219,30 @@ extension NSPasteboard {
         }
     }
     
-    var lastChangeCount: Int {
+    private var lastChangeCount: Int {
         get { getAssociatedValue("lastChangeCount") ?? -1 }
         set { setAssociatedValue(newValue, key: "lastChangeCount") }
     }
     
-    var observationTimer: Timer? {
+    private var observationTimer: Timer? {
         get { getAssociatedValue("observationTimer") }
         set { setAssociatedValue(newValue, key: "observationTimer") }
     }
     
-    var observations: [PasteboardObservation] {
-        get { getAssociatedValue("observations") ?? [] }
+    var observations: [UUID: PasteboardObservation] {
+        get { getAssociatedValue("observations") ?? [:] }
         set {
             setAssociatedValue(newValue, key: "observations")
             if newValue.isEmpty {
+                observationTimer?.invalidate()
                 observationTimer = nil
             } else if observationTimer == nil {
                 lastChangeCount = changeCount
-                observationTimer = .init(timeInterval: 0.5, repeats: true, block: { [weak self] timer in
-                    guard let self = self else { return }
-                    if self.lastChangeCount != self.changeCount {
-                        self.lastChangeCount = self.changeCount
-                        self.observations.forEach({ $0.handler() })
-                    }
-                })
+                observationTimer = .scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] timer in
+                    guard let self = self, self.lastChangeCount != self.changeCount else { return }
+                    self.lastChangeCount = self.changeCount
+                    self.observations.values.forEach({ $0.handler(self) })
+                }
             }
         }
     }
@@ -191,11 +259,32 @@ extension NSPasteboard.PasteboardType {
     public var uttype: UTType? {
         UTType(rawValue)
     }
+    
+    /// Creates a Pasteboard type with the speicifed `UTType`.
+    public init(_ type: UTType) {
+        self.init(type.identifier)
+    }
 }
 extension NSPasteboard {
     func readObjects(for types: [PasteboardReading.Type]) -> [PasteboardReading] {
         let values = readObjects(forClasses: types.map({$0.PasteboardReadingType})) ?? []
         return values.compactMap({$0 as? PasteboardReading})
+    }
+}
+
+fileprivate extension NSPasteboardItem {
+    func copied() -> NSPasteboardItem {
+        let copy = NSPasteboardItem()
+        for type in types {
+            if let data = data(forType: type) {
+                copy.setData(data, forType: type)
+            } else if let string = string(forType: type) {
+                copy.setString(string, forType: type)
+            } else if let propertyList = propertyList(forType: type) {
+                copy.setPropertyList(propertyList, forType: type)
+            }
+        }
+        return copy
     }
 }
 /*

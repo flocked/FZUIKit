@@ -43,19 +43,6 @@ extension AttributedString: PasteboardWriting {
     public var pasteboardWriting: NSPasteboardWriting { NSAttributedString(self) }
 }
 
-public extension NSPasteboard {
-    /**
-     Writes the specified `PasteboardWriting` objects to the pasteboard.
-     
-     - Parameter objects: An array of `PasteboardWriting` objects.
-     */
-    func write(_ objects: [any PasteboardWriting]) {
-        guard objects.isEmpty == false else { return }
-        clearContents()
-        writeObjects(objects.compactMap(\.pasteboardWriting))
-    }
-}
-
 public extension Collection where Element == (any PasteboardWriting) {
     /// The strings of the pasteboard content.
     var strings: [String] {
