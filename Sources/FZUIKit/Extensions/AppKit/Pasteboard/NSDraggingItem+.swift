@@ -82,7 +82,7 @@ fileprivate extension NSView {
                     var components = item.imageComponents ?? []
                     guard !components.contains(where: {$0.key == .view }) else { continue }
                     let frame = itemView.convert(itemView.bounds, to: view)
-                    components += .init(key: .view, image: itemView.renderedImage, frame: frame)
+                    components += .init(key: .view, image: itemView.renderedImage, frame: itemView.bounds)
                     item.draggingFrame = frame
                     item.imageComponentsProvider = { components }
                 }
