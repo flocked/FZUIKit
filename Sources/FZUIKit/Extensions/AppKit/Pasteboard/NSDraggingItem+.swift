@@ -78,7 +78,7 @@ fileprivate extension NSView {
         Swift.print("swizzleBeginDraggingSession")
         do {
             try NSView.hook(all: #selector(NSView.beginDraggingSession(with:event:source:)), closure: { original, view, selector, items, event, source in
-                Swift.print("begin", items.count, items.filter({$0.view != nil}))
+                Swift.print("begin", items.count, items.filter({$0.view != nil}).count)
                 for item in items {
                     guard let itemView = item.view else { continue }
                     var components = item.imageComponents ?? []
