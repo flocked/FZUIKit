@@ -195,10 +195,7 @@ public extension NSDraggingSession {
     
     @MainActor
     private func enumerateItems(options: NSDraggingItemEnumerationOptions = [], for view: NSView? = nil, classes: [AnyClass], fileURLsOnly: Bool = false, contentTypes: [UTType] = [], using handler: @escaping (_ draggingItem: NSDraggingItem, _ index: Int, _ shouldStop: inout Bool) -> Void) {
-        var searchOptions: [NSPasteboard.ReadingOptionKey : Any] = [:]
-        searchOptions[.urlReadingFileURLsOnly] = fileURLsOnly ? true : nil
-        searchOptions[.urlReadingContentsConformToTypes] = !contentTypes.isEmpty ? contentTypes : nil
-        enumerateDraggingItems(options: options, for: view, classes: classes.isEmpty ? [NSPasteboardItem.self] : classes, searchOptions: searchOptions) { item, index, stop in
+        enumerateDraggingItems(options: options, for: view, classes: classes.isEmpty ? [NSPasteboardItem.self] : classes, searchOptions: [.urlReadingFileURLsOnly: fileURLsOnly ? true : nil, .urlReadingContentsConformToTypes: !contentTypes.isEmpty ? contentTypes : nil].nonNil) { item, index, stop in
             var shouldStop = false
             handler(item, index, &shouldStop)
             stop.pointee = shouldStop ? true : false

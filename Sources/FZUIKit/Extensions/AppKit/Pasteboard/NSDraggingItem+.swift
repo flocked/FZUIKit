@@ -7,6 +7,7 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
 extension NSDraggingItem {
     /**
@@ -17,7 +18,18 @@ extension NSDraggingItem {
         - frame: The dragging image frame.
      */
     public func setDraggingImage(_ image: NSImage, frame: CGRect? = nil) {
-        setDraggingFrame(frame ?? CGRect(.zero, image.size), contents: image)
+        setDraggingFrame(frame ?? image.size.rect, contents: image)
+    }
+    
+    /**
+     Sets the item’s dragging image.
+     
+     - Parameters:
+        - image: The dragging image.
+        - frame: The dragging image frame.
+     */
+    public func setDraggingImage(_ image: CGImage, frame: CGRect? = nil) {
+        setDraggingFrame(frame ?? image.size.rect, contents: image)
     }
     
     /// Sets the item’s dragging image using a rendered snapshot of the specified view.

@@ -105,6 +105,9 @@ public class NSPasteboardContent {
         }
         let values = pasteboard.readObjects(forClasses: [type], options: key.options) as? [V] ?? []
         self.values[key] = values
+        if !values.isEmpty {
+            self.hasItems[key] = true
+        }
         return values
     }
     
@@ -124,8 +127,8 @@ public class NSPasteboardContent {
             return !options.isEmpty ? options : nil
         }
         
-        init(for cls: AnyClass, contentTypes: [String] = [], filesOnly: Bool = false) {
-            self.value = NSStringFromClass(cls)
+        init(for type: Any, contentTypes: [String] = [], filesOnly: Bool = false) {
+            self.value = String(describing: type)
             self.contentTypes = contentTypes
             self.filesOnly = filesOnly
         }
@@ -202,30 +205,34 @@ extension NSPasteboardContent {
     
     /// Returns a Boolean value indiciating whether the pasteboard can read objects of the specified type.
     public func canRead<T: NSPasteboardReading>(_ type: T.Type) -> Bool {
-        pasteboard.canRead(type)
+        hasValues(for: type)
     }
     
     /// Returns a Boolean value indiciating whether the pasteboard can read objects of the specified type.
     public func canRead<T>(_ type: T.Type) -> Bool where T : _ObjectiveCBridgeable, T._ObjectiveCType : NSPasteboardReading {
-        pasteboard.canRead(type)
+        hasValues(for: T._ObjectiveCType.self)
     }
     
     /// Returns a Boolean value indiciating whether the pasteboard can read objects of the specified types.
     public func canRead(_ types: [(any NSPasteboardReading).Type]) -> Bool {
-        pasteboard.canRead(types)
+        hasValues(for: types)
     }
     
     /// Returns a Boolean value indiciating whether the pasteboard can read objects of the specified types.
     public func canRead(_ types: [(any PasteboardReading).Type]) -> Bool {
-        pasteboard.canRead(types)
+        hasValues(for: types.map({$0.PasteboardReadingType}))
     }
     
     private func hasValues(for type: AnyClass, filesOnly: Bool = false, contentTypes: [String] = []) -> Bool {
-        let key = Key(for: type, contentTypes: contentTypes, filesOnly: filesOnly)
+        hasValues(for: [type], filesOnly: filesOnly, contentTypes: contentTypes)
+    }
+    
+    private func hasValues(for types: [AnyClass], filesOnly: Bool = false, contentTypes: [String] = []) -> Bool {
+        let key = Key(for: types, contentTypes: contentTypes, filesOnly: filesOnly)
         if !didChange, let canRead = hasItems[key] {
             return canRead
         }
-        let canRead = pasteboard.canReadObject(forClasses: [type], options: key.options)
+        let canRead = pasteboard.canReadObject(forClasses: types, options: key.options)
         hasItems[key] = canRead
         return canRead
     }

@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 01.03.25.
 //
 
+/*
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
@@ -30,16 +31,16 @@ public class DragPreview {
     public var shadowPath: NSBezierPath?
     
     func components(for image: NSImage, frame: CGRect?) -> [NSDraggingImageComponent] {
-        var component = NSDraggingImageComponent(image: image, frame: frame, key: .icon)
+        var component = NSDraggingImageComponent(key: .icon, image: image, frame: frame)
         if let visiblePath = visiblePath, let image = image.image(maskedBy: visiblePath, size: component.frame.size) {
-            component = NSDraggingImageComponent(image: image, frame: frame, key: .icon)
+            component = NSDraggingImageComponent(key: .icon, image: image, frame: frame)
         }
         var imageComponents: [NSDraggingImageComponent] = []
         if let backgroundColor = backgroundColor {
-            imageComponents += .init(image: NSImage(color: backgroundColor, size: component.frame.size), key: .backgroundColor)
+            imageComponents += .init(key: .backgroundColor, image: NSImage(color: backgroundColor, size: component.frame.size))
         }
         if let shadowPath = shadowPath ?? visiblePath {
-            imageComponents += .init(image: NSImage(shadowPath: shadowPath, size: component.frame.size, configuration: .black()), key: .shadow)
+            imageComponents += .init(key: .shadow, image: NSImage(shadowPath: shadowPath, size: component.frame.size, configuration: .black()))
         }
         return imageComponents + [component]
     }
@@ -129,3 +130,4 @@ extension NSDraggingItem.ImageComponentKey {
 }
 
 #endif
+*/

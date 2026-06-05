@@ -33,11 +33,44 @@ public extension NSDraggingInfo {
         }
     }
     
-    
     /// Sets the image that visually represents the pasteboard content during the drag operation using the specified view.
     @MainActor
     func setDraggedImage(view: NSView) {
         setDraggedImage(view.renderedImage)
+    }
+    
+    /**
+     Sets the images that visually represent the pasteboard content of each dragging item during the drag operation.
+     
+     - Parameter images: The dragging images.
+     */
+    @MainActor
+    func setDraggedImages(_ images: [NSImage]) {
+        guard !images.isEmpty else { return }
+        enumerateDraggingItems(options: .clearNonenumeratedImages) { draggingItem, index, shouldStop in
+            guard let image = images[safe: index] else {
+                shouldStop = true
+                return
+            }
+            draggingItem.setDraggingImage(image)
+        }
+    }
+    
+    /**
+     Sets the images that visually represent the pasteboard content of each dragging item during the drag operation.
+     
+     - Parameter images: The dragging images and their frames.
+     */
+    @MainActor
+    func setDraggedImages(_ images: [(image: NSImage, frame: CGRect)]) {
+        guard !images.isEmpty else { return }
+        enumerateDraggingItems(options: .clearNonenumeratedImages) { draggingItem, index, shouldStop in
+            guard let value = images[safe: index] else {
+                shouldStop = true
+                return
+            }
+            draggingItem.setDraggingImage(value.image, frame: value.frame)
+        }
     }
     
     /**
@@ -147,10 +180,7 @@ public extension NSDraggingInfo {
     
     @MainActor
     func enumerateItems(options: NSDraggingItemEnumerationOptions = [], for view: NSView? = nil, classes: [AnyClass], fileURLsOnly: Bool = false, contentTypes: [UTType] = [], using handler: @escaping (_ draggingItem: NSDraggingItem, _ index: Int, _ shouldStop: inout Bool) -> Void) {
-        var searchOptions: [NSPasteboard.ReadingOptionKey : Any] = [:]
-        searchOptions[.urlReadingFileURLsOnly] = fileURLsOnly ? true : nil
-        searchOptions[.urlReadingContentsConformToTypes] = !contentTypes.isEmpty ? contentTypes : nil
-        enumerateDraggingItems(options: options, for: view, classes: classes.isEmpty ? [NSPasteboardItem.self] : classes, searchOptions: searchOptions) { item, index, stop in
+        enumerateDraggingItems(options: options, for: view, classes: classes.isEmpty ? [NSPasteboardItem.self] : classes, searchOptions: [.urlReadingFileURLsOnly: fileURLsOnly ? true : nil, .urlReadingContentsConformToTypes: !contentTypes.isEmpty ? contentTypes : nil].nonNil) { item, index, stop in
             var shouldStop = false
             handler(item, index, &shouldStop)
             stop.pointee = shouldStop ? true : false

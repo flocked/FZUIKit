@@ -24,6 +24,12 @@ public class DropInfo: NSObject {
         view.map({ draggingInfo.location(in: $0) }) ?? draggingInfo.draggingLocation
     }
     
+    /// The pasteboard that holds the dragged data.
+    public var pasteboard: NSPasteboard { draggingInfo.draggingPasteboard }
+    
+    /// The content of the pasteboard that holds the dragged data.
+    public var content: NSPasteboardContent { draggingInfo.pasteboardContent }
+    
     /**
      The source, or owner, of the dragged data.
      
@@ -51,12 +57,6 @@ public class DropInfo: NSObject {
      You control whether the modifier keys can affect the drag operation using the dragging source’s [ignoreModifierKeys(for:)](https://developer.apple.com/documentation/appkit/nsdraggingsource/ignoremodifierkeys(for:)) method.
      */
     public var draggingSourceOperationMask: NSDragOperation { draggingInfo.draggingSourceOperationMask }
-    
-    /// The pasteboard that holds the dragged data.
-    public var pasteboard: NSPasteboard { draggingInfo.draggingPasteboard }
-    
-    /// The content of the pasteboard that holds the dragged data.
-    public var content: NSPasteboardContent { draggingInfo.pasteboardContent }
     
     /**
      The number of valid items for the drop information.
@@ -88,7 +88,7 @@ public class DropInfo: NSObject {
      
      This method can be used to adjust the location to which the dragged image will slide back if the drag is rejected.
      
-     It should only be invoked from within the destination’s implementation of prepareForDragOperation:, and will only have effect if the destination rejects the drag.
+     It should only be invoked from within the destination’s implementation of [prepareForDragOperation(_:)](https://developer.apple.com/documentation/appkit/nsdraggingdestination/preparefordragoperation(_:)), and will only have effect if the destination rejects the drag.
      
      This method is invoked after the user has released the image but before it is removed from the screen.
      */
@@ -158,6 +158,26 @@ public class DropInfo: NSObject {
     @MainActor
     public func setDraggedImage(view: NSView) {
         draggingInfo.setDraggedImage(view: view)
+    }
+    
+    /**
+     Sets the images that visually represent the pasteboard content of each dragging item during the drag operation.
+     
+     - Parameter images: The dragging images.
+     */
+    @MainActor
+    public func setDraggedImages(_ images: [NSImage]) {
+        draggingInfo.setDraggedImages(images)
+    }
+    
+    /**
+     Sets the images that visually represent the pasteboard content of each dragging item during the drag operation.
+     
+     - Parameter images: The dragging images and their frames.
+     */
+    @MainActor
+    public func setDraggedImages(_ images: [(image: NSImage, frame: CGRect)]) {
+        draggingInfo.setDraggedImages(images)
     }
     
     /**
