@@ -97,8 +97,7 @@ public struct CGWindowInfo: Hashable, Identifiable {
      - Returns: A `CGWindowInfo` instance describing the specified window, or `nil` if the window is no longer available or the window number is invalid.
      */
     public init?(windowNumber: CGWindowID) {
-        guard let dict = (CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID) as? [[CFString: Any]] ?? [])
-            .first(where: { $0[typed: kCGWindowNumber] == windowNumber }) else { return nil }
+        guard let dict = (CGWindowListCreateDescriptionFromArray([windowNumber] as CFArray) as? [[CFString: Any]])?.first else { return nil }
         self.init(dict)
     }
     
@@ -176,7 +175,7 @@ extension CGWindowInfo {
      - Returns: An array of window information objects owned by the specified process.
      */
     public static func windows(ofProcess pid: pid_t) -> [CGWindowInfo] {
-        (CGWindowListCopyWindowInfo(.optionAll, kCGNullWindowID) as? [[CFString: Any]] ?? []).filter { pid == $0[typed: kCGWindowOwnerPID] }.compactMap(CGWindowInfo.init)
+        fetch(.optionAll).filter { pid == $0[typed: kCGWindowOwnerPID] }.compactMap(CGWindowInfo.init)
     }
     
     /**
@@ -198,9 +197,7 @@ extension CGWindowInfo {
         - windowNumber: The window number below which hit testing should begin, or `nil` to start at the topmost window.
      */
     public static func window(at screenLocation: CGPoint, below windowNumber: CGWindowID? = nil) -> CGWindowInfo? {
-        let windowNumber = NSWindow.windowNumber(at: screenLocation, belowWindowWithWindowNumber: Int(windowNumber ?? 0))
-        guard windowNumber != 0 else { return nil }
-        return CGWindowInfo(windowNumber: CGWindowID(windowNumber))
+        CGWindowInfo(windowNumber: CGWindowID(NSWindow.windowNumber(at: screenLocation, belowWindowWithWindowNumber: Int(windowNumber ?? 0))))
     }
     
     /**
@@ -289,8 +286,12 @@ extension CGWindowInfo {
     
     // MARK: - Private
     
-    private static func fetch(_ options: CGWindowListOption, relativeTo windowID: CGWindowID? = nil) -> [CGWindowInfo] {
-        (CGWindowListCopyWindowInfo(options, windowID ?? kCGNullWindowID) as? [[CFString: Any]])?.compactMap(CGWindowInfo.init) ?? []
+    private static func fetch(_ options: CGWindowListOption, relativeTo windowID: CGWindowID = kCGNullWindowID) -> [CGWindowInfo] {
+        fetch(options, relativeTo: windowID).compactMap(CGWindowInfo.init)
+    }
+    
+    private static func fetch(_ options: CGWindowListOption = .optionAll, relativeTo windowID: CGWindowID = kCGNullWindowID) -> [[CFString: Any]] {
+        CGWindowListCopyWindowInfo(options, windowID) as? [[CFString: Any]] ?? []
     }
 }
 
