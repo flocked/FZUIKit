@@ -75,8 +75,10 @@ public extension NSDraggingItem {
 fileprivate extension NSView {
     static func swizzleBeginDraggingSession() {
         guard !isMethodHooked(#selector(NSView.beginDraggingSession(with:event:source:))) else { return }
+        Swift.print("swizzleBeginDraggingSession")
         do {
             try hook(all: #selector(NSView.beginDraggingSession(with:event:source:)), closure: { original, view, selector, items, event, source in
+                Swift.print("begin", items.count, items.filter({$0.view != nil}))
                 for item in items {
                     guard let itemView = item.view else { continue }
                     var components = item.imageComponents ?? []
