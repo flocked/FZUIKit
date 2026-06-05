@@ -47,7 +47,6 @@ extension NSTextField {
     @objc private var _selectionTextColor: NSColor? {
         get { getAssociatedValue("selectionTextColor") }
         set {
-            isFirstResponder
             guard newValue != selectionTextColor else { return }
             setAssociatedValue(newValue, key: "selectionTextColor")
             updateSelectionObservation()

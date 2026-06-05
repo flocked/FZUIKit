@@ -66,7 +66,6 @@ extension NSTextField {
     public var isTruncatingText: Bool {
         guard let cell = cell else { return false }
         let isTruncating = cell.expansionFrame(withFrame: frame, in: self) != .zero
-        usesSingleLineMode
         guard !isTruncating, maximumNumberOfLines == 1 || usesSingleLineMode else { return isTruncating }
         let cellSize = cell.cellSize(forBounds: CGRect(0, 0, CGFloat.greatestFiniteMagnitude, frame.height-0.5))
         return cellSize.width > frame.width

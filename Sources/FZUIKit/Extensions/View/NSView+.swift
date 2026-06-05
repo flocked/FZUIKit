@@ -813,7 +813,7 @@ extension NSView {
 extension CALayer {
     var _border: BorderConfiguration {
         get {
-            .init(color: getAssociatedValue("_borderColor") ?? borderLayer.configuration.color ?? __borderColor, colorTransformer: borderColorTransformer, width: borderLayer.configuration.width ?? borderWidth, dash: borderLayer.configuration.dash ?? .none, insets: borderLayer.configuration.insets ?? .zero)
+            .init(color: getAssociatedValue("_borderColor") ?? borderLayer.configuration.color ?? __borderColor, colorTransformer: borderColorTransformer, width: borderLayer.configuration.width, dash: borderLayer.configuration.dash, insets: borderLayer.configuration.insets)
         }
         set {
             /*

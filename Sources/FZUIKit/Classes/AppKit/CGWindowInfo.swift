@@ -335,7 +335,7 @@ extension CGWindowInfo: CustomStringConvertible, CustomDebugStringConvertible {
             alpha: \(alpha),
             windowLayer: \(windowLayer),
             backingStore: \(backingStore),
-            backingStoreIsInVideoMemory: \(backingStoreIsInVideoMemory),
+            backingStoreIsInVideoMemory: \(backingStoreIsInVideoMemory ?? false),
             sharingState: \(sharingState),
             memoryUsage: \(memoryUsage.string()) (\(memoryUsage.bytes) bytes)
         )
