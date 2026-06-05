@@ -75,18 +75,17 @@ public extension NSDraggingItem {
 fileprivate extension NSView {
     static func swizzleBeginDraggingSession() {
         guard !isInstanceMethodHooked(#selector(NSView.beginDraggingSession(with:event:source:))) else { return }
-        Swift.print("swizzleBeginDraggingSession")
         do {
             try NSView.hook(all: #selector(NSView.beginDraggingSession(with:event:source:)), closure: { original, view, selector, items, event, source in
-                let count = items.filter({ item in (item.imageComponents ?? []).contains(where: { $0.key == .view }) }).count
                 for item in items {
                     guard let itemView = item.view else { continue }
                     var components = item.imageComponents ?? []
                     guard !components.contains(where: {$0.key == .view }) else { continue }
-                    components += .init(key: .view, image: itemView.renderedImage, frame: itemView.convert(itemView.bounds, to: view))
+                    let frame = itemView.convert(itemView.bounds, to: view)
+                    components += .init(key: .view, image: itemView.renderedImage, frame: frame)
+                    item.draggingFrame = frame
                     item.imageComponentsProvider = { components }
                 }
-                Swift.print("begin", items.count, items.filter({$0.view != nil}).count, count, items.filter({ item in (item.imageComponents ?? []).contains(where: { $0.key == .view }) }).count)
                 return original(view, selector, items, event, source)
             } as @convention(block) ((NSView, Selector, [NSDraggingItem], NSEvent, any NSDraggingSource) -> NSDraggingSession, NSView, Selector, [NSDraggingItem], NSEvent, any NSDraggingSource) -> NSDraggingSession)
         } catch {
