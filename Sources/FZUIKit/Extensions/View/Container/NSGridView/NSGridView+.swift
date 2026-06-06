@@ -32,14 +32,13 @@ extension NSGridView {
             let added = newValue.filter({$0.gridColumn == nil })
             
             columns.filter({ column in !existing.contains(where: { $0.gridColumn === column.gridColumn }) }).reversed().forEach({ $0.remove() })
-            for column in added {
+            for newColumn in added {
                 addColumn(with: [])
-                column.gridColumn = self.column(at: self.numberOfColumns - 1)
+                newColumn.gridColumn = column(at: numberOfColumns - 1)
             }
             for (index, column) in newValue.indexed() {
-                if let oldIndex = columns.firstIndex(of: column), oldIndex != index {
-                    moveColumn(at: oldIndex, to: index)
-                }
+                guard let oldIndex = columns.firstIndex(of: column), oldIndex != index else { continue }
+                moveColumn(at: oldIndex, to: index)
             }
             newValue.forEach({ $0.applyMerge() })
         }
@@ -61,14 +60,13 @@ extension NSGridView {
             let added = newValue.filter({$0.gridRow == nil })
 
             rows.filter({ row in !existing.contains(where: { $0.gridRow === row.gridRow }) }).reversed().forEach({ $0.remove() })
-            for row in added {
+            for newRow in added {
                 addRow(with: [])
-                row.gridRow = self.row(at: numberOfRows - 1)
+                newRow.gridRow = row(at: numberOfRows - 1)
             }
             for (index, row) in newValue.indexed() {
-                if let oldIndex = rows.firstIndex(of: row), oldIndex != index {
-                    moveRow(at: oldIndex, to: index)
-                }
+                guard let oldIndex = rows.firstIndex(of: row), oldIndex != index else { continue }
+                moveRow(at: oldIndex, to: index)
             }
             newValue.forEach({ $0.applyMerge() })
         }
@@ -110,7 +108,7 @@ extension NSGridView {
     
     /// Merges the cells of the rows at the specified range.
     public func mergeCells(rows: ClosedRange<Int>) {
-        mergeCells(inHorizontalRange: 0...numberOfColumns, verticalRange: rows)
+        mergeCells(inHorizontalRange: 0..<numberOfColumns, verticalRange: rows.lowerBound..<(rows.upperBound + 1))
     }
     
     /// Merges the cells of the columns at the specified range.
@@ -120,12 +118,12 @@ extension NSGridView {
     
     /// Merges the cells of the columns at the specified range.
     public func mergeCells(columns: ClosedRange<Int>) {
-        mergeCells(inHorizontalRange: columns, verticalRange: 0...numberOfRows)
+        mergeCells(inHorizontalRange: columns.lowerBound..<(columns.upperBound + 1), verticalRange: 0..<numberOfRows)
     }
     
     /// Merges the cells of the specified index range.
     func mergeCells(from fromIndex: (column: Int, row: Int), to toIndex: (column: Int, row: Int)) {
-        mergeCells(inHorizontalRange: fromIndex.column..<toIndex.column, verticalRange: fromIndex.row..<toIndex.row)
+        mergeCells(inHorizontalRange: fromIndex.column..<(toIndex.column + 1), verticalRange: fromIndex.row..<(toIndex.row + 1))
     }
     
     /// Returns the grid cell that contains the given view or one of its ancestors.
@@ -270,6 +268,7 @@ extension NSGridView {
     }
 }
 
+/*
 extension NSGridView {
     /// A function builder type that produces an array of views for grid view cells.
     @resultBuilder
@@ -323,4 +322,5 @@ extension NSGridView {
         }
     }
 }
+ */
 #endif

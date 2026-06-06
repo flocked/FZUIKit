@@ -12,13 +12,13 @@ import FZSwiftUtils
 public extension NSGridCell {
     /// The column indexes of the cell.
     var columnIndexes: IndexSet {
-        guard let cells = column?.allCells, let startIndex = cells.firstIndex(of: self), let endIndex = cells.lastIndex(of: self) else { return [] }
+        guard let cells = row?.allCells, let startIndex = cells.firstIndex(of: self), let endIndex = cells.lastIndex(of: self) else { return [] }
         return IndexSet((startIndex...endIndex).map({$0}))
     }
     
     /// The row indexes of the cell.
     var rowIndexes: IndexSet {
-        guard let cells = row?.allCells, let startIndex = cells.firstIndex(of: self), let endIndex = cells.lastIndex(of: self) else { return [] }
+        guard let cells = column?.allCells, let startIndex = cells.firstIndex(of: self), let endIndex = cells.lastIndex(of: self) else { return [] }
         return IndexSet(((startIndex...endIndex).map({$0})))
     }
     
@@ -30,7 +30,7 @@ public extension NSGridCell {
         return gridView.cell(atColumnIndex: gridView.index(of: column), rowIndex: rowIndex-1)
     }
     
-    /// The grid bellow.
+    /// The grid cell below.
     var bottomCell: NSGridCell? {
         guard let row = row, let column = column, let gridView = row.gridView else { return nil }
         let rowIndex = gridView.index(of: row)

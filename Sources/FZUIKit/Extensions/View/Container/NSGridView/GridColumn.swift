@@ -8,6 +8,7 @@
 #if os(macOS)
 import AppKit
 import FZSwiftUtils
+import SwiftUI
 
 /// A column within a `NSGridView`.
 public class GridColumn {
@@ -18,33 +19,41 @@ public class GridColumn {
     public var index: Int? { gridColumn?.index }
     
     /// The cells of the column.
-    public var cells: [GridCell] { (gridColumn?.cells ?? []).compactMap({ GridCell($0) }) }
-   
-    var allCells: [GridCell] { (gridColumn?.allCells ?? []).compactMap({ GridCell($0) }) }
-
-    /// The content views of the grid column cells.
-    public var views: [NSView?] {
-        get { gridColumn?.views ?? properties.views }
+    public var cells: [GridCell] {
+        get { (gridColumn?.cells ?? []).compactMap({ GridCell($0) }) }
         set {
-            if let gridColumn = gridColumn {
-                gridColumn.views = newValue
+            if let gridColumn = gridColumn, let gridView = gridView {
+                var newValue = newValue
+                let cellsCount = gridColumn.numberOfCells
+                if newValue.count > cellsCount {
+                    (0..<(newValue.count - cellsCount)).forEach({ _ in
+                        gridView.addRow(with: [])
+                    })
+                } else if newValue.count < cellsCount {
+                    newValue += Array(repeating: GridCell(), count: cellsCount - newValue.count)
+                }
+                zip(gridColumn.allCells, newValue).forEach { gridCell, cell in
+                    cell.gridCell = gridCell
+                }
             } else {
-                properties.views = newValue
+                properties.cells = newValue
             }
         }
     }
+   
+    var allCells: [GridCell] { (gridColumn?.allCells ?? []).compactMap({ GridCell($0) }) }
     
-    /// Sets the content views of the grid column cells.
+    /// Sets the cells of the grid column.
     @discardableResult
-    public func views(@NSGridView.Builder _ views: () -> [NSView]) -> Self {
-        self.views = views()
+    public func cells(@GridCell.Builder _ cells: () -> [GridCell]) -> Self {
+        self.cells = cells()
         return self
     }
     
-    /// Sets the content views of the grid column cells.
+    /// Sets the cells of the grid column.
     @discardableResult
-    public func views(_ views: [NSView]) -> Self {
-        self.views = views
+    public func cells(_ cells: [GridCell]) -> Self {
+        self.cells = cells
         return self
     }
 
@@ -145,11 +154,11 @@ public class GridColumn {
     /// Merges the cells of the column at the specified range.
     @discardableResult
     public func mergeCells(in range: Range<Int>) -> Self {
-        guard numberOfCells > 0 else { return self }
         if gridColumn != nil {
-            guard numberOfCells > 0 else { return self }
+            let range = clampedRange(range, upperBound: numberOfCells)
+            guard !range.isEmpty else { return self }
             let allCells = allCells.uniqued().compactMap({ (cell: $0, view: $0.view) })
-            gridColumn?.mergeCells(in: range.clamped(max: numberOfCells).nsRange)
+            gridColumn?.mergeCells(in: range.nsRange)
             let newAllCells = self.allCells.uniqued()
             var views = allCells.filter({ !newAllCells.contains($0.cell) }).compactMap({ $0.view })
             views = views.filter({ view in !newAllCells.contains(where: {$0.view === view }) })
@@ -164,7 +173,7 @@ public class GridColumn {
     /// Merges the cells of the column at the specified range.
     @discardableResult
     public func mergeCells(in range: ClosedRange<Int>) -> Self {
-        mergeCells(in: range.toRange)
+        mergeCells(in: range.lowerBound..<(range.upperBound + 1))
     }
     
     /// Merges the cells of the column starting from the specified range's lowerBound value.
@@ -194,9 +203,9 @@ public class GridColumn {
     /// Merges the cells from the first view to the second view.
     @discardableResult
     public func mergeCells(from firstView: NSView, to secondView: NSView) -> Self {
-        let views = views
+        let views = cells.compactMap({$0.view})
         if let startIndex = views.firstIndex(of: firstView), let endIndex = views.firstIndex(of: secondView), startIndex <= endIndex {
-            mergeCells(in: startIndex..<endIndex)
+            mergeCells(in: startIndex..<(endIndex + 1))
         }
         return self
     }
@@ -246,24 +255,29 @@ public class GridColumn {
         return self
     }
     
-    /// Creates a grid column with cells displaying the specified views.
-    public init(views: [NSView?] = []) {
-        properties.views = views
+    /// Creates a grid column with the specified cells.
+    public init(_ cells: [GridCell]) {
+        properties.cells = cells
     }
     
-    /// Creates a grid column with cells displaying the specified views.
-    public init(@NSGridView.Builder views: () -> [NSView?]) {
-        properties.views = views()
+    /// Creates a grid column with the specified cells.
+    public init(@GridCell.Builder cells: () -> [GridCell]) {
+        properties.cells = cells()
     }
     
     /// Creates a grid column with a cell displaying the specified view.
     public init(_ view: NSView) {
-        properties.views = [view]
+        properties.cells = [GridCell(view)]
+    }
+    
+    /// Creates a grid column with cells displaying the specified views.
+    public init(_ views: [NSView?] = []) {
+        properties.cells = views.map({ GridCell($0) })
     }
     
     /// Creates a grid column with cells displaying text fields with the specified labels.
-    public init(labels: [String] = []) {
-        properties.views = labels.map({NSTextField.wrapping($0)})
+    public init(_ labels: [String] = []) {
+        properties.cells = labels.map({ GridCell(NSTextField.wrapping($0)) })
     }
     
     init(_ gridColumn: NSGridColumn) {
@@ -272,20 +286,20 @@ public class GridColumn {
     
     var properties = Properties()
     
-    var numberOfCells: Int { gridColumn?.numberOfCells ?? properties.views.count }
+    var numberOfCells: Int { gridColumn?.numberOfCells ?? properties.cells.count }
     
     weak var gridColumn: NSGridColumn? {
         didSet {
             if let gridColumn = gridColumn {
-                gridColumn.views = properties.views
+                cells = properties.cells
                 gridColumn.width = properties.width
                 gridColumn.isHidden = properties.isHidden
                 gridColumn.leadingPadding = properties.leadingPadding
                 gridColumn.trailingPadding = properties.trailingPadding
                 gridColumn.xPlacement = properties.alignment
-                properties.views = []
+                properties.cells = []
             } else if let gridColumn = oldValue {
-                properties.views = gridColumn.views
+                properties.cells = gridColumn.cells.compactMap({ GridCell($0) })
                 properties.width = gridColumn.width
                 properties.isHidden = gridColumn.isHidden
                 properties.leadingPadding = gridColumn.leadingPadding
@@ -333,7 +347,7 @@ extension GridColumn {
     }
     
     struct Properties {
-        var views: [NSView?] = []
+        var cells: [GridCell] = []
         var isHidden = false
         var alignment: NSGridCell.Placement = .inherited
         var width: CGFloat = NSGridView.sizedForContent
@@ -357,6 +371,12 @@ extension GridColumn {
         gridView.removeColumn(at: index)
     }
 
+    private func clampedRange(_ range: Range<Int>, upperBound: Int) -> Range<Int> {
+        let lowerBound = max(0, min(range.lowerBound, upperBound))
+        let upperBound = max(lowerBound, min(range.upperBound, upperBound))
+        return lowerBound..<upperBound
+    }
+
     /// A function builder type that produces an array of grid column.
     @resultBuilder
     public enum Builder {
@@ -367,12 +387,6 @@ extension GridColumn {
         public static func buildExpression(_ expression: GridColumn) -> [GridColumn] {
             [expression]
         }
-        
-        /*
-        public static func buildExpression(_ expression: GridColumn?) -> [GridColumn] {
-            [expression]
-        }
-         */
         
         public static func buildExpression(_ expression: [GridColumn]) -> [GridColumn] {
             expression.map { $0 }
@@ -395,11 +409,11 @@ extension GridColumn {
         }
 
         public static func buildExpression(_ expression: NSView?) -> [GridColumn] {
-            [GridColumn(views: [expression])]
+            [GridColumn([expression])]
         }
         
         public static func buildExpression(_ expression: [NSView?]) -> [GridColumn] {
-            [GridColumn(views: expression)]
+            [GridColumn(expression)]
         }
 
         public static func buildExpression(_ expression: String) -> [GridColumn] {
@@ -407,7 +421,19 @@ extension GridColumn {
         }
 
         public static func buildExpression(_ expression: [String?]) -> [GridColumn] {
-            [GridColumn(views: expression.map { $0.map(NSTextField.wrapping) })]
+            [GridColumn(expression.map { $0.map(NSTextField.wrapping) })]
+        }
+        
+        public static func buildExpression(_ expression: GridCell) -> [GridColumn] {
+            [GridColumn([expression])]
+        }
+        
+        public static func buildExpression(_ expression: [GridCell]) -> [GridColumn] {
+            [GridColumn(expression)]
+        }
+        
+        public static func buildExpression(_ expression: some View) -> [GridColumn] {
+            [GridColumn([GridCell(expression)])]
         }
     }
 }
@@ -415,13 +441,13 @@ extension GridColumn {
 extension GridColumn: CustomStringConvertible, CustomDebugStringConvertible {
     public var description: String {
         let width = gridColumn?.width ?? properties.width
-        return "GridColumn(views: \(views.count), alignment: \(alignment),  width: \(width == NSGridView.sizedForContent ? "sizedForContent" : "\(width)"))"
+        return "GridColumn(cells: \(cells.count), alignment: \(alignment),  width: \(width == NSGridView.sizedForContent ? "sizedForContent" : "\(width)"))"
     }
     
     public var debugDescription: String {
         let width = gridColumn?.width ?? properties.width
         var strings = ["GridColumn:"]
-        strings += "views: [\(views.compactMap({ if let view = $0 { return "\(type(of: view))"} else { return "Empty"} }).joined(separator: ", "))]"
+        strings += "cells: [\(cells.compactMap({ if let view = $0.view { return "\(type(of: view))"} else { return "Empty"} }).joined(separator: ", "))]"
         strings += "alignment: \(alignmentString)"
         strings += "width: \(width == NSGridView.sizedForContent ? "sizedForContent" : "\(width)")"
         strings += "leadingPadding: \(leadingPadding), trailingPadding: \(trailingPadding)"

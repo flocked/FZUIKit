@@ -22,13 +22,16 @@ public class GridRow {
         get { gridRow?.cells.compactMap({ GridCell($0)}) ?? properties.cells }
         set {
             if let gridRow = gridRow, let gridView = gridView {
-                let cellsCount = cells.count
-                if newValue.count > cells.count {
+                var newValue = newValue
+                let cellsCount = gridRow.numberOfCells
+                if newValue.count > cellsCount {
                     (0..<(newValue.count - cellsCount)).forEach({ _ in
                         gridView.addColumn(with: [])
                     })
+                } else if newValue.count < cellsCount {
+                    newValue += Array(repeating: GridCell(), count: cellsCount - newValue.count)
                 }
-                zip(gridRow.cells[safe: 0..<newValue.count], newValue).forEach { gridCell, cell in
+                zip(gridRow.allCells, newValue).forEach { gridCell, cell in
                     cell.gridCell = gridCell
                 }
             } else {
@@ -158,9 +161,10 @@ public class GridRow {
     @discardableResult
     public func mergeCells(in range: Range<Int>) -> Self {
         if gridRow != nil {
-            guard numberOfCells > 0 else { return self }
+            let range = clampedRange(range, upperBound: numberOfCells)
+            guard !range.isEmpty else { return self }
             let allCells = allCells.uniqued().compactMap({ (cell: $0, view: $0.view) })
-            gridRow?.mergeCells(in: range.clamped(max: numberOfCells).nsRange)
+            gridRow?.mergeCells(in: range.nsRange)
             let newAllCells = self.allCells.uniqued()
             var views = allCells.filter({ !newAllCells.contains($0.cell) }).compactMap({ $0.view })
             views = views.filter({ view in !newAllCells.contains(where: {$0.view === view }) })
@@ -175,7 +179,7 @@ public class GridRow {
     /// Merges the cells at the specified range.
     @discardableResult
     public func mergeCells(in range: ClosedRange<Int>) -> Self {
-        mergeCells(in: range.toRange)
+        mergeCells(in: range.lowerBound..<(range.upperBound + 1))
     }
     
     /// Merges the cells of the row starting from the specified index.
@@ -207,7 +211,7 @@ public class GridRow {
     public func mergeCells(from firstView: NSView, to secondView: NSView) -> Self {
         let cells = cells
         if let startIndex = cells.firstIndex(where: { $0.view === firstView} ), let endIndex = cells.firstIndex(where: { $0.view === secondView } ), startIndex <= endIndex {
-            mergeCells(in: startIndex..<endIndex)
+            mergeCells(in: startIndex..<(endIndex + 1))
         }
         return self
     }
@@ -277,6 +281,11 @@ public class GridRow {
     /// Creates a grid row with a cell displaying the specified view.
     public init(_ view: NSView) {
         properties.cells = [GridCell(view)]
+    }
+    
+    /// Creates a grid row with cells displaying the specified views.
+    public init(_ views: [NSView?] = []) {
+        properties.cells = views.map({ GridCell($0) })
     }
     
     init(_ gridRow: NSGridRow) {
@@ -399,6 +408,12 @@ extension GridRow {
         cells.forEach({ $0.unmerge() })
         gridRow = nil
         gridView.removeRow(at: index)
+    }
+
+    private func clampedRange(_ range: Range<Int>, upperBound: Int) -> Range<Int> {
+        let lowerBound = max(0, min(range.lowerBound, upperBound))
+        let upperBound = max(lowerBound, min(range.upperBound, upperBound))
+        return lowerBound..<upperBound
     }
 
     /// A function builder type that produces an array of grid rows.

@@ -9,7 +9,6 @@
 import AppKit
 import FZSwiftUtils
 import SwiftUI
-import AppKit
 
 /// A cell within a `NSGridView`.
 public class GridCell {
@@ -103,26 +102,26 @@ public class GridCell {
     
     /// The grid cell above.
     public var topCell: GridCell? {
-        guard let cells = row?.cells, let index = cells.firstIndex(of: self), index > 0 else { return nil }
-        return cells[safe: index-1]
+        guard let cell = gridCell?.topCell else { return nil }
+        return GridCell(cell)
     }
     
-    /// The grid cell bellow.
+    /// The grid cell below.
     public var bottomCell: GridCell? {
-        guard let cells = row?.cells, let index = cells.firstIndex(of: self), index+1 < cells.count else { return nil }
-        return cells[safe: index+1]
+        guard let cell = gridCell?.bottomCell else { return nil }
+        return GridCell(cell)
     }
     
-    /// The grid cell leading.
+    /// The leading grid cell.
     public var leadingCell: GridCell? {
-        guard let cells = column?.cells, let index = cells.firstIndex(of: self), index > 0 else { return nil }
-        return cells[safe: index-1]
+        guard let cell = gridCell?.leadingCell else { return nil }
+        return GridCell(cell)
     }
     
-    /// The grid cell trailing.
+    /// The trailing grid cell.
     public var trailingCell: GridCell? {
-        guard let cells = column?.cells, let index = cells.firstIndex(of: self), index+1 < cells.count else { return nil }
-        return cells[safe: index+1]
+        guard let cell = gridCell?.trailingCell else { return nil }
+        return GridCell(cell)
     }
     
     /// The size of a cell.
@@ -156,25 +155,14 @@ public class GridCell {
     }
     
     /// The size of the cell.
-    var size: Size {
-        get { Size(width: columnIndexes.count, height: rowIndexes.count) }
+    public var size: Size {
+        get {
+            guard gridCell != nil else { return properties.size }
+            return Size(width: columnIndexes.count, height: rowIndexes.count)
+        }
         set {
             if let gridCell = gridCell {
-                let currentSize = size
-                if let row = row {
-                    if newValue.width > currentSize.width {
-                        
-                    } else if newValue.width < currentSize.width {
-                        
-                    }
-                }
-                if let column = column {
-                    if newValue.height > currentSize.height {
-                        
-                    } else if newValue.height < currentSize.height {
-                        
-                    }
-                }
+                gridCell.resize(to: newValue)
             } else {
                 properties.size = newValue
             }
@@ -183,27 +171,27 @@ public class GridCell {
     
     /// Sets the size of the cell.
     @discardableResult
-    func size(_ size: Size) -> Self {
+    public func size(_ size: Size) -> Self {
         self.size = size
         return self
     }
     
     /// Sets the width of the cell.
     @discardableResult
-    func width(_ width: Int) -> Self {
+    public func width(_ width: Int) -> Self {
         size.width = width
         return self
     }
     
     /// Sets the height of the cell.
     @discardableResult
-    func height(_ height: Int) -> Self {
+    public func height(_ height: Int) -> Self {
         size.height = height
         return self
     }
     
     /// A Boolean value indicating whether the cell is merged with one or several other cells.
-    var isMerged: Bool {
+    public var isMerged: Bool {
         gridCell?.isMerged ?? false
     }
     
@@ -234,10 +222,12 @@ public class GridCell {
             if gridCell != nil {
                 view = properties.view
                 alignment = properties.alignment
+                size = properties.size
                 properties.view = nil
             } else if let oldValue = oldValue {
                 properties.view = oldValue.contentView
                 properties.alignment = .init(oldValue)
+                properties.size = .init(width: oldValue.columnIndexes.count, height: oldValue.rowIndexes.count)
             }
         }
     }
@@ -248,6 +238,37 @@ public class GridCell {
         var view: NSView?
         var alignment = Alignment()
         var size = Size()
+    }
+}
+
+extension NSGridCell {
+    fileprivate func resize(to size: GridCell.Size) {
+        guard let gridView = row?.gridView,
+              let columnStart = columnIndexes.first,
+              let rowStart = rowIndexes.first else { return }
+        
+        unmerge()
+        
+        guard size.needsMerge else { return }
+        let desiredColumnEnd = columnStart + size.width
+        let desiredRowEnd = rowStart + size.height
+        
+        if desiredColumnEnd > gridView.numberOfColumns {
+            for _ in gridView.numberOfColumns..<desiredColumnEnd {
+                gridView.addColumn(with: [])
+            }
+        }
+        if desiredRowEnd > gridView.numberOfRows {
+            for _ in gridView.numberOfRows..<desiredRowEnd {
+                gridView.addRow(with: [])
+            }
+        }
+        
+        let columnEnd = min(desiredColumnEnd, gridView.numberOfColumns)
+        let rowEnd = min(desiredRowEnd, gridView.numberOfRows)
+        guard columnStart < columnEnd, rowStart < rowEnd else { return }
+        
+        gridView.mergeCells(inHorizontalRange: columnStart..<columnEnd, verticalRange: rowStart..<rowEnd)
     }
 }
 
