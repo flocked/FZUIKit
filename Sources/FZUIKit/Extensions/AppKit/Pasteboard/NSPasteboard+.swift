@@ -349,6 +349,17 @@ extension NSPasteboard.PasteboardType {
         UTType(rawValue)
     }
     
+    /// A Boolean value indicating whether the pasteboard type is a dynamic Uniform Type Identifier.
+    public var isDynamic: Bool {
+        rawValue.hasPrefix("dyn.")
+    }
+
+    /// The original pasteboard type represented by a dynamic Uniform Type Identifier.
+    public var decoded: Self? {
+        guard isDynamic else { return nil }
+        return UTType(rawValue)?.tags[.pasteboardType]?.first.map({ Self(rawValue: $0) })
+    }
+    
     /// Creates a Pasteboard type with the speicifed `UTType`.
     public init(_ type: UTType) {
         self.init(type.identifier)
