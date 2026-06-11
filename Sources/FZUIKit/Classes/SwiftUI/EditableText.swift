@@ -7,17 +7,17 @@
 
 import SwiftUI
 
+
 @available(macOS 15.0, iOS 13.0, tvOS 16.0, *)
 public struct EditableText: View {
-    @Binding var text: String
-    @State private var newValue: String = ""
+    @Binding private var text: String
+    @State private var draftText: String = ""
+    @State private var isEditing = false
 
-    @State var editProcessGoing = false { didSet { newValue = text } }
+    private let onEditEnd: (String) -> Void
+    private let alignment: Alignment
 
-    let onEditEnd: (String) -> Void
-    let alignment: Alignment
-
-    var multilineTextAlignment: TextAlignment {
+    private var multilineTextAlignment: TextAlignment {
         switch alignment {
         case .leading: return .leading
         case .center: return .center
@@ -26,29 +26,55 @@ public struct EditableText: View {
         }
     }
 
-    public init(_ txt: Binding<String>, alignment: Alignment = .leading, onEditEnd: @escaping (String) -> Void) {
-        _text = txt
-        self.onEditEnd = onEditEnd
+    public init(
+        _ text: Binding<String>,
+        alignment: Alignment = .leading,
+        onEditEnd: @escaping (String) -> Void
+    ) {
+        self._text = text
         self.alignment = alignment
+        self.onEditEnd = onEditEnd
     }
 
-    @ViewBuilder
     public var body: some View {
         ZStack(alignment: alignment) {
             Text(text)
                 .multilineTextAlignment(multilineTextAlignment)
-                .opacity(editProcessGoing ? 0 : 1)
+                .opacity(isEditing ? 0 : 1)
 
-            TextField("", text: $newValue,
-                      onEditingChanged: { _ in },
-                      onCommit: { text = newValue; editProcessGoing = false; onEditEnd(text) })
-                .textFieldStyle(.plain)
-                .multilineTextAlignment(multilineTextAlignment)
-                .opacity(editProcessGoing ? 1 : 0)
+            TextField(
+                "",
+                text: $draftText,
+                onEditingChanged: { _ in },
+                onCommit: commitEdit
+            )
+            .textFieldStyle(.plain)
+            .multilineTextAlignment(multilineTextAlignment)
+            .opacity(isEditing ? 1 : 0)
         }
-        .onTapGesture(count: 2, perform: { editProcessGoing = true })
+        .onTapGesture(count: 2) {
+            beginEdit()
+        }
         #if os(macOS)
-            .onExitCommand(perform: { editProcessGoing = false; newValue = text })
+        .onExitCommand {
+            cancelEdit()
+        }
         #endif
+    }
+
+    private func beginEdit() {
+        draftText = text
+        isEditing = true
+    }
+
+    private func commitEdit() {
+        text = draftText
+        isEditing = false
+        onEditEnd(text)
+    }
+
+    private func cancelEdit() {
+        draftText = text
+        isEditing = false
     }
 }
