@@ -139,10 +139,9 @@ public extension NSWorkspace {
         - fillColor: The color for filling the empty space around the image.
      - Returns: `true` if the method set the desktop image; otherwise false. If the method returns false, the error parameter provides additional information.
      */
+    @_disfavoredOverload
     func setDesktopImageURL(_ url: URL, for screen: NSScreen, imageScaling: NSImageScaling = .scaleProportionallyUpOrDown, allowClipping: Bool = false, fillColor: NSColor? = nil) throws {
-        var options: [NSWorkspace.DesktopImageOptionKey: Any] = [.imageScaling: NSNumber(imageScaling.rawValue), .allowClipping: NSNumber(allowClipping)]
-        options[.fillColor] = fillColor
-        try setDesktopImageURL(url, for: screen, options: options)
+        try setDesktopImageURL(url, for: screen, options: [.imageScaling: NSNumber(imageScaling.rawValue), .allowClipping: NSNumber(allowClipping), .fillColor: fillColor].nonNil)
     }
     
     /// Returns an image containing the icon for the specified content type when opened with the specified application.

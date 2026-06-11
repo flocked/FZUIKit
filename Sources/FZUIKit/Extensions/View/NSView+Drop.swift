@@ -134,6 +134,19 @@ extension NSView {
          During ``DropInfo/enumerateDropItems(for:using:)`` you may set non-acceptable drag items images to `nil` to hide them or use the enumeration option of clearNonenumeratedImages If there are items that you hide, then after enumeration, you need to set the ``DropInfo/numberOfValidItemsForDrop`` to the number of non-hidden drag items. However, if the valid item count is `0`, then it is better to return `[]` from your implementation of ``AppKit/NSView/DropHandlers-swift.struct/canDrop`` and, or ``AppKit/NSView/DropHandlers-swift.struct/dropUpdated`` instead of hiding all drag items during enumeration.
          */
         public var updateDraggingItems: ((_ info: NSDraggingInfo)->())?
+        
+        /// Indicates whether the view is currently an active drop target and whether the dragged item can be accepted.
+        public enum DropState {
+            /// No drag operation is currently over the view.
+            case inactive
+            /// A drag operation is over the view, but the dragged item cannot be dropped.
+            case invalid
+            /// A drag operation is over the view and the dragged item can be dropped.
+            case valid
+        }
+        
+        /// The handler that is called whenever the drop state changes.
+        public var stateChanged: ((_ state: DropState)->())?
                
         /*
         public var springLoading = SpringLoading()

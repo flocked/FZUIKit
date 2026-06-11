@@ -50,7 +50,6 @@ public extension NSDraggingItem {
     convenience init(for content: NSPasteboardWriting, view: NSView) {
         self.init(pasteboardWriter: content)
         self.view = view
-        NSView.swizzleBeginDraggingSession()
     }
     
     /**
@@ -63,7 +62,6 @@ public extension NSDraggingItem {
     convenience init(for content: [any NSPasteboardWriting], view: NSView) {
         self.init(for: content)
         self.view = view
-        NSView.swizzleBeginDraggingSession()
     }
     
     /**
@@ -85,7 +83,11 @@ public extension NSDraggingItem {
      */
     var view: NSView? {
         get { getAssociatedValue("_view") }
-        set { setAssociatedValue(weak: newValue, key: "_view") }
+        set {
+            setAssociatedValue(weak: newValue, key: "_view")
+            guard newValue != nil else { return }
+            NSView.swizzleBeginDraggingSession()
+        }
     }
     
     /**
@@ -226,10 +228,12 @@ fileprivate extension NSView {
             try NSView.hook(all: #selector(NSView.beginDraggingSession(with:event:source:)), closure: { original, view, selector, items, event, source in
                 for item in items {
                     guard let itemView = item.view else { continue }
-                    var components = item.imageComponents ?? []
+                    var components = item.imageComponentsProvider?() ?? []
                     guard !components.contains(where: {$0.key == .renderedView }) else { continue }
-                    let frame = itemView.convert(itemView.bounds, to: view)
-                    components += .init(key: .renderedView, image: itemView.renderedImage, frame: itemView.bounds)
+                    let bounds = (itemView as? NSImageView)?.imageBounds ?? (itemView as? ImageView)?.imageBounds ?? itemView.bounds
+                    let image = (itemView as? NSImageView)?.image ?? (itemView as? ImageView)?.image ?? itemView.renderedImage
+                    let frame = itemView.convert(bounds, to: view)
+                    components += .init(key: .renderedView, image: image, frame: bounds)
                     item.draggingFrame = frame
                     item.imageComponentsProvider = { components }
                 }
