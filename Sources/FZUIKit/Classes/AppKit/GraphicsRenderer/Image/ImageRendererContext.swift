@@ -62,7 +62,6 @@ public final class GraphicsImageRendererContext: GraphicsRendererContext {
     
     init?(format: GraphicsImageRendererFormat) {
         let size = (format.renderingBounds.size * format.scale).rounded(.up)
-        format.renderingBounds.size.rounded(.up)
         let range = format.preferredRange.resolved
         let bitmapInfo = format.bitmapInfo ?? range.bitmapInfo(opaque: format.isOpaque)
         let bitsPerComponent = format.bitsPerComponent ?? bitmapInfo.bitsPerComponent
