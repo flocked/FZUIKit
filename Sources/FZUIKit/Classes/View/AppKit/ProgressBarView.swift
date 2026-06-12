@@ -243,7 +243,7 @@ open class ProgressBarView: NSProgressIndicator {
     }
         
     private var effectiveColor: NSColor {
-        window?.isKeyWindow == true ? color : .unemphasizedSelectedContentBackgroundColor
+        window?.isKeyWindow == true ? color : .systemGray
     }
     
     open override func viewWillMove(toWindow newWindow: NSWindow?) {
