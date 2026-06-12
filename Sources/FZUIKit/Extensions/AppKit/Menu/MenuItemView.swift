@@ -257,11 +257,11 @@ open class NSMenuItemView: NSTableCellView {
     
     required public init?(coder: NSCoder) {
         super.init(coder: coder)
-        highlightMargins = coder.decodeEdgeInsets(forKey: "highlightMargins")
-        contentMargins = coder.decodeEdgeInsets(forKey: "contentMargins")
-        autoHighlightSubviews = coder.decodeBool(forKey: "autoHighlightSubviews")
-        isHighlighted = coder.decodeBool(forKey: "isHighlighted")
-        showsHighlight = coder.decodeBool(forKey: "showsHighlight")
+        highlightMargins = coder.decode("highlightMargins") ?? highlightMargins
+        contentMargins = coder.decode("contentMargins") ?? contentMargins
+        autoHighlightSubviews = coder.decode("autoHighlightSubviews") ?? autoHighlightSubviews
+        isHighlighted = coder.decode("isHighlighted") ?? isHighlighted
+        showsHighlight = coder.decode("showsHighlight") ?? showsHighlight
         initialSetup()
         (coder.decodeObject(forKey: "subviews") as? [NSView])?.forEach({ addSubview($0, layoutAutomatically: true) })
     }

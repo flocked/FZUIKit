@@ -16,6 +16,19 @@ import SwiftUI
 
 public extension NSUIColor {
     /**
+     Creates a new color that has the same color space and component values as the current color, but the specified alpha component.
+     
+     - Parameter alpha: The opacity value of the new color.
+     - Returns: The new color. If the receiver’s color space doesn’t include an alpha component, the receiver is returned.
+     */
+    func alpha(_ alpha: CGFloat) -> NSUIColor {
+        guard alphaComponent != alpha else { return self }
+        guard isDynamic else { return withAlphaComponent(alpha) }
+        let dynamicColors = dynamicColors
+        return NSUIColor(light: dynamicColors.light.withAlphaComponent(alpha), dark: dynamicColors.dark.withAlphaComponent(alpha))
+    }
+    
+    /**
      Tints the color by the specified amount.
      - Parameter amount: The amount of tint.
      - Returns: The tinted color object.

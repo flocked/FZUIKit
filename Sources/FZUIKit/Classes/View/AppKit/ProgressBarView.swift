@@ -247,14 +247,17 @@ open class ProgressBarView: NSProgressIndicator {
     
     /// Creates a progress view with data in an unarchiver.
     public required init?(coder: NSCoder) {
-        _minValue = coder.decodeIfPresent("minValue") ?? 1.0
-        _maxValue = coder.decodeIfPresent("maxValue") ?? 1.0
+        _minValue = coder.decode("minValue") ?? 0.0
+        _maxValue = coder.decode("maxValue") ?? 1.0
         super.init(coder: coder)
-        cornerRadius = coder.decodeIfPresent("cornerRadius") ?? cornerRadius
-        color = coder.decodeIfPresent("color") ?? color
-        backgroundColor = coder.decodeIfPresent("backgroundColor") ?? backgroundColor
-        isDisplayedWhenFinished = coder.decodeIfPresent("isDisplayedWhenFinished") ?? isDisplayedWhenFinished
-        animates = coder.decodeIfPresent("animates") ?? animates
+        doubleValue = coder.decode("doubleValue") ?? doubleValue
+        cornerRadius = coder.decode("cornerRadius") ?? cornerRadius
+        isDisplayedWhenFinished = coder.decode("isDisplayedWhenFinished") ?? isDisplayedWhenFinished
+        animates = coder.decode("animates") ?? animates
+        controlSize = coder.decode("controlSize") ?? .regular
+        userInterfaceLayoutDirection = coder.decode("userInterfaceLayoutDirection") ?? .leftToRight
+        color = coder.decode("color") ?? color
+        backgroundColor = coder.decode("backgroundColor") ?? backgroundColor
         displayedProgressFraction = fractionCompleted
     }
     
@@ -262,11 +265,14 @@ open class ProgressBarView: NSProgressIndicator {
         super.encode(with: coder)
         coder.encode(minValue, forKey: "minValue")
         coder.encode(maxValue, forKey: "maxValue")
-        coder.encode(cornerRadius, forKey: "cornerRadius")
-        coder.encode(color, forKey: "color")
-        coder.encode(backgroundColor, forKey: "backgroundColor")
+        coder.encode(doubleValue, forKey: "doubleValue")
+        coder.encode(Double(cornerRadius), forKey: "cornerRadius")
         coder.encode(isDisplayedWhenFinished, forKey: "isDisplayedWhenFinished")
         coder.encode(animates, forKey: "animates")
+        coder.encode(controlSize, forKey: "controlSize")
+        coder.encode(userInterfaceLayoutDirection, forKey: "userInterfaceLayoutDirection")
+        coder.encode(color, forKey: "color")
+        coder.encode(backgroundColor, forKey: "backgroundColor")
     }
     
     open override class func defaultAnimation(forKey key: NSAnimatablePropertyKey) -> Any? {

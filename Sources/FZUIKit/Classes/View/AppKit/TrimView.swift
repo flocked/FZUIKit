@@ -563,12 +563,12 @@ open class TrimView: NSControl {
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
         sharedInit()
-        markerValue = coder.decodeDouble(forKey: "markerValue")
-        range = coder.decodeDouble(forKey: "rangeLowerBound")...coder.decodeDouble(forKey: "rangeUpperBound")
-        trimmedRange = coder.decodeDouble(forKey: "trimmedRangeLowerBound")...coder.decodeDouble(forKey: "trimmedRangeUpperBound")
-        displaysMarker = coder.decodeBool(forKey: "displaysMarker")
-        markerIndicatorStyle = .init(coder.decodeInteger(forKey: "markerIndicatorStyle"), coder.decodeIfPresent("markerIndicatorStyleNumberFormatter"))
-        if let url: URL = coder.decodeIfPresent("assetURL") {
+        markerValue = coder.decode("markerValue") ?? markerValue
+        range = (coder.decode("rangeLowerBound") ?? 0.0)...(coder.decode("rangeUpperBound") ?? 1.0)
+        trimmedRange = (coder.decode("trimmedRangeLowerBound") ?? 0.0)...(coder.decode("trimmedRangeUpperBound") ?? 1.0)
+        displaysMarker = coder.decode("displaysMarker") ?? displaysMarker
+        markerIndicatorStyle = .init(coder.decode("markerIndicatorStyle") ?? 0, coder.decode("markerIndicatorStyleNumberFormatter"))
+        if let url: URL = coder.decode("assetURL") {
             asset = AVURLAsset(url: url)
         }
     }
