@@ -128,7 +128,7 @@ extension NSProgressIndicator {
     }
     
     /// The color of the progress indicator.
-    public var color: NSColor {
+    @objc public var color: NSColor {
         get { _color ?? .controlAccentColor }
         set {
             guard newValue != color else { return }
@@ -151,7 +151,7 @@ extension NSProgressIndicator {
     
     /// Sets the color of the progress indicator.
     @discardableResult
-    public func color(_ color: NSColor) -> Self {
+    @objc public func color(_ color: NSColor) -> Self {
         self.color = color
         return self
     }
@@ -165,10 +165,10 @@ extension NSProgressIndicator {
     public var range: ClosedRange<Double> {
          get { minValue...maxValue }
          set {
-             let progress = progress
+             let fractionCompleted = fractionCompleted
              minValue = newValue.lowerBound
              maxValue = newValue.upperBound
-             self.progress = progress
+             self.fractionCompleted = fractionCompleted
          }
      }
     
@@ -179,24 +179,23 @@ extension NSProgressIndicator {
         return self
     }
     
-    /// The progress of the progress indicator.
-    public var progress: Double {
+    /// The fraction completed of the progress indicator.
+    public var fractionCompleted: Double {
         get {
-            let range = maxValue - minValue
-            guard range != 0 else { return 0 }
-            return (doubleValue - minValue) / range
+            guard minValue != maxValue else { return 0 }
+            let value = min(max(doubleValue, minValue), maxValue)
+            return (value - minValue) / (maxValue - minValue)
         }
         set {
-            let range = maxValue - minValue
-            guard range != 0 else { return }
-            doubleValue = minValue + (newValue.clamped(to: 0...1) * range)
+            guard minValue != maxValue else { return }
+            doubleValue = minValue + min(max(newValue, 0), 1) * (maxValue - minValue)
         }
     }
     
-    /// Sets the progress of the progress indicator.
+    /// Sets the fraction completed of the progress indicator.
     @discardableResult
-    public func progress(_ progress: Double) -> Self {
-        self.progress = progress
+    public func fractionCompleted(_ fractionCompleted: Double) -> Self {
+        self.fractionCompleted = fractionCompleted
         return self
     }
     
@@ -207,6 +206,13 @@ extension NSProgressIndicator {
             guard newValue != isAnimating else { return }
             newValue ? startAnimation(self) : stopAnimation(self)
         }
+    }
+    
+    /// Sets the Boolean value indicating whetheer the progress indicator is animating.
+    @discardableResult
+    public func isAnimating(_ isAnimating: Bool) -> Self {
+        self.isAnimating = isAnimating
+        return self
     }
     
     /// Sets the progress object to use for updating the progress indicator.
