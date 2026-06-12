@@ -211,10 +211,10 @@ open class ProgressBarView: NSProgressIndicator {
         if let backgroundColor = _backgroundColor?.resolvedColor(for: self) {
             backgroundColor.setFill()
             NSBezierPath(roundedRect: drawingBounds, cornerRadius: radius).fill()
-            NSColor.systemGray.setStroke()
+            NSColor.systemGray.withAlphaComponent(0.1).setStroke()
             let lineWidth = 0.5
             let rect = drawingBounds.insetBy(dx: lineWidth / 2, dy: lineWidth / 2)
-            NSBezierPath(rect: rect).lineWidth(lineWidth).stroke()
+            NSBezierPath(roundedRect: rect, cornerRadius: radius).lineWidth(lineWidth).stroke()
         }
         guard displayedProgressFraction > 0 else { return }
         drawingBounds.size.width *= displayedProgressFraction
