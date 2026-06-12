@@ -80,13 +80,14 @@ public class FinderTagsView: NSView {
     
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
-        if let colors: [FinderTag.Color] = coder.decode(forKey: "Colors"), let names: [String] = coder.decode(forKey: "names") {
+        
+        if let colors: [FinderTag.Color] = coder.decodeIfPresent("Colors"), let names: [String] = coder.decodeIfPresent("names") {
             tags = zip(names, colors).map({ FinderTag(name: $0, color: $1)})
         }
-        diameter = coder.decode(forKey: "diameter") ?? diameter
-        borderWidth = coder.decode(forKey: "borderWidth") ?? borderWidth
-        spacing = coder.decode(forKey: "spacing") ?? spacing
-        offset = coder.decode(forKey: "offset") ?? offset
+        diameter = coder.decodeIfPresent("diameter") ?? diameter
+        borderWidth = coder.decodeIfPresent("borderWidth") ?? borderWidth
+        spacing = coder.decodeIfPresent("spacing") ?? spacing
+        offset = coder.decodeIfPresent("offset") ?? offset
         wantsLayer = true
     }
     

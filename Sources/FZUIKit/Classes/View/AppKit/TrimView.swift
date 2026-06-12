@@ -567,8 +567,8 @@ open class TrimView: NSControl {
         range = coder.decodeDouble(forKey: "rangeLowerBound")...coder.decodeDouble(forKey: "rangeUpperBound")
         trimmedRange = coder.decodeDouble(forKey: "trimmedRangeLowerBound")...coder.decodeDouble(forKey: "trimmedRangeUpperBound")
         displaysMarker = coder.decodeBool(forKey: "displaysMarker")
-        markerIndicatorStyle = .init(coder.decodeInteger(forKey: "markerIndicatorStyle"), coder.decode(forKey: "markerIndicatorStyleNumberFormatter"))
-        if let url: URL = coder.decode(forKey: "assetURL") {
+        markerIndicatorStyle = .init(coder.decodeInteger(forKey: "markerIndicatorStyle"), coder.decodeIfPresent("markerIndicatorStyleNumberFormatter"))
+        if let url: URL = coder.decodeIfPresent("assetURL") {
             asset = AVURLAsset(url: url)
         }
     }

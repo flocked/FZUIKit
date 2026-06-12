@@ -11,9 +11,9 @@ import AppKit
 import FZSwiftUtils
 
 /**
- A view that displays a progress bar providing visual feedback to the user about the status of an ongoing task.
+ A progress bar indicator providing visual feedback to the user about the status of an ongoing task.
  
- Unlike [NSProgressIndicator](https://developer.apple.com/documentation/appkit/nsprogressindicator), this view supports custom colors and corner radius for its appearance.
+ Unlike [NSProgressIndicator](https://developer.apple.com/documentation/appkit/nsprogressindicator), this view supports custom bar heights, colors and corner radius for its appearance.
  */
 @IBDesignable
 open class ProgressBarView: NSProgressIndicator {
@@ -23,7 +23,7 @@ open class ProgressBarView: NSProgressIndicator {
     private var _doubleValue: Double = 0.0
     private var _cornerRadius: CGFloat = -1.0
     private var _color: NSColor = .systemBlue
-    private var _backgroundColor: NSColor? = .progressbarBackgroundColor
+    private var _backgroundColor: NSColor? = .backgroundColor
     private var windowObservations: [NotificationToken] = []
 
     /**
@@ -201,10 +201,7 @@ open class ProgressBarView: NSProgressIndicator {
     }
     
     open override func draw(_ dirtyRect: NSRect) {
-        guard isDisplayedWhenFinished || displayedProgressFraction < 1 else {
-            return
-        }
-        // super.draw(dirtyRect)
+        guard isDisplayedWhenFinished || displayedProgressFraction < 1 else { return }
         var drawingBounds = bounds
         guard !drawingBounds.isEmpty else { return }
         let maxRadius = drawingBounds.height / 2
@@ -212,7 +209,7 @@ open class ProgressBarView: NSProgressIndicator {
         if let backgroundColor = _backgroundColor?.resolvedColor(for: self), backgroundColor.alphaComponent > 0.0 {
             backgroundColor.setFill()
             NSBezierPath(roundedRect: drawingBounds, cornerRadius: radius).fill()
-            NSColor.systemGray.withAlphaComponent(0.1).setStroke()
+            NSColor.borderColor.setStroke()
             let lineWidth = 0.5
             let rect = drawingBounds.insetBy(dx: lineWidth / 2, dy: lineWidth / 2)
             NSBezierPath(roundedRect: rect, cornerRadius: radius).lineWidth(lineWidth).stroke()
@@ -222,7 +219,7 @@ open class ProgressBarView: NSProgressIndicator {
         if userInterfaceLayoutDirection == .rightToLeft {
             drawingBounds.origin.x = drawingBounds.maxX - bounds.width
         }
-        effectiveColor.resolvedColor(for: self).setFill()
+        (window?.isKeyWindow == true ? color.resolvedColor(for: self) : .disabledColor).setFill()
         NSBezierPath(roundedRect: drawingBounds, cornerRadius: radius).fill()
     }
     
@@ -241,10 +238,6 @@ open class ProgressBarView: NSProgressIndicator {
         super.init(frame: frameRect)
         displayedProgressFraction = fractionCompleted
     }
-        
-    private var effectiveColor: NSColor {
-        window?.isKeyWindow == true ? color : .systemGray
-    }
     
     open override func viewWillMove(toWindow newWindow: NSWindow?) {
         windowObservations = newWindow?.observeIsKey { [weak self] isKey in
@@ -254,14 +247,14 @@ open class ProgressBarView: NSProgressIndicator {
     
     /// Creates a progress view with data in an unarchiver.
     public required init?(coder: NSCoder) {
-        _minValue = coder.containsValue(forKey: "minValue") ? coder.decodeDouble(forKey: "minValue") : 1.0
-        _maxValue = coder.containsValue(forKey: "maxValue") ? coder.decodeDouble(forKey: "maxValue") : 1.0
+        _minValue = coder.decodeIfPresent("minValue") ?? 1.0
+        _maxValue = coder.decodeIfPresent("maxValue") ?? 1.0
         super.init(coder: coder)
-        cornerRadius = coder.containsValue(forKey: "cornerRadius") ? coder.decodeDouble(forKey: "cornerRadius") : cornerRadius
-        color = coder.decode(forKey: "color") ?? color
-        backgroundColor = coder.decode(forKey: "backgroundColor") ?? backgroundColor
-        isDisplayedWhenFinished = coder.containsValue(forKey: "isDisplayedWhenFinished") ? coder.decodeBool(forKey: "isDisplayedWhenFinished") : isDisplayedWhenFinished
-        animates = coder.containsValue(forKey: "animates") ? coder.decodeBool(forKey: "animates") : animates
+        cornerRadius = coder.decodeIfPresent("cornerRadius") ?? cornerRadius
+        color = coder.decodeIfPresent("color") ?? color
+        backgroundColor = coder.decodeIfPresent("backgroundColor") ?? backgroundColor
+        isDisplayedWhenFinished = coder.decodeIfPresent("isDisplayedWhenFinished") ?? isDisplayedWhenFinished
+        animates = coder.decodeIfPresent("animates") ?? animates
         displayedProgressFraction = fractionCompleted
     }
     
@@ -302,8 +295,10 @@ open class ProgressBarView: NSProgressIndicator {
 }
 
 fileprivate extension NSColor {
-    static let progressbarBackgroundColor = NSColor(light: .controlBackgroundColor.resolvedColor(for: .darkAqua).withAlphaComponent(0.1), dark: .controlBackgroundColor.resolvedColor(for: .aqua).withAlphaComponent(0.1))
-    static let progressbarBackgroundColorAlt = NSColor(light: NSColor(white: 0.0, alpha: 0.1), dark: NSColor(white: 1.0, alpha: 0.1))
+    static let disabledColor = NSColor(white: 0.65, alpha: 1.0)
+    static let backgroundColor1 = NSColor(light: .controlBackgroundColor.resolvedColor(for: .darkAqua).withAlphaComponent(0.1), dark: .controlBackgroundColor.resolvedColor(for: .aqua).withAlphaComponent(0.1))
+    static let backgroundColor = NSColor(light: NSColor(white: 0.0, alpha: 0.07), dark: NSColor(white: 1.0, alpha: 0.1))
+    static let borderColor = NSColor(white: 0.4, alpha: 0.15)
 }
 
 #endif
