@@ -21,7 +21,7 @@ open class ProgressBarView: NSProgressIndicator {
     private var _minValue: Double
     private var _maxValue: Double
     private var _doubleValue: Double = 0.0
-    private var _cornerRadius: CGFloat = 0.0
+    private var _cornerRadius: CGFloat = -1.0
     private var _color: NSColor = .systemBlue
     private var _backgroundColor: NSColor? = .progressbarBackgroundColor
 
@@ -90,6 +90,11 @@ open class ProgressBarView: NSProgressIndicator {
         return self
     }
     
+    /**
+     The corner radius of the progress bar.
+     
+     The default value is `-1.0`, wbich automatically adjusts the corner radius to the height of the progress bar for a capsule appearance.
+     */
     @IBInspectable
     open override var cornerRadius: CGFloat {
         get { _cornerRadius }
