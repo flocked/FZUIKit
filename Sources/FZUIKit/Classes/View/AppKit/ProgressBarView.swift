@@ -24,6 +24,7 @@ open class ProgressBarView: NSProgressIndicator {
     private var _cornerRadius: CGFloat = -1.0
     private var _color: NSColor = .systemBlue
     private var _backgroundColor: NSColor? = .progressbarBackgroundColor
+    private var windowObservations: [NotificationToken] = []
 
     /**
      The minimum value for the progress indicator.
@@ -208,7 +209,7 @@ open class ProgressBarView: NSProgressIndicator {
         guard !drawingBounds.isEmpty else { return }
         let maxRadius = drawingBounds.height / 2
         let radius = cornerRadius < 0.0 ? maxRadius : min(cornerRadius, maxRadius)
-        if let backgroundColor = _backgroundColor?.resolvedColor(for: self) {
+        if let backgroundColor = _backgroundColor?.resolvedColor(for: self), backgroundColor.alphaComponent > 0.0 {
             backgroundColor.setFill()
             NSBezierPath(roundedRect: drawingBounds, cornerRadius: radius).fill()
             NSColor.systemGray.withAlphaComponent(0.1).setStroke()
@@ -221,7 +222,7 @@ open class ProgressBarView: NSProgressIndicator {
         if userInterfaceLayoutDirection == .rightToLeft {
             drawingBounds.origin.x = drawingBounds.maxX - bounds.width
         }
-        color.resolvedColor(for: self).setFill()
+        effectiveColor.resolvedColor(for: self).setFill()
         NSBezierPath(roundedRect: drawingBounds, cornerRadius: radius).fill()
     }
     
@@ -239,6 +240,16 @@ open class ProgressBarView: NSProgressIndicator {
         _maxValue = 1.0
         super.init(frame: frameRect)
         displayedProgressFraction = fractionCompleted
+    }
+        
+    private var effectiveColor: NSColor {
+        window?.isKeyWindow == true ? color : .unemphasizedSelectedContentBackgroundColor
+    }
+    
+    open override func viewWillMove(toWindow newWindow: NSWindow?) {
+        windowObservations = newWindow?.observeIsKey { [weak self] isKey in
+            self?.needsDisplay = true
+        } ?? []
     }
     
     /// Creates a progress view with data in an unarchiver.
