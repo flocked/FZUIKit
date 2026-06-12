@@ -158,6 +158,7 @@ open class ProgressBarView: NSProgressIndicator {
         didSet { invalidateIntrinsicContentSize() }
     }
     
+    
     open override var intrinsicContentSize: NSSize {
         switch controlSize {
         case .mini, .small:
