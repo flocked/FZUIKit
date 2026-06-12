@@ -14,6 +14,101 @@ import UIKit
 #endif
 
 public extension NSUIBezierPath {
+    /// Sets the width of stroked path lines.
+    @discardableResult
+    func lineWidth(_ width: CGFloat) -> Self {
+        self.lineWidth = width
+        return self
+    }
+    
+    /// Sets the limit at which miter joins are converted to bevel joins.
+    @discardableResult
+    func miterLimit(_ miterLimit: CGFloat) -> Self {
+        self.miterLimit = miterLimit
+        return self
+    }
+    
+    /// Sets the accuracy with which curves are rendered.
+    @discardableResult
+    func flatness(_ flatness: CGFloat) -> Self {
+        self.flatness = flatness
+        return self
+    }
+    
+    /// The line-stroking pattern and phase of the bezier path.
+    var lineDash: LineDash {
+        get {
+            var pattern: [CGFloat] = []
+            var phase: CGFloat = 0
+            var count: Int = 0
+            getLineDash(&pattern, count: &count, phase: &phase)
+            return LineDash(pattern: pattern, phase: phase)
+        }
+        set { setLineDash(newValue.pattern, count: newValue.pattern.count, phase: newValue.phase) }
+    }
+    
+    /// Sets the line-stroking pattern and phase of the path.
+    @discardableResult
+    func lineDash(_ lineDash: LineDash) -> Self {
+        self.lineDash = lineDash
+        return self
+    }
+   
+    /// The line-stroking pattern and phase of a bezier path.
+    struct LineDash: Codable, Hashable {
+        /// The pattern of the line dash.
+        public let pattern: [CGFloat]
+        /// The phase of the line dash.
+        public let phase: CGFloat
+    }
+    
+    #if os(macOS)
+    /// Sets the winding rule used to fill the path.
+    @discardableResult
+    func windingRule(_ windingRule: WindingRule) -> Self {
+        self.windingRule = windingRule
+        return self
+    }
+    
+    /// Sets the line cap style for the path.
+    @discardableResult
+    func lineCapStyle(_ style: LineCapStyle) -> Self {
+        self.lineCapStyle = style
+        return self
+    }
+    
+    /// Sets the line join style for the path.
+    @discardableResult
+    func lineJoinStyle(_ style: LineJoinStyle) -> Self {
+        self.lineJoinStyle = style
+        return self
+    }
+    
+    #elseif os(iOS) || os(tvOS) || os(watchOS)
+    /// Sets the line cap style for the path.
+    @discardableResult
+    func lineCapStyle(_ style: CGLineCap) -> Self {
+        self.lineCapStyle = style
+        return self
+    }
+    
+    /// Sets the line join style for the path.
+    @discardableResult
+    func lineJoinStyle(_ style: CGLineJoin) -> Self {
+        self.lineJoinStyle = style
+        return self
+    }
+    
+    /// Sets the Boolean value that indicates whether the even-odd winding rule is in use for drawing paths.
+    @discardableResult
+    func usesEvenOddFillRule(_ usesEvenOddFillRule: Bool) -> Self {
+        self.usesEvenOddFillRule = usesEvenOddFillRule
+        return self
+    }
+    #endif
+}
+
+public extension NSUIBezierPath {
     /// Creates a Bézier path from a symbol image with the specified name.
     static func symbol(_ symbolName: String) -> NSUIBezierPath? {
         NSUIImage.symbol(symbolName)?.symbolPath
