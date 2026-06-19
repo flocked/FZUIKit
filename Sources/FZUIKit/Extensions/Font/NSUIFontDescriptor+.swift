@@ -406,7 +406,7 @@ extension NSUIFontDescriptor.SymbolicTraits: Swift.Hashable, Swift.CustomStringC
 }
 
 #if os(macOS)
-extension NSUIFontDescriptor {
+public extension NSUIFontDescriptor {
     /// A dictionary of variation axis tags (e.g. `"wght"`, `"wdth") and their corresponding values.
     var variationAxes: [String: Double] {
         guard let variation = object(forKey: .variation) else { return [:] }
@@ -436,7 +436,7 @@ extension NSUIFontDescriptor {
         /// The default valuer of the variation axis.
         let defaultValue: CGFloat
     
-        var description: String {
+        public var description: String {
             "(\(identifier), name: \(name), minumum: \(minimumValue), maximum: \(maximumValue), default: \(defaultValue))"
         }
     
