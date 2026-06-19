@@ -342,28 +342,29 @@ extension NSScrollView {
     }
     
     /// Scrolls the scroll view to the top.
-    public func scrollToBottom() {
-        contentView.animator(isProxy()).setBoundsOrigin(CGPoint(x: contentView.bounds.origin.x, y: 0))
-        /*
-        var contentOffset = contentOffset
-        contentOffset.y = maxContentOffset?.y ?? contentSize.height
-        self.contentOffset = contentOffset
-         */
+    public func scrollToTop() {
+        guard let documentView else { return }
+        contentView.animator(isProxy()).scroll(to: CGPoint(x: contentView.bounds.origin.x, y: documentView.isFlipped ? 0 : max(0, documentView.bounds.height - contentView.bounds.height)))
+        reflectScrolledClipView(contentView)
     }
     
     /// Scrolls the scroll view to the bottom.
-    public func scrollToTop() {
-        contentView.animator(isProxy()).setBoundsOrigin(CGPoint(x: contentView.bounds.origin.x, y: documentView?.bounds.height ?? 0 - contentView.bounds.height))
+    public func scrollToBottom() {
+        guard let documentView else { return }
+        contentView.animator(isProxy()).scroll(to: CGPoint(x: contentView.bounds.origin.x, y: documentView.isFlipped ? max(0, documentView.bounds.height - contentView.bounds.height) : 0))
+        reflectScrolledClipView(contentView)
     }
     
     /// Scrolls the scroll view to the left.
     public func scrollToLeft() {
-        contentView.animator(isProxy()).setBoundsOrigin(CGPoint(x: 0, y: contentView.bounds.origin.y))
+        contentView.animator(isProxy()).scroll(to: CGPoint(x: 0, y: contentView.bounds.origin.y))
+        reflectScrolledClipView(contentView)
     }
     
     /// Scrolls the scroll view to the right.
     public func scrollToRight() {
-        contentView.animator(isProxy()).setBoundsOrigin(CGPoint(x: (documentView?.bounds.width ?? 0) - contentView.bounds.width, y: contentView.bounds.origin.y))
+        contentView.animator(isProxy()).scroll(to: CGPoint(x: max(0, (documentView?.bounds.width ?? 0) - contentView.bounds.width), y: contentView.bounds.origin.y))
+        reflectScrolledClipView(contentView)
     }
     
     /**
