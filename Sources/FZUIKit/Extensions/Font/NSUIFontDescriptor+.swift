@@ -285,6 +285,9 @@ extension NSUIFontDescriptor.AttributeName: Swift.ExpressibleByStringLiteral {
         self.init(rawValue: value)
     }
     
+    /// The variation axes supported by the font.
+    public static let variationAxes = Self(kCTFontVariationAxesAttribute as String)
+    
     /// A string that specifies the covered languages for the font.
     public static let languages = Self(rawValue: kCTFontLanguagesAttribute as String)
     
@@ -301,10 +304,10 @@ extension NSUIFontDescriptor.AttributeName: Swift.ExpressibleByStringLiteral {
     public static let url = Self(rawValue: kCTFontURLAttribute as String)
     
     /// A string that specifies the font size category.
-    public static let sizeCategory = Self(rawValue: "NSCTFontSizeCategoryAttribute")
+    public static let sizeCategory = Self("NSCTFontSizeCategoryAttribute")
 
     /// A string that specifies the font UI usage.
-    public static let uiUsage = Self(rawValue: "NSCTFontUIUsageAttribute")
+    public static let uiUsage = Self("NSCTFontUIUsageAttribute")
     #if os(macOS)
     /**
      The text style attribute.
@@ -407,53 +410,89 @@ extension NSUIFontDescriptor.SymbolicTraits: Swift.Hashable, Swift.CustomStringC
 
 #if os(macOS)
 public extension NSUIFontDescriptor {
-    /// A dictionary of variation axis tags (e.g. `"wght"`, `"wdth") and their corresponding values.
-    var variationAxes: [String: Double] {
+    /// The current values of the font's variation axes.
+    var variationValues: [VariationAxisTag: Double] {
         guard let variation = object(forKey: .variation) else { return [:] }
         if let variation = variation as? [NSFontDescriptor.VariationKey: Any] {
-            return variation.mapKeys { $0.rawValue }.compactMapValues { ($0 as? NSNumber)?.doubleValue }
+            return variation.mapKeys { .init(rawValue: $0.rawValue) }.compactMapValues { ($0 as? NSNumber)?.doubleValue }
         } else if let variation = variation as? [NSNumber: Any] {
-            return variation.mapKeys { $0.osTypeString }.compactMapValues { ($0 as? NSNumber)?.doubleValue }
+            return variation.mapKeys { .init(rawValue: $0.osTypeString) }.compactMapValues { ($0 as? NSNumber)?.doubleValue }
         }
         return [:]
     }
+    
+    /// An OpenType variation axis tag.
+    struct VariationAxisTag: RawRepresentable, Hashable, Sendable, CustomStringConvertible, ExpressibleByStringLiteral, Codable, Sendable {
+        /// The weight axis controlling the thickness of glyph strokes.
+        public static let weight = Self(rawValue: "wght")
+        /// The width axis controlling the horizontal expansion or compression of glyphs.
+        public static let width = Self(rawValue: "wdth")
+        /// The optical size axis controlling design adjustments for different point sizes.
+        public static let opticalSize = Self(rawValue: "opsz")
+        /// The slant axis controlling the angle of glyphs.
+        public static let slant = Self(rawValue: "slnt")
+        /// The italic axis controlling whether italic glyph forms are used.
+        public static let italic = Self(rawValue: "ital")
+        
+        public let rawValue: String
+        
+        public var description: String { rawValue }
 
-    /// The variation axis of the font.
-    var variationAxis: VarationAxis? {
-        .init(object(forKey: .variation) as? [VariationKey: Any] ?? [:])
+        public init(rawValue: String) {
+            self.rawValue = rawValue
+        }
+        
+        public init(stringLiteral value: String) {
+            self.rawValue = value
+        }
     }
 
-    /// The variation axis of a font.
-    struct VarationAxis: CustomStringConvertible {
-        /// The localized name of the variation axis.
-        let name: String
-        /// The identifier of the variation axis.
-        let identifier: Int
-        /// The minimum valuer of the variation axis.
-        let minimumValue: CGFloat
-        /// The maximum valuer of the variation axis.
-        let maximumValue: CGFloat
-        /// The default valuer of the variation axis.
-        let defaultValue: CGFloat
-    
+    /// The variation axes supported by the font.
+    var variationAxes: [VariationAxis] {
+        (object(forKey: .variationAxes) as? [[CFString: Any]] ?? []).compactMap { VariationAxis($0) }
+    }
+
+    /// Describes a variation axis supported by a variable font.
+    struct VariationAxis: Hashable, Codable, CustomStringConvertible, Sendable {
+        /// The localized display name of the axis.
+        public let name: String
+        /// The four-character OpenType axis identifier.
+        public let identifier: String
+        /// The minimum value supported by the axis.
+        public let minimumValue: CGFloat
+        /// The maximum value supported by the axis.
+        public let maximumValue: CGFloat
+        /// The default value of the axis.
+        public let defaultValue: CGFloat
+        /// A Boolean value indicating whether the axis should be hidden from user interfaces.
+        public let isHidden: Bool
+        
         public var description: String {
             "(\(identifier), name: \(name), minumum: \(minimumValue), maximum: \(maximumValue), default: \(defaultValue))"
         }
-    
-        init?(_ variations: [VariationKey: Any]) {
-            guard !variations.isEmpty else { return nil }
-            self.name = variations[.name] as! String
-            self.identifier = variations[.identifier] as! Int
-            self.minimumValue = variations[.minimumValue] as! CGFloat
-            self.maximumValue = variations[.maximumValue] as! CGFloat
-            self.defaultValue = variations[.defaultValue] as! CGFloat
+        
+        init?(_ axis: [CFString: Any]) {
+            guard
+                let name = axis[kCTFontVariationAxisNameKey] as? String,
+                let identifier = axis[kCTFontVariationAxisIdentifierKey] as? NSNumber,
+                let minimum = axis[kCTFontVariationAxisMinimumValueKey] as? CGFloat,
+                let maximum = axis[kCTFontVariationAxisMaximumValueKey] as? CGFloat,
+                let defaultValue = axis[kCTFontVariationAxisDefaultValueKey] as? CGFloat
+            else { return nil
+            }
+            self.name = name
+            self.identifier = identifier.osTypeString
+            self.defaultValue = defaultValue
+            self.minimumValue = minimum
+            self.maximumValue = maximum
+            self.isHidden = axis[kCTFontVariationAxisHiddenKey] as? Bool ?? false
+            // axis["NSCTVariationAxisFlags" as CFString] as? Int
         }
     }
 
     /// The non-default font feature settings.
     var featureSettings: [FeatureSetting] {
-        guard let values = object(forKey: .featureSettings) as? [[NSFontDescriptor.FeatureKey: Int]] else { return [] }
-        return values.compactMap { .init($0) }
+        (object(forKey: .featureSettings) as? [[FeatureKey: Int]] ?? []).compactMap { .init($0) }
     }
 
     struct FeatureSetting {
