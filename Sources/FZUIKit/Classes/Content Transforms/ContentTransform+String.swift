@@ -11,12 +11,12 @@ import FZSwiftUtils
 /// A transformer that generates a modified output string from an input string.
 public struct StringTransformer: ContentTransform {
     /// The block that transform a text.
-    public let transform: (String) -> String
+    public let transform: @Sendable (String) -> String
     /// The identifier of the transformer.
     public let id: String
 
     /// Creates a text transformer with the specified identifier and block that transforms a text.
-    public init(_ identifier: String, _ transform: @escaping (String) -> String) {
+    public init(_ identifier: String, _ transform: @escaping @Sendable (String) -> String) {
         self.transform = transform
         id = identifier
     }
@@ -41,12 +41,12 @@ public struct StringTransformer: ContentTransform {
 /// A transformer that generates a modified output attributed string from an input attributed string.
 public struct AttributedStringTransformer: ContentTransform {
     /// The block that transform a text.
-    public let transform: (AttributedString) -> AttributedString
+    public let transform: @Sendable (AttributedString) -> AttributedString
     /// The identifier of the transformer.
     public let id: String
 
     /// Creates a text transformer with the specified identifier and block that transforms a text.
-    public init(_ identifier: String, _ transform: @escaping (AttributedString) -> AttributedString) {
+    public init(_ identifier: String, _ transform: @escaping @Sendable (AttributedString) -> AttributedString) {
         self.transform = transform
         id = identifier
     }
@@ -70,12 +70,12 @@ public struct AttributedStringTransformer: ContentTransform {
 /// A transformer that generates a modified output attributed string from an input attributed string.
 public struct NSAttributedStringTransformer: ContentTransform {
     /// The block that transforms a text.
-    public let transform: (NSAttributedString) -> NSAttributedString
+    public let transform: @Sendable (NSAttributedString) -> NSAttributedString
     /// The identifier of the transformer.
     public let id: String
 
     /// Creates a text transformer with the specified identifier and block that transforms a text.
-    public init(_ id: String, _ transform: @escaping (NSAttributedString) -> NSAttributedString) {
+    public init(_ id: String, _ transform: @escaping @Sendable (NSAttributedString) -> NSAttributedString) {
         self.transform = transform
         self.id = id
     }

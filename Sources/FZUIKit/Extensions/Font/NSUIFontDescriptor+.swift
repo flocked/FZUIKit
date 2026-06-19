@@ -125,7 +125,7 @@ public extension NSUIFontDescriptor {
         guard slant != self.slant, slant.isBetween(-1.0...1.0) else { return self }
         var traits = traits ?? [:]
         traits[.slant] = slant
-        return addingAttributes([.traits : traits])
+        return addingAttributes([.traits: traits])
     }
     
     /**
@@ -146,7 +146,7 @@ public extension NSUIFontDescriptor {
         guard width != self.width, width.isBetween(-1.0...1.0) else { return self }
         var traits = traits ?? [:]
         traits[.width] = width
-        return addingAttributes([.traits : traits])
+        return addingAttributes([.traits: traits])
     }
 
     /// The system design of the font.
@@ -166,7 +166,7 @@ public extension NSUIFontDescriptor {
         guard weight != self.weight else { return self }
         var traits = traits ?? [:]
         traits[.weight] = weight.rawValue
-        return addingAttributes([.traits : traits])
+        return addingAttributes([.traits: traits])
     }
     
     /// A dictionary of the traits.
@@ -176,7 +176,7 @@ public extension NSUIFontDescriptor {
     
     /// Returns a new font descriptor based on the current object, but with the specified traits.
     private func withTraits(_ traits: [TraitKey: Any]) -> NSUIFontDescriptor {
-        addingAttributes([.traits : traits])
+        addingAttributes([.traits: traits])
     }
 
     /// The text style of the font descriptor.
@@ -187,7 +187,7 @@ public extension NSUIFontDescriptor {
     
     /// The covered languages for the font.
     var supportedLanguages: [Locale] {
-        (object(forKey: .languages) as? [String] ?? []).map({ Locale(identifier: $0 )})
+        (object(forKey: .languages) as? [String] ?? []).map { Locale(identifier: $0) }
     }
     
     /// The recognized format of a font.
@@ -245,7 +245,7 @@ public extension NSUIFontDescriptor {
     
     /// Returns all available font descriptors for the specified font family name (e.g. "Helvetica").
     static func all(forFamilyName familyName: String) -> [NSUIFontDescriptor] {
-        all(matchingAttributes: [.family:familyName])
+        all(matchingAttributes: [.family: familyName])
     }
     
     /// Returns all available font descriptors for the specified locale.
@@ -256,7 +256,7 @@ public extension NSUIFontDescriptor {
     
     /// Returns all available font descriptors for the specified symbol traits.
     static func all(withSymbolTraits symbolicTraits: SymbolicTraits) -> [NSUIFontDescriptor] {
-        all.filter({ $0.symbolicTraits.contains(symbolicTraits) })
+        all.filter { $0.symbolicTraits.contains(symbolicTraits) }
     }
     
     #if !os(macOS)
@@ -270,7 +270,7 @@ public extension NSUIFontDescriptor {
  
      */
     func matchingFontDescriptor(withMandatoryKeys mandatoryKeys: Set<AttributeName>?) -> NSUIFontDescriptor? {
-        CTFontDescriptorCreateMatchingFontDescriptor(self, mandatoryKeys?.map({$0.rawValue as CFString}) as? NSSet)
+        CTFontDescriptorCreateMatchingFontDescriptor(self, mandatoryKeys?.map { $0.rawValue as CFString } as? NSSet)
     }
     #endif
 }
@@ -409,41 +409,34 @@ extension NSUIFontDescriptor.SymbolicTraits: Swift.Hashable, Swift.CustomStringC
 extension NSUIFontDescriptor {
     /// A dictionary of variation axis tags (e.g. `"wght"`, `"wdth") and their corresponding values.
     var variationAxes: [String: Double] {
-        if let variationAxes = _variationAxes {
-            return variationAxes
+        guard let variation = object(forKey: .variation) else { return [:] }
+        if let variation = variation as? [NSFontDescriptor.VariationKey: Any] {
+            return variation.mapKeys { $0.rawValue }.compactMapValues { ($0 as? NSNumber)?.doubleValue }
+        } else if let variation = variation as? [NSNumber: Any] {
+            return variation.mapKeys { $0.osTypeString }.compactMapValues { ($0 as? NSNumber)?.doubleValue }
         }
-        guard let rawVariations = object(forKey: .variation) as? [NSNumber: NSNumber] else {
-            return [:]
-        }
-        return rawVariations.mapKeys({ UTCreateStringForOSType($0.uint32Value).takeRetainedValue() as String? ?? "Unknown" }).mapValues({ $0.doubleValue })
-    }
-
-    fileprivate var _variationAxes: [String: Double]? {
-        guard let rawVariations = object(forKey: .variation) as? [NSFontDescriptor.VariationKey: Any] else {
-            return nil
-        }
-        return rawVariations.mapKeys({$0.rawValue}).compactMapValues({ $0 as? NSNumber}).mapValues({$0.doubleValue})
+        return [:]
     }
 
     /// The variation axis of the font.
-    internal var variationAxis: VarationAxis? {
+    var variationAxis: VarationAxis? {
         .init(object(forKey: .variation) as? [VariationKey: Any] ?? [:])
     }
 
     /// The variation axis of a font.
-    internal struct VarationAxis: CustomStringConvertible {
+    struct VarationAxis: CustomStringConvertible {
         /// The localized name of the variation axis.
-        public let name: String
+        let name: String
         /// The identifier of the variation axis.
-        public let identifier: Int
+        let identifier: Int
         /// The minimum valuer of the variation axis.
-        public let minimumValue: CGFloat
+        let minimumValue: CGFloat
         /// The maximum valuer of the variation axis.
-        public let maximumValue: CGFloat
+        let maximumValue: CGFloat
         /// The default valuer of the variation axis.
-        public let defaultValue: CGFloat
+        let defaultValue: CGFloat
     
-        public var description: String {
+        var description: String {
             "(\(identifier), name: \(name), minumum: \(minimumValue), maximum: \(maximumValue), default: \(defaultValue))"
         }
     
@@ -458,24 +451,24 @@ extension NSUIFontDescriptor {
     }
 
     /// The non-default font feature settings.
-    internal var featureSettings: [FeatureSetting] {
+    var featureSettings: [FeatureSetting] {
         guard let values = object(forKey: .featureSettings) as? [[NSFontDescriptor.FeatureKey: Int]] else { return [] }
-        return values.compactMap({ .init($0) })
+        return values.compactMap { .init($0) }
     }
 
-    internal struct FeatureSetting {
+    struct FeatureSetting {
         /**
          The type of the font feature.
  
          The value specifies a font feature type such as ligature, character shape, and so on.
          */
-        public let typeIdentifier: Int
+        let typeIdentifier: Int
         /**
          The selector of the font feature.
  
          The value specifies a font feature selector such as common ligature off, traditional character shape, and so on.
          */
-        public let selectorIdentifier: Int
+        let selectorIdentifier: Int
 
         init?(_ dic: [NSUIFontDescriptor.FeatureKey: Int]) {
             guard let typeID = dic[.typeIdentifier], let selectorID = dic[.selectorIdentifier] else { return nil }
@@ -485,9 +478,9 @@ extension NSUIFontDescriptor {
     }
 }
 
-extension CTFontSymbolicTraits {
+public extension CTFontSymbolicTraits {
     /// The width of the font’s characters.
-    public enum Width: Hashable, Codable {
+    enum Width: Hashable, Codable {
         /// The font’s characters have a condensed width.
         case condensed
         /// The font’s characters have an expanded width.
@@ -497,7 +490,7 @@ extension CTFontSymbolicTraits {
     }
     
     /// The width of the font’s characters.
-    public var width: Width {
+    var width: Width {
         get { contains(.traitExpanded) ? .expanded : contains(.traitCondensed) ? .condensed : .standard }
         set {
             self[.traitExpanded] = newValue == .expanded
@@ -506,7 +499,7 @@ extension CTFontSymbolicTraits {
     }
     
     /// The font’s leading value.
-    public enum Leading: Hashable, Codable {
+    enum Leading: Hashable, Codable {
         /// The font uses a standard leading value.
         case standard
         /// The font uses a leading value that’s greater than the default.
@@ -516,12 +509,22 @@ extension CTFontSymbolicTraits {
     }
     
     /// The font’s leading value.
-    public var leading: Leading {
+    var leading: Leading {
         get { contains(.traitTightLeading) ? .tight : contains(.traitLooseLeading) ? .loose : .standard }
         set {
             self[.traitTightLeading] = newValue == .tight
             self[.traitLooseLeading] = newValue == .loose
         }
+    }
+}
+
+fileprivate extension NSNumber {
+    var osTypeString: String {
+        let osType = uint32Value
+        return String([Character(UnicodeScalar((osType >> 24) & 0xFF)!),
+                       Character(UnicodeScalar((osType >> 16) & 0xFF)!),
+                       Character(UnicodeScalar((osType >> 8) & 0xFF)!),
+                       Character(UnicodeScalar(osType & 0xFF)!)])
     }
 }
 #endif

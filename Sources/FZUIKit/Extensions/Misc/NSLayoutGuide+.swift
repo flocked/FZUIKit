@@ -11,6 +11,7 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import FZSwiftUtils
 
 extension NSUILayoutGuide {
     /**

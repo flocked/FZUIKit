@@ -14,12 +14,12 @@ import UIKit
 /// A transformer that generates a modified output color from an input color.
 public struct ColorTransformer: ContentTransform {
     /// The block that transforms a color.
-    public let transform: (NSUIColor) -> NSUIColor
+    public let transform: @Sendable (NSUIColor) -> NSUIColor
     /// The identifier of the transformer.
     public let id: String
 
     /// Creates a color transformer with the specified identifier and block that transforms a color.
-    public init(_ identifier: String, _ transform: @escaping (NSUIColor) -> NSUIColor) {
+    public init(_ identifier: String, _ transform: @escaping @Sendable (NSUIColor) -> NSUIColor) {
         self.transform = {
             #if os(macOS) || os(iOS)
             let dynamicColors = $0.dynamicColors
@@ -32,7 +32,7 @@ public struct ColorTransformer: ContentTransform {
         id = identifier
     }
     
-    private init(id: String, _ transform: @escaping (NSUIColor) -> NSUIColor) {
+    private init(id: String, _ transform: @escaping @Sendable (NSUIColor) -> NSUIColor) {
         self.transform = transform
         self.id = id
     }

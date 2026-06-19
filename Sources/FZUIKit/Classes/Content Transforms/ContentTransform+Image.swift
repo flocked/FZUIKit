@@ -15,12 +15,12 @@ import FZSwiftUtils
 /// A transformer that generates a modified output image from an input image.
 public struct ImageTransformer: ContentTransform {
     /// The block that transforms a image.
-    public let transform: (NSUIImage) -> NSUIImage
+    public let transform: @Sendable (NSUIImage) -> NSUIImage
     /// The identifier of the transformer.
     public let id: String
 
     /// Creates a image transformer with the specified identifier and block that transforms a image.
-    public init(_ identifier: String, _ transform: @escaping (NSUIImage) -> NSUIImage) {
+    public init(_ identifier: String, _ transform: @escaping @Sendable (NSUIImage) -> NSUIImage) {
         self.transform = transform
         id = identifier
     }
@@ -65,18 +65,15 @@ public struct ImageTransformer: ContentTransform {
 
     /// Creates a image transformer that generates a rounded version of the image with the specified degrees.
     public static func rotated(degrees: CGFloat) -> Self {
-        let transform: (NSUIImage) -> NSUIImage = {$0.rotated(degrees: degrees)
-        }
-        return Self("rotated: \(degrees)", transform)
+        Self("rotated: \(degrees)", { $0.rotated(degrees: degrees) })
     }
 
     /// Creates a image transformer that generates a version of the image with the specified symbol configuration.
     public static func symbolConfiguration(_ value: NSUIImage.SymbolConfiguration) -> Self {
-        #if os(macOS)
-        return Self("symbolConfiguration: \(value)") { $0.withSymbolConfiguration(value) ?? $0 }
-        #elseif canImport(UIKit)
-        return Self("symbolConfiguration: \(value)") {$0.applyingSymbolConfiguration(value) ?? $0 }
-        #endif
+        let box = SendableBox(value: value)
+        return Self("symbolConfiguration: \(value)") {
+            $0.applyingSymbolConfiguration(box.value) ?? $0
+        }
     }
 
     /// Creates a image transformer that generates a version of the image resized to the specified size.
@@ -86,21 +83,25 @@ public struct ImageTransformer: ContentTransform {
 
     /// Creates a image transformer that generates a version of the image resized to fit the specified size.
     public static func resized(toFit size: CGSize) -> Self {
-        Self("resizedToFit: \(size)") { image in image.resized(toFit: size) }
+        Self("resizedToFit: \(size)") { $0.resized(toFit: size) }
     }
 
     /// Creates a image transformer that generates a version of the image resized to fill the specified size.
     public static func resized(toFill size: CGSize) -> Self {
-        Self("resizedToFill: \(size)") { image in image.resized(toFill: size) }
+        Self("resizedToFill: \(size)") { $0.resized(toFill: size) }
     }
     
     /// Creates a image transformer that generates a version of the image resized to the specified width while maintaining the aspect ratio.
     public static func resized(toWidth width: CGFloat)  -> Self {
-        Self("resizedToWidth: \(width)") { image in image.resized(toWidth: width) }
+        Self("resizedToWidth: \(width)") { $0.resized(toWidth: width) }
     }
     
     /// Creates a image transformer that generates a version of the image resized to the specified height while maintaining the aspect ratio.
     public static func resized(toHeight height: CGFloat)  -> Self {
-        Self("resizedToHeight: \(height)") { image in image.resized(toHeight: height) }
+        Self("resizedToHeight: \(height)") { $0.resized(toHeight: height) }
     }
+}
+
+fileprivate struct SendableBox<Value>: @unchecked Sendable {
+    let value: Value
 }

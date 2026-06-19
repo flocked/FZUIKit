@@ -527,8 +527,7 @@ public extension NSImage {
      - Returns: A new version of the image object that contains the merged configuration details.
      */
     func applyingSymbolConfiguration(_ configuration: NSImage.SymbolConfiguration) -> NSImage? {
-        let updatedConfiguration = symbolConfiguration.applying(configuration)
-        return withSymbolConfiguration(updatedConfiguration)
+        withSymbolConfiguration(symbolConfiguration.applying(configuration))
     }
 }
 #elseif canImport(UIKit)

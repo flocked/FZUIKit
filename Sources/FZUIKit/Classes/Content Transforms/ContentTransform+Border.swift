@@ -15,12 +15,12 @@ import UIKit
 /// A transformer that generates a modified output border from an input border.
 public struct BorderTransformer: ContentTransform {
     /// The block that transforms a border.
-    public let transform: (BorderConfiguration) -> BorderConfiguration
+    public let transform: @Sendable (BorderConfiguration) -> BorderConfiguration
     /// The identifier of the transformer.
     public let id: String
 
     /// Creates a border transformer with the specified identifier and block that transforms a border.
-    public init(_ identifier: String, _ transform: @escaping (BorderConfiguration) -> BorderConfiguration) {
+    public init(_ identifier: String, _ transform: @escaping @Sendable (BorderConfiguration) -> BorderConfiguration) {
         self.transform = transform
         id = identifier
     }
@@ -48,7 +48,16 @@ public struct BorderTransformer: ContentTransform {
     public static func width(_ width: CGFloat) -> Self {
         Self("width: \(width)") { border in
             var border = border
-            border.width =  width
+            border.width = width
+            return border
+        }
+    }
+    
+    /// Creates a border transformer that generates a version of the border with the specified dash.
+    public static func dash(_ dash: BorderConfiguration.Dash) -> Self {
+        Self("dash: \(dash)") { border in
+            var border = border
+            border.dash = dash
             return border
         }
     }

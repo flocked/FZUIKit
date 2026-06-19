@@ -27,77 +27,6 @@ extension NSScrollView {
         return self
     }
     
-    /// The Autoscroll speed (pixel per second) of the scroll view, or `nil` for no autoscrolling.
-    @available(macOS 14.0, *)
-    public var autoScrollSpeed: CGFloat? {
-        get { getAssociatedValue("autoScrollSpeed") }
-        set {
-            var newValue = newValue?.clamped(min: 0.0)
-            newValue = newValue == 0.0 ? nil : newValue
-            guard newValue != autoScrollSpeed else { return }
-            setAssociatedValue(newValue, key: "autoScrollSpeed")
-            if let newValue = newValue {
-                autoScrollDisplaylink = DisplayLink(view: self) { [weak self] frame in
-                    guard let self = self, let displayLink = self.autoScrollDisplaylink, let documentView = self.documentView else { return }
-                    let currentOrigin = self.contentView.bounds.origin
-                    let maxScrollY = documentView.bounds.height - self.contentSize.height
-                    var newY = max(0, min(currentOrigin.y + newValue / displayLink.framesPerSecond, documentView.bounds.height - self.contentSize.height))
-                    if self.loopsAutoScroll && newY >= maxScrollY {
-                        newY = 0
-                    } else {
-                        newY = max(0, min(newY, maxScrollY))
-                    }
-                    let newOrigin = NSPoint(x: currentOrigin.x, y: newY)
-                    self.contentView.scroll(to: newOrigin)
-                    self.reflectScrolledClipView(contentView)
-                }
-                autoScrollDisplaylink?.isPaused = documentView == nil
-                autoScrollDocumentViewObservation = observeChanges(for: \.documentView) { [weak self] old, new in
-                    self?.autoScrollDisplaylink?.isPaused = new == nil
-                }
-            } else {
-                autoScrollDisplaylink = nil
-                autoScrollDocumentViewObservation = nil
-            }
-        }
-    }
-    
-    /// Sets the Autoscroll speed (pixel per second) of the scroll view, or `nil` for no autoscrolling.
-    @discardableResult
-    @available(macOS 14.0, *)
-    public func autoScrollSpeed(_ speed: CGFloat?) -> Self {
-        autoScrollSpeed = speed
-        return self
-    }
-    
-    /// A Boolean value indicating whether the autoscrolling should loop when the scroll view reached the bottom.
-    @available(macOS 14.0, *)
-    public var loopsAutoScroll: Bool {
-        get { getAssociatedValue("loopsAutoScroll") ?? false }
-        set { setAssociatedValue(newValue, key: "loopsAutoScroll") }
-    }
-    
-    /// Sets the Boolean value indicating whether the autoscrolling should loop when the scroll view reached the bottom.
-    @discardableResult
-    @available(macOS 14.0, *)
-    public func loopsAutoScroll(_ loops: Bool) -> Self {
-        loopsAutoScroll = loops
-        return self
-    }
-    
-    @available(macOS 14.0, *)
-    var autoScrollDisplaylink: DisplayLink? {
-        get { getAssociatedValue("autoScrollDisplaylink") }
-        set { setAssociatedValue(newValue, key: "autoScrollDisplaylink") }
-    }
-    
-    @available(macOS 14.0, *)
-    var autoScrollDocumentViewObservation: KeyValueObservation? {
-        get { getAssociatedValue("autoScrollDocumentViewObservation") }
-        set { setAssociatedValue(newValue, key: "autoScrollDocumentViewObservation") }
-    }
-    
-    
     /// Sets the value that specifies the appearance of the scroll view’s border.
     @discardableResult
     public func borderType(_ type: NSBorderType) -> Self {
@@ -303,6 +232,78 @@ extension NSScrollView {
         self.verticalPageScroll = pageScroll
         return self
     }
+}
+
+extension NSScrollView {
+    /// The Autoscroll speed (pixel per second) of the scroll view, or `nil` for no autoscrolling.
+    @available(macOS 14.0, *)
+    public var autoScrollSpeed: CGFloat? {
+        get { getAssociatedValue("autoScrollSpeed") }
+        set {
+            var newValue = newValue?.clamped(min: 0.0)
+            newValue = newValue == 0.0 ? nil : newValue
+            guard newValue != autoScrollSpeed else { return }
+            setAssociatedValue(newValue, key: "autoScrollSpeed")
+            if let newValue = newValue {
+                autoScrollDisplaylink = DisplayLink(view: self) { [weak self] frame in
+                    guard let self = self, let displayLink = self.autoScrollDisplaylink, let documentView = self.documentView else { return }
+                    let currentOrigin = self.contentView.bounds.origin
+                    let maxScrollY = documentView.bounds.height - self.contentSize.height
+                    var newY = max(0, min(currentOrigin.y + newValue / displayLink.framesPerSecond, documentView.bounds.height - self.contentSize.height))
+                    if self.loopsAutoScroll && newY >= maxScrollY {
+                        newY = 0
+                    } else {
+                        newY = max(0, min(newY, maxScrollY))
+                    }
+                    let newOrigin = NSPoint(x: currentOrigin.x, y: newY)
+                    self.contentView.scroll(to: newOrigin)
+                    self.reflectScrolledClipView(contentView)
+                }
+                autoScrollDisplaylink?.isPaused = documentView == nil
+                autoScrollDocumentViewObservation = observeChanges(for: \.documentView) { [weak self] old, new in
+                    self?.autoScrollDisplaylink?.isPaused = new == nil
+                }
+            } else {
+                autoScrollDisplaylink = nil
+                autoScrollDocumentViewObservation = nil
+            }
+        }
+    }
+    
+    /// Sets the Autoscroll speed (pixel per second) of the scroll view, or `nil` for no autoscrolling.
+    @discardableResult
+    @available(macOS 14.0, *)
+    public func autoScrollSpeed(_ speed: CGFloat?) -> Self {
+        autoScrollSpeed = speed
+        return self
+    }
+    
+    /// A Boolean value indicating whether the autoscrolling should loop when the scroll view reached the bottom.
+    @available(macOS 14.0, *)
+    public var loopsAutoScroll: Bool {
+        get { getAssociatedValue("loopsAutoScroll") ?? false }
+        set { setAssociatedValue(newValue, key: "loopsAutoScroll") }
+    }
+    
+    /// Sets the Boolean value indicating whether the autoscrolling should loop when the scroll view reached the bottom.
+    @discardableResult
+    @available(macOS 14.0, *)
+    public func loopsAutoScroll(_ loops: Bool) -> Self {
+        loopsAutoScroll = loops
+        return self
+    }
+    
+    @available(macOS 14.0, *)
+    var autoScrollDisplaylink: DisplayLink? {
+        get { getAssociatedValue("autoScrollDisplaylink") }
+        set { setAssociatedValue(newValue, key: "autoScrollDisplaylink") }
+    }
+    
+    @available(macOS 14.0, *)
+    var autoScrollDocumentViewObservation: KeyValueObservation? {
+        get { getAssociatedValue("autoScrollDocumentViewObservation") }
+        set { setAssociatedValue(newValue, key: "autoScrollDocumentViewObservation") }
+    }
     
     var contentOffsetNotificationToken: NotificationToken? {
         get { getAssociatedValue("contentOffsetNotificationToken") }
@@ -408,20 +409,18 @@ extension NSScrollView {
     @objc var _contentOffsetFractional: CGPoint {
         get {
             guard let maxOffset = maxContentOffset else { return .zero }
-            return CGPoint(contentOffset.x / maxOffset.x, contentOffset.y / maxOffset.y)
+            return CGPoint(x: maxOffset.x > 0 ? contentOffset.x / maxOffset.x : 0, y: maxOffset.y > 0 ? contentOffset.y / maxOffset.y : 0)
         }
         set {
             guard let maxOffset = maxContentOffset else { return }
             NSView.swizzleAnimationForKey()
-            contentOffset = CGPoint(newValue.x.clamped(to: 0.0...1.0) * maxOffset.x, newValue.y.clamped(to: 0.0...1.0) * maxOffset.y)
+            contentOffset = CGPoint(x: newValue.x.clamped(to: 0 ... 1) * maxOffset.x, y: newValue.y.clamped(to: 0 ... 1) * maxOffset.y)
         }
     }
     
     public var maxContentOffset: CGPoint? {
         guard let documentView = documentView else { return nil }
-        let maxY = documentView.frame.maxY - contentView.bounds.height
-        let maxX = documentView.frame.maxX - contentView.bounds.width
-        return CGPoint(maxX, maxY)
+        return CGPoint(x: max(0, documentView.bounds.width - documentVisibleRect.width), y: max(0, documentView.bounds.height - documentVisibleRect.height))
     }
     
     /**
@@ -432,9 +431,9 @@ extension NSScrollView {
     @objc open var visibleDocumentSize: CGSize {
         get { documentVisibleRect.size }
         set {
-            guard newValue != documentSize else { return }
+            guard newValue != visibleDocumentSize else { return }
             NSView.swizzleAnimationForKey()
-            zoom(toSize: newValue)
+            magnification = max(contentSize.width/newValue.width, contentSize.height/newValue.height)
         }
     }
     
@@ -461,10 +460,6 @@ extension NSScrollView {
     }
     
     
-    func zoom(toSize size: CGSize) {
-        magnification = max(contentSize.width/size.width, contentSize.height/size.height)
-    }
-    
     /**
      Sets the point at which the origin of the document view is offset from the origin of the scroll view.
      
@@ -473,11 +468,9 @@ extension NSScrollView {
         - animationDuration: The animation duration.
      */
     @objc open func setContentOffset(_ contentOffset: CGPoint, animationDuration: TimeInterval, timingCurve: CAMediaTimingFunction = .default) {
-        NSAnimationContext.runAnimationGroup({ context in
-            context.duration = animationDuration
-            context.timingFunction = timingCurve
+        NSView.animate(withDuration: animationDuration, timingFunction: timingCurve) {
             self.contentView.animator().bounds.origin = contentOffset
-        })
+        }
     }
     
     /**
@@ -508,9 +501,7 @@ extension NSScrollView {
         - animationSpeed: The animation speed.
      */
     @objc open func setContentOffset(_ contentOffset: CGPoint, animationSpeed: TimeInterval, timingCurve: CAMediaTimingFunction = .default) {
-        let distance = self.contentOffset.distance(to: contentOffset)
-        let animationDuration = distance / (animationSpeed * 100.0)
-        
+        let animationDuration = self.contentOffset.distance(to: contentOffset) / (animationSpeed * 100.0)
         setContentOffset(contentOffset, animationDuration: animationDuration, timingCurve: timingCurve)
     }
     
@@ -648,7 +639,7 @@ extension NSScrollView {
         - point: The point (in content view space) on which to center magnification.
      */
     public func zoomIn(factor: CGFloat = 0.5, centeredAt point: CGPoint? = nil) {
-        zoom(factor: factor, centeredAt: point)
+        zoom(byFraction: factor, centeredAt: point)
     }
     
     /**
@@ -659,27 +650,31 @@ extension NSScrollView {
         - point: The point (in content view space) on which to center magnification.
      */
     public func zoomOut(factor: CGFloat = 0.5, centeredAt: CGPoint? = nil) {
-        zoom(factor: -factor, centeredAt: centeredAt)
+        zoom(byFraction: -factor, centeredAt: centeredAt)
     }
     
-    func zoom(factor: CGFloat = 0.5, centeredAt: CGPoint? = nil) {
+    /*
+    func zoom(factor: CGFloat = 0.5, centeredAt point: CGPoint? = nil) {
+        guard allowsMagnification else { return }
+        let newMagnification = (magnification * factor).clamped(to: minMagnification ... maxMagnification)
+        if let point = point {
+            setMagnification(newMagnification, centeredAt: point)
+        } else {
+            magnification = newMagnification
+        }
+    }
+     */
+
+    private func zoom(byFraction fraction: CGFloat, centeredAt point: CGPoint? = nil) {
         guard allowsMagnification else { return }
         let range = maxMagnification - minMagnification
-        guard range > 0.0 else { return }
-        let magnification = (magnification + (range * factor)).clamped(to: minMagnification ... maxMagnification)
-        let visibleSize = documentVisibleRect.size
-        if let centeredAt = centeredAt {
-            setMagnification(magnification, centeredAt: centeredAt)
+        guard range > 0 else { return }
+        let newMagnification = (magnification + range * fraction).clamped(to: minMagnification ... maxMagnification)
+        if let point {
+            setMagnification(newMagnification, centeredAt: point)
         } else {
-            self.magnification = magnification
+            magnification = newMagnification
         }
-        /*
-        let newVisibleSize = documentVisibleRect.size
-        var offset = contentOffset
-        offset.x *= (newVisibleSize.width / visibleSize.width)
-        offset.y *= (newVisibleSize.height / visibleSize.height)
-        contentOffset = offset
-         */
     }
     
     /// A Boolean value indicating whether the scroll view should automatically manage it's document view.
@@ -946,11 +941,11 @@ extension NSScrollView {
         set {
             guard newValue != spaceKeyZoomFactor else { return }
             setAssociatedValue(newValue, key: "spaceKeyZoomFactor")
-            if let newValue = newValue {
+            if let zoomFactor = newValue {
                 do {
                    try setupKeyDownHook()
                     keyUpHook = try hook(#selector(NSView.keyUp(with:)), closure: { original, object, selector, event in
-                        if !event.isARepeat, event.keyCode == 49, let zoomFactor = object.spaceKeyZoomFactor {
+                        if !event.isARepeat, event.keyCode == 49 {
                             NSView.animate(withDuration: 0.1) {
                                 if event.modifierFlags.contains(.command) {
                                     object.animator().magnification = 1.0

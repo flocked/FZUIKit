@@ -9,21 +9,21 @@ import Foundation
 import FZSwiftUtils
 
 /// A transformer that takes an input and produces a modified output.
-public protocol ContentTransform: Hashable, Identifiable, Sendable where Content: Sendable {
+public protocol ContentTransform: Hashable, Identifiable, Sendable {
     /// The content type.
     associatedtype Content
     /// The block that transforms the content.
-    var transform: (Content) -> Content { get }
+    var transform: @Sendable (Content) -> Content { get }
     /// The identifier of the transformer.
     var id: String { get }
     /**
      Creates a new transformer with the specified identifier and block that transforms the content.
-
+     
      - Parameters:
-        - identifier: The identifier of the transformer.
-        - transform: The block that transforms the content.
+     - identifier: The identifier of the transformer.
+     - transform: The block that transforms the content.
      */
-    init(_ identifier: String, _ transform: @escaping ((Content) -> Content))
+    init(_ identifier: String, _ transform: @escaping @Sendable (Content) -> Content)
 }
 
 public extension ContentTransform {
@@ -33,8 +33,7 @@ public extension ContentTransform {
      - Parameter transform: The block that transform a content.
      - Returns: The content transformer..
      */
-    init(_ transform: @escaping ((Content) -> Content)) {
-        self.init(UUID().uuidString, transform)
+    init(_ transform: @escaping @Sendable (Content) -> Content) {        self.init(UUID().uuidString, transform)
     }
 
     /**
