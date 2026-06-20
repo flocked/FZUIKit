@@ -67,12 +67,13 @@ extension NSUIFontDescriptor {
             
             init?(_ dic: [String: Any], _ selection: String?) {
                 guard let name = dic["CTFeatureSelectorName"] as? String else { return nil }
+                let identifier = dic["CTFeatureSelectorIdentifier"] as? String
                 self.name = name
-                self.identifier = dic["CTFeatureSelectorIdentifier"] as? String
+                self.identifier = identifier
                 self.featureValue = dic["CTFeatureOpenTypeValue"] as? Double
                 self.isDefault = dic["CTFeatureSelectorDefault"] as? Bool ?? false
                 self.openTypeTag = dic["CTFeatureOpenTypeTag"] as? String
-                self.isEnabled = identifier == selection
+                self.isEnabled = selection.map { identifier == $0 } ?? false
             }
         }
         
@@ -90,6 +91,12 @@ extension NSUIFontDescriptor {
             }
             self.selectors = selectors.compactMap({ .init($0, selection) })
         }
+    }
+}
+
+extension NSFontDescriptor.FeatureSelection {
+    var stringA: (type: String, selector: String) {
+        (String(typeIdentifier), String(selectorIdentifier))
     }
 }
 
