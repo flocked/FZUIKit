@@ -65,18 +65,18 @@ extension NSTextField {
     /// A Boolean value indicating whether the text field is truncating the text.
     public var isTruncatingText: Bool {
         guard let cell = cell else { return false }
-        let isTruncating = cell.expansionFrame(withFrame: frame, in: self) != .zero
+        let isTruncating = cell.expansionFrame(withFrame: bounds, in: self) != .zero
         guard !isTruncating, maximumNumberOfLines == 1 || usesSingleLineMode else { return isTruncating }
-        let cellSize = cell.cellSize(forBounds: CGRect(0, 0, CGFloat.greatestFiniteMagnitude, frame.height-0.5))
-        return cellSize.width > frame.width
+        let cellSize = cell.cellSize(forBounds: CGRect(0, 0, CGFloat.greatestFiniteMagnitude, bounds.height-0.5))
+        return cellSize.width > bounds.width
     }
 
     /// A Boolean value indicating whether the text field is fitting the current text.
     public var isFittingText: Bool {
         let isFitting = !isTruncatingText
         if isFitting, let cell = cell {
-            let cellSize = cell.cellSize(forBounds: CGRect(.zero, CGSize(frame.width-0.5, .greatestFiniteMagnitude)))
-            if cellSize.height > frame.height || cellSize.width > frame.width {
+            let cellSize = cell.cellSize(forBounds: CGRect(.zero, CGSize(bounds.width-0.5, .greatestFiniteMagnitude)))
+            if cellSize.height > bounds.height || cellSize.width > bounds.width {
                 return false
             }
         }
@@ -183,4 +183,78 @@ extension NSTextField {
         set { setAssociatedValue(newValue, key: "_font") }
     }
 }
+
+/*
+extension NSTextField {
+    public func fittingFontSize1(min: CGFloat = 0.1, max: CGFloat? = nil, epsilon: CGFloat = 0.25) -> CGFloat {
+        guard let baseFont = _font ?? font, let cell = cell else { return 0.0 }
+        let currentFont = cell.font
+        defer { cell.font = currentFont }
+        var low = min
+        var high = max ?? baseFont.pointSize
+        cell.font = baseFont.withSize(low)
+        guard isFittingText else { return low }
+        cell.font = baseFont.withSize(high)
+        if isFittingText {
+            if let max {
+                return max
+            }
+            repeat {
+                low = high
+                high *= 1.25
+                cell.font = baseFont.withSize(high)
+            } while isFittingText && high < 2000
+        }
+        var best = low
+        while high - low > epsilon {
+            let mid = (low + high) * 0.5
+            cell.font = baseFont.withSize(mid)
+            if isFittingText {
+                best = mid
+                low = mid
+            } else {
+                high = mid
+            }
+        }
+        return best
+    }
+    
+    public func fittingFontSize2(min: CGFloat = 1.0, max: CGFloat? = nil, epsilon: CGFloat = 0.5) -> CGFloat {
+        guard let baseFont = _font ?? font, let cell = cell, !stringValue.isEmpty else {
+            return font?.pointSize ?? 12.0
+        }
+        let drawingRect = cell.drawingRect(forBounds: bounds)
+        let targetWidth = drawingRect.width
+        let targetHeight = drawingRect.height
+        let maxSize = max ?? baseFont.pointSize
+        if textFits(size: maxSize, targetWidth: targetWidth, targetHeight: targetHeight) {
+            return maxSize
+        }
+        var low = min
+        var high = maxSize
+        var best = min
+        while high - low > epsilon {
+            let mid = (low + high) * 0.5
+            if textFits(size: mid, targetWidth: targetWidth, targetHeight: targetHeight) {
+                best = mid
+                low = mid
+            } else {
+                high = mid
+            }
+        }
+        return best
+    }
+    
+    private func textFits(size: CGFloat, targetWidth: CGFloat, targetHeight: CGFloat) -> Bool {
+        guard let baseFont = _font ?? font else { return false }
+        let testFont = NSFont(descriptor: baseFont.fontDescriptor, size: size) ?? baseFont.withSize(size)
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = alignment
+        paragraphStyle.lineBreakMode = lineBreakMode
+        let constraintSize = CGSize(width: CGFloat.greatestFiniteMagnitude, height: targetHeight)
+        let stringRect = (stringValue as NSString).boundingRect(with: constraintSize, options: [.usesLineFragmentOrigin, .usesFontLeading], attributes: [.font: testFont, .paragraphStyle: paragraphStyle], context: nil)
+        return stringRect.width <= targetWidth && stringRect.height <= targetHeight
+    }
+}
+ */
 #endif
