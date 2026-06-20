@@ -593,6 +593,41 @@ public extension NSUIFont {
         guard CTFontGetGlyphsForCharacters(self, utf16, &glyphs, utf16.count) else { return nil }
         return glyphs
     }
+    
+    /// Returns a Boolean value indicating whether the file at the specified URL contains a supported font.
+    static func supportsFont(at url: URL) -> Bool {
+        CTFontManagerIsSupportedFont(url as CFURL)
+    }
+    
+    /**
+     Registers the fonts contained in the file at the specified URL.
+
+     - Parameters:
+       - url: The URL of the font file to register.
+       - scope: The registration scope to use when registering the fonts.
+     - Throws: An error if the fonts could not be registered.
+     */
+    static func registerFonts(at url: URL, scope: CTFontManagerScope = .process) throws {
+        var error: Unmanaged<CFError>?
+        guard CTFontManagerRegisterFontsForURL(url as CFURL, scope, &error) else {
+            throw (error?.takeRetainedValue() as Error?) ??
+                CocoaError(.fileReadUnknown)
+        }
+    }
+
+    /**
+     Unregisters the fonts contained in the specified files.
+
+     - Parameters:
+       - urls: The URLs of the font files to unregister.
+       - scope: The registration scope from which the fonts should be unregistered.
+       - handler: A closure invoked as errors occur and when the operation completes. Return `false` to stop the unregistration process.
+     */
+    static func unregisterFonts(at urls: [URL], scope: CTFontManagerScope = .process, handler: ((_ errors: [Error], _ done: Bool) -> Bool)? = nil) {
+        CTFontManagerUnregisterFontURLs(urls as CFArray, scope) { errors, done in
+            handler?(errors as? [Error] ?? [], done) ?? true
+        }
+    }
 }
 
 public extension NSUIFont {
