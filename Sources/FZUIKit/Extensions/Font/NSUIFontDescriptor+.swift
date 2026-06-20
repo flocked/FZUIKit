@@ -450,7 +450,7 @@ public extension NSUIFontDescriptor {
         public let isHidden: Bool
         
         public var description: String {
-            "(name: \"\(name)\" (\(tag)), minumum: \(minimumValue), maximum: \(maximumValue), default: \(defaultValue), isHidden: \(isHidden))"
+            "\(tag) \"\(name)\" [\(minimumValue)...\(maximumValue)] default=\(defaultValue)\(isHidden ? " hidden" : "")"
         }
         
         /// An font variation axis tag.
