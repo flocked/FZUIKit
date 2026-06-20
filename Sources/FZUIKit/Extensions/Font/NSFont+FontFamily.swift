@@ -126,6 +126,112 @@ extension NSFont {
         }
     }
 }
+#else
+extension UIFont {
+    /// The font families available in the system.
+    public static var fontFamilies: [FontFamily] {
+        familyNames.sorted().map { FontFamily($0) }
+    }
+
+    /// The font members of the font family with the specified name.
+    public static func fontMembers(ofFontFamily fontFamily: String) -> [FontMember] {
+        fontNames(forFamilyName: fontFamily).compactMap {
+            FontMember(fontName: $0, familyName: fontFamily)
+        }
+    }
+
+    /// The font family of the specified font name.
+    public static func fontFamily(forFontName fontName: String) -> FontFamily? {
+        UIFont(name: fontName, size: 0)?.fontFamily
+    }
+
+    /// The font family of the font.
+    public var fontFamily: FontFamily? {
+        guard UIFont.familyNames.contains(familyName) else { return nil }
+        return FontFamily(familyName)
+    }
+
+    /// The font member.
+    public var fontMember: FontMember? {
+        fontFamily?.members.first { $0.fontName == fontName }
+    }
+
+    /// Font family.
+    public struct FontFamily: Hashable, CustomStringConvertible, CustomDebugStringConvertible {
+        /// The name of the font family.
+        public let name: String
+
+        /// The localized name of the font family.
+        public var localizedName: String {
+            guard let name = UIFont.fontNames(forFamilyName: name).first else { return name }
+            return UIFont(name: name, size: 20)?.localizedName(for: .family)?.name ?? name
+        }
+
+        public var description: String {
+            "(\"\(name)\", \(members.map { $0.faceName }))"
+        }
+
+        public var debugDescription: String {
+            "(\"\(name)\", \(members.map { $0.fontName }))"
+        }
+
+        /// The members of the font family.
+        public var members: [FontMember] {
+            UIFont.fontMembers(ofFontFamily: name)
+        }
+
+        /// The font with the specified size.
+        public func font(withSize size: CGFloat = UIFont.systemFontSize) -> UIFont? {
+            members.first { $0.traits.isEmpty }?.font(withSize: size) ??
+            members.first?.font(withSize: size)
+        }
+
+        init(_ name: String) {
+            self.name = name
+        }
+    }
+
+    /// A member of a font family.
+    public struct FontMember: CustomStringConvertible, CustomDebugStringConvertible {
+        /// The full PostScript name of the font.
+        public let fontName: String
+
+        /// The family name of the font.
+        public let familyName: String
+
+        /// The face name of the font, such as `Regular`, `Light`, or `Bold`.
+        public let faceName: String
+
+        public var description: String {
+            fontName
+        }
+
+        public var debugDescription: String {
+            "(\(fontName), face: \(faceName))"
+        }
+
+        /// The localized face name of the font.
+        public var localizedFaceName: String {
+            font(withSize: UIFont.systemFontSize)?.localizedName(for: .subFamily)?.name ?? faceName
+        }
+
+        /// The symbolic traits of the font.
+        public let traits: UIFontDescriptor.SymbolicTraits
+
+        /// The font with the specified size.
+        public func font(withSize size: CGFloat = UIFont.systemFontSize) -> UIFont? {
+            UIFont(name: fontName, size: size)
+        }
+
+        init?(fontName: String, familyName: String) {
+            guard let font = UIFont(name: fontName, size: UIFont.systemFontSize) else { return nil }
+            self.fontName = fontName
+            self.familyName = familyName
+            self.faceName = font.fontDescriptor.faceName ?? fontName
+            self.traits = font.fontDescriptor.symbolicTraits
+        }
+    }
+}
 #endif
 
 extension NSUIFont {

@@ -16,7 +16,7 @@ public extension NSUIFont {
     #if os(macOS)
     /**
      Returns a font object for the specified font name and matrix.
-     
+
      - Parameters:
         - name: The fully specified family-face name of the font.
         - matrix: A transformation matrix applied to the font.
@@ -27,11 +27,11 @@ public extension NSUIFont {
         var matrix = matrix
         self.init(descriptor: (CTFontCreateWithName(name as CFString, 0, &matrix) as NSUIFont).fontDescriptor)
     }
-    
+
     #else
     /**
      Returns a font object for the specified font name and matrix.
-     
+
      - Parameters:
         - name: The fully specified family-face name of the font.
         - matrix: A transformation matrix applied to the font.
@@ -42,17 +42,17 @@ public extension NSUIFont {
         self.init(descriptor: .init(name: name, matrix: matrix))
     }
     #endif
-    
+
     /// The available font names.
     static var availableFonts: [String] {
-        availableFontDescriptors.compactMap({ $0.name })
+        availableFontDescriptors.compactMap { $0.name }
     }
-    
+
     /// Returns the available font names with the specified font traits.
     static func availableFonts(with symbolicTraits: SymbolicTraits) -> [String] {
-        availableFontDescriptors.filter({ $0.symbolicTraits.contains(symbolicTraits) }).compactMap({ $0.name })
+        availableFontDescriptors.filter { $0.symbolicTraits.contains(symbolicTraits) }.compactMap { $0.name }
     }
-    
+
     /// Returns the available font names for the specified locale.
     static func availableFonts(for locale: Locale) -> [String] {
         var language = locale.identifier
@@ -64,14 +64,24 @@ public extension NSUIFont {
         }
         let attributes = [kCTFontLanguagesAttribute: [language]] as CFDictionary
         let descriptor = CTFontDescriptorCreateWithAttributes(attributes)
-        return (CTFontDescriptorCreateMatchingFontDescriptors(descriptor, nil) as? [NSUIFontDescriptor] ?? []).compactMap({ $0.name })
+        return (CTFontDescriptorCreateMatchingFontDescriptors(descriptor, nil) as? [NSUIFontDescriptor] ?? []).compactMap { $0.name }
     }
-    
+
     static var availableFontDescriptors: [NSUIFontDescriptor] {
         let descriptor = CTFontDescriptorCreateWithAttributes([CFString: Any]() as CFDictionary)
         return (CTFontDescriptorCreateMatchingFontDescriptors(descriptor, nil) as? [NSUIFontDescriptor] ?? [])
     }
-    
+
+    /// The PostScript names of the fonts available in the system.
+    static var availablePostScriptNames: [String] {
+        CTFontManagerCopyAvailablePostScriptNames() as? [String] ?? []
+    }
+
+    /// The file URLs of the fonts available in the system.
+    static var availableFontURLs: [URL] {
+        (CTFontManagerCopyAvailableFontURLs() as? [URL]) ?? []
+    }
+
     /// The standard system font with standard system size.
     static var system = NSUIFont.systemFont(ofSize: NSUIFont.systemFontSize)
 
@@ -109,11 +119,11 @@ public extension NSUIFont {
     /// A font with the large title text style.
     static var largeTitle: NSUIFont = .preferredFont(forTextStyle: .largeTitle)
     #endif
-    
+
     /// A font with the extra large title text style.
     @available(macOS 15.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *)
     static var extraLargeTitle1: NSUIFont = .preferredFont(forTextStyle: .init(rawValue: "UICTFontTextStyleExtraLargeTitle"))
-    
+
     /// A font with the extra extra large title text style.
     @available(macOS 15.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *)
     static var extraLargeTitle2: NSUIFont = .preferredFont(forTextStyle: .init(rawValue: "UICTFontTextStyleExtraLargeTitle2"))
@@ -129,10 +139,10 @@ public extension NSUIFont {
         descriptor(fontDescriptor.withMatrix(matrix))
     }
     #endif
-    
+
     /// Constants for font designs, such as monospace, rounded, and serif.
     typealias SystemDesign = NSUIFontDescriptor.SystemDesign
-    
+
     /// A symbolic description of the stylistic aspects of a font.
     typealias SymbolicTraits = NSUIFontDescriptor.SymbolicTraits
 
@@ -145,7 +155,7 @@ public extension NSUIFont {
     func symbolicTraits(_ symbolTraits: SymbolicTraits) -> NSUIFont {
         descriptor(fontDescriptor.withSymbolicTraits(symbolTraits))
     }
-    
+
     /// The current font with the specified symbolic traits and the current one.
     func symbolTraits(adding symbolTraits: SymbolicTraits) -> NSUIFont {
         self.symbolicTraits(fontDescriptor.symbolicTraits + symbolTraits)
@@ -160,7 +170,7 @@ public extension NSUIFont {
     func weight(_ weight: Weight) -> NSUIFont {
         descriptor(fontDescriptor.withWeight(weight))
     }
-    
+
     private func descriptor(_ descriptor: NSUIFontDescriptor?) -> NSUIFont {
         guard let descriptor = descriptor else { return self }
         #if os(macOS)
@@ -169,11 +179,11 @@ public extension NSUIFont {
         return .init(descriptor: descriptor, size: pointSize)
         #endif
     }
-        
+
     #if os(macOS)
     /**
      Returns a font that matches the specified font descriptor.
-     
+
      - Parameter descriptor: The font descriptor to match.
      - Returns: A font object for the specified descriptor.
      */
@@ -183,7 +193,7 @@ public extension NSUIFont {
     #else
     /**
      Returns a font that matches the specified font descriptor.
-     
+
      - Parameter descriptor: The font descriptor to match.
      - Returns: A font object for the specified descriptor.
      */
@@ -191,7 +201,7 @@ public extension NSUIFont {
         self.init(descriptor: descriptor, size: descriptor.pointSize)
     }
     #endif
-    
+
     #if os(tvOS) || os(watchOS)
     /// The size, in points, of the standard system font.
     static var systemFontSize: CGFloat {
@@ -211,11 +221,11 @@ public extension NSUIFont {
     static func systemFont(_ textStyle: TextStyle, design: SystemDesign = .default) -> NSUIFont {
         preferredFont(forTextStyle: textStyle).design(design)
     }
-    
+
     #if os(macOS)
     /**
      Returns the standard system font with the specified size, design and weight.
-     
+
      - Parameters:
         - size: The font size. If you specify `0.0` or a negative number for this parameter, the method returns the system font at the default size.
         - weight: The weight of the font.
@@ -224,7 +234,7 @@ public extension NSUIFont {
     static func systemFont(ofSize size: CGFloat, weight: Weight = .regular, design: SystemDesign) -> NSUIFont {
         systemFont(ofSize: size, weight: weight).design(design)
     }
-    
+
     /**
      Creates and returns a font object for the specified font name and size.
 
@@ -239,7 +249,7 @@ public extension NSUIFont {
     #else
     /**
      Returns the standard system font with the specified size, design and weight.
-     
+
      - Parameters:
         - size: The size (in points) to which the font is scaled. This value must be greater than `0.0.
         - weight: The weight of the font.
@@ -248,7 +258,7 @@ public extension NSUIFont {
     static func systemFont(ofSize size: CGFloat, weight: Weight = .regular, design: SystemDesign) -> NSUIFont {
         systemFont(ofSize: size, weight: weight).design(design)
     }
-    
+
     /**
      Creates and returns a font object for the specified font name and size.
 
@@ -321,7 +331,7 @@ public extension NSUIFont {
         }
         return self
     }
-    
+
     /// Returns the font with the specified width of the font’s characters.
     func width(_ width: SymbolicTraits.Width) -> NSUIFont {
         var symbolicTraits = fontDescriptor.symbolicTraits
@@ -329,7 +339,7 @@ public extension NSUIFont {
         symbolicTraits.width = width
         return self.symbolicTraits(symbolicTraits)
     }
-    
+
     /// Returns the font with the specified font’s leading value.
     func leading(_ leading: SymbolicTraits.Leading) -> NSUIFont {
         var symbolicTraits = fontDescriptor.symbolicTraits
@@ -353,33 +363,33 @@ public extension NSUIFont {
     }
 }
 
-extension NSUIFont {
+public extension NSUIFont {
     /**
      Returns the name for the specified name type.
-     
+
      - Returns: The requested name for the font, or `nil` if the font does not have an entry for the requested name.
      */
-    public func name(of nameKey: NameKey) -> String? {
+    func name(of nameKey: NameKey) -> String? {
         CTFontCopyName(self, nameKey.rawValue)?.asSwift()
     }
-    
+
     /**
      Returns the localized name for the specified name type.
 
      The name is localized based on the user’s global language preference precedence. That is, the user’s language preference is a list of languages in order of precedence.
 
      So, for example, if the list is [Japanese, English], then a font that did not have Japanese name strings but had English strings would return the English strings.
-     
+
      - Returns: The localized string and locale of the localized string, or `nil` if the name type couldn't be localized.
      */
-    public func localizedName(for key: NameKey) -> (name: String, locale: Locale)? {
+    func localizedName(for key: NameKey) -> (name: String, locale: Locale)? {
         var actualLanguage: Unmanaged<CFString>?
         guard let name = CTFontCopyLocalizedName(self, key.rawValue, &actualLanguage) as String?, let language = actualLanguage?.takeRetainedValue() as? String else { return nil }
         return (name, Locale(identifier: language))
     }
 
     /// A list of font name keys that can be used to access specific names in a font.
-    public enum NameKey {
+    enum NameKey {
         /// The full name of the font (e.g., "Helvetica-Bold").
         case full
         /// The font's family name (e.g., "Helvetica").
@@ -416,39 +426,39 @@ extension NSUIFont {
         case postScriptCID
         /// Copyright notice for the font.
         case copyright
-   
+
         /// The corresponding name key used by Core Text.
         public var rawValue: CFString {
             switch self {
-            case .full:           return kCTFontFullNameKey
-            case .family:         return kCTFontFamilyNameKey
-            case .subFamily:      return kCTFontSubFamilyNameKey
-            case .style:          return kCTFontStyleNameKey
-            case .unique:         return kCTFontUniqueNameKey
-            case .version:        return kCTFontVersionNameKey
-            case .postScript:     return kCTFontPostScriptNameKey
-            case .trademark:      return kCTFontTrademarkNameKey
-            case .manufacturer:   return kCTFontManufacturerNameKey
-            case .designer:       return kCTFontDesignerNameKey
-            case .description:    return kCTFontDescriptionNameKey
-            case .vendorURL:      return kCTFontVendorURLNameKey
-            case .designerURL:    return kCTFontDesignerURLNameKey
-            case .license:        return kCTFontLicenseNameKey
-            case .licenseURL:     return kCTFontLicenseURLNameKey
-            case .sampleText:     return kCTFontSampleTextNameKey
-            case .postScriptCID:  return kCTFontPostScriptCIDNameKey
-            case .copyright:      return kCTFontCopyrightNameKey
+            case .full: return kCTFontFullNameKey
+            case .family: return kCTFontFamilyNameKey
+            case .subFamily: return kCTFontSubFamilyNameKey
+            case .style: return kCTFontStyleNameKey
+            case .unique: return kCTFontUniqueNameKey
+            case .version: return kCTFontVersionNameKey
+            case .postScript: return kCTFontPostScriptNameKey
+            case .trademark: return kCTFontTrademarkNameKey
+            case .manufacturer: return kCTFontManufacturerNameKey
+            case .designer: return kCTFontDesignerNameKey
+            case .description: return kCTFontDescriptionNameKey
+            case .vendorURL: return kCTFontVendorURLNameKey
+            case .designerURL: return kCTFontDesignerURLNameKey
+            case .license: return kCTFontLicenseNameKey
+            case .licenseURL: return kCTFontLicenseURLNameKey
+            case .sampleText: return kCTFontSampleTextNameKey
+            case .postScriptCID: return kCTFontPostScriptCIDNameKey
+            case .copyright: return kCTFontCopyrightNameKey
             }
         }
     }
-    
+
     /// Returns the list of typographic features supported by the font.
-    public var features: [Feature] {
-        (CTFontCopyFeatures(self)?.nsArray as? [[String: Any]] ?? []).compactMap({ try? $0.decode(as: NSUIFont.Feature.self ) })
+    var features: [Feature] {
+        (CTFontCopyFeatures(self)?.nsArray as? [[String: Any]] ?? []).compactMap { try? $0.decode(as: NSUIFont.Feature.self) }
     }
-    
+
     /// A typographic feature supported by a font, representing a group of related selectors that control a specific stylistic or OpenType behavior.
-    public struct Feature: Codable, CustomStringConvertible, CustomDebugStringConvertible {
+    struct Feature: Codable, CustomStringConvertible, CustomDebugStringConvertible {
         /// The numeric identifier of the font feature type, if provided by CoreText.
         public let identifier: Int?
         /// The localized name of the feature type.
@@ -461,7 +471,7 @@ extension NSUIFont {
         public let toolTipText: String?
         /// The list of selectors that belong to this feature type.
         public let selectors: [Selector]
-        
+
         public var description: String {
             if isExclusive ?? false {
                 return "\"\(name)\", selectors: \(selectors.count), isExclusive"
@@ -470,13 +480,13 @@ extension NSUIFont {
         }
 
         public var debugDescription: String {
-            let valuesString = selectors.isEmpty ? "" : "\n   " + selectors.map({ $0.debugDescription }).joined(separator: "\n  ")
+            let valuesString = selectors.isEmpty ? "" : "\n   " + selectors.map { $0.debugDescription }.joined(separator: "\n  ")
             if isExclusive ?? false {
                 return "\"\(name)\" (exclusive)" + valuesString
             }
             return "\"\(name)\"" + valuesString
         }
-        
+
         public enum CodingKeys: String, CodingKey {
             case identifier = "CTFeatureTypeIdentifier"
             case name = "CTFeatureTypeName"
@@ -485,30 +495,30 @@ extension NSUIFont {
             case toolTipText = "CTFeatureTooltipText"
             case selectors = "CTFeatureTypeSelectors"
         }
-        
+
         /// A selector representing a specific option within a typographic feature, such as choosing one stylistic alternative, numeral style, or ligature variant.
         public struct Selector: Codable, CustomStringConvertible, CustomDebugStringConvertible {
             /// The numeric identifier of the selector option.
-              public let identifier: Int?
-              /// The localized name of the selector option.
-              public let name: String
-              /// Indicates whether the selector is the default option for this feature.
-              public let isDefault: Bool?
-              /// Indicates whether this selector is currently enabled.
-              public let isEnabled: Bool?
-              /// The four-character OpenType tag associated with this selector, if available.
-              public let openTypeTag: String?
-              /// The numeric OpenType value associated with this selector, if provided.
-              public let openTypeValue: Int?
-            
+            public let identifier: Int?
+            /// The localized name of the selector option.
+            public let name: String
+            /// Indicates whether the selector is the default option for this feature.
+            public let isDefault: Bool?
+            /// Indicates whether this selector is currently enabled.
+            public let isEnabled: Bool?
+            /// The four-character OpenType tag associated with this selector, if available.
+            public let openTypeTag: String?
+            /// The numeric OpenType value associated with this selector, if provided.
+            public let openTypeValue: Int?
+
             public var description: String {
                 description(debug: false)
             }
-            
+
             public var debugDescription: String {
                 description(debug: true)
             }
-            
+
             private func description(debug: Bool) -> String {
                 let nameString = "\"\(name)\""
                 var strings: [String] = []
@@ -530,7 +540,7 @@ extension NSUIFont {
                 }
                 return nameString
             }
-            
+
             public enum CodingKeys: String, CodingKey {
                 case identifier = "CTFeatureSelectorIdentifier"
                 case name = "CTFeatureSelectorName"
@@ -541,13 +551,13 @@ extension NSUIFont {
             }
         }
     }
-    
+
     /**
      The scaled font ascent metric.
 
      The font ascent metric scaled based on the point size and matrix of the font reference.
      */
-    public var ascent: CGFloat {
+    var ascent: CGFloat {
         #if os(macOS)
         CTFontGetAscent(cleanedFont)
         #else
@@ -560,7 +570,7 @@ extension NSUIFont {
 
      The font descent metric scaled based on the point size and matrix of the font reference.
      */
-    public var descent: CGFloat {
+    var descent: CGFloat {
         #if os(macOS)
         CTFontGetDescent(cleanedFont)
         #else
@@ -573,7 +583,7 @@ extension NSUIFont {
 
      The number of glyphs in the font.
      */
-    public var countOfGlyphs: Int {
+    var countOfGlyphs: Int {
         CTFontGetGlyphCount(self)
     }
 
@@ -582,7 +592,7 @@ extension NSUIFont {
 
      The design bounding box of the font, which is the rectangle defined by `xMin`, `yMin`, `xMax`, and `yMax` values for the font.
      */
-    public var boundingBox: CGRect {
+    var boundingBox: CGRect {
         CTFontGetBoundingBox(self)
     }
 
@@ -591,7 +601,7 @@ extension NSUIFont {
 
      The font underline position metric scaled based on the point size and matrix of the font reference.
      */
-    public var underlinePosition: CGFloat {
+    var underlinePosition: CGFloat {
         CTFontGetUnderlinePosition(self)
     }
 
@@ -600,7 +610,7 @@ extension NSUIFont {
 
      The font underline thickness metric scaled based on the point size and matrix of the font reference.
      */
-    public var underlineThickness: CGFloat {
+    var underlineThickness: CGFloat {
         CTFontGetUnderlineThickness(self)
     }
 
@@ -609,75 +619,75 @@ extension NSUIFont {
 
      The transformed slant angle of the font. This is equivalent to the italic or caret angle with any skew from the transformation matrix applied.
      */
-    public var slantAngle: CGFloat {
+    var slantAngle: CGFloat {
         CTFontGetSlantAngle(self)
     }
-    
+
     /// The units-per-em metric of the font.
-    public var unitsPerEm: UInt32 {
+    var unitsPerEm: UInt32 {
         CTFontGetUnitsPerEm(self)
     }
-    
+
     /// `CGFont` representation of the font.
-    public var cgFont: CGFont {
+    var cgFont: CGFont {
         CTFontCopyGraphicsFont(self, nil)
     }
-    
+
     /**
      Returns the special user-interface font for the specified type and size.
-     
+
      - Parameters:
         - type: The intended user-interface use for the requested font.
         - size: The point size of the font. If `0.0` is specified, the default size for the requested user-interface type is used.
         - locale: The locale of the font.
      - Returns: The correct font for various user-interface uses.
      */
-    public static func uiFont(type: CTFontUIFontType, size: CGFloat = 0.0, locale: Locale = .current) -> NSUIFont? {
+    static func uiFont(for type: CTFontUIFontType, size: CGFloat = 0.0, locale: Locale = .current) -> NSUIFont? {
         CTFontCreateUIFontForLanguage(type, size, locale.identifier as CFString)
     }
-    
+
     #if os(macOS)
     /**
      Returns the special user-interface font for the specified type and size.
-     
+
      - Parameters:
         - type: The intended user-interface use for the requested font.
         - size: The control size of the font.
         - locale: The locale of the font.
      - Returns: The correct font for various user-interface uses.
      */
-    public static func uiFont(type: CTFontUIFontType, size: NSControl.ControlSize, locale: Locale = .current) -> NSUIFont? {
-        uiFont(type: type, size: NSFont.systemFontSize(for: size), locale: locale)
+    static func uiFont(for type: CTFontUIFontType, size: NSControl.ControlSize, locale: Locale = .current) -> NSUIFont? {
+        uiFont(for: type, size: NSFont.systemFontSize(for: size), locale: locale)
     }
     #endif
-    
+
     /// Returns the width of the space character in points.
-    public var spaceCharacterWidth: CGFloat {
+    var spaceCharacterWidth: CGFloat {
         guard let glyph = glyph(for: 0x20) else { return 0.0 }
         let advancement = advancement(forCGGlyph: glyph)
         return (advancement.width * 100.0).rounded() / 100.0
     }
-    
+
     /**
      Returns the glyph corresponding to a single `UniChar`.
-          
+
      - Parameter char: The `UniChar`.
      - Returns: The `CGGlyph` for the character, or `nil` if the font does not contain it.
      */
-    public func glyph(for char: UniChar) -> CGGlyph? {
+    func glyph(for char: UniChar) -> CGGlyph? {
         var char = char
         var glyph = CGGlyph()
         guard CTFontGetGlyphsForCharacters(self, &char, &glyph, 1) else { return nil }
         return glyph
     }
-    
+
     /**
      Returns the glyphs corresponding to a `Character`.
-     
+
      - Parameter character: The character.
      - Returns: the glyphs corresponding to the character, or `nil` if the font does not contain the character.
      */
-    public func glyphs(for character: Character) -> [CGGlyph]? {
+    func glyphs(for character: Character) -> [CGGlyph]? {
         let utf16 = Array(character.utf16)
         var glyphs = [CGGlyph](repeating: 0, count: utf16.count)
         guard CTFontGetGlyphsForCharacters(self, utf16, &glyphs, utf16.count) else { return nil }
@@ -698,24 +708,14 @@ public extension NSUIFont {
      - Returns: The font sized so the text fits within the provided height.
      */
     func sizedToFit(height: CGFloat, for text: String) -> NSUIFont {
-        var low: CGFloat = 1.0
-        var high: CGFloat = max(height, 1.0)
-        while high - low > 0.1 {
-            let mid = (low + high) / 2.0
-            if text.size(withAttributes: [.font: withSize(mid)]).height <= height {
-                low = mid
-            } else {
-                high = mid
-            }
-        }
-        return withSize(low)
+        sizedToFit(maximumSize: height, measuring: { text.size(withAttributes: [.font: $0]).height })
     }
 
     /**
      Returns the font with a point size that is adjusted so that the specified text fits within the given width.
 
      This method determines the largest point size at which the rendered width of the string does not exceed the provided value.
-     
+
      - Parameters:
        - width: The maximum allowed width for the rendered text.
        - text: The text whose rendered width should fit within the specified value.
@@ -723,30 +723,37 @@ public extension NSUIFont {
      - Returns: The font sized so the text fits within the provided width.
      */
     func sizedToFit(width: CGFloat, for text: String) -> NSUIFont {
-        let baseWidth = text.size(withAttributes: [.font: self]).width
-        var low: CGFloat = 1.0
-        var upper = baseWidth > 0.0 ? max(1.0, (width / baseWidth) * pointSize) :  max(1.0, width)
-        while upper - low > 0.1 {
-            let mid = (low + upper) / 2.0
-            if text.size(withAttributes: [.font: withSize(mid)]).width <= width {
+        sizedToFit(maximumSize: width, measuring: { text.size(withAttributes: [.font: $0]).width })
+    }
+
+    private func sizedToFit(maximumSize: CGFloat, minimumPointSize: CGFloat = 1.0, precision: CGFloat = 0.1, measuring measure: (NSUIFont) -> CGFloat) -> NSUIFont {
+        guard maximumSize > 0 else { return withSize(minimumPointSize) }
+        var low = minimumPointSize
+        var high = max(pointSize, minimumPointSize)
+        while measure(withSize(high)) <= maximumSize {
+            low = high
+            high *= 2.0
+        }
+        while high - low > precision {
+            let mid = (low + high) / 2.0
+            if measure(withSize(mid)) <= maximumSize {
                 low = mid
             } else {
-                upper = mid
+                high = mid
             }
         }
         return withSize(low)
     }
 }
 
-
 #if os(macOS)
 @available(macOS 15.0, *)
-extension NSFont.TextStyle {
+public extension NSFont.TextStyle {
     ///  The font style for extra large titles.
-    public static let extraLargeTitle = Self(rawValue: "UICTFontTextStyleExtraLargeTitle")
-    
+    static let extraLargeTitle = Self(rawValue: "UICTFontTextStyleExtraLargeTitle")
+
     ///  The font style for extra extra large titles.
-    public static let extraLargeTitle2 = Self(rawValue: "UICTFontTextStyleExtraLargeTitle2")
+    static let extraLargeTitle2 = Self(rawValue: "UICTFontTextStyleExtraLargeTitle2")
 }
 #endif
 
@@ -768,16 +775,16 @@ extension NSUIFont.TextStyle: Swift.CaseIterable {
 }
 
 #if !os(macOS)
-extension UIFont {
+public extension UIFont {
     /**
      Returns the nominal spacing for the given glyph—the distance the current point moves after showing the glyph—accounting for the receiver’s size.
-     
+
      The spacing is given according to the glyph’s movement direction, which is either strictly horizontal or strictly vertical.
-     
+
      - Parameter glyph: The glyph whose advancement is returned.
      - Returns: The advancement spacing in points.
      */
-    public func advancement(forCGGlyph glyph: CGGlyph) -> CGSize {
+    func advancement(forCGGlyph glyph: CGGlyph) -> CGSize {
         var advance: CGSize = .zero
         CTFontGetAdvancesForGlyphs(self, .default, [glyph], &advance, 1)
         return advance
@@ -792,17 +799,17 @@ public extension CTFontSymbolicTraits {
     static let traitTightLeading = Self(rawValue: 1 << 16)
 }
 
-extension NSUIFont.TextStyle {
+public extension NSUIFont.TextStyle {
     /// The point size for the font with the text style.
-    public var pointSize: CGFloat {
+    var pointSize: CGFloat {
         NSUIFont.preferredFont(forTextStyle: self).pointSize
     }
-    
+
     /// The font weight for the font with the text style.
-    public var weight: NSUIFont.Weight? {
+    var weight: NSUIFont.Weight? {
         NSUIFont.preferredFont(forTextStyle: self).fontDescriptor.weight
     }
-    
+
     #if canImport(UIKit)
     var uictName: String? {
         UIFont.preferredFont(forTextStyle: self).fontDescriptor.object(forKey: .textStyle) as? String

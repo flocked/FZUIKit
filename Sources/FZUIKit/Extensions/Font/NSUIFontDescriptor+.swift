@@ -15,27 +15,27 @@ import FZSwiftUtils
 public extension NSUIFontDescriptor {
     /// The name of the font, including family and face names, to use when displaying the font information to the user.
     var displayName: String? {
-        object(forKey: .visibleName) as? String
+        object(forKey: .visibleName)
     }
     
     ///  The family name of the font.
     var familyName: String? {
-        object(forKey: .family) as? String
+        object(forKey: .family)
     }
     
     /// The face name of the font.
     var faceName: String? {
-        object(forKey: .face) as? String
+        object(forKey: .face)
     }
     
     /// The font name.
     var name: String? {
-        object(forKey: .name) as? String
+        object(forKey: .name)
     }
     
     /// The URL of the font.
     var url: URL? {
-        object(forKey: .url) as? URL
+        object(forKey: .url)
     }
     
     /// Returns the font for the font descriptor.
@@ -113,7 +113,7 @@ public extension NSUIFontDescriptor {
      A value of `0.0` corresponds to `0` degree clockwise rotation from the vertical and` 1.0` corresponds to `30` degrees clockwise rotation.
      */
     var slant: CGFloat {
-        traits?[.slant] as? CGFloat ?? 0.0
+        traits?[typed: .slant] ?? 0.0
     }
     
     /**
@@ -134,7 +134,7 @@ public extension NSUIFontDescriptor {
      A value of `0.0` corresponds to the regular glyph spacing.
      */
     var width: CGFloat {
-        traits?[.width] as? CGFloat ?? 0.0
+        traits?[typed: .width] ?? 0.0
     }
     
     /**
@@ -413,14 +413,27 @@ extension NSUIFontDescriptor.SymbolicTraits: Swift.Hashable, Swift.CustomStringC
 
 public extension NSUIFontDescriptor {
     /// The current values of the font's variation axes.
-    var variationValues: [VariationAxis.Tag: Double] {
+    var variationValues: [VariationAxis.Tag: CGFloat] {
         guard let variation = object(forKey: .variation) else { return [:] }
         if let variation = variation as? [String: Any] {
-            return variation.mapKeys { .init(rawValue: $0) }.compactMapValues { ($0 as? NSNumber)?.doubleValue }
-        } else if let variation = variation as? [NSNumber: Any] {
-            return variation.mapKeys { .init($0.uint32Value) }.compactMapValues { ($0 as? NSNumber)?.doubleValue }
+            return variation.mapKeys { .init(rawValue: $0) }.compactMapValues { ($0 as? Double)?.cgFloat }
+        } else if let variation = variation as? [UInt32: Any] {
+            return variation.mapKeys { .init($0) }.compactMapValues { ($0 as? Double)?.cgFloat }
         }
         return [:]
+    }
+    
+    /**
+     Returns a font descriptor by replacing its variation axis values with the specified values.
+
+     - Parameter variationValues: The variation axis values keyed by axis tag, or `nil` to remove variation settings.
+     - Returns: A font descriptor with the specified variation axis values.
+     */
+    func withVariationValues(_ variationValues: [VariationAxis.Tag: Double]?) -> NSUIFontDescriptor {
+        let variationValues = variationValues?.mapKeys({ $0.nsNumber }) as [NSNumber:NSNumber]
+        var fontAttributes = fontAttributes
+        fontAttributes[.variation] = variationValues.isEmpty ? nil : variationValues
+       return NSUIFontDescriptor(fontAttributes: fontAttributes)
     }
 
     /// The variation axes supported by the font.
@@ -481,6 +494,10 @@ public extension NSUIFontDescriptor {
             public init(stringLiteral value: String) {
                 self.rawValue = value
             }
+            
+            var nsNumber: NSNumber {
+                NSNumber(value: FourCharCode(rawValue))
+            }
         }
         
         init?(_ axis: [CFString: Any]) {
@@ -497,7 +514,7 @@ public extension NSUIFontDescriptor {
             self.defaultValue = defaultValue
             self.minimumValue = minimum
             self.maximumValue = maximum
-            self.isHidden = axis[kCTFontVariationAxisHiddenKey] as? Bool ?? false
+            self.isHidden = axis[typed: kCTFontVariationAxisHiddenKey] ?? false
             // axis["NSCTVariationAxisFlags" as CFString] as? Int
         }
     }
@@ -541,6 +558,12 @@ public extension CTFontSymbolicTraits {
             self[.traitTightLeading] = newValue == .tight
             self[.traitLooseLeading] = newValue == .loose
         }
+    }
+}
+
+fileprivate extension Double {
+    var cgFloat: CGFloat {
+        CGFloat(self)
     }
 }
 #endif

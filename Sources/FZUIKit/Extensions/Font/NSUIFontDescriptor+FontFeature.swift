@@ -1,5 +1,5 @@
 //
-//  NSUIFontDescriptor+FeatureSelection.swift
+//  NSUIFontDescriptor+FontFeature.swift
 //  FZUIKit
 //
 //  Created by Florian Zand on 20.06.26.
@@ -58,11 +58,11 @@ extension NSUIFontDescriptor {
             public let openTypeTag: String?
             /// The OpenType value associated with the selector.
             public let featureValue: Double?
-            /// A Boolean value indicating whether the selector is currently enabled.
-            public internal(set) var isEnabled: Bool
+            /// A Boolean value indicating whether the selector is currently selected.
+            public internal(set) var isSelected = false
             
             public var description: String {
-                "\(openTypeTag.map { "\($0) " } ?? "")\"\(name)\"\(featureValue.map { " \($0) " } ?? "")\(isEnabled ? " ✓" : "")\(isDefault ? " *" : "")"
+                "\(openTypeTag.map { "\($0) " } ?? "")\"\(name)\"\(featureValue.map { " \($0) " } ?? "")\(isSelected ? " ✓" : "")\(isDefault ? " *" : "")"
             }
             
             init?(_ dic: [String: Any]) {
@@ -72,7 +72,6 @@ extension NSUIFontDescriptor {
                 self.featureValue = dic[typed: "CTFeatureOpenTypeValue"]
                 self.isDefault = dic[typed: "CTFeatureSelectorDefault"] ?? false
                 self.openTypeTag = dic[typed: "CTFeatureOpenTypeTag"]
-                self.isEnabled = false
             }
         }
         
@@ -86,18 +85,12 @@ extension NSUIFontDescriptor {
             self.identifier = dic[typed: "CTFeatureTypeIdentifier"]
             
             if let selection = identifier.flatMap({ selections[$0] }), let index = selectors.firstIndex(where: { $0.identifier == selection }) {
-                selectors[index].isEnabled = true
+                selectors[index].isSelected = true
             } else {
-                selectors.editEach({ $0.isEnabled = $0.isDefault })
+                selectors.editEach({ $0.isSelected = $0.isDefault })
             }
             self.selectors = selectors
         }
-    }
-}
-
-extension NSFontDescriptor.FeatureSelection {
-    var stringA: (type: String, selector: String) {
-        (String(typeIdentifier), String(selectorIdentifier))
     }
 }
 
