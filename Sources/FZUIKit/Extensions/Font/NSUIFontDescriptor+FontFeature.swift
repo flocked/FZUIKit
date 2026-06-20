@@ -39,8 +39,10 @@ extension NSUIFontDescriptor {
         
         public var description: String {
             var strings = [[openTypeTag,
-                               "\"\(name)\"",
-                               isExclusive ? "isExclusive" : nil].nonNil.joined(separator: " ")]
+                            "\"\(name)\"",
+                            isExclusive ? "isExclusive" : nil,
+                            identifier?.string
+                           ].nonNil.joined(separator: " ")]
             strings += selectors.map({ "  \($0)" })
             return strings.joined(separator: "\n")
         }
@@ -63,9 +65,11 @@ extension NSUIFontDescriptor {
             public var description: String {
                 [openTypeTag,
                  "\"\(name)\"",
-                 featureValue.map { "\($0)" },
+                 featureValue?.string,
                  isSelected ? "✓" : nil,
-                 isDefault ? "*" : nil].nonNil.joined(separator: " ")
+                 isDefault ? "*" : nil,
+                 identifier?.string
+                ].nonNil.joined(separator: " ")
             }
             
             init?(_ dic: [String: Any]) {
