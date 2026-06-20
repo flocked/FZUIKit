@@ -39,10 +39,10 @@ extension NSUIFontDescriptor {
         public let selectors: [FeatureSelector]
         
         public var description: String {
-            var strings = [[openTypeTag,
+            var strings = [[identifier?.string,
+                            openTypeTag,
                             "\"\(name)\"",
                             isExclusive ? "isExclusive" : nil,
-                            identifier?.string
                            ].nonNil.joined(separator: " ")]
             strings += selectors.map({ "  \($0)" })
             return strings.joined(separator: "\n")
@@ -64,10 +64,11 @@ extension NSUIFontDescriptor {
             public internal(set) var isSelected: Bool
             
             public var description: String {
-                [openTypeTag,
+                [
+                identifier?.string,
+                openTypeTag,
                  "\"\(name)\"",
-                 featureValue.map { "value=\($0)" },
-                 identifier.map { "id=\($0)" },
+                 featureValue?.string,
                  isSelected ? "✓" : nil,
                  isDefault ? "*" : nil,
                 ].nonNil.joined(separator: " ")
