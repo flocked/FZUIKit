@@ -15,7 +15,7 @@ import FZSwiftUtils
 extension NSUIFontDescriptor {
     /// Returns the typographic features supported by the font.
     public var availableFeatures: [FontFeature] {
-        let selections = featureSelections
+        let selections = Dictionary(uniqueKeysWithValues: featureSelections.map({ ($0.typeIdentifier, $0.selectorIdentifier) }))
         return (CTFontCopyFeatures(font) as? [[String: Any]] ?? []).compactMap {
             FontFeature($0, selections)
         }
@@ -77,7 +77,7 @@ extension NSUIFontDescriptor {
             }
         }
         
-        init?(_ dic: [String: Any], _ selections: [FeatureSelection]) {
+        init?(_ dic: [String: Any], _ selections: [Int: Int]) {
             guard let name = dic["CTFeatureTypeName"] as? String, let selectors = dic["CTFeatureTypeSelectors"] as? [[String: Any]] else { return nil }
             self.name = name
             self.sampleText = dic["CTFeatureSampleText"] as? String
@@ -85,10 +85,7 @@ extension NSUIFontDescriptor {
             self.openTypeTag = dic["CTFeatureOpenTypeTag"] as? String
             self.isExclusive = dic["CTFeatureTypeExclusive"] as? Bool ?? false
             self.identifier = dic["CTFeatureTypeIdentifier"] as? Int
-            var selection: Int?
-            if let identifier = identifier {
-                selection = selections.first(where: { $0.typeIdentifier == identifier }).map(\.selectorIdentifier)
-            }
+            let selection = identifier.flatMap({ selections[$0] })
             self.selectors = selectors.compactMap({ .init($0, selection) })
         }
     }
