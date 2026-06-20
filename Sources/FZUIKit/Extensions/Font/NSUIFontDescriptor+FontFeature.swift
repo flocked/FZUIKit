@@ -65,7 +65,7 @@ extension NSUIFontDescriptor {
                  "\"\(name)\"",
                  featureValue.map { "\($0)" },
                  isSelected ? "✓" : nil,
-                 isDefault ? " *" : nil].nonNil.joined(separator: " ")
+                 isDefault ? "*" : nil].nonNil.joined(separator: " ")
             }
             
             init?(_ dic: [String: Any]) {
