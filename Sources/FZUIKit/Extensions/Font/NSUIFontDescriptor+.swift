@@ -286,7 +286,7 @@ extension NSUIFontDescriptor.AttributeName: Swift.ExpressibleByStringLiteral {
     }
     
     /// The variation axes supported by the font.
-    public static let variationAxes = Self(kCTFontVariationAxesAttribute as String)
+    public static let variationAxes = Self(rawValue: kCTFontVariationAxesAttribute as String)
     
     /// A string that specifies the covered languages for the font.
     public static let languages = Self(rawValue: kCTFontLanguagesAttribute as String)
@@ -315,6 +315,9 @@ extension NSUIFontDescriptor.AttributeName: Swift.ExpressibleByStringLiteral {
      The value is an `NSString` object that contains the specified text style.
      */
     public static let textStyle = Self("NSCTFontUIUsageAttribute")
+    #else
+    /// A dictionary that describes the font’s variation axis.
+    public static let variation = Self("NSCTFontVariationAttribute")
     #endif
 }
 
@@ -408,20 +411,19 @@ extension NSUIFontDescriptor.SymbolicTraits: Swift.Hashable, Swift.CustomStringC
     static let _looseLeading = Self(rawValue: 65536)
 }
 
-#if os(macOS)
 public extension NSUIFontDescriptor {
     /// The current values of the font's variation axes.
     var variationValues: [VariationAxisTag: Double] {
         guard let variation = object(forKey: .variation) else { return [:] }
-        if let variation = variation as? [NSFontDescriptor.VariationKey: Any] {
-            return variation.mapKeys { .init(rawValue: $0.rawValue) }.compactMapValues { ($0 as? NSNumber)?.doubleValue }
+        if let variation = variation as? [String: Any] {
+            return variation.mapKeys { .init(rawValue: $0) }.compactMapValues { ($0 as? NSNumber)?.doubleValue }
         } else if let variation = variation as? [NSNumber: Any] {
             return variation.mapKeys { .init(rawValue: $0.osTypeString) }.compactMapValues { ($0 as? NSNumber)?.doubleValue }
         }
         return [:]
     }
     
-    /// An OpenType variation axis tag.
+    /// An font variation axis tag.
     struct VariationAxisTag: RawRepresentable, Hashable, Sendable, CustomStringConvertible, ExpressibleByStringLiteral, Codable, Sendable {
         /// The weight axis controlling the thickness of glyph strokes.
         public static let weight = Self(rawValue: "wght")
@@ -489,34 +491,9 @@ public extension NSUIFontDescriptor {
             // axis["NSCTVariationAxisFlags" as CFString] as? Int
         }
     }
-
-    /// The non-default font feature settings.
-    var featureSettings: [FeatureSetting] {
-        (object(forKey: .featureSettings) as? [[FeatureKey: Int]] ?? []).compactMap { .init($0) }
-    }
-
-    struct FeatureSetting {
-        /**
-         The type of the font feature.
- 
-         The value specifies a font feature type such as ligature, character shape, and so on.
-         */
-        let typeIdentifier: Int
-        /**
-         The selector of the font feature.
- 
-         The value specifies a font feature selector such as common ligature off, traditional character shape, and so on.
-         */
-        let selectorIdentifier: Int
-
-        init?(_ dic: [NSUIFontDescriptor.FeatureKey: Int]) {
-            guard let typeID = dic[.typeIdentifier], let selectorID = dic[.selectorIdentifier] else { return nil }
-            self.typeIdentifier = typeID
-            self.selectorIdentifier = selectorID
-        }
-    }
 }
 
+#if os(macOS)
 public extension CTFontSymbolicTraits {
     /// The width of the font’s characters.
     enum Width: Hashable, Codable {
@@ -556,6 +533,7 @@ public extension CTFontSymbolicTraits {
         }
     }
 }
+#endif
 
 fileprivate extension NSNumber {
     var osTypeString: String {
@@ -566,4 +544,3 @@ fileprivate extension NSNumber {
                        Character(UnicodeScalar(osType & 0xFF)!)])
     }
 }
-#endif
