@@ -15,7 +15,7 @@ import FZSwiftUtils
 extension NSUIFontDescriptor {
     /// Returns the typographic features supported by the font.
     public var availableFeatures: [FontFeature] {
-        let selections = featureSelections.map(\.string)
+        let selections = featureSelections
         return (CTFontCopyFeatures(font) as? [[String: Any]] ?? []).compactMap {
             FontFeature($0, selections)
         }
@@ -26,7 +26,7 @@ extension NSUIFontDescriptor {
         /// The localized name of the feature.
         public let name: String
         /// The feature identifier.
-        public let identifier: String?
+        public let identifier: Int?
         /// A localized brief description or tooltip explaining the feature.
         public let tooltipText: String?
         /// A Boolean value indicating whether only one selector can be enabled at a time.
@@ -51,7 +51,7 @@ extension NSUIFontDescriptor {
             /// The localized name of the selector.
             public let name: String
             /// The selector identifier.
-            public let identifier: String?
+            public let identifier: Int?
             /// A Boolean value indicating whether the selector is the default option.
             public let isDefault: Bool
             /// The OpenType tag associated with the selector.
@@ -65,9 +65,9 @@ extension NSUIFontDescriptor {
                 "\(openTypeTag.map { "\($0) " } ?? "")\"\(name)\"\(featureValue.map { " \($0) " } ?? "")\(isEnabled ? " ✓" : "")\(isDefault ? " *" : "")"
             }
             
-            init?(_ dic: [String: Any], _ selection: String?) {
+            init?(_ dic: [String: Any], _ selection: Int?) {
                 guard let name = dic["CTFeatureSelectorName"] as? String else { return nil }
-                let identifier = dic["CTFeatureSelectorIdentifier"] as? String
+                let identifier = dic["CTFeatureSelectorIdentifier"] as? Int
                 self.name = name
                 self.identifier = identifier
                 self.featureValue = dic["CTFeatureOpenTypeValue"] as? Double
@@ -77,17 +77,17 @@ extension NSUIFontDescriptor {
             }
         }
         
-        init?(_ dic: [String: Any], _ selections: [(type: String, selector: String)]) {
+        init?(_ dic: [String: Any], _ selections: [FeatureSelection]) {
             guard let name = dic["CTFeatureTypeName"] as? String, let selectors = dic["CTFeatureTypeSelectors"] as? [[String: Any]] else { return nil }
             self.name = name
             self.sampleText = dic["CTFeatureSampleText"] as? String
             self.tooltipText = dic["CTFeatureTooltipText"] as? String
             self.openTypeTag = dic["CTFeatureOpenTypeTag"] as? String
             self.isExclusive = dic["CTFeatureTypeExclusive"] as? Bool ?? false
-            self.identifier = dic["CTFeatureTypeIdentifier"] as? String
-            var selection: String?
+            self.identifier = dic["CTFeatureTypeIdentifier"] as? Int
+            var selection: Int?
             if let identifier = identifier {
-                selection = selections.first(where: { $0.type == identifier }).map(\.selector)
+                selection = selections.first(where: { $0.typeIdentifier == identifier }).map(\.selectorIdentifier)
             }
             self.selectors = selectors.compactMap({ .init($0, selection) })
         }
