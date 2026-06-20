@@ -1,6 +1,6 @@
 //
 //  NSUIFontDescriptor+FontFeature.swift
-//  FZUIKit
+//  
 //
 //  Created by Florian Zand on 20.06.26.
 //
@@ -15,9 +15,8 @@ import FZSwiftUtils
 extension NSUIFontDescriptor {
     /// Returns the typographic features supported by the font.
     public var availableFeatures: [FontFeature] {
-        let selections = Dictionary(uniqueKeysWithValues: featureSelections.map({ ($0.typeIdentifier, $0.selectorIdentifier) }))
-        return (CTFontCopyFeatures(font) as? [[String: Any]] ?? []).compactMap {
-            FontFeature($0, selections)
+        (CTFontCopyFeatures(font) as? [[String: Any]] ?? []).compactMap {
+            FontFeature($0)
         }
     }
 
@@ -39,10 +38,10 @@ extension NSUIFontDescriptor {
         public let selectors: [FeatureSelector]
         
         public var description: String {
-            var strings = ["\(openTypeTag.map { "\($0) " } ?? "")\"\(name)\"\(isExclusive ? " isExclusive" : "")"]
-            for selector in selectors {
-                strings += "  \(selector)"
-            }
+            var strings = [[openTypeTag,
+                               "\"\(name)\"",
+                               isExclusive ? "isExclusive" : nil].nonNil.joined(separator: " ")]
+            strings += selectors.map({ "  \($0)" })
             return strings.joined(separator: "\n")
         }
         
@@ -59,10 +58,14 @@ extension NSUIFontDescriptor {
             /// The OpenType value associated with the selector.
             public let featureValue: Double?
             /// A Boolean value indicating whether the selector is currently selected.
-            public internal(set) var isSelected = false
+            public let isSelected: Bool
             
             public var description: String {
-                "\(openTypeTag.map { "\($0) " } ?? "")\"\(name)\"\(featureValue.map { " \($0) " } ?? "")\(isSelected ? " ✓" : "")\(isDefault ? " *" : "")"
+                [openTypeTag,
+                 "\"\(name)\"",
+                 featureValue.map { "\($0)" },
+                 isSelected ? "✓" : nil,
+                 isDefault ? " *" : nil].nonNil.joined(separator: " ")
             }
             
             init?(_ dic: [String: Any]) {
@@ -72,10 +75,11 @@ extension NSUIFontDescriptor {
                 self.featureValue = dic[typed: "CTFeatureOpenTypeValue"]
                 self.isDefault = dic[typed: "CTFeatureSelectorDefault"] ?? false
                 self.openTypeTag = dic[typed: "CTFeatureOpenTypeTag"]
+                self.isSelected = dic[typed: kCTFontFeatureSelectorSettingKey as String] ?? isDefault
             }
         }
         
-        init?(_ dic: [String: Any], _ selections: [Int: Int]) {
+        init?(_ dic: [String: Any]) {
             guard let name = dic["CTFeatureTypeName"] as? String, var selectors = (dic["CTFeatureTypeSelectors"] as? [[String: Any]])?.compactMap({ FeatureSelector($0) }) else { return nil }
             self.name = name
             self.sampleText = dic[typed: "CTFeatureSampleText"]
@@ -83,12 +87,6 @@ extension NSUIFontDescriptor {
             self.openTypeTag = dic[typed: "CTFeatureOpenTypeTag"]
             self.isExclusive = dic[typed: "CTFeatureTypeExclusive"] ?? false
             self.identifier = dic[typed: "CTFeatureTypeIdentifier"]
-            
-            if let selection = identifier.flatMap({ selections[$0] }), let index = selectors.firstIndex(where: { $0.identifier == selection }) {
-                selectors[index].isSelected = true
-            } else {
-                selectors.editEach({ $0.isSelected = $0.isDefault })
-            }
             self.selectors = selectors
         }
     }
@@ -1143,5 +1141,17 @@ public extension NSUIFontDescriptor.FeatureSelection {
         case (103, 3): return "cjkRomanSpacing.fullWidth"
         default: return "FeatureSelection(typeIdentifier: \(typeIdentifier), selectorIdentifier: \(selectorIdentifier))"
         }
+    }
+}
+
+fileprivate extension Dictionary where Key == String {
+    subscript(key: CFString) -> Value? {
+        self[key as String]
+    }
+}
+
+fileprivate extension Dictionary where Key == String, Value == Any {
+    subscript<V>(typed key: CFString) -> V? {
+        self[key as String] as? V
     }
 }
