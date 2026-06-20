@@ -16,7 +16,7 @@ extension NSUIFontDescriptor {
     /// Returns the typographic features supported by the font.
     public var availableFeatures: [FontFeature] {
         let selections = Dictionary(uniqueKeysWithValues: featureSelections.map({ ($0.typeIdentifier, $0.selectorIdentifier) }))
-        return (CTFontCopyFeatures(font) as? [[String: Any]] ?? []).compactMap {
+        return (object(forKey: .features) as? [[String: Any]] ?? []).compactMap {
             FontFeature($0, selections)
         }
     }
@@ -38,6 +38,11 @@ extension NSUIFontDescriptor {
         /// The selectors available for the feature.
         public let selectors: [FeatureSelector]
         
+        /// A Boolean value indicating whether the feature has a non-default selector selected.
+        public var isModified: Bool {
+            selectors.contains(where: { $0.isSelected != $0.isDefault })
+        }
+        
         public var description: String {
             var strings = [[identifier?.string,
                             openTypeTag,
@@ -46,6 +51,22 @@ extension NSUIFontDescriptor {
                            ].nonNil.joined(separator: " ")]
             strings += selectors.map({ "  \($0)" })
             return strings.joined(separator: "\n")
+        }
+        
+        init?(_ dic: [String: Any], _ selections: [Int: Int]) {
+            guard let name = dic["CTFeatureTypeName"] as? String, var selectors = (dic["CTFeatureTypeSelectors"] as? [[String: Any]])?.compactMap({ FeatureSelector($0) }) else { return nil }
+            self.name = name
+            self.sampleText = dic[typed: "CTFeatureSampleText"]
+            self.tooltipText = dic[typed: "CTFeatureTooltipText"]
+            self.openTypeTag = dic[typed: "CTFeatureOpenTypeTag"]
+            self.isExclusive = dic[typed: "CTFeatureTypeExclusive"] ?? false
+            self.identifier = dic[typed: "CTFeatureTypeIdentifier"]
+            /*
+            if let identifier = identifier, let selection = selections[identifier], selectors.contains(where: { $0.identifier == selection }) {
+                selectors.editEach({ $0.isSelected = $0.identifier == selection })
+            }
+             */
+            self.selectors = selectors
         }
         
         /// A selectable option within a font feature.
@@ -83,20 +104,6 @@ extension NSUIFontDescriptor {
                 self.openTypeTag = dic[typed: "CTFeatureOpenTypeTag"]
                 self.isSelected = dic[typed: kCTFontFeatureSelectorSettingKey as String] ?? isDefault
             }
-        }
-        
-        init?(_ dic: [String: Any], _ selections: [Int: Int]) {
-            guard let name = dic["CTFeatureTypeName"] as? String, var selectors = (dic["CTFeatureTypeSelectors"] as? [[String: Any]])?.compactMap({ FeatureSelector($0) }) else { return nil }
-            self.name = name
-            self.sampleText = dic[typed: "CTFeatureSampleText"]
-            self.tooltipText = dic[typed: "CTFeatureTooltipText"]
-            self.openTypeTag = dic[typed: "CTFeatureOpenTypeTag"]
-            self.isExclusive = dic[typed: "CTFeatureTypeExclusive"] ?? false
-            self.identifier = dic[typed: "CTFeatureTypeIdentifier"]
-            if let identifier = identifier, let selection = selections[identifier], selectors.contains(where: { $0.identifier == selection }) {
-                selectors.editEach({ $0.isSelected = $0.identifier == selection })
-            }
-            self.selectors = selectors
         }
     }
 }
