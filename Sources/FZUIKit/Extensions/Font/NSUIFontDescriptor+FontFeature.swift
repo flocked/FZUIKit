@@ -16,7 +16,8 @@ extension NSUIFontDescriptor {
     /// Returns the typographic features supported by the font.
     public var availableFeatures: [FontFeature] {
         let selections = Dictionary(uniqueKeysWithValues: featureSelections.map({ ($0.typeIdentifier, $0.selectorIdentifier) }))
-        return (object(forKey: .features) as? [[String: Any]] ?? []).compactMap {
+        object(forKey: .features)
+        return (CTFontCopyFeatures(font) as? [[String: Any]] ?? []).compactMap {
             FontFeature($0, selections)
         }
     }
@@ -61,11 +62,9 @@ extension NSUIFontDescriptor {
             self.openTypeTag = dic[typed: "CTFeatureOpenTypeTag"]
             self.isExclusive = dic[typed: "CTFeatureTypeExclusive"] ?? false
             self.identifier = dic[typed: "CTFeatureTypeIdentifier"]
-            /*
             if let identifier = identifier, let selection = selections[identifier], selectors.contains(where: { $0.identifier == selection }) {
                 selectors.editEach({ $0.isSelected = $0.identifier == selection })
             }
-             */
             self.selectors = selectors
         }
         
