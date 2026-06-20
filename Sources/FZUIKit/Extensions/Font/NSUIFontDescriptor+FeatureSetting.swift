@@ -31,7 +31,7 @@ extension NSUIFontDescriptor {
         fontAttributes[.featureSettings] = settings.isEmpty ? nil : settings
         return NSUIFontDescriptor(fontAttributes: fontAttributes)
     }
-
+    
     /// A Core Text font feature identified by a feature type and selector.
     public struct FeatureSetting: Hashable, CustomStringConvertible {
         /**

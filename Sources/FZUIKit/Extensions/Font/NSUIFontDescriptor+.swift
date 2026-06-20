@@ -413,53 +413,33 @@ extension NSUIFontDescriptor.SymbolicTraits: Swift.Hashable, Swift.CustomStringC
 
 public extension NSUIFontDescriptor {
     /// The current values of the font's variation axes.
-    var variationValues: [VariationAxisTag: Double] {
+    var variationValues: [VariationAxis.Tag: Double] {
         guard let variation = object(forKey: .variation) else { return [:] }
         if let variation = variation as? [String: Any] {
             return variation.mapKeys { .init(rawValue: $0) }.compactMapValues { ($0 as? NSNumber)?.doubleValue }
         } else if let variation = variation as? [NSNumber: Any] {
-            return variation.mapKeys { .init(rawValue: $0.osTypeString) }.compactMapValues { ($0 as? NSNumber)?.doubleValue }
+            return variation.mapKeys { .init($0.uint32Value) }.compactMapValues { ($0 as? NSNumber)?.doubleValue }
         }
         return [:]
-    }
-    
-    /// An font variation axis tag.
-    struct VariationAxisTag: RawRepresentable, Hashable, Sendable, CustomStringConvertible, ExpressibleByStringLiteral, Codable, Sendable {
-        /// The weight axis controlling the thickness of glyph strokes.
-        public static let weight = Self(rawValue: "wght")
-        /// The width axis controlling the horizontal expansion or compression of glyphs.
-        public static let width = Self(rawValue: "wdth")
-        /// The optical size axis controlling design adjustments for different point sizes.
-        public static let opticalSize = Self(rawValue: "opsz")
-        /// The slant axis controlling the angle of glyphs.
-        public static let slant = Self(rawValue: "slnt")
-        /// The italic axis controlling whether italic glyph forms are used.
-        public static let italic = Self(rawValue: "ital")
-        
-        public let rawValue: String
-        
-        public var description: String { rawValue }
-
-        public init(rawValue: String) {
-            self.rawValue = rawValue
-        }
-        
-        public init(stringLiteral value: String) {
-            self.rawValue = value
-        }
     }
 
     /// The variation axes supported by the font.
     var variationAxes: [VariationAxis] {
-        (object(forKey: .variationAxes) as? [[CFString: Any]] ?? []).compactMap { VariationAxis($0) }
+        (object(forKey: .variationAxes) as? [[CFString: Any]] ?? []).compactMap { VariationAxis($0) }.sorted(by: \.name)
     }
 
     /// Describes a variation axis supported by a variable font.
     struct VariationAxis: Hashable, Codable, CustomStringConvertible, Sendable {
         /// The localized display name of the axis.
         public let name: String
-        /// The four-character OpenType axis identifier.
-        public let identifier: String
+        /**
+         The identifier of the variation axis.
+
+         The tag uniquely identifies the axis within the font.
+         
+         Common tags include `.weight`, `.width`, `.opticalSize`, `.slant`, and `.italic`.
+         */
+        public let tag: Tag
         /// The minimum value supported by the axis.
         public let minimumValue: CGFloat
         /// The maximum value supported by the axis.
@@ -470,7 +450,37 @@ public extension NSUIFontDescriptor {
         public let isHidden: Bool
         
         public var description: String {
-            "(\(identifier), name: \(name), minumum: \(minimumValue), maximum: \(maximumValue), default: \(defaultValue))"
+            "(name: \"\(name)\" (\(tag)), minumum: \(minimumValue), maximum: \(maximumValue), default: \(defaultValue), isHidden: \(isHidden))"
+        }
+        
+        /// An font variation axis tag.
+        public struct Tag: RawRepresentable, Hashable, Sendable, CustomStringConvertible, ExpressibleByStringLiteral, Codable, Sendable {
+            /// The weight axis controlling the thickness of glyph strokes.
+            public static let weight = Self(rawValue: "wght")
+            /// The width axis controlling the horizontal expansion or compression of glyphs.
+            public static let width = Self(rawValue: "wdth")
+            /// The optical size axis controlling design adjustments for different point sizes.
+            public static let opticalSize = Self(rawValue: "opsz")
+            /// The slant axis controlling the angle of glyphs.
+            public static let slant = Self(rawValue: "slnt")
+            /// The italic axis controlling whether italic glyph forms are used.
+            public static let italic = Self(rawValue: "ital")
+            
+            public let rawValue: String
+            
+            public var description: String { rawValue }
+
+            public init(rawValue: String) {
+                self.rawValue = rawValue
+            }
+            
+            init(_ rawValue: UInt32) {
+                self.rawValue = FourCharCode(rawValue).string
+            }
+            
+            public init(stringLiteral value: String) {
+                self.rawValue = value
+            }
         }
         
         init?(_ axis: [CFString: Any]) {
@@ -483,7 +493,7 @@ public extension NSUIFontDescriptor {
             else { return nil
             }
             self.name = name
-            self.identifier = identifier.osTypeString
+            self.tag = .init(identifier.uint32Value)
             self.defaultValue = defaultValue
             self.minimumValue = minimum
             self.maximumValue = maximum
@@ -534,13 +544,3 @@ public extension CTFontSymbolicTraits {
     }
 }
 #endif
-
-fileprivate extension NSNumber {
-    var osTypeString: String {
-        let osType = uint32Value
-        return String([Character(UnicodeScalar((osType >> 24) & 0xFF)!),
-                       Character(UnicodeScalar((osType >> 16) & 0xFF)!),
-                       Character(UnicodeScalar((osType >> 8) & 0xFF)!),
-                       Character(UnicodeScalar(osType & 0xFF)!)])
-    }
-}
