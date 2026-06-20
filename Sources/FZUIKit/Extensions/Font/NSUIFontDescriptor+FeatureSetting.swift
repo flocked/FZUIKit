@@ -1,5 +1,5 @@
 //
-//  NSUIFontDescriptor+FeatureSetting.swift
+//  NSUIFontDescriptor+FeatureSelection.swift
 //  FZUIKit
 //
 //  Created by Florian Zand on 20.06.26.
@@ -10,10 +10,92 @@ import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
+import FZSwiftUtils
+
+extension NSUIFontDescriptor {
+    /// Returns the typographic features supported by the font.
+    public var availableFeatures: [FontFeature] {
+        let selections = featureSelections.map(\.string)
+        return (CTFontCopyFeatures(font) as? [[String: Any]] ?? []).compactMap {
+            FontFeature($0, selections)
+        }
+    }
+
+    /// A typographic feature supported by a font.
+    public struct FontFeature: CustomStringConvertible {
+        /// The localized name of the feature.
+        public let name: String
+        /// The feature identifier.
+        public let identifier: String?
+        /// A localized brief description or tooltip explaining the feature.
+        public let tooltipText: String?
+        /// A Boolean value indicating whether only one selector can be enabled at a time.
+        public let isExclusive: Bool
+        /// The OpenType tag associated with the feature.
+        public let openTypeTag: String?
+        /// A sample string demonstrating the effect of this feature.
+        public let sampleText: String?
+        /// The selectors available for the feature.
+        public let selectors: [FeatureSelector]
+        
+        public var description: String {
+            var strings = ["\(openTypeTag.map { "\($0) " } ?? "")\"\(name)\"\(isExclusive ? " isExclusive" : "")"]
+            for selector in selectors {
+                strings += "  \(selector)"
+            }
+            return strings.joined(separator: "\n")
+        }
+        
+        /// A selectable option within a font feature.
+        public struct FeatureSelector: CustomStringConvertible {
+            /// The localized name of the selector.
+            public let name: String
+            /// The selector identifier.
+            public let identifier: String?
+            /// A Boolean value indicating whether the selector is the default option.
+            public let isDefault: Bool
+            /// The OpenType tag associated with the selector.
+            public let openTypeTag: String?
+            /// The OpenType value associated with the selector.
+            public let featureValue: Double?
+            /// A Boolean value indicating whether the selector is currently enabled.
+            public let isEnabled: Bool
+            
+            public var description: String {
+                "\(openTypeTag.map { "\($0) " } ?? "")\"\(name)\"\(featureValue.map { " \($0) " } ?? "")\(isEnabled ? " ✓" : "")\(isDefault ? " *" : "")"
+            }
+            
+            init?(_ dic: [String: Any], _ selection: String?) {
+                guard let name = dic["CTFeatureSelectorName"] as? String else { return nil }
+                self.name = name
+                self.identifier = dic["CTFeatureSelectorIdentifier"] as? String
+                self.featureValue = dic["CTFeatureOpenTypeValue"] as? Double
+                self.isDefault = dic["CTFeatureSelectorDefault"] as? Bool ?? false
+                self.openTypeTag = dic["CTFeatureOpenTypeTag"] as? String
+                self.isEnabled = identifier == selection
+            }
+        }
+        
+        init?(_ dic: [String: Any], _ selections: [(type: String, selector: String)]) {
+            guard let name = dic["CTFeatureTypeName"] as? String, let selectors = dic["CTFeatureTypeSelectors"] as? [[String: Any]] else { return nil }
+            self.name = name
+            self.sampleText = dic["CTFeatureSampleText"] as? String
+            self.tooltipText = dic["CTFeatureTooltipText"] as? String
+            self.openTypeTag = dic["CTFeatureOpenTypeTag"] as? String
+            self.isExclusive = dic["CTFeatureTypeExclusive"] as? Bool ?? false
+            self.identifier = dic["CTFeatureTypeIdentifier"] as? String
+            var selection: String?
+            if let identifier = identifier {
+                selection = selections.first(where: { $0.type == identifier }).map(\.selector)
+            }
+            self.selectors = selectors.compactMap({ .init($0, selection) })
+        }
+    }
+}
 
 extension NSUIFontDescriptor {
     /// The non-default font feature settings applied to the descriptor.
-    public var featureSettings: [FeatureSetting] {
+    public var featureSelections: [FeatureSelection] {
         (object(forKey: .featureSettings) as? [[FeatureKey: Int]] ?? []).compactMap { .init($0) }
     }
 
@@ -25,7 +107,7 @@ extension NSUIFontDescriptor {
      - Parameter featureSettings: The feature settings to apply to the descriptor, or `nil` to remove any feature settings.
      - Returns: A font descriptor containing the specified feature settings.
      */
-    public func withFeatureSettings(_ featureSettings: [FeatureSetting]?) -> NSUIFontDescriptor {
+    public func withFeatureSelections(_ featureSettings: [FeatureSelection]?) -> NSUIFontDescriptor {
         let settings = featureSettings?.map(\.dictionary) ?? []
         var fontAttributes = fontAttributes
         fontAttributes[.featureSettings] = settings.isEmpty ? nil : settings
@@ -33,7 +115,7 @@ extension NSUIFontDescriptor {
     }
     
     /// A Core Text font feature identified by a feature type and selector.
-    public struct FeatureSetting: Hashable, CustomStringConvertible {
+    public struct FeatureSelection: Hashable, CustomStringConvertible {
         /**
          The font feature type identifier.
 
@@ -46,6 +128,10 @@ extension NSUIFontDescriptor {
          The value identifies a selector for the feature type, such as common ligatures off or monospaced numbers.
          */
         public let selectorIdentifier: Int
+        
+        var string: (type: String, selector: String) {
+            (String(typeIdentifier), String(selectorIdentifier))
+        }
 
         /// Creates a font feature from the specified type and selector identifier.
         public init(typeIdentifier: Int, selectorIdentifier: Int) {
@@ -263,7 +349,7 @@ extension NSUIFontDescriptor {
     }
 }
 
-public extension NSUIFontDescriptor.FeatureSetting {
+public extension NSUIFontDescriptor.FeatureSelection {
     /// A Boolean-like state for feature selectors that can be enabled or disabled.
     enum FeatureState: Int, Hashable, ExpressibleByBooleanLiteral {
         /// Enables the selected feature.
@@ -841,7 +927,7 @@ public extension NSUIFontDescriptor.FeatureSetting {
     }
 }
 
-public extension NSUIFontDescriptor.FeatureSetting {
+public extension NSUIFontDescriptor.FeatureSelection {
     var description: String {
         switch (typeIdentifier, selectorIdentifier) {
         case (0, 0): return "allTypographic.on"
@@ -1058,7 +1144,7 @@ public extension NSUIFontDescriptor.FeatureSetting {
         case (103, 1): return "cjkRomanSpacing.proportional"
         case (103, 2): return "cjkRomanSpacing.default"
         case (103, 3): return "cjkRomanSpacing.fullWidth"
-        default: return "FeatureSetting(typeIdentifier: \(typeIdentifier), selectorIdentifier: \(selectorIdentifier))"
+        default: return "FeatureSelection(typeIdentifier: \(typeIdentifier), selectorIdentifier: \(selectorIdentifier))"
         }
     }
 }

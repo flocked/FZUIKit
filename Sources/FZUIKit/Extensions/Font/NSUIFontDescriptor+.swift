@@ -285,7 +285,7 @@ extension NSUIFontDescriptor.AttributeName: Swift.ExpressibleByStringLiteral {
         self.init(rawValue: value)
     }
     
-    /// The variation axes supported by the font.
+    /// A string that specifies the variation axes supported by the font.
     public static let variationAxes = Self(rawValue: kCTFontVariationAxesAttribute as String)
     
     /// A string that specifies the covered languages for the font.
@@ -365,14 +365,14 @@ extension NSUIFontDescriptor.SymbolicTraits: Swift.Hashable, Swift.CustomStringC
         for element in elements() {
             switch element {
             #if os(macOS)
-            case ._bold: strings += "bold"
-            case ._italic: strings += "italic"
-            case ._monoSpace: strings += "monoSpace"
-            case ._vertical: strings += "vertical"
-            case ._looseLeading: strings += "looseLeading"
-            case ._tightLeading: strings += "tightLeading"
-            case ._expanded: strings += "expanded"
-            case ._condensed: strings += "condensed"
+            case .bold: strings += "bold"
+            case .italic: strings += "italic"
+            case .monoSpace: strings += "monoSpace"
+            case .vertical: strings += "vertical"
+            case .looseLeading: strings += "looseLeading"
+            case .tightLeading: strings += "tightLeading"
+            case .expanded: strings += "expanded"
+            case .condensed: strings += "condensed"
             #else
             case .traitBold: strings += "traitBold"
             case .traitItalic: strings += "traitItalic"
