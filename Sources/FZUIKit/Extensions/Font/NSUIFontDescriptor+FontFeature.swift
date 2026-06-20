@@ -66,10 +66,10 @@ extension NSUIFontDescriptor {
             public var description: String {
                 [openTypeTag,
                  "\"\(name)\"",
-                 featureValue?.string,
+                 featureValue.map { "value=\($0)" },
+                 identifier.map { "id=\($0)" },
                  isSelected ? "✓" : nil,
                  isDefault ? "*" : nil,
-                 identifier?.string
                 ].nonNil.joined(separator: " ")
             }
             
