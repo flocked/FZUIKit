@@ -11,7 +11,7 @@ import simd
 import FZSwiftUtils
 
 public extension matrix_double4x4 {
-    /// Initializes a `matrix_double4x4` with a CATransform3D.
+    /// Creates the matrix with the specified transform matrix.
     init(_ transform: CATransform3D) {
         self.init(
             simd_double4(Double(transform.m11), Double(transform.m12), Double(transform.m13), Double(transform.m14)),
@@ -21,9 +21,9 @@ public extension matrix_double4x4 {
         )
     }
 
-    /// Decomposes this matrix into its specific transform attributes (scale, translation, etc.) and returns a Decomposed struct to alter / recompose it.
-    func decomposed() -> DecomposedTransform {
-        DecomposedTransform(self)
+    /// Returns the matrix decomposed into transform attributes (scale, translation, etc.).
+    func decomposed() -> Decomposed {
+        Decomposed(self)
     }
 
     /// The translation of the transformation matrix.
@@ -183,15 +183,9 @@ public extension matrix_double4x4 {
         self[2][3] = p.z
         self[3][3] = p.w
     }
-}
 
-public extension matrix_double4x4 {
-    /**
-     A type to break down a `matrix_double4x4` into its specific transformation attributes / properties (i.e. scale, translation, etc.).
-
-     Instantiate this using: `matrix_float4x4.decomposed()`.
-     */
-    struct DecomposedTransform {
+    /// Represents a decomposed `matrix_double4x4` in which the transform is broken down into its transform attributes (scale, translation, etc.).
+    struct Decomposed {
         /// The translation of a transformation matrix.
         public var translation: simd_double3 = .zero
 
@@ -212,25 +206,6 @@ public extension matrix_double4x4 {
         /// The perspective of a transformation matrix (e.g. .m34).
         public var perspective: simd_double4 = .zero
 
-        /**
-         Designated initializer.
-
-         - Note: You'll want to use `matrix_double4x4.decomposed()` instead.
-         */
-        init(translation: simd_double3, scale: simd_double3, rotation: simd_quatd, eulerAngles: simd_double3, skew: simd_double3, perspective: simd_double4) {
-            self.scale = scale
-            self.skew = skew
-            self.rotation = rotation
-            self.eulerAngles = eulerAngles
-            self.translation = translation
-            self.perspective = perspective
-        }
-
-        /**
-         Designated initializer.
-
-         - Note: You'll want to use `matrix_double4x4.decomposed()` instead.
-         */
         init(_ matrix: matrix_double4x4) {
             var local = matrix
 
@@ -328,10 +303,8 @@ public extension matrix_double4x4 {
     }
 }
 
-// MARK: - matrix_float4x4 Support
-
 public extension matrix_float4x4 {
-    /// Initializes a `matrix_double4x4` with a CATransform3D.
+    /// Creates the matrix with the specified transform matrix.
     init(_ transform: CATransform3D) {
         self.init(
             simd_float4(Float(transform.m11), Float(transform.m12), Float(transform.m13), Float(transform.m14)),
@@ -341,9 +314,9 @@ public extension matrix_float4x4 {
         )
     }
 
-    /// Decomposes this matrix into its specific transform attributes (scale, translation, etc.) and returns a Decomposed struct to alter / recompose it.
-    func decomposed() -> DecomposedTransform {
-        DecomposedTransform(self)
+    /// Returns the matrix decomposed into transform attributes (scale, translation, etc.).
+    func decomposed() -> Decomposed {
+        Decomposed(self)
     }
 
     /// The translation of the transformation matrix.
@@ -478,17 +451,9 @@ public extension matrix_float4x4 {
         self[2][3] = p.z
         self[3][3] = p.w
     }
-}
 
-public extension matrix_float4x4 {
-    /**
-     A type to break down a `matrix_float4x4` into its specific transformation attributes / properties (i.e. scale, translation, etc.).
-
-     Instantiate this using: `matrix_float4x4.decomposed()`.
-
-     - Note: Under the hood this does a conversion to represent its contents as `matrix_double4x4` which could be expensive when done frequently.
-     */
-    struct DecomposedTransform {
+    /// Represents a decomposed `matrix_double4x4` in which the transform is broken down into its transform attributes (scale, translation, etc.).
+    struct Decomposed {
         /// The translation of a transformation matrix.
         public var translation: simd_float3 = .zero
 
@@ -508,44 +473,89 @@ public extension matrix_float4x4 {
 
         /// The perspective of a transformation matrix (e.g. .m34).
         public var perspective: simd_float4 = .zero
-
-        /**
-         Designated initializer.
-
-         - Note: You'll want to use `matrix_float4x4.decomposed()` instead.
-         */
-        init(translation: simd_float3, scale: simd_float3, rotation: simd_quatf, eulerAngles: simd_float3, skew: simd_float3, perspective: simd_float4) {
-            self.scale = scale
-            self.skew = skew
-            self.rotation = rotation
-            self.eulerAngles = eulerAngles
-            self.translation = translation
-            self.perspective = perspective
-        }
-
-        /**
-         Designated initializer.
-
-         - Note: You'll want to use `matrix_float4x4.decomposed()` instead.
-         */
-        init(_ decomposed: matrix_double4x4.DecomposedTransform) {
-            self.init(translation: simd_float3(decomposed.translation),
-                      scale: simd_float3(decomposed.scale),
-                      rotation: simd_quatf(decomposed.rotation),
-                      eulerAngles: simd_float3(decomposed.eulerAngles),
-                      skew: simd_float3(decomposed.skew),
-                      perspective: simd_float4(decomposed.perspective))
-        }
-
-        /**
-         Designated initializer.
-
-         - Note: You'll want to use `matrix_float4x4.decomposed()` instead.
-         */
+        
         init(_ matrix: matrix_float4x4) {
-            let local = matrix_double4x4(matrix)
-            let decomposed = local.decomposed()
-            self.init(decomposed)
+            var local = matrix
+
+            // Normalize the matrix if needed.
+            if local[3][3] != 0.0 {
+                local = matrix_scale(1.0 / local.columns.3.w, local)
+            }
+
+            var perspective = local
+            perspective[0][3] = 0.0
+            perspective[1][3] = 0.0
+            perspective[2][3] = 0.0
+            perspective[3][3] = 1.0
+
+            // solve for perspective
+            guard simd_determinant(perspective) != 0.0 else { return }
+
+            if (local[0][3] != 0.0) || (local[1][3] != 0.0) || (local[2][3] != 0.0) {
+                let rhs = simd_float4(local[0][3], local[1][3], local[2][3], local[3][3])
+                let transposedPerspective = perspective.inverse.transpose
+                self.perspective = matrix_multiply(transposedPerspective, rhs)
+
+                local[0][3] = 0.0
+                local[1][3] = 0.0
+                local[2][3] = 0.0
+                local[3][3] = 1.0
+            } else {
+                self.perspective[3] = 1.0
+            }
+
+            // get translation
+            translation = simd_float3(local[3][0], local[3][1], local[3][2])
+            local[3][0] = 0.0
+            local[3][1] = 0.0
+            local[3][2] = 0.0
+
+            // get scale and shear
+            var rotationLocal = matrix_float3x3(
+                simd_float3(local[0][0], local[0][1], local[0][2]),
+                simd_float3(local[1][0], local[1][1], local[1][2]),
+                simd_float3(local[2][0], local[2][1], local[2][2])
+            )
+
+            scale.x = length(rotationLocal[0])
+            rotationLocal[0] = normalize(rotationLocal[0])
+
+            skew.xy = dot(rotationLocal[0], rotationLocal[1])
+            rotationLocal[1] = simd_linear_combination(1.0, rotationLocal[1], -skew.xy, rotationLocal[0])
+
+            scale.y = simd_length(rotationLocal[1])
+            rotationLocal[1] = normalize(rotationLocal[1])
+            skew.xy /= scale.y
+
+            skew.xz = dot(rotationLocal[0], rotationLocal[2])
+            rotationLocal[2] = simd_linear_combination(1.0, rotationLocal[2], -skew.xz, rotationLocal[0])
+            skew.yz = dot(rotationLocal[1], rotationLocal[2])
+            rotationLocal[2] = simd_linear_combination(1.0, rotationLocal[2], -skew.yz, rotationLocal[1])
+
+            scale.z = length(rotationLocal[2])
+            rotationLocal[2] = normalize(rotationLocal[2])
+            skew.xz /= scale.z
+            skew.yz /= scale.z
+
+            if simd_determinant(rotationLocal) < 0 {
+                scale *= -1.0
+
+                rotationLocal[0] *= -1.0
+                rotationLocal[1] *= -1.0
+                rotationLocal[2] *= -1.0
+            }
+
+            // get rotation
+            eulerAngles.y = asin(-rotationLocal[0][2])
+            if cos(eulerAngles.y) != 0.0 {
+                eulerAngles.x = atan2(rotationLocal[1][2], rotationLocal[2][2])
+                eulerAngles.z = atan2(rotationLocal[0][1], rotationLocal[0][0])
+            } else {
+                eulerAngles.x = atan2(-rotationLocal[2][0], rotationLocal[1][1])
+                eulerAngles.z = 0.0
+            }
+
+            rotation = simd_quatf(rotationLocal)
         }
 
         /// Merges all the properties of the the decomposed transform into a `matrix_float4x4` transform.
@@ -563,5 +573,9 @@ public extension matrix_float4x4 {
 
 private func simd_linear_combination(_ ascl: Double, _ a: simd_double3, _ bscl: Double, _ b: simd_double3) -> simd_double3 {
     simd_double3((ascl * a[0]) + (bscl * b[0]), (ascl * a[1]) + (bscl * b[1]), (ascl * a[2]) + (bscl * b[2]))
+}
+
+private func simd_linear_combination(_ ascl: Float, _ a: simd_float3, _ bscl: Float, _ b: simd_float3) -> simd_float3 {
+    simd_float3((ascl * a[0]) + (bscl * b[0]), (ascl * a[1]) + (bscl * b[1]), (ascl * a[2]) + (bscl * b[2]))
 }
 #endif

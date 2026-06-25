@@ -11,20 +11,14 @@ import FZSwiftUtils
 import QuartzCore
 import simd
 
-extension CATransform3D: Swift.Equatable {
-    public static func == (lhs: Self, rhs: Self) -> Bool {
-        CATransform3DEqualToTransform(lhs, rhs)
-    }
-}
-
 public extension CATransform3D {
     /// Returns the identity matrix of `CATransform3D`
     static let identity = CATransform3DIdentity
     
-    /// Returns the a `CATransform3D` initialized with all zeros.
-    static let zero =  CATransform3D(matrix_double4x4.zero)
+    /// Returns a `CATransform3D` initialized with all zeros.
+    static let zero = CATransform3D()
     
-    /// Intializes a `CATransform3D` with a `matrix_double4x4`.
+    /// Creates the matrix with the specified matrix.
     init(_ matrix: matrix_double4x4) {
         self = CATransform3DIdentity
         m11 = CGFloat(matrix[0][0])
@@ -48,48 +42,25 @@ public extension CATransform3D {
         m44 = CGFloat(matrix[3][3])
     }
     
+    /// Creates the matrix with the specified matrix.
     init(_ matrix: matrix_float4x4) {
-        self = CATransform3DIdentity
-        m11 = CGFloat(matrix[0][0])
-        m12 = CGFloat(matrix[0][1])
-        m13 = CGFloat(matrix[0][2])
-        m14 = CGFloat(matrix[0][3])
-        
-        m21 = CGFloat(matrix[1][0])
-        m22 = CGFloat(matrix[1][1])
-        m23 = CGFloat(matrix[1][2])
-        m24 = CGFloat(matrix[1][3])
-        
-        m31 = CGFloat(matrix[2][0])
-        m32 = CGFloat(matrix[2][1])
-        m33 = CGFloat(matrix[2][2])
-        m34 = CGFloat(matrix[2][3])
-        
-        m41 = CGFloat(matrix[3][0])
-        m42 = CGFloat(matrix[3][1])
-        m43 = CGFloat(matrix[3][2])
-        m44 = CGFloat(matrix[3][3])
+        self.init(matrix_double4x4(matrix))
     }
     
-    /// Returns a `matrix_double4x4` from the contents of this transform.
-    internal var matrix: matrix_double4x4 {
+    private var matrix: matrix_double4x4 {
         matrix_double4x4(self)
     }
     
-    /// Returns a `matrix_double4x4.DecomposedTransform` from the contents of this transform.
-    internal func _decomposed() -> matrix_double4x4.DecomposedTransform {
-        matrix.decomposed()
-    }
-    
-    func decomposed() -> DecomposedTransform {
-        DecomposedTransform(_decomposed())
+    /// Returns the matrix decomposed into transform attributes (scale, translation, etc.).
+    func decomposed() -> Decomposed {
+        Decomposed(self)
     }
     
     /// The translation of the transform.
     var translation: CGVector3 {
-        get { CGVector3(_decomposed().translation) }
+        get { CGVector3(matrix.decomposed().translation) }
         set {
-            var decomposed = _decomposed()
+            var decomposed = matrix.decomposed()
             decomposed.translation = newValue.storage
             self = CATransform3D(decomposed.recomposed())
         }
@@ -132,9 +103,9 @@ public extension CATransform3D {
     
     /// The scale of the transform.
     var scale: CGVector3 {
-        get { CGVector3(_decomposed().scale) }
+        get { CGVector3(matrix.decomposed().scale) }
         set {
-            var decomposed = _decomposed()
+            var decomposed = matrix.decomposed()
             decomposed.scale = newValue.storage
             self = CATransform3D(decomposed.recomposed())
         }
@@ -175,9 +146,9 @@ public extension CATransform3D {
     
     /// The rotation of the transform (expressed as a quaternion).
     var rotation: CGQuaternion {
-        get { CGQuaternion(_decomposed().rotation) }
+        get { CGQuaternion(matrix.decomposed().rotation) }
         set {
-            var decomposed = _decomposed()
+            var decomposed = matrix.decomposed()
             decomposed.rotation = newValue.storage
             self = CATransform3D(decomposed.recomposed())
         }
@@ -206,9 +177,9 @@ public extension CATransform3D {
     
     /// The rotation of the transform, expressed in radians.
     var eulerAngles: CGVector3 {
-        get { CGVector3(_decomposed().eulerAngles) }
+        get { CGVector3(matrix.decomposed().eulerAngles) }
         set {
-            var decomposed = _decomposed()
+            var decomposed = matrix.decomposed()
             decomposed.eulerAngles = newValue.storage
             self = CATransform3D(decomposed.recomposed())
         }
@@ -257,9 +228,9 @@ public extension CATransform3D {
     
     /// The skew of the transform.
     var skew: CGVector3 {
-        get { CGVector3(_decomposed().skew) }
+        get { CGVector3(matrix.decomposed().skew) }
         set {
-            var decomposed = _decomposed()
+            var decomposed = matrix.decomposed()
             decomposed.skew = newValue.storage
             self = CATransform3D(decomposed.recomposed())
         }
@@ -287,9 +258,9 @@ public extension CATransform3D {
     
     /// The perspective of the transform.
     var perspective: CGVector4 {
-        get { CGVector4(_decomposed().perspective) }
+        get { CGVector4(matrix.decomposed().perspective) }
         set {
-            var decomposed = _decomposed()
+            var decomposed = matrix.decomposed()
             decomposed.perspective = newValue.storage
             self = CATransform3D(decomposed.recomposed())
         }
@@ -315,15 +286,10 @@ public extension CATransform3D {
     mutating func applyPerspective(_ perspective: CGVector4) {
         self = CATransform3D(matrix.applyingPerspective(perspective.storage))
     }
-}
 
-// MARK: - DecomposedTransform
-
-public extension CATransform3D {
-    /// Represents a decomposed CATransform3D in which the transform is broken down into its transform attributes (scale, translation, etc.).
-    struct DecomposedTransform {
-        // This is just a simple wrapper overtop `matrix_double4x4.DecomposedTransform`.
-        var storage: matrix_double4x4.DecomposedTransform
+    /// Represents a decomposed `CATransform3D` in which the transform is broken down into its transform attributes (scale, translation, etc.).
+    struct Decomposed {
+        var storage: matrix_double4x4.Decomposed
         
         /// The translation of the transform.
         public var translation: CGVector3 {
@@ -360,14 +326,20 @@ public extension CATransform3D {
          
          - Note: You'll probably want to use `CATransform3D.decomposed()` instead.
          */
-        public init(_ decomposed: matrix_double4x4.DecomposedTransform) {
-            storage = decomposed
+        public init(_ decomposed: CATransform3D) {
+            storage = decomposed.matrix.decomposed()
         }
         
         /// Merges all the properties of the the decomposed transform into a `CATransform3D`.
         public func recomposed() -> CATransform3D {
             CATransform3D(storage.recomposed())
         }
+    }
+}
+
+extension CATransform3D: Swift.Equatable {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        CATransform3DEqualToTransform(lhs, rhs)
     }
 }
 #endif
