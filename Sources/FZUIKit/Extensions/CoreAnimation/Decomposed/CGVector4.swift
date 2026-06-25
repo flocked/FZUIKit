@@ -16,27 +16,51 @@ public struct CGVector4: Codable, Hashable, ExpressibleByArrayLiteral, Interpola
     var storage: simd_double4
     
     /// The x-component of the vector.
-    var x: CGFloat {
+    public var x: CGFloat {
         get { CGFloat(storage.x) }
         set { storage.x = Double(newValue) }
     }
     
     /// The y-component of the vector.
-    var y: CGFloat {
+    public var y: CGFloat {
         get { CGFloat(storage.y) }
         set { storage.y = Double(newValue) }
     }
     
     /// The z-component of the vector.
-    var z: CGFloat {
+    public var z: CGFloat {
         get { CGFloat(storage.z) }
         set { storage.z = Double(newValue) }
     }
     
     /// The w-component of the vector.
-    var w: CGFloat {
+    public var w: CGFloat {
         get { CGFloat(storage.w) }
         set { storage.w = Double(newValue) }
+    }
+    
+    /// The m14-component of the vector.
+    public var m14: CGFloat {
+        get { CGFloat(storage[0]) }
+        set { storage[0] = Double(newValue) }
+    }
+
+    /// The m24-component of the vector.
+    public var m24: CGFloat {
+        get { CGFloat(storage[1]) }
+        set { storage[1] = Double(newValue) }
+    }
+
+    /// The m34-component of the vector.
+    public var m34: CGFloat {
+        get { CGFloat(storage[2]) }
+        set { storage[2] = Double(newValue) }
+    }
+
+    /// The m44-component of the vector.
+    public var m44: CGFloat {
+        get { CGFloat(storage[3]) }
+        set { storage[3] = Double(newValue) }
     }
     
     /**
@@ -141,6 +165,47 @@ public struct CGVector4: Codable, Hashable, ExpressibleByArrayLiteral, Interpola
     @_disfavoredOverload
     public init(_ x: CGFloat, _ y: CGFloat, _ z: CGFloat, _ w: CGFloat) {
         self.init(x: x, y: y, z: z, w: w)
+    }
+    
+    /**
+     Creates a vector from the specified components.
+
+     - Parameters:
+       - m14: The m14-component.
+       - m24: The m24-component.
+       - m34: The m34-component.
+       - m44: The m44-component.
+     */
+    public init(m14: Double = 0.0, m24: Double = 0.0, m34: Double = 0.0, m44: Double = 1.0) {
+        self.init(CGFloat(m14), CGFloat(m24), CGFloat(m34), CGFloat(m44))
+    }
+
+    /**
+     Creates a vector from the specified components.
+
+     - Parameters:
+       - m14: The m14-component.
+       - m24: The m24-component.
+       - m34: The m34-component.
+       - m44: The m44-component.
+     */
+    @_disfavoredOverload
+    public init(m14: Float = 0.0, m24: Float = 0.0, m34: Float = 0.0, m44 _: Float = 1.0) {
+        self.init(CGFloat(m14), CGFloat(m24), CGFloat(m34), CGFloat(m34))
+    }
+    
+    /**
+     Creates a vector from the specified components.
+
+     - Parameters:
+       - m14: The m14-component.
+       - m24: The m24-component.
+       - m34: The m34-component.
+       - m44: The m44-component.
+     */
+    @_disfavoredOverload
+    public init(m14: CGFloat = 0.0, m24: CGFloat = 0.0, m34: CGFloat = 0.0, m44: CGFloat = 1.0) {
+        self.init(m14, m24, m34, m44)
     }
     
     public init(from decoder: any Decoder) throws {

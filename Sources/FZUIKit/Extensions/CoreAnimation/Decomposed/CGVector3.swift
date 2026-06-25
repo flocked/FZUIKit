@@ -164,6 +164,37 @@ public struct CGVector3: Codable, Hashable, ExpressibleByArrayLiteral, Interpola
     }
 }
 
+extension CGVector3 {
+    var xy: CGFloat {
+        get { CGFloat(storage[0]) }
+        set { storage[0] = Double(newValue) }
+    }
+
+    var xz: CGFloat {
+        get { CGFloat(storage[1]) }
+        set { storage[1] = Double(newValue) }
+    }
+
+    var yz: CGFloat {
+        get { CGFloat(storage[2]) }
+        set { storage[2] = Double(newValue) }
+    }
+
+    init(xy: Double = 0.0, xz: Double = 0.0, yz: Double = 0.0) {
+        self.init(CGFloat(xy), CGFloat(xz), CGFloat(yz))
+    }
+
+    @_disfavoredOverload
+    init(xy: Float = 0.0, xz: Float = 0.0, yz: Float = 0.0) {
+        self.init(CGFloat(xy), CGFloat(xz), CGFloat(yz))
+    }
+    
+    @_disfavoredOverload
+    init(xy: CGFloat = 0.0, xz: CGFloat = 0.0, yz: CGFloat = 0.0) {
+        self.init(xy, xz, yz)
+    }
+}
+
 public extension simd_double3 {
     init(_ vector: CGVector3) {
         self.init(Double(vector.x), Double(vector.y), Double(vector.z))

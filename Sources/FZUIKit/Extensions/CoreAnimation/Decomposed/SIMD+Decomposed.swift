@@ -1,5 +1,5 @@
 //
-//  SIMDDecomposed.swift
+//  SIMD+Decomposed.swift
 //
 //
 //  Created by Adam Bell on 5/14/20.
