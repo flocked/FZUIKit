@@ -23,9 +23,13 @@ public extension NSUIColor {
      */
     func alpha(_ alpha: CGFloat) -> NSUIColor {
         guard alphaComponent != alpha else { return self }
+        #if os(macOS) || os(iOS) || os(tvOS)
         guard isDynamic else { return withAlphaComponent(alpha) }
         let dynamicColors = dynamicColors
         return NSUIColor(light: dynamicColors.light.withAlphaComponent(alpha), dark: dynamicColors.dark.withAlphaComponent(alpha))
+        #else
+        return withAlphaComponent(alpha)
+        #endif
     }
     
     /**

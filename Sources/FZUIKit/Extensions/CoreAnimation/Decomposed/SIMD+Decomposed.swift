@@ -1,5 +1,5 @@
 //
-//  SIMD+Decomposed.swift
+//  SIMDDecomposed.swift
 //
 //
 //  Created by Adam Bell on 5/14/20.
@@ -8,16 +8,9 @@
 #if os(macOS) || os(iOS) || os(tvOS)
 import QuartzCore
 import simd
-
-// MARK: - matrix_double4x4
+import FZSwiftUtils
 
 public extension matrix_double4x4 {
-    /// Returns the identity matrix of a `matrix_double4x4`.
-    static let identity = matrix_identity_double4x4
-
-    /// Returns a `matrix_double4x4` with all zeros.
-    static let zero = matrix_double4x4()
-
     /// Initializes a `matrix_double4x4` with a CATransform3D.
     init(_ transform: CATransform3D) {
         self.init(
@@ -192,8 +185,6 @@ public extension matrix_double4x4 {
     }
 }
 
-// MARK: - DecomposedTransform
-
 public extension matrix_double4x4 {
     /**
      A type to break down a `matrix_double4x4` into its specific transformation attributes / properties (i.e. scale, translation, etc.).
@@ -340,12 +331,6 @@ public extension matrix_double4x4 {
 // MARK: - matrix_float4x4 Support
 
 public extension matrix_float4x4 {
-    /// Returns the identity matrix of a `matrix_double4x4`.
-    static let identity = matrix_identity_float4x4
-
-    /// Returns a `matrix_double4x4` with all zeros.
-    static let zero = matrix_float4x4()
-
     /// Initializes a `matrix_double4x4` with a CATransform3D.
     init(_ transform: CATransform3D) {
         self.init(
@@ -495,8 +480,6 @@ public extension matrix_float4x4 {
     }
 }
 
-// MARK: - DecomposedTransform
-
 public extension matrix_float4x4 {
     /**
      A type to break down a `matrix_float4x4` into its specific transformation attributes / properties (i.e. scale, translation, etc.).
@@ -578,10 +561,7 @@ public extension matrix_float4x4 {
     }
 }
 
-// MARK: - Utils
-
 private func simd_linear_combination(_ ascl: Double, _ a: simd_double3, _ bscl: Double, _ b: simd_double3) -> simd_double3 {
     simd_double3((ascl * a[0]) + (bscl * b[0]), (ascl * a[1]) + (bscl * b[1]), (ascl * a[2]) + (bscl * b[2]))
 }
-
 #endif
