@@ -6,7 +6,6 @@
 //
 
 #if os(macOS)
-
 import AppKit
 import Combine
 import FZSwiftUtils
@@ -23,7 +22,6 @@ extension NSEvent {
                 _shortcut = newValue
             }
         }
-        
         
         private var _shortcut: KeyboardShortcut {
             didSet { updateMonitor() }
@@ -224,6 +222,13 @@ extension NSEvent {
             get { _isActive }
             set { newValue ? start() : stop() }
         }
+        
+        /// Sets the Boolean value indicating whether the monitor is active.
+        @discardableResult
+        public func isActive(_ isActive: Bool) -> Self {
+            self.isActive = isActive
+            return self
+        }
                 
         /// Starts monitoring the keyboard shortcut.
         public func start() {
@@ -336,6 +341,15 @@ extension NSEvent.KeyMonitor {
                 subscriber = nil
             }
         }
+    }
+}
+
+public extension Sequence where Element == NSEvent.KeyMonitor {
+    /// Sets the Boolean value indicating whether the monitors are active.
+    @discardableResult
+    func isActive(_ isActive: Bool) -> Self {
+        forEach({ $0.isActive = isActive })
+        return self
     }
 }
 

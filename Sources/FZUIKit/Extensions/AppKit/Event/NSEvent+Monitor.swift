@@ -110,6 +110,13 @@ public extension NSEvent {
             set { newValue ? start() : stop() }
         }
         
+        /// Sets the Boolean value indicating whether the monitor is active.
+        @discardableResult
+        public func isActive(_ isActive: Bool) -> Self {
+            self.isActive = isActive
+            return self
+        }
+        
         /// Starts monitoring events.
         public func start() {
             guard !isActive else { return }
@@ -188,6 +195,15 @@ extension NSEvent.Monitor {
                 subscriber = nil
             }
         }
+    }
+}
+
+public extension Sequence where Element == NSEvent.Monitor {
+    /// Sets the Boolean value indicating whether the monitors are active.
+    @discardableResult
+    func isActive(_ isActive: Bool) -> Self {
+        forEach({ $0.isActive = isActive })
+        return self
     }
 }
 #endif
