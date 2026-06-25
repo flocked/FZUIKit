@@ -5,10 +5,7 @@
 //  Created by Adam Bell on 5/14/20.
 //
 
-// Loose adaption of https://opensource.apple.com/source/WebCore/WebCore-7604.1.38.1.6/platform/graphics/transforms/TransformationMatrix.cpp.auto.html
-
 #if os(macOS) || os(iOS) || os(tvOS)
-
 import QuartzCore
 import simd
 

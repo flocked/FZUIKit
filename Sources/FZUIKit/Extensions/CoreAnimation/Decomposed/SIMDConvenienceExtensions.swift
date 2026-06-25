@@ -6,10 +6,28 @@
 //
 
 #if canImport(QuartzCore)
-
 import simd
 
-// Perspective
+public extension SIMD3 {
+    var xy: Scalar {
+        get { self[0] }
+        set { self[0] = newValue }
+    }
+
+    var xz: Scalar {
+        get { self[1] }
+        set { self[1] = newValue }
+    }
+
+    var yz: Scalar {
+        get { self[2] }
+        set { self[2] = newValue }
+    }
+
+    init(xy: Scalar, xz: Scalar, yz: Scalar) {
+        self.init(xy, xz, yz)
+    }
+}
 
 public extension SIMD4 {
     var m31: Scalar {
@@ -37,31 +55,6 @@ public extension SIMD4 {
     }
 }
 
-// Skew
-
-public extension SIMD3 {
-    var xy: Scalar {
-        get { self[0] }
-        set { self[0] = newValue }
-    }
-
-    var xz: Scalar {
-        get { self[1] }
-        set { self[1] = newValue }
-    }
-
-    var yz: Scalar {
-        get { self[2] }
-        set { self[2] = newValue }
-    }
-
-    init(xy: Scalar, xz: Scalar, yz: Scalar) {
-        self.init(xy, xz, yz)
-    }
-}
-
-// Double -> Float Conversion
-
 public extension simd_float3 {
     init(_ vector: simd_double3) {
         self.init(Float(vector[0]), Float(vector[1]), Float(vector[2]))
@@ -80,14 +73,12 @@ public extension simd_quatf {
     }
 
     init(_ eulerAngles: simd_float3) {
-        // From: https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
         let cz = cos(eulerAngles.z * 0.5)
         let sz = sin(eulerAngles.z * 0.5)
         let cy = cos(eulerAngles.y * 0.5)
         let sy = sin(eulerAngles.y * 0.5)
         let cx = cos(eulerAngles.x * 0.5)
         let sx = sin(eulerAngles.x * 0.5)
-
         self.init(vector: [
             sx * cy * cz - cx * sy * sz, // x
             cx * sy * cz + sx * cy * sz, // y
@@ -102,8 +93,6 @@ public extension simd_double4x4 {
         self.init(simd_double4(matrix[0]), simd_double4(matrix[1]), simd_double4(matrix[2]), simd_double4(matrix[3]))
     }
 }
-
-// Float -> Double Conversions
 
 public extension simd_double3 {
     init(_ vector: simd_float3) {
@@ -123,14 +112,12 @@ public extension simd_quatd {
     }
 
     init(_ eulerAngles: simd_double3) {
-        // From: https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
         let cz = cos(eulerAngles.z * 0.5)
         let sz = sin(eulerAngles.z * 0.5)
         let cy = cos(eulerAngles.y * 0.5)
         let sy = sin(eulerAngles.y * 0.5)
         let cx = cos(eulerAngles.x * 0.5)
         let sx = sin(eulerAngles.x * 0.5)
-
         self.init(vector: [
             sx * cy * cz - cx * sy * sz, // x
             cx * sy * cz + sx * cy * sz, // y
@@ -145,5 +132,4 @@ public extension simd_float4x4 {
         self.init(simd_float4(matrix[0]), simd_float4(matrix[1]), simd_float4(matrix[2]), simd_float4(matrix[3]))
     }
 }
-
 #endif
