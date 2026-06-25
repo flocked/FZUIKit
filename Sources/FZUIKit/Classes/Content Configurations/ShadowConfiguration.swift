@@ -389,7 +389,7 @@ public extension NSShadow {
 public class __ShadowConfiguration: NSObject, NSCopying {
     let configuration: ShadowConfiguration
     
-    public init(configuration: ShadowConfiguration) {
+    init(configuration: ShadowConfiguration) {
         self.configuration = configuration
     }
     

@@ -222,7 +222,7 @@ public struct TextConfiguration {
 public class __TextConfiguration: NSObject, NSCopying {
     let configuration: TextConfiguration
     
-    public init(configuration: TextConfiguration) {
+    init(configuration: TextConfiguration) {
         self.configuration = configuration
     }
     

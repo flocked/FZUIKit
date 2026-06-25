@@ -319,7 +319,7 @@ public extension AttributedString {
 public class __BorderConfiguration: NSObject, NSCopying {
     let configuration: BorderConfiguration
     
-    public init(configuration: BorderConfiguration) {
+    init(configuration: BorderConfiguration) {
         self.configuration = configuration
     }
     

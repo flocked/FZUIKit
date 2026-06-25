@@ -423,7 +423,7 @@ public extension NSUIView {
 public class __ViewConstraintMode: NSObject, NSCopying {
     let mode: NSUIView.ConstraintMode
     
-    public init(mode: NSUIView.ConstraintMode) {
+    init(mode: NSUIView.ConstraintMode) {
         self.mode = mode
     }
     

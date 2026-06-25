@@ -94,7 +94,7 @@ extension simd_quatd: Swift.Hashable {
 public class __CGQuaternion: NSObject, NSCopying {
     var storage: CGQuaternion
     
-    public init(_ storage: CGQuaternion) {
+    init(_ storage: CGQuaternion) {
         self.storage = storage
     }
     

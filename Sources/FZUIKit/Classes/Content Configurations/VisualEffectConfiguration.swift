@@ -121,7 +121,7 @@ public extension NSVisualEffectView {
 public class __VisualEffectConfiguration: NSObject, NSCopying {
     let configuration: VisualEffectConfiguration
 
-    public init(configuration: VisualEffectConfiguration) {
+    init(configuration: VisualEffectConfiguration) {
         self.configuration = configuration
     }
 

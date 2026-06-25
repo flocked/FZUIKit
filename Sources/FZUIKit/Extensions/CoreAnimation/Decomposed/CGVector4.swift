@@ -94,7 +94,7 @@ extension CGVector4: Equatable {
 public class __CGVector4: NSObject, NSCopying {
     let storage: CGVector4
     
-    public init(_ storage: CGVector4) {
+    init(_ storage: CGVector4) {
         self.storage = storage
     }
     

@@ -102,7 +102,7 @@ extension CGVector3: Equatable {
 public class __CGVector3: NSObject, NSCopying {
     let storage: CGVector3
     
-    public init(_ storage: CGVector3) {
+    init(_ storage: CGVector3) {
         self.storage = storage
     }
     
