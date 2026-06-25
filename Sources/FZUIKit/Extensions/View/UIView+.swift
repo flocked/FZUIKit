@@ -80,7 +80,7 @@ extension UIView {
      
      The property can be animated. The default value is `zero`, which results in a view with no transformed translation.
      */
-    public var translation: Translation {
+    public var translation: CGVector3 {
         get { transform3D.translation }
         set { transform3D.translation = newValue }
     }
@@ -90,7 +90,7 @@ extension UIView {
      
      The property can be animated. The default value is `zero`, which results in a view with no transformed perspective.
      */
-    public var perspective: Perspective {
+    public var perspective: CGVector4 {
         get { self.transform3D.perspective }
         set { self.transform3D.perspective = newValue }
     }
@@ -100,7 +100,7 @@ extension UIView {
      
      The property can be animated. The default value is `zero`, which results in a view with no transformed shearing.
      */
-    public var skew: Skew {
+    public var skew: CGVector3 {
         get { transform3D.skew }
         set { transform3D.skew = newValue }
     }

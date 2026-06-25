@@ -386,11 +386,22 @@ public extension NSShadow {
 }
 
 /// The Objective-C class for ``ShadowConfiguration``.
-public class __ShadowConfiguration: NSObject, NSCopying {
+public class __ShadowConfiguration: NSObject, NSCopying, NSCoding {
     let configuration: ShadowConfiguration
     
-    init(configuration: ShadowConfiguration) {
+    init(_ configuration: ShadowConfiguration) {
         self.configuration = configuration
+    }
+    
+    public func encode(with coder: NSCoder) {
+        coder.encode(configuration.color, forKey: "color")
+        coder.encode(configuration.opacity, forKey: "opacity")
+        coder.encode(configuration.radius, forKey: "radius")
+        coder.encode(configuration.offset, forKey: "offset")
+    }
+    
+    public required init?(coder: NSCoder) {
+        self.configuration = .init(color: coder.decode("color"), opacity: coder.decode("opacity") ?? 1.0, radius: coder.decode("radius") ?? 2.0, offset: coder.decode("offset") ?? CGPoint(x: 1.0, y: -1.5))
     }
     
     public func copy(with zone: NSZone? = nil) -> Any {
@@ -412,7 +423,7 @@ extension ShadowConfiguration: ReferenceConvertible {
     public typealias ReferenceType = __ShadowConfiguration
     
     public func _bridgeToObjectiveC() -> ReferenceType {
-        return __ShadowConfiguration(configuration: self)
+        return __ShadowConfiguration(self)
     }
     
     public static func _forceBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) {

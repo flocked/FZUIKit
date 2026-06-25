@@ -28,6 +28,7 @@ public struct Gradient: Hashable {
     /// The type of gradient.
     public var type: GradientType = .linear
     
+    /// The color space of the gradient.
     public var colorSpace: ColorModels.ColorSpace? = nil
     
     /// The colors of the gradient.
@@ -94,12 +95,14 @@ public struct Gradient: Hashable {
         - startPoint: The start point of the gradient.
         - endPoint: The end point of the gradient.
         - type: The type of gradient.
+        - colorSpace: The color space of the gradient.
      */
-    public init(colors: [NSUIColor], startPoint: FractionalPoint = .top, endPoint: FractionalPoint = .bottom, type: GradientType = .linear) {
+    public init(colors: [NSUIColor], startPoint: FractionalPoint = .top, endPoint: FractionalPoint = .bottom, type: GradientType = .linear, colorSpace: ColorModels.ColorSpace? = nil) {
         stops = colors.stops
         self.startPoint = startPoint
         self.endPoint = endPoint
         self.type = type
+        self.colorSpace = colorSpace
     }
     
     /**
@@ -110,12 +113,14 @@ public struct Gradient: Hashable {
         - startPoint: The start point of the gradient.
         - endPoint: The end point of the gradient.
         - type: The type of gradient.
+        - colorSpace: The color space of the gradient.
      */
-    public init(stops: [ColorStop], startPoint: FractionalPoint = .top, endPoint: FractionalPoint = .bottom, type: GradientType = .linear) {
+    public init(stops: [ColorStop], startPoint: FractionalPoint = .top, endPoint: FractionalPoint = .bottom, type: GradientType = .linear, colorSpace: ColorModels.ColorSpace? = nil) {
         self.stops = stops
         self.startPoint = startPoint
         self.endPoint = endPoint
         self.type = type
+        self.colorSpace = colorSpace
     }
     
     /**
@@ -126,12 +131,14 @@ public struct Gradient: Hashable {
         - startPoint: The start point of the gradient.
         - endPoint: The end point of the gradient.
         - type: The type of gradient.
+        - colorSpace: The color space of the gradient.
      */
-    public init(preset: Preset, startPoint: FractionalPoint = .top, endPoint: FractionalPoint = .bottom, type: GradientType = .linear) {
-        stops = preset.colors.stops
+    public init(preset: Preset, startPoint: FractionalPoint = .top, endPoint: FractionalPoint = .bottom, type: GradientType = .linear, colorSpace: ColorModels.ColorSpace? = nil) {
+        self.stops = preset.colors.stops
         self.startPoint = startPoint
         self.endPoint = endPoint
         self.type = type
+        self.colorSpace = colorSpace
     }
     
     /// A linear gradient with the specified colors.
@@ -269,12 +276,45 @@ extension Gradient {
     }
 }
 
+extension Gradient.ColorStop {
+    
+}
+
+class ColorStopObjC: NSObject, NSCoding {
+    func encode(with coder: NSCoder) {
+        coder.encode(stop.color, forKey: "color")
+        coder.encode(stop.location, forKey: "location")
+    }
+    
+    required init?(coder: NSCoder) {
+        stop = .init(color: coder.decode("color") ?? .black, location: coder.decode("location") ?? .zero)
+    }
+    
+    let stop: Gradient.ColorStop
+    
+    init(_ stop: Gradient.ColorStop) {
+        self.stop = stop
+    }
+}
+
 /// The Objective-C class for ``Gradient``.
-public class __Gradient: NSObject, NSCopying {
+public class __Gradient: NSObject, NSCopying, NSCoding {
     let gradient: Gradient
     
     init(_ gradient: Gradient) {
         self.gradient = gradient
+    }
+    
+    public func encode(with coder: NSCoder) {
+        coder.encode(gradient.stops.map({ ColorStopObjC($0) }), forKey: "stops")
+        coder.encode(gradient.startPoint, forKey: "startPoint")
+        coder.encode(gradient.endPoint, forKey: "endPoint")
+        coder.encode(gradient.type, forKey: "type")
+        coder.encode(gradient.colorSpace, forKey: "colorSpace")
+    }
+    
+    public required init?(coder: NSCoder) {
+        gradient = .init(stops: coder.decode("stops", as: [ColorStopObjC].self)?.map(\.stop) ?? [], startPoint: coder.decode("startPoint") ?? .top, endPoint: coder.decode("endPoint") ?? .bottom, type: coder.decode("type") ?? .linear, colorSpace: coder.decode("colorSpace"))
     }
     
     public func copy(with zone: NSZone? = nil) -> Any {

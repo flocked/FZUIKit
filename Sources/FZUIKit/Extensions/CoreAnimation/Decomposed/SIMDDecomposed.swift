@@ -16,14 +16,10 @@ import simd
 
 public extension matrix_double4x4 {
     /// Returns the identity matrix of a `matrix_double4x4`.
-    static var identity: matrix_double4x4 {
-        matrix_identity_double4x4
-    }
+    static let identity = matrix_identity_double4x4
 
     /// Returns a `matrix_double4x4` with all zeros.
-    static var zero: matrix_double4x4 {
-        matrix_double4x4()
-    }
+    static let zero = matrix_double4x4()
 
     /// Initializes a `matrix_double4x4` with a CATransform3D.
     init(_ transform: CATransform3D) {
@@ -42,12 +38,8 @@ public extension matrix_double4x4 {
 
     /// The translation of the transformation matrix.
     var translation: simd_double3 {
-        get {
-            decomposed().translation
-        }
-        set {
-            translate(by: newValue)
-        }
+        get { decomposed().translation }
+        set { translate(by: newValue) }
     }
 
     /// Returns a copy by translating the current transformation matrix by the given translation amount.
@@ -66,12 +58,8 @@ public extension matrix_double4x4 {
 
     /// The scale of the transformation matrix.
     var scale: simd_double3 {
-        get {
-            decomposed().scale
-        }
-        set {
-            self.scale(by: newValue)
-        }
+        get { decomposed().scale }
+        set { scale(by: newValue) }
     }
 
     /// Returns a copy by scaling the current transformation matrix by the given scale.
@@ -90,12 +78,8 @@ public extension matrix_double4x4 {
 
     /// The rotation of the transformation matrix (expressed as a quaternion).
     var rotation: simd_quatd {
-        get {
-            decomposed().rotation
-        }
-        set {
-            rotate(by: newValue)
-        }
+        get { decomposed().rotation }
+        set { rotate(by: newValue) }
     }
 
     /// Returns a copy by applying a rotation transform (expressed as a quaternion) to the current transformation matrix.
@@ -116,12 +100,8 @@ public extension matrix_double4x4 {
 
     /// The rotation of the transformation matrix (expressed as euler angles, expressed in radians).
     var eulerAngles: simd_double3 {
-        get {
-            decomposed().eulerAngles
-        }
-        set {
-            rotate(by: newValue)
-        }
+        get { decomposed().eulerAngles }
+        set { rotate(by: newValue) }
     }
 
     /// The rotation of the transformation matrix (expressed as euler angles, expressed in degrees).
@@ -161,12 +141,8 @@ public extension matrix_double4x4 {
 
     /// The skew of the transformation matrix.
     var skew: simd_double3 {
-        get {
-            decomposed().skew
-        }
-        set {
-            self.skew(by: newValue)
-        }
+        get { decomposed().skew }
+        set { skew(by: newValue) }
     }
 
     /// Returns a copy by skewing the current transformation matrix by a given skew.
@@ -199,12 +175,8 @@ public extension matrix_double4x4 {
 
     /// The perspective of the transformation matrix.
     var perspective: simd_double4 {
-        get {
-            decomposed().perspective
-        }
-        set {
-            applyPerspective(newValue)
-        }
+        get { decomposed().perspective }
+        set { applyPerspective(newValue) }
     }
 
     /// Returns a copy by changing the perspective of the current transformation matrix.
@@ -243,9 +215,7 @@ public extension matrix_double4x4 {
 
         /// The rotation of a transformation matrix (expressed as a euler angles).
         public var eulerAngles: simd_double3 = .zero {
-            didSet {
-                rotation = simd_quatd(eulerAngles)
-            }
+            didSet { rotation = simd_quatd(eulerAngles) }
         }
 
         /// The shearing of a transformation matrix.
@@ -360,13 +330,11 @@ public extension matrix_double4x4 {
         /// Merges all the properties of the the decomposed transform into a `matrix_double4x4` transform.
         public func recomposed() -> matrix_double4x4 {
             var recomposed: matrix_double4x4 = .identity
-
             recomposed.applyPerspective(perspective)
             recomposed.translate(by: translation)
             recomposed.rotate(by: rotation)
             recomposed.skew(by: skew)
             recomposed.scale(by: scale)
-
             return recomposed
         }
     }
@@ -376,14 +344,10 @@ public extension matrix_double4x4 {
 
 public extension matrix_float4x4 {
     /// Returns the identity matrix of a `matrix_double4x4`.
-    static var identity: matrix_float4x4 {
-        matrix_identity_float4x4
-    }
+    static let identity = matrix_identity_float4x4
 
     /// Returns a `matrix_double4x4` with all zeros.
-    static var zero: matrix_float4x4 {
-        matrix_float4x4()
-    }
+    static let zero = matrix_float4x4()
 
     /// Initializes a `matrix_double4x4` with a CATransform3D.
     init(_ transform: CATransform3D) {
@@ -402,12 +366,8 @@ public extension matrix_float4x4 {
 
     /// The translation of the transformation matrix.
     var translation: simd_float3 {
-        get {
-            decomposed().translation
-        }
-        set {
-            translate(by: newValue)
-        }
+        get { decomposed().translation }
+        set { translate(by: newValue) }
     }
 
     /// Returns a copy by translating the current transformation matrix by the given translation amount.
@@ -426,12 +386,8 @@ public extension matrix_float4x4 {
 
     /// The scale of the transformation matrix.
     var scale: simd_float3 {
-        get {
-            decomposed().scale
-        }
-        set {
-            self.scale(by: newValue)
-        }
+        get { decomposed().scale }
+        set { scale(by: newValue) }
     }
 
     /// Returns a copy by scaling the current transformation matrix by the given scale.
@@ -450,12 +406,8 @@ public extension matrix_float4x4 {
 
     /// The rotation of the transformation matrix (expressed as a quaternion).
     var rotation: simd_quatf {
-        get {
-            decomposed().rotation
-        }
-        set {
-            rotate(by: newValue)
-        }
+        get { decomposed().rotation }
+        set { rotate(by: newValue) }
     }
 
     /// Returns a copy by applying a rotation transform (expressed as a quaternion) to the current transformation matrix.
@@ -473,12 +425,8 @@ public extension matrix_float4x4 {
 
     /// The rotation of the transformation matrix (expressed as euler angles, expressed in radians).
     var eulerAngles: simd_float3 {
-        get {
-            decomposed().eulerAngles
-        }
-        set {
-            rotate(by: newValue)
-        }
+        get { decomposed().eulerAngles }
+        set { rotate(by: newValue) }
     }
 
     /// Returns a copy by applying a rotation transform (expressed as euler angles, expressed in radians) to the current transformation matrix.
@@ -496,12 +444,8 @@ public extension matrix_float4x4 {
 
     /// The skew of the transformation matrix.
     var skew: simd_float3 {
-        get {
-            decomposed().skew
-        }
-        set {
-            self.skew(by: newValue)
-        }
+        get { decomposed().skew }
+        set { skew(by: newValue) }
     }
 
     /// Returns a copy by skewing the current transformation matrix by a given skew.
@@ -534,12 +478,8 @@ public extension matrix_float4x4 {
 
     /// The perspective of the transformation matrix.
     var perspective: simd_float4 {
-        get {
-            decomposed().perspective
-        }
-        set {
-            applyPerspective(newValue)
-        }
+        get { decomposed().perspective }
+        set { applyPerspective(newValue) }
     }
 
     /// Returns a copy by changing the perspective of the current transformation matrix.
@@ -580,9 +520,7 @@ public extension matrix_float4x4 {
 
         /// The rotation of a transformation matrix (expressed as euler angles).
         public var eulerAngles: simd_float3 = .zero {
-            didSet {
-                rotation = simd_quatf(eulerAngles)
-            }
+            didSet { rotation = simd_quatf(eulerAngles) }
         }
 
         /// The shearing of a transformation matrix.
@@ -633,13 +571,11 @@ public extension matrix_float4x4 {
         /// Merges all the properties of the the decomposed transform into a `matrix_float4x4` transform.
         public func recomposed() -> matrix_float4x4 {
             var recomposed: matrix_float4x4 = .identity
-
             recomposed.applyPerspective(perspective)
             recomposed.translate(by: translation)
             recomposed.rotate(by: rotation)
             recomposed.skew(by: skew)
             recomposed.scale(by: scale)
-
             return recomposed
         }
     }

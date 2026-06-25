@@ -77,10 +77,12 @@ public extension NSUIFont {
         CTFontManagerCopyAvailablePostScriptNames() as? [String] ?? []
     }
 
+    #if os(macOS)
     /// The file URLs of the fonts available in the system.
     static var availableFontURLs: [URL] {
         (CTFontManagerCopyAvailableFontURLs() as? [URL]) ?? []
     }
+    #endif
 
     /// The standard system font with standard system size.
     static var system = NSUIFont.systemFont(ofSize: NSUIFont.systemFontSize)
@@ -594,10 +596,12 @@ public extension NSUIFont {
         return glyphs
     }
     
+    #if os(macOS)
     /// Returns a Boolean value indicating whether the file at the specified URL contains a supported font.
     static func supportsFont(at url: URL) -> Bool {
         CTFontManagerIsSupportedFont(url as CFURL)
     }
+    #endif
     
     /**
      Registers the fonts contained in the file at the specified URL.

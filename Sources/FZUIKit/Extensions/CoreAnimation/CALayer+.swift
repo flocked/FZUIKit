@@ -184,8 +184,11 @@ extension CALayer {
     
     /// The translation of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform) on the x- and y-coordinate.
     public var translation: CGPoint {
-        get { transform.translation.asPoint }
-        set { CATransaction.disabledActions { transform.translation = Translation(newValue.x, newValue.y, transform.translation.z) } }
+        get {
+            let translation = transform.translation
+            return CGPoint(x: translation.x, y: translation.y)
+        }
+        set { CATransaction.disabledActions { transform.translation = CGVector3(newValue.x, newValue.y, transform.translation.z) } }
     }
     
     /// Sets the translation of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform) on the x- and y-coordinate.
@@ -196,14 +199,14 @@ extension CALayer {
     }
     
     /// The translation of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform).
-    public var translationXYZ: Translation {
+    public var translationXYZ: CGVector3 {
         get { transform.translation }
         set { CATransaction.disabledActions { transform.translation = newValue } }
     }
     
     /// Sets the translation of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform).
     @discardableResult
-    public func translationXYZ(_ translation: Translation) -> Self {
+    public func translationXYZ(_ translation: CGVector3) -> Self {
         self.translationXYZ = translation
         return self
     }
@@ -248,27 +251,27 @@ extension CALayer {
     }
     
     /// The shearing of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform).
-    public var skew: Skew {
+    public var skew: CGVector3 {
         get { transform.skew }
         set { CATransaction.disabledActions { transform.skew = newValue } }
     }
     
     /// Sets the shearing of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform).
     @discardableResult
-    public func skew(_ skew: Skew) -> Self {
+    public func skew(_ skew: CGVector3) -> Self {
         self.skew = skew
         return self
     }
     
     /// The perspective of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform) (e.g. .m34).
-    public var perspective: Perspective {
+    public var perspective: CGVector4 {
         get { transform.perspective }
         set { CATransaction.disabledActions { transform.perspective = newValue } }
     }
     
     /// Sets the perspective of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform) (e.g. .m34).
     @discardableResult
-    public func perspective(_ Perspective: Skew) -> Self {
+    public func perspective(_ Perspective: CGVector4) -> Self {
         self.perspective = perspective
         return self
     }

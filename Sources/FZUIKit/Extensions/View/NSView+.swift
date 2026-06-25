@@ -209,7 +209,7 @@ extension NSView {
      
      The default value is `zero`, which results in a view with no transformed perspective.
      */
-    @objc open var perspective: Perspective {
+    @objc open var perspective: CGVector4 {
         get { transform3D.perspective }
         set { transform3D.perspective = newValue }
     }
@@ -224,7 +224,7 @@ extension NSView {
      
      The default value is `zero`, which results in a view with no transformed translation.
      */
-    @objc open var translation: Translation {
+    @objc open var translation: CGVector3 {
         get { transform3D.translation }
         set { transform3D.translation = newValue }
     }
@@ -238,7 +238,7 @@ extension NSView {
      
      The default value is `zero`, which results in a view with no transformed shearing.
      */
-    @objc open var skew: Skew {
+    @objc open var skew: CGVector3 {
         get { transform3D.skew }
         set { transform3D.skew = newValue }
     }

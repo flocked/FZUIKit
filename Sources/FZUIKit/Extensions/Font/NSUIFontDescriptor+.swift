@@ -15,12 +15,12 @@ import FZSwiftUtils
 public extension NSUIFontDescriptor {
     /// Returns the font descriptors contained in the font file at the specified URL.
     static func fontDescriptors(at url: URL) -> [NSUIFontDescriptor] {
-        CTFontManagerCreateFontDescriptorsFromURL(url as CFURL) as? [NSFontDescriptor] ?? []
+        CTFontManagerCreateFontDescriptorsFromURL(url as CFURL) as? [NSUIFontDescriptor] ?? []
     }
 
     /// Returns the font descriptors contained in the specified font data.
-    static func fontDescriptors(from data: Data) -> [NSFontDescriptor] {
-        (CTFontManagerCreateFontDescriptorsFromData(data as CFData) as? [NSFontDescriptor]) ?? []
+    static func fontDescriptors(from data: Data) -> [NSUIFontDescriptor] {
+        (CTFontManagerCreateFontDescriptorsFromData(data as CFData) as? [NSUIFontDescriptor]) ?? []
     }
     
     /// The name of the font, including family and face names, to use when displaying the font information to the user.

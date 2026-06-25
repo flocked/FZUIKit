@@ -118,7 +118,20 @@ public extension NSVisualEffectView {
 }
 
 /// The Objective-C class for ``VisualEffectConfiguration``.
-public class __VisualEffectConfiguration: NSObject, NSCopying {
+public class __VisualEffectConfiguration: NSObject, NSCopying, NSCoding {
+    public func encode(with coder: NSCoder) {
+        coder.encode(configuration.blendingMode, forKey: "blendingMode")
+        coder.encode(configuration.isEmphasized, forKey: "isEmphasized")
+        coder.encode(configuration.material, forKey: "material")
+        coder.encode(configuration.state, forKey: "state")
+        coder.encode(configuration.maskImage, forKey: "maskImage")
+        coder.encode(configuration.appearance, forKey: "appearance")
+    }
+    
+    public required init?(coder: NSCoder) {
+        configuration = .init(material: coder.decode("material") ?? .contentBackground, blendingMode: coder.decode("blendingMode") ?? .withinWindow, appearance: coder.decode("appearance"), state: coder.decode("state") ?? .followsWindowActiveState, isEmphasized: coder.decode("isEmphasized") ?? false, maskImage: coder.decode("maskImage"))
+    }
+    
     let configuration: VisualEffectConfiguration
 
     init(configuration: VisualEffectConfiguration) {

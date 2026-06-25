@@ -97,6 +97,24 @@ public struct BorderConfiguration: Hashable {
                 }
                 return speed.interpolated(from: (0.0, 1.0), to: (3.0, 0.1))
             }
+            
+            var rawValue: CGFloat {
+                switch self {
+                case .slow: 0.8
+                case .normal: 0.5
+                case .fast: 0.2
+                case .custom(let value): value
+                }
+            }
+            
+            init(_ rawValue: CGFloat) {
+                switch rawValue {
+                case 0.8: self = .slow
+                case 0.5: self = .normal
+                case 0.2: self = .fast
+                default: self = .custom(rawValue)
+                }
+            }
         }
         
         public init(pattern: [CGFloat] = [], phase: CGFloat = 0, lineCap: CGLineCap = .butt, lineJoin: CGLineJoin = .miter, mitterLimit: CGFloat = 10.0, animates: Bool = false, animationSpeed: AnimationSpeed = .normal) {
@@ -316,11 +334,28 @@ public extension AttributedString {
 }
 
 /// The Objective-C class for ``BorderConfiguration``.
-public class __BorderConfiguration: NSObject, NSCopying {
+public class __BorderConfiguration: NSObject, NSCopying, NSCoding {
     let configuration: BorderConfiguration
     
-    init(configuration: BorderConfiguration) {
+    init(_ configuration: BorderConfiguration) {
         self.configuration = configuration
+    }
+    
+    public func encode(with coder: NSCoder) {
+        coder.encode(configuration.insets, forKey: "seconds")
+        coder.encode(configuration.width, forKey: "width")
+        coder.encode(configuration.color, forKey: "color")
+        coder.encode(configuration.dash.animates, forKey: "animates")
+        coder.encode(configuration.dash.pattern, forKey: "pattern")
+        coder.encode(configuration.dash.lineJoin, forKey: "lineJoin")
+        coder.encode(configuration.dash.lineCap, forKey: "lineCap")
+        coder.encode(configuration.dash.mitterLimit, forKey: "mitterLimit")
+        coder.encode(configuration.dash.animationSpeed.rawValue, forKey: "animationSpeed")
+    }
+
+    public required init?(coder: NSCoder) {
+        let dash: BorderConfiguration.Dash = .init(pattern: coder.decode("pattern") ?? [], phase: coder.decode("phase") ?? .zero, lineCap: coder.decode("lineCap") ?? .butt, lineJoin: coder.decode("lineJoin") ?? .miter, mitterLimit: coder.decode("mitterLimit") ?? 10.0, animates: coder.decode("animates") ?? false, animationSpeed: .init(coder.decode("animationSpeed") ?? BorderConfiguration.Dash.AnimationSpeed.normal.rawValue))
+        configuration = .init(color: coder.decode("color"), width: coder.decode("width") ?? .zero, dash: dash, insets: coder.decode("insets") ?? .zero)
     }
     
     public func copy(with zone: NSZone? = nil) -> Any {
@@ -342,7 +377,7 @@ extension BorderConfiguration: ReferenceConvertible {
     public typealias ReferenceType = __BorderConfiguration
     
     public func _bridgeToObjectiveC() -> ReferenceType {
-        return __BorderConfiguration(configuration: self)
+        return __BorderConfiguration(self)
     }
     
     public static func _forceBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) {
