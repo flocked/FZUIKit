@@ -373,7 +373,7 @@ public class __BorderConfiguration: NSObject, NSCopying, NSCoding {
 }
 
 extension BorderConfiguration: ReferenceConvertible {
-    /// The Objective-C type for the configuration.
+    /// The Objective-C type for the border configuration.
     public typealias ReferenceType = __BorderConfiguration
     
     public func _bridgeToObjectiveC() -> ReferenceType {

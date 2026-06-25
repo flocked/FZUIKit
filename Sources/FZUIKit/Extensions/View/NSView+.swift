@@ -159,9 +159,9 @@ extension NSView {
     }
 
     /**
-     The rotation of the view as euler angles in degrees.
+     The rotation of the view as euler angles.
      
-     The default value is `0.0`, which results in a view with no rotation.
+     The default value is `zero`, which results in a view with no rotation.
 
      Changes to this property turns the view into a layer-backed view.
      
@@ -170,20 +170,6 @@ extension NSView {
     @objc open var rotation: Rotation {
         get { transform3D.eulerAnglesDegrees.rotation }
         set { transform3D.eulerAnglesDegrees = newValue.vector }
-    }
-
-    /**
-     The rotation of the view as euler angles in radians.
-     
-     The default value is `0.0`, which results in a view with no rotation.
-
-     Changes to this property turns the view into a layer-backed view.
-     
-     The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
-     */
-    @objc open var rotationInRadians: Rotation {
-        get { transform3D.eulerAngles.rotation }
-        set { transform3D.eulerAngles = newValue.vector }
     }
 
     /**

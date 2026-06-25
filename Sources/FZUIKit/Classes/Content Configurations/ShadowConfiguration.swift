@@ -419,7 +419,7 @@ public class __ShadowConfiguration: NSObject, NSCopying, NSCoding {
 }
 
 extension ShadowConfiguration: ReferenceConvertible {
-    /// The Objective-C type for the configuration.
+    /// The Objective-C type for the shadow configuration.
     public typealias ReferenceType = __ShadowConfiguration
     
     public func _bridgeToObjectiveC() -> ReferenceType {

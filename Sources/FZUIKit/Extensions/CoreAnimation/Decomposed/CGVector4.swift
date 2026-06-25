@@ -265,7 +265,7 @@ public extension simd_float4 {
 }
 
 extension CGVector4: ReferenceConvertible {
-    /// The Objective-C type for the configuration.
+    /// The Objective-C type for the four-dimensional vector.
     public typealias ReferenceType = __CGVector4
     
     public func _bridgeToObjectiveC() -> ReferenceType {

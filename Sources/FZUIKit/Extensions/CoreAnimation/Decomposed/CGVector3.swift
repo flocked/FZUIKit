@@ -216,7 +216,7 @@ public extension simd_float3 {
 }
 
 extension CGVector3: ReferenceConvertible {
-    /// The Objective-C type for the configuration.
+    /// The Objective-C type for the three-dimensional vector.
     public typealias ReferenceType = __CGVector3
     
     public func _bridgeToObjectiveC() -> ReferenceType {
@@ -285,7 +285,7 @@ extension Scale {
 
 extension Rotation {
     var vector: CGVector3 {
-        .init(x, y, z)
+        .init(radians.x, radians.y, radians.z)
     }
 }
 
@@ -295,7 +295,7 @@ extension CGVector3 {
     }
     
     var rotation: Rotation {
-        .init(x, y, z)
+        .init(radians: .init(x, y, z))
     }
     
     var degrees: CGVector3 {

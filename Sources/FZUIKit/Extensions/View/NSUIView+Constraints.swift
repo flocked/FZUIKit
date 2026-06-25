@@ -442,7 +442,7 @@ public class __ViewConstraintMode: NSObject, NSCopying {
 }
 
 extension NSUIView.ConstraintMode: ReferenceConvertible {
-    /// The Objective-C type for the configuration.
+    /// The Objective-C type for the xonstants representing how a view is constraint.
     public typealias ReferenceType = __ViewConstraintMode
     
     public func _bridgeToObjectiveC() -> ReferenceType {

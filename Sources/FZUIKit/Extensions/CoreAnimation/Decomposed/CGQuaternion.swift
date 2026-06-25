@@ -197,7 +197,7 @@ public extension simd_quatf {
 }
 
 extension CGQuaternion: ReferenceConvertible {
-    /// The Objective-C type for the configuration.
+    /// The Objective-C type for the quaternion that represents a three-dimensional rotation.
     public typealias ReferenceType = __CGQuaternion
     
     public func _bridgeToObjectiveC() -> ReferenceType {

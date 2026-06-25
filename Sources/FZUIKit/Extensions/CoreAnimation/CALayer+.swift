@@ -237,19 +237,6 @@ extension CALayer {
         return self
     }
     
-    /// The rotation of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform), in radians.
-    public var rotationInRadians: Rotation {
-        get { transform.eulerAngles.rotation }
-        set { CATransaction.disabledActions { transform.eulerAngles = newValue.vector } }
-    }
-    
-    /// Sets the rotation of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform), in radians.
-    @discardableResult
-    public func rotationInRadians(_ rotation: Rotation) -> Self {
-        self.rotationInRadians = rotation
-        return self
-    }
-    
     /// The shearing of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform).
     public var skew: CGVector3 {
         get { transform.skew }

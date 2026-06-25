@@ -542,13 +542,6 @@ extension NSUIView {
         return self
     }
 
-    /// Sets the rotation of the view as euler angles in radians.
-    @discardableResult
-    @objc open func rotationInRadians(_ rotation: Rotation) -> Self {
-        self.rotationInRadians = rotation
-        return self
-    }
-
     /// Sets the Boolean value indicating whether the view, and its subviews, confine their drawing areas to the bounds of the view.
     @discardableResult
     @objc open func clipsToBounds(_ clipsToBounds: Bool) -> Self {

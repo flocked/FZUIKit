@@ -46,7 +46,7 @@ extension UIView {
     }
     
     /**
-     The rotation of the view as euler angles in degrees.
+     The rotation of the view as euler angles.
      
      The property can be animated. The default value is is `zero`, which results in a view with no rotation.
      */
@@ -54,17 +54,7 @@ extension UIView {
         get { self.transform3D.eulerAnglesDegrees.rotation }
         set { self.transform3D.eulerAnglesDegrees = newValue.vector }
     }
-    
-    /**
-     The rotation of the view as euler angles in radians.
-     
-     The property can be animated. The default value is is `zero`, which results in a view with no rotation.
-     */
-    public var rotationInRadians: Rotation {
-        get { self.transform3D.eulerAngles.rotation }
-        set { self.transform3D.eulerAngles = newValue.vector }
-    }
-    
+
     /**
      The scale transform of the view.
      

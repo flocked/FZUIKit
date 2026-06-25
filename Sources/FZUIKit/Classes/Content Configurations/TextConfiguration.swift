@@ -242,7 +242,7 @@ public class __TextConfiguration: NSObject, NSCopying {
 
 @available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
 extension TextConfiguration: ReferenceConvertible {
-    /// The Objective-C type for the configuration.
+    /// The Objective-C type for the text configuration.
     public typealias ReferenceType = __TextConfiguration
     
     public func _bridgeToObjectiveC() -> ReferenceType {
