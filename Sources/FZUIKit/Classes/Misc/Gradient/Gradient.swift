@@ -332,7 +332,7 @@ public class __Gradient: NSObject, NSCopying, NSCoding {
 }
 
 extension Gradient: ReferenceConvertible {
-    /// The Objective-C type for the configuration.
+    /// The Objective-C type for the gradient.
     public typealias ReferenceType = __Gradient
     
     public func _bridgeToObjectiveC() -> ReferenceType {
