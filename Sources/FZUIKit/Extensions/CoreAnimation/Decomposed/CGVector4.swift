@@ -1,15 +1,15 @@
 //
 //  CGVector4.swift
-//  
+//
 //
 //  Created by Florian Zand on 14.02.25.
 //
 
 #if canImport(QuartzCore)
 import Foundation
+import FZSwiftUtils
 import QuartzCore
 import simd
-import FZSwiftUtils
 
 /// A four-dimensional vector.
 public struct CGVector4: Codable, Hashable, ExpressibleByArrayLiteral, Interpolatable {
@@ -210,7 +210,7 @@ public struct CGVector4: Codable, Hashable, ExpressibleByArrayLiteral, Interpola
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.storage = try .init(x: container.decode(.x), y: container.decode(.y), z: container.decode(.z), w:  container.decode(.w))
+        self.storage = try .init(x: container.decode(.x), y: container.decode(.y), z: container.decode(.z), w: container.decode(.w))
     }
     
     public func encode(to encoder: any Encoder) throws {
@@ -241,7 +241,16 @@ public struct CGVector4: Codable, Hashable, ExpressibleByArrayLiteral, Interpola
     
     /// A vector whose components are all zero.
     public static let zero = Self(0, 0, 0, 0)
+    
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        abs(rhs.storage[0] - lhs.storage[0]) < accuracy &&
+            abs(rhs.storage[1] - lhs.storage[1]) < accuracy &&
+            abs(rhs.storage[2] - lhs.storage[2]) < accuracy &&
+            abs(rhs.storage[3] - lhs.storage[3]) < accuracy
+    }
 }
+
+private let accuracy: Double = 0.0001
 
 public extension simd_double4 {
     init(_ vector: CGVector4) {
@@ -252,50 +261,6 @@ public extension simd_double4 {
 public extension simd_float4 {
     init(_ vector: CGVector4) {
         self.init(Float(vector.x), Float(vector.y), Float(vector.z), Float(vector.w))
-    }
-}
-
-private let accuracy: Double = 0.0001
-
-extension CGVector4: Equatable {
-    public static func == (lhs: Self, rhs: Self) -> Bool {
-        abs(rhs.storage[0] - lhs.storage[0]) < accuracy &&
-            abs(rhs.storage[1] - lhs.storage[1]) < accuracy &&
-            abs(rhs.storage[2] - lhs.storage[2]) < accuracy &&
-            abs(rhs.storage[3] - lhs.storage[3]) < accuracy
-    }
-}
-
-/// The Objective-C class for ``CGVector4``.
-public class __CGVector4: NSObject, NSCopying, NSCoding {
-    let storage: CGVector4
-    
-    init(_ storage: CGVector4) {
-        self.storage = storage
-    }
-    
-    public func encode(with coder: NSCoder) {
-        coder.encode(storage.storage.x, forKey: "x")
-        coder.encode(storage.storage.y, forKey: "y")
-        coder.encode(storage.storage.z, forKey: "z")
-        coder.encode(storage.storage.w, forKey: "w")
-    }
-    
-    public required init?(coder: NSCoder) {
-        storage = .init(coder.decodeDouble(forKey: "x"), coder.decodeDouble(forKey: "y"), coder.decodeDouble(forKey: "z"), coder.decodeDouble(forKey: "w"))
-    }
-    
-    public func copy(with zone: NSZone? = nil) -> Any {
-        self
-    }
-    
-    public override func isEqual(_ object: Any?) -> Bool {
-        guard let other = object as? Self else { return false }
-        return self === other || storage == other.storage
-    }
-    
-    public override var hash: Int {
-        Hasher.hash(storage)
     }
 }
 
@@ -325,8 +290,46 @@ extension CGVector4: ReferenceConvertible {
         return CGVector4(0, 0, 0, 0)
     }
     
-    public var description: String { "" }
-    public var debugDescription: String { description }
+    public var description: String {
+        ""
+    }
+
+    public var debugDescription: String {
+        description
+    }
+}
+
+/// The Objective-C class for ``CGVector4``.
+public class __CGVector4: NSObject, NSCopying, NSCoding {
+    let storage: CGVector4
+    
+    init(_ storage: CGVector4) {
+        self.storage = storage
+    }
+    
+    public func encode(with coder: NSCoder) {
+        coder.encode(storage.storage.x, forKey: "x")
+        coder.encode(storage.storage.y, forKey: "y")
+        coder.encode(storage.storage.z, forKey: "z")
+        coder.encode(storage.storage.w, forKey: "w")
+    }
+    
+    public required init?(coder: NSCoder) {
+        storage = .init(coder.decodeDouble(forKey: "x"), coder.decodeDouble(forKey: "y"), coder.decodeDouble(forKey: "z"), coder.decodeDouble(forKey: "w"))
+    }
+    
+    public func copy(with _: NSZone? = nil) -> Any {
+        self
+    }
+    
+    override public func isEqual(_ object: Any?) -> Bool {
+        guard let other = object as? Self else { return false }
+        return self === other || storage == other.storage
+    }
+    
+    override public var hash: Int {
+        Hasher.hash(storage)
+    }
 }
 
 #endif

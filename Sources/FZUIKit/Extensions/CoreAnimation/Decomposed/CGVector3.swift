@@ -162,7 +162,15 @@ public struct CGVector3: Codable, Hashable, ExpressibleByArrayLiteral, Interpola
     public func interpolated(to: Self, fraction: CGFloat) -> Self {
         Self(storage.interpolated(to: to.storage, fraction: Double(fraction)))
     }
+    
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        abs(rhs.storage[0] - lhs.storage[0]) < accuracy &&
+            abs(rhs.storage[1] - lhs.storage[1]) < accuracy &&
+            abs(rhs.storage[2] - lhs.storage[2]) < accuracy
+    }
 }
+
+private let accuracy: Double = 0.0001
 
 extension CGVector3 {
     var xy: CGFloat {
@@ -207,14 +215,34 @@ public extension simd_float3 {
     }
 }
 
-private let accuracy: Double = 0.0001
-
-extension CGVector3: Equatable {
-    public static func == (lhs: Self, rhs: Self) -> Bool {
-        abs(rhs.storage[0] - lhs.storage[0]) < accuracy &&
-            abs(rhs.storage[1] - lhs.storage[1]) < accuracy &&
-            abs(rhs.storage[2] - lhs.storage[2]) < accuracy
+extension CGVector3: ReferenceConvertible {
+    /// The Objective-C type for the configuration.
+    public typealias ReferenceType = __CGVector3
+    
+    public func _bridgeToObjectiveC() -> ReferenceType {
+        return __CGVector3(self)
     }
+    
+    public static func _forceBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) {
+        result = source.storage
+    }
+    
+    public static func _conditionallyBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) -> Bool {
+        _forceBridgeFromObjectiveC(source, result: &result)
+        return true
+    }
+    
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: ReferenceType?) -> Self {
+        if let source = source {
+            var result: CGVector3?
+            _forceBridgeFromObjectiveC(source, result: &result)
+            return result!
+        }
+        return CGVector3(0, 0, 0)
+    }
+    
+    public var description: String { "" }
+    public var debugDescription: String { description }
 }
 
 /// The Objective-C class for ``CGVector3``.
@@ -249,42 +277,6 @@ public class __CGVector3: NSObject, NSCopying, NSCoding {
     }
 }
 
-extension CGVector3: ReferenceConvertible {
-    /// The Objective-C type for the configuration.
-    public typealias ReferenceType = __CGVector3
-    
-    public func _bridgeToObjectiveC() -> ReferenceType {
-        return __CGVector3(self)
-    }
-    
-    public static func _forceBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) {
-        result = source.storage
-    }
-    
-    public static func _conditionallyBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) -> Bool {
-        _forceBridgeFromObjectiveC(source, result: &result)
-        return true
-    }
-    
-    public static func _unconditionallyBridgeFromObjectiveC(_ source: ReferenceType?) -> Self {
-        if let source = source {
-            var result: CGVector3?
-            _forceBridgeFromObjectiveC(source, result: &result)
-            return result!
-        }
-        return CGVector3(0, 0, 0)
-    }
-    
-    public var description: String { "" }
-    public var debugDescription: String { description }
-}
-
-extension CGVector3 {
-    var scale: Scale {
-        .init(x, y, z)
-    }
-}
-
 extension Scale {
     var vector: CGVector3 {
         .init(x, y, z)
@@ -298,6 +290,10 @@ extension Rotation {
 }
 
 extension CGVector3 {
+    var scale: Scale {
+        .init(x, y, z)
+    }
+    
     var rotation: Rotation {
         .init(x, y, z)
     }

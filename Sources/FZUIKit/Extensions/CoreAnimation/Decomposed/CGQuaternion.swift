@@ -177,20 +177,16 @@ public struct CGQuaternion: Hashable, Codable, ExpressibleByArrayLiteral, Interp
     public func interpolated(to: Self, fraction: CGFloat) -> Self {
         Self(storage.interpolated(to: to.storage, fraction: Double(fraction)))
     }
+    
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.axis == rhs.axis &&
+            abs(rhs.storage.angle - lhs.storage.angle) < 0.0001
+    }
 }
 
 public extension simd_quatd {
     init(_ quaternion: CGQuaternion) {
         self.init(angle: Double(quaternion.angle), axis: simd_double3(quaternion.axis))
-    }
-}
-
-private let accuracy: Double = 0.0001
-
-extension CGQuaternion: Equatable {
-    public static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.axis == rhs.axis &&
-            abs(rhs.storage.angle - lhs.storage.angle) < accuracy
     }
 }
 
@@ -200,18 +196,34 @@ public extension simd_quatf {
     }
 }
 
-@available(macOS, obsoleted: 14.0, message: "macOS 14 provides Hashable")
-@available(watchOS, obsoleted: 10.0, message: "watchOS 10 provides Hashable")
-@available(iOS, obsoleted: 17.0, message: "iOS 17 provides Hashable")
-@available(tvOS, obsoleted: 17.0, message: "tvOS 17 provides Hashable")
-extension simd_quatd: Swift.Hashable {
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(vector)
+extension CGQuaternion: ReferenceConvertible {
+    /// The Objective-C type for the configuration.
+    public typealias ReferenceType = __CGQuaternion
+    
+    public func _bridgeToObjectiveC() -> ReferenceType {
+        return __CGQuaternion(self)
     }
     
-    public var hashValue: Int {
-        vector.hashValue
+    public static func _forceBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) {
+        result = source.storage
     }
+    
+    public static func _conditionallyBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) -> Bool {
+        _forceBridgeFromObjectiveC(source, result: &result)
+        return true
+    }
+    
+    public static func _unconditionallyBridgeFromObjectiveC(_ source: ReferenceType?) -> Self {
+        if let source = source {
+            var result: CGQuaternion?
+            _forceBridgeFromObjectiveC(source, result: &result)
+            return result!
+        }
+        return CGQuaternion(angle: 0, axis: .init(0, 0, 0))
+    }
+    
+    public var description: String { "" }
+    public var debugDescription: String { description }
 }
 
 /// The Objective-C class for ``CGQuaternion``.
@@ -245,34 +257,5 @@ public class __CGQuaternion: NSObject, NSCopying, NSCoding {
     }
 }
 
-extension CGQuaternion: ReferenceConvertible {
-    /// The Objective-C type for the configuration.
-    public typealias ReferenceType = __CGQuaternion
-    
-    public func _bridgeToObjectiveC() -> ReferenceType {
-        return __CGQuaternion(self)
-    }
-    
-    public static func _forceBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) {
-        result = source.storage
-    }
-    
-    public static func _conditionallyBridgeFromObjectiveC(_ source: ReferenceType, result: inout Self?) -> Bool {
-        _forceBridgeFromObjectiveC(source, result: &result)
-        return true
-    }
-    
-    public static func _unconditionallyBridgeFromObjectiveC(_ source: ReferenceType?) -> Self {
-        if let source = source {
-            var result: CGQuaternion?
-            _forceBridgeFromObjectiveC(source, result: &result)
-            return result!
-        }
-        return CGQuaternion(angle: 0, axis: .init(0, 0, 0))
-    }
-    
-    public var description: String { "" }
-    public var debugDescription: String { description }
-}
 
 #endif
