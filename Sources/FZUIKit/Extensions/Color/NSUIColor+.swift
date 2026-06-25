@@ -225,7 +225,7 @@ public extension NSUIColor {
         #endif
     }
     
-    private static let dynamicColorClass = NSClassFromString("NSDynamicNamedColor")!
+    private static let dynamicColorClass: AnyClass = NSClassFromString("NSDynamicNamedColor")!
     
     /// The dynamic light and dark variations of a color.
     struct DynamicColor {
