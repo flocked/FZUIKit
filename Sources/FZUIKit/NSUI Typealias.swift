@@ -36,7 +36,7 @@ public typealias NSUIResponder = NSResponder
 public typealias NSUIImageView = NSImageView
 public typealias NSUITextView = NSTextView
 public typealias NSUIGestureRecognizer = NSGestureRecognizer
-public typealias NSUIMagnificationGestureRecognizer = NSMagnificationGestureRecognizer
+public typealias NSUIPinchGestureRecognizer = NSMagnificationGestureRecognizer
 public typealias NSUIPanGestureRecognizer = NSPanGestureRecognizer
 public typealias NSUIButton = NSButton
 public typealias NSUICollectionViewLayoutInvalidationContext = NSCollectionViewLayoutInvalidationContext
@@ -94,7 +94,7 @@ public typealias NSUIGestureRecognizer = UIGestureRecognizer
 public typealias NSUIButton = UIButton
 public typealias NSUIGraphicsImageRenderer = UIGraphicsImageRenderer
 #if os(iOS)
-public typealias NSUIMagnificationGestureRecognizer = UIPinchGestureRecognizer
+public typealias NSUIPinchGestureRecognizer = UIPinchGestureRecognizer
 #endif
 public typealias NSUICollectionViewLayoutInvalidationContext = UICollectionViewLayoutInvalidationContext
 public typealias NSUIControl = UIControl

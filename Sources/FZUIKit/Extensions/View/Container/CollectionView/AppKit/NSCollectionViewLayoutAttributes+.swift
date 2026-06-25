@@ -26,8 +26,11 @@ extension NSCollectionViewLayoutAttributes {
      Assigning a value to this property replaces the value in the ``transform3D`` property with a 3D version of the affine transform you specify.
      */
     public var transform: CGAffineTransform {
-        get { transformable.getAssociatedValue("transform") ?? .identity }
-        set { transformable.setAssociatedValue(newValue, key: "transform") }
+        get { getAssociatedValue("transform") ?? .identity }
+        set {
+            NSCollectionViewItem.isTransformableByLayoutAttributes = true
+            setAssociatedValue(newValue, key: "transform")
+        }
     }
     
     /**
@@ -36,13 +39,11 @@ extension NSCollectionViewLayoutAttributes {
      Assigning a value to this property replaces the value in the ``transform`` property with an affine version of the 3D transform you specify.
      */
     public var transform3D: CATransform3D {
-        get { transformable.getAssociatedValue("transform3D") ?? .identity }
-        set { transformable.setAssociatedValue(newValue, key: "transform3D") }
-    }
-    
-    var transformable: Self {
-        NSCollectionViewItem.isTransformableByLayoutAttributes = true
-        return self
+        get { getAssociatedValue("transform3D") ?? .identity }
+        set {
+            NSCollectionViewItem.isTransformableByLayoutAttributes = true
+            setAssociatedValue(newValue, key: "transform3D")
+        }
     }
 }
 

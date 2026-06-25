@@ -57,7 +57,7 @@ extension NSUICollectionView {
         }
     }
     
-    class ColumnInteractionGestureRecognizer: NSUIMagnificationGestureRecognizer {
+    class ColumnInteractionGestureRecognizer: NSUIPinchGestureRecognizer {
         
         var initialColumns: Int = 0
         var displayingIndexPaths: [IndexPath] = []
