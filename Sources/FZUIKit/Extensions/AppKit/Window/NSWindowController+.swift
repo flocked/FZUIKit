@@ -30,22 +30,22 @@ public extension NSWindowController {
      */
     var isRetainedUntilWindowCloses: Bool {
         get {
-            Self.retainedWindowControllers[ObjectIdentifier(self)] != nil
+            Self.retainedWindowControllers[objectID] != nil
         }
         set {
             guard newValue != isRetainedUntilWindowCloses else { return }
             if newValue {
-                guard let window = window, Self.retainedWindowControllers[ObjectIdentifier(self)] == nil else { return }
+                guard let window = window, Self.retainedWindowControllers[objectID] == nil else { return }
                 window.isReleasedWhenClosed = false
                 let token = NotificationCenter.default.observe(NSWindow.willCloseNotification, postedBy: window) { [weak self] _ in
                     DispatchQueue.main.async { [weak self] in
                         guard let self = self else { return }
-                        Self.retainedWindowControllers[ObjectIdentifier(self)] = nil
+                        Self.retainedWindowControllers[self.objectID] = nil
                     }
                 }
-                Self.retainedWindowControllers[ObjectIdentifier(self)] = (self, token)
+                Self.retainedWindowControllers[objectID] = (self, token)
             } else {
-                Self.retainedWindowControllers[ObjectIdentifier(self)] = nil
+                Self.retainedWindowControllers[objectID] = nil
             }
         }
     }
