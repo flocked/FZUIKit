@@ -302,7 +302,7 @@ extension NSPasteboardItem {
     
     private func setValue<Value: PasteboardWriting>(_ value: Value?, forType type: NSPasteboard.PasteboardType) {
         guard let value = value else { return }
-        setValue(value, forType: type)
+        setValue(value.pasteboardWriting, forType: type)
     }
 }
 
