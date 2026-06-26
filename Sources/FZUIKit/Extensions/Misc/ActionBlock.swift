@@ -71,9 +71,9 @@ public extension TargetActionProvider {
     /// The action handler of the object.
     var actionBlock: ActionBlock? {
         get { actionTrampoline?.action }
-        set {            
+        set {
             if let newValue = newValue {
-                actionTrampoline = self is NSMenuItem ? MenuActionTrampoline<Self>(action: newValue) : ActionTrampoline(action: newValue)
+                actionTrampoline = makeActionTrampoline(action: newValue)
                 target = actionTrampoline
                 action = #selector(ActionTrampoline<Self>.performAction(sender:))
             } else {
@@ -105,6 +105,13 @@ public extension TargetActionProvider {
     func target(_ target: AnyObject?) -> Self {
         self.target = target
         return self
+    }
+    
+    private func makeActionTrampoline(action: @escaping ActionBlock) -> ActionTrampoline<Self> {
+        if self is NSMenuItem {
+            return MenuActionTrampoline<Self>(action: action)
+        }
+        return ActionTrampoline(action: action)
     }
     
     private var actionTrampoline: ActionTrampoline<Self>? {
