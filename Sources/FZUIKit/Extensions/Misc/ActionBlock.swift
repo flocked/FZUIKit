@@ -60,12 +60,21 @@ class ActionTrampoline<T: TargetActionProvider>: NSObject {
     }
 }
 
+class MenuActionTrampoline<T: TargetActionProvider>: ActionTrampoline<T>, NSMenuItemValidation {
+    @objc func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        menuItem.updateHandler?(menuItem)
+        Swift.print("validateMenuItem")
+        return true
+    }
+}
+
 public extension TargetActionProvider {
     /// The action handler of the object.
     var actionBlock: ActionBlock? {
+        get { actionTrampoline?.action }
         set {
             if let newValue = newValue {
-                actionTrampoline = ActionTrampoline(action: newValue)
+                actionTrampoline = makeActionTrampoline(action: newValue)
                 target = actionTrampoline
                 action = #selector(ActionTrampoline<Self>.performAction(sender:))
             } else {
@@ -74,8 +83,8 @@ public extension TargetActionProvider {
                     action = nil
                 }
             }
+            (self as? NSMenuItem)?.setupMenuDelegateProxy()
         }
-        get { actionTrampoline?.action }
     }
     
     /// Sets the action handler of the object.
@@ -97,6 +106,13 @@ public extension TargetActionProvider {
     func target(_ target: AnyObject?) -> Self {
         self.target = target
         return self
+    }
+    
+    private func makeActionTrampoline(action: @escaping ActionBlock) -> ActionTrampoline<Self> {
+        if self is NSMenuItem {
+            return MenuActionTrampoline<Self>(action: action)
+        }
+        return ActionTrampoline(action: action)
     }
     
     private var actionTrampoline: ActionTrampoline<Self>? {

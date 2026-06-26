@@ -627,7 +627,7 @@ public extension NSMenuItem {
         menu?.removeItem(self)
     }
         
-    private func setupMenuDelegateProxy() {
+    func setupMenuDelegateProxy() {
         menu?.setupDelegateProxy()
         if !needsDelegateProxy {
             menuObservation = nil
@@ -640,7 +640,10 @@ public extension NSMenuItem {
     }
     
     internal var needsDelegateProxy: Bool {
-        (alternateItem != nil || updateHandler != nil || visibility != .always)
+        if alternateItem == nil, visibility == .always {
+            return updateHandler != nil && actionBlock == nil
+        }
+        return (alternateItem != nil || updateHandler != nil || visibility != .always)
     }
     
     private var menuObservation: KeyValueObservation? {
