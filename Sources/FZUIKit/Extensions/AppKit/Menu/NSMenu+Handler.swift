@@ -160,7 +160,7 @@ extension NSMenu {
                 insertedCount += 1
             }
             
-            menu.items.filter({ $0.actionBlock == nil }).forEach({ $0.updateHandler?($0) })
+            menu.items.forEach({ $0.updateHandler?($0) })
             if menu.autoUpdatesWidth, originalItems.count != menu.items.count {
                 menuMinimumWidth = menu.minimumWidth
                 menu.minimumWidth = max(menu.minimumWidth, menu.size.width)
