@@ -63,7 +63,8 @@ class ActionTrampoline<T: TargetActionProvider>: NSObject {
 class MenuActionTrampoline<T: TargetActionProvider>: ActionTrampoline<T>, NSMenuItemValidation {
     @objc func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         menuItem.updateHandler?(menuItem)
-        return menuItem.isEnabled
+        Swift.print("validateMenuItem")
+        return true
     }
 }
 
