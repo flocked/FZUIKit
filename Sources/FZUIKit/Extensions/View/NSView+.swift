@@ -172,8 +172,9 @@ extension NSView {
                 transform3DHooks += try layer.hook(#selector(CALayer.display), closure: {
                     original, layer, selector in
                     if let pending = layer.pending {
-                        layer.transform = pending.transform
                         layer.anchorPoint = pending.anchorPoint
+                        layer.position = pending.position
+                        layer.transform = pending.transform
                         layer.pending = nil
                     }
                     original(layer, selector)
@@ -182,7 +183,7 @@ extension NSView {
                     original, view, selector, newSuperview in
                     newSuperview?.wantsLayer = true
                     if newSuperview != nil, let layer = view.layer {
-                        layer.pending = (layer.transform, layer.anchorPoint)
+                        layer.pending = (layer.transform, layer.position, layer.anchorPoint)
                     }
                     original(view, selector, newSuperview)
                 } as @convention(block) (
@@ -1004,7 +1005,7 @@ extension CALayer {
 }
 
 fileprivate extension CALayer {
-    var pending: (transform: CATransform3D, anchorPoint: CGPoint)? {
+    var pending: (transform: CATransform3D, position: CGPoint, anchorPoint: CGPoint)? {
         get { getAssociatedValue("pending") }
         set { setAssociatedValue(newValue, key: "pending") }
     }
