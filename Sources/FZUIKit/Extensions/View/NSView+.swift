@@ -180,13 +180,17 @@ extension NSView {
                     } as @convention(block) ((NSView, Selector, CALayer) -> (), NSView, Selector, CALayer) -> ())
                 } else {
                     transform3DHooks += try addMethod(#selector(CALayerDelegate.display(_:)), closure: { view, layer in
-                        guard let pendingTransform = view.pendingTransform else { return }
+                        guard let pendingTransform = view.pendingTransform else {
+                            Swift.print("display nil")
+                            return }
                         layer.transform = pendingTransform
+                        Swift.print("display", pendingTransform.rotation.degrees, layer.transform.rotation.degrees)
                         view.pendingTransform = nil
                     } as @convention(block) (NSView, CALayer) -> Void)
                 }
                 transform3DHooks += try hook(#selector(NSView.viewWillMove(toSuperview:)), closure: {
                     original, view, selector, newSuperview in
+                    Swift.print("viewWillMove", newSuperview != nil, view.layer?.rotation.degrees ?? "nil")
                     newSuperview?.wantsLayer = true
                     if newSuperview != nil {
                         view.pendingTransform = view.layer?.transform
