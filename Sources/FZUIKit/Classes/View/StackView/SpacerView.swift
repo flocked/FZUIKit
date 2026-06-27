@@ -31,10 +31,14 @@ open class SpacerView: NSUIView {
     open var length: CGFloat? {
         didSet {
             guard oldValue != length else { return }
-            update(updateFlexibleConstraints: (oldValue == nil) != (length == nil))
+            if let length = length, let fixedLengthConstraint = fixedLengthConstraint , NSAnimationContext.hasActiveGrouping, NSAnimationContext.current.duration > 0 {
+                fixedLengthConstraint.animator().constant = length
+            } else {
+                update(updateFlexibleConstraints: (oldValue == nil) != (length == nil))
+            }
         }
     }
-    
+        
     /// Sets the length of the spacer.
     @discardableResult
     open func length(_ length: CGFloat?) -> Self {

@@ -156,6 +156,15 @@ public extension CATransform3D {
         }
     }
     
+    var rotationAlt: RotationAlt {
+        get { .init(quaternion: matrix.decomposed().rotation) }
+        set {
+            var decomposed = matrix.decomposed()
+            decomposed.rotation = newValue.quaternion
+            self = CATransform3D(decomposed.recomposed())
+        }
+    }
+    
     /// Returns a copy by applying a rotation transform (expressed as a quaternion) to the current transform.
     func rotated(by rotation: CGQuaternion) -> Self {
         var transform = self
