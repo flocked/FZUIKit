@@ -226,10 +226,10 @@ extension CALayer {
     
     /// The rotation of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform), in degrees.
     public var rotation: Rotation {
-        get { transform.eulerAnglesDegrees.rotation }
-        set { CATransaction.disabledActions { transform.eulerAnglesDegrees = newValue.vector } }
+        get { transform.rotation }
+        set { transform.rotation = newValue }
     }
-    
+        
     /// Sets the rotation of the layer's [transform](https://developer.apple.com/documentation/quartzcore/calayer/transform), in degrees.
     @discardableResult
     public func rotation(_ rotation: Rotation) -> Self {

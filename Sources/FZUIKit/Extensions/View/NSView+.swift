@@ -141,7 +141,10 @@ extension NSView {
      */
     @objc open var transform: CGAffineTransform {
         get { layer?.affineTransform() ?? CGAffineTransformIdentity }
-        set { optionalLayer?.setAffineTransform(newValue) }
+        set {
+            optionalLayer?.setAffineTransform(newValue)
+            setupSuperviewTransformObservation()
+        }
     }
 
     /**
@@ -155,7 +158,35 @@ extension NSView {
      */
     @objc open var transform3D: CATransform3D {
         get { layer?.transform ?? CATransform3DIdentity }
-        set { optionalLayer?.transform = newValue }
+        set {
+            optionalLayer?.transform = newValue
+            setupSuperviewTransformObservation()
+        }
+    }
+    
+    private func setupSuperviewTransformObservation() {
+        if transform3D != CATransform3DIdentity || transform != CGAffineTransformIdentity {
+            superview?.wantsLayer = true
+            guard superviewTransformHook == nil else { return }
+            do {
+                superviewTransformHook = try hook(#selector(NSView.viewWillMove(toSuperview:)), closure: {
+                   original, view, selector, newSuperview in
+                   original(view, selector, newSuperview)
+                    newSuperview?.wantsLayer = true
+                } as @convention(block) (
+                    (NSView, Selector, NSView?) -> (), NSView, Selector, NSView?) -> ())
+            } catch {
+                Swift.print(error)
+            }
+        } else {
+            try? superviewTransformHook?.revert()
+            superviewTransformHook = nil
+        }
+    }
+    
+    private var superviewTransformHook: Hook? {
+        get { getAssociatedValue("superviewTransformHook") }
+        set { setAssociatedValue(newValue, key: "superviewTransformHook") }
     }
 
     /**
@@ -168,8 +199,8 @@ extension NSView {
      The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
      */
     @objc open var rotation: Rotation {
-        get { transform3D.eulerAnglesDegrees.rotation }
-        set { transform3D.eulerAnglesDegrees = newValue.vector }
+        get { transform3D.rotation }
+        set { transform3D.rotation = newValue }
     }
 
     /**

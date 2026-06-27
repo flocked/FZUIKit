@@ -51,8 +51,8 @@ extension UIView {
      The property can be animated. The default value is is `zero`, which results in a view with no rotation.
      */
     public var rotation: Rotation {
-        get { self.transform3D.eulerAnglesDegrees.rotation }
-        set { self.transform3D.eulerAnglesDegrees = newValue.vector }
+        get { self.transform3D.rotation }
+        set { self.transform3D.rotation = newValue }
     }
 
     /**
