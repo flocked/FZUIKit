@@ -165,15 +165,16 @@ extension NSView {
     }
     
     private func setupSuperviewTransformHooks() {
-        if let layer = layer, layer.transform != CATransform3DIdentity {
+        if let layer = layer, layer.transform != CATransform3DIdentity || layer.anchorPoint != .zero {
             superview?.wantsLayer = true
             guard transform3DHooks.isEmpty else { return }
             do {
                 transform3DHooks += try layer.hook(#selector(CALayer.display), closure: {
                     original, layer, selector in
-                    if let pendingTransform = layer.pendingTransform {
-                        layer.transform = pendingTransform
-                        layer.pendingTransform = nil
+                    if let pending = layer.pending {
+                        layer.transform = pending.transform
+                        layer.anchorPoint = pending.anchorPoint
+                        layer.pending = nil
                     }
                     original(layer, selector)
                 } as @convention(block) ((CALayer, Selector) -> (), CALayer, Selector) -> ())
@@ -181,7 +182,7 @@ extension NSView {
                     original, view, selector, newSuperview in
                     newSuperview?.wantsLayer = true
                     if newSuperview != nil, let layer = view.layer {
-                        layer.pendingTransform = layer.transform
+                        layer.pending = (layer.transform, layer.anchorPoint)
                     }
                     original(view, selector, newSuperview)
                 } as @convention(block) (
@@ -289,7 +290,10 @@ extension NSView {
             let anchorPoint = layer?.anchorPoint ?? .zero
             return FractionalPoint(anchorPoint.x, anchorPoint.y)
         }
-        set { setAnchorPoint(CGPoint(newValue.x, newValue.y)) }
+        set {
+            setAnchorPoint(CGPoint(newValue.x, newValue.y))
+            setupSuperviewTransformHooks()
+        }
     }
 
     /**
@@ -1000,9 +1004,9 @@ extension CALayer {
 }
 
 fileprivate extension CALayer {
-    var pendingTransform: CATransform3D? {
-        get { getAssociatedValue("pendingTransform") }
-        set { setAssociatedValue(newValue, key: "pendingTransform") }
+    var pending: (transform: CATransform3D, anchorPoint: CGPoint)? {
+        get { getAssociatedValue("pending") }
+        set { setAssociatedValue(newValue, key: "pending") }
     }
 }
 
