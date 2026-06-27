@@ -171,19 +171,17 @@ extension NSView {
             do {
                 transform3DHooks += try layer.hook(#selector(CALayer.display), closure: {
                     original, layer, selector in
-                    Swift.print("display", layer.parentView?.pendingTransform?.rotation.degrees ?? "nil")
-                    if let view = layer.parentView, let pendingTransform = view.pendingTransform {
+                    if let pendingTransform = layer.pendingTransform {
                         layer.transform = pendingTransform
-                        view.pendingTransform = nil
+                        layer.pendingTransform = nil
                     }
                     original(layer, selector)
                 } as @convention(block) ((CALayer, Selector) -> (), CALayer, Selector) -> ())
                 transform3DHooks += try hook(#selector(NSView.viewWillMove(toSuperview:)), closure: {
                     original, view, selector, newSuperview in
-                    Swift.print("viewWillMove", newSuperview != nil, view.layer?.rotation.degrees ?? "nil")
                     newSuperview?.wantsLayer = true
-                    if newSuperview != nil {
-                        view.pendingTransform = view.layer?.transform
+                    if newSuperview != nil, let layer = view.layer {
+                        layer.pendingTransform = layer.transform
                     }
                     original(view, selector, newSuperview)
                 } as @convention(block) (
@@ -195,11 +193,6 @@ extension NSView {
             transform3DHooks.forEach({ try? $0.revert() })
             transform3DHooks.removeAll()
         }
-    }
-    
-    private var pendingTransform: CATransform3D? {
-        get { getAssociatedValue("pendingTransform") }
-        set { setAssociatedValue(newValue, key: "pendingTransform") }
     }
     
     private var transform3DHooks: [Hook] {
@@ -1003,6 +996,13 @@ extension CALayer {
     var colorObservations: [PartialKeyPath<CALayer>: [KeyValueObservation]] {
         get { getAssociatedValue("colorObservations") ?? [:] }
         set { setAssociatedValue(newValue, key: "colorObservations") }
+    }
+}
+
+fileprivate extension CALayer {
+    var pendingTransform: CATransform3D? {
+        get { getAssociatedValue("pendingTransform") }
+        set { setAssociatedValue(newValue, key: "pendingTransform") }
     }
 }
 
