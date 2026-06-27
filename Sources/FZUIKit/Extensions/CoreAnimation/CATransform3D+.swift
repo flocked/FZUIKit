@@ -227,6 +227,64 @@ public extension CATransform3D {
     mutating func applyPerspective(_ perspective: CGVector4) {
         self = CATransform3D(matrix.applyingPerspective(perspective.storage))
     }
+    
+    /**
+     Represents the strength of a perspective projection.
+
+     The strength is mapped to the `m34` component of a `CATransform3D`, where
+     `0` disables perspective and larger values produce a stronger perspective
+     effect. A value of `1.0` corresponds to the commonly used `m34` value of
+     `-1.0 / 500.0`.
+     */
+    struct PerspectiveStrength: RawRepresentable, ExpressibleByFloatLiteral, ExpressibleByIntegerLiteral {
+        /// Disables perspective projection.
+        public static let none = Self(rawValue: 0)
+        /// Applies a subtle perspective effect.
+        public static let subtle = Self(rawValue: 0.5)
+        /// Applies a natural perspective effect.
+        public static let normal = Self(rawValue: 1.0)
+        /// Applies a strong perspective effect.
+        public static let strong = Self(rawValue: 1.5)
+        /// Applies a dramatic perspective effect.
+        public static let dramatic = Self(rawValue: 2.0)
+
+        /// The underlying perspective strength.
+        public var rawValue: CGFloat
+        
+        /**
+         Creates a perspective strength with the specified raw value.
+
+         - Parameter rawValue: The perspective strength, where `0` disables
+           perspective and larger values increase its effect.
+         */
+        public init(rawValue: CGFloat) {
+            self.rawValue = rawValue
+        }
+
+        /// The equivalent `m34` value for this perspective strength.
+        public var m34: CGFloat {
+            get { -max(0, rawValue) / 500 }
+            set { rawValue = newValue != 0 ? -newValue * 500 : 0 }
+        }
+
+        public init(floatLiteral value: Double) {
+            self.rawValue = CGFloat(value)
+        }
+        
+        public init(integerLiteral value: Int) {
+            self.rawValue = CGFloat(value)
+        }
+    }
+
+    /// The perspective strength of the transform.
+    var perspectiveStrength: PerspectiveStrength {
+        get {
+            let m34 = perspective.m34
+            guard m34 != 0 else { return .none }
+            return PerspectiveStrength(rawValue: -m34 * 500)
+        }
+        set { perspective.m34 = newValue.m34 }
+    }
 
     /// Represents a decomposed `CATransform3D` in which the transform is broken down into its transform attributes (scale, translation, etc.).
     struct Decomposed {
