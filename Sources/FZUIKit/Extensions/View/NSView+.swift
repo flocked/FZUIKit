@@ -167,19 +167,9 @@ extension NSView {
     private func setupSuperviewTransformHooks() {
         if let layer = layer, layer.transform != CATransform3DIdentity || layer.anchorPoint != .zero {
             superview?.wantsLayer = true
-            guard transform3DHooks.isEmpty else { return }
+            guard saveLayerStateHook == nil else { return }
             do {
-                transform3DHooks += try layer.hook(#selector(CALayer.display), closure: {
-                    original, layer, selector in
-                    if let pending = layer.pending {
-                        layer.anchorPoint = pending.anchorPoint
-                        layer.position = pending.position
-                        layer.transform = pending.transform
-                        layer.pending = nil
-                    }
-                    original(layer, selector)
-                } as @convention(block) ((CALayer, Selector) -> (), CALayer, Selector) -> ())
-                transform3DHooks += try hook(#selector(NSView.viewWillMove(toSuperview:)), closure: {
+                saveLayerStateHook = try hook(#selector(NSView.viewWillMove(toSuperview:)), closure: {
                     original, view, selector, newSuperview in
                     newSuperview?.wantsLayer = true
                     if newSuperview != nil, let layer = view.layer {
@@ -188,18 +178,56 @@ extension NSView {
                     original(view, selector, newSuperview)
                 } as @convention(block) (
                     (NSView, Selector, NSView?) -> (), NSView, Selector, NSView?) -> ())
+                setupRestoreLayerStateHook(for: layer)
+                layerObservation = observeChanges(for: \.layer) { [weak self] old, new in
+                    guard let self = self else { return }
+                    try? self.restoreLayerStateHook?.revert()
+                    self.restoreLayerStateHook = nil
+                    guard let new = new else { return }
+                    self.setupRestoreLayerStateHook(for: new)
+                }
             } catch {
                 Swift.print(error)
             }
         } else {
-            transform3DHooks.forEach({ try? $0.revert() })
-            transform3DHooks.removeAll()
+            try? saveLayerStateHook?.revert()
+            saveLayerStateHook = nil
+            try? restoreLayerStateHook?.revert()
+            restoreLayerStateHook = nil
+            layerObservation = nil
         }
     }
     
-    private var transform3DHooks: [Hook] {
-        get { getAssociatedValue("transform3DHooks") ?? [] }
-        set { setAssociatedValue(newValue, key: "transform3DHooks") }
+    func setupRestoreLayerStateHook(for layer: CALayer) {
+        do {
+            restoreLayerStateHook = try layer.hook(#selector(CALayer.display), closure: {
+                original, layer, selector in
+                if let pending = layer.pending {
+                    layer.anchorPoint = pending.anchorPoint
+                    layer.position = pending.position
+                    layer.transform = pending.transform
+                    layer.pending = nil
+                }
+                original(layer, selector)
+            } as @convention(block) ((CALayer, Selector) -> (), CALayer, Selector) -> ())
+        } catch {
+            Swift.print(error)
+        }
+    }
+    
+    private var saveLayerStateHook: Hook? {
+        get { getAssociatedValue("saveLayerStateHook") }
+        set { setAssociatedValue(newValue, key: "saveLayerStateHook") }
+    }
+    
+    private var restoreLayerStateHook: Hook? {
+        get { getAssociatedValue("restoreLayerStateHook") }
+        set { setAssociatedValue(newValue, key: "restoreLayerStateHook") }
+    }
+    
+    private var layerObservation: KeyValueObservation? {
+        get { getAssociatedValue("layerObservation") }
+        set { setAssociatedValue(newValue, key: "layerObservation") }
     }
 
     /**
