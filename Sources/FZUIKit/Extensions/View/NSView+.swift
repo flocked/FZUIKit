@@ -165,19 +165,19 @@ extension NSView {
     }
     
     private func setupSuperviewTransformHooks() {
-        if transform3D != CATransform3DIdentity {
+        if let layer = layer, layer.transform != CATransform3DIdentity {
             superview?.wantsLayer = true
             guard transform3DHooks.isEmpty else { return }
             do {
                 if responds(to: #selector(CALayerDelegate.display(_:))), self is CALayerDelegate {
-                    transform3DHooks += try hook(#selector(CALayerDelegate.display(_:)), closure: {
-                        original, view, selector, layer in
-                        if let pendingTransform = view.pendingTransform {
+                    transform3DHooks += try layer.hook(#selector(CALayer.display), closure: {
+                        original, layer, selector in
+                        if let view = layer.parentView, let pendingTransform = view.pendingTransform {
                             layer.transform = pendingTransform
                             view.pendingTransform = nil
                         }
-                        original(view, selector, layer)
-                    } as @convention(block) ((NSView, Selector, CALayer) -> (), NSView, Selector, CALayer) -> ())
+                        original(layer, selector)
+                    } as @convention(block) ((CALayer, Selector) -> (), CALayer, Selector) -> ())
                 } else {
                     transform3DHooks += try addMethod(#selector(CALayerDelegate.display(_:)), closure: { view, layer in
                         guard let pendingTransform = view.pendingTransform else {
