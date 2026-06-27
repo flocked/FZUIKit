@@ -143,7 +143,7 @@ extension NSView {
         get { layer?.affineTransform() ?? CGAffineTransformIdentity }
         set {
             optionalLayer?.setAffineTransform(newValue)
-            setupSuperviewTransformObservation()
+            setupSuperviewTransformHooks()
         }
     }
 
@@ -160,33 +160,57 @@ extension NSView {
         get { layer?.transform ?? CATransform3DIdentity }
         set {
             optionalLayer?.transform = newValue
-            setupSuperviewTransformObservation()
+            setupSuperviewTransformHooks()
         }
     }
     
-    private func setupSuperviewTransformObservation() {
-        if transform3D != CATransform3DIdentity || transform != CGAffineTransformIdentity {
+    private func setupSuperviewTransformHooks() {
+        if transform3D != CATransform3DIdentity {
             superview?.wantsLayer = true
-            guard superviewTransformHook == nil else { return }
+            guard transform3DHooks.isEmpty else { return }
             do {
-                superviewTransformHook = try hook(#selector(NSView.viewWillMove(toSuperview:)), closure: {
-                   original, view, selector, newSuperview in
+                if responds(to: #selector(CALayerDelegate.display(_:))), self is CALayerDelegate {
+                    transform3DHooks += try hook(#selector(CALayerDelegate.display(_:)), closure: {
+                        original, view, selector, layer in
+                        if let pendingTransform = view.pendingTransform {
+                            layer.transform = pendingTransform
+                            view.pendingTransform = nil
+                        }
+                        original(view, selector, layer)
+                    } as @convention(block) ((NSView, Selector, CALayer) -> (), NSView, Selector, CALayer) -> ())
+                } else {
+                    transform3DHooks += try addMethod(#selector(CALayerDelegate.display(_:)), closure: { view, layer in
+                        guard let pendingTransform = view.pendingTransform else { return }
+                        layer.transform = pendingTransform
+                        view.pendingTransform = nil
+                    } as @convention(block) (NSView, CALayer) -> Void)
+                }
+                transform3DHooks += try hook(#selector(NSView.viewWillMove(toSuperview:)), closure: {
+                    original, view, selector, newSuperview in
                     newSuperview?.wantsLayer = true
-                   original(view, selector, newSuperview)
+                    if newSuperview != nil {
+                        view.pendingTransform = view.layer?.transform
+                    }
+                    original(view, selector, newSuperview)
                 } as @convention(block) (
                     (NSView, Selector, NSView?) -> (), NSView, Selector, NSView?) -> ())
             } catch {
                 Swift.print(error)
             }
         } else {
-            try? superviewTransformHook?.revert()
-            superviewTransformHook = nil
+            transform3DHooks.forEach({ try? $0.revert() })
+            transform3DHooks.removeAll()
         }
     }
     
-    private var superviewTransformHook: Hook? {
-        get { getAssociatedValue("superviewTransformHook") }
-        set { setAssociatedValue(newValue, key: "superviewTransformHook") }
+    private var pendingTransform: CATransform3D? {
+        get { getAssociatedValue("pendingTransform") }
+        set { setAssociatedValue(newValue, key: "pendingTransform") }
+    }
+    
+    private var transform3DHooks: [Hook] {
+        get { getAssociatedValue("transform3DHooks") ?? [] }
+        set { setAssociatedValue(newValue, key: "transform3DHooks") }
     }
 
     /**
