@@ -171,8 +171,8 @@ extension NSView {
             do {
                 superviewTransformHook = try hook(#selector(NSView.viewWillMove(toSuperview:)), closure: {
                    original, view, selector, newSuperview in
-                   original(view, selector, newSuperview)
                     newSuperview?.wantsLayer = true
+                   original(view, selector, newSuperview)
                 } as @convention(block) (
                     (NSView, Selector, NSView?) -> (), NSView, Selector, NSView?) -> ())
             } catch {
