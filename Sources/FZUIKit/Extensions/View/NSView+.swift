@@ -169,25 +169,15 @@ extension NSView {
             superview?.wantsLayer = true
             guard transform3DHooks.isEmpty else { return }
             do {
-                if responds(to: #selector(CALayerDelegate.display(_:))), self is CALayerDelegate {
-                    transform3DHooks += try layer.hook(#selector(CALayer.display), closure: {
-                        original, layer, selector in
-                        if let view = layer.parentView, let pendingTransform = view.pendingTransform {
-                            layer.transform = pendingTransform
-                            view.pendingTransform = nil
-                        }
-                        original(layer, selector)
-                    } as @convention(block) ((CALayer, Selector) -> (), CALayer, Selector) -> ())
-                } else {
-                    transform3DHooks += try addMethod(#selector(CALayerDelegate.display(_:)), closure: { view, layer in
-                        guard let pendingTransform = view.pendingTransform else {
-                            Swift.print("display nil")
-                            return }
+                transform3DHooks += try layer.hook(#selector(CALayer.display), closure: {
+                    original, layer, selector in
+                    Swift.print("display", layer.parentView?.pendingTransform?.rotation.degrees ?? "nil")
+                    if let view = layer.parentView, let pendingTransform = view.pendingTransform {
                         layer.transform = pendingTransform
-                        Swift.print("display", pendingTransform.rotation.degrees, layer.transform.rotation.degrees)
                         view.pendingTransform = nil
-                    } as @convention(block) (NSView, CALayer) -> Void)
-                }
+                    }
+                    original(layer, selector)
+                } as @convention(block) ((CALayer, Selector) -> (), CALayer, Selector) -> ())
                 transform3DHooks += try hook(#selector(NSView.viewWillMove(toSuperview:)), closure: {
                     original, view, selector, newSuperview in
                     Swift.print("viewWillMove", newSuperview != nil, view.layer?.rotation.degrees ?? "nil")
