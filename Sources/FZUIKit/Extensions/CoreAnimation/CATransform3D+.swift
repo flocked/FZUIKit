@@ -18,6 +18,15 @@ public extension CATransform3D {
     /// Returns a `CATransform3D` initialized with all zeros.
     static let zero = CATransform3D()
     
+    /**
+     Returns this transform as a `CGAffineTransform`.
+     
+     If the transform matrix can not be exactly represented as an affine transform, the return value is undefined.
+     */
+    var affineTransform: CGAffineTransform {
+        CATransform3DGetAffineTransform(self)
+    }
+    
     /// Creates the matrix with the specified matrix.
     init(_ matrix: matrix_double4x4) {
         self = CATransform3DIdentity
@@ -233,7 +242,9 @@ public extension CATransform3D {
 
      The strength is mapped to the `m34` component of a `CATransform3D`, where
      `0` disables perspective and larger values produce a stronger perspective
-     effect. A value of `1.0` corresponds to the commonly used `m34` value of
+     effect.
+     
+     m,A value of `1.0` corresponds to the commonly used `m34` value of
      `-1.0 / 500.0`.
      */
     struct PerspectiveStrength: RawRepresentable, ExpressibleByFloatLiteral, ExpressibleByIntegerLiteral {
@@ -339,6 +350,17 @@ public extension CATransform3D {
 extension CATransform3D: Swift.Equatable {
     public static func == (lhs: Self, rhs: Self) -> Bool {
         CATransform3DEqualToTransform(lhs, rhs)
+    }
+}
+
+public extension CGAffineTransform {
+    /**
+     Returns this affine transform as a `CATransform3D`.
+
+     The resulting transform represents the same two-dimensional transformation, with all three-dimensional components set to their identity values.
+     */
+    var transform3D: CATransform3D {
+        CATransform3DMakeAffineTransform(self)
     }
 }
 #endif

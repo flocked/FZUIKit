@@ -141,10 +141,7 @@ extension NSView {
      */
     @objc open var transform: CGAffineTransform {
         get { layer?.affineTransform() ?? CGAffineTransformIdentity }
-        set {
-            optionalLayer?.setAffineTransform(newValue)
-            setupSuperviewTransformHooks()
-        }
+        set { transform3D = newValue.transform3D }
     }
 
     /**
@@ -160,11 +157,11 @@ extension NSView {
         get { layer?.transform ?? CATransform3DIdentity }
         set {
             optionalLayer?.transform = newValue
-            setupSuperviewTransformHooks()
+            setupLayerStateHooks()
         }
     }
     
-    private func setupSuperviewTransformHooks() {
+    private func setupLayerStateHooks() {
         if let layer = layer, layer.transform != CATransform3DIdentity || layer.anchorPoint != .zero {
             superview?.wantsLayer = true
             guard saveLayerStateHook == nil else { return }
@@ -173,46 +170,49 @@ extension NSView {
                     original, view, selector, newSuperview in
                     newSuperview?.wantsLayer = true
                     if newSuperview != nil, let layer = view.layer {
-                        layer.pending = (layer.transform, layer.position, layer.anchorPoint)
+                        layer.layerState = (layer.transform, layer.position, layer.anchorPoint)
                     }
                     original(view, selector, newSuperview)
                 } as @convention(block) (
                     (NSView, Selector, NSView?) -> (), NSView, Selector, NSView?) -> ())
-                setupRestoreLayerStateHook(for: layer)
+                setupLayerStateHook(for: layer)
                 layerObservation = observeChanges(for: \.layer) { [weak self] old, new in
-                    guard let self = self else { return }
-                    try? self.restoreLayerStateHook?.revert()
-                    self.restoreLayerStateHook = nil
-                    guard let new = new else { return }
-                    self.setupRestoreLayerStateHook(for: new)
+                    self?.resetLayerStateHooks()
+                    self?.setupLayerStateHooks()
                 }
             } catch {
                 Swift.print(error)
             }
         } else {
-            try? saveLayerStateHook?.revert()
-            saveLayerStateHook = nil
-            try? restoreLayerStateHook?.revert()
-            restoreLayerStateHook = nil
-            layerObservation = nil
+            resetLayerStateHooks()
         }
     }
     
-    func setupRestoreLayerStateHook(for layer: CALayer) {
+    func setupLayerStateHook(for layer: CALayer) {
+        try? restoreLayerStateHook?.revert()
+        restoreLayerStateHook = nil
         do {
             restoreLayerStateHook = try layer.hook(#selector(CALayer.display), closure: {
                 original, layer, selector in
-                if let pending = layer.pending {
-                    layer.anchorPoint = pending.anchorPoint
-                    layer.position = pending.position
-                    layer.transform = pending.transform
-                    layer.pending = nil
+                if let state = layer.layerState {
+                    layer.anchorPoint = state.anchorPoint
+                    layer.position = state.position
+                    layer.transform = state.transform
+                    layer.layerState = nil
                 }
                 original(layer, selector)
             } as @convention(block) ((CALayer, Selector) -> (), CALayer, Selector) -> ())
         } catch {
             Swift.print(error)
         }
+    }
+    
+    private func resetLayerStateHooks() {
+        try? saveLayerStateHook?.revert()
+        saveLayerStateHook = nil
+        try? restoreLayerStateHook?.revert()
+        restoreLayerStateHook = nil
+        layerObservation = nil
     }
     
     private var saveLayerStateHook: Hook? {
@@ -321,7 +321,7 @@ extension NSView {
         }
         set {
             setAnchorPoint(CGPoint(newValue.x, newValue.y))
-            setupSuperviewTransformHooks()
+            setupLayerStateHooks()
         }
     }
 
@@ -1033,9 +1033,9 @@ extension CALayer {
 }
 
 fileprivate extension CALayer {
-    var pending: (transform: CATransform3D, position: CGPoint, anchorPoint: CGPoint)? {
-        get { getAssociatedValue("pending") }
-        set { setAssociatedValue(newValue, key: "pending") }
+    var layerState: (transform: CATransform3D, position: CGPoint, anchorPoint: CGPoint)? {
+        get { getAssociatedValue("layerState") }
+        set { setAssociatedValue(newValue, key: "layerState") }
     }
 }
 
