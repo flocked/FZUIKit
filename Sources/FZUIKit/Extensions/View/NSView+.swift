@@ -162,7 +162,7 @@ extension NSView {
     }
     
     private func setupLayerStateHooks() {
-        if let layer = layer, layer.transform != CATransform3DIdentity || layer.anchorPoint != .zero {
+        if let layer = layer, layer.transform != CATransform3DIdentity || layer.anchorPoint != .zero || layer.maskedCorners != .all {
             superview?.wantsLayer = true
             guard saveLayerStateHook == nil else { return }
             do {
@@ -170,7 +170,7 @@ extension NSView {
                     original, view, selector, newSuperview in
                     newSuperview?.wantsLayer = true
                     if newSuperview != nil, let layer = view.layer {
-                        layer.layerState = (layer.transform, layer.position, layer.anchorPoint)
+                        layer.layerState = (layer.transform, layer.position, layer.anchorPoint, layer.maskedCorners)
                     }
                     original(view, selector, newSuperview)
                 } as @convention(block) (
@@ -198,6 +198,7 @@ extension NSView {
                     layer.anchorPoint = state.anchorPoint
                     layer.position = state.position
                     layer.transform = state.transform
+                    layer.maskedCorners = state.roundedCorners
                     layer.layerState = nil
                 }
                 original(layer, selector)
@@ -386,6 +387,7 @@ extension NSView {
         get { layer?.maskedCorners.toAll ?? .all }
         set {
             optionalLayer?.maskedCorners = newValue
+            setupLayerStateHooks()
             dashedBorderView?.update()
             visualEffectBackgroundView?.roundedCorners = newValue
         }
@@ -1033,10 +1035,13 @@ extension CALayer {
 }
 
 fileprivate extension CALayer {
-    var layerState: (transform: CATransform3D, position: CGPoint, anchorPoint: CGPoint)? {
+    var layerState: (transform: CATransform3D, position: CGPoint, anchorPoint: CGPoint, roundedCorners: CACornerMask)? {
         get { getAssociatedValue("layerState") }
         set { setAssociatedValue(newValue, key: "layerState") }
     }
 }
 
+/*
+ var roundedCorners: CACornerMask
+ */
 #endif
