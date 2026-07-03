@@ -357,7 +357,7 @@ open class StackView: NSUIView {
                     #if os(macOS)
                     arrangedSubview.frame.origin.y = 0-arrangedSubview.lastBaselineOffsetFromBottom
                     #else
-                    arrangedSubview.frame.origin.y = 0-(arrangedSubview.lastBaselineOffsetFromBottom ?? 0.0)
+                    arrangedSubview.frame.origin.y = 0-(arrangedSubview.lastBaselineOffsetFromBottom)
                     #endif
                     baselineOffsets.append(arrangedSubview.frame.origin.y)
                 }
