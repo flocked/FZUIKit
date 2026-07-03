@@ -452,10 +452,13 @@ public extension NSCollectionView {
 
         private func startAutoScroll() {
             guard autoScrollTimer == nil else { return }
-            autoScrollTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 60.0, repeats: true) { [weak self] _ in
+
+            let timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [weak self] _ in
                 self?.autoScroll()
             }
-            RunLoop.main.add(autoScrollTimer!, forMode: .eventTracking)
+
+            RunLoop.main.add(timer, forMode: .eventTracking)
+            autoScrollTimer = timer
         }
 
         private func stopAutoScroll() {
