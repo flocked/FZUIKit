@@ -472,7 +472,7 @@ public extension NSCollectionView {
             let edgeInset: CGFloat = 32
             let maxSpeed: CGFloat = 24
             
-            func delta(_ value: CGFloat, min: CGFloat, max: CGFloat) -> CGFloat {
+            func scrollDelta(for value: CGFloat, min: CGFloat, max: CGFloat) -> CGFloat {
                 if value < min + edgeInset {
                     return -scrollSpeed(distance: min + edgeInset - value, maxSpeed: maxSpeed)
                 } else if value > max - edgeInset {
@@ -483,7 +483,7 @@ public extension NSCollectionView {
             }
             
             let visibleRect = collectionView.visibleRect
-            let delta = CGPoint(x: delta(lastDragLocation.x, min: visibleRect.minX, max: visibleRect.maxX), y: delta(lastDragLocation.y, min: visibleRect.minY, max: visibleRect.maxY))
+            let delta = CGPoint(x: scrollDelta(for: lastDragLocation.x, min: visibleRect.minX, max: visibleRect.maxX), y: scrollDelta(for: lastDragLocation.y, min: visibleRect.minY, max: visibleRect.maxY))
 
             guard delta != .zero else { return }
 
@@ -513,6 +513,11 @@ public extension NSCollectionView {
         private func removeSelectionView() {
             selectionView?.removeFromSuperview()
             selectionView = nil
+        }
+        
+        deinit {
+            stopAutoScroll()
+            removeSelectionView()
         }
 
         @available(*, unavailable)
