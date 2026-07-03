@@ -9,27 +9,21 @@
 import AppKit
 import FZSwiftUtils
 
-extension NSMagnificationGestureRecognizer: VelocityGestureRecognizer {
-    
+extension NSMagnificationGestureRecognizer {
     /// The velocity of the magnification in scale factor per second.
-    @objc dynamic public private(set) var velocity: CGFloat {
-        get{
+    @objc public private(set) dynamic var velocity: CGFloat {
+        get {
             swizzleGestureState()
             return getAssociatedValue("velocity") ?? 1.0
         }
-        set{ setAssociatedValue(newValue, key: "velocity") }
+        set { setAssociatedValue(newValue, key: "velocity") }
     }
     
-    var prevMagnification: CGFloat {
-        get{ getAssociatedValue("prevMagnification") ?? magnification }
-        set{ setAssociatedValue(newValue, key: "prevMagnification") }
-    }
-    
-    func updateVelocity() {
+    private func updateVelocity() {
         let prevTime = time
         time = CACurrentMediaTime()
         switch state {
-        case .began: 
+        case .began:
             velocity = 1.0
         case .changed:
             velocity = (magnification - prevMagnification) / (time - prevTime)
@@ -37,30 +31,33 @@ extension NSMagnificationGestureRecognizer: VelocityGestureRecognizer {
         }
         prevMagnification = magnification
     }
-}
-
-protocol VelocityGestureRecognizer: NSGestureRecognizer {
-    func updateVelocity()
-}
-
-extension VelocityGestureRecognizer {
-    func swizzleGestureState() {
-        guard !isMethodHooked(#selector(setter: NSGestureRecognizer.state)) else { return }
+    
+    private var time: CFTimeInterval {
+        get { getAssociatedValue("time") ?? CACurrentMediaTime() }
+        set { setAssociatedValue(newValue, key: "time") }
+    }
+    
+    private var prevMagnification: CGFloat {
+        get { getAssociatedValue("prevMagnification") ?? magnification }
+        set { setAssociatedValue(newValue, key: "prevMagnification") }
+    }
+    
+    private func swizzleGestureState() {
+        guard stateHook == nil else { return }
         do {
-            try hook(#selector(setter: NSGestureRecognizer.state), closure: { original, object, sel, state in
-                (object as? VelocityGestureRecognizer)?.updateVelocity()
-                original(object, sel, state)
-            } as @convention(block) ((AnyObject, Selector, State) -> Void, AnyObject, Selector, State) -> Void)
+            stateHook = try hook(#selector(setter: NSGestureRecognizer.state), closure: { original, gestureRecognizer, selector, state in
+                gestureRecognizer.updateVelocity()
+                original(gestureRecognizer, selector, state)
+            } as @convention(block) ((NSMagnificationGestureRecognizer, Selector, State) -> Void, NSMagnificationGestureRecognizer, Selector, State) -> Void)
             updateVelocity()
         } catch {
             Swift.debugPrint(error)
         }
     }
     
-    var time: CFTimeInterval {
-        get{ getAssociatedValue("time") ?? CACurrentMediaTime() }
-        set{ setAssociatedValue(newValue, key: "time") }
+    private var stateHook: Hook? {
+        get { getAssociatedValue("stateHook") }
+        set { setAssociatedValue(newValue, key: "stateHook") }
     }
 }
-
 #endif

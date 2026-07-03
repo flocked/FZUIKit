@@ -9,23 +9,17 @@
 import AppKit
 import FZSwiftUtils
 
-extension NSRotationGestureRecognizer: VelocityGestureRecognizer {
-    
+extension NSRotationGestureRecognizer {
     /// The velocity of the rotation gesture in radians per second.
-    @objc dynamic public internal(set) var velocity: CGFloat {
-        get{
+    @objc public internal(set) dynamic var velocity: CGFloat {
+        get {
             swizzleGestureState()
             return getAssociatedValue("velocity") ?? 1.0
         }
-        set{ setAssociatedValue(newValue, key: "velocity") }
+        set { setAssociatedValue(newValue, key: "velocity") }
     }
     
-    var prevRotation: CGFloat {
-        get{ getAssociatedValue("prevRotation") ?? rotation }
-        set{ setAssociatedValue(newValue, key: "prevRotation") }
-    }
-    
-    func updateVelocity() {
+    private func updateVelocity() {
         let prevTime = time
         time = CACurrentMediaTime()
         switch state {
@@ -36,6 +30,34 @@ extension NSRotationGestureRecognizer: VelocityGestureRecognizer {
         default: break
         }
         prevRotation = rotation
+    }
+    
+    private var time: CFTimeInterval {
+        get { getAssociatedValue("time") ?? CACurrentMediaTime() }
+        set { setAssociatedValue(newValue, key: "time") }
+    }
+    
+    private var prevRotation: CGFloat {
+        get { getAssociatedValue("prevRotation") ?? rotation }
+        set { setAssociatedValue(newValue, key: "prevRotation") }
+    }
+    
+    private func swizzleGestureState() {
+        guard stateHook == nil else { return }
+        do {
+            stateHook = try hook(#selector(setter: NSGestureRecognizer.state), closure: { original, gestureRecognizer, selector, state in
+                gestureRecognizer.updateVelocity()
+                original(gestureRecognizer, selector, state)
+            } as @convention(block) ((NSRotationGestureRecognizer, Selector, State) -> Void, NSRotationGestureRecognizer, Selector, State) -> Void)
+            updateVelocity()
+        } catch {
+            Swift.debugPrint(error)
+        }
+    }
+    
+    private var stateHook: Hook? {
+        get { getAssociatedValue("stateHook") }
+        set { setAssociatedValue(newValue, key: "stateHook") }
     }
 }
 
