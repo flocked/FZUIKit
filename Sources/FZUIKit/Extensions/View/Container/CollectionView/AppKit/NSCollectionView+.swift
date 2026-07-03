@@ -348,29 +348,11 @@ public extension NSCollectionView {
     }
     
     private class DragSelectionGestureRecognizer: NSGestureRecognizer {
-        private final class SelectionView: NSView {
-            var selectionRect: CGRect = .zero {
-                didSet { needsDisplay = true }
-            }
-
-            override var isFlipped: Bool { true }
-
-            override func draw(_ dirtyRect: NSRect) {
-                guard !selectionRect.isEmpty else { return }
-
-                NSColor.white.withAlphaComponent(0.15).setFill()
-                selectionRect.fill()
-
-                NSColor.white.withAlphaComponent(0.8).setStroke()
-                NSBezierPath(rect: selectionRect).stroke()
-            }
-        }
-
+        
         private var mouseDownLocation: CGPoint = .zero
         private var lastDragLocation: CGPoint = .zero
         private var initialSelectionIndexPaths: Set<IndexPath> = []
-        private weak var selectionView: SelectionView?
-
+        private var selectionView: SelectionView?
         private var autoScrollTimer: Timer?
 
         init() {
@@ -380,50 +362,44 @@ public extension NSCollectionView {
         }
 
         override func mouseDown(with event: NSEvent) {
-            guard
-                let collectionView = view as? NSCollectionView,
-                collectionView.isSelectable,
-                collectionView.allowsMultipleSelection
-            else {
+            guard let collectionView = view as? NSCollectionView, collectionView.isSelectable, collectionView.allowsMultipleSelection else {
                 state = .failed
                 return
             }
-
             mouseDownLocation = event.location(in: collectionView)
             lastDragLocation = mouseDownLocation
             initialSelectionIndexPaths = collectionView.selectionIndexPaths
         }
 
         override func mouseDragged(with event: NSEvent) {
-            guard let collectionView = validCollectionView else {
+            guard let collectionView = view as? NSCollectionView, collectionView.isSelectable, collectionView.allowsMultipleSelection else {
                 state = .failed
                 removeSelectionView()
                 stopAutoScroll()
                 return
             }
-
             lastDragLocation = event.location(in: collectionView)
 
             switch state {
             case .possible:
                 state = .began
-                addSelectionView(to: collectionView)
+                if selectionView?.superview !== collectionView {
+                    removeSelectionView()
+                    self.selectionView = SelectionView(frame: .zero)
+                    collectionView.addSubview(selectionView!)
+                }
                 startAutoScroll()
-
             case .began, .changed:
                 state = .changed
-
             default:
                 return
             }
-
             updateSelection(in: collectionView)
         }
 
         override func mouseUp(with event: NSEvent) {
             stopAutoScroll()
             removeSelectionView()
-
             switch state {
             case .possible:
                 state = .failed
@@ -442,35 +418,16 @@ public extension NSCollectionView {
             initialSelectionIndexPaths = []
         }
 
-        private var validCollectionView: NSCollectionView? {
-            guard
-                let collectionView = view as? NSCollectionView,
-                collectionView.isSelectable,
-                collectionView.allowsMultipleSelection
-            else { return nil }
-
-            return collectionView
-        }
-
         private func updateSelection(in collectionView: NSCollectionView) {
             let rect = CGRect(point1: mouseDownLocation, point2: lastDragLocation)
-
-            selectionView?.frame = collectionView.bounds
-            selectionView?.selectionRect = rect
-
-            let draggedIndexPaths = Set(collectionView.displayingIndexPaths(in: rect))
-
-            let isExtendingSelection = NSApp.currentEvent?.modifierFlags
-                .intersection([.shift, .command])
-                .isEmpty == false
-
-            var proposedSelection = isExtendingSelection
-                ? initialSelectionIndexPaths.union(draggedIndexPaths)
-                : draggedIndexPaths
+            selectionView?.frame = rect
+            var proposedSelection = Set(collectionView.displayingIndexPaths(in: rect))
+            if NSEvent.modifierFlags.contains(any: [.shift, .command]) {
+                proposedSelection = initialSelectionIndexPaths.union(proposedSelection)
+            }
 
             if !collectionView.allowsEmptySelection, proposedSelection.isEmpty {
                 proposedSelection = collectionView.selectionIndexPaths
-
                 if proposedSelection.isEmpty {
                     if let indexPath = collectionView.indexPathForItem(at: lastDragLocation) {
                         proposedSelection = [indexPath]
@@ -495,14 +452,9 @@ public extension NSCollectionView {
 
         private func startAutoScroll() {
             guard autoScrollTimer == nil else { return }
-
-            autoScrollTimer = Timer.scheduledTimer(
-                withTimeInterval: 1.0 / 60.0,
-                repeats: true
-            ) { [weak self] _ in
+            autoScrollTimer = Timer.scheduledTimer(withTimeInterval: 1.0 / 60.0, repeats: true) { [weak self] _ in
                 self?.autoScroll()
             }
-
             RunLoop.main.add(autoScrollTimer!, forMode: .eventTracking)
         }
 
@@ -512,38 +464,30 @@ public extension NSCollectionView {
         }
 
         private func autoScroll() {
-            guard
-                let collectionView = validCollectionView,
-                let scrollView = collectionView.enclosingScrollView
-            else { return }
-
-            let visibleRect = collectionView.visibleRect
-            let location = lastDragLocation
+            guard let collectionView = view as? NSCollectionView, collectionView.isSelectable, collectionView.allowsMultipleSelection, let scrollView = collectionView.enclosingScrollView else { return }
 
             let edgeInset: CGFloat = 32
             let maxSpeed: CGFloat = 24
-
-            var delta = CGPoint.zero
-
-            if location.y < visibleRect.minY + edgeInset {
-                delta.y = -scrollSpeed(distance: visibleRect.minY + edgeInset - location.y, maxSpeed: maxSpeed)
-            } else if location.y > visibleRect.maxY - edgeInset {
-                delta.y = scrollSpeed(distance: location.y - (visibleRect.maxY - edgeInset), maxSpeed: maxSpeed)
+            
+            func delta(_ value: CGFloat, min: CGFloat, max: CGFloat) -> CGFloat {
+                if value < min + edgeInset {
+                    return -scrollSpeed(distance: min + edgeInset - value, maxSpeed: maxSpeed)
+                } else if value > max - edgeInset {
+                    return scrollSpeed(distance: value - (max - edgeInset), maxSpeed: maxSpeed)
+                } else {
+                    return 0
+                }
             }
-
-            if location.x < visibleRect.minX + edgeInset {
-                delta.x = -scrollSpeed(distance: visibleRect.minX + edgeInset - location.x, maxSpeed: maxSpeed)
-            } else if location.x > visibleRect.maxX - edgeInset {
-                delta.x = scrollSpeed(distance: location.x - (visibleRect.maxX - edgeInset), maxSpeed: maxSpeed)
-            }
+            
+            let visibleRect = collectionView.visibleRect
+            let delta = CGPoint(x: delta(lastDragLocation.x, min: visibleRect.minX, max: visibleRect.maxX), y: delta(lastDragLocation.y, min: visibleRect.minY, max: visibleRect.maxY))
 
             guard delta != .zero else { return }
 
             let contentView = scrollView.contentView
             var origin = contentView.bounds.origin
 
-            origin.x += delta.x
-            origin.y += delta.y
+            origin += delta
 
             let maxX = max(0, collectionView.bounds.width - contentView.bounds.width)
             let maxY = max(0, collectionView.bounds.height - contentView.bounds.height)
@@ -555,30 +499,12 @@ public extension NSCollectionView {
 
             contentView.scroll(to: origin)
             scrollView.reflectScrolledClipView(contentView)
-
-            lastDragLocation.x += delta.x
-            lastDragLocation.y += delta.y
-
+            lastDragLocation += delta
             updateSelection(in: collectionView)
         }
 
         private func scrollSpeed(distance: CGFloat, maxSpeed: CGFloat) -> CGFloat {
             min(max(distance / 2, 2), maxSpeed)
-        }
-
-        private func addSelectionView(to collectionView: NSCollectionView) {
-            if selectionView?.superview === collectionView {
-                return
-            }
-
-            removeSelectionView()
-
-            let selectionView = SelectionView(frame: collectionView.bounds)
-            selectionView.autoresizingMask = [.width, .height]
-            selectionView.wantsLayer = false
-            collectionView.addSubview(selectionView, positioned: .above, relativeTo: nil)
-
-            self.selectionView = selectionView
         }
 
         private func removeSelectionView() {
@@ -589,6 +515,23 @@ public extension NSCollectionView {
         @available(*, unavailable)
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
+        }
+        
+        private final class SelectionView: NSView {
+            let color = NSColor(light: .darkGray, dark: .lightGray)
+
+            override func draw(_ dirtyRect: NSRect) {
+                guard !bounds.isEmpty else { return }
+                
+                let color = color.resolvedColor(for: self)
+                color.withAlphaComponent(0.14).setFill()
+                bounds.fill()
+
+                color.withAlphaComponent(0.8).setStroke()
+                bounds.insetBy(dx: 0.5, dy: 0.5).stroke()
+            }
+            
+            override var isFlipped: Bool { true }
         }
     }
         
