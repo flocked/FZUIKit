@@ -31,11 +31,15 @@ open class SpacerView: NSUIView {
     open var length: CGFloat? {
         didSet {
             guard oldValue != length else { return }
+            #if os(macOS)
             if let length = length, let fixedLengthConstraint = fixedLengthConstraint , NSAnimationContext.hasActiveGrouping, NSAnimationContext.current.duration > 0 {
                 fixedLengthConstraint.animator().constant = length
             } else {
                 update(updateFlexibleConstraints: (oldValue == nil) != (length == nil))
             }
+            #else
+            update(updateFlexibleConstraints: (oldValue == nil) != (length == nil))
+            #endif
         }
     }
         
