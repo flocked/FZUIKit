@@ -354,7 +354,7 @@ public extension NSCollectionView {
         init() {
             super.init(target: nil, action: nil)
             reattachesAutomatically = true
-            delaysPrimaryMouseButtonEvents = false
+            delaysPrimaryMouseButtonEvents = true
         }
 
         override func mouseDown(with event: NSEvent) {
@@ -372,7 +372,7 @@ public extension NSCollectionView {
             state = .changed
             let rect = CGRect(point1: mouseDownLocation, point2: event.location(in: collectionView))
             var proposedSelection = Set(collectionView.displayingIndexPaths(in: rect))
-            if event.modifierFlags.contains(.shift) {
+            if event.modifierFlags.contains(any: [.shift, .command]) {
                 proposedSelection = initialSelectionIndexPaths.symmetricDifference(proposedSelection)
             }
 
