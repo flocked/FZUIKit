@@ -222,7 +222,7 @@ extension NSPopover {
     }
     
     /// The view to which the popover should be positioned.
-    @objc open var positioningView: NSView? {
+    open var positioningView: NSView? {
         get { value(forKeySafely: "positioningView") as? NSView }
         set {
             guard newValue != positioningView else { return }
@@ -233,13 +233,13 @@ extension NSPopover {
     
     /// Sets the view to which the popover should be positioned.
     @discardableResult
-    @objc open func positioningView(_ view: NSView?) -> Self {
+    open func positioningView(_ view: NSView?) -> Self {
         self.positioningView = view
         return self
     }
     
     /// The edge of `positioningView` the popover should prefer to be anchored to.
-    @objc open var preferredEdge: NSRectEdge {
+    open var preferredEdge: NSRectEdge {
         get { NSRectEdge(rawValue: value(forKeySafely: "_preferredEdge") as? UInt ?? 0)! }
         set {
             guard newValue != preferredEdge else { return }
@@ -250,7 +250,7 @@ extension NSPopover {
     
     /// Sets the edge of `positioningView` the popover should prefer to be anchored to.
     @discardableResult
-    @objc open func preferredEdge(_ preferredEdge: NSRectEdge) -> Self {
+    open func preferredEdge(_ preferredEdge: NSRectEdge) -> Self {
         self.preferredEdge = preferredEdge
         return self
     }

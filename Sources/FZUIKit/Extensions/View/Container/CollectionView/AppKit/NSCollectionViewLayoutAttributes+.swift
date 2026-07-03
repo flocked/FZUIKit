@@ -13,7 +13,7 @@ extension NSCollectionViewLayoutAttributes {
     /**
      The center point of the item.
      
-     The center point is specified in the coordinate system of the collection view. Setting the value of this property also updates the origin of the rectangle in the `frame` property.
+     The center point is specified in the coordinate system of the collection view. Setting the value of this property also updates the origin of the rectangle in the [frame](https://developer.apple.com/documentation/appkit/nscollectionviewlayoutattributes/frame) property.
      */
     public var center: CGPoint {
         get { frame.center }
@@ -23,20 +23,17 @@ extension NSCollectionViewLayoutAttributes {
     /**
      The affine transform of the item.
      
-     Assigning a value to this property replaces the value in the ``transform3D`` property with a 3D version of the affine transform you specify.
+     Assigning a value to this property replaces the value in the ``AppKit/NSCollectionViewLayoutAttributes/transform3D`` property with a 3D version of the affine transform you specify.
      */
     public var transform: CGAffineTransform {
-        get { value(forKeySafely: "transform") as? CGAffineTransform ?? .identity }
-        set {
-            NSCollectionViewItem.isTransformableByLayoutAttributes = true
-            setValue(safely: newValue, forKey: "transform")
-        }
+        get { transform3D.affineTransform }
+        set { transform3D = newValue.transform3D }
     }
     
     /**
      The 3D transform of the item.
      
-     Assigning a value to this property replaces the value in the ``transform`` property with an affine version of the 3D transform you specify.
+     Assigning a value to this property replaces the value in the ``AppKit/NSCollectionViewLayoutAttributes/transform`` property with an affine version of the 3D transform you specify.
      */
     public var transform3D: CATransform3D {
         get { value(forKeySafely: "transform3D") as? CATransform3D ?? .identity }
@@ -75,12 +72,12 @@ extension NSCollectionLayoutVisibleItem {
 extension NSCollectionViewItem {
     /// A Boolean value indicating whether the item view's transform can be changed via layout attributes.
     static var isTransformableByLayoutAttributes: Bool {
-        get {NSCollectionViewItem.isInstanceMethodHooked(#selector(NSCollectionViewItem.apply)) }
+        get { !transformHooks.isEmpty }
         set {
             guard newValue != isTransformableByLayoutAttributes else { return }
             if newValue {
                 do {
-                    try NSCollectionViewItem.hook(all: #selector(NSCollectionViewItem.apply), closure: { original, item, sel, attributes in
+                    transformHooks += try NSCollectionViewItem.hook(all: #selector(NSCollectionViewItem.apply), closure: { original, item, sel, attributes in
                         original(item, sel, attributes)
                         if attributes.transform != item.view.transform {
                             item.view.transform = attributes.transform
@@ -90,7 +87,7 @@ extension NSCollectionViewItem {
                         }
                     } as @convention(block) ((NSCollectionViewItem, Selector, NSCollectionViewLayoutAttributes) -> Void, NSCollectionViewItem, Selector, NSCollectionViewLayoutAttributes) -> Void)
                     
-                    try NSCollectionViewItem.hook(all: #selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)), closure: { original, item, sel, attributes in
+                    transformHooks += try NSCollectionViewItem.hook(all: #selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)), closure: { original, item, sel, attributes in
                         attributes.transform = item.view.transform
                         attributes.transform3D = item.view.transform3D
                         return original(item, sel, attributes)
@@ -99,11 +96,15 @@ extension NSCollectionViewItem {
                     Swift.print(error)
                 }
             } else {
-                NSCollectionViewItem.revertInstanceHooks(for: #selector(NSCollectionViewItem.apply))
-                NSCollectionViewItem.revertInstanceHooks(for: #selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)))
-
+                transformHooks.forEach({ try? $0.revert() })
+                transformHooks.removeAll()
             }
         }
+    }
+    
+    private static var transformHooks: [Hook] {
+        get { getAssociatedValue("transformHooks") ?? [] }
+        set { setAssociatedValue(newValue, key: "transformHooks") }
     }
 }
 #endif

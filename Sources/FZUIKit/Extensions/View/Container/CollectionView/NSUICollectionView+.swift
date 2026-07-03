@@ -54,7 +54,7 @@ public extension NSUICollectionView {
         
     /// Returns the index paths of the currently displayed items. Unlike `indexPathsForVisibleItems()`  it only returns the items with visible frame.
     func displayingIndexPaths(in rect: CGRect) -> [IndexPath] {
-        return (displayingItems(in: rect).compactMap { self.indexPath(for: $0) }).sorted()
+        return displayingItems(in: rect).compactMap ({ indexPath(for: $0) }).sorted()
     }
         
     #if os(macOS)
@@ -212,7 +212,7 @@ public extension NSUICollectionView {
 public extension NSUICollectionView.ScrollDirection {
     /// Toggles the scroll direction.
     mutating func toggle() {
-        self = (self == .vertical) ? .horizontal : .vertical
+        self = self == .vertical ? .horizontal : .vertical
     }
 }
 #endif

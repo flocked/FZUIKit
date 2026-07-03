@@ -368,7 +368,11 @@ public extension NSCollectionView {
             }
             mouseDownLocation = event.location(in: collectionView)
             lastDragLocation = mouseDownLocation
-            initialSelectionIndexPaths = collectionView.selectionIndexPaths
+            let modifierPressed = event.modifierFlags.contains(any: [.shift, .command])
+            let selectionIndexPaths = collectionView.selectionIndexPaths
+            initialSelectionIndexPaths = modifierPressed ? selectionIndexPaths : []
+            guard !modifierPressed, !selectionIndexPaths.isEmpty else { return }
+            collectionView.deselectItemsUsingDelegate(selectionIndexPaths)
         }
 
         override func mouseDragged(with event: NSEvent) {
@@ -421,10 +425,14 @@ public extension NSCollectionView {
         private func updateSelection(in collectionView: NSCollectionView) {
             let rect = CGRect(point1: mouseDownLocation, point2: lastDragLocation)
             selectionView?.frame = rect
-            var proposedSelection = Set(collectionView.displayingIndexPaths(in: rect))
+            var proposedSelection = initialSelectionIndexPaths.symmetricDifference(collectionView.displayingIndexPaths(in: rect))
+            /*
             if NSEvent.modifierFlags.contains(any: [.shift, .command]) {
                 proposedSelection = initialSelectionIndexPaths.union(proposedSelection)
             }
+             */
+            initialSelectionIndexPaths.symmetricDifference(collectionView.displayingIndexPaths(in: rect))
+            proposedSelection = initialSelectionIndexPaths.symmetricDifference(proposedSelection)
 
             if !collectionView.allowsEmptySelection, proposedSelection.isEmpty {
                 proposedSelection = collectionView.selectionIndexPaths
@@ -527,19 +535,27 @@ public extension NSCollectionView {
         
         private final class SelectionView: NSView {
             let color = NSColor(light: .darkGray, dark: .lightGray)
-
-            override func draw(_ dirtyRect: NSRect) {
-                guard !bounds.isEmpty else { return }
-                
-                let color = color.resolvedColor(for: self)
-                color.withAlphaComponent(0.14).setFill()
-                bounds.fill()
-
-                color.withAlphaComponent(0.8).setStroke()
-                bounds.insetBy(dx: 0.5, dy: 0.5).stroke()
+            
+            override init(frame frameRect: NSRect) {
+                super.init(frame: frameRect)
+                update()
             }
             
-            override var isFlipped: Bool { true }
+            override func viewDidChangeEffectiveAppearance() {
+                super.viewDidChangeEffectiveAppearance()
+                update()
+            }
+            
+            func update() {
+                let color = color.resolvedColor(for: self)
+                backgroundColor = color.withAlphaComponent(0.14)
+                border = .color(color.withAlphaComponent(0.8), width: 1.0)
+            }
+            
+            required init?(coder: NSCoder) {
+                fatalError("init(coder:) has not been implemented")
+            }
+            
         }
     }
         
@@ -641,4 +657,88 @@ extension NSCollectionView {
     }
 }
 
+extension NSCollectionView {
+    /**
+     Scrolls the specified items into the visible area.
+
+     - Parameters:
+       - indexPaths: The index paths of the items to scroll into view.
+       - vertical: The desired vertical scroll position.
+       - horizontal: The desired horizontal scroll position.
+     */
+    @_disfavoredOverload
+    public func scrollToItems(at indexPaths: Set<IndexPath>, vertical: ScrollPosition.Vertical? = nil, horizontal: ScrollPosition.Horizontal? = nil) {
+        var scrollPosition: ScrollPosition = []
+        if let vertical {
+            scrollPosition.insert(vertical.scrollPosition)
+        }
+        if let horizontal {
+            scrollPosition.insert(horizontal.scrollPosition)
+        }
+        scrollToItems(at: indexPaths, scrollPosition: scrollPosition)
+    }
+
+    /**
+     Scrolls the specified item into the visible area.
+
+     - Parameters:
+       - indexPath: The index path of the item to scroll into view.
+       - vertical: The desired vertical scroll position.
+       - horizontal: The desired horizontal scroll position.
+     */
+    @_disfavoredOverload
+    public func scrollToItem(at indexPath: IndexPath, vertical: ScrollPosition.Vertical? = nil, horizontal: ScrollPosition.Horizontal? = nil) {
+        scrollToItems(at: [indexPath], vertical: vertical, horizontal: horizontal)
+    }
+}
+
+extension NSCollectionView.ScrollPosition {
+    /// The vertical position to scroll an item to within the collection view.
+    public enum Vertical {
+        /// Aligns the top edge of the item with the top edge of the visible area.
+        case top
+        /// Centers the item vertically within the visible area.
+        case centered
+        /// Aligns the bottom edge of the item with the bottom edge of the visible area.
+        case bottom
+        /// Scrolls to the nearest vertical edge (top or bottom).
+        case nearestEdge
+
+        var scrollPosition: NSCollectionView.ScrollPosition {
+            switch self {
+            case .top: .top
+            case .centered: .centeredVertically
+            case .bottom: .bottom
+            case .nearestEdge: .nearestHorizontalEdge
+            }
+        }
+    }
+
+    /// The horizontal position to scroll an item to within the collection view.
+    public enum Horizontal {
+        /// Aligns the left edge of the item with the left edge of the visible area.
+        case left
+        /// Centers the item horizontally within the visible area.
+        case centered
+        /// Aligns the right edge of the item with the right edge of the visible area.
+        case right
+        /// Aligns the leading edge of the item with the leading edge of the visible area.
+        case leading
+        /// Aligns the trailing edge of the item with the trailing edge of the visible area.
+        case trailing
+        /// Scrolls to the nearest horizontal edge (leading or trailing).
+        case nearestEdge
+
+        var scrollPosition: NSCollectionView.ScrollPosition {
+            switch self {
+            case .left: .left
+            case .centered: .centeredHorizontally
+            case .right: .right
+            case .leading: .leadingEdge
+            case .trailing: .trailingEdge
+            case .nearestEdge: .nearestVerticalEdge
+            }
+        }
+    }
+}
 #endif

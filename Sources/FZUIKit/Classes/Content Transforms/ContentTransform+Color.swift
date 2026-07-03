@@ -111,12 +111,18 @@ public struct ColorTransformer: ContentTransform {
 
     #elseif os(iOS) || os(tvOS)
     /// A color transformer that returns the preferred system accent color.
-    public static let preferredTint = Self(id: "preferredTint", UIConfigurationColorTransformer.preferredTint.transform)
+    public static let preferredTint = Self(id: "preferredTint") { color in
+        UIConfigurationColorTransformer.preferredTint.transform(color)
+    }
     
     /// A color transformer that returns the color with a monochrome tint.
-    public static let monochromeTint = Self(id: "monochromeTint", UIConfigurationColorTransformer.monochromeTint.transform)
+    public static let monochromeTint = Self(id: "monochromeTint") { color in
+        UIConfigurationColorTransformer.monochromeTint.transform(color)
+    }
     
     /// Creates a color transformer that generates a grayscale version of the color.
-    public static let grayscale = Self(id: "grayscale", UIConfigurationColorTransformer.grayscale.transform)
+    public static let grayscale = Self(id: "grayscale") { color in
+        UIConfigurationColorTransformer.grayscale.transform(color)
+    }
     #endif
 }

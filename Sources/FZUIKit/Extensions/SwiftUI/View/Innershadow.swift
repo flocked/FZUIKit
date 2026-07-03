@@ -79,6 +79,7 @@ extension Shape {
         - x: An amount to offset the shadow horizontally from the view.
         - y: An amount to offset the shadow vertically from the view.
      */
+    @MainActor
     func innerShadow(color: Color = .init(.sRGBLinear, white: 0, opacity: 0.55), radius: CGFloat, x: CGFloat = 0.0, y: CGFloat = 0.0) -> some View {
         InnerShadow(shape: self, color: color, radius: radius, x: x, y: y)
     }
