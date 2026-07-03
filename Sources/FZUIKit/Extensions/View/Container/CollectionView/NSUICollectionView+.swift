@@ -21,14 +21,8 @@ public extension NSUICollectionView {
         
     /// All item index paths for the specified section.
     func indexPaths(for section: Int) -> [IndexPath] {
-        var indexPaths = [IndexPath]()
-        if numberOfSections > section {
-            let numberOfItems = numberOfItems(inSection: section)
-            for item in 0 ..< numberOfItems {
-                indexPaths.append(IndexPath(item: item, section: section))
-            }
-        }
-        return indexPaths
+        guard numberOfSections > section else { return [] }
+        return (0..<numberOfItems(inSection: section)).map({ IndexPath(item: $0, section: section) })
     }
         
     /// Returns the next item index path after the given one, or `nil` if there isn't one.

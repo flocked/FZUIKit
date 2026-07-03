@@ -8,7 +8,6 @@
 #if os(macOS)
 
 import AppKit
-import Foundation
 import FZSwiftUtils
 
 extension NSCollectionView {
@@ -32,12 +31,22 @@ extension NSCollectionView {
      The handlers for the displaying items.
 
      The handlers get called whenever the collection view is displaying new items (e.g. when the enclosing scrollview gets scrolled to new items).
+     
+     - Note: You can only provide handlers, if the colletion view is displayed in a enclosing scroll view.
      */
     public var displayingItemsHandlers: DisplayingItemsHandlers {
         get { getAssociatedValue("NSCollectionView_displayingItemsHandlers", initialValue: DisplayingItemsHandlers()) }
         set {
+            guard let contentView = enclosingScrollView?.contentView else { return }
             setAssociatedValue(newValue, key: "NSCollectionView_displayingItemsHandlers")
-            setupDisplayingItemsTracking()
+            if newValue.isDisplaying != nil || newValue.didEndDisplaying != nil {
+                contentView.postsBoundsChangedNotifications = true
+                displayingScrollObservation = NotificationCenter.default.observe(NSView.boundsDidChangeNotification, postedBy: contentView) { [weak self] _ in
+                    self?.didScroll()
+                }
+            } else {
+                displayingScrollObservation = nil
+            }
         }
     }
 
@@ -53,14 +62,7 @@ extension NSCollectionView {
         public var didEndDisplaying: (([IndexPath]) -> Void)?
     }
 
-    var previousDisplayingIndexPaths: [IndexPath] {
-        get { getAssociatedValue("NSCollectionView_previousDisplayingIndexPaths", initialValue: []) }
-        set {
-            setAssociatedValue(newValue, key: "NSCollectionView_previousDisplayingIndexPaths")
-        }
-    }
-
-    @objc func didScroll(_: Any) {
+    private func didScroll() {
         let isDisplaying = displayingItemsHandlers.isDisplaying
         let didEndDisplaying = displayingItemsHandlers.didEndDisplaying
         guard isDisplaying != nil || didEndDisplaying != nil else { return }
@@ -84,15 +86,15 @@ extension NSCollectionView {
             }
         }
     }
-
-    func setupDisplayingItemsTracking() {
-        guard let contentView = enclosingScrollView?.contentView else { return }
-        if displayingItemsHandlers.isDisplaying != nil || displayingItemsHandlers.didEndDisplaying != nil {
-            contentView.postsBoundsChangedNotifications = true
-            NotificationCenter.default.addObserver(self, selector: #selector(didScroll(_:)), name: NSView.boundsDidChangeNotification, object: contentView)
-        } else {
-            NotificationCenter.default.removeObserver(self, name: NSView.boundsDidChangeNotification, object: contentView)
-        }
+    
+    private var previousDisplayingIndexPaths: [IndexPath] {
+        get { getAssociatedValue("NSCollectionView_previousDisplayingIndexPaths", initialValue: []) }
+        set { setAssociatedValue(newValue, key: "NSCollectionView_previousDisplayingIndexPaths") }
+    }
+    
+    private var displayingScrollObservation: NotificationToken? {
+        get { getAssociatedValue("displayingScrollObservation") }
+        set { setAssociatedValue(newValue, key: "displayingScrollObservation") }
     }
 }
 

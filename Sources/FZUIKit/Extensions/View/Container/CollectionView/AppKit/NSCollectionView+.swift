@@ -45,9 +45,7 @@ public extension NSCollectionView {
      - Parameter rect: The rectangle.
      */
     func indexPaths(in rect: CGRect) -> [IndexPath] {
-        var itemI = indexPaths.compactMap { ($0, frameForItem(at: $0)) }
-        itemI = itemI.filter { $0.1?.intersects(rect) == true }
-        return itemI.compactMap { $0.0 }
+        indexPaths.filter { frameForItem(at: $0)?.intersects(rect) == true }
     }
     
     /**
@@ -72,12 +70,9 @@ public extension NSCollectionView {
      */
     func setCollectionViewLayout(_ layout: NSCollectionViewLayout, animationDuration: CGFloat, completion: (() -> Void)? = nil) {
         if animationDuration > 0.0 {
-            NSAnimationContext.runAnimationGroup { context in
-                context.duration = animationDuration
+            NSView.animate(withDuration: animationDuration, changes: {
                 self.animator().collectionViewLayout = layout
-            } completionHandler: {
-                completion?()
-            }
+            }, completion: completion)
         } else {
             collectionViewLayout = layout
             completion?()
@@ -239,6 +234,25 @@ public extension NSCollectionView {
             }
         }
     }
+    
+    /**
+     The handler that is called when the collection view is double clicked.
+     
+     The handler provides the index path of the double clicked item.
+     */
+    var doubleClickHandler: ((_ indexPath: IndexPath?) -> Void)? {
+        get { getAssociatedValue("doubleClickHandler") }
+        set {
+            setAssociatedValue(newValue, key: "doubleClickHandler")
+            doubleClickGesture?.removeFromView()
+            doubleClickGesture = nil
+            guard let handler = newValue else { return }
+            doubleClickGesture = .init { [weak self] gesture in
+                handler(self?.indexPathForItem(at: gesture.location(in: self)))
+            }.reattaches(true)
+            addGestureRecognizer(doubleClickGesture!)
+        }
+    }
         
     /**
      A Boolean value indicating whether the selection of an item is toggled when the user clicks it.
@@ -278,6 +292,11 @@ public extension NSCollectionView {
                 doubleClickGesture?.moveToBack()
             }
         }
+    }
+    
+    private var doubleClickGesture: DoubleClickGestureRecognizer? {
+        get { getAssociatedValue("doubleClickGesture") }
+        set { setAssociatedValue(newValue, key: "doubleClickGesture") }
     }
         
     private var toggleSelectionGestureRecognizer: ToggleSelectionGestureRecognizer? {
@@ -411,32 +430,6 @@ public extension NSCollectionView {
         guard delegate?.collectionView?(self, shouldDeselectItemsAt: indexPaths) ?? indexPaths == indexPaths else { return }
         deselectItems(at: indexPaths)
         delegate?.collectionView?(self, didDeselectItemsAt: indexPaths)
-    }
-}
-
-extension NSCollectionView {
-    /**
-     The handler that is called when the collection view is double clicked.
-     
-     The handler provides the index path of the double clicked item.
-     */
-    public var doubleClickHandler: ((_ indexPath: IndexPath?) -> Void)? {
-        get { getAssociatedValue("doubleClickHandler") }
-        set {
-            setAssociatedValue(newValue, key: "doubleClickHandler")
-            doubleClickGesture?.removeFromView()
-            doubleClickGesture = nil
-            guard let handler = newValue else { return }
-            doubleClickGesture = .init { [weak self] gesture in
-                handler(self?.indexPathForItem(at: gesture.location(in: self)))
-            }.reattaches(true)
-            addGestureRecognizer(doubleClickGesture!)
-        }
-    }
-    
-    private var doubleClickGesture: DoubleClickGestureRecognizer? {
-        get { getAssociatedValue("doubleClickGesture") }
-        set { setAssociatedValue(newValue, key: "doubleClickGesture") }
     }
 }
 

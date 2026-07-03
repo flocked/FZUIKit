@@ -26,10 +26,10 @@ extension NSCollectionViewLayoutAttributes {
      Assigning a value to this property replaces the value in the ``transform3D`` property with a 3D version of the affine transform you specify.
      */
     public var transform: CGAffineTransform {
-        get { getAssociatedValue("transform") ?? .identity }
+        get { value(forKeySafely: "transform") as? CGAffineTransform ?? .identity }
         set {
             NSCollectionViewItem.isTransformableByLayoutAttributes = true
-            setAssociatedValue(newValue, key: "transform")
+            setValue(safely: newValue, forKey: "transform")
         }
     }
     
@@ -39,10 +39,10 @@ extension NSCollectionViewLayoutAttributes {
      Assigning a value to this property replaces the value in the ``transform`` property with an affine version of the 3D transform you specify.
      */
     public var transform3D: CATransform3D {
-        get { getAssociatedValue("transform3D") ?? .identity }
+        get { value(forKeySafely: "transform3D") as? CATransform3D ?? .identity }
         set {
             NSCollectionViewItem.isTransformableByLayoutAttributes = true
-            setAssociatedValue(newValue, key: "transform3D")
+            setValue(safely: newValue, forKey: "transform3D")
         }
     }
 }
@@ -75,12 +75,12 @@ extension NSCollectionLayoutVisibleItem {
 extension NSCollectionViewItem {
     /// A Boolean value indicating whether the item view's transform can be changed via layout attributes.
     static var isTransformableByLayoutAttributes: Bool {
-        get {NSCollectionViewItem.isMethodHooked(#selector(NSCollectionViewItem.apply)) }
+        get {NSCollectionViewItem.isInstanceMethodHooked(#selector(NSCollectionViewItem.apply)) }
         set {
             guard newValue != isTransformableByLayoutAttributes else { return }
             if newValue {
                 do {
-                    try NSCollectionViewItem.hook(#selector(NSCollectionViewItem.apply), closure: { original, item, sel, attributes in
+                    try NSCollectionViewItem.hook(all: #selector(NSCollectionViewItem.apply), closure: { original, item, sel, attributes in
                         original(item, sel, attributes)
                         if attributes.transform != item.view.transform {
                             item.view.transform = attributes.transform
@@ -90,7 +90,7 @@ extension NSCollectionViewItem {
                         }
                     } as @convention(block) ((NSCollectionViewItem, Selector, NSCollectionViewLayoutAttributes) -> Void, NSCollectionViewItem, Selector, NSCollectionViewLayoutAttributes) -> Void)
                     
-                    try NSCollectionViewItem.hook(#selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)), closure: { original, item, sel, attributes in
+                    try NSCollectionViewItem.hook(all: #selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)), closure: { original, item, sel, attributes in
                         attributes.transform = item.view.transform
                         attributes.transform3D = item.view.transform3D
                         return original(item, sel, attributes)
@@ -99,8 +99,8 @@ extension NSCollectionViewItem {
                     Swift.print(error)
                 }
             } else {
-                NSCollectionViewItem.revertHooks(for: #selector(NSCollectionViewItem.apply))
-                NSCollectionViewItem.revertHooks(for: #selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)))
+                NSCollectionViewItem.revertInstanceHooks(for: #selector(NSCollectionViewItem.apply))
+                NSCollectionViewItem.revertInstanceHooks(for: #selector(NSCollectionViewItem.preferredLayoutAttributesFitting(_:)))
 
             }
         }
