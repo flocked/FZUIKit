@@ -14,6 +14,8 @@ import AppKit
  Compared to [NSClickGestureRecognizer](https://developer.apple.com/documentation/appkit/NSClickGestureRecognizer) this gesture recognizer always forwards mouse clicks to it's view.
  */
 open class ClickGestureRecognizer: NSGestureRecognizer {
+    private var clickEvent: NSEvent?
+    
     /// The number of clicks required to match.
     open var numberOfClicksRequired = 1
     
@@ -35,15 +37,23 @@ open class ClickGestureRecognizer: NSGestureRecognizer {
     }
     
     open override func mouseDown(with event: NSEvent) {
-        state = event.clickCount >= numberOfClicksRequired && requiredButtons.contains(.left) ? .recognized : .failed
+        clickEvent = event.clickCount >= numberOfClicksRequired && requiredButtons.contains(.left) ? event : nil
+        state = clickEvent != nil ? .recognized : .failed
     }
     
     open override func rightMouseDown(with event: NSEvent) {
-        state = event.clickCount >= numberOfClicksRequired && requiredButtons.contains(.right) ? .recognized : .failed
+        clickEvent = event.clickCount >= numberOfClicksRequired && requiredButtons.contains(.right) ? event : nil
+        state = clickEvent != nil ? .recognized : .failed
     }
     
     open override func otherMouseDown(with event: NSEvent) {
-        state = event.clickCount >= numberOfClicksRequired && requiredButtons.contains(.other) ? .recognized : .failed
+        clickEvent = event.clickCount >= numberOfClicksRequired && requiredButtons.contains(.other) ? event : nil
+        state = clickEvent != nil ? .recognized : .failed
+    }
+    
+    open override func location(in view: NSView?) -> NSPoint {
+        guard let view = view else { return super.location(in: view) }
+        return clickEvent?.location(in: view) ?? super.location(in: view)
     }
 }
 

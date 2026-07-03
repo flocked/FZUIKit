@@ -11,8 +11,16 @@ import FZSwiftUtils
 
 /// A gesture recognizer that tracks double mouse clicks.
 open class DoubleClickGestureRecognizer: NSGestureRecognizer {
+    private var doubleClickEvent: NSEvent?
+    
     open override func mouseDown(with event: NSEvent) {
-        state = event.clickCount == 2 ? .recognized : .failed
+        doubleClickEvent = event.clickCount >= 2 ? event : nil
+        state = event.clickCount >= 2 ? .recognized : .failed
+    }
+    
+    open override func location(in view: NSView?) -> NSPoint {
+        guard let view = view else { return super.location(in: view) }
+        return doubleClickEvent?.location(in: view) ?? super.location(in: view)
     }
 }
 

@@ -20,11 +20,10 @@ public extension NSTableView {
     /// Toggles the sorting order of the sort descriptor.
     func toggleSortDescriptorOrder() {
         var sortDescriptors = sortDescriptors
-        if let reversed = sortDescriptors.first?.reversed {
-            sortDescriptors.removeFirst()
-            sortDescriptors = [reversed] + sortDescriptors
-            self.sortDescriptors = sortDescriptors
-        }
+        guard let reversed = sortDescriptors.first?.reversed else { return }
+        sortDescriptors.removeFirst()
+        sortDescriptors = [reversed] + sortDescriptors
+        self.sortDescriptors = sortDescriptors
     }
         
     /**
@@ -38,7 +37,8 @@ public extension NSTableView {
      - else an empty index set.
      */
     func rightClickRowIndexes(for event: NSEvent) -> IndexSet {
-        rightClickRowIndexes(for: event.location(in: self))
+        guard event.isMouse else { return [] }
+        return rightClickRowIndexes(for: event.location(in: self))
     }
         
     /**
@@ -54,7 +54,7 @@ public extension NSTableView {
     func rightClickRowIndexes(for point: CGPoint) -> IndexSet {
         let row = row(at: point)
         let selectedRowIndexes = selectedRowIndexes
-        return row != -1 ? selectedRowIndexes.contains(row) ? selectedRowIndexes : [row] : []
+        return row >= 0 ? selectedRowIndexes.contains(row) ? selectedRowIndexes : [row] : []
     }
         
     /**
@@ -63,7 +63,7 @@ public extension NSTableView {
      - Parameter indexes: The indexes of the rows to deselect.
      */
     func deselectRows(at indexes: IndexSet) {
-        indexes.forEach({ deselectRow($0) })
+        indexes.forEach { deselectRow($0) }
     }
         
     /**
@@ -112,7 +112,7 @@ public extension NSTableView {
 
     /// Returns the row views currently visible.
     func visibleRows() -> [NSTableRowView] {
-        visibleRowIndexes().compactMap{rowView(atRow: $0, makeIfNecessary: false)}
+        visibleRowIndexes().compactMap { rowView(atRow: $0, makeIfNecessary: false) }
     }
         
     /// Returns the column indexes currently visible.
@@ -127,7 +127,7 @@ public extension NSTableView {
         
     /// Returns the cell views currently visible.
     func visibleCells() -> [NSTableCellView] {
-        visibleRows().flatMap({ $0.cellViews })
+        visibleRows().flatMap { $0.cellViews }
     }
 
     /**
@@ -136,39 +136,54 @@ public extension NSTableView {
      - Parameter column: The column fot the visible cell views.
      */
     func visibleCells(for column: NSTableColumn) -> [NSTableCellView] {
-        let rowIndexes = visibleRowIndexes()
-        var cells = [NSTableCellView]()
-        if let columnIndex = tableColumns.firstIndex(of: column) {
-            for rowIndex in rowIndexes {
-                if let cellView = view(atColumn: columnIndex, row: rowIndex, makeIfNecessary: false) as? NSTableCellView {
-                    cells.append(cellView)
-                }
-            }
-        }
-        return cells
+        guard let columnIndex = self.column(of: column) else { return [] }
+        return visibleRowIndexes().compactMap { view(atColumn: columnIndex, row: $0, makeIfNecessary: false) as? NSTableCellView }
     }
 
     /**
      Returns the row view at the specified location.
 
-     - Parameter location: The location of the row view.
+     - Parameters:
+        - location: The location of the row view.
+        - makeIfNecessary: A Boolean value indicating whether to create the row view if it doesn't exist.
      - Returns: The row view, or `nil` if there isn't any row view at the location.
      */
-    func rowView(at location: CGPoint) -> NSTableRowView? {
-        let index = row(at: location)
-        guard index >= 0 else { return nil }
-        return rowView(atRow: index, makeIfNecessary: false)
+    func rowView(at location: CGPoint, makeIfNecessary: Bool = false) -> NSTableRowView? {
+        let row = row(at: location)
+        guard row >= 0 else { return nil }
+        return rowView(atRow: row, makeIfNecessary: makeIfNecessary)
     }
 
     /**
      Returns the table cell view at the specified location.
 
-     - Parameter location: The location of the table cell view.
+     - Parameters:
+        - location: The location of the table cell view.
+        - makeIfNecessary: A Boolean value indicating whether to create the table cell view if it doesn't exist.
      - Returns: The table cell view, or `nil` if there isn't any table cell view at the location.
      */
-    func cellView(at location: CGPoint) -> NSTableCellView? {
-        guard let rowView = rowView(at: location) else { return nil }
-        return rowView.cellViews.first(where: { $0.frame.contains(location) })
+    func cellView(at location: CGPoint, makeIfNecessary: Bool = false) -> NSTableCellView? {
+        cellView(atColumn: column(at: location), row: row(at: location), makeIfNecessary: makeIfNecessary)
+    }
+    
+    /**
+     Returns a view at the specified row and column indexes, creating one if necessary.
+     
+     - Parameters:
+        - column: The index of the column.
+        - row: The row index.
+        - makeIfNecessary: `true` if a view is required, `false` if you want to update properties on a view, if one is available.
+     - Returns: The table cell view, or `nil` if there isn't a cell view at the specified column and row.
+
+     This method first attempts to return an available view, which is generally in the visible area. If there is no available view, and `makeIfNecessary` is true, a prepared temporary view is returned. If `makeIfNecessary` is false, and the view is not available, nil will be returned.
+     
+     In general, `makeIfNecessary` should be true if you require a resulting view, and false if you only want to update properties on a view only if it is available (generally this means it is visible).
+     
+     An exception will be thrown if row is not within the numberOfRows. The returned result should generally not be held onto for longer than the current run loop cycle. Instead they should re-query the table view for the row view.
+     */
+    func cellView(atColumn column: Int, row: Int, makeIfNecessary: Bool = false) -> NSTableCellView? {
+        guard column < numberOfColumns, row < numberOfRows else { return nil }
+        return view(atColumn: column, row: row, makeIfNecessary: makeIfNecessary) as? NSTableCellView
     }
     
     /**
@@ -203,17 +218,17 @@ public extension NSTableView {
      - Parameter tableColumn: The table column.
      - Returns: The index of the specified column in the [tableColumns](https://developer.apple.com/documentation/appkit/nstableview/tablecolumns) array, or `–1` if no columns is found.
      */
-    func column(of tableColumn: NSTableColumn) -> Int {
-        tableColumns.firstIndex(of: tableColumn) ?? -1
+    func column(of tableColumn: NSTableColumn) -> Int? {
+        tableColumns.firstIndex(of: tableColumn)
     }
         
     /// Sets the table columns.
     @discardableResult
     func tableColumns(_ columns: [NSTableColumn]) -> Self {
-        let toRemove = tableColumns.filter({!columns.contains($0)})
-        toRemove.forEach({removeTableColumn($0)})
-        let toAdd = columns.filter({!tableColumns.contains($0)})
-        toAdd.forEach({addTableColumn($0)})
+        let toRemove = tableColumns.filter { !columns.contains($0) }
+        toRemove.forEach { removeTableColumn($0) }
+        let toAdd = columns.filter { !tableColumns.contains($0) }
+        toAdd.forEach { addTableColumn($0) }
         for (index, column) in columns.enumerated() {
             if let oldIndex = tableColumns.firstIndex(of: column) {
                 moveColumn(oldIndex, toColumn: index)
@@ -381,17 +396,17 @@ public extension NSTableView {
     }
     
     /**
-    Performs the updates to the table view provided be the specified handler.
+     Performs the updates to the table view provided be the specified handler.
      
-     - Parameter updates: The handler that provides updates to the table view.
+      - Parameter updates: The handler that provides updates to the table view.
      
-     For view-based table views, multiple row changes—that is, insertions, deletions, and moves—are animated simultaneously by calling those methods inside the provided handler. This method is nestable.
+      For view-based table views, multiple row changes—that is, insertions, deletions, and moves—are animated simultaneously by calling those methods inside the provided handler. This method is nestable.
      
-     The selected rows are maintained during the series of insertions, deletions, moves, and scrolling. If a selected row is deleted, a selection changed notification occurs after [removeRowsAtIndexes:withAnimation:](https://developer.apple.com/documentation/appkit/nstableview/removerows(at:withanimation:)) is called.
+      The selected rows are maintained during the series of insertions, deletions, moves, and scrolling. If a selected row is deleted, a selection changed notification occurs after [removeRowsAtIndexes:withAnimation:](https://developer.apple.com/documentation/appkit/nstableview/removerows(at:withanimation:)) is called.
      
-     It is not necessary to call this method if only one insertion, deletion, or move is occurring.
-     */
-    func performUpdates(_ updates: ()->()) {
+      It is not necessary to call this method if only one insertion, deletion, or move is occurring.
+      */
+    func performUpdates(_ updates: () -> ()) {
         beginUpdates()
         updates()
         endUpdates()
@@ -431,24 +446,52 @@ public extension NSTableView {
 }
 
 extension NSTableView {
-    
     /**
-     A Boolean value indicating whether the selection of rows is toggled when the uses clicks a row.
+     The handler that is called when the table view is double clicked.
      
-     The default value is `false`.
+     The handler provides the row that is double clicked.
      */
+    public var doubleClickHandler: ((_ row: Int?, _ column: Int?) -> ())? {
+        get { getAssociatedValue("doubleClickHandler") }
+        set {
+            setAssociatedValue(newValue, key: "doubleClickHandler")
+            doubleClickGesture?.removeFromView()
+            doubleClickGesture = nil
+            guard let handler = newValue else { return }
+            doubleClickGesture = .init { [weak self] gesture in
+                guard let self = self else { return }
+                let location = gesture.location(in: self)
+                let row = self.row(at: location)
+                let column = self.column(at: location)
+                handler(row >= 0 ? row : nil, column >= 0 ? column : nil)
+            }.reattaches(true)
+            addGestureRecognizer(doubleClickGesture!)
+        }
+    }
+    
+    fileprivate var doubleClickGesture: DoubleClickGestureRecognizer? {
+        get { getAssociatedValue("doubleClickGesture") }
+        set { setAssociatedValue(newValue, key: "doubleClickGesture") }
+    }
+    
+    /// A Boolean value indicating whether clicking a row toggles its selection instead of replacing the current selection.
     public var togglesSelection: Bool {
         get { toggleGestureRecognizer != nil }
         set {
             guard newValue != togglesSelection else { return }
-            if newValue {
-                toggleGestureRecognizer = ToggleGestureRecognizer()
-                addGestureRecognizer(toggleGestureRecognizer!)
-            } else {
-                toggleGestureRecognizer?.removeFromView()
-                toggleGestureRecognizer = nil
-            }
+            toggleGestureRecognizer?.removeFromView()
+            toggleGestureRecognizer = nil
+            guard newValue else { return }
+            toggleGestureRecognizer = .init()
+            addGestureRecognizer(toggleGestureRecognizer!)
         }
+    }
+    
+    /// Sets the Boolean value indicating whether clicking a row toggles its selection instead of replacing the current selection.
+    @discardableResult
+    public func togglesSelection(_ toggles: Bool) -> Self {
+        togglesSelection = toggles
+        return self
     }
     
     fileprivate var toggleGestureRecognizer: ToggleGestureRecognizer? {
@@ -456,7 +499,7 @@ extension NSTableView {
         set { setAssociatedValue(newValue, key: "toggleGestureRecognizer") }
     }
     
-    fileprivate class ToggleGestureRecognizer: NSGestureRecognizer {
+    fileprivate final class ToggleGestureRecognizer: NSGestureRecognizer {
         init() {
             super.init(target: nil, action: nil)
             delaysPrimaryMouseButtonEvents = true
@@ -464,82 +507,229 @@ extension NSTableView {
         }
         
         override func mouseDown(with event: NSEvent) {
-            state = .began
-            if let tableView = view as? NSTableView, tableView.isEnabled, tableView.allowsEmptySelection, tableView.allowsMultipleSelection {
-                let row = tableView.row(at: location(in: tableView))
-                if row != -1 {
-                    var indexes = tableView.selectedRowIndexes
-                    if tableView.selectedRowIndexes.contains(row) {
-                        indexes.remove(row)
-                        if indexes == tableView.delegate?.tableView?(tableView, selectionIndexesForProposedSelection: indexes) ?? indexes {
-                            tableView.deselectRow(row)
-                            tableView.delegate?.tableViewSelectionDidChange?(Notification(name: NSTableView.selectionDidChangeNotification, object: tableView))
-                        }
-                    } else {
-                        indexes.insert(row)
-                        var shouldSelect = true
-                        if let delegate = tableView.delegate {
-                            if let proposedSelection = delegate.tableView(_:selectionIndexesForProposedSelection:) {
-                                shouldSelect = proposedSelection(tableView, indexes) == indexes
-                            } else if let should = tableView.delegate?.tableView(_:shouldSelectRow:) {
-                                shouldSelect = should(tableView, row)
-                            }
-                        }
-                        if shouldSelect {
-                            tableView.selectRowIndexes([row], byExtendingSelection: true)
-                            tableView.delegate?.tableViewSelectionDidChange?(Notification(name: NSTableView.selectionDidChangeNotification, object: tableView))
-                        }
-                    }
-                    state = .ended
-                }
-            }
-            if state != .ended {
+            guard let tableView = view as? NSTableView, tableView.isEnabled else {
                 state = .failed
+                return
             }
+            
+            let row = tableView.row(at: event.location(in: tableView))
+            guard row >= 0 else {
+                state = .failed
+                return
+            }
+            
+            var proposedSelection = tableView.selectedRowIndexes
+            if !proposedSelection.contains(row) {
+                proposedSelection.insert(row)
+                guard tableView.allowsMultipleSelection || proposedSelection.count <= 1 else {
+                    state = .failed
+                    return
+                }
+                guard allowsProposedSelection(proposedSelection, row: row) else {
+                    return
+                }
+                tableView.selectRowIndexes(IndexSet(integer: row), byExtendingSelection: true)
+            } else {
+                proposedSelection.remove(row)
+                guard !proposedSelection.isEmpty || tableView.allowsEmptySelection else {
+                    return
+                }
+                guard allowsProposedSelection(proposedSelection, row: row) else {
+                    return
+                }
+                tableView.deselectRow(row)
+            }
+            state = .recognized
         }
         
-        override func mouseUp(with event: NSEvent) {
-            state = .began
-            state = .failed
-        }
-                    
         override func mouseDragged(with event: NSEvent) {
-            state = .began
+            state = .failed
+        }
+
+        override func mouseUp(with event: NSEvent) {
+            guard state == .possible else { return }
             state = .failed
         }
         
+        private func allowsProposedSelection(_ proposedSelection: IndexSet, row: Int) -> Bool {
+            guard let tableView = view as? NSTableView else { return false }
+            if let filteredSelection = tableView.delegate?.tableView?(tableView, selectionIndexesForProposedSelection: proposedSelection) {
+                return filteredSelection == proposedSelection
+            }
+            if proposedSelection.contains(row) {
+                return tableView.delegate?.tableView?(tableView, shouldSelectRow: row) ?? true
+            }
+            return true
+        }
+        
+        @available(*, unavailable)
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
     }
 }
 
-extension NSTableView {
-    /// The handler that is called when the table view is double clicked.
-    public var doubleClickHandler: ((_ row: Int?)->())? {
-        get { getAssociatedValue("doubleClickHandler") }
-        set {
-            setAssociatedValue(newValue, key: "doubleClickHandler")
-            doubleClickGesture?.removeFromView()
-            doubleClickGesture = nil
-            if let newValue = newValue {
-                doubleClickGesture = .init { [weak self] _ in
-                    guard let self = self else { return }
-                    newValue(self.selectedRow != -1 ? self.selectedRow : nil)
-                }
-                addGestureRecognizer(doubleClickGesture!)
-            }
-        }
-    }
+/*
+ /// Describes how clicking toggles the selection of a table rows.
+ public enum ToggleSelectionInteraction: ExpressibleByBooleanLiteral {
+     /// Disables toggling row selection by clicking.
+     case disabled
+     /// Toggles the clicked row only.
+     case byClick
+     /// Toggles the clicked row and extends the same action while dragging across additional rows.
+     case byClickAndDrag
+
+     public init(booleanLiteral value: Bool) {
+         self = value ? .byClick : .disabled
+     }
+ }
+
+ /*
+  A value indicating whether clicking a row toggles its selection instead of replacing the current selection.
+
+  Set this property to `.clickAndDrag` to continue selecting or deselecting matching rows while dragging.
+ 
+  The default value is `.disabled`.
+  */
+ public var togglesSelection: ToggleSelectionInteraction {
+     get { toggleGestureRecognizer?.option ?? .disabled }
+     set {
+         guard newValue != togglesSelection else { return }
+         toggleGestureRecognizer?.removeFromView()
+         toggleGestureRecognizer = nil
+         guard newValue != .disabled else { return }
+         toggleGestureRecognizer = ToggleGestureRecognizer(newValue)
+         addGestureRecognizer(toggleGestureRecognizer!)
+     }
+ }
+
+ /// Sets the value indicating whether clicking a row toggles its selection instead of replacing the current selection.
+ @discardableResult
+ public func togglesSelection(_ toggles: ToggleSelectionInteraction) -> Self {
+     self.togglesSelection = toggles
+     return self
+ }
+
+ fileprivate var toggleGestureRecognizer: ToggleGestureRecognizer? {
+     get { getAssociatedValue("toggleGestureRecognizer") }
+     set { setAssociatedValue(newValue, key: "toggleGestureRecognizer") }
+ }
+
+ fileprivate final class ToggleGestureRecognizer: NSGestureRecognizer {
+
+     let option: ToggleSelectionInteraction
+     private weak var tableView: NSTableView?
+     private var isSelecting: Bool?
+     private var visitedRows = IndexSet()
+
+     init(_ option: ToggleSelectionInteraction) {
+         self.option = option
+         super.init(target: nil, action: nil)
+         delaysPrimaryMouseButtonEvents = true
+         reattachesAutomatically = true
+     }
+
+     override func mouseDown(with event: NSEvent) {
+         guard let tableView = view as? NSTableView, tableView.isEnabled, option != .disabled
+         else {
+             state = .failed
+             return
+         }
+
+         let row = tableView.row(at: event.location(in: tableView))
+         guard row >= 0 else {
+             state = .failed
+             return
+         }
+
+         self.tableView = tableView
+         self.visitedRows = []
+         isSelecting = !tableView.selectedRowIndexes.contains(row)
+         applyToRow(row)
+
+         switch option {
+         case .disabled:
+             state = .failed
+         case .byClick:
+             state = .recognized
+         case .byClickAndDrag:
+             state = .began
+         }
+     }
     
-    @objc fileprivate func didDoubleClick(_ gesture: NSClickGestureRecognizer) {
-        doubleClickHandler?(selectedRow != -1 ? selectedRow : nil)
-    }
+     override func mouseDragged(with event: NSEvent) {
+         guard let tableView else {
+             state = .failed
+             return
+         }
+         guard option == .byClickAndDrag else {
+             state = .ended
+             return
+         }
+         let row = tableView.row(at: event.location(in: tableView))
+         guard row >= 0 else { return }
+         applyToRow(row)
+         state = .changed
+     }
+
+     override func mouseUp(with event: NSEvent) {
+         if state == .began || state == .changed {
+             state = .ended
+         } else if state == .possible {
+             state = .failed
+         }
+     }
+
+     override func reset() {
+         super.reset()
+         tableView = nil
+         isSelecting = nil
+         visitedRows = []
+     }
+
+     private func applyToRow(_ row: Int) {
+         guard let tableView, let isSelecting, !visitedRows.contains(row) else { return }
+         visitedRows.insert(row)
+         if isSelecting {
+             var proposedSelection = tableView.selectedRowIndexes
+             proposedSelection.insert(row)
+             guard tableView.allowsMultipleSelection || proposedSelection.count <= 1 else {
+                 state = .failed
+                 return
+             }
+             guard allowsProposedSelection(proposedSelection, row: row) else {
+                 return
+             }
+             tableView.selectRowIndexes(IndexSet(integer: row), byExtendingSelection: true)
+         } else {
+             var proposedSelection = tableView.selectedRowIndexes
+             proposedSelection.remove(row)
+             guard !proposedSelection.isEmpty || tableView.allowsEmptySelection else {
+                 return
+             }
+             guard allowsProposedSelection(proposedSelection, row: row) else {
+                 return
+             }
+             tableView.deselectRow(row)
+         }
+     }
     
-    fileprivate var doubleClickGesture: DoubleClickGestureRecognizer? {
-        get { getAssociatedValue("doubleClickGesture") }
-        set { setAssociatedValue(newValue, key: "doubleClickGesture") }
-    }
-}
+     private func allowsProposedSelection(_ proposedSelection: IndexSet, row: Int) -> Bool {
+         guard let tableView else { return false }
+         if let filteredSelection = tableView.delegate?.tableView?(tableView, selectionIndexesForProposedSelection: proposedSelection) {
+             return filteredSelection == proposedSelection
+         }
+         if proposedSelection.contains(row) {
+             return tableView.delegate?.tableView?(tableView, shouldSelectRow: row) ?? true
+         }
+         return true
+     }
+
+     @available(*, unavailable)
+     required init?(coder: NSCoder) {
+         fatalError("init(coder:) has not been implemented")
+     }
+ }
+ */
 
 #endif

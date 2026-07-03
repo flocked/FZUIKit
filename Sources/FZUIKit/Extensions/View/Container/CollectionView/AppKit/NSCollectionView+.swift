@@ -28,7 +28,6 @@ public extension NSCollectionView {
         layoutAttributesForItem(at: indexPath)?.frame
     }
     
-    
     /**
      The item item at the specified location.
      
@@ -46,9 +45,9 @@ public extension NSCollectionView {
      - Parameter rect: The rectangle.
      */
     func indexPaths(in rect: CGRect) -> [IndexPath] {
-        var itemI = indexPaths.compactMap({($0, frameForItem(at: $0)) })
-        itemI = itemI.filter({$0.1?.intersects(rect) == true})
-        return itemI.compactMap({$0.0})
+        var itemI = indexPaths.compactMap { ($0, frameForItem(at: $0)) }
+        itemI = itemI.filter { $0.1?.intersects(rect) == true }
+        return itemI.compactMap { $0.0 }
     }
     
     /**
@@ -73,10 +72,12 @@ public extension NSCollectionView {
      */
     func setCollectionViewLayout(_ layout: NSCollectionViewLayout, animationDuration: CGFloat, completion: (() -> Void)? = nil) {
         if animationDuration > 0.0 {
-            NSAnimationContext.runAnimationGroup({ context in
+            NSAnimationContext.runAnimationGroup { context in
                 context.duration = animationDuration
                 self.animator().collectionViewLayout = layout
-            }, completionHandler: { completion?() })
+            } completionHandler: {
+                completion?()
+            }
         } else {
             collectionViewLayout = layout
             completion?()
@@ -101,7 +102,7 @@ public extension NSCollectionView {
         - scrollPosition: The options for scrolling the newly selected items into view.
      */
     func selectItems(at indexPaths: Set<IndexPath>, byExtendingSelection extend: Bool, scrollPosition: ScrollPosition = []) {
-        let deselect = extend ? Set([]) : selectionIndexPaths.filter({ !indexPaths.contains($0) })
+        let deselect = extend ? Set([]) : selectionIndexPaths.filter { !indexPaths.contains($0) }
         selectItems(at: indexPaths, scrollPosition: scrollPosition)
         deselectItems(at: deselect)
     }
@@ -186,7 +187,7 @@ public extension NSCollectionView {
      - Parameter scrollPosition: The scroll position to restore.
      */
     func restoreScrollPosition(_ scrollPosition: SavedScrollPosition) {
-        scrollToItems(at: .init(scrollPosition.indexPaths), scrollPosition: scrollPosition.position == .nearestHorizontalEdge ?  .nearestHorizontalEdge : (frame.height >= superview?.frame.height ?? frame.height) ? .centeredVertically : .centeredHorizontally)
+        scrollToItems(at: .init(scrollPosition.indexPaths), scrollPosition: scrollPosition.position == .nearestHorizontalEdge ? .nearestHorizontalEdge : (frame.height >= superview?.frame.height ?? frame.height) ? .centeredVertically : .centeredHorizontally)
     }
         
     /**
@@ -229,13 +230,13 @@ public extension NSCollectionView {
         - scrollPosition: The options for scrolling the bounding box of the specified items into view. Specifying more than one option for either the vertical or horizontal directions raises an exception.
         - animated: Specify `true` to animate the scrolling behavior or `false` to adjust the scroll view’s visible content immediately.
      */
-    func scrollToItems(at indexPaths: Set<IndexPath>, scrollPosition: ScrollPosition,  animated: Bool) {
+    func scrollToItems(at indexPaths: Set<IndexPath>, scrollPosition: ScrollPosition, animated: Bool) {
         if animated {
             scrollToItems(at: indexPaths, scrollPosition: scrollPosition)
         } else {
-            NSAnimationContext.runAnimationGroup({ context in
+            NSAnimationContext.runAnimationGroup { _ in
                 self.animator().scrollToItems(at: indexPaths, scrollPosition: scrollPosition)
-            })
+            }
         }
     }
         
@@ -279,128 +280,161 @@ public extension NSCollectionView {
         }
     }
         
-    internal var toggleSelectionGestureRecognizer: ToggleSelectionGestureRecognizer? {
+    private var toggleSelectionGestureRecognizer: ToggleSelectionGestureRecognizer? {
         get { getAssociatedValue("toggleSelectionGestureRecognizer") }
         set { setAssociatedValue(newValue, key: "toggleSelectionGestureRecognizer") }
     }
         
-    internal var dragSelectionGestureRecognizer: DragSelectionGestureRecognizer? {
+    private var dragSelectionGestureRecognizer: DragSelectionGestureRecognizer? {
         get { getAssociatedValue("dragSelectionGestureRecognizer") }
         set { setAssociatedValue(newValue, key: "dragSelectionGestureRecognizer") }
     }
         
-    internal class ToggleSelectionGestureRecognizer: NSGestureRecognizer {
+    private class ToggleSelectionGestureRecognizer: NSGestureRecognizer {
         init() {
             super.init(target: nil, action: nil)
             delaysPrimaryMouseButtonEvents = true
             reattachesAutomatically = true
         }
             
+        @available(*, unavailable)
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
-            
+        
         override func mouseDown(with event: NSEvent) {
-            state = .began
-            if let collectionView = view as? NSUICollectionView, collectionView.isSelectable, let indexPath = collectionView.indexPathForItem(at: event.location(in: collectionView)) {
-                if collectionView.selectionIndexPaths.contains(indexPath) {
-                    collectionView.deselectItemsUsingDelegate(Set([indexPath]))
-                } else {
-                    collectionView.selectItemsUsingDelegate(Set([indexPath]))
-                }
-                state = .ended
-            } else {
+            guard let collectionView = view as? NSCollectionView, collectionView.isSelectable, let indexPath = collectionView.indexPathForItem(at: event.location(in: collectionView)) else {
                 state = .failed
+                return
             }
-        }
             
-        override func mouseUp(with event: NSEvent) {
-            state = .began
+            if collectionView.selectionIndexPaths.contains(indexPath) {
+                if collectionView.selectionIndexPaths.count > 1 || collectionView.allowsEmptySelection {
+                    collectionView.deselectItemsUsingDelegate([indexPath])
+                }
+            } else if collectionView.selectionIndexPaths.count == 1 || collectionView.allowsMultipleSelection {
+                collectionView.selectItemsUsingDelegate([indexPath])
+            }
+            state = .recognized
+        }
+        
+        override func mouseDragged(with event: NSEvent) {
             state = .failed
         }
-                        
-        override func mouseDragged(with event: NSEvent) {
-            state = .began
+
+        override func mouseUp(with event: NSEvent) {
+            guard state == .possible else { return }
             state = .failed
         }
     }
+    
+    private class DragSelectionGestureRecognizer: NSGestureRecognizer {
+        private var mouseDownLocation: CGPoint = .zero
+        private var initialSelectionIndexPaths: Set<IndexPath> = []
 
-    internal class DragSelectionGestureRecognizer: NSGestureRecognizer {
-        var mouseDownLocation: CGPoint = .zero
-        var selectionIndexPaths: Set<IndexPath> = []
-            
         init() {
             super.init(target: nil, action: nil)
             reattachesAutomatically = true
+            delaysPrimaryMouseButtonEvents = false
         }
-            
+
+        override func mouseDown(with event: NSEvent) {
+            guard let collectionView = view as? NSCollectionView, collectionView.isSelectable, collectionView.allowsMultipleSelection else {
+                state = .failed
+                return
+            }
+            mouseDownLocation = event.location(in: collectionView)
+            initialSelectionIndexPaths = collectionView.selectionIndexPaths
+            state = .began
+        }
+
+        override func mouseDragged(with event: NSEvent) {
+            guard state == .began || state == .changed, let collectionView = view as? NSCollectionView, collectionView.isSelectable, collectionView.allowsMultipleSelection else { return }
+            state = .changed
+            let rect = CGRect(point1: mouseDownLocation, point2: event.location(in: collectionView))
+            var proposedSelection = Set(collectionView.displayingIndexPaths(in: rect))
+            if event.modifierFlags.contains(.shift) {
+                proposedSelection = initialSelectionIndexPaths.symmetricDifference(proposedSelection)
+            }
+
+            if !collectionView.allowsEmptySelection, proposedSelection.isEmpty {
+                proposedSelection = collectionView.selectionIndexPaths
+                if proposedSelection.isEmpty {
+                    if let indexPath = collectionView.indexPathForItem(at: event.location(in: collectionView)) {
+                        proposedSelection = [indexPath]
+                    } else if let indexPath = collectionView.indexPathForItem(at: mouseDownLocation) {
+                        proposedSelection = [indexPath]
+                    }
+                }
+            }
+
+            let selected = collectionView.selectionIndexPaths
+            let removed = selected.subtracting(proposedSelection)
+            let added = proposedSelection.subtracting(selected)
+
+            if !removed.isEmpty {
+                collectionView.deselectItemsUsingDelegate(removed)
+            }
+
+            if !added.isEmpty {
+                collectionView.selectItemsUsingDelegate(added)
+            }
+        }
+
+        override func mouseUp(with event: NSEvent) {
+            switch state {
+            case .began, .changed:
+                state = .ended
+            default:
+                state = .failed
+            }
+        }
+
+        override func reset() {
+            mouseDownLocation = .zero
+            initialSelectionIndexPaths = []
+        }
+        
+        @available(*, unavailable)
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
-        }
-            
-        override func mouseDown(with event: NSEvent) {
-            guard let collectionView = view as? NSUICollectionView, collectionView.isSelectable, collectionView.allowsMultipleSelection, collectionView.allowsEmptySelection else { return }
-            mouseDownLocation = event.location(in: collectionView)
-            selectionIndexPaths = collectionView.selectionIndexPaths
-        }
-                
-        override func mouseDragged(with event: NSEvent) {
-            guard let collectionView = view as? NSUICollectionView, collectionView.isSelectable, collectionView.allowsMultipleSelection, collectionView.allowsEmptySelection else { return }
-            let rect = CGRect(point1: mouseDownLocation, point2: event.location(in: collectionView))
-            var indexPaths = Set(collectionView.displayingIndexPaths(in: rect))
-            if event.modifierFlags.contains(.shift) {
-                indexPaths = selectionIndexPaths.filter({ !indexPaths.contains($0) }) + indexPaths.filter({!selectionIndexPaths.contains($0)})
-            }
-            let diff = collectionView.selectionIndexPaths.difference(to: indexPaths)
-            if !diff.removed.isEmpty {
-                collectionView.deselectItemsUsingDelegate(Set(diff.removed))
-            }
-            if !diff.added.isEmpty {
-                collectionView.selectItemsUsingDelegate(Set(diff.added))
-            }
         }
     }
         
     internal func selectItemsUsingDelegate(_ indexPaths: Set<IndexPath>) {
-        var indexPaths = indexPaths
-        if let shouldSelect = delegate?.collectionView(_:shouldSelectItemsAt:) {
-            indexPaths = shouldSelect(self, indexPaths)
-        }
-        guard !indexPaths.isEmpty else { return }
+        guard delegate?.collectionView?(self, shouldSelectItemsAt: indexPaths) ?? indexPaths == indexPaths else { return }
         selectItems(at: indexPaths, scrollPosition: [])
         delegate?.collectionView?(self, didSelectItemsAt: indexPaths)
     }
         
     internal func deselectItemsUsingDelegate(_ indexPaths: Set<IndexPath>) {
-        var indexPaths = indexPaths
-        if let shouldDeselect = delegate?.collectionView(_:shouldDeselectItemsAt:) {
-            indexPaths = shouldDeselect(self, indexPaths)
-        }
-        guard !indexPaths.isEmpty else { return }
+        guard delegate?.collectionView?(self, shouldDeselectItemsAt: indexPaths) ?? indexPaths == indexPaths else { return }
         deselectItems(at: indexPaths)
         delegate?.collectionView?(self, didDeselectItemsAt: indexPaths)
     }
 }
 
 extension NSCollectionView {
-    /// The handler that is called when the collection view is double clicked.
-    public var doubleClickHandler: ((_ indexPath: IndexPath?)->())? {
+    /**
+     The handler that is called when the collection view is double clicked.
+     
+     The handler provides the index path of the double clicked item.
+     */
+    public var doubleClickHandler: ((_ indexPath: IndexPath?) -> Void)? {
         get { getAssociatedValue("doubleClickHandler") }
         set {
             setAssociatedValue(newValue, key: "doubleClickHandler")
             doubleClickGesture?.removeFromView()
             doubleClickGesture = nil
-            if let newValue = newValue {
-                doubleClickGesture = .init { [weak self] gesture in
-                    guard let self = self else { return }
-                    newValue(self.indexPathForItem(at: gesture.location(in: self)))
-                }
-                addGestureRecognizer(doubleClickGesture!)
-            }
+            guard let handler = newValue else { return }
+            doubleClickGesture = .init { [weak self] gesture in
+                handler(self?.indexPathForItem(at: gesture.location(in: self)))
+            }.reattaches(true)
+            addGestureRecognizer(doubleClickGesture!)
         }
     }
     
-    var doubleClickGesture: DoubleClickGestureRecognizer? {
+    private var doubleClickGesture: DoubleClickGestureRecognizer? {
         get { getAssociatedValue("doubleClickGesture") }
         set { setAssociatedValue(newValue, key: "doubleClickGesture") }
     }
@@ -420,7 +454,6 @@ extension NSCollectionView {
         let candidateIndexPaths = (direction == .bottom || direction == .right) ?
             indexPaths(after: indexPath, amount: searchRadius) :
             indexPaths(before: indexPath, amount: searchRadius)
-        
         
         let candidates = candidateIndexPaths.compactMap {
             if let attr = layoutAttributesForItem(at: $0) {
@@ -465,7 +498,8 @@ extension NSCollectionView {
         var sectionItemsCount = numberOfItems(inSection: section)
         while result.count < amount {
             if let count = (section >= 0 ? sectionItemsCount : nil),
-               item >= 0 {
+               item >= 0
+            {
                 result.append(IndexPath(item: item, section: section))
                 item = item + step
             } else {
@@ -481,7 +515,7 @@ extension NSCollectionView {
     private func nextNonEmptySection(for section: Int, after: Bool) -> Int? {
         let numberOfSections = numberOfSections
         var section = after ? section + 1 : section - 1
-        while section >= 0 && section < numberOfSections {
+        while section >= 0, section < numberOfSections {
             if numberOfItems(inSection: section) > 0 {
                 return section
             }
@@ -490,6 +524,5 @@ extension NSCollectionView {
         return nil
     }
 }
-
 
 #endif
