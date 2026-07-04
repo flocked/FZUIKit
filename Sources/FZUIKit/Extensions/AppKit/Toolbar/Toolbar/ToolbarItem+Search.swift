@@ -7,6 +7,7 @@
 
 #if os(macOS)
 import AppKit
+import FZSwiftUtils
 
 @available(macOS 11.0, *)
 extension Toolbar {
@@ -16,7 +17,6 @@ extension Toolbar {
      The item automatically resizes to accommodate typing when the focus switches to the toolbar item. When the toolbar is low on space, the system may collapse the search item into a button representation, which then expands to a full search field when the user clicks on it.
      */
     open class Search: ToolbarItem {
-        
         private var widthConstraints: [NSLayoutConstraint] = []
         fileprivate lazy var searchItem = ValidateSearchToolbarItem(for: self)
         override var item: NSToolbarItem {
@@ -34,7 +34,9 @@ extension Toolbar {
         }
         
         /// The handler that is called when the user changes the text of the search field.
-        open var handler: ((_ stringValue: String, _ state: SearchState) -> Void)?
+        open var handler: ((_ stringValue: String, _ state: SearchState) -> Void)? {
+            didSet { searchItem.updateSearchFieldObservation() }
+        }
         
         /// Sets the handler that is called when the user changes the text of the search field.
         @discardableResult
@@ -170,17 +172,17 @@ extension Toolbar {
         }
         
         /// The method that is called when the user begins searching.
-        open func textDidBeginEditing() {
+        @objc open func textDidBeginEditing() {
             handler?(stringValue, .didStart)
         }
         
         /// The method that is called when the user has ended searching.
-        open func textDidEndEditing() {
+        @objc open func textDidEndEditing() {
             handler?(stringValue, .didEnd)
         }
         
         /// The method that is called when the search field has changed it's text.
-        open func textDidChange() {
+        @objc open func textDidChange() {
             handler?(stringValue, .didUpdate)
         }
         
@@ -237,31 +239,40 @@ extension Toolbar {
 }
 
 @available(macOS 11.0, *)
-fileprivate class ValidateSearchToolbarItem: NSSearchToolbarItem, NSSearchFieldDelegate{
+fileprivate class ValidateSearchToolbarItem: NSSearchToolbarItem {
     weak var item: Toolbar.Search?
-    var startingString: String?
     
-    func controlTextDidBeginEditing(_ obj: Notification) {
-        startingString = searchField.stringValue
-        item?.textDidBeginEditing()
-    }
-    
-    func controlTextDidChange(_ obj: Notification) {
-        item?.textDidChange()
-    }
-    
-    func controlTextDidEndEditing(_ obj: Notification) {
-        item?.textDidEndEditing()
-    }
+    private var isOverwrittingTextEditing = false
+    private var searchTokens: [NotificationToken] = []
     
     override var searchField: NSSearchField {
-        didSet { searchField.delegate = self }
+        didSet {
+            guard oldValue !== searchField else { return }
+            updateSearchFieldObservation()
+        }
     }
     
-    init(for item: Toolbar.Search) {
+    func updateSearchFieldObservation() {
+        searchTokens = []
+        guard isOverwrittingTextEditing || item?.handler != nil, let item = item else { return }
+        searchTokens +=  NotificationCenter.default.observe(NSSearchField.textDidChangeNotification, postedBy: searchField) { [weak self] _ in
+            self?.item?.textDidChange()
+        }
+        searchTokens +=  NotificationCenter.default.observe(NSSearchField.textDidBeginEditingNotification, postedBy: searchField) { [weak self] _ in
+            self?.item?.textDidBeginEditing()
+        }
+        searchTokens +=  NotificationCenter.default.observe(NSSearchField.textDidEndEditingNotification, postedBy: searchField) { [weak self] _ in
+            self?.item?.textDidEndEditing()
+        }
+    }
+    
+    init<V: Toolbar.Search>(for item: V) {
         super.init(itemIdentifier: item.identifier)
         self.item = item
-        searchField.delegate = self
+        
+        isOverwrittingTextEditing = V.overrides(#selector(Toolbar.Search.textDidChange)) || V.overrides(#selector(Toolbar.Search.textDidBeginEditing)) || V.overrides(#selector(Toolbar.Search.textDidEndEditing))
+        
+        updateSearchFieldObservation()
     }
     
     override func validate() {
