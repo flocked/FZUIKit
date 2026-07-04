@@ -139,8 +139,8 @@ open class SpacerView: NSUIView {
     }
 }
 
-private extension NSUIStackView {
-    func updateFlexibleSpacerConstraints(excluding excludedSpacer: SpacerView? = nil) {
+extension NSUIStackView {
+    fileprivate func updateFlexibleSpacerConstraints(excluding excludedSpacer: SpacerView? = nil) {
         flexibleSpacerConstraints.activate(false)
         flexibleSpacerConstraints.removeAll()
         let spacerViews = arrangedSubviews
@@ -156,7 +156,7 @@ private extension NSUIStackView {
         }.activate()
     }
     
-    var flexibleSpacerConstraints: [NSLayoutConstraint] {
+    fileprivate var flexibleSpacerConstraints: [NSLayoutConstraint] {
         get { getAssociatedValue("flexibleSpacerConstraints") ?? [] }
         set { setAssociatedValue(newValue, key: "flexibleSpacerConstraints") }
     }
@@ -172,20 +172,22 @@ private extension NSUIStackView {
             orientationHook = try hookAfter(set: keyPath, uniqueValues: true) { stackView, _, _ in
                 stackView.arrangedViews.compactMap { $0 as? SpacerView }.forEach { $0.update(updateFlexibleConstraints: false) }
                 stackView.updateFlexibleSpacerConstraints()
+                stackView.arrangedViews.forEach({ ($0 as? SeparatorView)?.stackOrientation = stackView.orientation })
             }
         } catch {
             Swift.print(error)
         }
     }
     
-    var orientationHook: Hook? {
+    fileprivate var orientationHook: Hook? {
         get { getAssociatedValue("orientationHook") }
         set { setAssociatedValue(newValue, key: "orientationHook") }
     }
     
     #if canImport(UIKit)
     var orientation: NSLayoutConstraint.Axis {
-        axis
+        get { axis }
+        set { axis = newValue }
     }
     #endif
 }

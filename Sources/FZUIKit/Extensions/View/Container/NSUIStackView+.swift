@@ -370,6 +370,32 @@ public extension UIStackView {
 #endif
 
 public extension NSUIStackView {
+    /**
+     Sets the stack view's orientation to horizontal and configures the vertical alignment of its arranged subviews.
+
+     - Parameter alignment: The vertical alignment of the arranged subviews.
+     - Returns: The stack view.
+     */
+    @discardableResult
+    func horizontalAlignment(_ alignment: HorizontalAlignment) -> Self {
+        orientation = .horizontal
+        self.alignment = alignment.alignment
+        return self
+    }
+
+    /**
+     Sets the stack view's orientation to vertical and configures the horizontal alignment of its arranged subviews.
+
+     - Parameter alignment: The horizontal alignment of the arranged subviews.
+     - Returns: The stack view.
+     */
+    @discardableResult
+    func verticalAlignment(_ alignment: VerticalAlignment) -> Self {
+        orientation = .vertical
+        self.alignment = alignment.alignment
+        return self
+    }
+    
     /// The vertical alignment of arranged subviews in a horizontal stack view.
     enum HorizontalAlignment {
         /// Aligns arranged subviews along their top edges.
