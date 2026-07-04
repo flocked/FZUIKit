@@ -110,13 +110,6 @@ extension NSUIStackView {
         return self
     }
 
-    /// Sets the views arranged by the stack view.
-    @discardableResult
-    @objc open func arrangedSubviews(@Builder views: () -> [NSUIView]) -> Self {
-        arrangedViews = views()
-        return self
-    }
-
     /// Removes the custom spacing for all arranged subviews.
     @objc open func removeCustomSpacings() {
         arrangedSubviews.forEach { removeCustomSpacing(after: $0) }
@@ -130,58 +123,6 @@ extension NSUIStackView {
         #else
         setCustomSpacing(UIStackView.spacingUseDefault, after: view)
         #endif
-    }
-
-    #if os(macOS)
-    /**
-     Creates and returns a stack view with the specified views.
-
-     - Parameter views: The views for the new stack view.
-     */
-    public convenience init(@Builder views: () -> [NSUIView]) {
-        self.init(views: views())
-    }
-    #else
-    /**
-     Returns a new stack view object that manages the provided views.
-
-     - Parameter arrangedSubviews: The views to be arranged by the stack view.
-     */
-    public convenience init(@Builder arrangedSubviews views: () -> [NSUIView]) {
-        self.init(arrangedSubviews: views())
-    }
-    #endif
-
-    /// A function builder type that produces an array of views.
-    @resultBuilder
-    public enum Builder {
-        public static func buildBlock(_ block: [NSUIView]...) -> [NSUIView] {
-            block.flatMap { $0 }
-        }
-
-        public static func buildOptional(_ item: [NSUIView]?) -> [NSUIView] {
-            item ?? []
-        }
-
-        public static func buildEither(first: [NSUIView]?) -> [NSUIView] {
-            first ?? []
-        }
-
-        public static func buildEither(second: [NSUIView]?) -> [NSUIView] {
-            second ?? []
-        }
-
-        public static func buildArray(_ components: [[NSUIView]]) -> [NSUIView] {
-            components.flatMap { $0 }
-        }
-
-        public static func buildExpression(_ expr: [NSUIView]?) -> [NSUIView] {
-            expr ?? []
-        }
-
-        public static func buildExpression(_ expr: NSUIView?) -> [NSUIView] {
-            expr.map { [$0] } ?? []
-        }
     }
 }
 
@@ -277,8 +218,8 @@ public extension NSStackView {
         - views: The views to be arranged by the stack view.
      - Returns: A configured horizontal stack view.
      */
-    static func horizontal(_ alignment: HorizontalAlignment = .center, distribution: Distribution = .gravityAreas, spacing: CGFloat = NSStackView.useDefaultSpacing, @Builder views: () -> [NSUIView]) -> Self {
-        horizontal(alignment, distribution: distribution, spacing: spacing, views: views())
+    static func horizontal(_ alignment: HorizontalAlignment = .center, distribution: Distribution = .gravityAreas, spacing: CGFloat = NSStackView.useDefaultSpacing, @Builder views: () -> [any StackViewItem]) -> Self {
+        Self(views: views).distribution(distribution).orientation(.horizontal).spacing(spacing).alignment(alignment.alignment)
     }
 
     /**
@@ -305,8 +246,8 @@ public extension NSStackView {
         - views: The views to be arranged by the stack view.
      - Returns: A configured vertical stack view.
      */
-    static func vertical(_ alignment: VerticalAlignment = .center, distribution: Distribution = .gravityAreas, spacing: CGFloat = NSStackView.useDefaultSpacing, @Builder views: () -> [NSUIView]) -> Self {
-        vertical(alignment, distribution: distribution, spacing: spacing, views: views())
+    static func vertical(_ alignment: VerticalAlignment = .center, distribution: Distribution = .gravityAreas, spacing: CGFloat = NSStackView.useDefaultSpacing, @Builder views: () -> [any StackViewItem]) -> Self {
+        Self(views: views).distribution(distribution).orientation(.vertical).spacing(spacing).alignment(alignment.alignment)
     }
 }
 #else
@@ -335,8 +276,8 @@ public extension UIStackView {
         - views: The views to be arranged by the stack view.
      - Returns: A configured horizontal stack view.
      */
-    static func horizontal(_ alignment: HorizontalAlignment = .center, distribution: Distribution = .fill, spacing: CGFloat = UIStackView.spacingUseDefault, @Builder views: () -> [NSUIView]) -> Self {
-        horizontal(alignment, distribution: distribution, spacing: spacing, views: views())
+    static func horizontal(_ alignment: HorizontalAlignment = .center, distribution: Distribution = .fill, spacing: CGFloat = UIStackView.spacingUseDefault, @Builder views: () -> [any StackViewItem]) -> Self {
+        Self(arrangedSubviews: views).distribution(distribution).axis(.horizontal).spacing(spacing).alignment(alignment.alignment)
     }
 
     /**
@@ -363,8 +304,8 @@ public extension UIStackView {
         - views: The views to be arranged by the stack view.
      - Returns: A configured vertical stack view.
      */
-    static func vertical(_ alignment: VerticalAlignment = .center, distribution: Distribution = .fill, spacing: CGFloat = UIStackView.spacingUseDefault, @Builder views: () -> [NSUIView]) -> Self {
-        vertical(alignment, distribution: distribution, spacing: spacing, views: views())
+    static func vertical(_ alignment: VerticalAlignment = .center, distribution: Distribution = .fill, spacing: CGFloat = UIStackView.spacingUseDefault, @Builder views: () -> [any StackViewItem]) -> Self {
+        Self(arrangedSubviews: views).distribution(distribution).axis(.vertical).spacing(spacing).alignment(alignment.alignment)
     }
 }
 #endif
@@ -464,6 +405,176 @@ public extension NSUIStackView {
             }
         }
         #endif
+    }
+}
+
+/// A view or spacing for a `NSStackView`/`UIStackView`.
+public protocol StackViewItem { }
+
+extension NSUIView: StackViewItem { }
+extension CGFloat: StackViewItem { }
+extension Double: StackViewItem { }
+extension Int: StackViewItem { }
+
+private protocol StackViewSpacing {
+    var stackViewSpacing: CGFloat { get }
+}
+
+extension CGFloat: StackViewSpacing {
+    var stackViewSpacing: CGFloat { self }
+}
+
+extension Double: StackViewSpacing {
+    var stackViewSpacing: CGFloat { CGFloat(self) }
+}
+
+extension Int: StackViewSpacing {
+    var stackViewSpacing: CGFloat { CGFloat(self) }
+}
+
+public extension NSObjectProtocol where Self: NSUIStackView {
+    #if os(macOS)
+    /**
+     Creates a stack view with the specified views and custom spacings.
+     
+     - Parameter views: The views and spacings for the new stack view.
+
+     Custom spacing values specify the spacing after the preceding arranged subview.
+     
+     Example usage:
+     
+     ```swift
+     UIStackView {
+        NSTextField(labelWithString: "Title")
+        12
+        NSImageView(image: image)
+        24
+        NSButton(title: "OK", target: nil, action: nil)
+     }
+     ```
+     */
+    init(@Builder views: () -> [any StackViewItem]) {
+        self.init(views: [])
+        addItems(views())
+    }
+    #else
+    /**
+     Creates a stack view with the specified views and custom spacings.
+     
+     - Parameter arrangedSubviews: The views and spacings for the new stack view.
+
+     Custom spacing values specify the spacing after the preceding arranged subview.
+     
+     Example usage:
+     
+     ```swift
+     UIStackView {
+        NSTextField(labelWithString: "Title")
+        12
+        NSImageView(image: image)
+        24
+        NSButton(title: "OK", target: nil, action: nil)
+     }
+     ```
+     */
+    init(@Builder arrangedSubviews: () -> [any StackViewItem]) {
+        self.init(arrangedSubviews: [])
+        addItems(arrangedSubviews())
+    }
+    #endif
+    
+    private func addItems(_ items:  [any StackViewItem]) {
+        var previousView: NSUIView?
+        for item in items {
+            if let view = item as? NSUIView {
+                addArrangedSubview(view)
+                previousView = view
+            } else if let previousView, let spacing = (item as? StackViewSpacing)?.stackViewSpacing {
+                setCustomSpacing(spacing, after: previousView)
+            }
+        }
+    }
+}
+
+public extension NSUIStackView {
+    /// Sets the views arranged by the stack view.
+    @discardableResult
+    func arrangedSubviews(@Builder views: () -> [any StackViewItem]) -> Self {
+        let resolved = views().resolvedItems()
+        arrangedViews = resolved.map(\.view)
+        for (view, spacing) in resolved {
+            #if os(macOS)
+            setCustomSpacing(spacing ?? NSUIStackView.useDefaultSpacing, after: view)
+            #else
+            setCustomSpacing(spacing ?? NSUIStackView.spacingUseDefault, after: view)
+            #endif
+        }
+        return self
+    }
+    
+    /// A function builder type that produces an array of views and spacings.
+    @resultBuilder
+    enum Builder {
+        public static func buildBlock(_ components: [any StackViewItem]...) -> [any StackViewItem] {
+            components.flatMap { $0 }
+        }
+
+        public static func buildOptional(_ component: [any StackViewItem]?) -> [any StackViewItem] {
+            component ?? []
+        }
+
+        public static func buildEither(first component: [any StackViewItem]) -> [any StackViewItem] {
+            component
+        }
+
+        public static func buildEither(second component: [any StackViewItem]) -> [any StackViewItem] {
+            component
+        }
+
+        public static func buildArray(_ components: [[any StackViewItem]]) -> [any StackViewItem] {
+            components.flatMap { $0 }
+        }
+
+        public static func buildExpression(_ expression: StackViewItem) -> [any StackViewItem] {
+            [expression]
+        }
+
+        public static func buildExpression(_ expression: StackViewItem?) -> [any StackViewItem] {
+            expression.map({ [$0] }) ?? []
+        }
+
+        public static func buildExpression(_ expression: [any StackViewItem]) -> [any StackViewItem] {
+            expression
+        }
+
+        public static func buildExpression(_ expression: [any StackViewItem]?) -> [any StackViewItem] {
+            expression ?? []
+        }
+    }
+}
+
+private extension [any StackViewItem] {
+    func resolvedItems() -> [(view: NSUIView, spacing: CGFloat?)] {
+        var result: [(view: NSUIView, spacing: CGFloat?)] = []
+        var pendingView: NSUIView?
+        var pendingSpacing: CGFloat?
+        for item in self {
+            if let view = item as? NSUIView {
+                if let pendingView {
+                    result += (pendingView, pendingSpacing)
+                }
+                pendingView = view
+                pendingSpacing = nil
+            } else if pendingView != nil, let spacing = item as? StackViewSpacing {
+                pendingSpacing = spacing.stackViewSpacing
+            }
+        }
+
+        if let pendingView {
+            result.append((pendingView, pendingSpacing))
+        }
+
+        return result
     }
 }
 #endif
