@@ -28,7 +28,7 @@ public extension CGColor {
      - Returns: A new color in the destination color space that matches (or closely approximates) the current color.
      */
     @_disfavoredOverload
-    func converted(to colorSpaceName: CGColorSpaceName, intent: CGColorRenderingIntent = .defaultIntent) -> CGColor? {
+    func converted(to colorSpaceName: CGColorSpace.Name, intent: CGColorRenderingIntent = .defaultIntent) -> CGColor? {
         guard let colorSpace = CGColorSpace(name: colorSpaceName) else { return nil }
         return converted(to: colorSpace, intent: intent, options: nil)
     }
@@ -90,7 +90,7 @@ public extension CGColor {
     
     /// Returns the color components for the color in the specified color space.
     @_disfavoredOverload
-    func components(for colorSpace: CGColorSpaceName) -> [CGFloat]? {
+    func components(for colorSpace: CGColorSpace.Name) -> [CGFloat]? {
         guard let colorSpace = colorSpace.colorSpace else { return nil }
         return components(for: colorSpace)
     }
@@ -126,7 +126,7 @@ public extension CFType where Self == CGColor {
      - Returns: A new color.
      */
     @_disfavoredOverload
-    init?(colorSpace: CGColorSpaceName, components: [CGFloat]) {
+    init?(colorSpace: CGColorSpace.Name, components: [CGFloat]) {
         guard let colorSpace = CGColorSpace(name: colorSpace) else { return nil }
         guard let color = Self(colorSpace: colorSpace, components: components) else { return nil }
         self = color

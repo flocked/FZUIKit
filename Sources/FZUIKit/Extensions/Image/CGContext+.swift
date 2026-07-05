@@ -298,7 +298,7 @@ public extension CFType where Self == CGContext {
         - space: The color space of the context's bitmap.
      */
     @_disfavoredOverload
-    init?(size: CGSize, scale: CGFloat = 1.0, bitmapInfo: CGBitmapInfo, space: CGColorSpaceName) {
+    init?(size: CGSize, scale: CGFloat = 1.0, bitmapInfo: CGBitmapInfo, space: CGColorSpace.Name) {
         guard let space = space.colorSpace else { return nil }
         self.init(size: size, scale: scale, bitmapInfo: bitmapInfo, space: space)
     }
@@ -330,7 +330,7 @@ public extension CFType where Self == CGContext {
         - space: The color space of the context's bitmap.
      */
     @_disfavoredOverload
-    init?(size: CGSize, scale: CGFloat = 1.0, includeAlpha: Bool = true, space: CGColorSpaceName) {
+    init?(size: CGSize, scale: CGFloat = 1.0, includeAlpha: Bool = true, space: CGColorSpace.Name) {
         guard let space = space.colorSpace else { return nil }
         self.init(size: size, scale: scale, includeAlpha: includeAlpha, space: space)
     }

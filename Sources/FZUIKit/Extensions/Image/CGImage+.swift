@@ -191,7 +191,7 @@ extension CFType where Self == CGImage {
         - hasAlpha: A Boolean value indicating whether the image has an alpha channel.
         - drawingHandler: A block that draws the contents of the image representation.
      */
-    public init(size: CGSize, colorSpace: CGColorSpaceName = .sRGB, hasAlpha: Bool = true, drawingHandler: ((CGContext) -> Void)) {
+    public init(size: CGSize, colorSpace: CGColorSpace.Name = .sRGB, hasAlpha: Bool = true, drawingHandler: ((CGContext) -> Void)) {
         self.init(size: size, colorSpace: colorSpace.colorSpace ?? .deviceRGB, hasAlpha: hasAlpha, drawingHandler: drawingHandler)
     }
     
@@ -220,7 +220,7 @@ extension CFType where Self == CGImage {
         - color: The background color of the image.
         - drawingHandler: A block that draws the contents of the image representation.
      */
-    public init(size: CGSize, colorSpace: CGColorSpaceName = .sRGB, color: CGColor, drawingHandler: ((CGContext) -> Void)) {
+    public init(size: CGSize, colorSpace: CGColorSpace.Name = .sRGB, color: CGColor, drawingHandler: ((CGContext) -> Void)) {
         self.init(size: size, colorSpace: colorSpace.colorSpace ?? .deviceRGB, color: color, drawingHandler: drawingHandler)
     }
     

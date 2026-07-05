@@ -116,7 +116,7 @@ extension CGColorSpace {
         return names.map({ $0 as CFString }).compactMap({ CGColorSpace(name: $0) })
     }
     
-    public static func == (lhs: CGColorSpace, rhs: CGColorSpaceName) -> Bool {
+    public static func == (lhs: CGColorSpace, rhs: CGColorSpace.Name) -> Bool {
         guard let name = lhs.name as? String else { return false }
         return name == rhs.rawValue
     }

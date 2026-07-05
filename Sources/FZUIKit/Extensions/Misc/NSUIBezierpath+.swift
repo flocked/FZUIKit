@@ -133,6 +133,70 @@ public extension NSUIBezierPath {
 #if os(macOS)
 public extension NSBezierPath {
     /**
+     Strokes the path using the specified color.
+
+     This method temporarily sets the current stroke color, strokes the path, and restores the previous graphics state.
+
+     - Parameter color: The color used to stroke the path.
+     */
+    func stroke(_ color: NSColor) {
+        NSGraphicsContext.saveGraphicsState()
+        defer { NSGraphicsContext.restoreGraphicsState() }
+        color.setStroke()
+        stroke()
+    }
+
+    /**
+     Fills the path using the specified color.
+
+     This method temporarily sets the current fill color, fills the path, and restores the previous graphics state.
+
+     - Parameter color: The color used to fill the path.
+     */
+    func fill(_ color: NSColor) {
+        NSGraphicsContext.saveGraphicsState()
+        defer { NSGraphicsContext.restoreGraphicsState() }
+        color.setFill()
+        fill()
+    }
+}
+#else
+public extension UIBezierPath {
+    /**
+     Strokes the path using the specified color.
+
+     This method temporarily sets the current stroke color, strokes the path, and restores the previous graphics state.
+
+     - Parameter color: The color used to stroke the path.
+     */
+    func stroke(_ color: UIColor) {
+        guard let context = UIGraphicsGetCurrentContext() else { return }
+        context.saveGState()
+        defer { context.restoreGState() }
+        color.setStroke()
+        stroke()
+    }
+
+    /**
+     Fills the path using the specified color.
+
+     This method temporarily sets the current fill color, fills the path, and restores the previous graphics state.
+
+     - Parameter color: The color used to fill the path.
+     */
+    func fill(_ color: UIColor) {
+        guard let context = UIGraphicsGetCurrentContext() else { return }
+        context.saveGState()
+        defer { context.restoreGState() }
+        color.setStroke()
+        stroke()
+    }
+}
+#endif
+
+#if os(macOS)
+public extension NSBezierPath {
+    /**
      Creates and returns a new Bézier path object with a rounded rectangular path.
 
      This method creates a closed subpath, proceeding in a clockwise direction (relative to the default coordinate system) as it creates the necessary line and curve segments.

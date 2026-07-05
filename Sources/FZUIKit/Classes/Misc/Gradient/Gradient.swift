@@ -411,7 +411,7 @@ public extension Gradient {
      
      - Parameter colorSpace: The name of the color space for the gradient.
      */
-    func cgGradient(colorSpace: CGColorSpaceName) -> CGGradient? {
+    func cgGradient(colorSpace: CGColorSpace.Name) -> CGGradient? {
         cgGradient(colorSpace: CGColorSpace(name: colorSpace))
     }
 }

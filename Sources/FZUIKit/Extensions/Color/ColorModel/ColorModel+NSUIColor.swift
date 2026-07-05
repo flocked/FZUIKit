@@ -31,7 +31,7 @@ extension CGColor: PlatformColor {
         return .init(components)
     }
     
-    fileprivate func components(for colorspaces: [CGColorSpaceName]) -> [CGFloat]? {
+    fileprivate func components(for colorspaces: [CGColorSpace.Name]) -> [CGFloat]? {
         colorspaces.lazy.compactMap({ self.components(for: $0) }).first
     }
 }

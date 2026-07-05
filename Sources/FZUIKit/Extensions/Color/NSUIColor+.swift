@@ -75,7 +75,7 @@ public extension NSUIColor {
      - Returns: The new color. This method converts the receiver's color to an equivalent one in the new color space. Although the new color might have different component values, it looks the same as the original. Returns `nil` if conversion is not possible.
      */
     @_disfavoredOverload
-    func usingColorSpace(_ colorSpaceName: CGColorSpaceName) -> NSUIColor? {
+    func usingColorSpace(_ colorSpaceName: CGColorSpace.Name) -> NSUIColor? {
         guard let space = CGColorSpace(name: colorSpaceName) else { return nil }
         return usingColorSpace(space)
     }
@@ -171,7 +171,7 @@ public extension NSUIColor {
      - Returns: A new color.
      */
     @_disfavoredOverload
-    convenience init?(colorSpace: CGColorSpaceName, components: [CGFloat]) {
+    convenience init?(colorSpace: CGColorSpace.Name, components: [CGFloat]) {
         guard let cgColor = CGColor(colorSpace: colorSpace, components: components.count == colorSpace.numberOfComponents ? components + [1.0] : components) else { return nil }
         self.init(cgColor: cgColor)
     }
@@ -195,7 +195,7 @@ public extension NSUIColor {
     
     /// Returns the color components for the color in the specified color space.
     @_disfavoredOverload
-    func components(for colorSpace: CGColorSpaceName) -> [CGFloat]? {
+    func components(for colorSpace: CGColorSpace.Name) -> [CGFloat]? {
         cgColor.components(for: colorSpace)
     }
     

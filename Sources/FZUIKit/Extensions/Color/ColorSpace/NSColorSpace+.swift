@@ -10,7 +10,7 @@ import AppKit
 
 extension NSColorSpace {
     /// Initializes and returns a color space object initialized from a `CGColorSpace` with the specified name.
-    public convenience init?(name: CGColorSpaceName) {
+    public convenience init?(name: CGColorSpace.Name) {
         guard let cgColorSpace = CGColorSpace(name: name) else { return nil }
         self.init(cgColorSpace: cgColorSpace)
     }

@@ -147,7 +147,6 @@ public class FinderTagsView: NSView {
     private func drawTagCircle(in context: CGContext, rect: CGRect, color: NSColor) {
         context.setFillColor(color.withAlphaComponent(0.82).cgColor)
         context.fillEllipse(in: rect)
-        
         context.setStrokeColor(color.cgColor)
         context.setLineWidth(1.0)
         context.strokeEllipse(in: rect.insetBy(dx: 0.5, dy: 0.5))
