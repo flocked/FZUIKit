@@ -13,7 +13,6 @@ import UIKit
 #endif
 import Vision
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension NSUIImage {
     /**
      The contour path of the image.
@@ -29,7 +28,6 @@ extension NSUIImage {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)
 extension CGImage {
     /**
      The contour path of the image.

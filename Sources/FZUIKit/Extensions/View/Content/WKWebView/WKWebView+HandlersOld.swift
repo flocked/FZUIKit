@@ -396,7 +396,6 @@ extension WKWebView.Delegate: WKDownloadDelegate {
         downloadDelegate?.downloadDidFinish?(download)
     }
         
-    @available(macOS 11.3, iOS 18.2, *)
     func download(_ download: WKDownload, didReceiveFinalURL url: URL) {
         webview.downloadHanders.didReceiveFinalURL?(download, url)
         downloadDelegate?.download?(download, didReceiveFinalURL: url)
@@ -465,7 +464,6 @@ fileprivate extension HTTPCookie {
     }
 }
 
-@available(macOS 11.3, iOS 14.5, *)
 extension WKDownload {
     /// The amount of retries when downloading via ``FZWebView`` fails.
     public var retryAmount: Int {

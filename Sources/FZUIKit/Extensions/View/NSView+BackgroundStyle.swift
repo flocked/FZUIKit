@@ -53,7 +53,6 @@ extension NSView {
     }
 }
 
-@available(macOS 12.0, *)
 fileprivate extension NSImageView {
     func updateSymbolConfiguration() {
         configurationObservation = nil

@@ -9,7 +9,6 @@
 import AppKit
 import FZSwiftUtils
 
-@available(macOS 11.0, *)
 extension Toolbar {
     /**
      A toolbar item that contains a search field optimized for performing text-based searches.
@@ -238,7 +237,6 @@ extension Toolbar {
     }
 }
 
-@available(macOS 11.0, *)
 fileprivate class ValidateSearchToolbarItem: NSSearchToolbarItem {
     weak var item: Toolbar.Search?
     

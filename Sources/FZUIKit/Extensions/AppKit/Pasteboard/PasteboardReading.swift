@@ -42,7 +42,7 @@ extension URL: PasteboardReading {
     public typealias PasteboardReadingType = NSURL
     public var pasteboardReading: NSPasteboardReading { self as NSURL }
 }
-@available(macOS 12, *)
+
 extension AttributedString: PasteboardReading {
     public typealias PasteboardReadingType = NSAttributedString
     public var pasteboardReading: NSPasteboardReading { NSAttributedString(self) }

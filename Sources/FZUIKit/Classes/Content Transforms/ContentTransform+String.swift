@@ -37,7 +37,6 @@ public struct StringTransformer: ContentTransform {
     public static let uppercasedFirst = Self("uppercasedFirst") { $0.uppercasedFirst() }
 }
 
-@available(macOS 12, iOS 15, tvOS 15, watchOS 8, *)
 /// A transformer that generates a modified output attributed string from an input attributed string.
 public struct AttributedStringTransformer: ContentTransform {
     /// The block that transform a text.

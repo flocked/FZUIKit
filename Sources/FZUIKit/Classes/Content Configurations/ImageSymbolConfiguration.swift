@@ -609,7 +609,6 @@ public extension View {
 }
 
 #if os(macOS) || os(iOS) || os(tvOS)
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension NSUIImageView {
     /// Configurates the image view with the specified symbol configuration.
     func configurate(using configuration: ImageSymbolConfiguration) {

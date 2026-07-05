@@ -27,7 +27,6 @@ extension NSTextSuggestionsDelegate {
     }
 }
 
-@available(macOS 11.0, *)
 extension NSTextField {
     public weak var suggestionsTableView: NSTableView? {
         get { getAssociatedValue("suggestionsTableView") }
@@ -92,7 +91,6 @@ extension NSTextField {
 }
 
 
-@available(macOS 11.0, *)
 class TextSuggestionController: NSObject, NSTableViewDelegate, NSTableViewDataSource {
     
     let tableView = NSTableView() { NSTableColumn("suggestion") }

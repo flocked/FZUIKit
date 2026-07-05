@@ -28,7 +28,6 @@ public extension NSUIFont {
 }
 
 /*
-@available(macOS 11.0, iOS 14.0, tvOS 12.2, watchOS 7.0, *)
 public extension NSUIFont.TextStyle {
     /// A SwiftUI representation of the text style.
     var swiftUI: Font.TextStyle {
@@ -52,7 +51,6 @@ public extension NSUIFont.TextStyle {
     }
 }
 
-@available(macOS 11.0, iOS 13.0, watchOS 7.0, *)
 public extension NSUIFontDescriptor.SystemDesign {
     /// A SwiftUI representation of the system design.
     var swiftUI: Font.Design {
@@ -65,7 +63,6 @@ public extension NSUIFontDescriptor.SystemDesign {
     }
 }
 
-@available(macOS 11.0, iOS 13.0, *)
 public extension NSUIImage.SymbolScale {
     /// A SwiftUI representation of the symbol scale.
     var swiftUI: Image.Scale {

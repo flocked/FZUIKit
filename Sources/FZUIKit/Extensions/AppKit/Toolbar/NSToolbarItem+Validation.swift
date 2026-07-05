@@ -40,7 +40,6 @@ open class ValidatableToolbarItem: NSToolbarItem {
 }
 
 /// A searchfield toolbar item that validates.
-@available(OSX 11.0, *)
 open class ValidatableSearchToolbarItem: NSSearchToolbarItem {
 
     open override func validate() {

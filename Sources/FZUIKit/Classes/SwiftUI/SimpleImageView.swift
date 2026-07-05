@@ -10,7 +10,6 @@ import SwiftUI
 #if os(macOS)
 import AppKit
 
-@available(macOS 12.0, *)
 public struct SimpleImageView: NSViewRepresentable {
 
     var image: NSImage?

@@ -44,9 +44,7 @@ public typealias NSUIControl = NSControl
 public typealias NSUIVisualEffectView = NSVisualEffectView
 public typealias NSUISymbolWeight = NSFont.Weight
 public typealias NSUICollectionViewFlowLayout = NSCollectionViewFlowLayout
-@available(macOS 10.15.1, *)
 public typealias NSUICollectionViewDiffableDataSource = NSCollectionViewDiffableDataSource
-@available(macOS 11.0, *)
 public typealias NSUITableViewDiffableDataSource = NSTableViewDiffableDataSource
 public typealias NSUICollectionViewUpdateItem = NSCollectionViewUpdateItem
 public typealias NSUICollectionViewDelegateFlowLayout = NSCollectionViewDelegateFlowLayout

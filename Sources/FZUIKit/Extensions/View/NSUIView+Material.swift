@@ -15,7 +15,6 @@ import UIKit
 import FZSwiftUtils
 import SwiftUI
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, *)
 extension NSUIView {
     /// Sets the material of the view background.
     @discardableResult
@@ -49,7 +48,6 @@ extension NSUIView {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, *)
 fileprivate class MaterialView: NSUIView {
     var hostingController: NSUIHostingController<MaterialView>!
     

@@ -20,7 +20,6 @@ import SwiftUI
  
  `NSTextField`, `NSTextView`, `UILabel` and `UITextField` can be configurated by applying the configuration to the receiver's `textConfiguration`.
  */
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
 public struct TextConfiguration {
     /// The font of the text.
     public var font: NSUIFont = .body
@@ -218,7 +217,6 @@ public struct TextConfiguration {
 }
 
 /// The Objective-C class for ``BorderConfiguration``.
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
 public class __TextConfiguration: NSObject, NSCopying {
     let configuration: TextConfiguration
     
@@ -240,7 +238,6 @@ public class __TextConfiguration: NSObject, NSCopying {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
 extension TextConfiguration: ReferenceConvertible {
     /// The Objective-C type for the text configuration.
     public typealias ReferenceType = __TextConfiguration
@@ -375,7 +372,6 @@ public extension Text {
 }
 
 #if os(macOS)
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
 public extension NSTextField {
     /// The text configuration of the text field.
     var textConfiguration: TextConfiguration {
@@ -417,7 +413,6 @@ public extension NSTextField {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
 public extension NSTextView {
     /// The text configuration of the text view.
     var textConfiguration: TextConfiguration {
@@ -452,7 +447,6 @@ public extension NSTextView {
 }
 
 #elseif canImport(UIKit)
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
 public extension UILabel {
     /// The text configuration of the label.
     var textConfiguration: TextConfiguration {
@@ -492,7 +486,6 @@ public extension UILabel {
     }
 }
 
-@available(macOS 11.0, iOS 14.0, tvOS 14.0, watchOS 6.0, *)
 public extension UITextField {
     /// The text configuration of the text field.
     var textConfiguration: TextConfiguration {

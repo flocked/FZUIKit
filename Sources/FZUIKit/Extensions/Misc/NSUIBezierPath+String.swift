@@ -45,7 +45,6 @@ public extension NSAttributedString {
     }
 }
 
-@available(macOS 12, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension AttributedString {
     /// Creates a bezier path for the attributed string.
     func bezierPath() -> NSUIBezierPath {

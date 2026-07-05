@@ -37,7 +37,6 @@ extension URL: PasteboardWriting {
     public var pasteboardWriting: NSPasteboardWriting { self as NSURL }
 }
 
-@available(macOS 12, *)
 extension AttributedString: PasteboardWriting {
     public typealias PasteboardWritingType = NSAttributedString
     public var pasteboardWriting: NSPasteboardWriting { NSAttributedString(self) }

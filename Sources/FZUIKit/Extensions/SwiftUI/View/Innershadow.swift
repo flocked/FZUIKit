@@ -8,7 +8,6 @@
 import Foundation
 import SwiftUI
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 /// A view that displays an inner shadow.
 public struct InnerShadow<S: Shape>: View {
     let shape: S
@@ -68,7 +67,6 @@ public struct InnerShadow<S: Shape>: View {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension Shape {
     /**
      Returns a view that displays an inner shadow for the shape.

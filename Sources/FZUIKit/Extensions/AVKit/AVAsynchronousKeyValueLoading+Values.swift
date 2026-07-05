@@ -8,7 +8,6 @@
 import Foundation
 import AVFoundation
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension AVAsynchronousKeyValueLoading where Self: AVAsset {
     /// The values of the asset (loaded synchronously).
     var values: AVKeyValues<Self> {
@@ -16,7 +15,6 @@ public extension AVAsynchronousKeyValueLoading where Self: AVAsset {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension AVAsynchronousKeyValueLoading where Self: AVMetadataItem {
     /// The values of the metadata item (loaded synchronously).
     var values: AVKeyValues<Self> {
@@ -24,7 +22,6 @@ public extension AVAsynchronousKeyValueLoading where Self: AVMetadataItem {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 /// The values of an AVAsset or AVMetadataItem (loaded synchronously).
 public class AVKeyValues<T: AVAsynchronousKeyValueLoading> {
     private weak var object: T?
@@ -33,7 +30,6 @@ public class AVKeyValues<T: AVAsynchronousKeyValueLoading> {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension AVKeyValues where T: AVAsset {
     
     // MARK: - Loading Duration and Timing
@@ -202,7 +198,6 @@ public extension AVKeyValues where T: AVAsset {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension AVKeyValues where T: AVURLAsset {
     
     // MARK: - Loading Variants
@@ -213,7 +208,6 @@ public extension AVKeyValues where T: AVURLAsset {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension AVKeyValues where T: AVMetadataItem {
     
     // MARK: - Loading Values

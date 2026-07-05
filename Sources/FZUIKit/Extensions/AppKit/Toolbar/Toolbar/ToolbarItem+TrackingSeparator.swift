@@ -9,7 +9,6 @@
 import AppKit
 import SwiftUI
 
-@available(macOS 11.0, *)
 extension Toolbar {
     /**
      A toolbar separator that aligns with the vertical split view in the same window.
@@ -129,7 +128,6 @@ extension Toolbar {
     }
 }
 
-@available(macOS 11.0, *)
 fileprivate class ValidationTrackingSeparatorToolbarItem: NSTrackingSeparatorToolbarItem {
     weak var item: Toolbar.TrackingSeparator?
     

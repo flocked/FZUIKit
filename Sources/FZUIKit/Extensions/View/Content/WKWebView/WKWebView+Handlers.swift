@@ -10,7 +10,6 @@
 import FZSwiftUtils
 import WebKit
 
-@available(macOS 11.3, iOS 14.5, *)
 extension WKWebView {
     /// The handlers of a web view.
     public struct Handlers {
@@ -399,7 +398,6 @@ extension WKWebView {
     }
 }
 
-@available(macOS 11.3, iOS 14.5, *)
 extension WKDownload {
     /// The amount of retries when the download fails.
     public var retryAmount: Int {

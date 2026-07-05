@@ -110,7 +110,6 @@ open class ImageLayer: CALayer {
     }
 
     /// The symbol configuration to use when rendering the image.
-    @available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 6.0, *)
     open var symbolConfiguration: NSUIImage.SymbolConfiguration? {
         get { _symbolConfiguration as? NSUIImage.SymbolConfiguration }
         set {
@@ -356,7 +355,6 @@ open class ImageLayer: CALayer {
         self.image = image
     }
 
-    @available(macOS 11.0, iOS 13.0, tvOS 13.0,  *)
     public init(symbolImage name: String) {
         super.init()
         #if os(macOS)

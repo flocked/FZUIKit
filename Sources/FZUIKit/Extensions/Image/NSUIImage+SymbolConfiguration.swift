@@ -210,9 +210,7 @@ extension NSUIImage.SymbolConfiguration {
 }
 
 /*
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 extension NSUIImage.SymbolConfiguration {
- @available(macOS 12.0, *)
  static func color(_ color: ColorConfiguration) -> NSUIImage.SymbolConfiguration {
      color.symbolConfiguration
  }
@@ -244,7 +242,6 @@ extension NSUIImage.SymbolConfiguration {
             self.tertiary = tertiary
         }
         
-        @available(macOS 12.0, iOS 15.0, *)
         var symbolConfiguration: NSUIImage.SymbolConfiguration {
             switch mode {
             case .monochrome:
@@ -547,7 +544,6 @@ public extension UIImage {
 #endif
 
 #if os(macOS)
-@available(macOS 11.0, *)
 public extension NSImage.SymbolScale {
     /// The default scale variant that matches the system usage.
     static let `default` = NSImage.SymbolScale(rawValue: -1)!
@@ -559,7 +555,6 @@ public extension NSFont.Weight {
 }
 #endif
 
-@available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension NSUIImage.SymbolScale {
     /// A SwiftUI representation of the symbol scale.
     var swiftUI: Image.Scale {

@@ -10,7 +10,6 @@ import AppKit
 import FZSwiftUtils
 import SwiftUI
 
-@available(macOS 12.0, *)
 public extension NSContentUnavailableConfiguration {
     /// Properties to configure buttons for a content-unavailable view.
     struct ButtonConfiguration: Hashable {

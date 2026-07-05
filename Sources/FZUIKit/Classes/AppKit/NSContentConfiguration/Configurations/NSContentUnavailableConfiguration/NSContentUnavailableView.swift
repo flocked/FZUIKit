@@ -13,7 +13,6 @@ import SwiftUI
  
  Use a content-unavailable view to indicate that your app can’t display content. For example, content may not be available if a search returns no results or your app is loading data over the network.
  */
-@available(macOS 12.0, *)
 public class NSContentUnavailableView: NSView, NSContentView {
     /// The content-unavailable configuration.
     public var configuration: NSContentConfiguration {
@@ -235,7 +234,6 @@ public class NSContentUnavailableView: NSView, NSContentView {
     }
 }
 
-@available(macOS 11.0, *)
 extension NSControl.ControlSize {
     var swiftUI: ControlSize {
         switch self {
@@ -253,7 +251,6 @@ extension NSControl.ControlSize {
     }
 }
 
-@available(macOS 12.0, *)
 fileprivate extension View {
     @ViewBuilder
     func progressStyle(_ style: NSContentUnavailableConfiguration.LoadingIndicator.Style) -> some View {

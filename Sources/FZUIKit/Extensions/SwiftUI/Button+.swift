@@ -8,7 +8,6 @@
 import SwiftUI
 
 /// A button style that applies standard border artwork based on the button’s context with a clear background.
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct RoundedBorderedButtonStyle: ButtonStyle {
     
     /// Creates a rounded bordered button style.
@@ -24,7 +23,6 @@ public struct RoundedBorderedButtonStyle: ButtonStyle {
     }
 }
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
 public extension ButtonStyle where Self == RoundedBorderedButtonStyle {
     /// A button style that applies standard border artwork based on the button’s context with a clear background.
     static var roundedBordered: Self {

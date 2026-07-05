@@ -982,7 +982,6 @@ public extension NSButton {
     */
 }
 
-@available(macOS 12.0, *)
 extension NSButton {
     /**
      A Boolean value indicating whether the button highlights if the mouse is hovering the button.

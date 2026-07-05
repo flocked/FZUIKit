@@ -12,7 +12,6 @@ import AVKit
 
 /// A view for trimming content (like `AVPlayerItem`).
 @IBDesignable
-@available(macOS 12.0, *)
 open class TrimView: NSControl {
     
     private let trimBorderView = NSImageView(frame: .zero).imageScaling(.scaleAxesIndependently)
