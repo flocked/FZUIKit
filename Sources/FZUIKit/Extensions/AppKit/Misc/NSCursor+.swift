@@ -155,16 +155,16 @@ extension NSCursor {
      */
     public convenience init(animated image: NSImage, maximumSize: CGSize = .zero, frameDuration: TimeInterval? = nil, hotSpot: CGPoint = .zero) {
         if image.isAnimated, let imageFrames = try? image.frames?.collect() {
-            self.init(animated: imageFrames.compactMap({
+            self.init(animated: imageFrames.map({
+                var image = $0.image.nsImage
                 if maximumSize.width > 0, maximumSize.height > 0 {
-                    return NSImageFrame(image: $0.image.nsImage.resized(toFit: maximumSize), duration: $0.duration ?? 0.12)
+                    image = image.resized(toFit: maximumSize)
                 } else if maximumSize.width > 0 {
-                    return NSImageFrame(image: $0.image.nsImage.resized(toWidth: maximumSize.width), duration: $0.duration ?? 0.12)
+                    image = image.resized(toWidth: maximumSize.width)
                 } else if maximumSize.height > 0 {
-                    return NSImageFrame(image: $0.image.nsImage.resized(toHeight: maximumSize.height), duration: $0.duration ?? 0.12)
-                } else {
-                    return NSImageFrame(image: $0.image.nsImage, duration: $0.duration ?? 0.12)
+                    image = image.resized(toHeight: maximumSize.height)
                 }
+                return NSImageFrame(image: image, duration: $0.duration ?? 0.12)
             }), hotSpot: hotSpot)
         } else {
             self.init(image: image, hotSpot: hotSpot)
