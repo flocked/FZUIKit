@@ -157,13 +157,13 @@ extension NSCursor {
         if image.isAnimated, let imageFrames = try? image.frames?.collect() {
             self.init(animated: imageFrames.compactMap({
                 if maximumSize.width > 0, maximumSize.height > 0 {
-                    return ImageFrame($0.image.nsImage.resized(toFit: maximumSize), $0.duration ?? 0.12)
+                    return NSImageFrame(image: $0.image.nsImage.resized(toFit: maximumSize), duration: $0.duration ?? 0.12)
                 } else if maximumSize.width > 0 {
-                    return ImageFrame($0.image.nsImage.resized(toWidth: maximumSize.width), $0.duration ?? 0.12)
+                    return NSImageFrame(image: $0.image.nsImage.resized(toWidth: maximumSize.width), duration: $0.duration ?? 0.12)
                 } else if maximumSize.height > 0 {
-                    return ImageFrame($0.image.nsImage.resized(toHeight: maximumSize.height), $0.duration ?? 0.12)
+                    return NSImageFrame(image: $0.image.nsImage.resized(toHeight: maximumSize.height), duration: $0.duration ?? 0.12)
                 } else {
-                    return ImageFrame($0.image.nsImage, $0.duration ?? 0.12)
+                    return NSImageFrame(image: $0.image.nsImage, duration: $0.duration ?? 0.12)
                 }
             }), hotSpot: hotSpot)
         } else {
@@ -189,10 +189,10 @@ extension NSCursor {
         } else if maximumSize.height > 0 {
             images = images.compactMap({$0.resized(toHeight: maximumSize.height)})
         }
-        self.init(animated: images.compactMap({ImageFrame($0, frameDuration)}), hotSpot: hotSpot)
+        self.init(animated: images.compactMap({NSImageFrame(image: $0, duration: frameDuration)}), hotSpot: hotSpot)
     }
     
-    convenience init(animated frames: [ImageFrame], hotSpot: CGPoint = .zero) {
+    convenience init(animated frames: [NSImageFrame], hotSpot: CGPoint = .zero) {
         self.init(image: frames.first?.image ?? NSCursor.current.image, hotSpot: !frames.isEmpty ? hotSpot : NSCursor.current.hotSpot)
         guard frames.count > 1 else { return }
         do {
@@ -212,7 +212,7 @@ extension NSCursor {
     private class NSCursorAnimator {
         static let shared = NSCursorAnimator()
         
-        var frames: [ImageFrame] = [] {
+        var frames: [NSImageFrame] = [] {
             willSet {  stop() } }
         var index: Int = 0 {
             didSet {

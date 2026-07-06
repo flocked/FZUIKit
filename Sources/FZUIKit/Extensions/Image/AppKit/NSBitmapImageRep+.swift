@@ -108,14 +108,14 @@ public extension NSBitmapImageRep {
     }
     
     /// Returns the image frame at the specified index.
-    func frame(at index: Int) -> ImageFrame? {
+    func frame(at index: Int) -> NSImageFrame? {
         currentFrame = index
         guard let image = cgImage?.nsUIImage else { return nil }
-        return ImageFrame(image, currentFrameDuration)
+        return NSImageFrame(image: image, duration: currentFrameDuration)
     }
     
     /// Returns the frame at the specified index.
-    subscript(index: Int) -> ImageFrame? {
+    subscript(index: Int) -> NSImageFrame? {
         frame(at: index)
     }
     

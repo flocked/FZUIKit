@@ -12,19 +12,13 @@ import ColorSync
 
 extension CGColorSpace {
     /// Creates a device-dependent RGB color space.
-    public static var deviceRGB: CGColorSpace {
-        CGColorSpaceCreateDeviceRGB()
-    }
+    public static let deviceRGB = CGColorSpaceCreateDeviceRGB()
     
     /// Creates a device-dependent CMYK color space.
-    public static var deviceCMYK: CGColorSpace {
-        CGColorSpaceCreateDeviceCMYK()
-    }
+    public static let deviceCMYK = CGColorSpaceCreateDeviceCMYK()
     
     /// Creates a device-dependent grayscale color space.
-    public static var deviceGray: CGColorSpace {
-        CGColorSpaceCreateDeviceGray()
-    }
+    public static let deviceGray = CGColorSpaceCreateDeviceGray()
     
     /// A Boolean value indicating whether the color space uses an extended range [-Inf, +Inf].
     public var usesExtendedRange: Bool {
@@ -62,7 +56,7 @@ extension CGColorSpace {
     /// Returns a non-linearized version of the color space.
     public var nonLinear: CGColorSpace? {
         guard let name = name as? String, name.contains("Linear") else { return nil }
-        return CGColorSpace(name: name.replacingOccurrences(of: "Linear", with: "") as CFString)
+        return CGColorSpace(name: name.removingOccurrences(of: "Linear") as CFString)
     }
 
     /// Returns a linearized version of the color space with an extended range  (`[-Inf, +Inf]`).
@@ -93,27 +87,6 @@ extension CGColorSpace {
     @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, *)
     public var base: CGColorSpace {
         CGColorSpaceCopyBaseColorSpace(self)
-    }
-
-    /// Returns the available system color spaces for the specified model
-    public func availableColorSpaces(with model: CGColorSpaceModel) -> [CGColorSpace] {
-        var names: [String] = []
-        switch model {
-        case .monochrome:
-            names = ["kCGColorSpaceExtendedGray", "kCGColorSpaceExtendedLinearGray", "kCGColorSpaceGenericGrayGamma2_2", "kCGColorSpaceLinearGray", "kCGColorSpaceDeviceGray"]
-        case .rgb:
-            names = ["kCGColorSpaceACESCGLinear", "kCGColorSpaceAdobeRGB1998", "kCGColorSpaceCoreMedia709", "kCGColorSpaceDCIP3", "kCGColorSpaceDisplayP3", "kCGColorSpaceDisplayP3_HLG", "kCGColorSpaceDisplayP3_PQ", "kCGColorSpaceDisplayP3_PQ", "kCGColorSpaceExtendedDisplayP3", "kCGColorSpaceExtendedITUR_2020", "kCGColorSpaceExtendedLinearDisplayP3", "kCGColorSpaceExtendedLinearITUR_2020", "kCGColorSpaceExtendedLinearSRGB", "kCGColorSpaceExtendedSRGB", "kCGColorSpaceGenericRGBLinear", "kCGColorSpaceITUR_2020", "kCGColorSpaceITUR_2020_sRGBGamma", "kCGColorSpaceITUR_2100_HLG", "kCGColorSpaceITUR_2100_HLG", "kCGColorSpaceITUR_2100_PQ", "kCGColorSpaceITUR_2100_PQ", "kCGColorSpaceITUR_2100_PQ", "kCGColorSpaceITUR_709", "kCGColorSpaceITUR_709_HLG", "kCGColorSpaceITUR_709_PQ", "kCGColorSpaceLinearDisplayP3", "kCGColorSpaceLinearITUR_2020", "kCGColorSpaceLinearSRGB", "kCGColorSpaceROMMRGB", "kCGColorSpaceSRGB", "kCGColorSpaceDeviceRGB"]
-        case .cmyk:
-            names = ["kCGColorSpaceGenericCMYK", "kCGColorSpaceDeviceCMYK"]
-        case .lab:
-            names = ["kCGColorSpaceGenericLab"]
-        case .XYZ:
-            names = ["kCGColorSpaceGenericXYZ"]
-        case .pattern:
-            names = ["kCGColorSpaceColoredPattern"]
-        default: break
-        }
-        return names.map({ $0 as CFString }).compactMap({ CGColorSpace(name: $0) })
     }
     
     public static func == (lhs: CGColorSpace, rhs: CGColorSpace.Name) -> Bool {

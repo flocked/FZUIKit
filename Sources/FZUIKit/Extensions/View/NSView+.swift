@@ -16,6 +16,13 @@ extension NSView {
         NSApp.currentEvent?.location(in: self)
     }
     
+    /// Sets the Boolean value indicating whether the view’s autoresizing mask is translated into constraints for the constraint-based layout system.
+    @discardableResult
+    @objc open func translatesAutoresizingMaskIntoConstraints(_ translates: Bool) -> Self {
+        translatesAutoresizingMaskIntoConstraints = translates
+        return self
+    }
+    
     /**
      The background color of the view.
      
@@ -356,9 +363,6 @@ extension NSView {
         set {
             let clipsToBounds = clipsToBounds
             optionalLayer?.cornerRadius = newValue
-            if newValue != 0.0 {
-                // cornerShape = .normal
-            }
             self.clipsToBounds = clipsToBounds
             layer?.masksToBounds = clipsToBounds
         }
@@ -413,14 +417,14 @@ extension NSView {
     
     /**
      The outer shadow of the view.
+     
+     The default value is `none`, which results in a view with no outer shadow.
 
      Changes to this property turns the view into a layer-backed view.
      
      The property can be animated by changing it inside a `NSView` animation block like ``AppKit/NSView/animate(withDuration:timingFunction:allowsImplicitAnimation:changes:completion:)``.
      
      If the shadow is visible, `clipsToBounds` is set to `false`.
-
-     The default value is `none`, which results in a view with no outer shadow.
      */
     @objc open var outerShadow: ShadowConfiguration {
         get {
@@ -609,13 +613,6 @@ extension NSView {
     @discardableResult
     @objc open func setNeedsDisplay() -> Self {
         needsDisplay = true
-        return self
-    }
-
-    /// Sets the Boolean value indicating whether the view’s autoresizing mask is translated into constraints for the constraint-based layout system.
-    @discardableResult
-    @objc open func translatesAutoresizingMaskIntoConstraints(_ translates: Bool) -> Self {
-        translatesAutoresizingMaskIntoConstraints = translates
         return self
     }
 
