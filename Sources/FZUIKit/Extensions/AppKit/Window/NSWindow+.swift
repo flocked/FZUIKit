@@ -30,7 +30,7 @@ extension NSWindow {
             offsetFrame.origin.x = screen.visibleFrame.x + spacing
         }
         if offsetFrame.y - spacing < screen.visibleFrame.y {
-            offsetFrame.origin.y = screen.visibleFrame.maxY-frame.height -  spacing
+            offsetFrame.origin.y = screen.visibleFrame.maxY - frame.height - spacing
         }
         setFrame(offsetFrame, display: false)
     }
@@ -46,7 +46,7 @@ extension NSWindow {
      The system dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
      */
     @objc open var isFirstResponder: Bool {
-        firstResponder == self
+        firstResponder === self
     }
     
     /// A Boolean value indicating whether the window displays a title bar.
@@ -158,7 +158,11 @@ extension NSWindow {
         }
     }
     
-    /// The value that determinates how the window participates in spaces.
+    /**
+     The value that determinates how the window participates in spaces.
+     
+     The default value is ``assignedSpace``.
+     */
     public var spaceParticipation: SpaceParticipation {
         get { collectionBehavior.contains(.canJoinAllSpaces) ? .allSpaces : collectionBehavior.contains(.moveToActiveSpace) ? .followsActiveSpace : .assignedSpace }
         set {
@@ -167,13 +171,21 @@ extension NSWindow {
         }
     }
     
-    /// A Boolean value indicating whether the window joins Mission Control or stays visible and stationary, like the desktop window.
+    /**
+     A Boolean value indicating whether the window joins Mission Control or stays visible and stationary, like the desktop window.
+     
+     The default value is `true`.
+     */
     public var joinsMissionControl: Bool {
         get { !collectionBehavior.contains(.stationary) }
         set { collectionBehavior[.stationary] = !newValue }
     }
     
-    /// A Boolean value indicating whether the window participates in the window cycle for use with the Cycle Through Windows menu item.
+    /**
+     A Boolean value indicating whether the window participates in the window cycle for use with the Cycle Through Windows menu item.
+     
+     The default value is `true`.
+     */
     public var participatesInWindowCycle: Bool {
         get { !collectionBehavior.contains(.ignoresCycle) }
         set {
@@ -182,17 +194,30 @@ extension NSWindow {
         }
     }
     
-    /// Defines the window’s grouping role in Full Screen and Stage Manager.
+    /// Defines a window’s grouping in Stage Manager and full-screen presentation.
     @available(macOS 13.0, *)
-    @objc public enum PresentationRole: Int {
+    @objc public enum PresentationRole: Int, CustomStringConvertible {
         /// The window acts as the primary window.
         case primary
         /// The window appears alongside a primary window.
         case auxiliary
         /// The window may appear with windows from other applications.
         case crossApplication
+        
+        public var description: String {
+            switch self {
+            case .primary: "primary"
+            case .auxiliary: "auxiliary"
+            case .crossApplication: "crossApplication"
+            }
+        }
     }
     
+    /**
+     The window’s grouping role in Stage Manager and full-screen presentation.
+     
+     The default value is ``primary``.
+     */
     @available(macOS 13.0, *)
     public var presentationRole: PresentationRole {
         get { collectionBehavior.contains(.canJoinAllApplications) ? .crossApplication : collectionBehavior.contains(.auxiliary) ? .auxiliary : .primary }
@@ -204,8 +229,58 @@ extension NSWindow {
         }
     }
     
+    ///  Describes how a window participates in full-screen.
+    @objc public enum FullScreenRole: Int, CustomStringConvertible {
+        /**
+         The system decides automatically whether the window can enter full-screen mode.
+         
+         This is the default behavior. Most resizable windows that are not panels or sheets will automatically support enter full-screen mode.
+         */
+        case automatic
+        /// The window can enter full-screen mode.
+        case primary
+        /// The window displays on the same space as the full screen window.
+        case auxiliary
+        /// The window doesn’t support full-screen mode.
+        case none
+        
+        public var description: String {
+            switch self {
+            case .primary: "primary"
+            case .auxiliary: "auxiliary"
+            case .none: "none"
+            case .automatic: "automatic"
+            }
+        }
+    }
+    
+    /**
+     The window's full-screen role.
+     
+     The value indicates how the window participates in full-screen.
+     
+     The default value is ``automatic``.
+     */
+    @objc open var fullScreenRole: FullScreenRole {
+        get {
+            if collectionBehavior.contains(.fullScreenNone) {
+                return .none
+            } else if collectionBehavior.contains(.fullScreenPrimary) {
+                return .primary
+            } else if collectionBehavior.contains(.fullScreenAuxiliary) {
+                return .auxiliary
+            }
+            return .automatic
+        }
+        set {
+            collectionBehavior[.fullScreenNone] = newValue == .none
+            collectionBehavior[.fullScreenPrimary] = newValue == .primary
+            collectionBehavior[.fullScreenAuxiliary] = newValue == .auxiliary
+        }
+    }
+    
     /// Determines how a window participates in full-screen tiling (split view).
-    @objc public enum FullscreenTilingBehaviour: Int, CustomStringConvertible {
+    @objc public enum FullScreenTilingBehaviour: Int, CustomStringConvertible {
         /**
          The system decides automatically whether the window can participate in full-screen tiling (split view).
          
@@ -236,8 +311,12 @@ extension NSWindow {
         }
     }
     
-    /// The value that determines how the window participates in full-screen tiling (split view).
-    @objc open var fullscreenTilingBehaviour: FullscreenTilingBehaviour {
+    /**
+     The value that determines how the window participates in full-screen tiling (split view).
+     
+     The default value is ``automatic``.
+     */
+    @objc open var fullScreenTilingBehaviour: FullScreenTilingBehaviour {
         get { collectionBehavior.contains(.fullScreenAllowsTiling) ? .allows : collectionBehavior.contains(.fullScreenDisallowsTiling) ? .disallows : .automatic }
         set {
             switch newValue {
@@ -253,82 +332,48 @@ extension NSWindow {
         }
     }
     
-    @objc public enum FullscreenSupport: Int, CustomStringConvertible {
-        /// The window can enter full-screen mode.
-        case regular
-        /// The window displays on the same space as the full screen window.
-        case auxiliary
-        /// The window doesn’t support full-screen mode.
-        case none
-        
-        public var description: String {
-            switch self {
-            case .regular: "regular"
-            case .auxiliary: "auxiliary"
-            case .none: "none"
-            }
-        }
-    }
-    
-    @objc open var fullscreenSupport: FullscreenSupport {
-        get { collectionBehavior.contains(.fullScreenNone) ? .none : collectionBehavior.contains(.fullScreenAuxiliary) ? .auxiliary : .regular }
-        set {
-            collectionBehavior[.fullScreenNone] = newValue == .none
-            collectionBehavior[.fullScreenPrimary] = newValue == .regular
-            collectionBehavior[.fullScreenAuxiliary] = newValue == .auxiliary
-        }
-    }
-    
-    @objc open var participatesInCycle: Bool {
-        get { !collectionBehavior.contains(.ignoresCycle) }
-        set {
-            collectionBehavior[.ignoresCycle] = !newValue
-            collectionBehavior[.participatesInCycle] = newValue
-        }
-    }
-    
     /// Handlers for the window.
     public struct Handlers {
         /// The handler that is called when the window’s key state changes.
-        public var isKey: ((Bool)->())?
+        public var isKey: ((Bool) -> ())?
         /// The handler that is called when the window’s main state changes.
-        public var isMain: ((Bool)->())?
+        public var isMain: ((Bool) -> ())?
         /// The handler that is called when the window’s first responder changes.
-        public var firstResponder: ((NSResponder?)->())?
+        public var firstResponder: ((NSResponder?) -> ())?
         /// The handler that is called when the window’s frame changes.
-        public var frame: ((CGRect)->())?
+        public var frame: ((CGRect) -> ())?
         /// The handler that is called when the user is resizing the window.
-        public var isLiveResizing: ((Bool)->())?
+        public var isLiveResizing: ((Bool) -> ())?
         /// The handler that is called when the appearance changes.
-        public var effectiveAppearance: ((NSAppearance)->())?
+        public var effectiveAppearance: ((NSAppearance) -> ())?
         /// The handler that is called when the window’s fullscreen state changes.
-        public var isFullScreen: ((Bool)->())?
+        public var isFullScreen: ((Bool) -> ())?
         /// The handler that is called when the style mask changes.
-        public var styleMask: ((StyleMask)->())?
+        public var styleMask: ((StyleMask) -> ())?
         /// The handler that is called when the window’s active space state changes.
-        public var isOnActiveSpace: ((Bool)->())?
+        public var isOnActiveSpace: ((Bool) -> ())?
         /// The handler that is called when the screen changes.
-        public var screen: ((NSScreen?)->())?
+        public var screen: ((NSScreen?) -> ())?
         /// The handler that is called when the is visibility state changes.
-        public var isVisible: ((Bool)->())?
+        public var isVisible: ((Bool) -> ())?
         /// The handler that is called when the is visibility state changes.
-        public var isMiniaturized: ((Bool)->())?
+        public var isMiniaturized: ((Bool) -> ())?
         
         /// The tab handlers for the window.
-        public var tab: TabHandlers = TabHandlers()
+        public var tab: TabHandlers = .init()
         
         /// Tab handlers for the window.
         public struct TabHandlers {
             /// The handler that is called when the tab windows changes.
-            public var windows: (([NSWindow]?)->())?
+            public var windows: (([NSWindow]?) -> ())?
             /// The handler that is called when the selected tab changes.
-            public var selected: ((NSWindow?)->())?
+            public var selected: ((NSWindow?) -> ())?
             /// The handler that is called when the tab selection state changes.
-            public var isSelected: ((Bool)->())?
+            public var isSelected: ((Bool) -> ())?
             /// The handler that is called when the tab bar visibilty changes.
-            public var isTabBarVisible: ((Bool)->())?
+            public var isTabBarVisible: ((Bool) -> ())?
             /// The handler that is called when the tab overview visibilty changes.
-            public var isOverviewVisible: ((Bool)->())?
+            public var isOverviewVisible: ((Bool) -> ())?
         }
     }
     
@@ -344,22 +389,22 @@ extension NSWindow {
                 NSWindow.updateSpaceObservation(shouldObserve: newValue.isOnActiveSpace != nil)
             }
             
-            func observe<Value: Equatable>(_ keyPath: KeyPath<NSWindow, Value>, handler: KeyPath<NSWindow, ((Value)->())?>) {
+            func observe<Value: Equatable>(_ keyPath: KeyPath<NSWindow, Value>, handler: KeyPath<NSWindow, ((Value) -> ())?>) {
                 if self[keyPath: handler] == nil {
                     windowObserver.remove(keyPath)
                 } else if !windowObserver.isObserving(keyPath) {
-                    windowObserver.add(keyPath) { [weak self] old, new in
+                    windowObserver.add(keyPath) { [weak self] _, new in
                         guard let self = self else { return }
                         self[keyPath: handler]?(new)
                     }
                 }
             }
             
-            func observe<Value: Equatable>(_ keyPath: KeyPath<NSWindow, Value?>, handler: KeyPath<NSWindow, ((Value)->())?>) {
+            func observe<Value: Equatable>(_ keyPath: KeyPath<NSWindow, Value?>, handler: KeyPath<NSWindow, ((Value) -> ())?>) {
                 if self[keyPath: handler] == nil {
                     windowObserver.remove(keyPath)
                 } else if !windowObserver.isObserving(keyPath) {
-                    windowObserver.add(keyPath) { [weak self] old, new in
+                    windowObserver.add(keyPath) { [weak self] _, new in
                         guard let self = self, let new = new else { return }
                         self[keyPath: handler]?(new)
                     }
@@ -408,22 +453,22 @@ extension NSWindow {
         }
     }
     
-    func observeIsKey(_ handler: ((Bool)->())?) -> [NotificationToken] {
+    func observeIsKey(_ handler: ((Bool) -> ())?) -> [NotificationToken] {
         guard let handler = handler else { return [] }
         return [NotificationCenter.default.observe(NSWindow.didBecomeKeyNotification, postedBy: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignKeyNotification, postedBy: self) { _ in handler(false) }]
     }
     
-    func observeIsMain(_ handler: ((Bool)->())?) -> [NotificationToken] {
+    func observeIsMain(_ handler: ((Bool) -> ())?) -> [NotificationToken] {
         guard let handler = handler else { return [] }
         return [NotificationCenter.default.observe(NSWindow.didBecomeMainNotification, postedBy: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didResignMainNotification, postedBy: self) { _ in handler(false) }]
     }
     
-    func observeIsLiveResizing(_ handler: ((Bool)->())?) -> [NotificationToken] {
+    func observeIsLiveResizing(_ handler: ((Bool) -> ())?) -> [NotificationToken] {
         guard let handler = handler else { return [] }
         return [NotificationCenter.default.observe(NSWindow.willStartLiveResizeNotification, postedBy: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didEndLiveResizeNotification, postedBy: self) { _ in handler(false) }]
     }
     
-    func observeMiniaturize(_ handler: ((Bool)->())?) -> [NotificationToken] {
+    func observeMiniaturize(_ handler: ((Bool) -> ())?) -> [NotificationToken] {
         guard let handler = handler else { return [] }
         return [NotificationCenter.default.observe(NSWindow.didMiniaturizeNotification, postedBy: self) { _ in handler(true) }, NotificationCenter.default.observe(NSWindow.didDeminiaturizeNotification, postedBy: self) { _ in handler(false) }]
     }
@@ -434,22 +479,22 @@ extension NSWindow {
     }
     
     func sendOnActiveSpace() {
-        guard let handler = handlers.isOnActiveSpace, _isOnActiveSpace != isOnActiveSpace else { return  }
+        guard let handler = handlers.isOnActiveSpace, _isOnActiveSpace != isOnActiveSpace else { return }
         _isOnActiveSpace = !_isOnActiveSpace
         handler(_isOnActiveSpace)
     }
     
     static func updateSpaceObservation(shouldObserve: Bool) {
-        if !shouldObserve && !NSApp.windows.contains(where: { $0.handlers.isOnActiveSpace != nil }) {
+        if !shouldObserve, !NSApp.windows.contains(where: { $0.handlers.isOnActiveSpace != nil }) {
             activeSpaceObservation = nil
         } else if activeSpaceObservation == nil {
             activeSpaceObservation = NotificationCenter.default.observe(NSWorkspace.activeSpaceDidChangeNotification) { _ in
-                NSApp.windows.forEach({ $0.sendOnActiveSpace() })
+                NSApp.windows.forEach { $0.sendOnActiveSpace() }
             }
         }
     }
     
-   static var activeSpaceObservation: NotificationToken? {
+    static var activeSpaceObservation: NotificationToken? {
         get { getAssociatedValue("activeSpaceObservation") }
         set { setAssociatedValue(newValue, key: "activeSpaceObservation") }
     }
@@ -492,23 +537,23 @@ extension NSWindow {
     }
     
     /*
-    /**
-     The size of the window’s content view.
+     /* 
+      The size of the window’s content view.
      
-     The value can be animated via `animator().contentSize`.
-     */
-    @objc open var contentSize: CGSize {
-        get { contentLayoutRect.size }
-        set { setContentSize(newValue) }
-    }
+      The value can be animated via `animator().contentSize`.
+      */
+     @objc open var contentSize: CGSize {
+         get { contentLayoutRect.size }
+         set { setContentSize(newValue) }
+     }
     
-    /// Sets the size of the window.
-    @discardableResult
-    @objc open func contentSize(_ size: CGSize) -> Self {
-        self.contentSize = size
-        return self
-    }
-    */
+     /// Sets the size of the window.
+     @discardableResult
+     @objc open func contentSize(_ size: CGSize) -> Self {
+         self.contentSize = size
+         return self
+     }
+     */
     
     /// Sets the origin of the window’s frame rectangle in screen coordinates.
     @discardableResult
@@ -595,7 +640,7 @@ extension NSWindow {
     }
     
     fileprivate var windowObserver: KeyValueObserver<NSWindow> {
-        get { getAssociatedValue("windowObserver", initialValue: KeyValueObserver(self)) }
+        getAssociatedValue("windowObserver", initialValue: KeyValueObserver(self))
     }
     
     fileprivate var observations: [String: [NotificationToken]] {
@@ -704,7 +749,7 @@ extension NSWindow {
     /// Resizes the window to match it's screen aspect ratio and dimensions.
     @objc open func resizeToScreenAspectRatio() {
         guard let aspectRatio = screen?.visibleFrame.size.aspectRatio else { return }
-        let frame = frame.scaled(byFactor: aspectRatio).size(frame.size.clamped(to: minSize...maxSize))
+        let frame = frame.scaled(byFactor: aspectRatio).size(frame.size.clamped(to: minSize ... maxSize))
         setFrame(frame, display: false)
     }
     
@@ -771,7 +816,7 @@ extension NSWindow {
      
      - Parameter block: The handler to be used.
      */
-    @objc open func runNonAnimated(block: () -> Void) {
+    @objc open func runNonAnimated(block: () -> ()) {
         let currentBehavior = animationBehavior
         animationBehavior = .none
         block()
@@ -857,39 +902,39 @@ extension NSWindow {
     }
 }
 
-extension NSWindow.Level {
+public extension NSWindow.Level {
     /// Creates a window level for the specified key.
-    public init(_ windowLevelKey: CGWindowLevelKey) {
+    init(_ windowLevelKey: CGWindowLevelKey) {
         self.init(rawValue: Int(CGWindowLevelForKey(windowLevelKey)))
     }
     
     /// The level for the desktop.
-    public static let desktop = Self(.desktopWindow)
+    static let desktop = Self(.desktopWindow)
     /// The level for desktop icons.
-    public static let desktopIcons = Self(.desktopIconWindow)
+    static let desktopIcons = Self(.desktopIconWindow)
     /// The level for the cursor.
-    public static let cursor = Self(.cursorWindow)
+    static let cursor = Self(.cursorWindow)
     
-    public static func + (lhs: Self, rhs: Int) -> Self {
+    static func + (lhs: Self, rhs: Int) -> Self {
         Self(rawValue: lhs.rawValue + rhs)
     }
     
-    public static func += (lhs: inout Self, rhs: Int) {
+    static func += (lhs: inout Self, rhs: Int) {
         lhs = Self(rawValue: lhs.rawValue + rhs)
     }
     
-    public static func - (lhs: Self, rhs: Int) -> Self {
+    static func - (lhs: Self, rhs: Int) -> Self {
         Self(rawValue: lhs.rawValue - rhs)
     }
     
-    public static func -= (lhs: inout Self, rhs: Int) {
+    static func -= (lhs: inout Self, rhs: Int) {
         lhs = Self(rawValue: lhs.rawValue - rhs)
     }
 }
 
-extension Collection where Element == NSWindow {
+public extension Collection where Element == NSWindow {
     /// Repositions the windows in the order of the collection.
-    public func order(firstIsFront: Bool = true) {
+    func order(firstIsFront: Bool = true) {
         guard count > 1 else { return }
         var current = first!
         for window in dropFirst() {
@@ -905,7 +950,7 @@ extension Collection where Element == NSWindow {
 
 extension NSWindow.CollectionBehavior: Swift.CustomStringConvertible {
     public var description: String {
-        "[\(elements().map({$0.string}).joined(separator: ", "))]"
+        "[\(elements().map { $0.string }.joined(separator: ", "))]"
     }
     
     private var string: String {

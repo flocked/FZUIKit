@@ -29,7 +29,9 @@ public extension NSWindowTabGroup {
     }
 
     /**
-     Inserts the specified window as tab.
+     Inserts the specified window to the tab group.
+     
+     f the window is already a member of another tab group, it is first removed from that group.
 
      - Parameters:
         - window: The window to insert into the tab group.
@@ -39,47 +41,37 @@ public extension NSWindowTabGroup {
     func insertWindow(_ window: NSWindow, position: TabPosition = .afterSelected, select: Bool = true) {
         switch position {
         case .beforeSelected:
-            if let index = indexOfSelectedTab {
-                insertWindow(window, position: .atIndex(index), select: select)
-            }
+            guard let index = indexOfSelectedTab else { return }
+            insertWindow(window, position: .atIndex(index), select: select)
         case .afterSelected:
-            if let index = indexOfSelectedTab {
-                insertWindow(window, position: .atIndex(index+1), select: select)
-            }
+            guard let index = indexOfSelectedTab else { return }
+            insertWindow(window, position: .atIndex(index+1), select: select)
         case let .before(thisWindow):
-            if let index = windows.firstIndex(of: thisWindow) {
-                insertWindow(window, position: .atIndex(index), select: select)
-            }
+            guard let index = windows.firstIndex(of: thisWindow) else { return }
+            insertWindow(window, position: .atIndex(index), select: select)
         case let .after(thisWindow):
-            if let index = windows.firstIndex(of: thisWindow) {
-                insertWindow(window, position: .atIndex(index+1), select: select)
-            }
+            guard let index = windows.firstIndex(of: thisWindow) else { return }
+            insertWindow(window, position: .atIndex(index+1), select: select)
         case let .atIndex(index):
-            if index >= 0, index <= windows.count {
-                insertWindow(window, at: index)
-                if select {
-                    window.makeKeyAndOrderFront(nil)
-                }
-            }
+            guard index >= 0, index <= windows.count else { return }
+            insertWindow(window, at: index)
+            guard select else { return }
+            window.makeKeyAndOrderFront(nil)
         case .atStart:
             insertWindow(window, at: 0)
-            if select {
-                window.makeKeyAndOrderFront(nil)
-            }
+            guard select else { return }
+            window.makeKeyAndOrderFront(nil)
         case .atEnd:
             addWindow(window)
-            if select {
-                window.makeKeyAndOrderFront(nil)
-            }
+            guard select else { return }
+            window.makeKeyAndOrderFront(nil)
         }
     }
 
     /// The index of the selected tab, or `nil` if no tab is selected.
     var indexOfSelectedTab: Int? {
-        if let selectedWindow = selectedWindow {
-            return windows.firstIndex(of: selectedWindow)
-        }
-        return nil
+        guard let selectedWindow else { return nil }
+        return windows.firstIndex(of: selectedWindow)
     }
 
     /**
@@ -92,20 +84,14 @@ public extension NSWindowTabGroup {
     func moveTabToNewWindow(_ tabWindow: NSWindow, orderFront: Bool) {
         guard windows.count > 1, windows.contains(tabWindow) else { return }
         removeWindow(tabWindow)
-        let newFrame = (windows.first?.frame ?? tabWindow.frame).offsetBy(dx: 10, dy: 10.0)
-        tabWindow.setFrame(newFrame, display: orderFront)
-        if orderFront {
-            tabWindow.makeKeyAndOrderFront(nil)
-        }
+        tabWindow.cascade(from: windows.first?.frame ?? tabWindow.frame)
+        guard orderFront else { return }
+        tabWindow.makeKeyAndOrderFront(nil)
     }
 
     /// A collection of the windows that are currently grouped together by this window tab group excluding the selected.
     var nonSelectedWindows: [NSWindow] {
-        var windows = windows
-        if let selected = selectedWindow {
-            windows.remove(selected)
-        }
-        return windows
+        windows.filter({ $0 !== selectedWindow })
     }
 }
 
