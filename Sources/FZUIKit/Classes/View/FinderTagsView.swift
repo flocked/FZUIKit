@@ -125,7 +125,7 @@ public class FinderTagsView: NSView {
             if index < visibleTags.count - 1 {
                 context.beginTransparencyLayer(auxiliaryInfo: nil)
                 
-                drawTagCircle(in: context, rect: rect, color: tag.color.color)
+                drawTagCircle(in: context, rect: rect, color: tag.color?.color ?? .clear)
                 
                 let neighborX = bounds.width - diameter - (CGFloat(index + 1) * offset)
                 let cutoutRect = CGRect(x: neighborX, y: yOffset, width: diameter, height: diameter)
@@ -137,7 +137,7 @@ public class FinderTagsView: NSView {
                 
                 context.endTransparencyLayer()
             } else {
-                drawTagCircle(in: context, rect: rect, color: tag.color.color)
+                drawTagCircle(in: context, rect: rect, color: tag.color?.color ?? .clear)
             }
             
             context.restoreGState()
