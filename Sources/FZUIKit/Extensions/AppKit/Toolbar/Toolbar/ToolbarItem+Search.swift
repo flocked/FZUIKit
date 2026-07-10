@@ -252,7 +252,7 @@ fileprivate class ValidateSearchToolbarItem: NSSearchToolbarItem {
     
     func updateSearchFieldObservation() {
         searchTokens = []
-        guard isOverwrittingTextEditing || item?.handler != nil, let item = item else { return }
+        guard isOverwrittingTextEditing || item?.handler != nil else { return }
         searchTokens +=  NotificationCenter.default.observe(NSSearchField.textDidChangeNotification, postedBy: searchField) { [weak self] _ in
             self?.item?.textDidChange()
         }

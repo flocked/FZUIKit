@@ -187,23 +187,37 @@ public extension NSTableView {
     }
     
     /**
-     Scrolls the view so the specified row is at the top.
+     Scrolls the table view so the specified row is at the top.
      
      - Parameters:
         - row: The row index.
-        - padding: The padding of the row from the top.
+        - padding: Additional spacing to leave above the row.
      */
     func scrollRowToTop(_ row: Int, padding: CGFloat = 0) {
+        scrollRowToVisible(row)
         guard row >= 0, row < numberOfRows, let scrollView = enclosingScrollView else { return }
-        let rowRect = rect(ofRow: row)
-        var newOrigin = rowRect.origin
-        newOrigin.y -= scrollView.contentInsets.top + padding
-        let contentHeight = bounds.height
-        let visibleHeight = scrollView.contentView.bounds.height
-        let maxY = max(0, contentHeight - visibleHeight)
-        newOrigin.y = max(0, min(newOrigin.y, maxY))
-        scrollView.contentView.scroll(to: newOrigin)
-        scrollView.reflectScrolledClipView(scrollView.contentView)
+        let clipView = scrollView.contentView
+        var origin = clipView.bounds.origin
+        var offset = padding
+        if floatsGroupRows, !isGroupRow(row), let groupRow = precedingGroupRow(for: row) {
+            offset += rect(ofRow: groupRow).height + intercellSpacing.height
+        }
+        origin.y = rect(ofRow: row).minY - offset
+        let minY = bounds.minY
+        // let maxY = max(minY, bounds.maxY - clipView.bounds.height)
+        let maxY = max(minY, bounds.maxY - scrollView.documentVisibleRect.height)
+        origin.y = min(max(origin.y, minY), maxY)
+        clipView.scroll(to: origin)
+        scrollView.reflectScrolledClipView(clipView)
+    }
+
+    private func precedingGroupRow(for row: Int) -> Int? {
+        row > 0 ? stride(from: row - 1, through: 0, by: -1).first(where: { isGroupRow($0) }) : nil
+    }
+    
+    /// A Boolean value indicating whether the specified row is a group row.
+    func isGroupRow(_ row: Int) -> Bool {
+        delegate?.tableView?(self, isGroupRow: row) ?? false
     }
         
     /// Creates a table view with the specified table columns.
