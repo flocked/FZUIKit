@@ -16,13 +16,6 @@ extension NSView {
         NSEvent.current?.location(in: self)
     }
     
-    /// Sets the Boolean value indicating whether the view’s autoresizing mask is translated into constraints for the constraint-based layout system.
-    @discardableResult
-    @objc open func translatesAutoresizingMaskIntoConstraints(_ translates: Bool) -> Self {
-        translatesAutoresizingMaskIntoConstraints = translates
-        return self
-    }
-    
     /**
      The background color of the view.
      

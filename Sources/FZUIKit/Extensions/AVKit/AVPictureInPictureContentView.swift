@@ -14,29 +14,28 @@ import AppKit
 import UIKit
 #endif
 import FZSwiftUtils
- 
+
 #if os(macOS)
 private typealias PiPTextLabel = NSTextField
 #else
 private typealias PiPTextLabel = UILabel
 #endif
 
-@available(iOS 15.0, macOS 12.0, *)
-@MainActor
 /**
  A view that can provide Picture in Picture sizing and placeholder information.
 
  Conform to this protocol when a custom content view wants to describe its preferred Picture in Picture aspect ratio or provide a placeholder while it is moved into the Picture in Picture window.
  */
+@available(iOS 15.0, macOS 12.0, *)
+@MainActor
 public protocol AVPictureInPictureContentView: NSUIView {
-
     /**
      The size whose proportions represent the view’s preferred Picture in Picture aspect ratio.
 
      The aspect ratio of the provided size is used for the picture in picture view.
-     
+
      Call ``invalidatePictureInPictureContentSize()`` after this value changes while ``isDisplayingPictureInPicture`` is `true`.
-     
+
      The default value is the view’s [bounds](https://developer.apple.com/documentation/appkit/nsview/bounds) size after laying out the view.
      */
     var preferredPictureInPictureContentSize: CGSize { get }
@@ -44,18 +43,25 @@ public protocol AVPictureInPictureContentView: NSUIView {
     /**
      The placeholder view to display while this view is shown in Picture in Picture.
 
-     By default, this property returns a black placeholder view that displays a Picture in Picture symbol and ``placeholderContentText``.
+     By default, this property returns a black placeholder view that displays a Picture in Picture symbol, ``pictureInPicturePlaceholderText``, and optionally a close button.
      */
-    var placeholderView: NSUIView? { get }
+    var pictureInPicturePlaceholderView: NSUIView? { get }
 
     /**
      The text to display below the Picture in Picture symbol in the default placeholder view.
 
-     This property is only used when ``placeholderView`` returns the default placeholder view.
-     
+     This property is only used when ``pictureInPicturePlaceholderView`` returns the default placeholder view.
+
      The default value is `nil`.
      */
-    var placeholderContentText: String? { get }
+    var pictureInPicturePlaceholderText: String? { get }
+
+    /**
+     A Boolean value indicating whether the default Picture in Picture placeholder view displays a close button in its top-right corner.
+
+     This property is only used when ``pictureInPicturePlaceholderView`` returns the default placeholder view. The default value is `false`.
+     */
+    var showsPictureInPicturePlaceholderCloseButton: Bool { get }
 }
 
 /// The handlers for picture in picture of a `NSUIView` conforming to ``AVPictureInPictureContentView``.
@@ -74,17 +80,15 @@ public struct AVPictureInPictureContentViewHandlers {
 
     /// Called when Picture in Picture fails to start.
     public var didFailToStart: ((_ contentView: AVPictureInPictureContentView, _ error: Error) -> Void)?
-    
+
     public var isDisplaying: ((_ contentView: AVPictureInPictureContentView, _ isDisplaying: Bool) -> Void)?
 }
 
-
-
 @available(iOS 15.0, macOS 12.0, *)
 @MainActor
-extension AVPictureInPictureContentView {
+public extension AVPictureInPictureContentView {
     /// The handlers for picture in picture.
-    public var pictureInPictureHandlers: AVPictureInPictureContentViewHandlers {
+    var pictureInPictureHandlers: AVPictureInPictureContentViewHandlers {
         get { getAssociatedValue("pictureInPictureHandlers") ?? .init() }
         set {
             setAssociatedValue(newValue, key: "pictureInPictureHandlers")
@@ -92,67 +96,79 @@ extension AVPictureInPictureContentView {
         }
     }
 
-    public var preferredPictureInPictureContentSize: CGSize {
-        platformLayoutIfNeeded()
+    var preferredPictureInPictureContentSize: CGSize {
+        layoutIfNeeded()
         return bounds.size
     }
 
-    public var placeholderView: NSUIView? {
+    var pictureInPicturePlaceholderView: NSUIView? {
         let placeholderView: PiPPlaceholderView = getAssociatedValue("pictureInPicturePlaceholderView", initialValue: {
-            PiPPlaceholderView(text: placeholderContentText)
+            PiPPlaceholderView(contentView: self)
         })
-        placeholderView.text = placeholderContentText
+        placeholderView.contentView = self
+        placeholderView.textLabel.text = pictureInPicturePlaceholderText ?? ""
+        placeholderView.closeButton.isHidden = !showsPictureInPicturePlaceholderCloseButton
         return placeholderView
     }
 
-    public var placeholderContentText: String? { nil }
+    var pictureInPicturePlaceholderText: String? {
+        nil
+    }
+
+    var showsPictureInPicturePlaceholderCloseButton: Bool {
+        false
+    }
 
     /// A Boolean value indicating whether the view is currently displayed in picture in picture.
-    public var isDisplayingPictureInPicture: Bool {
+    var isDisplayingPictureInPicture: Bool {
         get {
             guard let controller = pipController else { return false }
             guard controller.contentView === self else { return false }
             return controller.isPictureInPictureActive
         }
         set {
-            guard let pipController = pipController, newValue != isDisplayingPictureInPicture else { return }
+            guard newValue != isDisplayingPictureInPicture else { return }
             if newValue {
-                pipController.startPictureInPicture()
+                _pictureInPictureController.startPictureInPicture()
             } else {
-                pipController.stopPictureInPicture()
+                pipController?.stopPictureInPicture()
             }
         }
     }
-    
+
     private func setupIsDisplayingObservation() {
         guard let pipController = pipController else { return }
         if pictureInPictureHandlers.isDisplaying == nil {
             isDisplayingObservation = nil
         } else if isDisplayingObservation == nil {
-            isDisplayingObservation = pipController.observeChanges(for: \.isPictureInPictureActive) { [weak self] oldValue, newValue in
+            isDisplayingObservation = pipController.observeChanges(for: \.isPictureInPictureActive) { [weak self] _, newValue in
                 guard let self = self, self.pipController?.contentView === self else { return }
                 self.pictureInPictureHandlers.isDisplaying?(self, newValue)
             }
         }
     }
-    
-    private var pipController: AVPictureInPictureController? {
+
+    private var pipController: ContentViewPictureInPictureController? {
         getAssociatedValue("pictureInPictureController")
     }
-    
+
     private var isDisplayingObservation: KeyValueObservation? {
         get { getAssociatedValue("isDisplayingObservation") }
         set { setAssociatedValue(newValue, key: "isDisplayingObservation") }
     }
-    
+
     ///  The picture in picture controller for this content view.
-    public var pictureInPictureController: AVPictureInPictureController {
-        let controller: AVPictureInPictureController = getAssociatedValue("pictureInPictureController", initialValue: {
-            AVPictureInPictureController(
+    var pictureInPictureController: AVPictureInPictureController {
+        _pictureInPictureController
+    }
+    
+    private var _pictureInPictureController: ContentViewPictureInPictureController {
+        let controller: ContentViewPictureInPictureController = getAssociatedValue("pictureInPictureController", initialValue: {
+            let controller = ContentViewPictureInPictureController(
                 contentView: self,
-                placeholderView: placeholderView,
                 preferredContentSize: preferredPictureInPictureContentSize
             )
+            return controller
         })
         controller.contentView = self
         setupIsDisplayingObservation()
@@ -160,180 +176,56 @@ extension AVPictureInPictureContentView {
     }
 
     /// Starts displaying the view in picture in picture.
-    public func startDisplayingPictureInPicture() {
+    func startDisplayingPictureInPicture() {
+        _ = pictureInPictureController
         isDisplayingPictureInPicture = true
     }
 
     /// Stops displaying the view in picture in picture.
-    public func stopDisplayingPictureInPicture() {
+    func stopDisplayingPictureInPicture() {
         isDisplayingPictureInPicture = false
     }
-    
+
     /**
      Re-evaluates the view’s preferred Picture in Picture content size.
 
      Call this method after ``preferredPictureInPictureContentSize`` changes while ``isDisplayingPictureInPicture`` is `true`.
      */
-    public func invalidatePictureInPictureContentSize() {
-        pictureInPictureController.invalidateContentSize()
+    func invalidatePictureInPictureContentSize() {
+        _pictureInPictureController.invalidateContentSize()
     }
 }
 
 
+// MARK: - Content View Controller
+
 @available(iOS 15.0, macOS 12.0, *)
 @MainActor
-fileprivate extension AVPictureInPictureController {
-    /**
-     Creates a Picture in Picture controller that displays a custom content view.
-
-     - Parameters:
-       - contentView: The content view to display in Picture in Picture.
-       - placeholderView: The view to show in the content view’s original location while Picture in Picture is active.
-       - preferredContentSize: The preferred content size. Only the ratio between width and height is significant.
-       - backgroundColor: The color used for the backing sample-buffer layer.
-       - controlsStyle: The style of the system Picture in Picture controls.
-     */
-    convenience init(contentView: AVPictureInPictureContentView,
-                     placeholderView: NSUIView? = nil,
-                     preferredContentSize: CGSize? = nil,
-                     backgroundColor: NSUIColor = .black,
-                     controlsStyle: ControlsStyle? = nil) {
-        contentView.platformLayoutIfNeeded()
-
-        let inferredSize = PiPContentSizeResolver.preferredSize(for: contentView)
-        let requestedSize = preferredContentSize ?? inferredSize
-        let contentSize = PiPContentSizeResolver.validatedSize(requestedSize)
-            ?? CGSize(width: 16, height: 9)
-        let renderSize = PiPContentSizeResolver.renderSize(for: contentSize)
-
-        let displayLayer = AVSampleBufferDisplayLayer()
-        displayLayer.videoGravity = .resizeAspectFill
-        displayLayer.backgroundColor = backgroundColor.cgColor
-
-        let playbackDelegate = PiPSampleBufferPlaybackDelegate()
-        let contentSource = ContentSource(
-            sampleBufferDisplayLayer: displayLayer,
-            playbackDelegate: playbackDelegate
-        )
-        self.init(contentSource: contentSource)
-        let state = PiPControllerState(
-            controller: self,
-            displayLayer: displayLayer,
-            playbackDelegate: playbackDelegate,
-            backgroundColor: backgroundColor,
-            preferredContentSize: preferredContentSize,
-            resolvedContentSize: contentSize,
-            renderSize: renderSize,
-            contentView: contentView
-        )
-
-        pipState = state
-        self.controlsStyle = controlsStyle ?? .hidden
-        state.installDelegateProxy()
-        swizzleStartStopIfNeeded(shuldSwizzle: true)
-        state.installSourceLayerCarrierIfNeeded()
-        state.enqueueCurrentFrame()
-    }
-
-    /**
-     The custom content view displayed in Picture in Picture.
-     
-     This property is used internally by ``AVPictureInPictureContentView``.
-     */
-    var contentView: AVPictureInPictureContentView? {
-        get { pipState?.contentView }
-        set {
-            pipState?.setContentView(newValue)
-            updateStartStopSwizzleForContentViewConfiguration()
-        }
-    }
+private final class ContentViewPictureInPictureController: AVPictureInPictureController, @preconcurrency AVPictureInPictureControllerDelegate {
+    private var allowsInternalMutation = true
+    weak var forwardingDelegate: (any AVPictureInPictureControllerDelegate)?
     
-    /**
-     The preferred content proportions.
-
-     Set this property to `nil` to determine the content size automatically from the content view. Only the ratio between the width and height is significant.
-     */
-    var preferredContentSize: CGSize? {
-        get { pipState?.preferredContentSize }
-        set { pipState?.setPreferredContentSize(newValue) }
-    }
-
-    /// The content proportions currently used by Picture in Picture.
-    var contentSize: CGSize {
-        pipState?.resolvedContentSize ?? .zero
-    }
-
-    /**
-     Re-evaluates the content size when automatic sizing is enabled.
-
-     Call this method after the content view changes its preferred layout or Picture in Picture aspect ratio.
-     */
-    func invalidateContentSize() {
-        pipState?.invalidateContentSize()
-    }
-}
-
-@available(iOS 15.0, macOS 12.0, *)
-@MainActor
-extension AVPictureInPictureController {
-    func updateStartStopSwizzleForContentViewConfiguration() {
-        swizzleStartStopIfNeeded(
-            shuldSwizzle: contentView != nil
-        )
-    }
-
-    func swizzleStartStopIfNeeded(shuldSwizzle: Bool) {
-        if shuldSwizzle, startStopHooks.isEmpty {
-            do {
-                startStopHooks += try hook(#selector(startPictureInPicture), closure: {
-                   original, pipController, selector in
-                    MainActor.assumeIsolated {
-                        pipController.pipState?.installSourceLayerCarrierIfNeeded()
-                        pipController.pipState?.enqueueCurrentFrame()
-                        pipController.pipState?.installPlaceholderIfPossible()
-                    }
-                    original(pipController, selector)
-                } as @convention(block) (
-                    (AVPictureInPictureController, Selector) -> Void,  AVPictureInPictureController, Selector) -> Void)
-                startStopHooks += try hook(#selector(stopPictureInPicture), closure: {
-                   original, pipController, selector in
-                    MainActor.assumeIsolated {
-                        pipController.pipState?.prepareForPictureInPictureStopAnimation()
-                    }
-                    original(pipController, selector)
-                } as @convention(block) (
-                    (AVPictureInPictureController, Selector) -> Void,  AVPictureInPictureController, Selector) -> Void)
-            } catch {
-                
-            }
-        } else if !shuldSwizzle {
-            startStopHooks.forEach({ try? $0.revert() })
-            startStopHooks = []
-        }
-    }
-    
-    var startStopHooks: [Hook] {
-        get { getAssociatedValue("startStopHooks") ?? [] }
-        set { setAssociatedValue(newValue, key: "startStopHooks") }
-    }
-}
-
-// MARK: - Controller State
-
-@available(iOS 15.0, macOS 12.0, *)
-@MainActor
-private final class PiPControllerState {
-
-    weak var controller: AVPictureInPictureController?
-
     let displayLayer: AVSampleBufferDisplayLayer
     let playbackDelegate: PiPSampleBufferPlaybackDelegate
 
-    var backgroundColor: NSUIColor
     var preferredContentSize: CGSize?
     var resolvedContentSize: CGSize
     var renderSize: CGSize
-    weak var contentView: AVPictureInPictureContentView?
+    weak var contentView: AVPictureInPictureContentView? {
+        didSet {
+            guard oldValue !== contentView else { return }
+            removeInstalledContentView()
+            removePlaceholderIfNeeded()
+            removeContentViewSourceLayerIfPossible()
+            resolvedPlaceholderView = nil
+            if preferredContentSize == nil {
+                invalidateContentSize()
+            }
+            if isPictureInPictureActive {
+                installContentViewIfPossible()
+            }
+        }
+    }
 
     private var containerView: PiPContentContainerView?
     private var sourceLayerHostView: PiPSourceLayerHostView?
@@ -341,97 +233,101 @@ private final class PiPControllerState {
     private var sourceLayerInstalledInContentView = false
     private var placeholderPlacement: PiPEarlyPlaceholderPlacement?
     private var resolvedPlaceholderView: NSUIView?
-    private var delegateProxy: PiPControllerDelegateProxy?
     private var contentViewFrameObservation: KeyValueObservation?
 
+    override var contentSource: ContentSource? {
+        get { super.contentSource }
+        set {
+            guard allowsInternalMutation else {
+                assertionFailure("Changing contentSource is unsupported for AVPictureInPictureContentView controllers.")
+                return
+            }
+            super.contentSource = newValue
+        }
+    }
+
+    override var delegate: (any AVPictureInPictureControllerDelegate)? {
+        get { forwardingDelegate }
+        set { forwardingDelegate = newValue }
+    }
+
+    /**
+     Creates a Picture in Picture controller that displays a custom content view.
+
+     - Parameters:
+       - contentView: The content view to display in Picture in Picture.
+       - preferredContentSize: The preferred content size. Only the ratio between width and height is significant.
+       - backgroundColor: The color used for the backing sample-buffer layer.
+       - controlsStyle: The style of the system Picture in Picture controls.
+     */
     init(
-        controller: AVPictureInPictureController,
-        displayLayer: AVSampleBufferDisplayLayer,
-        playbackDelegate: PiPSampleBufferPlaybackDelegate,
-        backgroundColor: NSUIColor,
-        preferredContentSize: CGSize?,
-        resolvedContentSize: CGSize,
-        renderSize: CGSize,
-        contentView: AVPictureInPictureContentView?
+        contentView: AVPictureInPictureContentView,
+        preferredContentSize: CGSize? = nil,
+        controlsStyle: ControlsStyle? = nil
     ) {
-        self.controller = controller
+        contentView.layoutIfNeeded()
+
+        let inferredSize = contentView.preferredSize
+        let requestedSize = preferredContentSize ?? inferredSize
+        let contentSize = requestedSize.valid ?? CGSize(width: 16, height: 9)
+        let renderSize = contentSize.renderSize()
+
+        let displayLayer = AVSampleBufferDisplayLayer()
+        displayLayer.videoGravity = .resizeAspectFill
+        displayLayer.backgroundColor = .black
+
+        let playbackDelegate = PiPSampleBufferPlaybackDelegate()
+        let contentSource = ContentSource(
+            sampleBufferDisplayLayer: displayLayer,
+            playbackDelegate: playbackDelegate
+        )
+
         self.displayLayer = displayLayer
         self.playbackDelegate = playbackDelegate
-        self.backgroundColor = backgroundColor
         self.preferredContentSize = preferredContentSize
-        self.resolvedContentSize = resolvedContentSize
+        self.resolvedContentSize = contentSize
         self.renderSize = renderSize
         self.contentView = contentView
+
+        super.init(contentSource: contentSource)
+
+        self.controlsStyle = controlsStyle ?? .hidden
+        installSourceLayerCarrierIfNeeded()
+        enqueueCurrentFrame()
+        allowsInternalMutation = false
+        super.delegate = self
     }
 
     deinit {
         let sourceLayerHostView = sourceLayerHostView
-        let contentView = contentView
-        let contentViewFrameObservation = contentViewFrameObservation
         Task { @MainActor in
-            contentViewFrameObservation?.invalidate()
             sourceLayerHostView?.removeFromSuperview()
         }
     }
 
-    func installDelegateProxy() {
-        guard controller != nil else { return }
-        delegateProxy = PiPControllerDelegateProxy(state: self)
-    }
-
-    func setContentView(_ contentView: AVPictureInPictureContentView?) {
-        guard self.contentView !== contentView else { return }
-        removeInstalledContentView()
-        removePlaceholderIfNeeded()
-        removeContentViewSourceLayerIfPossible()
-        resolvedPlaceholderView = nil
-        self.contentView = contentView
-        if preferredContentSize == nil {
-            invalidateContentSize()
-        }
-
-        installContentViewIfPossible()
-    }
-
-    @discardableResult
-    fileprivate func resolveContentView() -> AVPictureInPictureContentView? {
-        contentView
-    }
-
-    func setPreferredContentSize(_ size: CGSize?) {
-        if let size, PiPContentSizeResolver.validatedSize(size) == nil {
-            return
-        }
-
-        preferredContentSize = size
-        invalidateContentSize()
-    }
 
     func invalidateContentSize() {
         let requestedSize: CGSize
 
         if let preferredContentSize {
             requestedSize = preferredContentSize
-        } else if let contentView = resolveContentView() {
-            requestedSize = PiPContentSizeResolver.preferredSize(for: contentView)
+        } else if let contentView = contentView {
+            requestedSize = contentView.preferredSize
         } else {
             requestedSize = resolvedContentSize
         }
 
-        guard let validatedSize = PiPContentSizeResolver.validatedSize(requestedSize) else {
+        guard let validatedSize = requestedSize.valid else {
             return
         }
 
-        let ratioChanged = PiPContentSizeResolver.aspectRatiosDiffer(
-            validatedSize,
-            resolvedContentSize
-        )
+        let ratioChanged = !validatedSize.aspectRatio.isApproximatelyEqual(to: resolvedContentSize.aspectRatio, epsilon: 0.001)
 
         resolvedContentSize = validatedSize
 
         guard ratioChanged else { return }
 
-        renderSize = PiPContentSizeResolver.renderSize(for: validatedSize)
+        renderSize = validatedSize.renderSize()
         sourceLayerHostView?.contentSize = renderSize
         updateContentViewSourceLayerFrame()
         displayLayer.flush()
@@ -456,8 +352,8 @@ private final class PiPControllerState {
     func installContentViewIfPossible() {
         guard
             containerView == nil,
-            let contentView = resolveContentView(),
-            let pipView = controller?.pictureInPictureViewControllerView
+            let contentView = contentView,
+            let pipView = view
         else {
             return
         }
@@ -485,17 +381,16 @@ private final class PiPControllerState {
 
         containerView = container
         observeContentViewFrameIfNeeded(contentView)
-        pipView.platformBringSubviewToFront(container)
-        pipView.platformSetNeedsLayout()
-        pipView.platformLayoutIfNeeded()
+        container.sendToFront()
+        pipView.setNeedsLayout()
+        pipView.layoutIfNeeded()
         contentView.pictureInPictureHandlers.didStart?(contentView)
-        Swift.print("customPiP contentView installed", "pipView:", type(of: pipView), "window:", pipView.window.map { type(of: $0) } ?? "nil")
     }
 
     func installPlaceholderIfPossible() {
         guard
             placeholderPlacement == nil,
-            let contentView = resolveContentView(),
+            let contentView = contentView,
             contentView.superview != nil,
             let placeholderView = effectivePlaceholderView(for: contentView)
         else {
@@ -529,7 +424,7 @@ private final class PiPControllerState {
             return resolvedPlaceholderView
         }
 
-        guard let placeholderView = contentView.placeholderView, placeholderView !== contentView else {
+        guard let placeholderView = contentView.pictureInPicturePlaceholderView, placeholderView !== contentView else {
             return nil
         }
 
@@ -562,13 +457,13 @@ private final class PiPControllerState {
     }
 
     private func installSourceLayerInContentViewIfPossible() -> Bool {
-        guard let contentView = resolveContentView(), isContentViewVisibleInWindow else {
+        guard let contentView = contentView, isContentViewVisibleInWindow else {
             return false
         }
 
         displayLayer.isHidden = false
         displayLayer.opacity = 0.001
-        contentView.platformLayer.insertSublayer(displayLayer, at: 0)
+        contentView.optionalLayer?.insertSublayer(displayLayer, at: 0)
         sourceLayerInstalledInContentView = true
         updateContentViewSourceLayerFrame()
         return true
@@ -576,11 +471,11 @@ private final class PiPControllerState {
 
     private var isContentViewVisibleInWindow: Bool {
         guard
-            let contentView = resolveContentView(),
-            contentView.platformWindow != nil,
+            let contentView = contentView,
+            contentView.window != nil,
             !contentView.bounds.isEmpty,
-            contentView.platformAlpha > 0.01,
-            !contentView.platformIsHidden
+            contentView.alpha > 0.01,
+            !contentView.isHidden
         else {
             return false
         }
@@ -589,12 +484,16 @@ private final class PiPControllerState {
             return false
         }
 
-        let scale = contentView.platformScale
+        #if os(macOS)
+        let scale = contentView.window?.backingScaleFactor ?? NSScreen.main?.backingScaleFactor ?? 1.0
+        #else
+        let scale = contentView.window?.screen.scale ?? UIScreen.main.scale
+        #endif
         return visibleRect.width * scale >= 1 && visibleRect.height * scale >= 1
     }
 
     private func updateContentViewSourceLayerFrame() {
-        guard sourceLayerInstalledInContentView, let contentView = resolveContentView() else {
+        guard sourceLayerInstalledInContentView, let contentView = contentView else {
             return
         }
 
@@ -618,7 +517,7 @@ private final class PiPControllerState {
     private func installSourceLayerHostIfPossible() {
         guard sourceLayerHostView == nil else { return }
 
-        guard let window = NSUIWindowLocator.applicationWindow(preferredView: resolveContentView()) else {
+        guard let window = NSUIWindowLocator.applicationWindow(preferredView: contentView) else {
             guard sourceLayerHostInstallAttempts < 20 else { return }
             sourceLayerHostInstallAttempts += 1
 
@@ -650,7 +549,7 @@ private final class PiPControllerState {
     }
 
     func removeInstalledContentView(notifyDidStop: Bool = false) {
-        let stoppedContentView = resolveContentView()
+        let stoppedContentView = contentView
         stopObservingContentViewFrame()
         containerView?.restoreContentViewIfNeeded()
         containerView?.removeFromSuperview()
@@ -681,7 +580,7 @@ private final class PiPControllerState {
     }
 
     func prepareForPictureInPictureStopAnimation() {
-        guard let contentView = resolveContentView() else {
+        guard let contentView = contentView else {
             return
         }
 
@@ -710,7 +609,7 @@ private final class PiPControllerState {
     }
 
     func pictureInPictureFailedToStart(error: Error) {
-        let failedContentView = resolveContentView()
+        let failedContentView = contentView
         removeInstalledContentView()
         removeFallbackSourceLayerHostIfPossible()
         if let failedContentView {
@@ -761,24 +660,27 @@ private final class PiPControllerState {
             return nil
         }
 
-        #if os(macOS)
-        let fillColor = CIColor(color: backgroundColor) ?? .black
-        #else
-        let fillColor = CIColor(color: backgroundColor)
-        #endif
-        let image = CIImage(color: fillColor).cropped(
-            to: CGRect(x: 0, y: 0, width: width, height: height)
-        )
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let bitmapInfo = CGBitmapInfo.byteOrder32Little.rawValue | CGImageAlphaInfo.premultipliedFirst.rawValue
+        guard let context = CGContext(
+            data: baseAddress,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: CVPixelBufferGetBytesPerRow(pixelBuffer),
+            space: colorSpace,
+            bitmapInfo: bitmapInfo
+        ) else {
+            return nil
+        }
 
-        CIContext().render(
-            image,
-            toBitmap: baseAddress,
-            rowBytes: CVPixelBufferGetBytesPerRow(pixelBuffer),
-            bounds: image.extent,
-            format: .BGRA8,
-            colorSpace: CGColorSpaceCreateDeviceRGB()
-        )
+        let renderRect = CGRect(x: 0, y: 0, width: width, height: height)
+        context.setFillColor(.black)
+        context.fill(renderRect)
 
+        if let contentView = contentView, !contentView.bounds.isEmpty, let image = contentView.renderedImage.cgImage {
+            context.draw(image, in: renderRect)
+        }
         return pixelBuffer
     }
 
@@ -819,6 +721,75 @@ private final class PiPControllerState {
 
         return sampleBuffer
     }
+
+    override func startPictureInPicture() {
+        guard !isPictureInPictureActive else { return }
+        installSourceLayerCarrierIfNeeded()
+        enqueueCurrentFrame()
+        installPlaceholderIfPossible()
+        super.startPictureInPicture()
+    }
+
+    override func stopPictureInPicture() {
+        guard isPictureInPictureActive else { return }
+        prepareForPictureInPictureStopAnimation()
+        super.stopPictureInPicture()
+    }
+
+    var view: NSUIView? {
+        (value(forKeySafely: "pictureInPictureViewController") as? NSUIViewController)?.view
+    }
+
+    func pictureInPictureControllerDidStartPictureInPicture(
+        _ pictureInPictureController: AVPictureInPictureController
+    ) {
+        pictureInPictureDidStart()
+        forwardingDelegate?.pictureInPictureControllerDidStartPictureInPicture?(pictureInPictureController)
+    }
+
+    func pictureInPictureControllerDidStopPictureInPicture(
+        _ pictureInPictureController: AVPictureInPictureController
+    ) {
+        pictureInPictureDidStop()
+        forwardingDelegate?.pictureInPictureControllerDidStopPictureInPicture?(pictureInPictureController)
+    }
+
+    func pictureInPictureController(
+        _ pictureInPictureController: AVPictureInPictureController,
+        failedToStartPictureInPictureWithError error: Error
+    ) {
+        pictureInPictureFailedToStart(error: error)
+        forwardingDelegate?.pictureInPictureController?(
+            pictureInPictureController,
+            failedToStartPictureInPictureWithError: error
+        )
+    }
+
+    func pictureInPictureControllerWillStartPictureInPicture(
+        _ pictureInPictureController: AVPictureInPictureController
+    ) {
+        forwardingDelegate?.pictureInPictureControllerWillStartPictureInPicture?(pictureInPictureController)
+    }
+
+    func pictureInPictureControllerWillStopPictureInPicture(
+        _ pictureInPictureController: AVPictureInPictureController
+    ) {
+        forwardingDelegate?.pictureInPictureControllerWillStopPictureInPicture?(pictureInPictureController)
+    }
+
+    func pictureInPictureController(
+        _ pictureInPictureController: AVPictureInPictureController,
+        restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping @Sendable (Bool) -> Void
+    ) {
+        if forwardingDelegate?.responds(to: #selector(AVPictureInPictureControllerDelegate.pictureInPictureController(_:restoreUserInterfaceForPictureInPictureStopWithCompletionHandler:))) == true {
+            forwardingDelegate?.pictureInPictureController?(
+                pictureInPictureController,
+                restoreUserInterfaceForPictureInPictureStopWithCompletionHandler: completionHandler
+            )
+        } else {
+            completionHandler(false)
+        }
+    }
 }
 
 @available(iOS 15.0, macOS 12.0, *)
@@ -853,12 +824,11 @@ private extension AVSampleBufferDisplayLayer {
 @available(iOS 15.0, macOS 12.0, *)
 @MainActor
 private final class PiPSourceLayerHostView: NSUIView {
-
     let displayLayer: AVSampleBufferDisplayLayer
     var contentSize: CGSize {
         didSet {
             invalidateIntrinsicContentSize()
-            platformSetNeedsLayout()
+            setNeedsLayout()
         }
     }
 
@@ -867,9 +837,11 @@ private final class PiPSourceLayerHostView: NSUIView {
         self.contentSize = contentSize
         super.init(frame: CGRect(origin: .zero, size: contentSize))
 
-        platformIsHidden = true
-        platformIsUserInteractionEnabled = false
-        platformLayer.addSublayer(displayLayer)
+        isHidden = true
+        #if !os(macOS)
+        isUserInteractionEnabled = false
+        #endif
+        optionalLayer?.addSublayer(displayLayer)
     }
 
     override var intrinsicContentSize: CGSize {
@@ -902,7 +874,6 @@ private final class PiPSourceLayerHostView: NSUIView {
 @available(iOS 15.0, macOS 12.0, *)
 @MainActor
 private final class PiPEarlyPlaceholderPlacement {
-
     let placeholderView: NSUIView
     private let originalContentPlacement: OriginalViewPlacement
     private let originalPlaceholderPlacement: OriginalViewPlacement?
@@ -938,13 +909,13 @@ private final class PiPEarlyPlaceholderPlacement {
         placeholderView.autoresizingMask = originalContentPlacement.autoresizingMask
         placeholderView.frame = originalContentPlacement.frame
         placeholderView.bounds = originalContentPlacement.bounds
-        placeholderView.platformCenter = originalContentPlacement.center
+        placeholderView.center = originalContentPlacement.center
 
         let insertionIndex = min(
             originalContentPlacement.siblingIndex + 1,
             originalSuperview.subviews.count
         )
-        originalSuperview.platformInsertSubview(placeholderView, at: insertionIndex)
+        originalSuperview.insertSubview(placeholderView, at: insertionIndex)
 
         placeholderConstraints = originalContentPlacement.constraintsReplacingView(with: placeholderView)
         NSLayoutConstraint.activate(placeholderConstraints)
@@ -964,9 +935,9 @@ private final class PiPEarlyPlaceholderPlacement {
         originalContentPlacement.restore(contentView)
 
         if let superview = placeholderView.superview {
-            superview.platformBringSubviewToFront(placeholderView)
-            superview.platformSetNeedsLayout()
-            superview.platformLayoutIfNeeded()
+            placeholderView.sendToFront()
+            superview.setNeedsLayout()
+            superview.layoutIfNeeded()
         }
     }
 
@@ -1000,7 +971,7 @@ private final class PiPEarlyPlaceholderPlacement {
             self.translatesAutoresizingMaskIntoConstraints = view.translatesAutoresizingMaskIntoConstraints
             self.frame = view.frame
             self.bounds = view.bounds
-            self.center = view.platformCenter
+            self.center = view.center
             self.autoresizingMask = view.autoresizingMask
             self.constraints = Self.activeConstraintsReferencing(view)
         }
@@ -1012,14 +983,14 @@ private final class PiPEarlyPlaceholderPlacement {
 
             if view.superview !== superview {
                 let insertionIndex = min(siblingIndex, superview.subviews.count)
-                superview.platformInsertSubview(view, at: insertionIndex)
+                superview.insertSubview(view, at: insertionIndex)
             }
 
             view.translatesAutoresizingMaskIntoConstraints = translatesAutoresizingMaskIntoConstraints
             view.autoresizingMask = autoresizingMask
             view.frame = frame
             view.bounds = bounds
-            view.platformCenter = center
+            view.center = center
 
             NSLayoutConstraint.activate(constraints.filter { !$0.isActive })
         }
@@ -1089,7 +1060,6 @@ private final class PiPEarlyPlaceholderPlacement {
 @available(iOS 15.0, macOS 12.0, *)
 @MainActor
 private final class PiPContentContainerView: NSUIView {
-
     let contentView: NSUIView
     private let placeholderView: NSUIView?
     private let originalContentPlacement: OriginalViewPlacement?
@@ -1104,7 +1074,7 @@ private final class PiPContentContainerView: NSUIView {
         self.originalPlaceholderPlacement = self.placeholderView.flatMap { OriginalViewPlacement(view: $0) }
         super.init(frame: .zero)
 
-        platformClipsToBounds = true
+        clipsToBounds = true
 
         installPlaceholderIfNeeded()
         if self.placeholderView == nil {
@@ -1169,10 +1139,10 @@ private final class PiPContentContainerView: NSUIView {
         placeholderView.autoresizingMask = originalContentPlacement.autoresizingMask
         placeholderView.frame = originalContentPlacement.frame
         placeholderView.bounds = originalContentPlacement.bounds
-        placeholderView.platformCenter = originalContentPlacement.center
+        placeholderView.center = originalContentPlacement.center
 
         let insertionIndex = min(originalContentPlacement.siblingIndex, originalSuperview.subviews.count)
-        originalSuperview.platformInsertSubview(placeholderView, at: insertionIndex)
+        originalSuperview.insertSubview(placeholderView, at: insertionIndex)
 
         placeholderConstraints = originalContentPlacement.constraintsReplacingView(with: placeholderView)
         NSLayoutConstraint.activate(placeholderConstraints)
@@ -1212,7 +1182,7 @@ private final class PiPContentContainerView: NSUIView {
             self.translatesAutoresizingMaskIntoConstraints = view.translatesAutoresizingMaskIntoConstraints
             self.frame = view.frame
             self.bounds = view.bounds
-            self.center = view.platformCenter
+            self.center = view.center
             self.autoresizingMask = view.autoresizingMask
             self.constraints = Self.activeConstraintsReferencing(view)
         }
@@ -1224,14 +1194,14 @@ private final class PiPContentContainerView: NSUIView {
 
             if view.superview !== superview {
                 let insertionIndex = min(siblingIndex, superview.subviews.count)
-                superview.platformInsertSubview(view, at: insertionIndex)
+                superview.insertSubview(view, at: insertionIndex)
             }
 
             view.translatesAutoresizingMaskIntoConstraints = translatesAutoresizingMaskIntoConstraints
             view.autoresizingMask = autoresizingMask
             view.frame = frame
             view.bounds = bounds
-            view.platformCenter = center
+            view.center = center
 
             NSLayoutConstraint.activate(constraints.filter { !$0.isActive })
         }
@@ -1301,153 +1271,99 @@ private final class PiPContentContainerView: NSUIView {
 @available(iOS 15.0, macOS 12.0, *)
 @MainActor
 private final class PiPPlaceholderView: NSUIView {
+    private let imageView = NSUIImageView(image: .symbol("pip")!).translatesAutoresizingMaskIntoConstraints(false)
+    #if os(macOS)
+    fileprivate let textLabel = NSTextField.label().font(.subheadline).textColor(.systemGray).translatesAutoresizingMaskIntoConstraints(false).maximumNumberOfLines(0).alignment(.center)
+    #else
+    fileprivate let textLabel = UILabel().font(.subheadline).textColor(.systemGray).translatesAutoresizingMaskIntoConstraints(false).textAlignment(.center).numberOfLines(0)
+    #endif
 
-    private static let defaultText = "Video is playing in picture in picture."
-    private let imageView = NSUIImageView(image: .pictureInPictureSymbol)
-    private let textLabel = PiPTextLabel.pipLabel()
+    #if os(macOS)
+    fileprivate lazy var closeButton = NSButton.image(.symbol("pip.exit") ?? .symbol("xmark.circle.fill")!) { [weak self] _ in
+        self?.contentView?.stopDisplayingPictureInPicture()
+    }.toolTip("Close Picture in Picture").contentTintColor(.systemGray).isHidden(true).translatesAutoresizingMaskIntoConstraints(false)
+    #else
+    fileprivate lazy var closeButton = UIButton.system(image: .symbol("pip.exit") ?? .symbol("xmark.circle.fill")!, primaryAction: UIAction(title: "Close") { [weak self] _ in
+        self?.contentView?.stopDisplayingPictureInPicture()
+    }).accessibilityLabel("Close Picture in Picture").tintColor(.systemGray).isHidden(true).translatesAutoresizingMaskIntoConstraints(false)
+    #endif
 
-    var text: String? {
-        get { textLabel.platformText }
-        set { textLabel.platformText = newValue ?? Self.defaultText }
-    }
+    weak var contentView: AVPictureInPictureContentView?
 
-    init(text: String?) {
+    init(contentView: AVPictureInPictureContentView?) {
+        self.contentView = contentView
         super.init(frame: .zero)
         configure()
-        self.text = text
+        textLabel.text = ""
     }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
-        text = nil
+        textLabel.text = ""
     }
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         configure()
-        text = nil
+        textLabel.text = ""
     }
 
     private func configure() {
-        platformBackgroundColor = .black
-        platformClipsToBounds = true
+        backgroundColor = .black
+        clipsToBounds = true
 
-        let stackView = NSUIStackView.pipStackView(arrangedSubviews: [imageView, textLabel])
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.platformAxis = .vertical
-        stackView.platformSetCenterAlignment()
-        stackView.spacing = 12
-        stackView.platformIsUserInteractionEnabled = false
+        addSubview(closeButton)
+
+        let stackView = NSUIStackView.vertical(.center, spacing: 12) {
+            [imageView, textLabel]
+        }.translatesAutoresizingMaskIntoConstraints(false)
+        #if !os(macOS)
+        stackView.isUserInteractionEnabled = false
+        #endif
         addSubview(stackView)
 
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.platformContentModeScaleAspectFit()
-        imageView.platformTintColor = .systemGray
+        #if os(macOS)
+        imageView.contentTintColor = .systemGray
+        imageView.imageScaling = .scaleProportionallyUpOrDown
+        #else
+        imageView.tintColor = .systemGray
+        imageView.contentMode = .scaleAspectFit
+        #endif
 
-        textLabel.translatesAutoresizingMaskIntoConstraints = false
-        textLabel.platformFont = .pipSubheadline
-        textLabel.platformTextColor = .systemGray
-        textLabel.platformTextAlignment = .center
-        textLabel.platformNumberOfLines = 0
-
-        NSLayoutConstraint.activate([
-            stackView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            stackView.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -20),
-            imageView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.26),
-            imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor),
-            textLabel.widthAnchor.constraint(lessThanOrEqualTo: widthAnchor, multiplier: 0.82)
-        ])
+        [closeButton.topAnchor.constraint(equalTo: topAnchor, constant: 10),
+         closeButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+         closeButton.widthAnchor.constraint(equalToConstant: 32),
+         closeButton.heightAnchor.constraint(equalTo: closeButton.widthAnchor),
+         stackView.centerXAnchor.constraint(equalTo: centerXAnchor),
+         stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
+         stackView.leadingAnchor.constraint(greaterThanOrEqualTo: leadingAnchor, constant: 20),
+         stackView.trailingAnchor.constraint(lessThanOrEqualTo: trailingAnchor, constant: -20),
+         imageView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.26),
+         imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor),
+         textLabel.widthAnchor.constraint(lessThanOrEqualTo: widthAnchor, multiplier: 0.82)].activate()
     }
 }
 
-// MARK: - Content Size Resolution
-
 @available(iOS 15.0, macOS 12.0, *)
-@MainActor
-private enum PiPContentSizeResolver {
-
-    static func preferredSize(for view: AVPictureInPictureContentView) -> CGSize {
-        if let size = validatedSize(view.preferredPictureInPictureContentSize) {
+private extension AVPictureInPictureContentView {
+    var preferredSize: CGSize {
+        if let size = preferredPictureInPictureContentSize.valid {
             return size
         }
-
-        return preferredSize(for: view as NSUIView)
-    }
-
-    static func preferredSize(for view: NSUIView) -> CGSize {
         #if os(macOS)
-        let fittingSize = view.fittingSize
+        let fittingSize = fittingSize
         #else
-        let fittingSize = view.systemLayoutSizeFitting(
+        let fittingSize = systemLayoutSizeFitting(
             NSUIView.layoutFittingCompressedSize,
             withHorizontalFittingPriority: .fittingSizeLevel,
             verticalFittingPriority: .fittingSizeLevel
         )
         #endif
 
-        if let size = validatedSize(fittingSize) {
-            return size
-        }
-
-        if let size = validatedSize(view.intrinsicContentSize) {
-            return size
-        }
-
-        if let size = validatedSize(view.bounds.size) {
-            return size
-        }
-
-        return CGSize(width: 16, height: 9)
-    }
-
-    static func validatedSize(_ size: CGSize) -> CGSize? {
-        guard
-            size.width.isFinite,
-            size.height.isFinite,
-            size.width > 0,
-            size.height > 0,
-            size.width != NSUIView.noIntrinsicMetric,
-            size.height != NSUIView.noIntrinsicMetric
-        else {
-            return nil
-        }
-
-        return size
-    }
-
-    static func renderSize(
-        for aspectRatioSize: CGSize,
-        maximumDimension: CGFloat = 320
-    ) -> CGSize {
-        guard let size = validatedSize(aspectRatioSize) else {
-            return CGSize(width: 320, height: 180)
-        }
-
-        let scale = maximumDimension / max(size.width, size.height)
-
-        return CGSize(
-            width: max((size.width * scale).rounded(), 1),
-            height: max((size.height * scale).rounded(), 1)
-        )
-    }
-
-    static func aspectRatiosDiffer(
-        _ lhs: CGSize,
-        _ rhs: CGSize,
-        tolerance: CGFloat = 0.001
-    ) -> Bool {
-        guard lhs.height > 0, rhs.height > 0 else {
-            return true
-        }
-
-        return abs(lhs.width / lhs.height - rhs.width / rhs.height) > tolerance
+        return fittingSize.valid ?? intrinsicContentSize.valid ?? bounds.size.valid ??  CGSize(width: 16, height: 9)
     }
 }
-
-// MARK: - Sample Buffer Playback Delegate
 
 @available(iOS 15.0, macOS 12.0, *)
 private final class PiPSampleBufferPlaybackDelegate:
@@ -1494,386 +1410,26 @@ private final class PiPSampleBufferPlaybackDelegate:
     }
 }
 
-// MARK: - Controller Delegate Proxy
-
-@available(iOS 15.0, macOS 12.0, *)
-@MainActor
-private final class PiPControllerDelegateProxy:
-    NSObject,
-    @preconcurrency AVPictureInPictureControllerDelegate
-{
-    weak var state: PiPControllerState?
-    var delegateObservation: KeyValueObservation?
-    weak var delegate: (any AVPictureInPictureControllerDelegate)?
-
-    init(state: PiPControllerState) {
-        self.state = state
-        super.init()
-        delegate = state.controller?.delegate
-        state.controller?.delegate = self
-        delegateObservation = state.controller?.observeChanges(for: \.delegate) { [weak self] oldValue, newValue in
-            guard let self = self, newValue !== self else { return }
-            self.delegate = newValue
-            self.state?.controller?.delegate = self
-        }
-    }
-
-    func pictureInPictureControllerDidStartPictureInPicture(
-        _ pictureInPictureController: AVPictureInPictureController
-    ) {
-        state?.pictureInPictureDidStart()
-        delegate?.pictureInPictureControllerDidStartPictureInPicture?(pictureInPictureController)
-    }
-
-    func pictureInPictureControllerDidStopPictureInPicture(
-        _ pictureInPictureController: AVPictureInPictureController
-    ) {
-        state?.pictureInPictureDidStop()
-        delegate?.pictureInPictureControllerDidStopPictureInPicture?(pictureInPictureController)
-    }
-
-    func pictureInPictureController(
-        _ pictureInPictureController: AVPictureInPictureController,
-        failedToStartPictureInPictureWithError error: Error
-    ) {
-        state?.pictureInPictureFailedToStart(error: error)
-        delegate?.pictureInPictureController?(
-            pictureInPictureController,
-            failedToStartPictureInPictureWithError: error
-        )
-    }
-
-    func pictureInPictureControllerWillStartPictureInPicture(
-        _ pictureInPictureController: AVPictureInPictureController
-    ) {
-        delegate?.pictureInPictureControllerWillStartPictureInPicture?(pictureInPictureController)
-    }
-
-    func pictureInPictureControllerWillStopPictureInPicture(
-        _ pictureInPictureController: AVPictureInPictureController
-    ) {
-        delegate?.pictureInPictureControllerWillStopPictureInPicture?(pictureInPictureController)
-    }
-
-    func pictureInPictureController(
-        _ pictureInPictureController: AVPictureInPictureController,
-        restoreUserInterfaceForPictureInPictureStopWithCompletionHandler
-        completionHandler: @escaping @Sendable (Bool) -> Void
-    ) {
-        if delegate?.responds(to: #selector(AVPictureInPictureControllerDelegate.pictureInPictureController(_:restoreUserInterfaceForPictureInPictureStopWithCompletionHandler:))) == true {
-            delegate?.pictureInPictureController?(
-                pictureInPictureController,
-                restoreUserInterfaceForPictureInPictureStopWithCompletionHandler: completionHandler
-            )
-        } else {
-            completionHandler(false)
-        }
-    }
-}
-
 // MARK: - Platform Helpers
 
-@available(iOS 15.0, macOS 12.0, *)
-@MainActor
-private extension NSUIView {
-    var platformWindow: NSUIWindow? {
-        window
+#if os(macOS)
+fileprivate extension NSTextField {
+    var text: String {
+        get { stringValue }
+        set { stringValue = newValue }
     }
+}
 
-    var platformLayer: CALayer {
-        #if os(macOS)
-        wantsLayer = true
-        if layer == nil {
-            layer = CALayer()
-        }
-        return layer!
-        #else
-        return layer
-        #endif
-    }
-
-    var platformAlpha: CGFloat {
-        #if os(macOS)
-        alphaValue
-        #else
-        alpha
-        #endif
-    }
-
-    var platformIsHidden: Bool {
-        get { isHidden }
-        set { isHidden = newValue }
-    }
-
-    var platformIsUserInteractionEnabled: Bool {
-        get {
-            #if os(macOS)
-            true
-            #else
-            isUserInteractionEnabled
-            #endif
-        }
-        set {
-            #if !os(macOS)
-            isUserInteractionEnabled = newValue
-            #endif
-        }
-    }
-
-    var platformClipsToBounds: Bool {
-        get {
-            #if os(macOS)
-            layer?.masksToBounds ?? false
-            #else
-            clipsToBounds
-            #endif
-        }
-        set {
-            #if os(macOS)
-            platformLayer.masksToBounds = newValue
-            #else
-            clipsToBounds = newValue
-            #endif
-        }
-    }
-
-    var platformBackgroundColor: NSUIColor? {
-        get {
-            #if os(macOS)
-            guard let cgColor = layer?.backgroundColor else { return nil }
-            return NSUIColor(cgColor: cgColor)
-            #else
-            return backgroundColor
-            #endif
-        }
-        set {
-            #if os(macOS)
-            platformLayer.backgroundColor = newValue?.cgColor
-            #else
-            backgroundColor = newValue
-            #endif
-        }
-    }
-
-    var platformCenter: CGPoint {
-        get { CGPoint(x: frame.midX, y: frame.midY) }
-        set {
-            frame.origin = CGPoint(
-                x: newValue.x - frame.width / 2.0,
-                y: newValue.y - frame.height / 2.0
-            )
-        }
-    }
-
-    var platformScale: CGFloat {
-        #if os(macOS)
-        window?.backingScaleFactor ?? NSScreen.main?.backingScaleFactor ?? 1.0
-        #else
-        window?.screen.scale ?? UIScreen.main.scale
-        #endif
-    }
-
-    func platformSetNeedsLayout() {
-        #if os(macOS)
-        needsLayout = true
-        #else
-        setNeedsLayout()
-        #endif
-    }
-
-    func platformLayoutIfNeeded() {
-        #if os(macOS)
+fileprivate extension NSUIView {
+    func layoutIfNeeded() {
         layoutSubtreeIfNeeded()
-        #else
-        layoutIfNeeded()
-        #endif
     }
 
-    func platformInsertSubview(_ subview: NSUIView, at index: Int) {
-        #if os(macOS)
-        if index >= subviews.count {
-            addSubview(subview)
-        } else {
-            addSubview(subview, positioned: .below, relativeTo: subviews[index])
-        }
-        #else
-        insertSubview(subview, at: index)
-        #endif
-    }
-
-    func platformBringSubviewToFront(_ subview: NSUIView) {
-        #if os(macOS)
-        addSubview(subview, positioned: .above, relativeTo: nil)
-        #else
-        bringSubviewToFront(subview)
-        #endif
+    var alpha: CGFloat {
+        alphaValue
     }
 }
-
-@available(iOS 15.0, macOS 12.0, *)
-private extension NSUIImage {
-    static var pictureInPictureSymbol: NSUIImage {
-        #if os(macOS)
-        return NSUIImage(systemSymbolName: "pip", accessibilityDescription: nil) ?? NSUIImage(size: CGSize(width: 24, height: 24))
-        #else
-        return NSUIImage(systemName: "pip") ?? NSUIImage()
-        #endif
-    }
-}
-
-@available(iOS 15.0, macOS 12.0, *)
-@MainActor
-private extension NSUIImageView {
-    var platformTintColor: NSUIColor? {
-        get {
-            #if os(macOS)
-            contentTintColor
-            #else
-            tintColor
-            #endif
-        }
-        set {
-            #if os(macOS)
-            contentTintColor = newValue
-            #else
-            tintColor = newValue
-            #endif
-        }
-    }
-
-    func platformContentModeScaleAspectFit() {
-        #if os(macOS)
-        imageScaling = .scaleProportionallyUpOrDown
-        #else
-        contentMode = .scaleAspectFit
-        #endif
-    }
-}
-
-@available(iOS 15.0, macOS 12.0, *)
-@MainActor
-private extension NSUIStackView {
-    static func pipStackView(arrangedSubviews: [NSUIView]) -> NSUIStackView {
-        #if os(macOS)
-        NSUIStackView(views: arrangedSubviews)
-        #else
-        NSUIStackView(arrangedSubviews: arrangedSubviews)
-        #endif
-    }
-
-    var platformAxis: NSUIUserInterfaceLayoutOrientation {
-        get {
-            #if os(macOS)
-            orientation == .vertical ? .vertical : .horizontal
-            #else
-            axis
-            #endif
-        }
-        set {
-            #if os(macOS)
-            orientation = newValue == .vertical ? .vertical : .horizontal
-            #else
-            axis = newValue
-            #endif
-        }
-    }
-
-    func platformSetCenterAlignment() {
-        #if os(macOS)
-        alignment = .centerX
-        #else
-        alignment = .center
-        #endif
-    }
-}
-
-@available(iOS 15.0, macOS 12.0, *)
-@MainActor
-private extension PiPTextLabel {
-    static func pipLabel() -> PiPTextLabel {
-        #if os(macOS)
-        let label = PiPTextLabel(labelWithString: "")
-        label.isEditable = false
-        label.isBordered = false
-        label.drawsBackground = false
-        return label
-        #else
-        return PiPTextLabel()
-        #endif
-    }
-
-    var platformText: String? {
-        get {
-            #if os(macOS)
-            stringValue
-            #else
-            text
-            #endif
-        }
-        set {
-            #if os(macOS)
-            stringValue = newValue ?? ""
-            #else
-            text = newValue
-            #endif
-        }
-    }
-
-    var platformFont: NSUIFont? {
-        get { font }
-        set { font = newValue }
-    }
-
-    var platformTextColor: NSUIColor? {
-        get { textColor }
-        set { textColor = newValue }
-    }
-
-    var platformTextAlignment: NSTextAlignment {
-        get {
-            #if os(macOS)
-            alignment
-            #else
-            textAlignment
-            #endif
-        }
-        set {
-            #if os(macOS)
-            alignment = newValue
-            #else
-            textAlignment = newValue
-            #endif
-        }
-    }
-
-    var platformNumberOfLines: Int {
-        get {
-            #if os(macOS)
-            maximumNumberOfLines
-            #else
-            numberOfLines
-            #endif
-        }
-        set {
-            #if os(macOS)
-            maximumNumberOfLines = newValue
-            #else
-            numberOfLines = newValue
-            #endif
-        }
-    }
-}
-
-@available(iOS 15.0, macOS 12.0, *)
-private extension NSUIFont {
-    static var pipSubheadline: NSUIFont {
-        #if os(macOS)
-        NSUIFont.preferredFont(forTextStyle: .subheadline)
-        #else
-        NSUIFont.preferredFont(forTextStyle: .subheadline)
-        #endif
-    }
-}
+#endif
 
 // MARK: - PiP Window Lookup
 
@@ -1931,7 +1487,8 @@ private enum NSUIWindowLocator {
 
         if className.localizedCaseInsensitiveContains("PictureInPicture") ||
             className.localizedCaseInsensitiveContains("PIP") ||
-            className.localizedCaseInsensitiveContains("PGHosted") {
+            className.localizedCaseInsensitiveContains("PGHosted")
+        {
             return true
         }
 
@@ -1951,26 +1508,14 @@ private enum NSUIWindowLocator {
 }
 
 @available(iOS 15.0, macOS 12.0, *)
-private extension AVPictureInPictureController {
-    var pipState: PiPControllerState? {
-        get { getAssociatedValue("customPIPState") }
-        set { setAssociatedValue(newValue, key: "customPIPState") }
-    }
-
-    var pictureInPictureViewControllerView: NSUIView? {
-        (value(forKeySafely: "pictureInPictureViewController") as? NSUIViewController)?.view
-    }
-}
-
-@available(iOS 15.0, macOS 12.0, *)
 @MainActor
 private extension NSUIView {
     var visibleRectInWindow: CGRect? {
         guard
-            let window = platformWindow,
+            let window = window,
             !bounds.isEmpty,
-            !platformIsHidden,
-            platformAlpha > 0.01
+            !isHidden,
+            alpha > 0.01
         else {
             return nil
         }
@@ -1981,11 +1526,11 @@ private extension NSUIView {
 
         var ancestor = superview
         while let view = ancestor {
-            guard !view.platformIsHidden, view.platformAlpha > 0.01 else {
+            guard !view.isHidden, view.alpha > 0.01 else {
                 return nil
             }
 
-            if view.platformClipsToBounds {
+            if view.clipsToBounds {
                 visibleRect = visibleRect.intersection(view.convert(view.bounds, to: rootView))
             }
 
@@ -2010,7 +1555,6 @@ private extension NSUIView {
 
 #if !os(macOS)
 extension AVPictureInPictureController {
-
     /**
      A Boolean value that indicates whether the Picture in Picture window appears to be dragged to the side.
 
@@ -2133,4 +1677,32 @@ struct PictureInPictureSideStateSnapshot {
     /// The frames inspected while calculating `isDraggedToSide`.
     let candidates: [Candidate]
 }
+
+fileprivate extension CGSize {
+    var valid: CGSize? {
+        isFinite && !isEmpty && self != .noIntrinsicSize ? self : nil
+    }
+    
+    func renderSize(maximumDimension: CGFloat = 320) -> CGSize {
+        guard valid != nil else {
+            return CGSize(width: 320, height: 180)
+        }
+        let scale = maximumDimension / Swift.max(width, height)
+        return CGSize(width: Swift.max((width * scale).rounded(), 1), height: Swift.max((height * scale).rounded(), 1))
+    }
+    
+    func renderSize(fitting viewSize: CGSize?, minimum: CGFloat = 320, maximum: CGFloat = 960) -> CGSize {
+        guard let size = valid else {
+            return CGSize(width: 480, height: 270)
+        }
+        let targetMaximumDimension = (viewSize?.valid?.max ?? 480.0).clamped(to: minimum...maximum)
+        let scale = targetMaximumDimension / size.max
+        (size.width * scale).rounded().clamped(min: 1)
+        return CGSize(
+            width: Swift.max((size.width * scale).rounded(), 1),
+            height: Swift.max((size.height * scale).rounded(), 1)
+        ).clamped(min: CGSize(1))
+    }
+}
+
 #endif

@@ -14,6 +14,13 @@ import UIKit
 import FZSwiftUtils
 
 extension NSUIView {
+    /// Sets the Boolean value indicating whether the view’s autoresizing mask is translated into constraints for the constraint-based layout system.
+    @discardableResult
+    @objc open func translatesAutoresizingMaskIntoConstraints(_ translates: Bool) -> Self {
+        translatesAutoresizingMaskIntoConstraints = translates
+        return self
+    }
+    
     var optionalLayer: CALayer? {
         #if os(macOS)
         wantsLayer = true

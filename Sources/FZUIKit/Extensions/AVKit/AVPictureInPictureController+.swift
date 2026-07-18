@@ -16,13 +16,13 @@ import FZSwiftUtils
 
 extension AVPictureInPictureController {
     /// The style of the system Picture in Picture controls.
-    public var controlsStyle: ControlsStyle {
+   @objc open var controlsStyle: ControlsStyle {
         get { ControlsStyle(rawValue: value(forKey: "controlsStyle") ?? 0) ?? .default }
         set { setValue(safely: newValue.rawValue, forKey: "controlsStyle") }
     }
     
     /// The style of the system Picture in Picture controls.
-    public enum ControlsStyle: Int, CustomStringConvertible, Hashable, Sendable {
+    @objc public enum ControlsStyle: Int, CustomStringConvertible, Hashable, Sendable {
         /// Displays the standard Picture in Picture controls.
         case `default`
         /// Displays a reduced set of Picture in Picture controls.

@@ -311,9 +311,9 @@ public extension CFType where Self == CGContext {
         - includeAlpha: A Boolean value indicating whether the bitmap should include an alpha channel.
         - space: The color space of the context's bitmap.
      */
-    init?(size: CGSize, scale: CGFloat = 1.0, includeAlpha: Bool = true, space: CGColorSpace = CGColorSpaceCreateDeviceRGB()) {
+    init?(data: UnsafeMutableRawPointer? = nil, size: CGSize, scale: CGFloat = 1.0, includeAlpha: Bool = true, space: CGColorSpace = CGColorSpaceCreateDeviceRGB()) {
         let size = size * scale
-        guard let context = CGContext(data: nil, width: Int(size.width.rounded(.up)), height: Int(size.height.rounded(.up)), bitsPerComponent: 8, bytesPerRow: 0, space: space, bitmapInfo: CGBitmapInfo(alpha: includeAlpha ? .premultipliedLast : .noneSkipFirst))
+        guard let context = CGContext(data: data, width: Int(size.width.rounded(.up)), height: Int(size.height.rounded(.up)), bitsPerComponent: 8, bytesPerRow: 0, space: space, bitmapInfo: CGBitmapInfo(alpha: includeAlpha ? .premultipliedLast : .noneSkipFirst))
         else { return nil }
         if scale != 1.0 {
             context.scaleBy(x: scale, y: scale)
