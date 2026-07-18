@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 15.12.23.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 import QuartzCore
 
 public extension CAFrameRateRange {

@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 03.09.22.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -194,7 +194,7 @@ public struct BorderConfiguration: Hashable {
     }
     #else
     /// A configuration for a tint color border.
-    @available(iOS 15.0, tvOS 15.0, *)
+    @available(iOS 15.0, tvOS 15.0, visionOS 1.0, *)
     public static func tintColor(width: CGFloat = 2.0) -> Self {
         Self(color: .tintColor, width: width)
     }
@@ -314,7 +314,7 @@ extension NSAttributedString {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
 public extension AttributedString {
     /// The stroke configuration of the attributed string.
     var stroke: BorderConfiguration? {

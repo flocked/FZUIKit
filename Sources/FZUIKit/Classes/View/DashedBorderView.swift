@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 28.07.24.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -80,7 +80,7 @@ class DashedBorderView: NSUIView {
         
         @ViewBuilder
         var borderItem: some View {
-            if roundedCorners != [] || roundedCorners != .all, #available(macOS 13.0, iOS 16.0, tvOS 16.0, *) {
+            if roundedCorners != [] || roundedCorners != .all, #available(macOS 13.0, iOS 16.0, tvOS 16.0, visionOS 1.0, *) {
                 UnevenRoundedRectangle.init(topLeadingRadius: roundedCorners.contains(.topLeft) ? cornerRadius : 0, bottomLeadingRadius: roundedCorners.contains(.bottomLeft) ? cornerRadius : 0, bottomTrailingRadius: roundedCorners.contains(.bottomRight) ? cornerRadius : 0, topTrailingRadius: roundedCorners.contains(.topRight) ? cornerRadius : 0, style:  cornerCurve == .continuous ? .continuous : .circular)
                     .stroke(border, phase: phase)
             } else {

@@ -234,7 +234,7 @@ public extension Shape {
                  HStack {
                      Toggle("Animate", isOn: $animate)
                          .padding()
-                     #if os(macOS) || os(iOS)
+                     #if os(macOS) || os(iOS) || os(visionOS)
                          Slider(value: $speed, in: 0.0 ... 1.0)
                              .padding()
                      #endif

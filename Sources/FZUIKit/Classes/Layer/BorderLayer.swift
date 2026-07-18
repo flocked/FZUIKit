@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 30.06.23.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 import Foundation
 #if os(macOS)
 import AppKit
@@ -45,7 +45,7 @@ open class BorderLayer: CALayer {
         let wasVisible = isVisible
         isVisible = borderedLayer.lineWidth > 0.0 && borderedLayer.strokeColor?.alpha ?? 0.0 > 0.0
         if old.insets != configuration.insets || (!wasVisible != isVisible) { updateLayout() }
-        #if os(macOS) || os(iOS)
+        #if os(macOS) || os(iOS) || os(visionOS)
         guard let parentView = parentView else { return }
         updateBorderColor(for: parentView)
         #endif
@@ -122,7 +122,7 @@ open class BorderLayer: CALayer {
         addSublayer(borderedLayer)
         borderedLayer.fillColor = nil
         zPosition(.greatestFiniteMagnitude)
-        #if os(macOS) || os(iOS)
+        #if os(macOS) || os(iOS) || os(visionOS)
         guard observeSuperlayer else { return }
         superlayerObservation = observeChanges(for: \.superlayer, handler: { [weak self] _, _ in
             self?.updateViewObservation()
@@ -137,7 +137,7 @@ open class BorderLayer: CALayer {
     
     var lineWidth: CGFloat { borderedLayer.lineWidth }
     
-    #if os(macOS) || os(iOS)
+    #if os(macOS) || os(iOS) || os(visionOS)
     private func updateBorderColor(for view: NSUIView) {
         borderedLayer.strokeColor = configuration.resolvedColor()?.resolvedColor(for: view).cgColor
     }

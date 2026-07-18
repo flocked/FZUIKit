@@ -70,7 +70,7 @@ public extension Image {
 public extension NSUIImage {
     /// A SwiftUI representation of the image.
     var swiftui: Image {
-        if #available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, *), let symbolName = symbolName {
+        if #available(macOS 11.0, iOS 13.0, tvOS 13.0, watchOS 6.0, visionOS 1.0, *), let symbolName = symbolName {
             return Image(systemName: symbolName)
         }
         #if os(macOS)

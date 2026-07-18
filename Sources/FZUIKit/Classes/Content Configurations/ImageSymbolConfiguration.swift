@@ -147,7 +147,7 @@ public struct ImageSymbolConfiguration: Hashable {
     
     
     /// Creates a configuration with a monochrome color using the tint color.
-    @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+    @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
     public static var monochrome: Self {
         Self(color: .monochrome)
     }
@@ -220,13 +220,13 @@ public struct ImageSymbolConfiguration: Hashable {
     public static let title2 = Self.font(.title2)
     /// Creates a configuration with a third-level title font configuration.
     public static let title3 = Self.font(.title3)
-#if os(macOS) || os(iOS)
+#if os(macOS) || os(iOS) || os(visionOS)
     /// Creates a configuration with a large title font configuration.
     public static let largeTitle = Self.font(.largeTitle)
 #endif
     
     /// The color rendering mode of the configuration.
-    @available(macOS 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, *)
     public var colorRenderingMode: ColorRenderingMode {
         get { .init(rawValue: _colorRenderingMode)! }
         set { _colorRenderingMode = newValue.rawValue }
@@ -235,7 +235,7 @@ public struct ImageSymbolConfiguration: Hashable {
     private var _colorRenderingMode = 0
     
     /// The color rendering mode of a symbol oonfiguration.
-    @available(macOS 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, *)
     public enum ColorRenderingMode: Int, Hashable {
         /// Automatically uses an appropriate color rendering mode for the symbol’s color layers.
         case automatic
@@ -244,13 +244,14 @@ public struct ImageSymbolConfiguration: Hashable {
         /// Renders the symbol’s color layers using gradients.
         case gradient
         
+        @available(macOS 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, *)
         var nsUI: NSUIImage.SymbolColorRenderingMode {
             .init(rawValue: rawValue)!
         }
     }
     
     /// The variable value mode of the configuration.
-    @available(macOS 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, *)
     public var variableValueMode: VariableValueMode {
         get { .init(rawValue: _variableValueMode)! }
         set { _variableValueMode = newValue.rawValue }
@@ -259,7 +260,7 @@ public struct ImageSymbolConfiguration: Hashable {
     private var _variableValueMode = 0
     
     /// The variable value mode of a symbol configuration.
-    @available(macOS 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, *)
+    @available(macOS 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 1.0, *)
     public enum VariableValueMode: Int, Hashable {
         /// Automatically selects an appropriate variable value mode for the symbol.
         case automatic
@@ -268,6 +269,7 @@ public struct ImageSymbolConfiguration: Hashable {
         /// Changes the drawn length of each variable layer to either based on how its range relates to the current value.
         case draw
         
+        @available(macOS 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, *)
         var nsUI: NSUIImage.SymbolVariableValueMode {
             .init(rawValue: rawValue)!
         }
@@ -306,7 +308,7 @@ public struct ImageSymbolConfiguration: Hashable {
         public static let headline = Self.textStyle(.headline)
         /// The font you use for subheadings.
         public static let subheadline = Self.textStyle(.subheadline)
-#if os(macOS) || os(iOS)
+#if os(macOS) || os(iOS) || os(visionOS)
         /// The font you use for large titles.
         public static let largeTitle = Self.textStyle(.largeTitle)
 #endif
@@ -436,17 +438,17 @@ public struct ImageSymbolConfiguration: Hashable {
             switch mode {
             case .monochrome:
                 if let primary = primary {
-                    if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
+                    if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *) {
                         return .init(paletteColors: [primary]) + .preferringMonochrome()
                     } else {
                         return .init(paletteColors: [primary])
                     }
-                } else if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
+                } else if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *) {
                     return .preferringMonochrome()
                 }
                 return .unspecified
             case .hierarchical:
-                if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
+                if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *) {
 #if os(macOS)
                     if let primary = primary {
                         return NSUIImage.SymbolConfiguration(hierarchicalColor: primary)
@@ -469,7 +471,7 @@ public struct ImageSymbolConfiguration: Hashable {
             }
         }
         
-        @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+        @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
         /// Monochrome.
         public static var monochrome: Self {
             ColorConfiguration(.monochrome)
@@ -531,7 +533,7 @@ public struct ImageSymbolConfiguration: Hashable {
         if let symbolScale = scale?.nsUI {
             configuration += .init(scale: symbolScale)
         }
-        if #available(macOS 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, *) {
+        if #available(macOS 26.0, iOS 26.0, tvOS 26.0, watchOS 26.0, visionOS 26.0, *) {
             if colorRenderingMode != .automatic {
                 configuration += .init(colorRenderingMode: colorRenderingMode.nsUI)
             }
@@ -543,8 +545,8 @@ public struct ImageSymbolConfiguration: Hashable {
     }
 }
 
-#if os(macOS) || os(iOS) || os(tvOS)
-@available(macOS 13.0, iOS 15.0, tvOS 15.0, *)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
+@available(macOS 13.0, iOS 15.0, tvOS 15.0, visionOS 1.0, *)
 public extension NSUIImageView {
 #if os(macOS)
     /// The configuration values to use when rendering the image.
@@ -570,7 +572,7 @@ public extension NSUIImageView {
 
 #endif
 
-@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(macOS 12.0, iOS 15.0, tvOS 15.0, watchOS 8.0, visionOS 1.0, *)
 public extension View {
     /**
      Configurates symbol images within this view.
@@ -608,7 +610,7 @@ public extension View {
     }
 }
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 public extension NSUIImageView {
     /// Configurates the image view with the specified symbol configuration.
     func configurate(using configuration: ImageSymbolConfiguration) {
@@ -657,7 +659,7 @@ extension NSUIImage.SymbolConfiguration {
     
     /*
      /// Creates a configuration with a monochrome color using the tint color.
-     @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+     @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
      public static var monochrome: Self {
      Self(color: .monochrome)
      }
@@ -681,13 +683,13 @@ extension NSUIImage.SymbolConfiguration {
      }
      
      /// Creates a configuration with a multicolor color using the tint color.
-     @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+     @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
      public static var multicolor: Self {
      Self(color: .multicolor)
      }
      
      /// Creates a configuration with a multicolor color with the specified color.
-     @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+     @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
      public static func multicolor(_ color: NSUIColor) -> Self {
      Self(color: .multicolor(color))
      }

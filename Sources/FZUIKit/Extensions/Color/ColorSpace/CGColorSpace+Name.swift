@@ -131,7 +131,7 @@ public extension CGColorSpace {
         public static let itur_2020 = Self(CGColorSpace.itur_2020)
         
         /// The linear ITU-R BT.2020 color space.
-        @available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, *)
+        @available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, visionOS 1.0, *)
         public static let linearITUR_2020 = Self(CGColorSpace.linearITUR_2020)
         
         /// The extended range ITU-R BT.2020 color space.
@@ -141,7 +141,7 @@ public extension CGColorSpace {
         public static let extendedLinearITUR_2020 = Self(CGColorSpace.extendedLinearITUR_2020)
         
         /// The ITU-R BT.2020 color space with an sRGB transfer function.
-        @available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, *)
+        @available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, visionOS 1.0, *)
         public static let itur_2020_sRGBGamma = Self(CGColorSpace.itur_2020_sRGBGamma)
         
         /// The ITU-R BT.2100 color space with Hybrid Log-Gamma (HLG) transfer function.
@@ -154,11 +154,11 @@ public extension CGColorSpace {
         public static let itur_709 = Self(CGColorSpace.itur_709)
         
         /// The ITU-R BT.709 color space with Hybrid Log-Gamma (HLG) transfer function.
-        @available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, *)
+        @available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, visionOS 1.0, *)
         public static let itur_709_HLG = Self(CGColorSpace.itur_709_HLG)
         
         /// The ITU-R BT.709 color space with Perceptual Quantizer (PQ) transfer function.
-        @available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, *)
+        @available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, visionOS 1.0, *)
         public static let itur_709_PQ = Self(CGColorSpace.itur_709_PQ)
         
         // MARK: - Other color spaces
@@ -183,7 +183,7 @@ public extension CGColorSpace {
         /// Returns the names of all available color spaces.
         public static let availableNames: [Self] = {
             var names: [Self] = [.acescgLinear, .adobeRGB1998, .deviceRGB, .extendedLinearSRGB, .extendedSRGB, .genericRGB, .genericRGBLinear, .linearSRGB, .rommRGB, .sRGB, .dcip3, .displayP3, .displayP3_HLG, .extendedLinearDisplayP3, .deviceGray, .extendedGray, .extendedLinearGray, .genericGray, .genericGrayGamma2_2, .linearGray, .extendedLinearITUR_2020, .itur_2020, .itur_709, .genericCMYK, .deviceCMYK, .genericLab, .genericXYZ, .displayP3_PQ, .extendedDisplayP3, .extendedITUR_2020, .itur_2100_HLG, .itur_2100_PQ, .linearDisplayP3]
-            if #available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, *) {
+            if #available(macOS 12.0, iOS 15.1, tvOS 15.1, watchOS 8.1, visionOS 1.0, *) {
                 names += [.itur_2020_sRGBGamma, .itur_709_HLG, .itur_709_PQ, .linearITUR_2020]
             }
             let keyedNames = Dictionary(grouping: names, by: \.model.rawValue)

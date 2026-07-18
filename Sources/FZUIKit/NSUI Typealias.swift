@@ -35,6 +35,7 @@ public typealias NSUIViewRepresentable = NSViewRepresentable
 public typealias NSUIResponder = NSResponder
 public typealias NSUIImageView = NSImageView
 public typealias NSUITextView = NSTextView
+public typealias NSUIWindow = NSWindow
 public typealias NSUIGestureRecognizer = NSGestureRecognizer
 public typealias NSUIPinchGestureRecognizer = NSMagnificationGestureRecognizer
 public typealias NSUIPanGestureRecognizer = NSPanGestureRecognizer
@@ -56,6 +57,7 @@ public typealias NSUITouch = NSTouch
 public typealias NSUIGraphicsImageRenderer = GraphicsImageRenderer
 #elseif canImport(UIKit)
 import UIKit
+public typealias NSUIWindow = UIWindow
 public typealias NSUIBezierPath = UIBezierPath
 public typealias NSUIColor = UIColor
 public typealias NSUIEdgeInsets = UIEdgeInsets
@@ -65,7 +67,7 @@ public typealias NSUIImage = UIImage
 public typealias NSUISymbolWeight = UIImage.SymbolWeight
 #endif
 
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 public typealias NSUICollectionView = UICollectionView
 public typealias NSUICollectionViewCompositionalLayout = UICollectionViewCompositionalLayout
 public typealias NSUICollectionViewCompositionalLayoutConfiguration = UICollectionViewCompositionalLayoutConfiguration
@@ -91,7 +93,7 @@ public typealias NSUIPanGestureRecognizer = UIPanGestureRecognizer
 public typealias NSUIGestureRecognizer = UIGestureRecognizer
 public typealias NSUIButton = UIButton
 public typealias NSUIGraphicsImageRenderer = UIGraphicsImageRenderer
-#if os(iOS)
+#if os(iOS) || os(visionOS)
 public typealias NSUIPinchGestureRecognizer = UIPinchGestureRecognizer
 #endif
 public typealias NSUICollectionViewLayoutInvalidationContext = UICollectionViewLayoutInvalidationContext

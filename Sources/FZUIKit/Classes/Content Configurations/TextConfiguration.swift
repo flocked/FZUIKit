@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 02.06.23.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -194,7 +194,7 @@ public struct TextConfiguration {
         return .system(.subheadline)
     }
     
-    #if os(macOS) || os(iOS)
+    #if os(macOS) || os(iOS) || os(visionOS)
     /// A text configurationn with a font for large titles.
     public static var largeTitle: Self {
         return .system(.largeTitle)
@@ -312,7 +312,7 @@ extension TextConfiguration: ReferenceConvertible {
     }
 }
 
-@available(macOS 11.0, iOS 15.0, tvOS 15.0, watchOS 6.0, *)
+@available(macOS 11.0, iOS 15.0, tvOS 15.0, watchOS 6.0, visionOS 1.0, *)
 extension TextConfiguration: Hashable {
     public static func == (lhs: TextConfiguration, rhs: TextConfiguration) -> Bool {
         lhs.hashValue == rhs.hashValue
@@ -359,7 +359,7 @@ extension NSTextAlignment {
     }
 }
 
-@available(macOS 11.0, iOS 15.0, tvOS 15.0, watchOS 6.0, *)
+@available(macOS 11.0, iOS 15.0, tvOS 15.0, watchOS 6.0, visionOS 1.0, *)
 public extension Text {
     @ViewBuilder
     func configurate(using properties: TextConfiguration) -> some View {

@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 22.08.22.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 import Foundation
 import FZSwiftUtils
 #if os(macOS)
@@ -126,7 +126,7 @@ extension NSUICollectionViewLayout {
         return layout
     }
     
-    #if os(macOS) || os(iOS)
+    #if os(macOS) || os(iOS) || os(visionOS)
     /**
      A interactive grid layout where the user can change the amount of columns by pinching the collection view.
  
@@ -227,7 +227,7 @@ extension NSUICollectionViewLayout {
         case rightToLeft
     }
     
-    #if os(macOS) || os(iOS)
+    #if os(macOS) || os(iOS) || os(visionOS)
     /**
      A waterfall collection view layout.
      
@@ -436,7 +436,7 @@ class CollectionViewCompositionalColumnLayout: NSUICollectionViewCompositionalLa
     var keyDownColumnChangeAmountShift = 0
     var invalidation: ((_ columns: Int) -> NSUICollectionViewLayout)?
     
-    #if os(macOS) || os(iOS)
+    #if os(macOS) || os(iOS) || os(visionOS)
     func configurate(with userInteraction: ColumnsLayoutUserInteraction, invalidation: @escaping (_ columns: Int) -> NSUICollectionViewLayout) {
         self.columnRange = userInteraction.columnRange
         self.isPinchable = userInteraction.isPinchable

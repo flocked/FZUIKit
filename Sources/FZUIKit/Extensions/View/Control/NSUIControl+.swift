@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 18.07.24.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 #if os(macOS)
 import AppKit
 #else
@@ -50,7 +50,7 @@ extension NSUIControl {
     }
     
     /// Sets the Boolean value that determines whether the context menu interaction is the control’s primary action.
-    @available(iOS 14.0, tvOS 17.0, *)
+    @available(iOS 14.0, tvOS 17.0, visionOS 1.0, *)
     @discardableResult
     public func showsMenuAsPrimaryAction(_ shows: Bool) -> Self {
         showsMenuAsPrimaryAction = shows

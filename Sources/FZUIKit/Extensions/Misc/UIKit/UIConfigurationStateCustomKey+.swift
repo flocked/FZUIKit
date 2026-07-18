@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 08.09.22.
 //
 
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 import UIKit
 @available(iOS 14.0, *)
 extension UIConfigurationStateCustomKey: ExpressibleByStringLiteral {

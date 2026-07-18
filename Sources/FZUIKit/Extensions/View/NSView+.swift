@@ -13,7 +13,7 @@ import SwiftUI
 extension NSView {
     /// The mouse location from the current event in the view's coordinate system.
     public var mouseLocationInCurrentEvent: CGPoint? {
-        NSApp.currentEvent?.location(in: self)
+        NSEvent.current?.location(in: self)
     }
     
     /// Sets the Boolean value indicating whether the view’s autoresizing mask is translated into constraints for the constraint-based layout system.
@@ -169,7 +169,7 @@ extension NSView {
     }
     
     private func setupLayerStateHooks() {
-        if let layer = layer, layer.transform != CATransform3DIdentity || layer.anchorPoint != .zero || layer.maskedCorners != .all {
+        if let layer = layer, layer.transform != CATransform3DIdentity || layer.anchorPoint != .zero || layer.maskedCorners.toAll != .all {
             superview?.wantsLayer = true
             guard saveLayerStateHook == nil else { return }
             do {
@@ -919,7 +919,7 @@ extension CALayer {
                         self?.borderColor = newValue.isLight ? light : dark
                     }
                 }
-                #elseif os(iOS) || os(tvOS)
+                #elseif os(iOS) || os(tvOS) || os(visionOS)
                 colorObservations[\.borderColor, default: []] += observeChanges(for: \.parentTraitCollection) { [weak self] oldValue, newValue in
                     guard oldValue.userInterfaceStyle != newValue.userInterfaceStyle else { return }
                     if needsBorderLayer {
@@ -1004,7 +1004,7 @@ extension CALayer {
                     guard oldValue.isLight != newValue.isLight else { return }
                     self?[keyPath: keyPath] = newValue.isLight ? light : dark
                 }
-                #elseif os(iOS) || os(tvOS)
+                #elseif os(iOS) || os(tvOS) || os(visionOS)
                 colorObservations[keyPath, default: []] += observeChanges(for: \.parentTraitCollection) { [weak self] oldValue, newValue in
                     guard oldValue.userInterfaceStyle != newValue.userInterfaceStyle else { return }
                     self?[keyPath: keyPath] = newValue.userInterfaceStyle == .light ? light : dark

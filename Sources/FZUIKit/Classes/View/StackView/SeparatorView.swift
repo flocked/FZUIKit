@@ -5,10 +5,10 @@
 //  Created by Florian Zand on 04.07.26.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 #if os(macOS)
 import AppKit
-#elseif os(iOS) || os(tvOS)
+#elseif os(iOS) || os(tvOS) || os(visionOS)
 import UIKit
 #endif
 import FZSwiftUtils
@@ -145,7 +145,9 @@ open class SeparatorView: NSUIView {
     override open func willMove(toSuperview newSuperview: UIView?) {
         guard let stackView = newSuperview as? NSUIStackView else { return }
         stackOrientation = stackView.orientation
+        #if !os(visionOS)
         stackView.swizzleOrientation()
+        #endif
         super.willMove(toSuperview: newSuperview)
     }
     
@@ -175,7 +177,11 @@ open class SeparatorView: NSUIView {
             insets.top = 0.0
             insets.bottom = 0.0
         }
+        #if os(visionOS)
+        let rect = bounds.inset(by: insets)
+        #else
         let rect = bounds.inset(by: insets, layoutDirection: userInterfaceLayoutDirection)
+        #endif
         CATransaction.disabledActions {
             separatorLayer.frame = rect
         }

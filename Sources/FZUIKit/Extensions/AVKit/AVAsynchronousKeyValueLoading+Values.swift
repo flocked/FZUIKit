@@ -92,7 +92,7 @@ public extension AVKeyValues where T: AVAsset {
         try? object?.load(.isPlayable)
     }
     
-    #if os(macOS) || os(iOS) || os(tvOS)
+    #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
     /// A Boolean value indicating whether you can export an asset using an export session.
     var isExportable: Bool? {
         try? object?.load(.isExportable)
@@ -109,14 +109,14 @@ public extension AVKeyValues where T: AVAsset {
         try? object?.load(.isComposable)
     }
     
-    #if os(iOS) || os(tvOS)
+    #if os(iOS) || os(tvOS) || os(visionOS)
     /// A Boolean value indicating whether the asset provides precise duration and timing.
     var isCompatibleWithSavedPhotosAlbum: Bool? {
         try? object?.load(.isCompatibleWithSavedPhotosAlbum)
     }
     #endif
     
-    #if os(macOS) || os(iOS) || os(tvOS)
+    #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
     /// A Boolean value indicating whether the asset is compatible with AirPlay Video.
     var isCompatibleWithAirPlayVideo: Bool? {
         try? object?.load(.isCompatibleWithAirPlayVideo)
@@ -173,7 +173,7 @@ public extension AVKeyValues where T: AVAsset {
     
     // MARK: - Content Protections
     
-    #if os(macOS) || os(iOS) || os(tvOS)
+    #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
     /// A Boolean value indicating whether the asset contains protected content.
     var hasProtectedContent: Bool? {
         try? object?.load(.hasProtectedContent)

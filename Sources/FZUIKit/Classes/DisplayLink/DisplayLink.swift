@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 03.07.25.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 import Foundation
 #if os(macOS)
 import AppKit
@@ -103,16 +103,18 @@ public class DisplayLink {
 
     #else
     /// Creates a new paused DisplayLink instance.
-    @available(iOS 15.0, tvOS 15.0, *)
+    @available(iOS 15.0, tvOS 15.0, visionOS 1.0, *)
     public convenience init(preferredFrameRateRange: CAFrameRateRange? = nil, onFrame: @escaping ((_ frame: Frame) -> Void)) {
         self.init(onFrame: onFrame)
         if let preferredFrameRateRange = preferredFrameRateRange {
             self.preferredFrameRateRange = preferredFrameRateRange
         } else {
+            #if os(iOS) || os(tvOS)
             let maximumFramesPerSecond = Float(UIScreen.main.maximumFramesPerSecond)
             let highFPSEnabled = maximumFramesPerSecond > 60
             let minimumFPS: Float = Swift.min(highFPSEnabled ? 80 : 60, maximumFramesPerSecond)
             self.preferredFrameRateRange = .init(minimum: minimumFPS, maximum: maximumFramesPerSecond, preferred: maximumFramesPerSecond)
+            #endif
         }
     }
 

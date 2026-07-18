@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 14.10.22.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 
 import Combine
 import SwiftUI

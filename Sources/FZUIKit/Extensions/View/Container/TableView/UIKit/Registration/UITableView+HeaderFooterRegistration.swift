@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 25.07.24.
 //
 
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 import UIKit
 
 extension UITableView {

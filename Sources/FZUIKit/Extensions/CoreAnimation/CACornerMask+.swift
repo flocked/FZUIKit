@@ -5,14 +5,15 @@
 //  Created by Florian Zand on 23.02.23.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 import QuartzCore.CoreAnimation
+import FZSwiftUtils
 
 public extension CACornerMask {
     /// All corners.
-    static var all: CACornerMask = [.bottomLeft, .bottomRight, .topLeft, .topRight]
+    static let all: Self = [.bottomLeft, .bottomRight, .topLeft, .topRight]
     /// No ocrners.
-    static var none: CACornerMask = []
+    static let none: Self = []
 
     internal var toAll: CACornerMask {
         self == .none ? .all : self
@@ -20,64 +21,57 @@ public extension CACornerMask {
 
     #if os(macOS)
     /// The bottom-left corner.
-    static var bottomLeft = CACornerMask.layerMinXMinYCorner
+    static let bottomLeft: CACornerMask = .layerMinXMinYCorner
     /// The bottom-right corner.
-    static var bottomRight = CACornerMask.layerMaxXMinYCorner
+    static let bottomRight: CACornerMask = .layerMaxXMinYCorner
     /// The top-left corner.
-    static var topLeft = CACornerMask.layerMinXMaxYCorner
+    static let topLeft: CACornerMask = .layerMinXMaxYCorner
     /// The top-right corner.
-    static var topRight = CACornerMask.layerMaxXMaxYCorner
+    static let topRight: CACornerMask = .layerMaxXMaxYCorner
 
     /// The Bottom-left and bottom-right corner.
-    static var bottomCorners: CACornerMask = [
-        .layerMaxXMinYCorner,
-        .layerMinXMinYCorner,
-    ]
+    static let bottomCorners: CACornerMask = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
 
     /// The top-left and top-right corner.
-    static var topCorners: CACornerMask = [
-        .layerMinXMaxYCorner,
-        .layerMaxXMaxYCorner,
-    ]
+    static let topCorners: CACornerMask = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
     #elseif canImport(UIKit)
     /// The bottom-left corner.
-    static var bottomLeft = CACornerMask.layerMinXMaxYCorner
+    static let bottomLeft: CACornerMask = .layerMinXMaxYCorner
     /// The bottom-right corner.
-    static var bottomRight = CACornerMask.layerMaxXMaxYCorner
+    static let bottomRight: CACornerMask = .layerMaxXMaxYCorner
     /// The top-left corner.
-    static var topLeft = CACornerMask.layerMinXMinYCorner
+    static let topLeft: CACornerMask = .layerMinXMinYCorner
     /// The top-right corner.
-    static var topRight = CACornerMask.layerMaxXMinYCorner
+    static let topRight: CACornerMask = .layerMaxXMinYCorner
 
     /// The Bottom-left and bottom-right corner.
-    static var bottomCorners: CACornerMask = [
-        .layerMaxXMaxYCorner,
-        .layerMinXMaxYCorner,
-    ]
+    static let bottomCorners: CACornerMask = [.layerMaxXMaxYCorner, .layerMinXMaxYCorner]
 
     /// The top-left and top-right corner.
-    static var topCorners: CACornerMask = [
-        .layerMinXMinYCorner,
-        .layerMaxXMinYCorner,
-    ]
+    static let topCorners: CACornerMask = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
     #endif
 
     /// The Bottom-left and top-left corner.
-    static var leftCorners: CACornerMask = [
-        .layerMinXMinYCorner,
-        .layerMinXMaxYCorner,
-    ]
+    static let leftCorners: CACornerMask = [.layerMinXMinYCorner, .layerMinXMaxYCorner]
 
     /// The Bottom-right and top-right corner.
-    static var rightCorners: CACornerMask = [
-        .layerMaxXMinYCorner,
-        .layerMaxXMaxYCorner,
-    ]
+    static let rightCorners: CACornerMask = [.layerMaxXMinYCorner, .layerMaxXMaxYCorner]
 }
 
 extension CACornerMask: Swift.Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(rawValue)
+    }
+}
+
+extension CACornerMask: Swift.CustomStringConvertible {
+    public var description: String {
+        var strings: [String] = []
+        if contains(.layerMinXMinYCorner) { strings += ".minXMinY" }
+        if contains(.layerMaxXMinYCorner) { strings += ".maxXMinY" }
+        if contains(.layerMaxXMinYCorner) { strings += ".maxXMinY" }
+        if contains(.layerMaxXMaxYCorner) { strings += ".maxXMaxY" }
+        return "[\(strings.joined(separator: ", "))]"
     }
 }
 #endif

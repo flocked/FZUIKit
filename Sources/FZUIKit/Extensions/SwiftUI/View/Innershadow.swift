@@ -34,7 +34,7 @@ public struct InnerShadow<S: Shape>: View {
         self.y = y
     }
     
-    #if os(macOS) || os(iOS) || os(tvOS)
+    #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
     /**
      Creates a view that displays an inner shadow.
      

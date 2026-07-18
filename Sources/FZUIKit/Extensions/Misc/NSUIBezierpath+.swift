@@ -84,7 +84,7 @@ public extension NSUIBezierPath {
         return self
     }
     
-    #elseif os(iOS) || os(tvOS) || os(watchOS)
+    #elseif os(iOS) || os(tvOS) || os(visionOS) || os(watchOS)
     /// Sets the line cap style for the path.
     @discardableResult
     func lineCapStyle(_ style: CGLineCap) -> Self {

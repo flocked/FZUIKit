@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 06.06.22.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 import QuartzCore
 
 public extension CATransaction {

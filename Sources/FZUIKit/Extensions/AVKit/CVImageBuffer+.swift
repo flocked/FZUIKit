@@ -6,7 +6,7 @@
 //
 
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 import AVFoundation
 import CoreImage
 import FZSwiftUtils

@@ -28,7 +28,7 @@ public extension Text {
     }
 }
 
-#if os(macOS) || os(iOS)
+#if os(macOS) || os(iOS) || os(visionOS)
     @available(iOS 15.0, macOS 12.0, *)
     public extension View {
         /// Controls whether text can be selected.

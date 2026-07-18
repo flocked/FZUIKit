@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 03.07.25.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 import Combine
 import Foundation
 
@@ -131,11 +131,11 @@ private extension DisplayLinkPublisher {
     }
 }
 
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 import QuartzCore
 import UIKit
 
-@available(iOS 15.0, tvOS 15.0, *)
+@available(iOS 15.0, tvOS 15.0, visionOS 1.0, *)
 public extension DisplayLinkPublisher {
     /// Creates a display link, optionally with the specified preferred frame rate range.
     convenience init(preferredFrameRateRange: CAFrameRateRange? = nil) {
@@ -155,7 +155,7 @@ fileprivate extension DisplayLinkPublisher {
         }
         
         /// The preferred framerate range.
-        @available(iOS 15.0, tvOS 15.0, *)
+        @available(iOS 15.0, tvOS 15.0, visionOS 1.0, *)
         var preferredFrameRateRange: CAFrameRateRange {
             get { displayLink.preferredFrameRateRange }
             set { displayLink.preferredFrameRateRange = newValue }
@@ -170,7 +170,7 @@ fileprivate extension DisplayLinkPublisher {
         
         let target = DisplayLinkTarget()
         
-        @available(iOS 15.0, tvOS 15.0, *)
+        @available(iOS 15.0, tvOS 15.0, visionOS 1.0, *)
         convenience init(preferredFrameRateRange: CAFrameRateRange? = nil) {
             self.init()
             if let preferredFrameRateRange = preferredFrameRateRange {
@@ -181,12 +181,14 @@ fileprivate extension DisplayLinkPublisher {
         init() {
             displayLink = CADisplayLink(target: target, selector: #selector(DisplayLinkTarget.frame(_:)))
             
+            #if os(iOS) || os(tvOS)
             if #available(iOS 15.0, tvOS 15.0, *) {
                 let maximumFramesPerSecond = Float(UIScreen.main.maximumFramesPerSecond)
                 let highFPSEnabled = maximumFramesPerSecond > 60
                 let minimumFPS: Float = Swift.min(highFPSEnabled ? 80 : 60, maximumFramesPerSecond)
                 preferredFrameRateRange = .init(minimum: minimumFPS, maximum: maximumFramesPerSecond, preferred: maximumFramesPerSecond)
             }
+            #endif
             
             displayLink.isPaused = true
             displayLink.add(to: RunLoop.main, forMode: RunLoop.Mode.common)

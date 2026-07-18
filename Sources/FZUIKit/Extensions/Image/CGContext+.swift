@@ -145,7 +145,7 @@ extension CGContext {
         scaleBy(x: -1, y: 1)
     }
     
-    #if os(macOS) || os(iOS) || os(tvOS)
+    #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
     /// Enables shadowing with color a graphics context.
     public func setShadow(_ shadow: ShadowConfiguration) {
         setShadow(offset: shadow.offset.size, blur: shadow.radius, color: shadow.resolvedColor()?.cgColor.copy(alpha: shadow.opacity))
@@ -238,7 +238,7 @@ extension CGContext {
             let radius = hypot(rect.width, rect.height) / 2
             drawRadialGradient(cgGradient, startCenter: start, startRadius: 0.0, endCenter: end, endRadius: radius, options: [])
         case .conic:
-            if #available(macOS 14.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *) {
+            if #available(macOS 14.0, iOS 17.0, tvOS 17.0, watchOS 10.0, visionOS 1.0, *) {
                 drawConicGradient(cgGradient, center: rect.center, angle: 0.0)
             }
         }
@@ -254,7 +254,7 @@ extension CGContext {
     }
     #endif
 }
-@available(macOS 14.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *)
+@available(macOS 14.0, iOS 17.0, tvOS 17.0, watchOS 10.0, visionOS 1.0, *)
 extension CGContext {
     /**
      Draws a conic (angular) gradient into the graphics context.

@@ -43,7 +43,7 @@ public extension NSUIColor {
             return color
         }
         #endif
-        #if os(macOS) || os(iOS) || os(tvOS)
+        #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
         let dynamicColors = dynamicColors
         if dynamicColors.isDynamic {
             var light = dynamicColors.light.cgColor
@@ -85,7 +85,7 @@ public extension NSUIColor {
         rgb().alpha > 0.0
     }
     
-    #if os(iOS) || os(tvOS)
+    #if os(iOS) || os(tvOS) || os(visionOS)
     /**
      Generates the resolved color for the specified environment.
      
@@ -99,7 +99,7 @@ public extension NSUIColor {
     }
     #endif
     
-    #if os(macOS) || os(iOS) || os(tvOS)
+    #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
     
     /**
      Creates a gradient color object that uses the specified gradient and size.
@@ -123,16 +123,16 @@ public extension NSUIColor {
     /// All syten colors.
     static var systemColors: [NSUIColor] {
         var colors: [NSUIColor] = [.white, .black, .systemRed, .systemGreen, .systemBlue, .systemOrange, .systemYellow, .systemBrown, .systemPink, .systemPurple, .systemGray, .systemTeal, .systemIndigo]
-        if #available(macOS 12.0, iOS 15.0, tvOS 15.0, *) {
+        if #available(macOS 12.0, iOS 15.0, tvOS 15.0, visionOS 1.0, *) {
             colors.append(.systemCyan)
         }
         return colors
     }
-    #elseif os(iOS) || os(tvOS)
+    #elseif os(iOS) || os(tvOS) || os(visionOS)
     /// All syten colors.
     static var systemColors: [NSUIColor] {
         var colors: [NSUIColor] = [.white, .black, .systemRed, .systemGreen, .systemBlue, .systemOrange, .systemYellow, .systemBrown, .systemPink, .systemPurple, .systemGray, .systemTeal, .systemIndigo]
-        if #available(iOS 15.0, tvOS 15.0, *) {
+        if #available(iOS 15.0, tvOS 15.0, visionOS 1.0, *) {
             colors += [.systemMint, .tintColor, .systemCyan]
         }
         return colors
@@ -205,7 +205,7 @@ public extension NSUIColor {
     }
 }
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 public extension NSUIColor {
     /// Returns the dynamic light and dark color variation of the color.
     var dynamicColors: DynamicColor {

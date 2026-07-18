@@ -9,7 +9,7 @@
 //
 
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 import FZSwiftUtils
 #if os(macOS)
 import AppKit
@@ -51,7 +51,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
         }
     }
         
-    #if os(macOS) || os(iOS)
+    #if os(macOS) || os(iOS) || os(visionOS)
     /// User interaction options for changing the amount of columns by pinching the collection view and pressing the `plus` or `minus` key.
     public var userInteraction: UserInteraction = .init() {
         didSet {
@@ -178,7 +178,7 @@ public class ColumnCollectionViewLayout: NSUICollectionViewLayout, InteractiveCo
             #else
             previousBounds = collectionView?.bounds ?? previousBounds
             #endif
-            #if os(macOS) || os(iOS)
+            #if os(macOS) || os(iOS) || os(visionOS)
             collectionView?.setupColumnInteractionGestureRecognizer(needsGestureRecognizer)
             #endif
             prepareLayoutAttributes()
@@ -651,7 +651,7 @@ extension ColumnCollectionViewLayout {
         case automatic
     }
     
-    #if os(macOS) || os(iOS)
+    #if os(macOS) || os(iOS) || os(visionOS)
     /// User interaction options for changing the amount of columns by pinching the collection view and pressing the `plus` or `minus` key.
     public struct UserInteraction {
         

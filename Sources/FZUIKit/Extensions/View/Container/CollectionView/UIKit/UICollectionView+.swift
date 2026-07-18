@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 26.11.23.
 //
 
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 import FZSwiftUtils
 import UIKit
 

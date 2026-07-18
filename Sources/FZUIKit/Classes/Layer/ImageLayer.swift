@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 30.05.22.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -271,7 +271,7 @@ open class ImageLayer: CALayer {
     func updateDisplayingImage() {
         if var image = displayingImage {
             displayingSymbolImage = nil
-            if #available(macOS 12.0, iOS 15.0, tvOS 15.0, *), image.isSymbolImage {
+            if #available(macOS 12.0, iOS 15.0, tvOS 15.0, visionOS 1.0, *), image.isSymbolImage {
                 var configuration: NSUIImage.SymbolConfiguration?
                 if let tintColor = tintColor {
                     configuration = NSUIImage.SymbolConfiguration.palette(tintColor)

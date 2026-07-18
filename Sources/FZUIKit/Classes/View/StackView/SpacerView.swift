@@ -5,10 +5,10 @@
 //  Created by Florian Zand on 18.04.24.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 #if os(macOS)
 import AppKit
-#elseif os(iOS) || os(tvOS)
+#elseif os(iOS) || os(tvOS) || os(visionOS)
 import UIKit
 #endif
 import FZSwiftUtils
@@ -78,7 +78,9 @@ open class SpacerView: NSUIView {
         }
         fixedLengthConstraint?.activate(false)
         fixedLengthConstraint = nil
+        #if !os(visionOS)
         (newSuperview as? NSUIStackView)?.swizzleOrientation()
+        #endif
     }
     
     fileprivate func update(updateFlexibleConstraints: Bool = true) {
@@ -161,6 +163,7 @@ extension NSUIStackView {
         set { setAssociatedValue(newValue, key: "flexibleSpacerConstraints") }
     }
     
+#if !os(visionOS)
     func swizzleOrientation() {
         guard orientationHook == nil else { return }
         do {
@@ -183,6 +186,7 @@ extension NSUIStackView {
         get { getAssociatedValue("orientationHook") }
         set { setAssociatedValue(newValue, key: "orientationHook") }
     }
+#endif
     
     #if canImport(UIKit)
     var orientation: NSLayoutConstraint.Axis {

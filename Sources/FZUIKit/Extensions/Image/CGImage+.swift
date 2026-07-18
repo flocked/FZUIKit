@@ -37,7 +37,7 @@ public extension CGImage {
         #endif
     }
     
-    #if os(macOS) || os(iOS) || os(tvOS)
+    #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
     /// A `CIImage` representation of the image.
     var ciImage: CIImage {
         CIImage(cgImage: self)
@@ -244,7 +244,7 @@ extension CFType where Self == CGImage {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
 extension CGImage {
     /**
      Convert an image to a `vImage` buffer of the specified given pixel format.

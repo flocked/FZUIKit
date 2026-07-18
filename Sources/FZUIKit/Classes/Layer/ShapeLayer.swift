@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 08.02.26.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 import Foundation
 import FZSwiftUtils
 import SwiftUI

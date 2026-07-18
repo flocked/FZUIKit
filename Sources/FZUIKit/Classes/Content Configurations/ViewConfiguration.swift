@@ -6,7 +6,7 @@
 //
 
 /*
-#if os(macOS) || os(iOS)
+#if os(macOS) || os(iOS) || os(visionOS)
     #if os(macOS)
         import AppKit
     #elseif canImport(UIKit)
@@ -273,7 +273,7 @@
                     contentView = configuration.makeContentView()
                     super.init(frame: .zero)
                     addSubview(withConstraint: contentView)
-                    #if os(iOS) || os(tvOS)
+                    #if os(iOS) || os(tvOS) || os(visionOS)
                         tag = 24_532_453
                     #endif
                 }

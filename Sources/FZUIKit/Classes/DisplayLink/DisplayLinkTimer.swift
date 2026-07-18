@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 02.06.22.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 import Combine
 import CoreGraphics
 import Foundation

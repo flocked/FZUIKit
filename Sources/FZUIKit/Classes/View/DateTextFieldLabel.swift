@@ -173,7 +173,7 @@ open class DateTextField: NSTextField {
     }
 }
 
-#elseif os(iOS) || os(tvOS)
+#elseif os(iOS) || os(tvOS) || os(visionOS)
 import UIKit
 /// A `UILabel` that displays a date either absolute or relative.
 open class DateLabel: UILabel {

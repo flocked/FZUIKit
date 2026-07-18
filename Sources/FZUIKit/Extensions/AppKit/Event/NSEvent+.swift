@@ -29,7 +29,7 @@ public extension NSEvent {
 
     /// The last event that the app retrieved from the event queue.
     static var current: NSEvent? {
-        NSApplication.shared.currentEvent
+        NSApp.currentEvent
     }
     
     /**

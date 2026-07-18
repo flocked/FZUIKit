@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 22.08.22.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -72,7 +72,7 @@ public extension NSView {
     }
 }
 
-#elseif os(iOS) || os(tvOS)
+#elseif os(iOS) || os(tvOS) || os(visionOS)
 public extension UIView {            
     /// A rendered image of the view.
     var renderedImage: UIImage {

@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 07.07.24.
 //
 
-#if (os(macOS) || os(iOS)) && canImport(Vision)
+#if (os(macOS) || os(iOS) || os(visionOS)) && canImport(Vision)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)

@@ -31,7 +31,7 @@ public struct ImageTransformer: ContentTransform {
     }
 
     /// Creates a image transformer that generates a image with the specified color.
-    #if os(macOS) || os(iOS) || os(tvOS)
+    #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
     public static func color(_ color: NSUIColor) -> Self {
         Self("color: \(color)") { NSUIImage(color: color, size: $0.size) }
     }

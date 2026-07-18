@@ -56,7 +56,7 @@ public extension NSUIFont {
     /// Returns the available font names for the specified locale.
     static func availableFonts(for locale: Locale) -> [String] {
         var language = locale.identifier
-        if #available(macOS 13, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
+        if #available(macOS 13, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *) {
             guard let languageCode = locale.language.languageCode?.identifier else {
                 return []
             }
@@ -117,17 +117,17 @@ public extension NSUIFont {
     /// A font with the title text style.
     static var title: NSUIFont = .preferredFont(forTextStyle: .title1)
 
-    #if os(macOS) || os(iOS) || os(watchOS)
+    #if os(macOS) || os(iOS) || os(watchOS) || os(visionOS)
     /// A font with the large title text style.
     static var largeTitle: NSUIFont = .preferredFont(forTextStyle: .largeTitle)
     #endif
 
     /// A font with the extra large title text style.
-    @available(macOS 15.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *)
+    @available(macOS 15.0, iOS 17.0, tvOS 17.0, watchOS 10.0, visionOS 1.0, *)
     static var extraLargeTitle1: NSUIFont = .preferredFont(forTextStyle: .init(rawValue: "UICTFontTextStyleExtraLargeTitle"))
 
     /// A font with the extra extra large title text style.
-    @available(macOS 15.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *)
+    @available(macOS 15.0, iOS 17.0, tvOS 17.0, watchOS 10.0, visionOS 1.0, *)
     static var extraLargeTitle2: NSUIFont = .preferredFont(forTextStyle: .init(rawValue: "UICTFontTextStyleExtraLargeTitle2"))
 
     #if os(macOS)
@@ -699,8 +699,8 @@ public extension NSFont.TextStyle {
 extension NSUIFont.TextStyle: Swift.CaseIterable {
     /// A collection of all text style values.
     public static var allCases: [Self] {
-        #if os(macOS) || os(iOS) || os(watchOS)
-        if #available(macOS 15.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *) {
+        #if os(macOS) || os(iOS) || os(watchOS) || os(visionOS)
+        if #available(macOS 15.0, iOS 17.0, tvOS 17.0, watchOS 10.0, visionOS 1.0, *) {
             return [.body, .subheadline, .headline, .caption1, .caption2, .callout, .footnote, .title1, .title2, .title3, .largeTitle, .extraLargeTitle, .extraLargeTitle2]
         }
         return [.body, .subheadline, .headline, .caption1, .caption2, .callout, .footnote, .title1, .title2, .title3, .largeTitle]

@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 08.01.26.
 //
 
-#if os(macOS) || os(iOS)
+#if os(macOS) || os(iOS) || os(visionOS)
 import WebKit
 
 extension WKWebViewConfiguration {

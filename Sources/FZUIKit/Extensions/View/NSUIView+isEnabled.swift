@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 16.03.23.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -43,7 +43,7 @@ public extension NSTextView {
     }
 }
 
-#elseif os(iOS)
+#elseif os(iOS) || os(visionOS)
 public extension UITextView {
     /**
      A Boolean value indicating whether the text view is enabled.

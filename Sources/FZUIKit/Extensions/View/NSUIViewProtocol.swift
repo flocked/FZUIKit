@@ -41,7 +41,7 @@ public protocol NSViewProtocol: NSView {
 
 extension NSUIView: NSViewProtocol { }
 
-#elseif os(iOS) || os(tvOS)
+#elseif os(iOS) || os(tvOS) || os(visionOS)
 import UIKit
 
 /// The group of methods that are fundamental to all `UIView` objects.

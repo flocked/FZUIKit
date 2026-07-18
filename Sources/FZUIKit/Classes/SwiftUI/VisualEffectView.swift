@@ -126,7 +126,7 @@ public struct VisualEffectView: NSViewRepresentable {
     }
 }
 
-#elseif os(iOS) || os(tvOS)
+#elseif os(iOS) || os(tvOS) || os(visionOS)
     import UIKit
 
 extension View {

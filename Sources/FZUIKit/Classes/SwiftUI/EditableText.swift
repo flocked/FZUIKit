@@ -8,7 +8,7 @@
 import SwiftUI
 
 
-@available(macOS 15.0, iOS 13.0, tvOS 16.0, *)
+@available(macOS 15.0, iOS 13.0, tvOS 16.0, visionOS 1.0, *)
 public struct EditableText: View {
     @Binding private var text: String
     @State private var draftText: String = ""

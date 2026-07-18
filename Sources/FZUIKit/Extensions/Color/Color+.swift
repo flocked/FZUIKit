@@ -51,7 +51,7 @@ extension Color {
     }
 }
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 extension Color {
     /**
      Creates a color that uses the specified block to generate its color data dynamically.

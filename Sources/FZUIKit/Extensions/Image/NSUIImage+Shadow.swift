@@ -39,7 +39,7 @@ public extension NSImage {
         return newImage
     }
 }
-#elseif os(iOS) || os(tvOS)
+#elseif os(iOS) || os(tvOS) || os(visionOS)
 import UIKit
 
 public extension UIImage {
@@ -71,7 +71,7 @@ public extension UIImage {
 }
 #endif
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 
 public extension CGImage {
     /// Returns a new image with the specified shadow configuraton.

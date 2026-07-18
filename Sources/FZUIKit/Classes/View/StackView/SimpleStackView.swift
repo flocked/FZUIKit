@@ -7,12 +7,12 @@
 
 #if os(macOS)
 import AppKit
-#elseif os(iOS) || os(tvOS)
+#elseif os(iOS) || os(tvOS) || os(visionOS)
 import UIKit
 #endif
 import FZSwiftUtils
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 /**
  A view that arranges an array of views horizontally or vertically and updates their placement and sizing when the window size changes.
 

@@ -32,7 +32,7 @@ public extension NSUIFont.TextStyle {
     /// A SwiftUI representation of the text style.
     var swiftUI: Font.TextStyle {
         switch self {
-        #if os(macOS) || os(iOS)
+        #if os(macOS) || os(iOS) || os(visionOS)
             case .largeTitle: return .largeTitle
         #endif
         case .title1: return .title
@@ -75,7 +75,7 @@ public extension NSUIImage.SymbolScale {
     }
 }
 
-#if os(iOS) || os(tvOS) || os(watchOS)
+#if os(iOS) || os(tvOS) || os(visionOS) || os(watchOS)
 public extension NSUIImage.SymbolWeight {
     /// A SwiftUI representation of the symbol weight.
     var swiftUI: Font.Weight {

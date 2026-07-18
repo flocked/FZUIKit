@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 16.09.21.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 import Foundation
 #if os(macOS)
 import AppKit

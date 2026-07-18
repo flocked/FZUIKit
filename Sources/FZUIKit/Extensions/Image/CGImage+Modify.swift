@@ -8,7 +8,7 @@
 import Foundation
 import FZSwiftUtils
 import CoreGraphics
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 import CoreImage
 #endif
 
@@ -113,7 +113,7 @@ extension CGImage {
         case maxIntensity
         /// Grayscales by by using the minimum intensity of the red, green, or blue channels.
         case minIntensity
-        #if os(macOS) || os(iOS) || os(tvOS)
+        #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
         /// Grayscales by using the `CIPhotoEffectMono` Core Image filter for a monochrome effect.
         case ciPhotoEffectMono
         /// Grayscales by using the `CIColorControls` Core Image filter by reducing saturation to zero.
@@ -145,7 +145,7 @@ extension CGImage {
             return processPixels { (r, g, b) -> UInt8 in
                 return min(r, g, b)
             }
-        #if os(macOS) || os(iOS) || os(tvOS)
+        #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
         case .ciPhotoEffectMono:
             return applyCoreImageFilter(filterName: "CIPhotoEffectMono")
         case .ciColorControls:
@@ -177,7 +177,7 @@ extension CGImage {
         return context.makeImage()
     }
 
-    #if os(macOS) || os(iOS) || os(tvOS)
+    #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
     private func applyCoreImageFilter(filterName: String) -> CGImage? {
         let ciImage = CIImage(cgImage: self)
         guard let filter = CIFilter(name: filterName) else { return nil }

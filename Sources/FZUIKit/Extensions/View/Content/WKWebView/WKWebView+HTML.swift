@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 17.04.25.
 //
 
-#if os(macOS) || os(iOS)
+#if os(macOS) || os(iOS) || os(visionOS)
 import FZSwiftUtils
 import WebKit
 

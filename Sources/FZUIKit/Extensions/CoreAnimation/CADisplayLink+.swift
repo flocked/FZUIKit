@@ -7,14 +7,14 @@
 
 import Foundation
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
 
-@available(macOS 14.0, iOS 3.1, tvOS 9.0, *)
+@available(macOS 14.0, iOS 3.1, tvOS 9.0, visionOS 1.0, *)
 public extension CADisplayLink {
     /// The frame rate of the display link.
     var framesPerSecond: Double {

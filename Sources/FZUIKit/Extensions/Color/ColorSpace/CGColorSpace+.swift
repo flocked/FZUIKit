@@ -65,7 +65,7 @@ extension CGColorSpace {
     }
         
     /// Returns the color space with a standard range  (`[0.0, 1.0]`).
-    @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+    @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
     public var standardRange: CGColorSpace {
         CGColorSpaceCreateCopyWithStandardRange(self)
     }
@@ -84,7 +84,7 @@ extension CGColorSpace {
 
      Otherwise the same color space is returned.
      */
-    @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, *)
+    @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
     public var base: CGColorSpace {
         CGColorSpaceCopyBaseColorSpace(self)
     }

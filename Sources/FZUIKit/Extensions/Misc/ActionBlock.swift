@@ -121,7 +121,7 @@ public extension TargetActionProvider where Self: NSCell {
     }
 }
 
-#elseif os(iOS) || os(tvOS)
+#elseif os(iOS) || os(tvOS) || os(visionOS)
 import UIKit
 import FZSwiftUtils
 

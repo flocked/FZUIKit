@@ -12,7 +12,7 @@ import UIKit
 #endif
 import FZSwiftUtils
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 public extension NSUICollectionView {
     /// All item index paths.
     var indexPaths: [IndexPath] {
@@ -69,7 +69,7 @@ public extension NSUICollectionView {
     }
     #endif
         
-    #if os(iOS) || os(tvOS)
+    #if os(iOS) || os(tvOS) || os(visionOS)
     /**
      Selects items at the specified index paths, with an option to animate the selection.
          

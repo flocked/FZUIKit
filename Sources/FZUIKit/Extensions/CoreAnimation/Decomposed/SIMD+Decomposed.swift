@@ -5,7 +5,7 @@
 //  Created by Adam Bell on 5/14/20.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 import QuartzCore
 import simd
 import FZSwiftUtils

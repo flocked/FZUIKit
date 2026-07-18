@@ -15,7 +15,7 @@ import AppKit
 public extension AVAsset {
     /// The natural dimensions of a video asset.
     var videoNaturalSize: CGSize? {
-        guard let track = tracks(withMediaType: AVMediaType.video).first else { return nil }
+        guard let track = tracks.first(where: { $0.mediaType == .video }) else { return nil }
         let size = track.naturalSize.applying(track.preferredTransform)
         return CGSize(width: abs(size.width), height: abs(size.height))
     }
@@ -64,7 +64,7 @@ public extension AVAsset {
     
     /// A Boolean value indicating whether the the asset has video.
     var hasVideo: Bool {
-        !tracks(withMediaType: .video).isEmpty
+        tracks.contains(where: { $0.mediaType == .video })
     }
 
     /// The video orientation.
@@ -112,7 +112,7 @@ public extension AVAsset {
         if let duration = duration {
             return NSUIImage.gifData(from: images, duration: duration)
         }
-        if #available(macOS 12, iOS 15, tvOS 15, watchOS 8, *), let duration = timeDuration?.seconds {
+        if #available(macOS 12, iOS 15, tvOS 15, watchOS 8, visionOS 1.0, *), let duration = timeDuration?.seconds {
             return NSUIImage.gifData(from: images, duration: duration)
         }
         return NSUIImage.gifData(from: images, duration: self.duration.timeDuration.seconds)
@@ -130,7 +130,7 @@ public extension AVAsset {
         if let duration = duration {
             return NSUIImage.animatedImage(with: images, duration: duration)
         }
-        if #available(macOS 12, iOS 15, tvOS 15, watchOS 8, *), let duration = timeDuration?.seconds {
+        if #available(macOS 12, iOS 15, tvOS 15, watchOS 8, visionOS 1.0, *), let duration = timeDuration?.seconds {
             return NSUIImage.animatedImage(with: images, duration: duration)
         }
         return NSUIImage.animatedImage(with: images, duration: self.duration.timeDuration.seconds)

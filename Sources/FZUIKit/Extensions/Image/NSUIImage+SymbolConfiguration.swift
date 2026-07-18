@@ -114,14 +114,14 @@ extension NSUIImage.SymbolConfiguration {
     }
     
     /// Creates a color configuration that specifies that the symbol image uses its monochrome variant.
-    @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+    @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
     public static var monochrome: NSUIImage.SymbolConfiguration {
         .preferringMonochrome()
     }
     
     /// Creates a color configuration with a color scheme that originates from one color.
     public static func monochrome(_ color: NSUIColor) -> NSUIImage.SymbolConfiguration {
-        if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
+        if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *) {
             return .preferringMonochrome() + .palette([color])
         } else {
             return .palette([color])
@@ -181,18 +181,18 @@ extension NSUIImage.SymbolConfiguration {
     /// Creates a configuration with a third-level title font configuration.
     public static var title3: NSUIImage.SymbolConfiguration { .init(textStyle: .title3) }
     
-    #if os(macOS) || os(iOS) || os(watchOS)
+    #if os(macOS) || os(iOS) || os(watchOS) || os(visionOS)
     /// Creates a configuration with a large title font configuration.
     public static var largeTitle: NSUIImage.SymbolConfiguration { .init(textStyle: .largeTitle) }
     
     /// Creates a configuration with a extra large title font configuration.
-    @available(macOS 15.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *)
+    @available(macOS 15.0, iOS 17.0, tvOS 17.0, watchOS 10.0, visionOS 1.0, *)
     public static var extraLargeTitle1: NSUIImage.SymbolConfiguration {
         .init(textStyle: .init(rawValue: "UICTFontTextStyleExtraLargeTitle"))
     }
     
     /// Creates a configuration with a extra extra large title font configuration.
-    @available(macOS 15.0, iOS 17.0, tvOS 17.0, watchOS 10.0, *)
+    @available(macOS 15.0, iOS 17.0, tvOS 17.0, watchOS 10.0, visionOS 1.0, *)
     public static var extraLargeTitle2: NSUIImage.SymbolConfiguration {
         .init(textStyle: .init(rawValue: "UICTFontTextStyleExtraLargeTitle2"))
     }
@@ -226,7 +226,7 @@ extension NSUIImage.SymbolConfiguration {
             case monochrome
             case hierarchical
             case palette
-            @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+            @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
             case multicolor
         }
         
@@ -246,20 +246,20 @@ extension NSUIImage.SymbolConfiguration {
             switch mode {
             case .monochrome:
                 if let primary = primary {
-                    if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
+                    if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *) {
                         return .init(paletteColors: [primary]) + .preferringMonochrome()
                     } else {
                         return .init(paletteColors: [primary])
                     }
                 } else {
-                    if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
+                    if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *) {
                         return .preferringMonochrome()
                     } else {
                         return .unspecified
                     }
                 }
             case .hierarchical:
-                if #available(macOS 13.0, iOS 16.0, tvOS 15.0, watchOS 9.0, *) {
+                if #available(macOS 13.0, iOS 16.0, tvOS 15.0, watchOS 9.0, visionOS 1.0, *) {
                     #if os(macOS)
                     if let primary = primary {
                         return NSUIImage.SymbolConfiguration(hierarchicalColor: primary)
@@ -289,7 +289,7 @@ extension NSUIImage.SymbolConfiguration {
             }
         }
         
-        @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+        @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
         /// Monochrome.
         public static var monochrome: Self {
             ColorConfiguration(.monochrome)
@@ -318,13 +318,13 @@ extension NSUIImage.SymbolConfiguration {
             ColorConfiguration(.palette, primary, secondary, tertiary)
         }
         
-        @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+        @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
         /// Multicolor.
         public static var multicolor: Self {
             ColorConfiguration(.multicolor)
         }
         
-        @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+        @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
         /// Multicolor with the specified primary, secondary and tertiary color.
         public static func multicolor(_ primary: NSUIColor, _ secondary: NSUIColor? = nil, _ tertiary: NSUIColor? = nil) -> Self {
             ColorConfiguration(.multicolor, primary, secondary, tertiary)

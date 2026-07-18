@@ -16,7 +16,7 @@ import FZSwiftUtils
  
  A value of `0.0` represents no rounding and `1.0` the maximum.
  */
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
 public struct UnevenRelativeRoundedRectangle: Shape, InsettableShape {
     /**
      The relative radii of each corner of the rounded rectangle.
@@ -56,7 +56,7 @@ public struct UnevenRelativeRoundedRectangle: Shape, InsettableShape {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
 extension Shape where Self == UnevenRelativeRoundedRectangle {
     /**
      A rectangular shape with rounded corners with different relative values, aligned inside the frame of the view containing it.
@@ -77,7 +77,7 @@ extension Shape where Self == UnevenRelativeRoundedRectangle {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
 fileprivate extension RectangleCornerRadii {
     func clamped() -> Self {
         Self(topLeading: topLeading.clamped(max: 1.0), bottomLeading: bottomLeading.clamped(max: 1.0), bottomTrailing: bottomTrailing.clamped(max: 1.0), topTrailing: topTrailing.clamped(max: 1.0))

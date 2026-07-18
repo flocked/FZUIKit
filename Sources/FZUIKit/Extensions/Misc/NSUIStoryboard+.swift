@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 04.05.23.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 #if os(macOS)
 import AppKit
 #else
@@ -40,7 +40,7 @@ public extension NSUIStoryboard {
         return value(forKeySafely: "name") as? String ?? ""
     }
 
-    #if os(iOS) || os(tvOS)
+    #if os(iOS) || os(tvOS) || os(visionOS)
     static var main: NSUIStoryboard? {
         guard let name = Bundle.main.infoDictionary?["UIMainStoryboardFile"] as? String, Bundle.main.path(forResource: name, ofType: "storyboardc") != nil else { return nil }
         return NSUIStoryboard(name)

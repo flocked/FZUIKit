@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 17.08.23.
 //
 
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 import UIKit
 
 public extension UILabel {

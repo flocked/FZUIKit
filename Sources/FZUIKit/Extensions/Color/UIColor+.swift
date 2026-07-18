@@ -8,7 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 public extension UIColor {
     /**
      Creates a dynamic catalog color with the specified light and dark color.

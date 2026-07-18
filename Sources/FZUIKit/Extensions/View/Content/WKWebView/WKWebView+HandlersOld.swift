@@ -6,7 +6,7 @@
 //
 
 /*
-#if os(macOS) || os(iOS)
+#if os(macOS) || os(iOS) || os(visionOS)
 import FZSwiftUtils
 import WebKit
 

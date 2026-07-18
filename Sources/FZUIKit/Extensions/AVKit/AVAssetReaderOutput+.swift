@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 31.08.24.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 import AVFoundation
 
 extension AVAssetReaderOutput {

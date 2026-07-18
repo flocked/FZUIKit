@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 22.02.24.
 //
 
-#if os(iOS) || os(tvOS)
+#if os(iOS) || os(tvOS) || os(visionOS)
 import AVKit
 import FZSwiftUtils
 

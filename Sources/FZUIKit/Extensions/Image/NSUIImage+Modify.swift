@@ -43,7 +43,7 @@ public extension NSUIImage {
         defer { newImage.unlockFocus() }
         draw(in: drawRect, from: .zero, operation: .copy, fraction: 1.0, respectFlipped: true, hints: [.interpolation: NSImageInterpolation.high])
         return newImage
-        #elseif os(iOS) || os(tvOS)
+        #elseif os(iOS) || os(tvOS) || os(visionOS)
         let format = UIGraphicsImageRendererFormat.default()
         format.scale = self.scale
         format.opaque = false
@@ -226,7 +226,7 @@ public extension NSUIImage {
         return UIGraphicsGetImageFromCurrentImageContext() ?? self
     }
 
-    #if os(iOS) || os(tvOS)
+    #if os(iOS) || os(tvOS) || os(visionOS)
     /**
      Creates a new image by masking the current image to the area defined by a `UIBezierPath`.
 

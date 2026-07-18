@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 01.08.23.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -18,7 +18,7 @@ import FZSwiftUtils
 
  `NSImageView/UIImageView` can be configurated by passing the configuration to `configurate(using configuration: ImageConfiguration)`.
  */
-@available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
+@available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, visionOS 1.0, *)
 public struct ImageConfiguration: Hashable {
     #if os(macOS)
     /// The scaling of the image.
@@ -88,7 +88,7 @@ public struct ImageConfiguration: Hashable {
     #endif
 }
 
-@available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, *)
+@available(macOS 12.0, iOS 16.0, tvOS 16.0, watchOS 7.0, visionOS 1.0, *)
 public extension NSUIImageView {
     /**
      Configurates the image of the image view.

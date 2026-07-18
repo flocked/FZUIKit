@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 16.09.21.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 #if os(macOS)
 import AppKit
 #else
@@ -32,7 +32,7 @@ open class InnerShadowLayer: CALayer {
     func updateInnerShadow(old: ShadowConfiguration) {
         shadowLayer.fillColor = configuration.resolvedColor()?.cgColor
         shadowLayer.shadowColor = shadowLayer.fillColor
-        #if os(macOS) || os(iOS)
+        #if os(macOS) || os(iOS) || os(visionOS)
         if let parentView = parentView {
             updateShadowColor(for: parentView)
         }
@@ -97,7 +97,7 @@ open class InnerShadowLayer: CALayer {
         shadowLayer.fillRule = .evenOdd
         shadowLayer.backgroundColor = nil
         shadowLayer.shadowPath = nil
-        #if os(macOS) || os(iOS)
+        #if os(macOS) || os(iOS) || os(visionOS)
         superlayerObservation = observeChanges(for: \.superlayer, handler: { [weak self] _, _ in
             self?.updateViewObservation()
         })
@@ -125,7 +125,7 @@ open class InnerShadowLayer: CALayer {
         maskLayer.path = innerPath
     }
     
-    #if os(macOS) || os(iOS)
+    #if os(macOS) || os(iOS) || os(visionOS)
     func updateShadowColor(for view: NSUIView) {
         let shadowColor = configuration.resolvedColor()?.resolvedColor(for: view).cgColor
         shadowLayer.fillColor = shadowColor
@@ -153,7 +153,7 @@ open class InnerShadowLayer: CALayer {
 }
 #endif
 
-#if os(macOS) || os(iOS)
+#if os(macOS) || os(iOS) || os(visionOS)
 /**
  Observes changes to the light/dark mode (interface style) of a layer that is displayed in a view.
  

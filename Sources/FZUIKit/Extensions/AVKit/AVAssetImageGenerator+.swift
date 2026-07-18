@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 07.09.24.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 import Foundation
 import AVFoundation
 import FZSwiftUtils
@@ -65,7 +65,7 @@ public extension AVAssetImageGenerator {
      - Parameter amount: The amount of images to generate.
      - Returns: An asynchronous sequence of images.
      */
-    @available(macOS 13, iOS 16, tvOS 16, *)
+    @available(macOS 13, iOS 16, tvOS 16, visionOS 1.0, *)
     func images(amount: Int) -> AVAssetImageGenerator.Images {
         images(for: times(amount: amount))
     }
@@ -76,7 +76,7 @@ public extension AVAssetImageGenerator {
      - Parameter percentages: Percentages of the time within the video timeline.
      - Returns: An asynchronous sequence of images.
      */
-    @available(macOS 13, iOS 16, tvOS 16, *)
+    @available(macOS 13, iOS 16, tvOS 16, visionOS 1.0, *)
     func images(forPercentages percentages: [CGFloat]) -> AVAssetImageGenerator.Images {
         images(for: times(percentages: percentages))
     }
@@ -97,7 +97,7 @@ public extension AVAssetImageGenerator {
     }
     
     internal var duration: CMTime {
-        if #available(macOS 12, iOS 15, tvOS 15, watchOS 8, *) {
+        if #available(macOS 12, iOS 15, tvOS 15, watchOS 8, visionOS 1.0, *) {
             return(try? asset.load(.duration)) ?? asset.duration
         } else {
             return asset.duration

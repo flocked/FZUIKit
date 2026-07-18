@@ -5,14 +5,14 @@
 //  Created by Florian Zand on 29.07.23.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
 
-@available(macOS 10.15.1, iOS 13.0, tvOS 13.0, *)
+@available(macOS 10.15.1, iOS 13.0, tvOS 13.0, visionOS 1.0, *)
 public extension NSDiffableDataSourceSnapshot {
     /**
      The items for the specified section.

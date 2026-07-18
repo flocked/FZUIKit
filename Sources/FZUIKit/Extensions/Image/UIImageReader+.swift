@@ -8,7 +8,7 @@
 #if canImport(UIKit)
 import UIKit
 
-@available(iOS 17.0, tvOS 17.0, watchOS 10.0, *)
+@available(iOS 17.0, tvOS 17.0, watchOS 10.0, visionOS 1.0, *)
 public extension UIImageReader {
     /**
      Creates a image reader with the specified parameters.

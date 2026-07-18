@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 24.07.23.
 //
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+#if os(iOS) || os(tvOS) || os(visionOS) || targetEnvironment(macCatalyst)
 import SwiftUI
 import UIKit
 
@@ -68,12 +68,13 @@ open class UIHostingView<Content: View>: UIView {
         set { hostingController.rootView = newValue }
     }
         
-    @available(iOS 16.0, tvOS 16.0, *)
+    @available(iOS 16.0, tvOS 16.0, visionOS 1.0, *)
     open var sizingOptions: UIHostingControllerSizingOptions {
         get { hostingController.sizingOptions }
         set { hostingController.sizingOptions = newValue }
     }
         
+#if !os(visionOS)
     /// A Boolean value indicating whether the SwiftUI view ignores the safe area insets.
     open var ignoresSafeArea: Bool {
         get { hostingController.ignoresSafeArea }
@@ -86,6 +87,7 @@ open class UIHostingView<Content: View>: UIView {
         ignoresSafeArea = ignores
         return self
     }
+#endif
 
     // MARK: - Private Properties
         

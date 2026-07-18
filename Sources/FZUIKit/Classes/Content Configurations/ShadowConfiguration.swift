@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 03.09.22.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -194,7 +194,7 @@ public struct ShadowConfiguration: Hashable {
         - radius: The blur radius of the shadow. The default value is `2.0`.
         - offset: The offset of the shadow. The default value is `[1.0, 1.5]`.
      */
-    @available(iOS 15.0, tvOS 15.0, *)
+    @available(iOS 15.0, tvOS 15.0, visionOS 1.0, *)
     public static func tintColor(opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: 1.5)) -> Self { Self(color: .tintColor, opacity: opacity, radius: radius, offset: offset) }
     #endif
     
@@ -272,7 +272,7 @@ public extension NSAttributedString {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
 extension AttributedString {
     #if os(macOS)
     /// The shadow configuration of the attributed string.
@@ -311,7 +311,7 @@ extension AttributedString {
     #endif
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
 public extension ShadowStyle {
     /// Creates a inner shadow style with the specified shadow configuration.
     static func inner(_ configuration: ShadowConfiguration) -> ShadowStyle {
@@ -324,7 +324,7 @@ public extension ShadowStyle {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
 extension ShapeStyle where Self == AnyShapeStyle {
     /// Returns a shape style that applies the specified shadow configuration to the current style.
     public static func shadow(_ configuration: ShadowConfiguration) -> some ShapeStyle {
@@ -337,7 +337,7 @@ extension ShapeStyle where Self == AnyShapeStyle {
     }
 }
 
-@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+@available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
 public extension BackgroundStyle {
     /**
      Creates a shadow style with the specified configuration.

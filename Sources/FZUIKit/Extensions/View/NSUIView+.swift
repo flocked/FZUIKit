@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 16.03.23.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -517,11 +517,11 @@ extension NSUIView {
         self.anchorPoint = anchorPoint
         return self
     }
-    #elseif os(iOS) || os(tvOS)
+    #elseif os(iOS) || os(tvOS) || os(visionOS)
 
     /// Sets the anchor point of the view’s bounds rectangle.
     @discardableResult
-    @available(iOS 16.0, tvOS 16.0, *)
+    @available(iOS 16.0, tvOS 16.0, visionOS 1.0, *)
     @objc open func anchorPoint(_ anchorPoint: CGPoint) -> Self {
         self.anchorPoint = anchorPoint
         return self
@@ -775,6 +775,7 @@ extension NSUIView {
         return subviews.contains { $0.matchesPredicateRecursively(predicate, level: level+1, depth: depth) }
     }
 
+#if !os(visionOS)
     /**
      A Boolean value indicating whether to debug autolayout problems.
      
@@ -805,6 +806,7 @@ extension NSUIView {
             }
         }
     }
+#endif
 }
 
 fileprivate extension [Gradient.ColorStop] {

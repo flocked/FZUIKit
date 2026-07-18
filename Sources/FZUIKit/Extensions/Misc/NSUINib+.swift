@@ -45,7 +45,7 @@ public extension NSNib {
     }
 }
 
-#elseif os(iOS) || os(tvOS)
+#elseif os(iOS) || os(tvOS) || os(visionOS)
 import UIKit
 public extension UINib {
     /**

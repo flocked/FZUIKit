@@ -91,7 +91,7 @@ public extension NSUIImage {
         - variableValue: The value the system uses to customize the symbol’s content, between `0` and `1`.
         - configuration: The image configuration the system applies to the image.
      */
-    @available(iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+    @available(iOS 16.0, tvOS 16.0, watchOS 9.0, visionOS 1.0, *)
     static func symbol(_ systemName: String, variableValue: Double, configuration: Configuration) -> UIImage? {
         UIImage(systemName: systemName, variableValue: variableValue, configuration: configuration)
     }
@@ -135,7 +135,7 @@ public extension NSUIImage {
         #endif
     }
 
-    #if os(macOS) || os(iOS) || os(tvOS)
+    #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
     /**
      Creates an image object with the specified color and size.
 
@@ -162,7 +162,7 @@ public extension NSUIImage {
         #endif
     }
     
-    #if os(iOS) || os(tvOS)
+    #if os(iOS) || os(tvOS) || os(visionOS)
     convenience init(size: CGSize, flipped: Bool = false, drawingHandler: (UIGraphicsImageRendererContext) -> Void) {
         let image = UIGraphicsImageRenderer(size: size).image { context in
             if flipped {

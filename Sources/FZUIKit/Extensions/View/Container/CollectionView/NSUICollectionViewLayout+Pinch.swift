@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 27.10.24.
 //
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 import FZSwiftUtils
 #if os(macOS)
 import AppKit
@@ -35,7 +35,7 @@ extension InteractiveCollectionViewLayout {
     }
 }
 
-#if os(macOS) || os(iOS)
+#if os(macOS) || os(iOS) || os(visionOS)
 extension NSUICollectionView {
     var columnInteractionGestureRecognizer: ColumnInteractionGestureRecognizer? {
         get { getAssociatedValue("columnInteractionGestureRecognizer") }

@@ -23,7 +23,7 @@ public extension NSUIColor {
      */
     func alpha(_ alpha: CGFloat) -> NSUIColor {
         guard alphaComponent != alpha else { return self }
-        #if os(macOS) || os(iOS) || os(tvOS)
+        #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
         guard isDynamic else { return withAlphaComponent(alpha) }
         let dynamicColors = dynamicColors
         return NSUIColor(light: dynamicColors.light.withAlphaComponent(alpha), dark: dynamicColors.dark.withAlphaComponent(alpha))
@@ -38,7 +38,7 @@ public extension NSUIColor {
      - Returns: The tinted color object.
      */
     func tinted(by amount: CGFloat = 0.2) -> NSUIColor {
-        #if os(macOS) || os(iOS) || os(tvOS)
+        #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
         if isDynamic {
             let dynamic = dynamicColors
             return NSUIColor(light: dynamic.light.cgColor.tinted(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.tinted(by: amount).nsUIColor!)
@@ -53,7 +53,7 @@ public extension NSUIColor {
      - Returns: The shaded color object.
      */
     func shaded(by amount: CGFloat = 0.2) -> NSUIColor {
-        #if os(macOS) || os(iOS) || os(tvOS)
+        #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
         if isDynamic {
             let dynamic = dynamicColors
             return NSUIColor(light: dynamic.light.cgColor.shaded(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.shaded(by: amount).nsUIColor!)
@@ -68,7 +68,7 @@ public extension NSUIColor {
      - Returns: The brightened color object.
      */
     func lighter(by amount: CGFloat = 0.2) -> NSUIColor {
-        #if os(macOS) || os(iOS) || os(tvOS)
+        #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
         if isDynamic {
             let dynamic = dynamicColors
             return NSUIColor(light: dynamic.light.cgColor.lighter(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.lighter(by: amount).nsUIColor!)
@@ -83,7 +83,7 @@ public extension NSUIColor {
      - Returns: The darkened color object.
      */
     func darkened(by amount: CGFloat = 0.2) -> NSUIColor {
-        #if os(macOS) || os(iOS) || os(tvOS)
+        #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
         if isDynamic {
             let dynamic = dynamicColors
             return NSUIColor(light: dynamic.light.cgColor.darkened(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.darkened(by: amount).nsUIColor!)
@@ -98,7 +98,7 @@ public extension NSUIColor {
      - Returns: The saturated color object.
      */
     func saturated(by amount: CGFloat = 0.2) -> NSUIColor {
-        #if os(macOS) || os(iOS) || os(tvOS)
+        #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
         if isDynamic {
             let dynamic = dynamicColors
             return NSUIColor(light: dynamic.light.cgColor.saturated(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.saturated(by: amount).nsUIColor!)
@@ -113,7 +113,7 @@ public extension NSUIColor {
      - Returns: The desaturated color object.
      */
     func desaturated(by amount: CGFloat = 0.2) -> NSUIColor {
-        #if os(macOS) || os(iOS) || os(tvOS)
+        #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
         if isDynamic {
             let dynamic = dynamicColors
             return NSUIColor(light: dynamic.light.cgColor.desaturated(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.desaturated(by: amount).nsUIColor!)
@@ -129,7 +129,7 @@ public extension NSUIColor {
      - returns: A DynamicColor object with the hue changed.
      */
     func adjustedHue(by amount: CGFloat) -> NSUIColor {
-        #if os(macOS) || os(iOS) || os(tvOS)
+        #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
         if isDynamic {
             let dynamic = dynamicColors
             return NSUIColor(light: dynamic.light.cgColor.adjustedHue(by: amount).nsUIColor!, dark: dynamic.dark.cgColor.adjustedHue(by: amount).nsUIColor!)

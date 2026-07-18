@@ -5,7 +5,7 @@
 //  Some parts are taken from https://github.com/boinx/BXUIKit
 //  Copyright ©2018 Peter Baumgartner. All rights reserved.
 
-#if os(macOS) || os(iOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)

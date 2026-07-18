@@ -431,7 +431,6 @@ public extension NSCollectionView {
                 proposedSelection = initialSelectionIndexPaths.union(proposedSelection)
             }
              */
-            initialSelectionIndexPaths.symmetricDifference(collectionView.displayingIndexPaths(in: rect))
             proposedSelection = initialSelectionIndexPaths.symmetricDifference(proposedSelection)
 
             if !collectionView.allowsEmptySelection, proposedSelection.isEmpty {

@@ -21,7 +21,7 @@ public struct ColorTransformer: ContentTransform {
     /// Creates a color transformer with the specified identifier and block that transforms a color.
     public init(_ identifier: String, _ transform: @escaping @Sendable (NSUIColor) -> NSUIColor) {
         self.transform = {
-            #if os(macOS) || os(iOS)
+            #if os(macOS) || os(iOS) || os(visionOS)
             let dynamicColors = $0.dynamicColors
             if dynamicColors.light != dynamicColors.dark {
                 return NSUIColor(light: transform(dynamicColors.light), dark: transform(dynamicColors.dark))
@@ -109,7 +109,7 @@ public struct ColorTransformer: ContentTransform {
         Self("highlight: \(amount)") { $0.highlight(withLevel: amount) ?? $0 }
     }
 
-    #elseif os(iOS) || os(tvOS)
+    #elseif os(iOS) || os(tvOS) || os(visionOS)
     /// A color transformer that returns the preferred system accent color.
     public static let preferredTint = Self(id: "preferredTint") { color in
         UIConfigurationColorTransformer.preferredTint.transform(color)
