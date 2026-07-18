@@ -78,9 +78,7 @@ open class SpacerView: NSUIView {
         }
         fixedLengthConstraint?.activate(false)
         fixedLengthConstraint = nil
-        #if !os(visionOS)
         (newSuperview as? NSUIStackView)?.swizzleOrientation()
-        #endif
     }
     
     fileprivate func update(updateFlexibleConstraints: Bool = true) {
@@ -163,7 +161,6 @@ extension NSUIStackView {
         set { setAssociatedValue(newValue, key: "flexibleSpacerConstraints") }
     }
     
-#if !os(visionOS)
     func swizzleOrientation() {
         guard orientationHook == nil else { return }
         do {
@@ -186,7 +183,6 @@ extension NSUIStackView {
         get { getAssociatedValue("orientationHook") }
         set { setAssociatedValue(newValue, key: "orientationHook") }
     }
-#endif
     
     #if canImport(UIKit)
     var orientation: NSLayoutConstraint.Axis {

@@ -145,9 +145,7 @@ open class SeparatorView: NSUIView {
     override open func willMove(toSuperview newSuperview: UIView?) {
         guard let stackView = newSuperview as? NSUIStackView else { return }
         stackOrientation = stackView.orientation
-        #if !os(visionOS)
         stackView.swizzleOrientation()
-        #endif
         super.willMove(toSuperview: newSuperview)
     }
     

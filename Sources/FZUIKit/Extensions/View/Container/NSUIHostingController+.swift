@@ -24,7 +24,6 @@ public extension NSUIHostingController {
         self.init(rootView: content())
     }
         
-#if !os(visionOS)
     /// A Boolean value indicating whether the SwiftUI view ignores the safe area insets.
     var ignoresSafeArea: Bool {
         get { view.isMethodHooked(#selector(getter: NSUIView.safeAreaInsets)) }
@@ -37,7 +36,6 @@ public extension NSUIHostingController {
         ignoresSafeArea = ignores
         return self
     }
-#endif
         
     /// The minimum size of the view that satisfies the constraints it holds.
     var fittingSize: CGSize {
@@ -50,7 +48,6 @@ public extension NSUIHostingController {
     }
 }
 
-#if !os(visionOS)
 fileprivate extension NSUIHostingController {
     var _previousWidth: CGFloat {
         get { getAssociatedValue("previousWidth", initialValue: 0.0) }
@@ -108,7 +105,6 @@ fileprivate extension NSUIView {
         }
     }
 }
-#endif
 
 #if canImport(AppKit)
 public extension NSHostingView {

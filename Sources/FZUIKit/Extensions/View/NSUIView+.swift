@@ -775,7 +775,6 @@ extension NSUIView {
         return subviews.contains { $0.matchesPredicateRecursively(predicate, level: level+1, depth: depth) }
     }
 
-#if !os(visionOS)
     /**
      A Boolean value indicating whether to debug autolayout problems.
      
@@ -806,7 +805,6 @@ extension NSUIView {
             }
         }
     }
-#endif
 }
 
 fileprivate extension [Gradient.ColorStop] {

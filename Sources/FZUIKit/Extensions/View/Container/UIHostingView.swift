@@ -74,7 +74,6 @@ open class UIHostingView<Content: View>: UIView {
         set { hostingController.sizingOptions = newValue }
     }
         
-#if !os(visionOS)
     /// A Boolean value indicating whether the SwiftUI view ignores the safe area insets.
     open var ignoresSafeArea: Bool {
         get { hostingController.ignoresSafeArea }
@@ -87,7 +86,6 @@ open class UIHostingView<Content: View>: UIView {
         ignoresSafeArea = ignores
         return self
     }
-#endif
 
     // MARK: - Private Properties
         
