@@ -22,6 +22,11 @@ extension CGBitmapInfo: Swift.Hashable {
     public static let rgb = CGBitmapInfo(alpha: .none, byteOrder: .order32Big)
     /// BGR.
     public static let bgr = CGBitmapInfo(alpha: .none, byteOrder: .order32Little)
+    
+    /// Creates bitmap information for a standard 32-bit RGB bitmap format with or without an alpha channel.
+    public init(includeAlpha: Bool) {
+        self =  Self(alpha: includeAlpha ? .premultipliedLast : .noneSkipLast)
+    }
 
     /// Returns the bits per component for creating a `CGContext` based on this bitmap info.
     public var bitsPerComponent: Int {

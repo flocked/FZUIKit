@@ -276,7 +276,68 @@ public extension CFType where Self == CGContext {
      Creates a new bitmap graphics context with the specified size.
           
      - Parameters:
-        - size: The size of the context's bitmap.
+        - width: The width of the context's bitmap in points.
+        - height: The width of the context's bitmap in points.
+        - scale: The scale factor applied to the context, mapping the logical point size to backing pixel dimensions (e.g., `2.0` for Retina displays).
+        - bitmapInfo: The bitmap information.
+        - space: The color space of the context's bitmap.
+     */
+    init?(width: Int, height: Int, scale: CGFloat = 1.0, bitmapInfo: CGBitmapInfo, space: CGColorSpace = CGColorSpaceCreateDeviceRGB()) {
+        self.init(size: CGSize(width, height), scale: scale, bitmapInfo: bitmapInfo, space: space)
+    }
+    
+    /**
+     Creates a new bitmap graphics context with the specified size.
+          
+     - Parameters:
+        - width: The width of the context's bitmap in points.
+        - height: The width of the context's bitmap in points.
+        - scale: The scale factor applied to the context, mapping the logical point size to backing pixel dimensions (e.g., `2.0` for Retina displays).
+        - bitmapInfo: The bitmap information.
+        - space: The color space of the context's bitmap.
+     */
+    @_disfavoredOverload
+    init?(width: Int, height: Int, scale: CGFloat = 1.0, bitmapInfo: CGBitmapInfo, space: CGColorSpace.Name) {
+        guard let space = space.colorSpace else { return nil }
+        self.init(width: width, height: height, scale: scale, bitmapInfo: bitmapInfo, space: space)
+    }
+    
+    /**
+     Creates a new bitmap graphics context with the specified size.
+          
+     - Parameters:
+        - width: The width of the context's bitmap in points.
+        - height: The width of the context's bitmap in points.
+        - scale: The scale factor applied to the context, mapping the logical point size to backing pixel dimensions (e.g., `2.0` for Retina displays).
+        - includeAlpha: A Boolean value indicating whether the bitmap should include an alpha channel.
+        - space: The color space of the context's bitmap.
+     */
+    init?(width: Int, height: Int, scale: CGFloat = 1.0, includeAlpha: Bool = true, space: CGColorSpace = CGColorSpaceCreateDeviceRGB()) {
+        self.init(size: CGSize(width, height), scale: scale, includeAlpha: includeAlpha, space: space)
+    }
+    
+    /**
+     Creates a new bitmap graphics context with the specified size.
+          
+     - Parameters:
+        - width: The width of the context's bitmap in points.
+        - height: The width of the context's bitmap in points.
+        - scale: The scale factor applied to the context, mapping the logical point size to backing pixel dimensions (e.g., `2.0` for Retina displays).
+        - includeAlpha: A Boolean value indicating whether the bitmap should include an alpha channel.
+        - space: The color space of the context's bitmap.
+     */
+    @_disfavoredOverload
+    init?(width: Int, height: Int, scale: CGFloat = 1.0, includeAlpha: Bool = true, space: CGColorSpace.Name) {
+        guard let space = space.colorSpace else { return nil }
+        self.init(size: CGSize(width, height), scale: scale, includeAlpha: includeAlpha, space: space)
+    }
+    
+    /**
+     Creates a new bitmap graphics context with the specified size.
+          
+     - Parameters:
+        - size: The size of the context's bitmap in points.
+        - scale: The scale factor applied to the context, mapping the logical point size to backing pixel dimensions (e.g., `2.0` for Retina displays).
         - bitmapInfo: The bitmap information.
         - space: The color space of the context's bitmap.
      */
@@ -293,7 +354,8 @@ public extension CFType where Self == CGContext {
      Creates a new bitmap graphics context with the specified size.
           
      - Parameters:
-        - size: The size of the context's bitmap.
+        - size: The size of the context's bitmap in points.
+        - scale: The scale factor applied to the context, mapping the logical point size to backing pixel dimensions (e.g., `2.0` for Retina displays).
         - bitmapInfo: The bitmap information.
         - space: The color space of the context's bitmap.
      */
@@ -307,17 +369,16 @@ public extension CFType where Self == CGContext {
      Creates a new bitmap graphics context with the specified size.
           
      - Parameters:
-        - size: The size of the context's bitmap.
+        - size: The size of the context's bitmap in points.
+        - scale: The scale factor applied to the context, mapping the logical point size to backing pixel dimensions (e.g., `2.0` for Retina displays).
         - includeAlpha: A Boolean value indicating whether the bitmap should include an alpha channel.
         - space: The color space of the context's bitmap.
      */
-    init?(data: UnsafeMutableRawPointer? = nil, size: CGSize, scale: CGFloat = 1.0, includeAlpha: Bool = true, space: CGColorSpace = CGColorSpaceCreateDeviceRGB()) {
+    init?(size: CGSize, scale: CGFloat = 1.0, includeAlpha: Bool = true, space: CGColorSpace = CGColorSpaceCreateDeviceRGB()) {
         let size = size * scale
-        guard let context = CGContext(data: data, width: Int(size.width.rounded(.up)), height: Int(size.height.rounded(.up)), bitsPerComponent: 8, bytesPerRow: 0, space: space, bitmapInfo: CGBitmapInfo(alpha: includeAlpha ? .premultipliedLast : .noneSkipFirst))
+        guard let context = CGContext(data: nil, width: Int(size.width.rounded(.up)), height: Int(size.height.rounded(.up)), bitsPerComponent: 8, bytesPerRow: 0, space: space, bitmapInfo: CGBitmapInfo(includeAlpha: includeAlpha))
         else { return nil }
-        if scale != 1.0 {
-            context.scaleBy(x: scale, y: scale)
-        }
+        context.scaleBy(x: scale, y: scale)
         self = context
     }
     
@@ -325,7 +386,8 @@ public extension CFType where Self == CGContext {
      Creates a new bitmap graphics context with the specified size.
           
      - Parameters:
-        - size: The size of the context's bitmap.
+        - size: The size of the context's bitmap in points.
+        - scale: The scale factor applied to the context, mapping the logical point size to backing pixel dimensions (e.g., `2.0` for Retina displays).
         - includeAlpha: A Boolean value indicating whether the bitmap should include an alpha channel.
         - space: The color space of the context's bitmap.
      */
@@ -365,11 +427,5 @@ public extension CFType where Self == CGContext {
         self.init(consumer: consumer, mediaBox: &mediaBox, auxiliaryInfo as CFDictionary?)
     }
 }
-
-
-/*
- CGDataConsumer(data: data), let context = CGContext(consumer: consumer, mediaBox: &bounds, format.documentInfo.dictionary)
- */
-
 
 #endif
