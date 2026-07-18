@@ -77,7 +77,7 @@ public extension AVAsset {
         case square
     }
     
-    #if os(macOS) || os(iOS) || os(tvOS)
+    #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
     /**
      Returns the video frames as an array of `CGImage`.
      
@@ -91,7 +91,7 @@ public extension AVAsset {
     }
     
     private var videoImageBuffers: [CVImageBuffer] {
-        guard let reader = try? AVAssetReader(asset: self), let videoTrack = tracks(withMediaType: .video).first else { return [] }
+        guard let reader = try? AVAssetReader(asset: self), let videoTrack = tracks.first(where: { $0.mediaType == .video }) else { return [] }
         let trackReaderOutput = AVAssetReaderTrackOutput(track: videoTrack, outputSettings: [String(kCVPixelBufferPixelFormatTypeKey): NSNumber(value: kCVPixelFormatType_32BGRA)])
         reader.add(trackReaderOutput)
         reader.startReading()
