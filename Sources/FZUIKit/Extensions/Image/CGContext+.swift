@@ -52,6 +52,11 @@ extension CGContext {
         }
     }
     
+    /// Adds a previously created path object to the current path in a graphics context.
+    public func addPath(_ path: NSUIBezierPath) {
+        addPath(path.cgPath)
+    }
+    
     /// Fills the specified rectangle with the provided color.
     public func fill(_ color: CGColor, in rect: CGRect) {
         withSavedGState {

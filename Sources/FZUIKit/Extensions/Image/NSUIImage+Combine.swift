@@ -115,8 +115,7 @@ extension CGImage {
         // Total height = sum of heights
         let totalHeight = images.reduce(0) { $0 + $1.height }
         let maxWidth = images.map(\.width).max() ?? 0
-        
-        guard let ctx = CGContext(data: nil, width: maxWidth, height: totalHeight, bitsPerComponent: 8, bytesPerRow: maxWidth * 4, space: .deviceRGB, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else {
+        guard let ctx = CGContext(width: maxWidth, height: totalHeight) else {
             return nil
         }
         
@@ -145,7 +144,7 @@ extension CGImage {
         
         let totalWidth = images.reduce(0) { $0 + $1.width }
         let maxHeight = images.map(\.height).max() ?? 0
-        guard let ctx = CGContext(data: nil, width: totalWidth, height: maxHeight, bitsPerComponent: 8, bytesPerRow: totalWidth * 4, space: .deviceRGB, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else {
+        guard let ctx = CGContext(width: totalWidth, height: maxHeight) else {
             return nil
         }
         

@@ -101,11 +101,6 @@ public extension NSImage {
         }
         return nil
     }
-
-    /// The image orientation.
-    var orientation: CGImagePropertyOrientation {
-        ImageSource(image: self)?.properties()?.orientation ?? .up
-    }
 }
 
 public extension NSImage {

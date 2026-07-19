@@ -8,7 +8,17 @@
 #if canImport(UIKit)
 import UIKit
 
-extension UIImage {
-
+public extension UIImage {
+    /// Returns the image with the specified scale factor.
+    func scale(_ scale: CGFloat) -> UIImage {
+        guard self.scale != scale, let cgImage = cgImage else { return self }
+        return UIImage(cgImage: cgImage, scale: scale, orientation: imageOrientation)
+    }
+    
+    /// Returns the image with the specified image orientation.
+    func orientation(_ orientation: Orientation) -> UIImage {
+        guard imageOrientation != orientation, let cgImage = cgImage else { return self }
+        return UIImage(cgImage: cgImage, scale: scale, orientation: orientation)
+    }
 }
 #endif

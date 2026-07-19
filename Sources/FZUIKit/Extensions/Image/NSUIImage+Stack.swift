@@ -92,11 +92,8 @@ extension CGImage {
         }
         
         let finalSize = rects.reduce(CGSize.zero) { CGSize(width: max($0.width, $1.maxX), height: max($0.height, $1.maxY)) }
-        
-        guard let context = CGContext(data: nil, width: Int(finalSize.width), height: Int(finalSize.height), bitsPerComponent: 8, bytesPerRow: 0, space: .deviceRGB, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return nil }
-        
-        context.translateBy(x: 0, y: finalSize.height)
-        context.scaleBy(x: 1, y: -1) // Flip vertically for Core Graphics coordinate system
+        guard let context = CGContext(size: finalSize) else { return nil }
+        context.flipVertically()
         
         var currentOffset = CGPoint.zero
         

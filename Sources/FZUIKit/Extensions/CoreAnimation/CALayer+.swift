@@ -908,7 +908,7 @@ extension CALayer {
         let width = Int(bounds.width * contentsScale)
         let height = Int(bounds.height * contentsScale)
         guard width > 0, height > 0 else { return nil }
-        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else {
+        guard let context = CGContext(width: width, height: height, includeAlpha: true) else {
             return nil
         }
         context.scaleBy(x: contentsScale, y: contentsScale)

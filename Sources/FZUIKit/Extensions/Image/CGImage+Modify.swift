@@ -155,7 +155,7 @@ extension CGImage {
     }
 
     private func convertToDeviceGray() -> CGImage? {
-        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.none.rawValue) else {  return nil }
+        guard let context = CGContext(width: width, height: height, bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.none.rawValue), space: CGColorSpaceCreateDeviceGray()) else {  return nil }
         context.draw(self, in: CGRect(x: 0, y: 0, width: width, height: height))
         return context.makeImage()
     }

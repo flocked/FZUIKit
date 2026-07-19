@@ -20,11 +20,27 @@ public extension CGImage {
     var nsImage: NSImage {
         NSImage(cgImage: self)
     }
-    
+    /// A `NSImage` representation of the image with the specified size.
+    func nsImage(size: CGSize) -> NSImage {
+        NSImage(cgImage: self, size: size)
+    }
+
     #elseif canImport(UIKit)
     /// A `UIImage` representation of the image.
     var uiImage: UIImage {
         UIImage(cgImage: self)
+    }
+    /// A `UIImage` representation of the image with the specified scale.
+    func uiImage(scale: CGFloat) -> UIImage {
+        uiImage(scale: scale, orientation: .up)
+    }
+    /// A `UIImage` representation of the image with the specified image orientation.
+    func uiImage(orientation: UIImage.Orientation) -> UIImage {
+        uiImage(scale: 1.0, orientation: orientation)
+    }
+    /// A `UIImage` representation of the image with the specified scale and  image orientation.
+    func uiImage(scale: CGFloat, orientation: UIImage.Orientation) -> UIImage {
+        UIImage(cgImage: self, scale: scale, orientation: orientation)
     }
     #endif
     
@@ -110,7 +126,7 @@ public extension CGImage {
     
     func asMask(invert: Bool = false, shouldInterpolate: Bool = false) -> CGImage? {
         let rect = CGRect(x: 0, y: 0, width: width, height: height)
-        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.none.rawValue) else { return nil }
+        guard let context = CGContext(width: width, height: height, bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.none.rawValue), space: CGColorSpaceCreateDeviceGray()) else { return nil }
         context.translateBy(x: 0, y: CGFloat(height))
         context.scaleBy(x: 1, y: -1)
         if invert {
@@ -126,7 +142,7 @@ public extension CGImage {
     }
     
     func asMaskAlt(invert: Bool = false, shouldInterpolate: Bool = false) -> CGImage? {
-        guard let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceGray(), bitmapInfo: CGImageAlphaInfo.none.rawValue) else { return nil }
+        guard let context = CGContext(width: width, height: height, bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.none.rawValue), space: CGColorSpaceCreateDeviceGray()) else { return nil }
         context.flipVertically()
         if invert {
             context.setFillColor(gray: 1, alpha: 1)

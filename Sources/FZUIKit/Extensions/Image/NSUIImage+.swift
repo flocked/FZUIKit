@@ -216,22 +216,9 @@ public extension NSUIImage {
         let rect = CGRect(origin: .zero, size: size)
         let scale = 1.0
 
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
-
-        guard let context = CGContext(
-            data: nil,
-            width: Int(size.width * scale),
-            height: Int(size.height * scale),
-            bitsPerComponent: 8,
-            bytesPerRow: 0,
-            space: colorSpace,
-            bitmapInfo: bitmapInfo
-        ) else {
+        guard let context = CGContext(size: size, scale: scale) else {
             return NSUIImage()
         }
-
-        context.scaleBy(x: scale, y: scale)
 
         UIGraphicsPushContext(context)
         draw(in: rect)
@@ -300,21 +287,10 @@ public extension NSUIImage {
         let scale = 1.0
 
         let colorSpace = CGColorSpaceCreateDeviceRGB()
-        let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
 
-        guard let context = CGContext(
-            data: nil,
-            width: Int(size.width * scale),
-            height: Int(size.height * scale),
-            bitsPerComponent: 8,
-            bytesPerRow: 0,
-            space: colorSpace,
-            bitmapInfo: bitmapInfo
-        ) else {
+        guard let context = CGContext(size: size, scale: scale) else {
             return NSUIImage()
         }
-
-        context.scaleBy(x: scale, y: scale)
 
         UIGraphicsPushContext(context)
         draw(in: rect)
