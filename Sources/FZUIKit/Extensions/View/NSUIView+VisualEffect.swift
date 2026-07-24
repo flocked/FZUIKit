@@ -23,7 +23,7 @@ extension NSUIView {
      The default value is `nil`.
      */
     @objc open var visualEffect: VisualEffectConfiguration? {
-        get { (self as? NSUIVisualEffectView)?.configuration ?? visualEffectBackgroundView?.configuration }
+        get { (self as? NSUIVisualEffectView)?.configuration ?? visualEffectBackgroundView?.configuration.appearance(appearance) }
         set {
             if let newValue = newValue {
                 if let view = self as? NSUIVisualEffectView {
@@ -36,6 +36,9 @@ extension NSUIView {
                     appearance = newValue.appearance ?? appearance
                 }
             } else {
+                if appearance?.name == visualEffect?.appearance?.name {
+                    appearance = nil
+                }
                 visualEffectBackgroundView = nil
             }
         }
@@ -82,7 +85,7 @@ extension NSUIView {
     #endif
     
     var visualEffectBackgroundView: BackgroundVisualEffectView? {
-        get { viewWithTag(3_443_024) as? BackgroundVisualEffectView }
+        get { subviews.first(where: { $0.tag == 3_443_024 && $0 is BackgroundVisualEffectView }) as? BackgroundVisualEffectView }
         set {
             visualEffectBackgroundView?.removeFromSuperview()
             if let newValue = newValue {
@@ -131,13 +134,21 @@ class BackgroundVisualEffectView: NSUIVisualEffectView {
     }
     
     #if os(macOS)
-    override func hitTest(_ point: NSPoint) -> NSView? {
-        return nil
-    }
-    
+    override func hitTest(_ point: NSPoint) -> NSView? { nil }
     override var acceptsFirstResponder: Bool { false }
-    
     override var tag: Int { 3_443_024 }
+    #else
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? { nil }
     #endif
+}
+#endif
+
+#if os(macOS)
+fileprivate extension VisualEffectConfiguration {
+    func appearance(_ appearance: NSAppearance?) -> Self {
+        var config = self
+        config.appearance = appearance
+        return config
+    }
 }
 #endif

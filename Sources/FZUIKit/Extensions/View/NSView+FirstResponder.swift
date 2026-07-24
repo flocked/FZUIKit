@@ -16,10 +16,8 @@ public extension NSViewProtocol where Self: NSView {
      The system dispatches some types of events, such as mouse and keyboard events, to the first responder initially.
      */
     var isFirstResponder: Bool {
-        if let view = self as? NSTextField, let editor = view.currentEditor() {
-            return window?.firstResponder == editor || window?.firstResponder == self
-        }
-        return window?.firstResponder == self
+        let firstResponder = window?.firstResponder
+        return ((self as? NSControl)?.currentEditor()).map { firstResponder === $0 } == true || firstResponder === self
      }
     
     /**
@@ -29,13 +27,13 @@ public extension NSViewProtocol where Self: NSView {
      */
     @discardableResult
     func makeFirstResponder() -> Bool {
-        if !isFirstResponder, acceptsFirstResponder {
-            window?.makeFirstResponder(self)
-            if isFirstResponder, let textView = self as? NSTextView {
-                textView.selectedRanges = textView.selectedRanges
-            }
+        guard !isFirstResponder else { return true }
+        guard acceptsFirstResponder, let window else { return false }
+        let succeeded = window.makeFirstResponder(self)
+        if succeeded, let textView = self as? NSTextView {
+            textView.selectedRanges = textView.selectedRanges
         }
-        return isFirstResponder
+        return succeeded && isFirstResponder
     }
     
     /**
@@ -45,14 +43,12 @@ public extension NSViewProtocol where Self: NSView {
      */
     @discardableResult
     func resignAsFirstResponder() -> Bool {
-        if isFirstResponder {
-            window?.makeFirstResponder(nil)
-        }
-        return !isFirstResponder
+        guard isFirstResponder else { return true }
+        return window?.makeFirstResponder(nil) == true && !isFirstResponder
     }
     
     /// A Boolean value indicating whether the view or any of it's subviews is first responder of the view's window.
-    var isDescendantFirstResponder: Bool {
+    var isDescendantFirstResponder: Bool {        
         if let view = window?.firstResponder as? NSView {
             return view.isDescendant(of: self)
         } else if let view = (window?.firstResponder as? NSText)?.delegate as? NSView {

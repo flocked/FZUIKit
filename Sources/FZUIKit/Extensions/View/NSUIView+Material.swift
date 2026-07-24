@@ -5,7 +5,6 @@
 //  Created by Florian Zand on 08.12.24.
 //
 
-
 #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
 #if os(macOS)
 import AppKit
@@ -15,26 +14,25 @@ import UIKit
 import FZSwiftUtils
 import SwiftUI
 
-extension NSUIView {
+public extension NSUIView {
     /// Sets the material of the view background.
     @discardableResult
-    public func material(_ material: Material?) -> Self {
+    func material(_ material: Material?) -> Self {
         self.material = material
         return self
     }
     
     /// The material of the view background.
-    public var material: Material? {
+    var material: Material? {
         get { materialView?._material }
         set {
             guard newValue != material else { return }
             if let newValue = newValue {
-                if materialView == nil {
+                if let materialView = materialView {
+                    materialView._material = newValue
+                } else {
                     materialView = .init(material: newValue)
-                    addSubview(withConstraint: materialView!)
-                    materialView?.sendToBack()
                 }
-                materialView?._material = newValue
             } else {
                 materialView?.removeFromSuperview()
                 materialView = nil
@@ -43,8 +41,13 @@ extension NSUIView {
     }
     
     fileprivate var materialView: MaterialView? {
-        get { getAssociatedValue("materialView") }
-        set { setAssociatedValue(newValue, key: "materialView") }
+        get { subviews.first(where: { $0.tag == 2_443_024 && $0 is MaterialView }) as? MaterialView }
+        set {
+            materialView?.removeFromSuperview()
+            if let newValue = newValue {
+                insertSubview(withConstraint: newValue, at: 0)
+            }
+        }
     }
 }
 
@@ -58,27 +61,30 @@ fileprivate class MaterialView: NSUIView {
         }
     }
     
-    /**
-     Creates a view with the specified material.
-     
-     - Parameter material: The material of the background.
-     */
-    public init(material: Material = .thinMaterial) {
+    init(material: Material = .thinMaterial) {
         super.init(frame: .zero)
-        sharedInit()
-        defer { _material = material }
-    }
-    
-    public required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        sharedInit()
-    }
-    
-    func sharedInit() {
-        hostingController = NSUIHostingController(rootView: MaterialView(material: _material))
+        #if !os(macOS)
+        tag = 2_443_024
+        #endif
+        _material = material
+        hostingController = NSUIHostingController(rootView: MaterialView(material: material))
         addSubview(withConstraint: hostingController.view)
-        zPosition = -CGFloat.greatestFiniteMagnitude
+        zPosition = -.greatestFiniteMagnitude
+        clipsToBounds = true
     }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    #if os(macOS)
+    override func hitTest(_ point: NSPoint) -> NSView? { nil }
+    override var acceptsFirstResponder: Bool { false }
+    override var tag: Int { 2_443_024 }
+    #else
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? { nil }
+    #endif
     
     struct MaterialView: View {
         let material: Material
