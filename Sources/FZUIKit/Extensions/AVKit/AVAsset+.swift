@@ -64,8 +64,6 @@ public extension AVAsset {
      Returns the video frames as an array of `CGImage`.
      
      If the asset doesn't contain a video track, it returns an empty array.
-     
-     - Parameter unique: A Boolean value indicating whether to return only unique frames.
      */
     var videoFrames: [CGImage] {
         videoImageBuffers.map({ CGImage(cvPixelBuffer: $0) })
