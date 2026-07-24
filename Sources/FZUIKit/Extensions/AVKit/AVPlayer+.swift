@@ -205,7 +205,7 @@ public extension AVPlayer {
     
     /// The current time of the current player item as `TimeDuration`.
     var currentTimeDuration: TimeDuration {
-        get { currentTime().timeDuration }
+        get { .seconds(currentTime().seconds) }
         set { seek(to: newValue.clamped(max: duration), tolerance: .zero) }
     }
 
@@ -440,7 +440,7 @@ public class AVPlayerTimeObservation {
     init (_ player: AVPlayer, interval: TimeInterval, queue: dispatch_queue_t?,  handler: @escaping (TimeDuration)->()) {
         self.player = player
         self.observer = player.addPeriodicTimeObserver(forInterval: CMTime(seconds: interval), queue: queue) { time in
-            handler(time.timeDuration)
+            handler(.seconds(time.seconds))
         }
     }
     

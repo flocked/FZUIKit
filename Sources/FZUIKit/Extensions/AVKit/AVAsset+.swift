@@ -15,46 +15,33 @@ import AppKit
 public extension AVAsset {
     /// The natural dimensions of a video asset.
     var videoNaturalSize: CGSize? {
-        guard let track = tracks.first(where: { $0.mediaType == .video }) else { return nil }
-        let size = track.naturalSize.applying(track.preferredTransform)
-        return CGSize(width: abs(size.width), height: abs(size.height))
-    }
-
-    /// The orientation of a video asset.
-    var videoOrientation: VideoOrientation? {
-        guard let aspectRatio = videoNaturalSize?.aspectRatio else { return nil }
-        if aspectRatio == 1.0 {
-            return .square
-        } else if aspectRatio < 1.0 {
-            return .horizontal
-        } else {
-            return .vertical
-        }
+        guard let track = tracks(withMediaType: .video).first else { return nil }
+        return CGRect(origin: .zero, size: track.naturalSize).applying(track.preferredTransform).standardized.size
     }
 
     /// The codec of a video asset.
     var videoCodec: AVAssetTrack.VideoCodec? {
-        tracks.compactMap(\.videoCodec).first
+        tracks.lazy.compactMap(\.videoCodec).first
     }
 
     /// The codec string of a video asset.
     var videoCodecString: String? {
-        tracks.compactMap(\.videoCodecString).first
+        tracks.lazy.compactMap(\.videoCodecString).first
     }
 
     /// The sample rate of a asset with an audio track.
     var audioSampleRate: Float64? {
-        tracks.compactMap(\.audioSampleRate).first
+        tracks.lazy.compactMap(\.audioSampleRate).first
     }
 
     /// The number of audio channels.
     var audioChannels: Int {
-        tracks.compactMap(\.audioChannels).max() ?? 0
+        tracks.lazy.compactMap(\.audioChannels).max() ?? 0
     }
     
     /// The duration of the asset.
     var timeDuration: TimeDuration? {
-        (try? load(.duration))?.timeDuration
+        (try? load(.duration)).map({ .seconds($0.seconds) })
     }
     
     /// A Boolean value indicating whether the the asset has audio.
@@ -65,16 +52,6 @@ public extension AVAsset {
     /// A Boolean value indicating whether the the asset has video.
     var hasVideo: Bool {
         tracks.contains(where: { $0.mediaType == .video })
-    }
-
-    /// The video orientation.
-    enum VideoOrientation: String {
-        /// Vertical.
-        case vertical
-        /// Horizontal.
-        case horizontal
-        /// Square.
-        case square
     }
     
     #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
@@ -115,7 +92,7 @@ public extension AVAsset {
         if #available(macOS 12, iOS 15, tvOS 15, watchOS 8, visionOS 1.0, *), let duration = timeDuration?.seconds {
             return NSUIImage.gifData(from: images, duration: duration)
         }
-        return NSUIImage.gifData(from: images, duration: self.duration.timeDuration.seconds)
+        return NSUIImage.gifData(from: images, duration: self.duration.seconds)
     }
     
     /**
@@ -133,7 +110,7 @@ public extension AVAsset {
         if #available(macOS 12, iOS 15, tvOS 15, watchOS 8, visionOS 1.0, *), let duration = timeDuration?.seconds {
             return NSUIImage.animatedImage(with: images, duration: duration)
         }
-        return NSUIImage.animatedImage(with: images, duration: self.duration.timeDuration.seconds)
+        return NSUIImage.animatedImage(with: images, duration: self.duration.seconds)
     }
     #endif
 }

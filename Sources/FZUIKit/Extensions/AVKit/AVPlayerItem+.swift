@@ -75,12 +75,12 @@ public extension AVPlayerItem {
     
     /// The duration of the item as `TimeDuration`.
     var timeDuration: TimeDuration {
-        duration.timeDuration
+        .seconds(duration.seconds)
     }
     
     /// The current time of the item as `TimeDuration`.
     var currentTimeDuration: TimeDuration {
-        get { currentTime().timeDuration }
+        get { .seconds(currentTime().seconds) }
         set { seek(to: newValue.clamped(max: timeDuration)) }
     }
     

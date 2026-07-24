@@ -32,16 +32,6 @@ public extension CMTime {
     static func += (lhs: inout Self, rhs: TimeDuration) {
         lhs = lhs + rhs
     }
-    
-    internal var timeDuration: TimeDuration {
-        .seconds(seconds)
-    }
-}
-
-extension TimeDuration {
-    var cmTime: CMTime {
-        CMTime(seconds: seconds)
-    }
 }
 
 extension CMTime: Swift.Encodable, Swift.Decodable {
@@ -62,17 +52,18 @@ extension CMTime: Swift.Encodable, Swift.Decodable {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let value = try container.decode(Int64.self, forKey: .value)
-        let timescale = try container.decode(Int32.self, forKey: .timescale)
-        let flags = try container.decode(CMTimeFlags.self, forKey: .flags)
-        let epoch = try container.decode(Int64.self, forKey: .epoch)
-        self.init(value: value, timescale: timescale, flags: flags, epoch: epoch)
+        try self.init(value: container.decode(.value), timescale: container.decode(.timescale), flags: container.decode(.flags), epoch: container.decode(.epoch))
     }
 }
 
 extension CMTimeFlags: Swift.Encodable, Swift.Decodable { }
 
 extension CMTimeRange: Swift.Encodable, Swift.Decodable {
+    /// `NSValue` representation of the time range.
+    public var nsValue: NSValue {
+        NSValue(timeRange: self)
+    }
+    
     public enum CodingKeys: CodingKey {
         case start
         case duration
