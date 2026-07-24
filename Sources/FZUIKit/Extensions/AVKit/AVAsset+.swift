@@ -132,16 +132,7 @@ public extension AVAssetTrack {
 
     /// The codec of a video track.
     var videoCodec: VideoCodec? {
-        switch videoCodecString {
-        case "avc1":
-            return .avc1
-        case "hvc1":
-            return .hvc1
-        case "mp4v":
-            return .mp4v
-        default:
-            return nil
-        }
+        videoCodecString.flatMap({ .init(rawValue: $0) })
     }
 
     /// The codec of a video track.
