@@ -39,7 +39,6 @@ extension UICollectionViewLayout {
         - footerMode: The type of footer to use for the list.
         - backgroundColor: The background color of the list.
      */
-    @available(iOS 15.0, *)
     public static func list(_ appearance: UICollectionLayoutListConfiguration.Appearance, showsSeparators: Bool = true, headerMode: UICollectionLayoutListConfiguration.HeaderMode = .none, headerTopPadding: CGFloat?, footerMode: UICollectionLayoutListConfiguration.FooterMode = .none, backgroundColor: UIColor? = nil) -> UICollectionViewCompositionalLayout {
         var configuration = UICollectionLayoutListConfiguration(appearance: appearance)
         configuration.showsSeparators = showsSeparators
@@ -133,7 +132,6 @@ extension UICollectionLayoutListConfiguration {
     }
 }
 
-@available(iOS 15.0, *)
 extension UICollectionLayoutListConfiguration {
     /**
      A configuration for creating a plain list layout.

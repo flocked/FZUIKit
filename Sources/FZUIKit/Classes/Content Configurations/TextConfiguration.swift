@@ -312,7 +312,6 @@ extension TextConfiguration: ReferenceConvertible {
     }
 }
 
-@available(macOS 11.0, iOS 15.0, tvOS 15.0, watchOS 6.0, visionOS 1.0, *)
 extension TextConfiguration: Hashable {
     public static func == (lhs: TextConfiguration, rhs: TextConfiguration) -> Bool {
         lhs.hashValue == rhs.hashValue
@@ -359,7 +358,6 @@ extension NSTextAlignment {
     }
 }
 
-@available(macOS 11.0, iOS 15.0, tvOS 15.0, watchOS 6.0, visionOS 1.0, *)
 public extension Text {
     @ViewBuilder
     func configurate(using properties: TextConfiguration) -> some View {

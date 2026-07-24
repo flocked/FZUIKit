@@ -60,7 +60,6 @@ extension NSUIControl {
     
     #if os(iOS)
     /// Sets the default text to display in the control’s tooltip.
-    @available(iOS 15.0, *)
     @discardableResult
     public func toolTip(_ toolTip: String?) -> Self {
         self.toolTip = toolTip

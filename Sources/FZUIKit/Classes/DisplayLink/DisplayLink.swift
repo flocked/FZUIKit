@@ -13,7 +13,7 @@ import AppKit
 import UIKit
 #endif
 
-@available(iOS 15.0, tvOS 15.0, macOS 14.0, *)
+@available(iOS 15.0, tvOS 15.0, macOS 14.0, visionOS 1.0, *)
 public class DisplayLink {
     /// Represents a frame that is about to be drawn.
     public struct Frame {
@@ -34,7 +34,6 @@ public class DisplayLink {
     }
 
     /// The preferred framerate range.
-    @available(iOS 15.0, tvOS 15.0, macOS 14.0, *)
     public var preferredFrameRateRange: CAFrameRateRange {
         get { displayLink.preferredFrameRateRange }
         set { displayLink.preferredFrameRateRange = newValue }
@@ -103,7 +102,6 @@ public class DisplayLink {
 
     #else
     /// Creates a new paused DisplayLink instance.
-    @available(iOS 15.0, tvOS 15.0, visionOS 1.0, *)
     public convenience init(preferredFrameRateRange: CAFrameRateRange? = nil, onFrame: @escaping ((_ frame: Frame) -> Void)) {
         self.init(onFrame: onFrame)
         if let preferredFrameRateRange = preferredFrameRateRange {

@@ -194,7 +194,6 @@ public struct BorderConfiguration: Hashable {
     }
     #else
     /// A configuration for a tint color border.
-    @available(iOS 15.0, tvOS 15.0, visionOS 1.0, *)
     public static func tintColor(width: CGFloat = 2.0) -> Self {
         Self(color: .tintColor, width: width)
     }

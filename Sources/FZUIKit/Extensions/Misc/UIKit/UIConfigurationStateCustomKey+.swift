@@ -7,7 +7,6 @@
 
 #if os(iOS) || os(tvOS) || os(visionOS)
 import UIKit
-@available(iOS 14.0, *)
 extension UIConfigurationStateCustomKey: ExpressibleByStringLiteral {
     public typealias StringLiteralType = String
     public init(stringLiteral value: String) {

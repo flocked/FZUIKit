@@ -26,7 +26,6 @@ private typealias PiPTextLabel = UILabel
 
  Conform to this protocol when a custom content view wants to describe its preferred Picture in Picture aspect ratio or provide a placeholder while it is moved into the Picture in Picture window.
  */
-@available(iOS 15.0, macOS 12.0, *)
 @MainActor
 public protocol AVPictureInPictureContentView: NSUIView {
     /**
@@ -84,7 +83,6 @@ public struct AVPictureInPictureContentViewHandlers {
     public var isDisplaying: ((_ contentView: AVPictureInPictureContentView, _ isDisplaying: Bool) -> Void)?
 }
 
-@available(iOS 15.0, macOS 12.0, *)
 @MainActor
 public extension AVPictureInPictureContentView {
     /// The handlers for picture in picture.
@@ -199,7 +197,6 @@ public extension AVPictureInPictureContentView {
 
 // MARK: - Content View Controller
 
-@available(iOS 15.0, macOS 12.0, *)
 @MainActor
 private final class ContentViewPictureInPictureController: AVPictureInPictureController, @preconcurrency AVPictureInPictureControllerDelegate {
     private var allowsInternalMutation = true
@@ -792,7 +789,6 @@ private final class ContentViewPictureInPictureController: AVPictureInPictureCon
     }
 }
 
-@available(iOS 15.0, macOS 12.0, *)
 private extension AVSampleBufferDisplayLayer {
     var pipRenderingStatus: AVQueuedSampleBufferRenderingStatus {
         if #available(iOS 17.0, macOS 14.0, *) {
@@ -821,7 +817,6 @@ private extension AVSampleBufferDisplayLayer {
 
 // MARK: - Content Container
 
-@available(iOS 15.0, macOS 12.0, *)
 @MainActor
 private final class PiPSourceLayerHostView: NSUIView {
     let displayLayer: AVSampleBufferDisplayLayer
@@ -871,7 +866,6 @@ private final class PiPSourceLayerHostView: NSUIView {
     }
 }
 
-@available(iOS 15.0, macOS 12.0, *)
 @MainActor
 private final class PiPEarlyPlaceholderPlacement {
     let placeholderView: NSUIView
@@ -1057,7 +1051,6 @@ private final class PiPEarlyPlaceholderPlacement {
     }
 }
 
-@available(iOS 15.0, macOS 12.0, *)
 @MainActor
 private final class PiPContentContainerView: NSUIView {
     let contentView: NSUIView
@@ -1268,7 +1261,6 @@ private final class PiPContentContainerView: NSUIView {
     }
 }
 
-@available(iOS 15.0, macOS 12.0, *)
 @MainActor
 private final class PiPPlaceholderView: NSUIView {
     private let imageView = NSUIImageView(image: .symbol("pip")!).translatesAutoresizingMaskIntoConstraints(false)
@@ -1345,7 +1337,6 @@ private final class PiPPlaceholderView: NSUIView {
     }
 }
 
-@available(iOS 15.0, macOS 12.0, *)
 private extension AVPictureInPictureContentView {
     var preferredSize: CGSize {
         if let size = preferredPictureInPictureContentSize.valid {
@@ -1365,7 +1356,6 @@ private extension AVPictureInPictureContentView {
     }
 }
 
-@available(iOS 15.0, macOS 12.0, *)
 private final class PiPSampleBufferPlaybackDelegate:
     NSObject,
     AVPictureInPictureSampleBufferPlaybackDelegate
@@ -1433,7 +1423,6 @@ fileprivate extension NSUIView {
 
 // MARK: - PiP Window Lookup
 
-@available(iOS 15.0, macOS 12.0, *)
 @MainActor
 private enum NSUIWindowLocator {
     static func applicationWindow(preferredView: NSUIView?) -> NSUIWindow? {
@@ -1507,7 +1496,6 @@ private enum NSUIWindowLocator {
     }
 }
 
-@available(iOS 15.0, macOS 12.0, *)
 @MainActor
 private extension NSUIView {
     var visibleRectInWindow: CGRect? {
@@ -1697,7 +1685,6 @@ fileprivate extension CGSize {
         }
         let targetMaximumDimension = (viewSize?.valid?.max ?? 480.0).clamped(to: minimum...maximum)
         let scale = targetMaximumDimension / size.max
-        (size.width * scale).rounded().clamped(min: 1)
         return CGSize(
             width: Swift.max((size.width * scale).rounded(), 1),
             height: Swift.max((size.height * scale).rounded(), 1)

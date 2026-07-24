@@ -194,7 +194,6 @@ public struct ShadowConfiguration: Hashable {
         - radius: The blur radius of the shadow. The default value is `2.0`.
         - offset: The offset of the shadow. The default value is `[1.0, 1.5]`.
      */
-    @available(iOS 15.0, tvOS 15.0, visionOS 1.0, *)
     public static func tintColor(opacity: CGFloat = 0.3, radius: CGFloat = 2.0, offset: CGPoint = CGPoint(x: 1.0, y: 1.5)) -> Self { Self(color: .tintColor, opacity: opacity, radius: radius, offset: offset) }
     #endif
     

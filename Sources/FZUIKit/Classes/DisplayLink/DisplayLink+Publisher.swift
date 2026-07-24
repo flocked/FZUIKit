@@ -74,7 +74,6 @@ public extension DisplayLinkPublisher {
 }
 
 public extension DisplayLinkPublisher {
-    @available(iOS 13.0, tvOS 13.0, macOS 10.15, *)
     convenience init() {
         self.init(platformDisplayLink: PlatformDisplayLink())
     }
@@ -135,7 +134,6 @@ private extension DisplayLinkPublisher {
 import QuartzCore
 import UIKit
 
-@available(iOS 15.0, tvOS 15.0, visionOS 1.0, *)
 public extension DisplayLinkPublisher {
     /// Creates a display link, optionally with the specified preferred frame rate range.
     convenience init(preferredFrameRateRange: CAFrameRateRange? = nil) {
@@ -155,7 +153,6 @@ fileprivate extension DisplayLinkPublisher {
         }
         
         /// The preferred framerate range.
-        @available(iOS 15.0, tvOS 15.0, visionOS 1.0, *)
         var preferredFrameRateRange: CAFrameRateRange {
             get { displayLink.preferredFrameRateRange }
             set { displayLink.preferredFrameRateRange = newValue }
@@ -170,7 +167,6 @@ fileprivate extension DisplayLinkPublisher {
         
         let target = DisplayLinkTarget()
         
-        @available(iOS 15.0, tvOS 15.0, visionOS 1.0, *)
         convenience init(preferredFrameRateRange: CAFrameRateRange? = nil) {
             self.init()
             if let preferredFrameRateRange = preferredFrameRateRange {

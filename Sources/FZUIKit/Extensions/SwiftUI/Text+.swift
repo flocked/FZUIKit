@@ -29,7 +29,6 @@ public extension Text {
 }
 
 #if os(macOS) || os(iOS) || os(visionOS)
-    @available(iOS 15.0, macOS 12.0, *)
     public extension View {
         /// Controls whether text can be selected.
         func textSelection(_ allowsSelection: Bool) -> some View {
@@ -37,7 +36,6 @@ public extension Text {
         }
     }
 
-    @available(iOS 15.0, macOS 12.0, *)
     /// A view mpdifier that controls whether text can be selected.
     public struct DynamicTextSelection: ViewModifier {
         /// A Boolean value indicating whether text can be selected.
