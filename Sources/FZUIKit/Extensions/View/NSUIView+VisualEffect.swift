@@ -33,8 +33,8 @@ extension NSUIView {
                         visualEffectBackgroundView = BackgroundVisualEffectView()
                     }
                     visualEffectBackgroundView?.configuration = newValue
-                    appearance = newValue.appearance ?? appearance
                 }
+                appearance = newValue.appearance ?? appearance
             } else {
                 visualEffectBackgroundView = nil
             }
