@@ -162,7 +162,7 @@ public extension CGImage {
      - Returns: The GIF data, or `nil` if the GIF couldn't be created.
      */
     static func gifData(from images: [CGImage], frameDuration: TimeInterval, loopCount: Int = 0) -> Data? {
-        gifData(from: images.map({ CGImageFrame(image: $0) }), defaultFrameDuration: frameDuration)
+        gifData(from: images.map({ CGImageFrame(image: $0, duration: frameDuration) }), defaultFrameDuration: frameDuration)
     }
     
     /**

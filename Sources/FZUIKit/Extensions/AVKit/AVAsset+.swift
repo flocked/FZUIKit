@@ -55,6 +55,11 @@ public extension AVAsset {
     }
     
     #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
+    /// Creates an object to read media data from the asset.
+    func reader() throws -> AVAssetReader {
+        try AVAssetReader(asset: self)
+    }
+    
     /**
      Returns the video frames as an array of `CGImage`.
      
@@ -62,14 +67,13 @@ public extension AVAsset {
      
      - Parameter unique: A Boolean value indicating whether to return only unique frames.
      */
-    func videoFrames(unique: Bool = false) -> [CGImage] {
-        let images = videoImageBuffers.map({ CGImage(cvPixelBuffer: $0) })
-        return unique ? images.uniqueImages() : images
+    var videoFrames: [CGImage] {
+        videoImageBuffers.map({ CGImage(cvPixelBuffer: $0) })
     }
     
     private var videoImageBuffers: [CVImageBuffer] {
-        guard let reader = try? AVAssetReader(asset: self), let videoTrack = tracks.first(where: { $0.mediaType == .video }) else { return [] }
-        let trackReaderOutput = AVAssetReaderTrackOutput(track: videoTrack, outputSettings: [String(kCVPixelBufferPixelFormatTypeKey): NSNumber(value: kCVPixelFormatType_32BGRA)])
+        guard let reader = try? reader(), let videoTrack = tracks(withMediaType: .video).first else { return [] }
+        let trackReaderOutput = videoTrack.reader(outputSettings: [String(kCVPixelBufferPixelFormatTypeKey): NSNumber(value: kCVPixelFormatType_32BGRA)])
         reader.add(trackReaderOutput)
         reader.startReading()
         return trackReaderOutput.imageBuffers()
@@ -85,14 +89,7 @@ public extension AVAsset {
         - duration: The gif animation duration, or `nil` to use the video duration.
      */
     func gifData(uniqueFrames: Bool = true, duration: Double? = nil) -> Data? {
-        let images = videoFrames(unique: uniqueFrames).compactMap({$0.nsUIImage})
-        if let duration = duration {
-            return NSUIImage.gifData(from: images, duration: duration)
-        }
-        if #available(macOS 12, iOS 15, tvOS 15, watchOS 8, visionOS 1.0, *), let duration = timeDuration?.seconds {
-            return NSUIImage.gifData(from: images, duration: duration)
-        }
-        return NSUIImage.gifData(from: images, duration: self.duration.seconds)
+        NSUIImage.gifData(from: (uniqueFrames ? videoFrames.uniqueImages() : videoFrames).map({$0.nsUIImage}), duration: duration ?? timeDuration?.seconds ?? self.duration.seconds)
     }
     
     /**
@@ -103,19 +100,28 @@ public extension AVAsset {
         - duration: The image animation duration, or `nil` to use the video duration.
      */
     func animatedImage(uniqueFrames: Bool = true, duration: CGFloat? = nil) -> NSUIImage? {
-        let images = videoFrames(unique: uniqueFrames).compactMap({$0.nsUIImage})
-        if let duration = duration {
-            return NSUIImage.animatedImage(with: images, duration: duration)
-        }
-        if #available(macOS 12, iOS 15, tvOS 15, watchOS 8, visionOS 1.0, *), let duration = timeDuration?.seconds {
-            return NSUIImage.animatedImage(with: images, duration: duration)
-        }
-        return NSUIImage.animatedImage(with: images, duration: self.duration.seconds)
+        NSUIImage.animatedImage(with: (uniqueFrames ? videoFrames.uniqueImages() : videoFrames).map({$0.nsUIImage}), duration: duration ?? timeDuration?.seconds ?? self.duration.seconds)
     }
     #endif
 }
 
 public extension AVAssetTrack {
+    /// Creates an object that reads media data from the asset track.
+    var reader: AVAssetReaderTrackOutput {
+        reader(outputSettings: nil)
+    }
+    
+    /**
+     Creates an object that reads media data from the asset track.
+     
+     - Parameter outputSettings: A dictionary of settings to use for sample output, or `nil` to receive samples in their storage format.
+     
+        You use keys and values from [Audio settings](https://developer.apple.com/documentation/avfoundation/audio-settings), [Video settings](https://developer.apple.com/documentation/avfoundation/video-settings), or [CVPixelBuffer](https://developer.apple.com/documentation/corevideo/cvpixelbuffer), depending on the media type and the output format you require.
+     */
+    func reader(outputSettings: [String : Any]?) -> AVAssetReaderTrackOutput {
+        .init(track: self, outputSettings: outputSettings)
+    }
+    
     /// The codec of a video track.
     enum VideoCodec: String {
         /// avc1 codec.
