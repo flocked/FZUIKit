@@ -36,9 +36,6 @@ extension NSUIView {
                     appearance = newValue.appearance ?? appearance
                 }
             } else {
-                if appearance?.name == visualEffect?.appearance?.name {
-                    appearance = nil
-                }
                 visualEffectBackgroundView = nil
             }
         }
