@@ -13,20 +13,19 @@ import AppKit
 #endif
 
 public extension AVAsset {
-    /// The natural dimensions of a video asset.
+    /// The natural size of the asset's first video track after applying its preferred transform.
     var videoNaturalSize: CGSize? {
-        guard let track = tracks(withMediaType: .video).first else { return nil }
-        return CGRect(origin: .zero, size: track.naturalSize).applying(track.preferredTransform).standardized.size
+        tracks(withMediaType: .video).first?.transformedNaturalSize
     }
-
-    /// The codec of a video asset.
-    var videoCodec: AVAssetTrack.VideoCodec? {
-        tracks.lazy.compactMap(\.videoCodec).first
+    
+    /// The codecs used by the asset's audio tracks.
+    var audioCodecs: [FZSwiftUtils.AudioCodec] {
+        tracks.compactMap(\.audioCodec)
     }
-
-    /// The codec string of a video asset.
-    var videoCodecString: String? {
-        tracks.lazy.compactMap(\.videoCodecString).first
+    
+    /// The codecs used by the asset's video tracks.
+    var videoCodecs: [VideoCodec] {
+        tracks.compactMap(\.videoCodec)
     }
 
     /// The sample rate of a asset with an audio track.
@@ -46,12 +45,12 @@ public extension AVAsset {
     
     /// A Boolean value indicating whether the the asset has audio.
     var hasAudio: Bool {
-        audioChannels > 0
+        !tracks(withMediaType: .audio).isEmpty
     }
     
     /// A Boolean value indicating whether the the asset has video.
     var hasVideo: Bool {
-        tracks.contains(where: { $0.mediaType == .video })
+        !tracks(withMediaType: .video).isEmpty
     }
     
     #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
@@ -101,68 +100,4 @@ public extension AVAsset {
         NSUIImage.animatedImage(with: (uniqueFrames ? videoFrames.uniqueImages() : videoFrames).map({$0.nsUIImage}), duration: duration ?? timeDuration?.seconds ?? self.duration.seconds)
     }
     #endif
-}
-
-public extension AVAssetTrack {
-    /// Creates an object that reads media data from the asset track.
-    var reader: AVAssetReaderTrackOutput {
-        reader(outputSettings: nil)
-    }
-    
-    /**
-     Creates an object that reads media data from the asset track.
-     
-     - Parameter outputSettings: A dictionary of settings to use for sample output, or `nil` to receive samples in their storage format.
-     
-        You use keys and values from [Audio settings](https://developer.apple.com/documentation/avfoundation/audio-settings), [Video settings](https://developer.apple.com/documentation/avfoundation/video-settings), or [CVPixelBuffer](https://developer.apple.com/documentation/corevideo/cvpixelbuffer), depending on the media type and the output format you require.
-     */
-    func reader(outputSettings: [String : Any]?) -> AVAssetReaderTrackOutput {
-        .init(track: self, outputSettings: outputSettings)
-    }
-    
-    /// The codec of a video track.
-    enum VideoCodec: String {
-        /// avc1 codec.
-        case avc1
-        /// hvc1 codec.
-        case hvc1
-        /// mp4v codec.
-        case mp4v
-    }
-
-    /// The codec of a video track.
-    var videoCodec: VideoCodec? {
-        videoCodecString.flatMap({ .init(rawValue: $0) })
-    }
-
-    /// The codec of a video track.
-    var videoCodecString: String? {
-        let formatDescriptions = formatDescriptions
-        let mediaSubtypes = formatDescriptions
-            .filter { CMFormatDescriptionGetMediaType($0 as! CMFormatDescription) == kCMMediaType_Video }
-            .map { CMFormatDescriptionGetMediaSubType($0 as! CMFormatDescription).string }
-        return mediaSubtypes.first
-    }
-
-    /// The sample rate of an audio track.
-    var audioSampleRate: Float64? {
-        for item in (formatDescriptions as? [CMAudioFormatDescription]) ?? [] {
-            let basic = CMAudioFormatDescriptionGetStreamBasicDescription(item)
-            if let sampleRate = basic?.pointee.mSampleRate {
-                return sampleRate
-            }
-        }
-        return nil
-    }
-
-    /// The number of channels of an audio track.
-    var audioChannels: Int? {
-        for item in (formatDescriptions as? [CMAudioFormatDescription]) ?? [] {
-            let basic = CMAudioFormatDescriptionGetStreamBasicDescription(item)
-            if let channelsCount = basic?.pointee.mChannelsPerFrame, channelsCount != 0 {
-                return Int(channelsCount)
-            }
-        }
-        return nil
-    }
 }
