@@ -30,11 +30,12 @@ extension NSUIView {
                     view.configuration = newValue
                 } else {
                     if visualEffectBackgroundView == nil {
-                        visualEffectBackgroundView = BackgroundVisualEffectView()
+                        let visualView = BackgroundVisualEffectView()
+                        visualView.configuration = newValue
+                        visualEffectBackgroundView = visualView
                     }
-                    visualEffectBackgroundView?.configuration = newValue
+                    appearance = newValue.appearance ?? appearance
                 }
-                appearance = newValue.appearance ?? appearance
             } else {
                 visualEffectBackgroundView = nil
             }
