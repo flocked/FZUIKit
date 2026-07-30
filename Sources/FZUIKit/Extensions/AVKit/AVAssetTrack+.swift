@@ -197,64 +197,64 @@ public struct FormatDescriptionExtensionInfo {
     
     /// Creates extension information from the specified format-description extensions.
     public init(_ extensions: CMFormatDescription.Extensions) {
-        alphaChannelMode = extensions.value(.alphaChannelMode)
-        alternativeTransferCharacteristics = extensions.value(.alternativeTransferCharacteristics)
+        alphaChannelMode = extensions[.alphaChannelMode]
+        alternativeTransferCharacteristics = extensions[.alternativeTransferCharacteristics]
         ambientViewingEnvironment = extensions[.ambientViewingEnvironment]
         auxiliaryTypeInfo = extensions[.auxiliaryTypeInfo]
         backgroundColor = extensions[.backgroundColor]
-        bitsPerComponent = extensions.value(.bitsPerComponent)
-        bytesPerRow = extensions.value(.bytesPerRow)
-        chromaLocationBottomField = extensions.value(.chromaLocationBottomField)
-        chromaLocationTopField = extensions.value(.chromaLocationTopField)
+        bitsPerComponent = extensions[.bitsPerComponent]
+        bytesPerRow = extensions[.bytesPerRow]
+        chromaLocationBottomField = extensions[.chromaLocationBottomField]
+        chromaLocationTopField = extensions[.chromaLocationTopField]
         cleanAperture = extensions[.cleanAperture]
-        colorPrimaries = extensions.value(.colorPrimaries)
-        conformsToMPEG2VideoProfile = extensions.value(.conformsToMPEG2VideoProfile)
-        containsAlphaChannel = extensions.value(.containsAlphaChannel)
+        colorPrimaries = extensions[.colorPrimaries]
+        conformsToMPEG2VideoProfile = extensions[.conformsToMPEG2VideoProfile]
+        containsAlphaChannel = extensions[.containsAlphaChannel]
         contentLightLevelInfo = extensions[.contentLightLevelInfo]
-        defaultFontName = extensions.value(.defaultFontName)
+        defaultFontName = extensions[.defaultFontName]
         defaultStyle = extensions[.defaultStyle]
         defaultTextBox = extensions[.defaultTextBox]
-        depth = extensions.value(.depth)
+        depth = extensions[.depth]
         displayFlags = extensions[.displayFlags]
-        fieldCount = extensions.value(.fieldCount)
-        fieldDetail = extensions.value(.fieldDetail)
-        fontTable = extensions.value(.fontTable)
-        formatName = extensions.value(.formatName)
-        fullRangeVideo = extensions.value(.fullRangeVideo)
-        gammaLevel = extensions.value(.gammaLevel)
-        horizontalJustification = extensions.value(.horizontalJustification)
-        iccProfile = extensions.value(.iccProfile)
+        fieldCount = extensions[.fieldCount]
+        fieldDetail = extensions[.fieldDetail]
+        fontTable = extensions[.fontTable]
+        formatName = extensions[.formatName]
+        fullRangeVideo = extensions[.fullRangeVideo]
+        gammaLevel = extensions[.gammaLevel]
+        horizontalJustification = extensions[.horizontalJustification]
+        iccProfile = extensions[.iccProfile]
         masteringDisplayColorVolume = extensions[.masteringDisplayColorVolume]
         metadataKeyTable = extensions[.metadataKeyTable]
         originalCompressionSettings = extensions[.originalCompressionSettings]
-        if let dic: [String: CGFloat] = extensions.value(.pixelAspectRatio), let horizontal = dic["HorizontalSpacing"], let vertical = dic["VerticalSpacing"] {
+        if let dic: [String: CGFloat] = extensions[.pixelAspectRatio], let horizontal = dic["HorizontalSpacing"], let vertical = dic["VerticalSpacing"] {
             pixelAspectRatio = CGSize(horizontal, vertical)
         } else {
             pixelAspectRatio = nil
         }
-        revisionLevel = extensions.value(.revisionLevel)
+        revisionLevel = extensions[.revisionLevel]
         sampleDescriptionExtensionAtoms = extensions[.sampleDescriptionExtensionAtoms]
         sourceReferenceName = extensions[.sourceReferenceName]
-        spatialQuality = extensions.value(.spatialQuality)
-        temporalQuality = extensions.value(.temporalQuality)
-        textJustification = extensions.value(.textJustification)
-        transferFunction = extensions.value(.transferFunction)
-        vendor = extensions.value(.vendor)
-        verbatimISOSampleEntry = extensions.value(.verbatimISOSampleEntry)
-        verbatimSampleDescription = extensions.value(.verbatimSampleDescription)
-        version = extensions.value(.version)
-        verticalJustification = extensions.value(.verticalJustification)
-        yCbCrMatrix = extensions.value(.yCbCrMatrix)
+        spatialQuality = extensions[.spatialQuality]
+        temporalQuality = extensions[.temporalQuality]
+        textJustification = extensions[.textJustification]
+        transferFunction = extensions[.transferFunction]
+        vendor = extensions[.vendor]
+        verbatimISOSampleEntry = extensions[.verbatimISOSampleEntry]
+        verbatimSampleDescription = extensions[.verbatimSampleDescription]
+        version = extensions[.version]
+        verticalJustification = extensions[.verticalJustification]
+        yCbCrMatrix = extensions[.yCbCrMatrix]
     }
 }
 
-extension CMFormatDescription.Extensions {
-    func value<T: RawRepresentable>(_ key: Key, as _: T.Type = T.self) -> T? {
-        guard let rawValue = self[key]?.propertyListRepresentation as? T.RawValue else { return nil }
-        return T(rawValue: rawValue)
+public extension CMFormatDescription.Extensions {
+    subscript<T>(_ key: Key) -> T? {
+        self[key] as? T
     }
     
-    func value<T>(_ key: Key, as type: T.Type = T.self) -> T? {
-        self[key] as? T
+    subscript<T: RawRepresentable>(_ key: Key) -> T? {
+        guard let rawValue = self[key]?.propertyListRepresentation as? T.RawValue else { return nil }
+        return T(rawValue: rawValue)
     }
 }
