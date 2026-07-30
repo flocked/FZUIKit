@@ -92,9 +92,6 @@ public extension CMFormatDescription {
         /// The codec.
         let codec: FZSwiftUtils.AudioCodec
         
-        /// The amount to pad the structure to force an even 8-byte alignment.
-        let reserved: UInt32
-        
         fileprivate init(_ description: AudioStreamBasicDescription) {
             sampleRate = description.mSampleRate
             channelsPerFrame = Int(description.mChannelsPerFrame)
@@ -102,7 +99,162 @@ public extension CMFormatDescription {
             bytesPerFrame = description.mBytesPerFrame
             formatFlags = .init(description.mFormatFlags)
             codec = .init(description.mFormatID)
-            reserved = description.mReserved
         }
+    }
+}
+
+public struct FormatDescriptionExtensionInfo {
+    public typealias Value = CMFormatDescription.Extensions.Value
+    /// The mode that describes how the alpha channel is represented.
+    public let alphaChannelMode: Value.AlphaChannelMode?
+    /// The alternative transfer characteristics value.
+    public let alternativeTransferCharacteristics: Value.TransferFunction?
+    /// The ambient viewing environment information.
+    public let ambientViewingEnvironment: Value?
+    /// The auxiliary type information.
+    public let auxiliaryTypeInfo: Value?
+    /// The background color information.
+    public let backgroundColor: Value?
+    /// The number of bits in each image component.
+    public let bitsPerComponent: Int?
+    /// The number of bytes in each image row.
+    public let bytesPerRow: Int?
+    /// The chroma location for the bottom field.
+    public let chromaLocationBottomField: Value.ChromaLocation?
+    /// The chroma location for the top field.
+    public let chromaLocationTopField: Value.ChromaLocation?
+    /// The clean aperture dimensions and offsets.
+    public let cleanAperture: Value?
+    /// The color primaries used by the format.
+    public let colorPrimaries: Value.ColorPrimaries?
+    /// The MPEG-2 video profile to which the format conforms.
+    public let conformsToMPEG2VideoProfile: Value.MPEG2VideoProfile?
+    /// A Boolean value indicating whether the format contains an alpha channel.
+    public let containsAlphaChannel: Bool?
+    /// The content light level information.
+    public let contentLightLevelInfo: Value?
+    /// The default font name.
+    public let defaultFontName: String?
+    /// The default text style information.
+    public let defaultStyle: Value?
+    /// The default text display rectangle.
+    public let defaultTextBox: Value?
+    /// The pixel depth of the format.
+    public let depth: Int?
+    /// The text display flags.
+    public let displayFlags: Value?
+    /// The number of interlaced or progressive fields.
+    public let fieldCount: Int?
+    /// The field arrangement details.
+    public let fieldDetail: Value.FieldDetail?
+    /// The table that maps local font identifiers to font names.
+    public let fontTable: [Int: String]?
+    /// The human-readable format name.
+    public let formatName: String?
+    /// A Boolean value indicating whether the video uses the full component range.
+    public let fullRangeVideo: Bool?
+    /// The gamma level used by the format.
+    public let gammaLevel: CGFloat?
+    /// The horizontal text justification.
+    public let horizontalJustification: Value.TextJustification?
+    /// The ICC color profile data.
+    public let iccProfile: CFData?
+    /// The mastering display color volume information.
+    public let masteringDisplayColorVolume: Value?
+    /// The metadata key table.
+    public let metadataKeyTable: Value?
+    /// The original compression settings.
+    public let originalCompressionSettings: Value?
+    /// The horizontal and vertical pixel aspect ratio spacing.
+    public let pixelAspectRatio: CGSize?
+    /// The revision level of the format.
+    public let revisionLevel: Int?
+    /// The sample-description extension atoms.
+    public let sampleDescriptionExtensionAtoms: Value?
+    /// The source reference name and language code.
+    public let sourceReferenceName: Value?
+    /// The spatial quality value.
+    public let spatialQuality: Int?
+    /// The temporal quality value.
+    public let temporalQuality: Int?
+    /// The text justification.
+    public let textJustification: Value.TextJustification?
+    /// The transfer function used by the format.
+    public let transferFunction: Value.TransferFunction?
+    /// The vendor that created the format.
+    public let vendor: Value.Vendor?
+    /// The verbatim ISO sample-entry data.
+    public let verbatimISOSampleEntry: CFData?
+    /// The verbatim sample-description data.
+    public let verbatimSampleDescription: CFData?
+    /// The format version.
+    public let version: Int?
+    /// The vertical text justification.
+    public let verticalJustification: Value.TextJustification?
+    /// The YCbCr conversion matrix used by the format.
+    public let yCbCrMatrix: Value.YCbCrMatrix?
+    
+    
+    /// Creates extension information from the specified format-description extensions.
+    public init(_ extensions: CMFormatDescription.Extensions) {
+        alphaChannelMode = extensions.value(.alphaChannelMode)
+        alternativeTransferCharacteristics = extensions.value(.alternativeTransferCharacteristics)
+        ambientViewingEnvironment = extensions[.ambientViewingEnvironment]
+        auxiliaryTypeInfo = extensions[.auxiliaryTypeInfo]
+        backgroundColor = extensions[.backgroundColor]
+        bitsPerComponent = extensions.value(.bitsPerComponent)
+        bytesPerRow = extensions.value(.bytesPerRow)
+        chromaLocationBottomField = extensions.value(.chromaLocationBottomField)
+        chromaLocationTopField = extensions.value(.chromaLocationTopField)
+        cleanAperture = extensions[.cleanAperture]
+        colorPrimaries = extensions.value(.colorPrimaries)
+        conformsToMPEG2VideoProfile = extensions.value(.conformsToMPEG2VideoProfile)
+        containsAlphaChannel = extensions.value(.containsAlphaChannel)
+        contentLightLevelInfo = extensions[.contentLightLevelInfo]
+        defaultFontName = extensions.value(.defaultFontName)
+        defaultStyle = extensions[.defaultStyle]
+        defaultTextBox = extensions[.defaultTextBox]
+        depth = extensions.value(.depth)
+        displayFlags = extensions[.displayFlags]
+        fieldCount = extensions.value(.fieldCount)
+        fieldDetail = extensions.value(.fieldDetail)
+        fontTable = extensions.value(.fontTable)
+        formatName = extensions.value(.formatName)
+        fullRangeVideo = extensions.value(.fullRangeVideo)
+        gammaLevel = extensions.value(.gammaLevel)
+        horizontalJustification = extensions.value(.horizontalJustification)
+        iccProfile = extensions.value(.iccProfile)
+        masteringDisplayColorVolume = extensions[.masteringDisplayColorVolume]
+        metadataKeyTable = extensions[.metadataKeyTable]
+        originalCompressionSettings = extensions[.originalCompressionSettings]
+        if let dic: [String: CGFloat] = extensions.value(.pixelAspectRatio), let horizontal = dic["HorizontalSpacing"], let vertical = dic["VerticalSpacing"] {
+            pixelAspectRatio = CGSize(horizontal, vertical)
+        } else {
+            pixelAspectRatio = nil
+        }
+        revisionLevel = extensions.value(.revisionLevel)
+        sampleDescriptionExtensionAtoms = extensions[.sampleDescriptionExtensionAtoms]
+        sourceReferenceName = extensions[.sourceReferenceName]
+        spatialQuality = extensions.value(.spatialQuality)
+        temporalQuality = extensions.value(.temporalQuality)
+        textJustification = extensions.value(.textJustification)
+        transferFunction = extensions.value(.transferFunction)
+        vendor = extensions.value(.vendor)
+        verbatimISOSampleEntry = extensions.value(.verbatimISOSampleEntry)
+        verbatimSampleDescription = extensions.value(.verbatimSampleDescription)
+        version = extensions.value(.version)
+        verticalJustification = extensions.value(.verticalJustification)
+        yCbCrMatrix = extensions.value(.yCbCrMatrix)
+    }
+}
+
+extension CMFormatDescription.Extensions {
+    func value<T: RawRepresentable>(_ key: Key, as _: T.Type = T.self) -> T? {
+        guard let rawValue = self[key]?.propertyListRepresentation as? T.RawValue else { return nil }
+        return T(rawValue: rawValue)
+    }
+    
+    func value<T>(_ key: Key, as type: T.Type = T.self) -> T? {
+        self[key] as? T
     }
 }

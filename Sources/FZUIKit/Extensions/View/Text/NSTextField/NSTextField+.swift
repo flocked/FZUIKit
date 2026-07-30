@@ -169,7 +169,8 @@ public extension NSTextField {
         
     /// Selects the specified string.
     func select(_ string: String) {
-        select(stringValue.nsRange(of: string))
+        guard let range = stringValue.nsRange(of: string) else { return }
+        select(range)
     }
         
     /// Selects the specified range.
