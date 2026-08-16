@@ -44,13 +44,8 @@ public extension ContentTransform {
      - Returns: The content transformer..
      */
     init(_ transformers: [Self]) {
-        let id = "[\(transformers.compactMap(\.id).joined(separator: ", "))]"
-        self.init(id) { content in
-            var content = content
-            for transformer in transformers {
-                content = transformer.transform(content)
-            }
-            return content
+        self.init(transformers.map(\.id).joined(separator: ",")) {
+            transformers.reduce($0) { $1($0) }
         }
     }
 
@@ -126,14 +121,28 @@ public extension ContentTransform {
     }
 
     static func + (lhs: Self, rhs: Self) -> Self {
-        Self { input in
-            var result = lhs(input)
-            result = rhs(result)
-            return result
-        }
+        Self.init("\(lhs.id),\(rhs.id)") { rhs(lhs($0)) }
     }
 }
 
-public extension ContentTransform where Self: AnyObject {
-    var id: String { String(ObjectIdentifier(self).hashValue) }
+public extension ContentTransform where Content: Equatable {
+    /// Returns a transformer that applies the right-hand transformer when the left-hand transformer doesn't change the input.
+    static func || (lhs: Self, rhs: Self) -> Self {
+        Self("\(lhs.id)||\(rhs.id)") { input in
+            let result = lhs(input)
+            return result != input ? result : rhs(input)
+        }
+    }
+    
+    /// Initializes a transformer that returns the first transformed value that differs from the input.
+    init(unique transformers: [Self]) {
+        self.init(transformers.map(\.id).joined(separator: "||")) { input in
+            transformers.lazy.map { $0(input) }.first { $0 != input } ?? input
+        }
+    }
+
+    /// Initializes a transformer that returns the first transformed value that differs from the input.
+    init(unique transformers: Self...) {
+        self.init(unique: transformers)
+    }
 }

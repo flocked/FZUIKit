@@ -116,7 +116,7 @@ extension Collection where Element == NSGridCell {
     fileprivate func unmerge(_ headCell: NSGridCell, unmergeAll: Bool = false) {
         if !unmergeAll {
             guard let index = firstIndex(where: { $0.headOfMergedCell === headCell }) else { return }
-            self[safe: index...].filter({ $0.headOfMergedCell === headCell }).reversed().forEach({ $0.headOfMergedCell = nil })
+            self[clamped: index...].filter({ $0.headOfMergedCell === headCell }).reversed().forEach({ $0.headOfMergedCell = nil })
             let filtered = filter({ $0.headOfMergedCell === headCell })
             if filtered.count == 1 {
                 filtered.forEach({ $0.headOfMergedCell = nil })

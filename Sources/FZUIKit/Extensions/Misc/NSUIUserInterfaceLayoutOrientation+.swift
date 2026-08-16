@@ -5,6 +5,7 @@
 //  Created by Florian Zand on 03.07.26.
 //
 
+#if !os(watchOS)
 import Foundation
 
 extension NSUIUserInterfaceLayoutOrientation {
@@ -12,3 +13,4 @@ extension NSUIUserInterfaceLayoutOrientation {
         self = self == .vertical ? .vertical : .horizontal
     }
 }
+#endif

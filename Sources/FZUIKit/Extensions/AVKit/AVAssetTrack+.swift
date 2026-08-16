@@ -15,16 +15,19 @@ public extension AVAssetTrack {
         return CGRect(origin: .zero, size: naturalSize).applying(preferredTransform).standardized.size
     }
     
+    #if !os(watchOS)
     /// Creates an object that reads media data from the asset track.
     var reader: AVAssetReaderTrackOutput {
         reader(outputSettings: nil)
     }
+    #endif
     
     /// The media subtypes of the track's format descriptions.
     var mediaSubTypes: Set<CMFormatDescription.MediaSubType> {
         Set(formatDescriptions.map({ ($0 as! CMFormatDescription).mediaSubType }))
     }
     
+    #if !os(watchOS)
     /**
      Creates an object that reads media data from the asset track.
      
@@ -35,6 +38,8 @@ public extension AVAssetTrack {
     func reader(outputSettings: [String : Any]?) -> AVAssetReaderTrackOutput {
         .init(track: self, outputSettings: outputSettings)
     }
+    #endif
+    
 
     /// The codec used by the video track.
     var videoCodec: VideoCodec? {

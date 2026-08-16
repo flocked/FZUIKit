@@ -230,28 +230,28 @@ public class GridColumn {
     /// Unmerges the cells of the column at the specified range.
     @discardableResult
     public func unmergeCells(in range: ClosedRange<Int>) -> Self {
-        (gridColumn?.cells ?? [])[safe: range].forEach({ $0.unmerge() })
+        (gridColumn?.cells ?? [])[clamped: range].forEach({ $0.unmerge() })
         return self
     }
     
     /// Unmerges the cells of the column at the specified range.
     @discardableResult
     public func unmergeCells(in range: Range<Int>) -> Self {
-        (gridColumn?.cells ?? [])[safe: range].forEach({ $0.unmerge() })
+        (gridColumn?.cells ?? [])[clamped: range].forEach({ $0.unmerge() })
         return self
     }
     
     /// Unmerges the cells of the column starting from the specified range's lowerBound value.
     @discardableResult
     public func unmergeCells(in range: PartialRangeFrom<Int>) -> Self {
-        (gridColumn?.cells ?? [])[safe: range].forEach({ $0.unmerge() })
+        (gridColumn?.cells ?? [])[clamped: range].forEach({ $0.unmerge() })
         return self
     }
     
     /// Unmerges the cells of the column upto the specified range's upperBound value.
     @discardableResult
     public func unmergeCells(in range: PartialRangeUpTo<Int>) -> Self {
-        (gridColumn?.cells ?? [])[safe: range].forEach({ $0.unmerge() })
+        (gridColumn?.cells ?? [])[clamped: range].forEach({ $0.unmerge() })
         return self
     }
     

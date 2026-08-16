@@ -5,7 +5,7 @@
 //  Created by Florian Zand on 18.07.26.
 //
 
-
+#if !os(watchOS)
 import AVKit
 #if os(macOS)
 import AppKit
@@ -40,3 +40,4 @@ extension AVPictureInPictureController {
         }
     }
 }
+#endif

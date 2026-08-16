@@ -57,7 +57,6 @@ public typealias NSUITouch = NSTouch
 public typealias NSUIGraphicsImageRenderer = GraphicsImageRenderer
 #elseif canImport(UIKit)
 import UIKit
-public typealias NSUIWindow = UIWindow
 public typealias NSUIBezierPath = UIBezierPath
 public typealias NSUIColor = UIColor
 public typealias NSUIEdgeInsets = UIEdgeInsets
@@ -68,6 +67,7 @@ public typealias NSUISymbolWeight = UIImage.SymbolWeight
 #endif
 
 #if os(iOS) || os(tvOS) || os(visionOS)
+public typealias NSUIWindow = UIWindow
 public typealias NSUICollectionView = UICollectionView
 public typealias NSUICollectionViewCompositionalLayout = UICollectionViewCompositionalLayout
 public typealias NSUICollectionViewCompositionalLayoutConfiguration = UICollectionViewCompositionalLayoutConfiguration

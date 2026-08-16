@@ -114,7 +114,7 @@ extension AXUIElement: Swift.CustomStringConvertible, Swift.CustomDebugStringCon
         strings += (String(repeating: "  ", count: level) + string(level: level+1, maxDepth: maxDepth, options: options, attributes: attributes))
         if level+1 <= maxDepth {
             var childs = children.collect()
-            childs = childs[safe: 0..<(maxChildren)]
+            childs = childs[clamped: 0..<(maxChildren)]
             childs.forEach({ strings += $0.strings(level: level+1, maxDepth: maxDepth, maxChildren: maxChildren, options: options, attributes: attributes) })
         }
         return strings

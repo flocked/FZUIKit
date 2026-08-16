@@ -236,28 +236,28 @@ public class GridRow {
     /// Unmerges the cells of the row at the specified range.
     @discardableResult
     public func unmergeCells(in range: ClosedRange<Int>) -> Self {
-        (gridRow?.cells ?? [])[safe: range].forEach({ $0.unmerge() })
+        (gridRow?.cells ?? [])[clamped: range].forEach({ $0.unmerge() })
         return self
     }
     
     /// Unmerges the cells of the row at the specified range.
     @discardableResult
     public func unmergeCells(in range: Range<Int>) -> Self {
-        (gridRow?.cells ?? [])[safe: range].forEach({ $0.unmerge() })
+        (gridRow?.cells ?? [])[clamped: range].forEach({ $0.unmerge() })
         return self
     }
     
     /// Unmerges the cells of the row starting from the specified range's lowerBound value.
     @discardableResult
     public func unmergeCells(in range: PartialRangeFrom<Int>) -> Self {
-        (gridRow?.cells ?? [])[safe: range].forEach({ $0.unmerge() })
+        (gridRow?.cells ?? [])[clamped: range].forEach({ $0.unmerge() })
         return self
     }
     
     /// Unmerges the cells of the row upto the specified range's upperBound value.
     @discardableResult
     public func unmergeCells(in range: PartialRangeUpTo<Int>) -> Self {
-        (gridRow?.cells ?? [])[safe: range].forEach({ $0.unmerge() })
+        (gridRow?.cells ?? [])[clamped: range].forEach({ $0.unmerge() })
         return self
     }
     

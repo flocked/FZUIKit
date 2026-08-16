@@ -819,9 +819,9 @@ fileprivate extension [Gradient.ColorStop] {
         var from = self
         var to = stops
         if count < stops.count {
-            from += stops[safe: count...].map({$0.transparent})
+            from += stops[clamped: count...].map({$0.transparent})
         } else if count > stops.count {
-            to += self[safe: stops.count...].map({ $0.transparent })
+            to += self[clamped: stops.count...].map({ $0.transparent })
         }
         return (from, to)
     }
