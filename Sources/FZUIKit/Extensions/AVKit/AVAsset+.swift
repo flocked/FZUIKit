@@ -15,7 +15,7 @@ import AppKit
 public extension AVAsset {
     /// The natural size of the asset's first video track after applying its preferred transform.
     var videoNaturalSize: CGSize? {
-        tracks(withMediaType: .video).first?.transformedNaturalSize
+        tracks.first(where: { $0.mediaType == .video })?.transformedNaturalSize
     }
     
     /// The codecs used by the asset's audio tracks.
@@ -43,6 +43,7 @@ public extension AVAsset {
         (try? load(.duration)).map({ .seconds($0.seconds) })
     }
     
+    #if !os(watchOS) && !os(visionOS)
     /// A Boolean value indicating whether the the asset has audio.
     var hasAudio: Bool {
         !tracks(withMediaType: .audio).isEmpty
@@ -52,6 +53,7 @@ public extension AVAsset {
     var hasVideo: Bool {
         !tracks(withMediaType: .video).isEmpty
     }
+    #endif
     
     #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
     /// Creates an object to read media data from the asset.
@@ -59,6 +61,7 @@ public extension AVAsset {
         try AVAssetReader(asset: self)
     }
     
+    #if !os(visionOS)
     /**
      Returns the video frames as an array of `CGImage`.
      
@@ -75,6 +78,7 @@ public extension AVAsset {
         reader.startReading()
         return trackReaderOutput.imageBuffers()
     }
+    #endif
     #endif
     
     #if os(macOS)
