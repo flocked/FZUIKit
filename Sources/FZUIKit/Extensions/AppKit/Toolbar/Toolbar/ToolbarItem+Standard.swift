@@ -11,12 +11,12 @@ import AppKit
 public extension Toolbar {
     /// A toolbar item that displays an empty space with a flexible width.
     static func flexibleSpace() -> ToolbarItem {
-        ToolbarItem(.flexibleSpace)
+        ToolbarItem(standard: .flexibleSpace)
     }
     
     /// A toolbar item that displays an empty space with a standard fixed size.
     static func space() -> ToolbarItem {
-        ToolbarItem(.space)
+        ToolbarItem(standard: .space)
     }
     
     /**
@@ -25,7 +25,7 @@ public extension Toolbar {
      The item sends `toggleSidebar(_:)` to the first responder.
      */
     static func toggleSidebar() -> ToolbarItem {
-        ToolbarItem(.toggleSidebar)
+        ToolbarItem(standard: .toggleSidebar)
     }
     
     /**
@@ -34,7 +34,7 @@ public extension Toolbar {
      The item’s tracking separator visually aligns itself with the sidebar divider of a vertical split view in the same window.
      */
     static func sidebarTrackingSeparator() -> ToolbarItem {
-        ToolbarItem(.sidebarTrackingSeparator)
+        ToolbarItem(standard: .sidebarTrackingSeparator)
     }
     
     /**
@@ -44,7 +44,7 @@ public extension Toolbar {
      */
     @available(macOS 14.0, *)
     static func toggleInspector() -> ToolbarItem {
-        ToolbarItem(.toggleInspector)
+        ToolbarItem(standard: .toggleInspector)
     }
     
     /**
@@ -54,7 +54,7 @@ public extension Toolbar {
      */
     @available(macOS 14.0, *)
     static func inspectorTrackingSeparator() -> ToolbarItem {
-        ToolbarItem(.inspectorTrackingSeparator)
+        ToolbarItem(standard: .inspectorTrackingSeparator)
     }
     
     /**
@@ -63,22 +63,22 @@ public extension Toolbar {
      The item sends `printDocument(_:)` to the first responder.
      */
     static func print() -> ToolbarItem {
-        ToolbarItem(.print)
+        ToolbarItem(standard: .print)
     }
     
     /// A toolbar item that shows the standard color panel.
     static func showColors() -> ToolbarItem {
-        ToolbarItem(.showColors)
+        ToolbarItem(standard: .showColors)
     }
     
     /// A toolbar item that shows the standard font panel.
     static func showFonts() -> ToolbarItem {
-        ToolbarItem(.showFonts)
+        ToolbarItem(standard: .showFonts)
     }
     
     /// A toolbar item that tells your app to display the iCloud sharing interface.
     static func cloudSharing() -> ToolbarItem {
-        ToolbarItem(.cloudSharing)
+        ToolbarItem(standard: .cloudSharing)
     }
     
     /**
@@ -88,7 +88,7 @@ public extension Toolbar {
      */
     @available(macOS 15.2, *)
     static func writingTools() -> ToolbarItem {
-        ToolbarItem("NSToolbarWritingToolsItem")
+        ToolbarItem(standard: "NSToolbarWritingToolsItem")
     }
 }
 

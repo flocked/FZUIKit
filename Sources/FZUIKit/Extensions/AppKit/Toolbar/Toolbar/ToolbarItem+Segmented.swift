@@ -12,13 +12,7 @@ import FZSwiftUtils
 extension Toolbar {
     /// A toolbar item that contains a segmented control.
     open class SegmentedControl: ToolbarItem {
-        
-        lazy var groupItem: ValidateSegmentedToolbarItem = {
-            let item = ValidateSegmentedToolbarItem(for: self)
-            item.view = segmentedControl
-            return item
-        }()
-        
+        lazy var groupItem = ValidateToolbarItemGroup(for: self).view(segmentedControl)
         override var item: NSToolbarItem {
             groupItem
         }
@@ -117,77 +111,6 @@ extension Toolbar {
             return self
         }
         
-        /**
-         The handler that is called to validate the toolbar item.
-         
-         The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
-         */
-        public var validateHandler: ((Toolbar.SegmentedControl)->())?
-        
-        /**
-         Sets the handler that is called to validate the toolbar item.
-         
-         The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
-         */
-        @discardableResult
-        public func validateHandler(_ validation: ((Toolbar.SegmentedControl)->())?) -> Self {
-            self.validateHandler = validation
-            return self
-        }
-        
-        /// The handler that is called when the user clicks the toolbar item.
-        public var actionBlock: ((_ item: Toolbar.SegmentedControl)->())? {
-            didSet {
-                if let actionBlock = actionBlock {
-                    segmentedControl.actionBlock = { [weak self] _ in
-                        guard let self = self else { return }
-                        actionBlock(self)
-                    }
-                } else {
-                    segmentedControl.actionBlock = nil
-                }
-            }
-        }
-        
-        /// Sets the handler that is called when the user clicks the toolbar item.
-        @discardableResult
-        public func onAction(_ action: ((_ item: Toolbar.SegmentedControl)->())?) -> Self {
-            actionBlock = action
-            return self
-        }
-        
-        /// The action method to call when someone clicks on the toolbar item.
-        public var action: Selector? {
-            get { item.actionBlock == nil ? item.action : nil }
-            set {
-                actionBlock = nil
-                item.action = newValue
-            }
-        }
-        
-        /// Sets the action method to call when someone clicks on the toolbar item.
-        @discardableResult
-        public func action(_ action: Selector?) -> Self {
-            self.action = action
-            return self
-        }
-        
-        /// The object that defines the action method the toolbar item calls when clicked.
-        public var target: AnyObject? {
-            get { item.actionBlock == nil ? item.target : nil }
-            set {
-                actionBlock = nil
-                item.target = newValue
-            }
-        }
-        
-        /// Sets the object that defines the action method the toolbar item calls when clicked.
-        @discardableResult
-        public func target(_ target: AnyObject?) -> Self {
-            self.target = target
-            return self
-        }
-        
         func updateSegments() {
             if displaysIndividualSegmentLabels, !segments.contains(where: { $0.image == nil }) {
                 groupItem.label = ""
@@ -249,6 +172,10 @@ extension Toolbar {
     }
 }
 
+extension ToolbarItem {
+
+}
+
 fileprivate extension NSSegment {
     func toolbarItem(for groupItem: Toolbar.SegmentedControl) -> NSToolbarItem {
         let item = NSToolbarItem(itemIdentifier: .init(title ?? .random()))
@@ -285,22 +212,6 @@ fileprivate extension NSSegment {
         segment.index = index
         segment.segmentedControl = segmentedControl
         return segment
-    }
-}
-
-class ValidateSegmentedToolbarItem: NSToolbarItemGroup {
-    weak var item: Toolbar.SegmentedControl?
-    
-    init(for item: Toolbar.SegmentedControl) {
-        super.init(itemIdentifier: item.identifier)
-        self.item = item
-    }
-    
-    override func validate() {
-        super.validate()
-        guard let item = item else { return }
-        item.validate()
-        item.validateHandler?(item)
     }
 }
 #endif

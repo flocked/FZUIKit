@@ -20,7 +20,7 @@ extension Toolbar {
     open class TrackingSeparator: ToolbarItem {
         var autodetectsSplitView = false
         var isEmptySplitView = true
-        fileprivate let separatorItem: ValidationTrackingSeparatorToolbarItem
+        let separatorItem: ValidationTrackingSeparatorToolbarItem
         override var item: NSToolbarItem {
             separatorItem
         }
@@ -77,24 +77,6 @@ extension Toolbar {
         }
         
         /**
-         The handler that is called to validate the toolbar item.
-         
-         The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
-         */
-        public var validateHandler: ((Toolbar.TrackingSeparator)->())?
-        
-        /**
-         Sets the handler that is called to validate the toolbar item.
-         
-         The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
-         */
-        @discardableResult
-        public func validateHandler(_ validation: ((Toolbar.TrackingSeparator)->())?) -> Self {
-            self.validateHandler = validation
-            return self
-        }
-        
-        /**
          Creates a tracking seperator toolbar item that automatically detects the split view used inside the toolbar's window.
          
          - Note: The identifier is used for autosaving the item. When you don't specifiy an identifier an automatic identifier is used. It is recommended to specifiy an identifier, if you have multiple `TrackingSeparator` toolbar items.
@@ -125,18 +107,45 @@ extension Toolbar {
             super.init(separatorItem.itemIdentifier)
             self.separatorItem.item = self
         }
+        
+        override func _validate() -> Bool {
+            validateHandler?(self)
+            validate()
+            return validateHandler != nil || super._validate()
+        }
     }
 }
 
-fileprivate class ValidationTrackingSeparatorToolbarItem: NSTrackingSeparatorToolbarItem {
+class ValidationTrackingSeparatorToolbarItem: NSTrackingSeparatorToolbarItem {
     weak var item: Toolbar.TrackingSeparator?
     
     override func validate() {
-        super.validate()
-        guard let item = item else { return }
-        item.validate()
-        item.validateHandler?(item)
+        if isValidatable {
+            item?.performValidation()
+        } else {
+            super.validate()
+        }
     }
 }
+/*
+
+class ValidationTrackingSeparatorToolbarItem: NSTrackingSeparatorToolbarItem {
+    weak var item: ToolbarItem?
+    /*
+    init(for item: ToolbarItem) {
+        super.init(itemIdentifier: item.identifier)
+        self.item = item
+    }
+     */
+    
+    override func validate() {
+        if isValidatable {
+            item?.performValidation()
+        } else {
+            super.validate()
+        }
+    }
+}
+ */
 
 #endif

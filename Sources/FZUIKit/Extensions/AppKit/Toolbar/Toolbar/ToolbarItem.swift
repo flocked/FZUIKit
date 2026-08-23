@@ -9,12 +9,12 @@
 import AppKit
 
 /// A toolbar item that can be used with ``Toolbar``.
-open class ToolbarItem: NSObject {
+@objc open class ToolbarItem: NSObject, NSValidatedUserInterfaceItem {
     
     /// The identifier of the toolbar item.
     public let identifier: NSToolbarItem.Identifier
     
-    fileprivate lazy var rootItem = BasicValidateToolbarItem(for: self)
+    fileprivate lazy var rootItem: NSToolbarItem = ValidateToolbarItem(for: self)
     var item: NSToolbarItem {
         rootItem
     }
@@ -66,6 +66,28 @@ open class ToolbarItem: NSObject {
     open var isCentered: Bool {
         get { _isCentered }
         set { _isCentered = newValue }
+    }
+    
+    open var target: AnyObject? {
+        get { item.target }
+        set { item.target = newValue }
+    }
+    
+    @discardableResult
+    open func target(_ target: AnyObject?) -> Self {
+        self.target = target
+        return self
+    }
+    
+    open var action: Selector? {
+        get { item.action }
+        set { item.action = newValue }
+    }
+    
+    @discardableResult
+    open func action(_ action: Selector?) -> Self {
+        self.action = action
+        return self
     }
     
     /// Sets the Boolean value indicating whether the item displays in the center of the toolbar.
@@ -248,6 +270,12 @@ open class ToolbarItem: NSObject {
         set { item.visibilityPriority = newValue }
     }
     
+    func _validate() -> Bool {
+        validate()
+        return Self.overrides(#selector(ToolbarItem.validate))
+    }
+    
+    
     /**
      Sets the display priority associated with the toolbar item.
      
@@ -292,7 +320,7 @@ open class ToolbarItem: NSObject {
      If you disable automatic validation, toolbar items remain enabled and clickable, including when someone switches to another app or window. However, you can still call this method manually to validate the toolbar item.
      */
     @objc open func validate() {
-        
+        performValidation(checkOverwrite: false)
     }
     
     
@@ -314,7 +342,20 @@ open class ToolbarItem: NSObject {
     init(_ identifier: NSToolbarItem.Identifier? = nil) {
         self.identifier = identifier ?? Toolbar.automaticIdentifier(for: "\(type(of: self))")
     }
+    
+    init(standard identifier: NSToolbarItem.Identifier? = nil) {
+        self.identifier = identifier ?? Toolbar.automaticIdentifier(for: "\(type(of: self))")
+        super.init()
+        rootItem = NSToolbarItem(itemIdentifier: self.identifier)
+    }
+    
+    func callActionBlock() {
+        
+    }
+    
+    var actionBlockID: ObjectIdentifier?
 }
+
 
 public extension Sequence where Element == ToolbarItem {
     /// The identifiers of the toolbar items.
@@ -333,21 +374,6 @@ public extension Sequence where Element == ToolbarItem {
     }
 }
 
-class BasicValidateToolbarItem<Item: ToolbarItem>: NSToolbarItem {
-    weak var item: Item?
-    
-    init(for item: Item) {
-        super.init(itemIdentifier: item.identifier)
-        self.item = item
-    }
-    
-    override func validate() {
-        super.validate()
-        guard let item = item else { return }
-        item.validate()
-    }
-}
-
 extension NSToolbarItem {
     var _isHidden: Bool {
         get { value(forKey: "isHidden") ?? false }
@@ -356,6 +382,78 @@ extension NSToolbarItem {
             let selector = NSSelectorFromString("setHidden:")
             typealias ClosureType = @convention(c) (NSToolbarItem, Selector, Bool) -> Void
             Self.instanceMethod(for: selector, as: ClosureType.self)?(self, selector, newValue)
+        }
+    }
+}
+
+class ValidateToolbarItem: NSToolbarItem {
+    weak var item: ToolbarItem?
+    
+    init(for item: ToolbarItem) {
+        super.init(itemIdentifier: item.identifier)
+        self.item = item
+    }
+    
+    override func validate() {
+        guard autovalidates else { return }
+        item?.performValidation()
+    }
+}
+
+extension NSToolbarItem {
+    var isValidatable: Bool {
+        !Self.nonValidableIdentifers.contains(itemIdentifier)
+    }
+    
+    static let nonValidableIdentifers: Set<NSToolbarItem.Identifier> = {
+        var identifiers: Set<NSToolbarItem.Identifier> = [.space, .flexibleSpace, .print, .showFonts, .sidebarTrackingSeparator, .cloudSharing, .showColors, .toggleSidebar]
+        if #available(macOS 14.0, *) {
+            identifiers.insert( .inspectorTrackingSeparator)
+        }
+        if #available(macOS 15.2, *) {
+            identifiers.insert(.writingToolsItemIdentifier)
+        }
+        return identifiers
+    }()
+}
+
+extension NSObjectProtocol where Self: ToolbarItem {
+    /**
+     The handler that is called to validate the toolbar item.
+     
+     The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
+     */
+    public var validateHandler: ((Self)->())? {
+        get { getAssociatedValue("validateHandler" )}
+        set { setAssociatedValue(newValue, key: "validateHandler") }
+    }
+    
+    /**
+     Sets the handler that is called to validate the toolbar item.
+     
+     The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
+     */
+    @discardableResult
+    public func validateHandler(_ validation: ((Self)->())?) -> Self {
+        self.validateHandler = validation
+        return self
+    }
+    
+    func performValidation(checkOverwrite: Bool = true) {
+        if let validateHandler = validateHandler {
+            validateHandler(self)
+        } else if checkOverwrite, Self.overrides(#selector(Self.validate)) {
+            validate()
+        } else {
+            if let action = item.action, let target = NSApp.target(forAction: action, to: item.target, from: item.view ?? self) {
+                isEnabled = (target as? NSUserInterfaceValidations)?.validateUserInterfaceItem(self) ?? true
+                menuFormRepresentation?.isEnabled = isEnabled
+                guard isEnabled, let menuItem = menuFormRepresentation, let menuValidation = target as? NSMenuItemValidation else { return }
+                menuItem.isEnabled = menuValidation.validateMenuItem(menuItem)
+            } else {
+                isEnabled = false
+                menuFormRepresentation?.isEnabled = false
+            }
         }
     }
 }

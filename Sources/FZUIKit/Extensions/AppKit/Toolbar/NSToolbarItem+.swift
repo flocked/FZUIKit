@@ -21,6 +21,13 @@ public extension NSToolbarItem {
     @objc convenience init(_ itemIdentifier: NSToolbarItem.Identifier) {
         self.init(itemIdentifier: itemIdentifier)
     }
+    
+    /// Sets the custom view you use to draw the toolbar item.
+    @discardableResult
+    func view(_ view: NSView?) -> Self {
+        self.view = view
+        return self
+    }
 }
 
 extension NSToolbarItem.Identifier: Swift.ExpressibleByStringLiteral, Swift.ExpressibleByStringInterpolation, Swift.ExpressibleByExtendedGraphemeClusterLiteral, Swift.ExpressibleByUnicodeScalarLiteral {

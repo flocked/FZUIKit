@@ -12,10 +12,12 @@ import FZSwiftUtils
 
 /// `Toolbar` configurates a window toolbar and it's items.
 open class Toolbar: NSObject {
-    
     /// The identifier of the toolbar.
     public let identifier: NSToolbar.Identifier
-    
+    public var ttoolbar: NSToolbar {
+        toolbar
+    }
+
     private var delegate: Delegate!
     private var toolbar: MangedToolbar!
     private var toolbarObservation: KeyValueObservation?
@@ -52,9 +54,9 @@ open class Toolbar: NSObject {
      
      - Returns: The initialized `Toolbar` object.
      */
-    public init(_ identifier: NSToolbar.Identifier? = nil, allowsUserCustomization: Bool = true, items: [ToolbarItem]) {
+    public init(_ identifier: NSToolbar.Identifier? = nil, allowsUserCustomization: Bool = true, items: [ToolbarItem] = []) {
         self.identifier = identifier ?? Self.automaticIdentifier(for: "\(type(of: self))").rawValue
-        self.items = items
+        self._items = Self.checkedItems(items)
         super.init()
         toolbar = .init(for: self)
         delegate = Delegate(for: self)
@@ -91,13 +93,11 @@ open class Toolbar: NSObject {
     private weak var _attachedWindow: NSWindow? {
         didSet {
             guard oldValue != attachedWindow else { return }
-            if #available(macOS 11.0, *), let window = attachedWindow {
+            if let window = attachedWindow {
                 window.toolbarStyle = style.style ?? window.toolbarStyle
             }
-            if #available(macOS 11.0, *) {
-                items.compactMap({ $0 as? Toolbar.TrackingSeparator }).forEach({ $0.updateAutodetectSplitView(toolbar: self) })
-            }
-            toolbarObservation = attachedWindow?.observeChanges(for: \.toolbar) { [weak self] old, new in
+            items.compactMap { $0 as? Toolbar.TrackingSeparator }.forEach { $0.updateAutodetectSplitView(toolbar: self) }
+            toolbarObservation = attachedWindow?.observeChanges(for: \.toolbar) { [weak self] _, new in
                 guard let self = self, new !== self.toolbar else { return }
                 self.attachedWindow = nil
                 self.toolbarObservation = nil
@@ -218,6 +218,32 @@ open class Toolbar: NSObject {
         return self
     }
     
+    public func readdDelegate() {
+        toolbar.delegate = nil
+        toolbar.delegate = delegate
+    }
+    
+    private static let systemIdentifiers: Set<NSToolbarItem.Identifier> = [.flexibleSpace, .space, .separator]
+    
+    static func checkedItems(_ items: [ToolbarItem]) -> [ToolbarItem] {
+        let items = items.uniqued()
+        items.forEach({
+            if let toolbar = $0.toolbar, toolbar !== self {
+                toolbar.items.remove($0)
+            }
+        })
+        
+       // items.filter({ $0.toolbar !== self })
+        let duplicates = items.map { $0.identifier }.duplicates().filter { !Self.systemIdentifiers.contains($0) }
+        guard !duplicates.isEmpty else { return items }
+        #if DEBUG
+       // assertionFailure("Toolbar contains multiple custom items with \(duplicates.count == 1 ? "identifier `\(duplicates[0])`" : "duplicate identifiers: `\(duplicates)`"). Identifiers should be unique. Only the first item will be used.")
+        #else
+        print("Toolbar contains multiple custom items with \(duplicates.count == 1 ? "identifier `\(duplicates[0])`" : "duplicate identifiers: `\(duplicates)`"). Identifiers should be unique. Only the first item will be used.")
+        #endif
+        return items
+    }
+    
     /**
      The items that are managed by the toolbar.
      
@@ -225,18 +251,23 @@ open class Toolbar: NSObject {
      
      To update the displayed items, use ``displayingItems``.
      */
-    open var items: [ToolbarItem] = [] {
-        didSet {
-            items = items.uniqued()
-            items.difference(to: oldValue).removed.forEach({
-                if let index = displayingItems.firstIndex(of: $0) {
-                    toolbar.removeItem(at: index)
+    open var items: [ToolbarItem] {
+        get { _items }
+        set {
+            let newValue = Self.checkedItems(newValue)
+            let removed = _items.difference(to: newValue).removed
+                for item in removed {
+                    if let index = toolbar.items.firstIndex(of: item.item) {
+                        toolbar.removeItem(at: index)
+                    }
                 }
-            })
+             _items = newValue
             guard #available(macOS 13.0, *) else { return }
-            centeredItems = Set(items.filter(\.isCentered))
-        }
+            centeredItems = Set(newValue.filter(\.isCentered))
+         }
     }
+    
+    var _items: [ToolbarItem] = []
     
     /**
      The currenlty displaying items in the toolbar, in order.
@@ -245,19 +276,20 @@ open class Toolbar: NSObject {
      */
     open var displayingItems: [ToolbarItem] {
         get {
-            items.filter({ item in toolbar.items.contains(where: {$0.itemIdentifier == item.identifier}) })
+            toolbar.items.compactMap { item in items.first(where: { $0.item === item }) }
         }
         set {
             let newValue = newValue.uniqued()
             let diff = newValue.difference(from: displayingItems)
-            items = items + newValue.filter({ !items.contains($0) })
-            for val in diff {
-                switch val {
-                case .insert(offset: let index, element: let item, associatedWith: _):
-                    toolbar.insertItem(withItemIdentifier: item.identifier, at: index)
-                case .remove(offset: let index, element: _, associatedWith: _):
-                    toolbar.removeItem(at: index)
-                }
+            let newItems = newValue.filter { !items.contains($0) }
+            if !newItems.isEmpty {
+                items += newItems
+            }
+            for case let .remove(offset, _, _) in diff.removals.reversed() {
+                toolbar.removeItem(at: offset)
+            }
+            for case let .insert(offset, item, _) in diff.insertions {
+                toolbar.insertItem(withItemIdentifier: item.identifier, at: offset)
             }
         }
     }
@@ -280,7 +312,7 @@ open class Toolbar: NSObject {
     open var visibleItems: [ToolbarItem] {
         toolbar.visibleItems?.compactMap { item in items.first(where: { $0.item == item }) } ?? []
     }
-    
+        
     /**
      The toolbar’s currently selected item.
      
@@ -288,7 +320,7 @@ open class Toolbar: NSObject {
      
      This property is key-value observable (KVO).
      */
-    @objc dynamic open var selectedItem: ToolbarItem? {
+    @objc open dynamic var selectedItem: ToolbarItem? {
         get { items.first(where: { $0.identifier == toolbar.selectedItemIdentifier ?? "_none" }) }
         set {
             guard newValue != selectedItem else { return }
@@ -300,11 +332,10 @@ open class Toolbar: NSObject {
         }
     }
     
-    /// The items displayed in the center in the toolbar.
     @available(macOS 13.0, *)
-    internal var centeredItems: Set<ToolbarItem> {
+    var centeredItems: Set<ToolbarItem> {
         get { Set(toolbar.centeredItemIdentifiers.compactMap { identifier in items.first(where: { $0.identifier == identifier }) }) }
-        set { toolbar.centeredItemIdentifiers = Set(newValue.map({$0.identifier})) }
+        set { toolbar.centeredItemIdentifiers = Set(newValue.map { $0.identifier }) }
     }
     
     /**
@@ -350,7 +381,7 @@ open class Toolbar: NSObject {
      
      Use this property to retrieve the toolbar’s configuration details so you can save them to disk yourself. The dictionary in this property contains the identifiers of the current toolbar items and the values of important properties such as ``displayMode`` and ``isVisible``.
      */
-    open var configuration: [String : Any] {
+    open var configuration: [String: Any] {
         toolbar.configuration
     }
     
@@ -361,7 +392,7 @@ open class Toolbar: NSObject {
      
      - Parameter configuration:  A dictionary with the toolbar configuration details. The toolbar ignores any keys it doesn’t recognize. Typically, you save the original configuration dictionary from the ``configuration`` property to disk and recreate it before passing it in this parameter.
      */
-    open func setConfiguration(_ configuration: [String : Any]) {
+    open func setConfiguration(_ configuration: [String: Any]) {
         toolbar.setConfiguration(configuration)
     }
     
@@ -395,6 +426,8 @@ open class Toolbar: NSObject {
     
     class Delegate: NSObject, NSToolbarDelegate {
         weak var toolbar: Toolbar?
+        var currentItems: Set<NSToolbarItem> = []
+        var provided: Set<ObjectIdentifier> = []
         
         var items: [ToolbarItem] {
             toolbar?.items ?? []
@@ -417,16 +450,27 @@ open class Toolbar: NSObject {
         }
         
         func toolbar(_: NSToolbar, itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier, willBeInsertedIntoToolbar _: Bool) -> NSToolbarItem? {
-            items[id: itemIdentifier]?.item
+            guard let item = items.first(where: { $0.item.itemIdentifier == itemIdentifier && !provided.contains($0.item.objectID) })?.item else { return nil }
+            provided.insert(item.objectID)
+            Swift.print("itemFor", itemIdentifier.rawValue, items.firstIndex(where: { $0.item === item }) ?? "nil")
+           // Swift.print("itemFor", itemIdentifier.rawValue, items.firstIndex(of: item) ?? "nil", toolbar?.displayingItems.count ?? "nil")
+            return item
         }
         
         func toolbarWillAddItem(_ notification: Notification) {
-            guard let willAdd = toolbar?.itemHandlers.willAdd, let toolbarItem = notification.userInfo?["item"] as? NSToolbarItem, let item = items.first(where: { $0.item == toolbarItem }) else { return }
+            Swift.print("WillAdd",  notification.userInfo?["item"] as? NSToolbarItem != nil)
+            guard let toolbarItem = notification.userInfo?["item"] as? NSToolbarItem else { return }
+            provided.insert(toolbarItem.objectID)
+        //    currentItems.insert(toolbarItem)
+            guard let willAdd = toolbar?.itemHandlers.willAdd, let item = items.first(where: { $0.item == toolbarItem }) else { return }
             willAdd(item)
         }
         
         func toolbarDidRemoveItem(_ notification: Notification) {
-            guard let didRemove = toolbar?.itemHandlers.didRemove, let toolbarItem = notification.userInfo?["item"] as? NSToolbarItem, let item = items.first(where: { $0.item == toolbarItem }) else { return }
+            guard let toolbarItem = notification.userInfo?["item"] as? NSToolbarItem else { return }
+            provided.remove(toolbarItem.objectID)
+         //   currentItems.remove(toolbarItem)
+            guard let didRemove = toolbar?.itemHandlers.didRemove, let item = items.first(where: { $0.item == toolbarItem }) else { return }
             didRemove(item)
         }
         
@@ -442,8 +486,8 @@ open class Toolbar: NSObject {
         }
     }
     
-    private class MangedToolbar: NSToolbar {
-        var toolbar: Toolbar?
+    private class MangedToolbar: NSToolbar, NSToolbarDelegate {
+        weak var toolbar: Toolbar?
         
         init(for toolbar: Toolbar) {
             super.init(identifier: toolbar.identifier)
@@ -460,7 +504,8 @@ open class Toolbar: NSObject {
         
         override var selectedItemIdentifier: NSToolbarItem.Identifier? {
             willSet {
-                toolbar?.willChangeValue(for: \.selectedItem) }
+                toolbar?.willChangeValue(for: \.selectedItem)
+            }
             didSet {
                 toolbar?.didChangeValue(for: \.selectedItem)
                 guard oldValue != selectedItemIdentifier else { return }
@@ -522,16 +567,16 @@ extension Toolbar {
     }
 }
 
-extension NSToolbar {
+public extension NSToolbar {
     /// Returns the ``Toolbar`` representation of the toolbar if it is managed by it.
-    public var managed: Toolbar? {
+    var managed: Toolbar? {
         (delegate as? Toolbar.Delegate)?.toolbar
     }
 }
 
-extension NSWindow {
+public extension NSWindow {
     /// Returns the ``Toolbar`` representation of the window’s toolbar if it is managed by it.
-    public var managedToolbar: Toolbar? {
+    var managedToolbar: Toolbar? {
         toolbar?.managed
     }
 }
@@ -539,41 +584,42 @@ extension NSWindow {
 extension NSToolbar {
     var itemIdentifiers_: [NSToolbarItem.Identifier] {
         get { value(forKey: "itemIdentifiers") ?? [] }
-        set { setValue(safely: newValue, forKey: "itemIdentifiers")  }
+        set { setValue(safely: newValue, forKey: "itemIdentifiers") }
     }
 }
 
 extension Toolbar {
     struct State: ExpressibleByStringLiteral {
         /// The name of the state.
-        public let name: String
+        let name: String
         /// The displaying toolbar items..
-        public var displayingItems: [ToolbarItem] = [] {
+        var displayingItems: [ToolbarItem] = [] {
             didSet {
-                items = items + displayingItems.uniqued().filter({ !items.contains($0) })
+                items = items + displayingItems.uniqued().filter { !items.contains($0) }
             }
         }
+
         /// The centered toolbar items.
-        public var centeredItems: Set<ToolbarItem> = []
+        var centeredItems: Set<ToolbarItem> = []
         /// The selected toolbar item.
-        public var selectedItem: ToolbarItem? = nil
+        var selectedItem: ToolbarItem?
         var items: [ToolbarItem] = []
         
-        public init(name: String, displayingItems: [ToolbarItem] = []) {
+        init(name: String, displayingItems: [ToolbarItem] = []) {
             self.name = name
             self.displayingItems = displayingItems
             self.items = displayingItems
         }
         
-        public init(_ name: String, displayingItems: [ToolbarItem] = []) {
+        init(_ name: String, displayingItems: [ToolbarItem] = []) {
             self = Self(name: name, displayingItems: displayingItems)
         }
         
-        public init(stringLiteral value: String) {
+        init(stringLiteral value: String) {
             self = Self(name: value, displayingItems: [])
         }
         
-        public static let `default` = Self("default")
+        static let `default` = Self("default")
     }
 }
 

@@ -18,7 +18,7 @@ extension Toolbar {
      Provide the items to share using either ``handlers-swift.property`` or the ``delegate``.
      */
     open class SharingServicePicker: ToolbarItem {
-        lazy var servicePickerItem = ValidateServicePickerToolbarItem(for: self)
+        fileprivate lazy var servicePickerItem = ValidateServicePickerToolbarItem(for: self)
         override var item: NSToolbarItem {
             servicePickerItem
         }
@@ -89,76 +89,6 @@ extension Toolbar {
         @discardableResult
         open func delegate(_ delegate: NSSharingServicePickerToolbarItemDelegate?) -> Self {
             _delegate?.delegate = delegate
-            return self
-        }
-        
-        /**
-         The handler that is called to validate the toolbar item.
-         
-         The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
-         */
-        public var validateHandler: ((Toolbar.SharingServicePicker)->())?
-        
-        /**
-         Sets the handler that is called to validate the toolbar item.
-         
-         The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
-         */
-        @discardableResult
-        public func validateHandler(_ validation: ((Toolbar.SharingServicePicker)->())?) -> Self {
-            self.validateHandler = validation
-            return self
-        }
-        
-        /// The handler that is called when the user clicks the toolbar item.
-        public var actionBlock: ((_ item: Toolbar.SharingServicePicker)->())? {
-            didSet {
-                if let actionBlock = actionBlock {
-                    item.actionBlock = { _ in
-                        actionBlock(self)
-                    }
-                } else {
-                    item.actionBlock = nil
-                }
-            }
-        }
-        
-        /// Sets the handler that is called when the user clicks the toolbar item.
-        @discardableResult
-        public func onAction(_ action: ((_ item: Toolbar.SharingServicePicker)->())?) -> Self {
-            actionBlock = action
-            return self
-        }
-        
-        /// The action method to call when someone clicks on the toolbar item.
-        public var action: Selector? {
-            get { item.actionBlock == nil ? item.action : nil }
-            set {
-                actionBlock = nil
-                item.action = newValue
-            }
-        }
-        
-        /// Sets the action method to call when someone clicks on the toolbar item.
-        @discardableResult
-        public func action(_ action: Selector?) -> Self {
-            self.action = action
-            return self
-        }
-        
-        /// The object that defines the action method the toolbar item calls when clicked.
-        public var target: AnyObject? {
-            get { item.actionBlock == nil ? item.target : nil }
-            set {
-                actionBlock = nil
-                item.target = newValue
-            }
-        }
-        
-        /// Sets the object that defines the action method the toolbar item calls when clicked.
-        @discardableResult
-        public func target(_ target: AnyObject?) -> Self {
-            self.target = target
             return self
         }
         
@@ -234,19 +164,20 @@ extension Toolbar {
     }
 }
 
-class ValidateServicePickerToolbarItem: NSSharingServicePickerToolbarItem {
-    weak var item: Toolbar.SharingServicePicker?
+fileprivate class ValidateServicePickerToolbarItem: NSSharingServicePickerToolbarItem {
+    weak var item: ToolbarItem?
     
-    init(for item: Toolbar.SharingServicePicker) {
+    init(for item: ToolbarItem) {
         super.init(itemIdentifier: item.identifier)
         self.item = item
     }
     
     override func validate() {
-        super.validate()
-        guard let item = item else { return }
-        item.validate()
-        item.validateHandler?(item)
+        if isValidatable {
+            item?.performValidation()
+        } else {
+            super.validate()
+        }
     }
 }
 

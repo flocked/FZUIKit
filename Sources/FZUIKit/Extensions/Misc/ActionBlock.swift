@@ -26,6 +26,7 @@ extension NSToolbarItem: TargetActionProvider { }
 extension NSMenuItem: TargetActionProvider { }
 extension NSGestureRecognizer: TargetActionProvider { }
 extension NSColorPanel: TargetActionProvider { }
+extension ToolbarItem: TargetActionProvider { }
 
 extension TargetActionProvider {
     /**
@@ -39,11 +40,60 @@ extension TargetActionProvider {
         if let control = self as? NSControl {
             return control.sendAction(action, to: target)
         } else {
-            let target = target ?? self
-            guard target.responds(to: action) else { return false }
-            _ = target.perform(action)
-            return true
+            return NSApp.sendAction(action, to: target, from: self)
         }
+    }
+    
+    /// A Boolean value indicating whether the action can currently be performed by a reachable target.
+    public func canPerformAction() -> Bool {
+        guard let action = action else { return false }
+        guard let resolvedTarget = NSApp.target(forAction: action, to: target, from: self) else {
+            return false
+        }
+        if let toolbarItem = self as? NSToolbarItem, let validation = resolvedTarget as? NSToolbarItemValidation {
+            return validation.validateToolbarItem(toolbarItem)
+        }
+        if let menuItem = self as? NSMenuItem, let validation = resolvedTarget as? NSMenuItemValidation {
+            return validation.validateMenuItem(menuItem)
+        }
+        if let item = self as? NSValidatedUserInterfaceItem, let validation = resolvedTarget as? NSUserInterfaceValidations {
+            return validation.validateUserInterfaceItem(item)
+        }
+        return true
+    }
+}
+
+extension NSToolbarItem {
+    /// Returns a Boolean value indicating whether the toolbar item’s action can currently be performed by a reachable target.
+    public func canPerformAction() -> Bool {
+        guard let action = action else { return false }
+        guard let resolvedTarget = NSApp.target(forAction: action, to: target, from: self) else {
+            return false
+        }
+        if let validation = resolvedTarget as? NSToolbarItemValidation {
+            return validation.validateToolbarItem(self)
+        }
+        if let validation = resolvedTarget as? NSUserInterfaceValidations {
+            return validation.validateUserInterfaceItem(self)
+        }
+        return true
+    }
+}
+
+extension NSMenuItem {
+    /// Returns a Boolean value indicating whether the menu item’s action can currently be performed by a reachable target.
+    public func canPerformAction() -> Bool {
+        guard let action = action else { return false }
+        guard let resolvedTarget = NSApp.target(forAction: action, to: target, from: self) else {
+            return false
+        }
+        if let validation = resolvedTarget as? NSMenuItemValidation {
+            return validation.validateMenuItem(self)
+        }
+        if let validation = resolvedTarget as? NSUserInterfaceValidations {
+            return validation.validateUserInterfaceItem(self)
+        }
+        return true
     }
 }
 
@@ -60,22 +110,83 @@ class ActionTrampoline<T: TargetActionProvider>: NSObject {
     }
 }
 
+extension ActionTrampoline {
+    final class Redirect<Object: AnyObject>: ActionTrampoline {
+          let handler: (Object) -> Void
+          weak var object: Object?
+
+          init(to object: Object, handler: @escaping (Object) -> Void) {
+              self.object = object
+              self.handler = handler
+              super.init { _ in }
+              self.action = { [weak self] _ in
+                  guard let self, let object = self.object else { return }
+                  self.handler(object)
+              }
+          }
+      }
+}
+
+extension TargetActionProvider {
+    func setRedirectedAction<Object: AnyObject>(to object: Object, handler: ((Object) -> Void)?) {
+        if let handler {
+            let trampoline = ActionTrampoline<Self>.Redirect(to: object, handler: handler)
+            actionTrampoline = trampoline
+            target = trampoline
+            action = #selector(ActionTrampoline<Self>.performAction(sender:))
+        } else if let trampoline = actionTrampoline as? ActionTrampoline<Self>.Redirect<Object>, trampoline.object === object {
+            if target === trampoline {
+                target = nil
+            }
+            if action == #selector(ActionTrampoline<Self>.performAction(sender:)) {
+                action = nil
+            }
+            actionTrampoline = nil
+        }
+    }
+
+    func redirectedActionHandler<Object: AnyObject>(for object: Object) -> ((Object) -> Void)? {
+        guard let trampoline = actionTrampoline as? ActionTrampoline<Self>.Redirect<Object>,
+              trampoline.object === object else {
+            return nil
+        }
+        return trampoline.handler
+    }
+}
+
+extension TargetActionProvider {
+    var actionBlockID: ObjectIdentifier? {
+        actionTrampoline?.objectID
+    }
+}
+
 public extension TargetActionProvider {
     /// The action handler of the object.
     var actionBlock: ActionBlock? {
         set {
-            if let newValue = newValue {
-                actionTrampoline = ActionTrampoline(action: newValue)
-                target = actionTrampoline
+            if let newValue {
+                let trampoline = ActionTrampoline(action: newValue)
+                actionTrampoline = trampoline
+                target = trampoline
                 action = #selector(ActionTrampoline<Self>.performAction(sender:))
-            } else {
-                actionTrampoline = nil
+            } else if let trampoline = actionTrampoline {
+                if target === trampoline {
+                    target = nil
+                }
                 if action == #selector(ActionTrampoline<Self>.performAction(sender:)) {
                     action = nil
                 }
+                actionTrampoline = nil
             }
         }
-        get { actionTrampoline?.action }
+        get {
+            guard let trampoline = actionTrampoline, target === trampoline, action == #selector(ActionTrampoline<Self>.performAction(sender:))
+            else {
+                actionTrampoline = nil
+                return nil
+            }
+            return trampoline.action
+        }
     }
     
     /// Sets the action handler of the object.

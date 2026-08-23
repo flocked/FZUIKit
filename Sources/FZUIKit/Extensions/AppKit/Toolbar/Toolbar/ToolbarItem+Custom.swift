@@ -24,24 +24,6 @@ extension Toolbar {
         }
         
         /**
-         The handler that is called to validate the toolbar item.
-         
-         The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
-         */
-        public var validateHandler: ((Toolbar.CustomItem)->())?
-        
-        /**
-         Sets the handler that is called to validate the toolbar item.
-         
-         The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
-         */
-        @discardableResult
-        public func validateHandler(_ validation: ((Toolbar.CustomItem)->())?) -> Self {
-            self.validateHandler = validation
-            return self
-        }
-        
-        /**
          Creates a toolbar item with the specified `NSToolbarItem`.
                   
          - Parameter item: The toolbar item.

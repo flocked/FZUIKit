@@ -176,7 +176,7 @@ public class NSSegment: NSObject, ExpressibleByStringLiteral {
     
     /// Sets the Boolean value indicating whether the segment is selected.
     @discardableResult
-    public func isSelected(_ isSelected: Bool) -> Self {
+    public func isSelected(_ isSelected: Bool = true) -> Self {
         self.isSelected = isSelected
         return self
     }

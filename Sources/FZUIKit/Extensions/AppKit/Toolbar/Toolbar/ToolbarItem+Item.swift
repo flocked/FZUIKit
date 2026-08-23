@@ -11,11 +11,6 @@ import AppKit
 extension Toolbar {
     /// A toolbar item.
     open class Item: ToolbarItem {
-        fileprivate lazy var rootItem = ValidateToolbarItem(for: self)
-        
-        override var item: NSToolbarItem {
-            rootItem
-        }
         
         /// The title of the item.
         open var title: String {
@@ -73,76 +68,6 @@ extension Toolbar {
         @discardableResult
         open func isNavigational(_ isNavigational: Bool) -> Self {
             item.isNavigational = isNavigational
-            return self
-        }
-        
-        /**
-         The handler that is called to validate the toolbar item.
-         
-         The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
-         */
-        public var validateHandler: ((Toolbar.Item)->())?
-        
-        /**
-         Sets the handler that is called to validate the toolbar item.
-         
-         The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
-         */
-        @discardableResult
-        public func validateHandler(_ validation: ((Toolbar.Item)->())?) -> Self {
-            self.validateHandler = validation
-            return self
-        }
-        
-        /// The handler that is called when the user clicks the toolbar item.
-        public var actionBlock: ((_ item: Toolbar.Item)->())? {
-            didSet {
-                if let actionBlock = actionBlock {
-                    item.actionBlock = { _ in
-                        actionBlock(self)
-                    }
-                } else {
-                    item.actionBlock = nil
-                }
-            }
-        }
-        
-        /// Sets the handler that is called when the user clicks the toolbar item.
-        @discardableResult
-        public func onAction(_ action: ((_ item: Toolbar.Item)->())?) -> Self {
-            actionBlock = action
-            return self
-        }
-        
-        /// The action method to call when someone clicks on the toolbar item.
-        public var action: Selector? {
-            get { item.actionBlock == nil ? item.action : nil }
-            set {
-                actionBlock = nil
-                item.action = newValue
-            }
-        }
-        
-        /// Sets the action method to call when someone clicks on the toolbar item.
-        @discardableResult
-        public func action(_ action: Selector?) -> Self {
-            self.action = action
-            return self
-        }
-        
-        /// The object that defines the action method the toolbar item calls when clicked.
-        public var target: AnyObject? {
-            get { item.actionBlock == nil ? item.target : nil }
-            set {
-                actionBlock = nil
-                item.target = newValue
-            }
-        }
-        
-        /// Sets the object that defines the action method the toolbar item calls when clicked.
-        @discardableResult
-        public func target(_ target: AnyObject?) -> Self {
-            self.target = target
             return self
         }
         
@@ -207,22 +132,6 @@ extension Toolbar {
             self.title = title ?? ""
             self.image = NSImage(systemSymbolName: symbolName)
             defer { actionBlock = action }
-        }
-        
-        fileprivate class ValidateToolbarItem: NSToolbarItem {
-            weak var item: Toolbar.Item?
-            
-            init(for item: Toolbar.Item) {
-                super.init(itemIdentifier: item.identifier)
-                self.item = item
-            }
-            
-            override func validate() {
-                super.validate()
-                guard let item = item else { return }
-                item.validate()
-                item.validateHandler?(item)
-            }
         }
     }
 }
