@@ -53,7 +53,7 @@ extension NSUIGestureRecognizer {
     
     /// The handlers of the gesture recognizer.
     public var handlers: Handlers {
-        get { getAssociatedValue("handlers", initial: Handlers()) }
+        get { associatedValue(for: "handlers", initial: Handlers()) }
         set {
             setAssociatedValue(newValue, for: "handlers")
             setupDelegate()
@@ -93,7 +93,7 @@ extension NSUIGestureRecognizer {
     }
     
     private var delegateProxy: Delegate? {
-        get { getAssociatedValue("delegateProxy") }
+        get { associatedValue(for: "delegateProxy") }
         set { setAssociatedValue(newValue, for: "delegateProxy") }
     }
     
@@ -151,12 +151,12 @@ extension NSUIGestureRecognizer {
     }
     
     private var _recognizersThatNeedToFail: Set<Weak<NSUIGestureRecognizer>> {
-        get { getAssociatedValue("recognizersThatNeedToFail") ?? [] }
+        get { associatedValue(for: "recognizersThatNeedToFail") ?? [] }
         set { setAssociatedValue(newValue, for: "recognizersThatNeedToFail") }
     }
     
     private var _recognizersThatRequireFail: Set<Weak<NSUIGestureRecognizer>> {
-        get { getAssociatedValue("_recognizersThatRequireFail") ?? [] }
+        get { associatedValue(for: "_recognizersThatRequireFail") ?? [] }
         set { setAssociatedValue(newValue, for: "_recognizersThatRequireFail") }
     }
 }

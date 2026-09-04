@@ -103,7 +103,7 @@ extension NSCollectionViewItem {
     }
     
     private static var transformHooks: [Hook] {
-        get { getAssociatedValue("transformHooks") ?? [] }
+        get { associatedValue(for: "transformHooks") ?? [] }
         set { setAssociatedValue(newValue, for: "transformHooks") }
     }
 }

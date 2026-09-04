@@ -32,7 +32,7 @@ extension NSMenu {
     
     /// Handlers for the menu.
     public var handlers: Handlers {
-        get { getAssociatedValue("menuHandlers", initial: Handlers()) }
+        get { associatedValue(for: "menuHandlers", initial: Handlers()) }
         set {
             setAssociatedValue(newValue, for: "menuHandlers")
             setupDelegateProxy()
@@ -55,17 +55,17 @@ extension NSMenu {
     }
     
     fileprivate var effectiveAppearanceObservation: KeyValueObservation? {
-        get { getAssociatedValue("effectiveAppearanceObservation") }
+        get { associatedValue(for: "effectiveAppearanceObservation") }
         set { setAssociatedValue(newValue, for: "effectiveAppearanceObservation") }
     }
     
     var delegateProxy: Delegate? {
-        get { getAssociatedValue("delegateProxy") }
+        get { associatedValue(for: "delegateProxy") }
         set { setAssociatedValue(newValue, for: "delegateProxy") }
     }
     
     var viewMenuProvider: (() -> NSMenu?)? {
-        get { getAssociatedValue("viewMenuProvider") }
+        get { associatedValue(for: "viewMenuProvider") }
         set {
             setAssociatedValue(newValue, for: "viewMenuProvider")
             setupDelegateProxy()

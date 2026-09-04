@@ -87,7 +87,7 @@ public struct AVPictureInPictureContentViewHandlers {
 public extension AVPictureInPictureContentView {
     /// The handlers for picture in picture.
     var pictureInPictureHandlers: AVPictureInPictureContentViewHandlers {
-        get { getAssociatedValue("pictureInPictureHandlers") ?? .init() }
+        get { associatedValue(for: "pictureInPictureHandlers") ?? .init() }
         set {
             setAssociatedValue(newValue, for: "pictureInPictureHandlers")
             setupIsDisplayingObservation()
@@ -100,7 +100,7 @@ public extension AVPictureInPictureContentView {
     }
 
     var pictureInPicturePlaceholderView: NSUIView? {
-        let placeholderView: PiPPlaceholderView = getAssociatedValue("pictureInPicturePlaceholderView", initial: {
+        let placeholderView: PiPPlaceholderView = associatedValue(for: "pictureInPicturePlaceholderView", initial: {
             PiPPlaceholderView(contentView: self)
         })
         placeholderView.contentView = self
@@ -147,11 +147,11 @@ public extension AVPictureInPictureContentView {
     }
 
     private var pipController: ContentViewPictureInPictureController? {
-        getAssociatedValue("pictureInPictureController")
+        associatedValue(for: "pictureInPictureController")
     }
 
     private var isDisplayingObservation: KeyValueObservation? {
-        get { getAssociatedValue("isDisplayingObservation") }
+        get { associatedValue(for: "isDisplayingObservation") }
         set { setAssociatedValue(newValue, for: "isDisplayingObservation") }
     }
 
@@ -161,7 +161,7 @@ public extension AVPictureInPictureContentView {
     }
     
     private var _pictureInPictureController: ContentViewPictureInPictureController {
-        let controller: ContentViewPictureInPictureController = getAssociatedValue("pictureInPictureController", initial: {
+        let controller: ContentViewPictureInPictureController = associatedValue(for: "pictureInPictureController", initial: {
             let controller = ContentViewPictureInPictureController(
                 contentView: self,
                 preferredContentSize: preferredPictureInPictureContentSize

@@ -61,7 +61,7 @@ extension AVPlayerView {
      The default value is an empty array which indicates that the user can't drop any new media to the player view.
      */
     public var droppableMedia: [AVMediaContent]  {
-        get { getAssociatedValue("dropMediaContent", initial: []) }
+        get { associatedValue(for: "dropMediaContent", initial: []) }
         set {
             let newValue = newValue.uniqued()
             setAssociatedValue(newValue, for: "dropMediaContent")
@@ -107,7 +107,7 @@ extension AVPlayerView {
      The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `clipsToBounds` property.
      */
     public var resizingContentOverlayView: NSView {
-        if let view: NSView = getAssociatedValue("resizingContentOverlayView") {
+        if let view: NSView = associatedValue(for: "resizingContentOverlayView") {
             return view
         }
                 
@@ -124,7 +124,7 @@ extension AVPlayerView {
     }
     
     private var videoBoundsObservation: KeyValueObservation? {
-        get { getAssociatedValue("videoBoundsObservation") }
+        get { associatedValue(for: "videoBoundsObservation") }
         set { setAssociatedValue(newValue, for: "videoBoundsObservation") }
     }
     

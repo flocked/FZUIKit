@@ -24,7 +24,7 @@ extension CAShapeLayer {
      ```
     */
     public var _shape: (any Shape)? {
-        get { getAssociatedValue("_shape") }
+        get { associatedValue(for: "_shape") }
         set {
             setAssociatedValue(newValue, for: "_shape")
             try? layoutSublayersHook?.revert()
@@ -52,7 +52,7 @@ extension CAShapeLayer {
     }
     
     var layoutSublayersHook: Hook? {
-        get { getAssociatedValue("layoutSublayersHook") }
+        get { associatedValue(for: "layoutSublayersHook") }
         set { setAssociatedValue(newValue, for: "layoutSublayersHook") }
     }
 }

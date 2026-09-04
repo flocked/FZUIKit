@@ -18,7 +18,7 @@ extension AVPlayerViewController {
      The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `clipsToBounds` property.
      */
     public var resizingContentOverlayView: UIView {
-        if let view: UIView = getAssociatedValue("resizingContentOverlayView") {
+        if let view: UIView = associatedValue(for: "resizingContentOverlayView") {
             return view
         }
         
@@ -55,12 +55,12 @@ extension AVPlayerViewController {
     
     #if os(iOS)
     var videoBoundsObservation: KeyValueObservation? {
-        get { getAssociatedValue("videoBoundsObservation") }
+        get { associatedValue(for: "videoBoundsObservation") }
         set { setAssociatedValue(newValue, for: "videoBoundsObservation") }
     }
     #else
     var videoViewControllerObserver: KeyValueObserver<AVPlayerViewController>? {
-        get { getAssociatedValue("videoBoundsObservation", initial: KeyValueObserver(self)) }
+        get { associatedValue(for: "videoBoundsObservation", initial: KeyValueObserver(self)) }
     }
     
     /**

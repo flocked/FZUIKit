@@ -136,7 +136,7 @@ public extension NSPopUpButton {
         
     /// The arrow position.
     var arrowPosition: ArrowPosition {
-        get { getAssociatedValue("_arrowPosition", initial: (cell as? NSPopUpButtonCell)?.arrowPosition ?? .arrowAtBottom) }
+        get { associatedValue(for: "_arrowPosition", initial: (cell as? NSPopUpButtonCell)?.arrowPosition ?? .arrowAtBottom) }
         set {
             guard newValue != arrowPosition else { return }
             setAssociatedValue(newValue, for: "_arrowPosition")
@@ -213,17 +213,17 @@ public extension NSPopUpButton {
     }
     
     private var isMouseInside: Bool {
-        get { getAssociatedValue("isMouseInside") ?? false }
+        get { associatedValue(for: "isMouseInside") ?? false }
         set { setAssociatedValue(newValue, for: "isMouseInside") }
     }
     
     private var hoverTrackingArea: TrackingArea? {
-        get { getAssociatedValue("hoverTrackingArea") }
+        get { associatedValue(for: "hoverTrackingArea") }
         set { setAssociatedValue(newValue, for: "hoverTrackingArea") }
     }
     
     private var hoverHooks: [Hook] {
-        get { getAssociatedValue("hoverHooks") ?? [] }
+        get { associatedValue(for: "hoverHooks") ?? [] }
         set { setAssociatedValue(newValue, for: "hoverHooks") }
     }
         

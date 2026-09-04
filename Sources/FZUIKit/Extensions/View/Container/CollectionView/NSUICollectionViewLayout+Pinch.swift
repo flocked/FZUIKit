@@ -38,7 +38,7 @@ extension InteractiveCollectionViewLayout {
 #if os(macOS) || os(iOS) || os(visionOS)
 extension NSUICollectionView {
     var columnInteractionGestureRecognizer: ColumnInteractionGestureRecognizer? {
-        get { getAssociatedValue("columnInteractionGestureRecognizer") }
+        get { associatedValue(for: "columnInteractionGestureRecognizer") }
         set { setAssociatedValue(newValue, for: "columnInteractionGestureRecognizer") }
     }
     

@@ -65,7 +65,7 @@ extension NSView {
      Tne default value is `0` and indicates that a mouse click outside the view isn't resigning the view as first responder in its window.
      */
     public var firstResponderResignClickCount: Int {
-        get { getAssociatedValue("firstResponderResignClickCount") ?? 0 }
+        get { associatedValue(for: "firstResponderResignClickCount") ?? 0 }
         set {
             guard newValue != firstResponderResignClickCount else { return }
             setAssociatedValue(newValue, for: "firstResponderResignClickCount")
@@ -99,12 +99,12 @@ extension NSView {
     }
     
     var resignFirstResponderObservation: KeyValueObservation? {
-        get { getAssociatedValue("resignFirstResponderObservation") }
+        get { associatedValue(for: "resignFirstResponderObservation") }
         set { setAssociatedValue(newValue, for: "resignFirstResponderObservation") }
     }
     
     var resignMouseDownMonitor: NSEvent.Monitor? {
-        get { getAssociatedValue("resignMouseDownMonitor") }
+        get { associatedValue(for: "resignMouseDownMonitor") }
         set { setAssociatedValue(newValue, for: "resignMouseDownMonitor") }
     }
 }

@@ -178,7 +178,7 @@ extension NSTextField {
 
     /// The allowed characters the user can enter when editing.
     public var allowedCharacters: AllowedCharacters {
-        get { getAssociatedValue("allowedCharacters", initial: .all) }
+        get { associatedValue(for: "allowedCharacters", initial: .all) }
         set { 
             guard newValue != allowedCharacters else { return }
             setAssociatedValue(newValue, for: "allowedCharacters")
@@ -196,7 +196,7 @@ extension NSTextField {
 
     /// The handlers for editing the text.
     public var editingHandlers: EditingHandler {
-        get { getAssociatedValue("editingHandlers", initial: EditingHandler()) }
+        get { associatedValue(for: "editingHandlers", initial: EditingHandler()) }
         set { 
             setAssociatedValue(newValue, for: "editingHandlers")
             observeEditing()
@@ -209,7 +209,7 @@ extension NSTextField {
      The default value is `selectAll`.
      */
     public var editingActionOnEnterKeyDown: EnterKeyAction {
-        get { getAssociatedValue("actionOnEnterKeyDown", initial: .selectAll) }
+        get { associatedValue(for: "actionOnEnterKeyDown", initial: .selectAll) }
         set {
             guard editingActionOnEnterKeyDown.rawValue != newValue.rawValue else { return }
             setAssociatedValue(newValue, for: "actionOnEnterKeyDown")
@@ -230,7 +230,7 @@ extension NSTextField {
      The default value is `none`.
      */
     public var editingActionOnEscapeKeyDown: EscapeKeyAction {
-        get { getAssociatedValue("actionOnEscapeKeyDown", initial: self is NSSearchField ? .delete : .none) }
+        get { associatedValue(for: "actionOnEscapeKeyDown", initial: self is NSSearchField ? .delete : .none) }
         set {
             guard editingActionOnEscapeKeyDown.rawValue != newValue.rawValue else { return }
             setAssociatedValue(newValue, for: "actionOnEscapeKeyDown")
@@ -248,7 +248,7 @@ extension NSTextField {
 
     /// The minimum numbers of characters needed when the user edits the string value.
     public var minimumNumberOfCharacters: Int? {
-        get { getAssociatedValue("minimumNumberOfCharacters") }
+        get { associatedValue(for: "minimumNumberOfCharacters") }
         set {
             guard newValue != minimumNumberOfCharacters else { return }
             setAssociatedValue(newValue, for: "minimumNumberOfCharacters")
@@ -268,7 +268,7 @@ extension NSTextField {
 
     /// The maximum numbers of characters allowed when the user edits the string value.
     public var maximumNumberOfCharacters: Int? {
-        get { getAssociatedValue("maximumNumberOfCharacters") }
+        get { associatedValue(for: "maximumNumberOfCharacters") }
         set {
             guard newValue != maximumNumberOfCharacters else { return }
             setAssociatedValue(newValue, for: "maximumNumberOfCharacters")
@@ -494,37 +494,37 @@ extension NSTextField {
     }
     
     private var doCommandHook: Hook? {
-        get { getAssociatedValue("doCommandHook") }
+        get { associatedValue(for: "doCommandHook") }
         set { setAssociatedValue(newValue, for: "doCommandHook") }
     }
         
     var textFieldObserver: KeyValueObserver<NSTextField>? {
-        get { getAssociatedValue("textFieldObserver") }
+        get { associatedValue(for: "textFieldObserver") }
         set { setAssociatedValue(newValue, for: "textFieldObserver") }
     }
         
     private var editingNotificationTokens: [NotificationToken] {
-        get { getAssociatedValue("editingNotificationTokens", initial: []) }
+        get { associatedValue(for: "editingNotificationTokens", initial: []) }
         set { setAssociatedValue(newValue, for: "editingNotificationTokens") }
     }
 
     private var editStartString: String {
-        get { getAssociatedValue("editStartString", initial: stringValue) }
+        get { associatedValue(for: "editStartString", initial: stringValue) }
         set { setAssociatedValue(newValue, for: "editStartString") }
     }
 
     private var previousString: String {
-        get { getAssociatedValue("previousString", initial: stringValue) }
+        get { associatedValue(for: "previousString", initial: stringValue) }
         set { setAssociatedValue(newValue, for: "previousString") }
     }
 
     private var editingRange: NSRange {
-        get { getAssociatedValue("editingRange", initial: currentEditor()?.selectedRange ?? NSRange(location: 0, length: 0)) }
+        get { associatedValue(for: "editingRange", initial: currentEditor()?.selectedRange ?? NSRange(location: 0, length: 0)) }
         set { setAssociatedValue(newValue, for: "editingRange") }
     }
     
     private var doubleClickEditGestureRecognizer: DoubleClickEditGestureRecognizer? {
-        get { getAssociatedValue("doubleClickEditGestureRecognizer") }
+        get { associatedValue(for: "doubleClickEditGestureRecognizer") }
         set { setAssociatedValue(newValue, for: "doubleClickEditGestureRecognizer") }
     }
         

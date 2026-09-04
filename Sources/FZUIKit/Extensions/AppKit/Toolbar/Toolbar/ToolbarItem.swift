@@ -418,7 +418,7 @@ extension NSObjectProtocol where Self: ToolbarItem {
      The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
      */
     public var validateHandler: ((Self)->())? {
-        get { getAssociatedValue("validateHandler" )}
+        get { associatedValue(for: "validateHandler" )}
         set { setAssociatedValue(newValue, for: "validateHandler") }
     }
     

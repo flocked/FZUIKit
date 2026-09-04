@@ -29,10 +29,10 @@ public extension DelegateProxyType where Self: DelegateProxy {
         objc_sync_enter(self)
         defer { objc_sync_exit(self) }
         
-        let delegateProxy = object.getAssociatedValue("_delegateProxy", initial: Self.init())
+        let delegateProxy = object.associatedValue(for: "_delegateProxy", initial: Self.init())
         delegateProxy.setDelegate(to: object)
         guard let keyPath = keyPath._kvcKeyPathString else { return delegateProxy }
-        let delegateObserver = object.getAssociatedValue("_delegateProxyObserver", initial: KeyValueObserver<Object>(object))
+        let delegateObserver = object.associatedValue(for: "_delegateProxyObserver", initial: KeyValueObserver<Object>(object))
         guard !delegateObserver.isObserving(keyPath) else { return delegateProxy }
         delegateObserver.add(keyPath, type: Any.self) { old, new in
             if let old = old as? NSObject, let new = new as? NSObject {
@@ -54,7 +54,7 @@ public extension DelegateProxyType where Self: DelegateProxy {
         objc_sync_enter(self)
         defer { objc_sync_exit(self) }
         
-        let delegateProxy = object.getAssociatedValue("_delegateProxy", initial: Self.init())
+        let delegateProxy = object.associatedValue(for: "_delegateProxy", initial: Self.init())
         delegateProxy.setDelegate(to: object)
         return delegateProxy
     }

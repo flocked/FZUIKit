@@ -141,7 +141,7 @@ extension NSImageView {
      The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `clipsToBounds` property.
      */
     public var overlayContentView: NSView {
-        if let overlayView: NSView = getAssociatedValue("overlayContentView") {
+        if let overlayView: NSView = associatedValue(for: "overlayContentView") {
             return overlayView
         }
         
@@ -173,12 +173,12 @@ extension NSImageView {
     }
     
     var overlayImageViewObservation: KeyValueObserver<NSImageView> {
-        get { getAssociatedValue("overlayImageViewObservation", initial: KeyValueObserver(self)) }
+        get { associatedValue(for: "overlayImageViewObservation", initial: KeyValueObserver(self)) }
     }
 
     /// The transition animation when changing the image.
     public var transitionAnimation: TransitionAnimation {
-        get { getAssociatedValue("TransitionAnimation") ?? .none }
+        get { associatedValue(for: "TransitionAnimation") ?? .none }
         set {
             guard newValue != transitionAnimation else { return }
             setAssociatedValue(newValue, for: "TransitionAnimation")
@@ -211,7 +211,7 @@ extension NSImageView {
     
     /// The duration of the transition animation when changing the image.
     public var transitionDuration: TimeInterval {
-        get { getAssociatedValue("transitionDuration") ?? 0.2 }
+        get { associatedValue(for: "transitionDuration") ?? 0.2 }
         set {
             guard newValue != transitionDuration else { return }
             setAssociatedValue(newValue, for: "transitionDuration")
@@ -278,7 +278,7 @@ extension NSImageView {
     }
     
     var transitionImageObservation: [KeyValueObservation] {
-        get { getAssociatedValue("transitionImageObservation") ?? [] }
+        get { associatedValue(for: "transitionImageObservation") ?? [] }
         set { setAssociatedValue(newValue, for: "transitionImageObservation") }
     }
     

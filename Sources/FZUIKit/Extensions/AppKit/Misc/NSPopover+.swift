@@ -44,7 +44,7 @@ extension NSPopover {
     
     /// Handlers for the popover.
     public var handlers: Handlers {
-        get { getAssociatedValue("handlers", initial: Handlers()) }
+        get { associatedValue(for: "handlers", initial: Handlers()) }
         set {
             setAssociatedValue(newValue, for: "handlers")
             swizzlePopover()
@@ -158,7 +158,7 @@ extension NSPopover {
     
     /// A Boolean value indicating whether the popover is detachable by the user.
     @objc open var isDetachable: Bool {
-        get { getAssociatedValue("isDetachable", initial: false) }
+        get { associatedValue(for: "isDetachable", initial: false) }
         set { setAssociatedValue(newValue, for: "isDetachable")
             swizzlePopover()
         }
@@ -180,7 +180,7 @@ extension NSPopover {
     
     /// A Boolean value indicating whether the popover's close button is hidden when detached.
     @objc open var hidesDetachedCloseButton: Bool {
-        get { getAssociatedValue("hidesDetachedCloseButton", initial: false) }
+        get { associatedValue(for: "hidesDetachedCloseButton", initial: false) }
         set {
             setAssociatedValue(newValue, for: "hidesDetachedCloseButton")
             if isDetached {
@@ -462,47 +462,47 @@ extension NSPopover {
     }
     
     private var viewTrackingOptions: ViewTrackingOptions? {
-        get { getAssociatedValue("viewTrackingOptions") }
+        get { associatedValue(for: "viewTrackingOptions") }
         set { setAssociatedValue(newValue, for: "viewTrackingOptions") }
     }
     
     private var willCloseObservation: NotificationToken? {
-        get { getAssociatedValue("willCloseObservation") }
+        get { associatedValue(for: "willCloseObservation") }
         set { setAssociatedValue(newValue, for: "willCloseObservation") }
     }
     
     private var didShowObservation: NotificationToken? {
-        get { getAssociatedValue("didShowObservation") }
+        get { associatedValue(for: "didShowObservation") }
         set { setAssociatedValue(newValue, for: "didShowObservation") }
     }
     
     private var noArrowView: NSView? {
-        get { getAssociatedValue("noArrowView") }
+        get { associatedValue(for: "noArrowView") }
         set { setAssociatedValue(newValue, for: "noArrowView") }
     }
     
     private var isClosing: Bool {
-        get { getAssociatedValue("isClosing", initial: false) }
+        get { associatedValue(for: "isClosing", initial: false) }
         set { setAssociatedValue(newValue, for: "isClosing") }
     }
     
     private var effectiveAppearanceObservation: KeyValueObservation? {
-        get { getAssociatedValue("effectiveAppearanceObservation") }
+        get { associatedValue(for: "effectiveAppearanceObservation") }
         set { setAssociatedValue(newValue, for: "effectiveAppearanceObservation") }
     }
     
     private var contentViewFrameObservation: KeyValueObservation? {
-        get { getAssociatedValue("contentViewFrameObservation") }
+        get { associatedValue(for: "contentViewFrameObservation") }
         set { setAssociatedValue(newValue, for: "contentViewFrameObservation") }
     }
     
     private var positionObservations: [KeyValueObservation] {
-        get { getAssociatedValue("positionObservations", initial: []) }
+        get { associatedValue(for: "positionObservations", initial: []) }
         set { setAssociatedValue(newValue, for: "positionObservations") }
     }
     
     private var popoverDelegate: Delegate? {
-        get { getAssociatedValue("popoverDelegate") }
+        get { associatedValue(for: "popoverDelegate") }
         set { setAssociatedValue(newValue, for: "popoverDelegate") }
     }
     

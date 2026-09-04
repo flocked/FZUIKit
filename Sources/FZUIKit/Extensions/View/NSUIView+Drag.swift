@@ -70,7 +70,7 @@ public extension NSUIView {
 
     /// A value indicating whether the view is movable by clicking and dragging anywhere in its background.
     var isMovableByViewBackground: BackgroundDragOption {
-        get { getAssociatedValue("isMovableByViewBackground") ?? .disabled }
+        get { associatedValue(for: "isMovableByViewBackground") ?? .disabled }
         set {
             guard newValue != isMovableByViewBackground else { return }
             setAssociatedValue(newValue, for: "isMovableByViewBackground")
@@ -80,7 +80,7 @@ public extension NSUIView {
 
     /// A handler that provides the velocity of the dragging of the view by it's background when ``isMovableByViewBackground`` is enabled.
     var backgroundDragVelocity: ((_ state: NSUIGestureRecognizer.State, _ velocity: CGPoint) -> Void)? {
-        get { getAssociatedValue("movableByBackgroundVelocity") }
+        get { associatedValue(for: "movableByBackgroundVelocity") }
         set { setAssociatedValue(newValue, for: "movableByBackgroundVelocity") }
     }
 
@@ -158,12 +158,12 @@ public extension NSUIView {
     }
 
     private var dragPoint: CGPoint {
-        get { getAssociatedValue("dragPoint", initial: .zero) }
+        get { associatedValue(for: "dragPoint", initial: .zero) }
         set { setAssociatedValue(newValue, for: "dragPoint") }
     }
 
     private var panGesture: NSUIPanGestureRecognizer? {
-        get { getAssociatedValue("panGesture") }
+        get { associatedValue(for: "panGesture") }
         set { setAssociatedValue(newValue, for: "panGesture") }
     }
 }

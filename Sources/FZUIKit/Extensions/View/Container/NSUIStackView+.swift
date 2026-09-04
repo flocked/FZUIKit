@@ -137,7 +137,7 @@ extension NSStackView {
 
     /// The handlers of the stack view.
     public var handlers: Handlers {
-        get { getAssociatedValue("handlers") ?? Handlers() }
+        get { associatedValue(for: "handlers") ?? Handlers() }
         set {
             setAssociatedValue(newValue, for: "handlers")
             if newValue.willDetach == nil && newValue.didReattach == nil {
@@ -160,7 +160,7 @@ extension NSStackView {
     }
 
     private var handlersDelegate: Delegate? {
-        get { getAssociatedValue("handlersDelegate") }
+        get { associatedValue(for: "handlersDelegate") }
         set { setAssociatedValue(newValue, for: "handlersDelegate") }
     }
 

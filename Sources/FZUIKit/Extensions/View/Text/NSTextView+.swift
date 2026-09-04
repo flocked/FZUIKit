@@ -61,7 +61,7 @@ extension NSTextView {
         
     /// The handlers for editing the text.
     public var editingHandlers: EditingHandler {
-        get { getAssociatedValue("editingHandlers", initial: EditingHandler()) }
+        get { associatedValue(for: "editingHandlers", initial: EditingHandler()) }
         set {
             setAssociatedValue(newValue, for: "editingHandlers")
             setupTextViewDelegate()
@@ -111,7 +111,7 @@ extension NSTextView {
         
     /// The minimum numbers of characters needed when the user edits the string value.
     public var minimumNumberOfCharacters: Int? {
-        get { getAssociatedValue("minimumNumberOfCharacters") }
+        get { associatedValue(for: "minimumNumberOfCharacters") }
         set {
             guard newValue != minimumNumberOfCharacters else { return }
             setAssociatedValue(newValue, for: "minimumNumberOfCharacters")
@@ -128,7 +128,7 @@ extension NSTextView {
         
     /// The maximum numbers of characters allowed when the user edits the string value.
     public var maximumNumberOfCharacters: Int? {
-        get { getAssociatedValue("minimumNumberOfCharacters") }
+        get { associatedValue(for: "minimumNumberOfCharacters") }
         set { 
             guard newValue != maximumNumberOfCharacters else { return }
             setAssociatedValue(newValue, for: "minimumNumberOfCharacters")
@@ -219,7 +219,7 @@ extension NSTextView {
 
     /// The allowed characters the user can enter when editing.
     public var allowedCharacters: AllowedCharacters {
-        get { getAssociatedValue("allowedCharacters", initial: .all) }
+        get { associatedValue(for: "allowedCharacters", initial: .all) }
         set {
             guard newValue != allowedCharacters else { return }
             setAssociatedValue(newValue, for: "allowedCharacters")
@@ -488,7 +488,7 @@ extension NSTextView {
         
     /// The action to perform when the user presses the enter key.
     public var actionOnEnterKeyDown: EnterKeyAction {
-        get { getAssociatedValue("actionOnEnterKeyDown", initial: .none) }
+        get { associatedValue(for: "actionOnEnterKeyDown", initial: .none) }
         set {
             guard actionOnEnterKeyDown != newValue else { return }
             setAssociatedValue(newValue, for: "actionOnEnterKeyDown")
@@ -505,7 +505,7 @@ extension NSTextView {
 
     /// The action to perform when the user presses the escape key.
     public var actionOnEscapeKeyDown: EscapeKeyAction {
-        get { getAssociatedValue("actionOnEscapeKeyDown", initial: .none) }
+        get { associatedValue(for: "actionOnEscapeKeyDown", initial: .none) }
         set {
             guard actionOnEscapeKeyDown != newValue else { return }
             setAssociatedValue(newValue, for: "actionOnEscapeKeyDown")
@@ -541,7 +541,7 @@ extension NSTextView {
     }
             
     fileprivate var textViewDelegate: TextViewDelegate? {
-        get { getAssociatedValue("textViewDelegate") }
+        get { associatedValue(for: "textViewDelegate") }
         set { setAssociatedValue(newValue, for: "textViewDelegate") }
     }
         
@@ -696,7 +696,7 @@ extension NSTextView {
     
     /// The highlight color used to indicate the selection line.
     public var selectionLineHighlightColor: NSColor? {
-        get { getAssociatedValue("selectionLineHighlightColor") }
+        get { associatedValue(for: "selectionLineHighlightColor") }
         set {
             guard newValue != selectionLineHighlightColor else { return }
             setAssociatedValue(newValue, for: "selectionLineHighlightColor")
@@ -751,12 +751,12 @@ extension NSTextView {
     }
     
     fileprivate var currentLineHooks: [Hook] {
-        get { getAssociatedValue("currentLineHooks") ?? [] }
+        get { associatedValue(for: "currentLineHooks") ?? [] }
         set { setAssociatedValue(newValue, for: "currentLineHooks") }
     }
     
     fileprivate var currentLineRange: NSRange? {
-        get { getAssociatedValue("currentLineRange") }
+        get { associatedValue(for: "currentLineRange") }
         set {
             if let oldValue = currentLineRange {
                 layoutManager?.invalidateDisplay(forCharacterRange: oldValue)

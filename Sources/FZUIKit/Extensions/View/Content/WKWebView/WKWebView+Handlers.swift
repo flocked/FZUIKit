@@ -135,7 +135,7 @@ extension WKWebView {
      Defaults to `resume`.
      */
     public var defaultDownloadStrategy: DownloadStrategy {
-        get { getAssociatedValue("defaultDownloadStrategy") ?? .resume }
+        get { associatedValue(for: "defaultDownloadStrategy") ?? .resume }
         set { setAssociatedValue(newValue, for: "defaultDownloadStrategy") }
     }
     
@@ -145,13 +145,13 @@ extension WKWebView {
      Defaults to `0`.
      */
     public var defaultDownloadRetryAmount: Int {
-        get { getAssociatedValue("defaultDownloadRetryAmount") ?? 0 }
+        get { associatedValue(for: "defaultDownloadRetryAmount") ?? 0 }
         set { setAssociatedValue(newValue.clamped(min: 0), for: "defaultDownloadRetryAmount") }
     }
     
     /// The handlers of the web view.
     public var handlers: Handlers {
-        get { getAssociatedValue("handlers") ?? Handlers() }
+        get { associatedValue(for: "handlers") ?? Handlers() }
         set {
             setAssociatedValue(newValue, for: "handlers")
             setupHandlerDelegate()
@@ -160,13 +160,13 @@ extension WKWebView {
     }
     
     private var cookiesObservation: WKWebViewCookiesObservation? {
-        get { getAssociatedValue("cookiesObservation") }
+        get { associatedValue(for: "cookiesObservation") }
         set { setAssociatedValue(newValue, for: "cookiesObservation") }
     }
 
     /// The handlers for downloading files.
     public var downloadHandlers: DownloadHandlers {
-        get { getAssociatedValue("downloadHandlers") ?? DownloadHandlers() }
+        get { associatedValue(for: "downloadHandlers") ?? DownloadHandlers() }
         set {
             setAssociatedValue(newValue, for: "downloadHandlers")
             setupHandlerDelegate()
@@ -187,7 +187,7 @@ extension WKWebView {
      }
     
      var _downloads: SynchronizedArray<WKDownload> {
-         get { getAssociatedValue("downloads", initial: []) }
+         get { associatedValue(for: "downloads", initial: []) }
          set { setAssociatedValue(newValue, for: "downloads") }
      }
       */
@@ -198,7 +198,7 @@ extension WKWebView {
      Defaults to the user's download directory.
      */
     public var defaultDownloadDirectory: URL? {
-        get { getAssociatedValue("defaultDownloadDirectory", initial: {
+        get { associatedValue(for: "defaultDownloadDirectory", initial: {
             if #available(macOS 13.0, iOS 16.0, *) {
                 return .downloadsDirectory
             } else {
@@ -220,7 +220,7 @@ extension WKWebView {
     }
     
     private var handlerDelegate: HandlerDelegate? {
-        get { getAssociatedValue("handlerDelegate") }
+        get { associatedValue(for: "handlerDelegate") }
         set { setAssociatedValue(newValue, for: "handlerDelegate") }
     }
     
@@ -401,12 +401,12 @@ extension WKWebView {
 extension WKDownload {
     /// The amount of retries when the download fails.
     public var retryAmount: Int {
-        get { getAssociatedValue("retryAmount", initial: -1) }
+        get { associatedValue(for: "retryAmount", initial: -1) }
         set { setAssociatedValue(newValue, for: "retryAmount") }
     }
 
     var fileDestinationURL: URL? {
-        get { getAssociatedValue("fileDestinationURL") }
+        get { associatedValue(for: "fileDestinationURL") }
         set { setAssociatedValue(newValue, for: "fileDestinationURL") }
     }
 }
@@ -788,12 +788,12 @@ extension WKDownload {
      extension WKDownload {
          /// The amount of retries when downloading via ``FZWebView`` fails.
          public var retryAmount: Int {
-             get { getAssociatedValue("retryAmount", initial: 0) }
+             get { associatedValue(for: "retryAmount", initial: 0) }
              set { setAssociatedValue(newValue, for: "retryAmount") }
          }
 
          var fileDestinationURL: URL? {
-             get { getAssociatedValue("fileDestinationURL") }
+             get { associatedValue(for: "fileDestinationURL") }
              set { setAssociatedValue(newValue, for: "fileDestinationURL") }
          }
      }

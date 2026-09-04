@@ -157,7 +157,7 @@ extension NSProgressIndicator {
     }
     
     fileprivate var _color: NSColor? {
-        get { getAssociatedValue("_color") }
+        get { associatedValue(for: "_color") }
         set { setAssociatedValue(newValue, for: "_color") }
     }
     

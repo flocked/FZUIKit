@@ -29,18 +29,18 @@ extension NSTextSuggestionsDelegate {
 
 extension NSTextField {
     public weak var suggestionsTableView: NSTableView? {
-        get { getAssociatedValue("suggestionsTableView") }
+        get { associatedValue(for: "suggestionsTableView") }
         set { setAssociatedValue(newValue, for: "suggestionsTableView") }
     }
     
     var suggestionsTokens: [NotificationToken] {
-        get { getAssociatedValue("suggestionsTokens", initial: []) }
+        get { associatedValue(for: "suggestionsTokens", initial: []) }
         set { setAssociatedValue(newValue, for: "suggestionsTokens") }
     }
     
     /// The delegate that provides text suggestions.
     public weak var suggestionsDelegate: NSTextSuggestionsDelegate? {
-        get { getAssociatedValue("suggestionsDelegate") }
+        get { associatedValue(for: "suggestionsDelegate") }
         set {
             setAssociatedValue(newValue, for: "suggestionsDelegate")
             Swift.print("suggestionsDelegate set", newValue != nil, textSuggestionController == nil)
@@ -80,12 +80,12 @@ extension NSTextField {
     }
     
     var textSuggestionController: TextSuggestionController? {
-        get { getAssociatedValue("textSuggestionController") }
+        get { associatedValue(for: "textSuggestionController") }
         set { setAssociatedValue(newValue, for: "textSuggestionController") }
     }
     
     var suggestionsObserver: KeyValueObserver<NSTextField>? {
-        get { getAssociatedValue("suggestionsObserver") }
+        get { associatedValue(for: "suggestionsObserver") }
         set { setAssociatedValue(newValue, for: "suggestionsObserver") }
     }
 }

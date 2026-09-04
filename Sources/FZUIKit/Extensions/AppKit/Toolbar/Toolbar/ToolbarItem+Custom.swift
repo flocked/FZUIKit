@@ -52,7 +52,7 @@ extension NSToolbarItem {
     }
     
     private var didSwizzleValidate: Bool {
-        get { getAssociatedValue("didSwizzleValidate") ?? false }
+        get { associatedValue(for: "didSwizzleValidate") ?? false }
         set { setAssociatedValue(newValue, for: "didSwizzleValidate") }
     }
     

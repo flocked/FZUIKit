@@ -68,7 +68,7 @@ public extension NSApplication {
         
     /// The amount of seconds the user have to press `CMD+Q` to close the application.
     var keyboardTerminationDelay: TimeInterval {
-        get { getAssociatedValue("keyboardTerminationDelay") ?? 0.0 }
+        get { associatedValue(for: "keyboardTerminationDelay") ?? 0.0 }
         set {
             let newValue = newValue.clamped(min: 0.0)
             setAssociatedValue(newValue, for: "keyboardTerminationDelay")
@@ -102,7 +102,7 @@ public extension NSApplication {
     
     /// The handler that provides the dock menu.
     var menuProvider: (()->(NSMenu?))? {
-        get { getAssociatedValue("menuProvider") }
+        get { associatedValue(for: "menuProvider") }
         set {
             guard let delegate = delegate as? NSObject else { return }
             setAssociatedValue(newValue, for: "menuProvider")
@@ -128,7 +128,7 @@ public extension NSApplication {
     }
     
     private var menuProviderHook: Hook? {
-        get { getAssociatedValue("menuProviderHook") }
+        get { associatedValue(for: "menuProviderHook") }
         set { setAssociatedValue(newValue, for: "menuProviderHook") }
     }
         
@@ -144,7 +144,7 @@ public extension NSApplication {
         
     /// The handlers for the application.
     var handlers: Handlers {
-        get { getAssociatedValue("handlers", initial: Handlers()) }
+        get { associatedValue(for: "handlers", initial: Handlers()) }
         set {
             setAssociatedValue(newValue, for: "handlers")
             if let isHidden = newValue.isHidden {
@@ -180,22 +180,22 @@ public extension NSApplication {
     }
         
     internal var notificationTokens: [Notification.Name: NotificationToken] {
-        get { getAssociatedValue("notificationTokens", initial: [:]) }
+        get { associatedValue(for: "notificationTokens", initial: [:]) }
         set { setAssociatedValue(newValue, for: "notificationTokens") }
     }
     
     internal var delayedTerminationMonitors: [NSEvent.Monitor] {
-        get { getAssociatedValue("delayedTerminationMonitors") ?? [] }
+        get { associatedValue(for: "delayedTerminationMonitors") ?? [] }
         set { setAssociatedValue(newValue, for: "delayedTerminationMonitors") }
     }
         
     internal var delayedTerminationStartTime: CFAbsoluteTime {
-        get { getAssociatedValue("delayedTerminationStartTime") ?? 0.0 }
+        get { associatedValue(for: "delayedTerminationStartTime") ?? 0.0 }
         set { setAssociatedValue(newValue, for: "delayedTerminationStartTime") }
     }
     
     internal var delayedTerminationWindow: NSWindow? {
-        get { getAssociatedValue("delayedTerminationWindow") }
+        get { associatedValue(for: "delayedTerminationWindow") }
         set { setAssociatedValue(newValue, for: "delayedTerminationWindow") }
     }
 }

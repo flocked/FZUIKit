@@ -192,7 +192,7 @@ public extension NSDraggingInfo {
     
     
     internal var view: NSView? {
-        get { (self as? NSObject)?.getAssociatedValue("destinationView") }
+        get { (self as? NSObject)?.associatedValue(for: "destinationView") }
         set { (self as? NSObject)?.setAssociatedValue(weak: newValue, for: "destinationView") }
     }
 }

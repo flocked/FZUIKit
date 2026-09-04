@@ -137,7 +137,7 @@ extension WKWebView {
     
     /// The handlers of the webview.
     public var handlers: Handlers {
-        get { getAssociatedValue("handlers") ?? Handlers() }
+        get { associatedValue(for: "handlers") ?? Handlers() }
         set {
             setAssociatedValue(newValue, for: "handlers")
             setupDelegate()
@@ -147,7 +147,7 @@ extension WKWebView {
     /// The download handlers of the webview.
     @available(macOS 11.3, iOS 14.5, *)
     public var downloadHanders: DownloadHandlers {
-        get { getAssociatedValue("handlers") ?? DownloadHandlers() }
+        get { associatedValue(for: "handlers") ?? DownloadHandlers() }
         set {
             setAssociatedValue(newValue, for: "handlers")
             setupDelegate()
@@ -170,7 +170,7 @@ extension WKWebView {
     
     @available(macOS 11.3, iOS 14.5, *)
     private var downloads: [WKDownload] {
-        get { downloadsQueue.sync { getAssociatedValue("downloads") ?? [] } }
+        get { downloadsQueue.sync { associatedValue(for: "downloads") ?? [] } }
         set {
             downloadsQueue.async(flags: .barrier) {
                 guard Set(self.downloads) != Set(newValue) else { return }
@@ -181,7 +181,7 @@ extension WKWebView {
     }
     
     private var downloadsQueue: DispatchQueue {
-        getAssociatedValue("downloadsQueue", initial: DispatchQueue(label: "com.WKWebView.downloadsQueue", attributes: .concurrent))
+        associatedValue(for: "downloadsQueue", initial: DispatchQueue(label: "com.WKWebView.downloadsQueue", attributes: .concurrent))
     }
     
     /// The default location for downloads.
@@ -189,15 +189,15 @@ extension WKWebView {
     public var defaultDownloadLocation: URL {
         get {
             if #available(macOS 13.0, iOS 16.0, *) {
-                return getAssociatedValue("downloadLocation") ?? .downloadsDirectory
+                return associatedValue(for: "downloadLocation") ?? .downloadsDirectory
             }
-            return getAssociatedValue("downloadLocation") ?? FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first!
+            return associatedValue(for: "downloadLocation") ?? FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first!
         }
         set { setAssociatedValue(newValue, for: "downloadLocation") }
     }
     
     private var currentCookies: [HTTPCookie] {
-        get { cookiesQueue.sync { getAssociatedValue("currentCookies") ?? [] } }
+        get { cookiesQueue.sync { associatedValue(for: "currentCookies") ?? [] } }
         set {
             cookiesQueue.async(flags: .barrier) {
                 guard self.currentCookies.count != newValue.count || self.currentCookies.map({ $0.wrapper }) != newValue.map({ $0.wrapper }) else { return }
@@ -208,11 +208,11 @@ extension WKWebView {
     }
     
     private var cookiesQueue: DispatchQueue {
-        getAssociatedValue("cookiesQueue", initial: DispatchQueue(label: "com.WKWebView.cookiesQueue", attributes: .concurrent))
+        associatedValue(for: "cookiesQueue", initial: DispatchQueue(label: "com.WKWebView.cookiesQueue", attributes: .concurrent))
     }
     
     var _delegate: Delegate? {
-        get { getAssociatedValue("_delegate")}
+        get { associatedValue(for: "_delegate")}
         set { setAssociatedValue(newValue, for: "_delegate") }
     }
     
@@ -467,17 +467,17 @@ fileprivate extension HTTPCookie {
 extension WKDownload {
     /// The amount of retries when downloading via ``FZWebView`` fails.
     public var retryAmount: Int {
-        get { getAssociatedValue("retryAmount") ?? 0 }
+        get { associatedValue(for: "retryAmount") ?? 0 }
         set { setAssociatedValue(newValue, for: "retryAmount") }
     }
     
     var retries: Int {
-        get { getAssociatedValue("retries") ?? 0 }
+        get { associatedValue(for: "retries") ?? 0 }
         set { setAssociatedValue(newValue, for: "retries") }
     }
 
     var fileDestinationURL: URL? {
-        get { getAssociatedValue("fileDestinationURL") }
+        get { associatedValue(for: "fileDestinationURL") }
         set { setAssociatedValue(newValue, for: "fileDestinationURL") }
     }
 }

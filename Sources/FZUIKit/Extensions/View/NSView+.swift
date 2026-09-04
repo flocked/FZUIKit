@@ -217,17 +217,17 @@ extension NSView {
     }
     
     private var saveLayerStateHook: Hook? {
-        get { getAssociatedValue("saveLayerStateHook") }
+        get { associatedValue(for: "saveLayerStateHook") }
         set { setAssociatedValue(newValue, for: "saveLayerStateHook") }
     }
     
     private var restoreLayerStateHook: Hook? {
-        get { getAssociatedValue("restoreLayerStateHook") }
+        get { associatedValue(for: "restoreLayerStateHook") }
         set { setAssociatedValue(newValue, for: "restoreLayerStateHook") }
     }
     
     private var layerObservation: KeyValueObservation? {
-        get { getAssociatedValue("layerObservation") }
+        get { associatedValue(for: "layerObservation") }
         set { setAssociatedValue(newValue, for: "layerObservation") }
     }
 
@@ -474,7 +474,7 @@ extension NSView {
     }
 
     private var shadowShapeView: ShadowShapeView? {
-        get { getAssociatedValue("shadowShapeView") }
+        get { associatedValue(for: "shadowShapeView") }
         set { setAssociatedValue(newValue, for: "shadowShapeView") }
     }
 
@@ -801,7 +801,7 @@ extension NSView {
     }
     
     fileprivate var viewAttachment: ViewAttachment? {
-        get { getAssociatedValue("viewAttachment") }
+        get { associatedValue(for: "viewAttachment") }
         set { setAssociatedValue(newValue, for: "viewAttachment") }
     }
     
@@ -866,7 +866,7 @@ extension NSView {
 extension CALayer {
     var _border: BorderConfiguration {
         get {
-            .init(color: getAssociatedValue("_borderColor") ?? borderLayer.configuration.color ?? __borderColor, colorTransformer: borderColorTransformer, width: borderLayer.configuration.width, dash: borderLayer.configuration.dash, insets: borderLayer.configuration.insets)
+            .init(color: associatedValue(for: "_borderColor") ?? borderLayer.configuration.color ?? __borderColor, colorTransformer: borderColorTransformer, width: borderLayer.configuration.width, dash: borderLayer.configuration.dash, insets: borderLayer.configuration.insets)
         }
         set {
             /*
@@ -940,7 +940,7 @@ extension CALayer {
     }
     
     var borderColorTransformer: ColorTransformer? {
-        get { getAssociatedValue("borderColorTransformer") }
+        get { associatedValue(for: "borderColorTransformer") }
         set { setAssociatedValue(newValue, for: "borderColorTransformer") }
     }
     
@@ -962,7 +962,7 @@ extension CALayer {
     }
     
     var shadowColorTransformer: ColorTransformer? {
-        get { getAssociatedValue("shadowColorTransformer") }
+        get { associatedValue(for: "shadowColorTransformer") }
         set { setAssociatedValue(newValue, for: "shadowColorTransformer") }
     }
     
@@ -977,7 +977,7 @@ extension CALayer {
     }
     
     func getColor(for keyPath: ReferenceWritableKeyPath<CALayer, CGColor?>) -> NSUIColor? {
-        getAssociatedValue("_" + keyPath.stringValue) ?? self[keyPath: keyPath]?.nsUIColor
+        associatedValue(for: "_" + keyPath.stringValue) ?? self[keyPath: keyPath]?.nsUIColor
     }
     
     func setColor(_ color: NSUIColor?, for keyPath: ReferenceWritableKeyPath<CALayer, CGColor?>) {
@@ -1019,14 +1019,14 @@ extension CALayer {
     }
     
     var colorObservations: [PartialKeyPath<CALayer>: [KeyValueObservation]] {
-        get { getAssociatedValue("colorObservations") ?? [:] }
+        get { associatedValue(for: "colorObservations") ?? [:] }
         set { setAssociatedValue(newValue, for: "colorObservations") }
     }
 }
 
 fileprivate extension CALayer {
     var layerState: (transform: CATransform3D, position: CGPoint, anchorPoint: CGPoint, roundedCorners: CACornerMask)? {
-        get { getAssociatedValue("layerState") }
+        get { associatedValue(for: "layerState") }
         set { setAssociatedValue(newValue, for: "layerState") }
     }
 }

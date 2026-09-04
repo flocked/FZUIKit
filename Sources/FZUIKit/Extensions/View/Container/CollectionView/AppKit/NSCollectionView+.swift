@@ -241,7 +241,7 @@ public extension NSCollectionView {
      The handler provides the index path of the double clicked item.
      */
     var doubleClickHandler: ((_ indexPath: IndexPath?) -> Void)? {
-        get { getAssociatedValue("doubleClickHandler") }
+        get { associatedValue(for: "doubleClickHandler") }
         set {
             setAssociatedValue(newValue, for: "doubleClickHandler")
             doubleClickGesture?.removeFromView()
@@ -295,17 +295,17 @@ public extension NSCollectionView {
     }
     
     private var doubleClickGesture: DoubleClickGestureRecognizer? {
-        get { getAssociatedValue("doubleClickGesture") }
+        get { associatedValue(for: "doubleClickGesture") }
         set { setAssociatedValue(newValue, for: "doubleClickGesture") }
     }
         
     private var toggleSelectionGestureRecognizer: ToggleSelectionGestureRecognizer? {
-        get { getAssociatedValue("toggleSelectionGestureRecognizer") }
+        get { associatedValue(for: "toggleSelectionGestureRecognizer") }
         set { setAssociatedValue(newValue, for: "toggleSelectionGestureRecognizer") }
     }
         
     private var dragSelectionGestureRecognizer: DragSelectionGestureRecognizer? {
-        get { getAssociatedValue("dragSelectionGestureRecognizer") }
+        get { associatedValue(for: "dragSelectionGestureRecognizer") }
         set { setAssociatedValue(newValue, for: "dragSelectionGestureRecognizer") }
     }
         

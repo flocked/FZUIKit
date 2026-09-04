@@ -91,7 +91,7 @@ public extension AVPlayer {
     
     /// The handler that is called when the playback state changes.
     var stateHandler: ((State)->())? {
-        get { getAssociatedValue("stateHandler") }
+        get { associatedValue(for: "stateHandler") }
         set {
             setAssociatedValue(newValue, for: "stateHandler")
             if newValue == nil {
@@ -125,12 +125,12 @@ public extension AVPlayer {
     }
     
     internal var playerObserver: KeyValueObserver<AVPlayer>? {
-        get { getAssociatedValue("playerObserver") }
+        get { associatedValue(for: "playerObserver") }
         set { setAssociatedValue(newValue, for: "playerObserver") }
     }
     
     internal var previousState: State {
-        get { getAssociatedValue("previousState") ?? .isStopped }
+        get { associatedValue(for: "previousState") ?? .isStopped }
         set { setAssociatedValue(newValue, for: "previousState") }
     }
 
@@ -220,7 +220,7 @@ public extension AVPlayer {
     
     /// A Boolean value indicating whether the player should restart the playing item when it did finished playing.
     var isLooping: Bool {
-        get { getAssociatedValue("isLooping", initial: false) }
+        get { associatedValue(for: "isLooping", initial: false) }
         set {
             guard newValue != isLooping else { return }
             setAssociatedValue(newValue, for: "isLooping")
@@ -252,7 +252,7 @@ public extension AVPlayer {
     
     /// The handlers for the current item of the player.
     var itemHandlers: ItemHandlers {
-        get { getAssociatedValue("itemHandlers", initial: ItemHandlers()) }
+        get { associatedValue(for: "itemHandlers", initial: ItemHandlers()) }
         set {
             setAssociatedValue(newValue, for: "itemHandlers")
             setupCurrentItemObservation()
@@ -302,7 +302,7 @@ public extension AVPlayer {
     }
     
     private var itemNotificationTokens: [Notification.Name : NotificationToken] {
-        get { getAssociatedValue("itemNotificationTokens") ?? [:] }
+        get { associatedValue(for: "itemNotificationTokens") ?? [:] }
         set { setAssociatedValue(newValue, for: "itemNotificationTokens") }
     }
     
@@ -319,13 +319,13 @@ public extension AVPlayer {
     }
     
     private var currentItemObservation: KeyValueObservation? {
-        get { getAssociatedValue("currentItemObservation") }
+        get { associatedValue(for: "currentItemObservation") }
         set { setAssociatedValue(newValue, for: "currentItemObservation") }
     }
     
     /// The handler that gets changed when the status of the current item changes.
     var itemStatusHandler: ((AVPlayerItem.Status)->())? {
-        get { getAssociatedValue("itemStatusHandler") }
+        get { associatedValue(for: "itemStatusHandler") }
         set { setAssociatedValue(newValue, for: "itemStatusHandler")
             if let statusHandler = newValue {
                 itemStatusObservation = observeChanges(for: \.currentItem?.status) { old, new in
@@ -339,7 +339,7 @@ public extension AVPlayer {
     }
     
     private var itemStatusObservation: KeyValueObservation? {
-        get { getAssociatedValue("itemStatusObservation") }
+        get { associatedValue(for: "itemStatusObservation") }
         set { setAssociatedValue(newValue, for: "itemStatusObservation") }
     }
 }
@@ -357,7 +357,7 @@ extension AVPlayer {
     
     /// Playback option when loading a new item.
     public var playbackOption: ItemPlaybackOption {
-        get { getAssociatedValue("videoPlaybackOption", initial: .pause) }
+        get { associatedValue(for: "videoPlaybackOption", initial: .pause) }
         set { 
             guard newValue != playbackOption else { return }
             setAssociatedValue(newValue, for: "videoPlaybackOption")
@@ -388,12 +388,12 @@ extension AVPlayer {
     }
     
     var previousItemState: AVPlayer.State {
-        get { getAssociatedValue("previousItemState", initial: state) }
+        get { associatedValue(for: "previousItemState", initial: state) }
         set { setAssociatedValue(newValue, for: "previousItemState") }
     }
     
     var playerObservation: KeyValueObserver<AVPlayer>? {
-        get { getAssociatedValue("playerObservation") }
+        get { associatedValue(for: "playerObservation") }
         set { setAssociatedValue(newValue, for: "playerObservation") }
     }
     

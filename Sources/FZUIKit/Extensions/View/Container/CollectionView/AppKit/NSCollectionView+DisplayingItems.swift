@@ -35,7 +35,7 @@ extension NSCollectionView {
      - Note: You can only provide handlers, if the colletion view is displayed in a enclosing scroll view.
      */
     public var displayingItemsHandlers: DisplayingItemsHandlers {
-        get { getAssociatedValue("NSCollectionView_displayingItemsHandlers", initial: DisplayingItemsHandlers()) }
+        get { associatedValue(for: "NSCollectionView_displayingItemsHandlers", initial: DisplayingItemsHandlers()) }
         set {
             guard let contentView = enclosingScrollView?.contentView else { return }
             setAssociatedValue(newValue, for: "NSCollectionView_displayingItemsHandlers")
@@ -88,12 +88,12 @@ extension NSCollectionView {
     }
     
     private var previousDisplayingIndexPaths: [IndexPath] {
-        get { getAssociatedValue("NSCollectionView_previousDisplayingIndexPaths", initial: []) }
+        get { associatedValue(for: "NSCollectionView_previousDisplayingIndexPaths", initial: []) }
         set { setAssociatedValue(newValue, for: "NSCollectionView_previousDisplayingIndexPaths") }
     }
     
     private var displayingScrollObservation: NotificationToken? {
-        get { getAssociatedValue("displayingScrollObservation") }
+        get { associatedValue(for: "displayingScrollObservation") }
         set { setAssociatedValue(newValue, for: "displayingScrollObservation") }
     }
 }

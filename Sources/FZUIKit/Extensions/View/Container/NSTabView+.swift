@@ -86,7 +86,7 @@ public extension NSTabView {
     
     /// The handlers of the tab view.
     var handler: Handler {
-        get { getAssociatedValue("handler") ?? Handler() }
+        get { associatedValue(for: "handler") ?? Handler() }
         set {
             setAssociatedValue(newValue, for: "handler")
             if newValue.needsDelegate {
@@ -137,7 +137,7 @@ public extension NSTabView {
     }
     
     private var tabViewDelegate: TabViewDelegate? {
-        get { getAssociatedValue("tabViewDelegate") }
+        get { associatedValue(for: "tabViewDelegate") }
         set { setAssociatedValue(newValue, for: "tabViewDelegate") }
     }
     

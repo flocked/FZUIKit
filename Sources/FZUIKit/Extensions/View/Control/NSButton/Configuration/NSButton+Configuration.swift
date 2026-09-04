@@ -36,7 +36,7 @@ extension NSButton {
      ```
      */
     public var configuration: NSButtonConfiguration? {
-        get { getAssociatedValue("configuration") }
+        get { associatedValue(for: "configuration") }
         set {
             setAssociatedValue(newValue, for: "configuration")
             updateConfiguration()
@@ -50,7 +50,7 @@ extension NSButton {
      Set this property to true to have the button call `updated(for:)` when the button state changes and apply the changes to the button. The default value is true.
      */
     public var automaticallyUpdatesConfiguration: Bool {
-        get { getAssociatedValue("automaticallyUpdatesConfiguration", initial: true) }
+        get { associatedValue(for: "automaticallyUpdatesConfiguration", initial: true) }
         set {
             setAssociatedValue(newValue, for: "automaticallyUpdatesConfiguration")
             setupConfigurationStateObserver()
@@ -84,7 +84,7 @@ extension NSButton {
     }
     
     var isHovered: Bool {
-        get { getAssociatedValue("isHovered", initial: false) }
+        get { associatedValue(for: "isHovered", initial: false) }
         set {
             guard newValue != isHovered else { return }
             setAssociatedValue(newValue, for: "isHovered")
@@ -175,7 +175,7 @@ extension NSButton {
      Use this property as an alternative to overriding ``updateConfiguration()``. Set a closure to respond to button state changes by updating the button configuration.
      */
     public var configurationUpdateHandler: ConfigurationUpdateHandler? {
-        get { getAssociatedValue("NSButton_configurationUpdateHandler") }
+        get { associatedValue(for: "NSButton_configurationUpdateHandler") }
         set {
             setAssociatedValue(newValue, for: "NSButton_configurationUpdateHandler")
             setupConfigurationStateObserver()
@@ -195,7 +195,7 @@ extension NSButton {
     }
     
     var contentView: (NSView & NSContentView)? {
-        get { getAssociatedValue("NSButton_contentView") }
+        get { associatedValue(for: "NSButton_contentView") }
         set {
             contentView?.removeFromSuperview()
             setAssociatedValue(newValue, for: "NSButton_contentView")

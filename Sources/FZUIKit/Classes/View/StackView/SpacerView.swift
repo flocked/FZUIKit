@@ -157,7 +157,7 @@ extension NSUIStackView {
     }
     
     fileprivate var flexibleSpacerConstraints: [NSLayoutConstraint] {
-        get { getAssociatedValue("flexibleSpacerConstraints") ?? [] }
+        get { associatedValue(for: "flexibleSpacerConstraints") ?? [] }
         set { setAssociatedValue(newValue, for: "flexibleSpacerConstraints") }
     }
     
@@ -180,7 +180,7 @@ extension NSUIStackView {
     }
     
     fileprivate var orientationHook: Hook? {
-        get { getAssociatedValue("orientationHook") }
+        get { associatedValue(for: "orientationHook") }
         set { setAssociatedValue(newValue, for: "orientationHook") }
     }
     

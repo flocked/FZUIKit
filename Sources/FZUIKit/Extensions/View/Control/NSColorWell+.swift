@@ -43,7 +43,7 @@ extension NSColorWell {
         
     /// Handler that is called when the color changes.
     public var colorHandler: ((_ color: NSColor)->())? {
-        get { getAssociatedValue("colorHandler") }
+        get { associatedValue(for: "colorHandler") }
         set {
             setAssociatedValue(newValue, for: "colorHandler")
             if let colorHandler = newValue {
@@ -65,7 +65,7 @@ extension NSColorWell {
     }
     
     var colorObservation: KeyValueObservation? {
-        get { getAssociatedValue("colorObservation") }
+        get { associatedValue(for: "colorObservation") }
         set { setAssociatedValue(newValue, for: "colorObservation") }
     }
     
@@ -86,7 +86,7 @@ extension NSColorWell {
                 }
             }
         }
-        get { getAssociatedValue("pulldownActionBlock") }
+        get { associatedValue(for: "pulldownActionBlock") }
     }
     
     /// Sets the pull down action handler.

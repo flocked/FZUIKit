@@ -253,7 +253,7 @@ public extension TargetActionProvider {
 /*
  internal var actionTrampoline: ActionTrampoline<Self>? {
      get {
-         FZSwiftUtils.getAssociatedValue("actionTrampoline", of: self)
+         FZSwiftUtils.associatedValue(for: "actionTrampoline", of: self)
      }
      set {
          let oldValue = actionTrampoline
@@ -381,7 +381,7 @@ public extension NSObjectProtocol where Self: UIGestureRecognizer {
 
     /// The action handler of the gesture recognizer.
     var actionBlock: ActionBlock? {
-        get { getAssociatedValue("actionBlock") }
+        get { associatedValue(for: "actionBlock") }
         set {
             if newValue != nil, actionBlock == nil {
                 addTarget(self, action: #selector(performActionBlock(sender:)))
@@ -418,7 +418,7 @@ public extension NSObjectProtocol where Self: UIControl {
     }
 
     fileprivate var actionBlocks: [UInt: (Self) -> Void] {
-        get { getAssociatedValue("actionBlocks") ?? [:] }
+        get { associatedValue(for: "actionBlocks") ?? [:] }
         set { setAssociatedValue(newValue, for: "actionBlocks") }
     }
 }

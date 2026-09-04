@@ -651,22 +651,22 @@ public extension NSButton {
     }
     
     internal var stateContentTintColor: [StateValue: NSColor?] {
-        get { getAssociatedValue("stateContentTintColor") ?? [:] }
+        get { associatedValue(for: "stateContentTintColor") ?? [:] }
         set { setAssociatedValue(newValue, for: "stateContentTintColor") }
     }
     
     internal var stateSymbolConfiguration: [StateValue: NSImage.SymbolConfiguration?] {
-        get { getAssociatedValue("stateSymbolConfiguration") ?? [:] }
+        get { associatedValue(for: "stateSymbolConfiguration") ?? [:] }
         set { setAssociatedValue(newValue, for: "stateSymbolConfiguration") }
     }
     
     internal var stateObservation: KeyValueObservation? {
-        get { getAssociatedValue("stateObservation") }
+        get { associatedValue(for: "stateObservation") }
         set { setAssociatedValue(newValue, for: "stateObservation") }
     }
     
     internal var buttonObserver: KeyValueObserver<NSButton> {
-        get { getAssociatedValue("buttonObserver", initial: KeyValueObserver(self)) }
+        get { associatedValue(for: "buttonObserver", initial: KeyValueObserver(self)) }
     }
     
     internal func updateStateObservation() {
@@ -989,7 +989,7 @@ extension NSButton {
      If the value is set to `true`, the button displays a highlighted variant of the `contentTintColor` or `systemBlue` color.
      */
     public var highlightsOnHover: Bool {
-        get { getAssociatedValue("highlightsOnHover") ?? false }
+        get { associatedValue(for: "highlightsOnHover") ?? false }
         set {
             guard newValue != highlightsOnHover else { return }
             setAssociatedValue(newValue, for: "highlightsOnHover")
@@ -998,7 +998,7 @@ extension NSButton {
     }
     
     var mouseIsInside: Bool {
-        get { getAssociatedValue("mouseIsInside") ?? false }
+        get { associatedValue(for: "mouseIsInside") ?? false }
         set {
             setAssociatedValue(newValue, for: "mouseIsInside")
             updateHighlightColor()
@@ -1006,12 +1006,12 @@ extension NSButton {
     }
     
     private var highlightSymbolConfiguration: NSImage.SymbolConfiguration? {
-        get { getAssociatedValue("highlightSymbolConfiguration") }
+        get { associatedValue(for: "highlightSymbolConfiguration") }
         set { setAssociatedValue(newValue, for: "highlightSymbolConfiguration") }
     }
     
     private var didApplyHighlight: Bool {
-        get { getAssociatedValue("didApplyHighlight") ?? false }
+        get { associatedValue(for: "didApplyHighlight") ?? false }
         set { setAssociatedValue(newValue, for: "didApplyHighlight") }
     }
     
@@ -1033,7 +1033,7 @@ extension NSButton {
     }
     
     private var highlightView: HighlightMouseView? {
-        get { getAssociatedValue("highlightView") }
+        get { associatedValue(for: "highlightView") }
         set { setAssociatedValue(newValue, for: "highlightView") }
     }
     

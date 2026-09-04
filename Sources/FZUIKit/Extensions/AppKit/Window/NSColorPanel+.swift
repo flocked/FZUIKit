@@ -59,7 +59,7 @@ extension NSColorPanel {
     
     /// The handler that is called when the color changes.
     public var colorHandler: ((NSColor)->())? {
-        get { getAssociatedValue("colorHandler") }
+        get { associatedValue(for: "colorHandler") }
         set {
             setAssociatedValue(newValue, for: "colorHandler")
             if let colorHandler = newValue {
@@ -81,7 +81,7 @@ extension NSColorPanel {
     }
     
     var colorObservation: KeyValueObservation? {
-        get { getAssociatedValue("colorObservation") }
+        get { associatedValue(for: "colorObservation") }
         set { setAssociatedValue(newValue, for: "colorObservation") }
     }
 }

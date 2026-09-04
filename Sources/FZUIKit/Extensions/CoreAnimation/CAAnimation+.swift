@@ -12,7 +12,7 @@ import QuartzCore
 extension CAAnimation {
     /// A handler that is called after the animation started.
     public var onStart: (() -> Void)? {
-        get { getAssociatedValue("didStart") }
+        get { associatedValue(for: "didStart") }
         set {
             setAssociatedValue(newValue, for: "didStart")
             updateAnimationDelegate()
@@ -21,7 +21,7 @@ extension CAAnimation {
 
     /// A handler that is called after the animation stoped.
     public var onStop: (() -> Void)? {
-        get { getAssociatedValue("didFinish") }
+        get { associatedValue(for: "didFinish") }
         set {
             setAssociatedValue(newValue, for: "didFinish")
             updateAnimationDelegate()

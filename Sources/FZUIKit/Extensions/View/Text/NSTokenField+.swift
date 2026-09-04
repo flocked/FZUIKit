@@ -11,14 +11,14 @@ import FZSwiftUtils
 
 extension NSTokenField {
     public var handlers: Handlers {
-        get { getAssociatedValue("handlers") ?? Handlers() }
+        get { associatedValue(for: "handlers") ?? Handlers() }
         set {
             setAssociatedValue(newValue, for: "handlers")
         }
     }
     
     private var tokenFieldDeleaate: TokenFieldDelegate? {
-        get { getAssociatedValue("tokenFieldDeleaate") }
+        get { associatedValue(for: "tokenFieldDeleaate") }
         set {  setAssociatedValue(newValue, for: "tokenFieldDeleaate") }
     }
     

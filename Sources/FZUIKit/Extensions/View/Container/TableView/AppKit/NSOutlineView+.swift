@@ -273,7 +273,7 @@ extension NSOutlineView {
     }
     
     fileprivate var centerIndicatorHook: Hook? {
-        get { getAssociatedValue("centerIndicatorHook") }
+        get { associatedValue(for: "centerIndicatorHook") }
         set { setAssociatedValue(newValue, for: "centerIndicatorHook") }
     }
 

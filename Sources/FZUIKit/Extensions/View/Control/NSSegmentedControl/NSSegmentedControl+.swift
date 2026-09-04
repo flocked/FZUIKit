@@ -189,7 +189,7 @@ public extension NSSegmentedControl {
     }
     
     internal var selectsExclusivelyOnRightClickHook: Hook? {
-        get { getAssociatedValue("selectsExclusivelyOnRightClickHook") }
+        get { associatedValue(for: "selectsExclusivelyOnRightClickHook") }
         set { setAssociatedValue(newValue, for: "selectsExclusivelyOnRightClickHook") }
     }
 }

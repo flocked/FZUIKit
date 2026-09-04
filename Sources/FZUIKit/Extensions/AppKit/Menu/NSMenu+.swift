@@ -378,7 +378,7 @@ extension NSMenu {
      The default value is `false`.
      */
     public var autoUpdatesWidth: Bool {
-        get { getAssociatedValue("autoUpdatesWidth") ?? false }
+        get { associatedValue(for: "autoUpdatesWidth") ?? false }
         set { setAssociatedValue(newValue, for: "autoUpdatesWidth") }
     }
     
@@ -458,7 +458,7 @@ extension NSMenu {
     }
     
     private var mappedFonts: [ObjectIdentifier: NSFont] {
-        get { getAssociatedValue("mappedFonts") ?? [:] }
+        get { associatedValue(for: "mappedFonts") ?? [:] }
         set { setAssociatedValue(newValue, for: "mappedFonts")} 
     }
     

@@ -102,7 +102,7 @@ extension NSUIImage {
     }
     
     var nonAlphaRect: [UInt8: CGRect] {
-        get { getAssociatedValue("nonAlphaRect", initial: [:]) }
+        get { associatedValue(for: "nonAlphaRect", initial: [:]) }
         set { setAssociatedValue(newValue, for: "nonAlphaRect") }
     }
     

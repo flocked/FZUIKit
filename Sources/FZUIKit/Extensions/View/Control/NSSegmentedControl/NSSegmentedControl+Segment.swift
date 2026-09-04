@@ -525,7 +525,7 @@ public extension NSSegmentedControl {
 
 fileprivate extension NSSegmentedControl {
     var storedSegments: [NSSegment] {
-        get { getAssociatedValue("storedSegments") ?? [] }
+        get { associatedValue(for: "storedSegments") ?? [] }
         set { setAssociatedValue(newValue, for: "storedSegments") }
     }
     

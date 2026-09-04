@@ -29,7 +29,7 @@ public extension AVPlayerItem {
     
     /// The handlers of the item.
     var handlers: Handlers {
-        get { getAssociatedValue("handlers") ?? Handlers() }
+        get { associatedValue(for: "handlers") ?? Handlers() }
         set {
             setAssociatedValue(newValue, for: "handlers")
             observe(AVPlayerItem.failedToPlayToEndTimeNotification, handler: handlers.failedToPlayToEnd)
@@ -58,7 +58,7 @@ public extension AVPlayerItem {
     }
     
     private var handlerNotificationTokens: [Notification.Name : NotificationToken] {
-        get { getAssociatedValue("handlerNotificationTokens") ?? [:] }
+        get { associatedValue(for: "handlerNotificationTokens") ?? [:] }
         set { setAssociatedValue(newValue, for: "handlerNotificationTokens") }
     }
     
@@ -69,7 +69,7 @@ public extension AVPlayerItem {
     }
     
     private var statusObservation: KeyValueObservation? {
-        get { getAssociatedValue("statusObservation") }
+        get { associatedValue(for: "statusObservation") }
         set { setAssociatedValue(newValue, for: "statusObservation") }
     }
     

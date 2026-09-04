@@ -76,12 +76,12 @@ fileprivate extension NSImageView {
     }
     
     var configurationObservation: KeyValueObservation? {
-        get { getAssociatedValue("configurationObservation") }
+        get { associatedValue(for: "configurationObservation") }
         set { setAssociatedValue(newValue, for: "configurationObservation") }
     }
     
     var previousConfiguration: NSImage.SymbolConfiguration? {
-        get { getAssociatedValue("previousConfiguration") }
+        get { associatedValue(for: "previousConfiguration") }
         set { setAssociatedValue(newValue, for: "previousConfiguration") }
     }
 }
@@ -100,7 +100,7 @@ fileprivate extension NSImageView {
         } else if let view = self as? NSTableCellView {
             return view.backgroundStyle
         }
-        return getAssociatedValue("backgroundStyle") ?? .normal
+        return associatedValue(for: "backgroundStyle") ?? .normal
     }
     set {
         if let view = self as? NSControl {

@@ -98,7 +98,7 @@ extension NSUIView {
     }
     
     var dynamicColors: DynamicColors {
-        get { getAssociatedValue("dynamicColors", initial: DynamicColors(view: self)) }
+        get { associatedValue(for: "dynamicColors", initial: DynamicColors(view: self)) }
         set { setAssociatedValue(newValue, for: "dynamicColors")
             #if os(macOS)
             setupEffectiveAppearanceObserver()
@@ -110,7 +110,7 @@ extension NSUIView {
 
     #if os(macOS)
     var effectiveAppearanceObservation: KeyValueObservation? {
-        get { getAssociatedValue("effectiveAppearanceObservation") }
+        get { associatedValue(for: "effectiveAppearanceObservation") }
         set { setAssociatedValue(newValue, for: "effectiveAppearanceObservation") }
     }
 

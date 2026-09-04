@@ -125,7 +125,7 @@ extension UIAlertController {
      To reset all supressions, remove all keys from the set.
      */
     var suppressionKey: String? {
-        get { getAssociatedValue("suppressionKey") }
+        get { associatedValue(for: "suppressionKey") }
         set {
             setAssociatedValue(newValue, for: "suppressionKey")
             swizzleRunModal()

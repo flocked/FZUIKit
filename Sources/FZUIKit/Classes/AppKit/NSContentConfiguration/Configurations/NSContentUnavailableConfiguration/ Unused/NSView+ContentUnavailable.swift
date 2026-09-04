@@ -17,7 +17,7 @@
       Use this property to configure a content-unavailable view that the view displays. The value of this property is commonly an instance of `NSContentUnavailableConfiguration`, but you can use other types of content configuration, including a `NSHostingConfiguration, to display a SwiftUI view.
       */
      var contentUnavailableConfiguration: NSContentConfiguration?   {
-         get { getAssociatedValue("NSView_contentUnavailableConfiguration") }
+         get { associatedValue(for: "NSView_contentUnavailableConfiguration") }
          set {
              setAssociatedValue(newValue, for: "NSView_contentUnavailableConfiguration")
              self.configurateUnavailableView()
@@ -25,7 +25,7 @@
      }
 
      internal var unavailableView: (NSView & NSContentView)?   {
-         get { getAssociatedValue("NSView_unavailableView") }
+         get { associatedValue(for: "NSView_unavailableView") }
          set { setAssociatedValue(newValue, for: "NSView_unavailableView")
          }
      }
