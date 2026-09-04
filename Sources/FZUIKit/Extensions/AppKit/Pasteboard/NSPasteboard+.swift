@@ -310,18 +310,18 @@ extension NSPasteboard {
     
     private var lastChangeCount: Int {
         get { getAssociatedValue("lastChangeCount") ?? -1 }
-        set { setAssociatedValue(newValue, key: "lastChangeCount") }
+        set { setAssociatedValue(newValue, for: "lastChangeCount") }
     }
     
     private var observationTimer: Timer? {
         get { getAssociatedValue("observationTimer") }
-        set { setAssociatedValue(newValue, key: "observationTimer") }
+        set { setAssociatedValue(newValue, for: "observationTimer") }
     }
     
     var observations: [UUID: PasteboardObservation] {
         get { getAssociatedValue("observations") ?? [:] }
         set {
-            setAssociatedValue(newValue, key: "observations")
+            setAssociatedValue(newValue, for: "observations")
             if newValue.isEmpty {
                 observationTimer?.invalidate()
                 observationTimer = nil

@@ -379,7 +379,7 @@ extension NSMenu {
      */
     public var autoUpdatesWidth: Bool {
         get { getAssociatedValue("autoUpdatesWidth") ?? false }
-        set { setAssociatedValue(newValue, key: "autoUpdatesWidth") }
+        set { setAssociatedValue(newValue, for: "autoUpdatesWidth") }
     }
     
     /**
@@ -459,7 +459,7 @@ extension NSMenu {
     
     private var mappedFonts: [ObjectIdentifier: NSFont] {
         get { getAssociatedValue("mappedFonts") ?? [:] }
-        set { setAssociatedValue(newValue, key: "mappedFonts")} 
+        set { setAssociatedValue(newValue, for: "mappedFonts")} 
     }
     
     /**

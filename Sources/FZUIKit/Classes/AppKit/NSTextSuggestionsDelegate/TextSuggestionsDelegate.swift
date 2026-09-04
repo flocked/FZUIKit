@@ -30,19 +30,19 @@ extension NSTextSuggestionsDelegate {
 extension NSTextField {
     public weak var suggestionsTableView: NSTableView? {
         get { getAssociatedValue("suggestionsTableView") }
-        set { setAssociatedValue(newValue, key: "suggestionsTableView") }
+        set { setAssociatedValue(newValue, for: "suggestionsTableView") }
     }
     
     var suggestionsTokens: [NotificationToken] {
-        get { getAssociatedValue("suggestionsTokens", initialValue: []) }
-        set { setAssociatedValue(newValue, key: "suggestionsTokens") }
+        get { getAssociatedValue("suggestionsTokens", initial: []) }
+        set { setAssociatedValue(newValue, for: "suggestionsTokens") }
     }
     
     /// The delegate that provides text suggestions.
     public weak var suggestionsDelegate: NSTextSuggestionsDelegate? {
         get { getAssociatedValue("suggestionsDelegate") }
         set {
-            setAssociatedValue(newValue, key: "suggestionsDelegate")
+            setAssociatedValue(newValue, for: "suggestionsDelegate")
             Swift.print("suggestionsDelegate set", newValue != nil, textSuggestionController == nil)
             if newValue != nil, textSuggestionController == nil {
                 let textSuggestionController = TextSuggestionController(textField: self)
@@ -81,12 +81,12 @@ extension NSTextField {
     
     var textSuggestionController: TextSuggestionController? {
         get { getAssociatedValue("textSuggestionController") }
-        set { setAssociatedValue(newValue, key: "textSuggestionController") }
+        set { setAssociatedValue(newValue, for: "textSuggestionController") }
     }
     
     var suggestionsObserver: KeyValueObserver<NSTextField>? {
         get { getAssociatedValue("suggestionsObserver") }
-        set { setAssociatedValue(newValue, key: "suggestionsObserver") }
+        set { setAssociatedValue(newValue, for: "suggestionsObserver") }
     }
 }
 

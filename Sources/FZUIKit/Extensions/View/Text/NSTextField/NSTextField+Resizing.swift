@@ -19,7 +19,7 @@ extension NSTextField {
         get { getAssociatedValue("automaticallyResizesToFit") ?? false }
         set {
             guard newValue != automaticallyResizesToFit else { return }
-            setAssociatedValue(newValue, key: "automaticallyResizesToFit")
+            setAssociatedValue(newValue, for: "automaticallyResizesToFit")
             swizzleIntrinsicContentSize()
             setupTextFieldObserver()
             observeEditing()
@@ -49,7 +49,7 @@ extension NSTextField {
      */
     public var preferredResizingEdges: RectEdge {
         get { getAssociatedValue("preferredResizingEdges") ?? [.bottom, .right] }
-        set { setAssociatedValue(newValue, key: "preferredResizingEdges") }
+        set { setAssociatedValue(newValue, for: "preferredResizingEdges") }
     }
     
     /// Sets the edges the textfield's size expands when automatic resizing (``AppKit/NSTextField/automaticallyResizesToFit``) is enabled.
@@ -71,7 +71,7 @@ extension NSTextField {
         set {
             guard newValue != preferredMinLayoutWidth else { return }
             swizzleIntrinsicContentSize()
-            setAssociatedValue(newValue, key: "preferredMinLayoutWidth")
+            setAssociatedValue(newValue, for: "preferredMinLayoutWidth")
             resizeToFit()
         }
     }
@@ -119,7 +119,7 @@ extension NSTextField {
     
     var intrinsicContentSizeHook: Hook? {
         get { getAssociatedValue("intrinsicContentSizeHook") }
-        set { setAssociatedValue(newValue, key: "intrinsicContentSizeHook") }
+        set { setAssociatedValue(newValue, for: "intrinsicContentSizeHook") }
     }
 
     func swizzleIntrinsicContentSize() {

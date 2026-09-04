@@ -63,7 +63,7 @@ class AnimationDelegate: NSObject, CAAnimationDelegate {
 fileprivate extension CAAnimation {
     var animator: NSAnimator? {
         get { getAssociatedValue("animator") }
-        set { setAssociatedValue(weak: newValue, key: "animator") }
+        set { setAssociatedValue(weak: newValue, for: "animator") }
     }
 }
 

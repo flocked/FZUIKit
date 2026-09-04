@@ -36,4 +36,12 @@ extension NSToolbarItem.Identifier: Swift.ExpressibleByStringLiteral, Swift.Expr
     }
 }
 
+public extension NSSearchToolbarItem {
+    /// A Boolean value indicating whether the search field can be represented as button.
+    var allowsButtonRepresentation: Bool {
+        get { value(forKey: "_allowsButtonRepresentation") ?? false }
+        set { setValue(safely: newValue, forKey: "_allowsButtonRepresentation") }
+    }
+}
+
 #endif

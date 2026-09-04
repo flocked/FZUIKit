@@ -35,10 +35,10 @@ extension NSCollectionView {
      - Note: You can only provide handlers, if the colletion view is displayed in a enclosing scroll view.
      */
     public var displayingItemsHandlers: DisplayingItemsHandlers {
-        get { getAssociatedValue("NSCollectionView_displayingItemsHandlers", initialValue: DisplayingItemsHandlers()) }
+        get { getAssociatedValue("NSCollectionView_displayingItemsHandlers", initial: DisplayingItemsHandlers()) }
         set {
             guard let contentView = enclosingScrollView?.contentView else { return }
-            setAssociatedValue(newValue, key: "NSCollectionView_displayingItemsHandlers")
+            setAssociatedValue(newValue, for: "NSCollectionView_displayingItemsHandlers")
             if newValue.isDisplaying != nil || newValue.didEndDisplaying != nil {
                 contentView.postsBoundsChangedNotifications = true
                 displayingScrollObservation = NotificationCenter.default.observe(NSView.boundsDidChangeNotification, postedBy: contentView) { [weak self] _ in
@@ -88,13 +88,13 @@ extension NSCollectionView {
     }
     
     private var previousDisplayingIndexPaths: [IndexPath] {
-        get { getAssociatedValue("NSCollectionView_previousDisplayingIndexPaths", initialValue: []) }
-        set { setAssociatedValue(newValue, key: "NSCollectionView_previousDisplayingIndexPaths") }
+        get { getAssociatedValue("NSCollectionView_previousDisplayingIndexPaths", initial: []) }
+        set { setAssociatedValue(newValue, for: "NSCollectionView_previousDisplayingIndexPaths") }
     }
     
     private var displayingScrollObservation: NotificationToken? {
         get { getAssociatedValue("displayingScrollObservation") }
-        set { setAssociatedValue(newValue, key: "displayingScrollObservation") }
+        set { setAssociatedValue(newValue, for: "displayingScrollObservation") }
     }
 }
 

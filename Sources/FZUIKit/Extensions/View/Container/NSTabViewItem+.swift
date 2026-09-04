@@ -89,7 +89,7 @@ public extension NSTabViewItem {
     
     private var tabViewObservation: KeyValueObservation? {
         get { getAssociatedValue("tabViewObservation") }
-        set { setAssociatedValue(newValue, key: "tabViewObservation") }
+        set { setAssociatedValue(newValue, for: "tabViewObservation") }
     }
 }
 

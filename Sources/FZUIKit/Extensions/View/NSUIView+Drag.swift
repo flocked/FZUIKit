@@ -73,7 +73,7 @@ public extension NSUIView {
         get { getAssociatedValue("isMovableByViewBackground") ?? .disabled }
         set {
             guard newValue != isMovableByViewBackground else { return }
-            setAssociatedValue(newValue, key: "isMovableByViewBackground")
+            setAssociatedValue(newValue, for: "isMovableByViewBackground")
             setupDragResizeGesture()
         }
     }
@@ -81,7 +81,7 @@ public extension NSUIView {
     /// A handler that provides the velocity of the dragging of the view by it's background when ``isMovableByViewBackground`` is enabled.
     var backgroundDragVelocity: ((_ state: NSUIGestureRecognizer.State, _ velocity: CGPoint) -> Void)? {
         get { getAssociatedValue("movableByBackgroundVelocity") }
-        set { setAssociatedValue(newValue, key: "movableByBackgroundVelocity") }
+        set { setAssociatedValue(newValue, for: "movableByBackgroundVelocity") }
     }
 
     internal func setupDragResizeGesture() {
@@ -158,13 +158,13 @@ public extension NSUIView {
     }
 
     private var dragPoint: CGPoint {
-        get { getAssociatedValue("dragPoint", initialValue: .zero) }
-        set { setAssociatedValue(newValue, key: "dragPoint") }
+        get { getAssociatedValue("dragPoint", initial: .zero) }
+        set { setAssociatedValue(newValue, for: "dragPoint") }
     }
 
     private var panGesture: NSUIPanGestureRecognizer? {
         get { getAssociatedValue("panGesture") }
-        set { setAssociatedValue(newValue, key: "panGesture") }
+        set { setAssociatedValue(newValue, for: "panGesture") }
     }
 }
 

@@ -288,7 +288,7 @@ public class NSAnimator: NSObject {
 extension NSAnimationContext {
     var animator: NSAnimator? {
         get { getAssociatedValue("animator") }
-        set { setAssociatedValue(newValue, key: "animator") }
+        set { setAssociatedValue(newValue, for: "animator") }
     }
 }
 

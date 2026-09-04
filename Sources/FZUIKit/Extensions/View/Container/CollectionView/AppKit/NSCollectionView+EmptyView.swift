@@ -19,7 +19,7 @@ extension NSCollectionView {
         get { getAssociatedValue("emptyContentView") }
         set {
             guard newValue != emptyContentView else { return }
-            setAssociatedValue(newValue, key: "emptyContentView")
+            setAssociatedValue(newValue, for: "emptyContentView")
             if let newValue = newValue {
                 emptyContentConfiguration = nil
                 if emptyView == nil {
@@ -42,7 +42,7 @@ extension NSCollectionView {
     public var emptyContentConfiguration: NSContentConfiguration? {
         get { getAssociatedValue("emptyContentConfiguration") }
         set {
-            setAssociatedValue(newValue, key: "emptyContentConfiguration")
+            setAssociatedValue(newValue, for: "emptyContentConfiguration")
             if let newValue = newValue {
                 emptyContentView = nil
                 if emptyView == nil {
@@ -65,7 +65,7 @@ extension NSCollectionView {
     public var emptyContentHandler: ((_ isEmpty: Bool)->())? {
         get { getAssociatedValue("emptyContentHandler") }
         set { 
-            setAssociatedValue(newValue, key: "emptyContentHandler")
+            setAssociatedValue(newValue, for: "emptyContentHandler")
             guard newValue != nil else { return }
             swizzleNumberOfSectionsIfNeeded()
         }
@@ -76,7 +76,7 @@ extension NSCollectionView {
         set {
             guard newValue !== emptyView else { return }
             emptyView?.removeFromSuperview()
-            setAssociatedValue(newValue, key: "emptyView")
+            setAssociatedValue(newValue, for: "emptyView")
         }
     }
     
@@ -114,7 +114,7 @@ extension NSCollectionView {
         get { getAssociatedValue("isEmpty") ?? false }
         set {
             guard newValue != isEmpty else { return }
-            setAssociatedValue(newValue, key: "isEmpty")
+            setAssociatedValue(newValue, for: "isEmpty")
             updateEmptyView()
             emptyContentHandler?(newValue)
         }
@@ -122,7 +122,7 @@ extension NSCollectionView {
     
     fileprivate var datasourceObservation: KeyValueObservation? {
         get { getAssociatedValue("datasourceObservation") }
-        set { setAssociatedValue(newValue, key: "datasourceObservation") }
+        set { setAssociatedValue(newValue, for: "datasourceObservation") }
     }
 }
 
@@ -195,13 +195,13 @@ fileprivate extension NSCollectionViewDataSource {
     }
     
     var numberOfItemsHook: Hook? {
-        get { FZSwiftUtils.getAssociatedValue("numberOfItemsHook", object: self) }
-        set { FZSwiftUtils.setAssociatedValue(newValue, key: "numberOfItemsHook", object: self) }
+        get { FZSwiftUtils.getAssociatedValue("numberOfItemsHook", of: self) }
+        set { FZSwiftUtils.setAssociatedValue(newValue, for: "numberOfItemsHook", of: self) }
     }
     
     var numberOfSectionsHook: Hook? {
-        get { FZSwiftUtils.getAssociatedValue("numberOfSectionsHook", object: self) }
-        set { FZSwiftUtils.setAssociatedValue(newValue, key: "numberOfSectionsHook", object: self) }
+        get { FZSwiftUtils.getAssociatedValue("numberOfSectionsHook", of: self) }
+        set { FZSwiftUtils.setAssociatedValue(newValue, for: "numberOfSectionsHook", of: self) }
     }
 }
 
@@ -247,7 +247,7 @@ fileprivate class EmptyCollectionTableView: NSView {
 extension NSCollectionView {
     fileprivate var subviewHooks: [Hook] {
         get { getAssociatedValue("subviewHooks") ?? [] }
-        set { setAssociatedValue(newValue, key: "subviewHooks") }
+        set { setAssociatedValue(newValue, for: "subviewHooks") }
     }
     
     func swizzleIsEmpty(shouldSwizzle: Bool = true) {

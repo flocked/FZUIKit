@@ -29,7 +29,7 @@ extension NSTableView {
         get { getAssociatedValue("selectionColor") }
         set {
             guard newValue != selectionColor else { return }
-            setAssociatedValue(newValue, key: "selectionColor")
+            setAssociatedValue(newValue, for: "selectionColor")
             enumerateAvailableRowViews { rowView, _ in rowView.selectionColor = newValue }
             hookDidAddRow()
         }
@@ -39,7 +39,7 @@ extension NSTableView {
         get { getAssociatedValue("selectionBackgroundStyle") }
         set {
             guard newValue != selectionBackgroundStyle else { return }
-            setAssociatedValue(newValue, key: "selectionBackgroundStyle")
+            setAssociatedValue(newValue, for: "selectionBackgroundStyle")
         }
     }
     
@@ -66,7 +66,7 @@ extension NSTableView {
     
     private var didAddRowHook: Hook? {
         get { getAssociatedValue("didAddRowHook") }
-        set { setAssociatedValue(newValue, key: "didAddRowHook") }
+        set { setAssociatedValue(newValue, for: "didAddRowHook") }
     }
     
     private static func hookSelectionHighlightStyle() {
@@ -103,12 +103,12 @@ extension NSTableView {
     
     private var getSelectionHighlightStyleHook: Hook? {
          get { getAssociatedValue("setSelectionHighlightStyleHook") }
-         set { setAssociatedValue(newValue, key: "setSelectionHighlightStyleHook") }
+         set { setAssociatedValue(newValue, for: "setSelectionHighlightStyleHook") }
      }
     
     private static var setSelectionHighlightStyleHook: Hook? {
          get { getAssociatedValue("setSelectionHighlightStyleHook") }
-         set { setAssociatedValue(newValue, key: "setSelectionHighlightStyleHook") }
+         set { setAssociatedValue(newValue, for: "setSelectionHighlightStyleHook") }
      }
 }
 
@@ -118,7 +118,7 @@ extension NSTableRowView {
         get { getAssociatedValue("selectionColor") }
         set {
             guard newValue != selectionColor else { return }
-            setAssociatedValue(newValue, key: "selectionColor")
+            setAssociatedValue(newValue, for: "selectionColor")
             setupSelectionHooks()
         }
     }
@@ -222,17 +222,17 @@ extension NSTableRowView {
     
     private var drawSelectionHooks: [Hook] {
         get { getAssociatedValue("drawSelectionHooks") ?? [] }
-        set { setAssociatedValue(newValue, key: "drawSelectionHooks") }
+        set { setAssociatedValue(newValue, for: "drawSelectionHooks") }
     }
     
     private var getSelectionHighlightStyleHook: Hook? {
          get { getAssociatedValue("setSelectionHighlightStyleHook") }
-         set { setAssociatedValue(newValue, key: "setSelectionHighlightStyleHook") }
+         set { setAssociatedValue(newValue, for: "setSelectionHighlightStyleHook") }
      }
     
     private static var setSelectionHighlightStyleHook: Hook? {
         get { getAssociatedValue("setSelectionHighlightStyleHook") }
-        set { setAssociatedValue(newValue, key: "setSelectionHighlightStyleHook") }
+        set { setAssociatedValue(newValue, for: "setSelectionHighlightStyleHook") }
     }
 }
 

@@ -136,10 +136,10 @@ public extension NSPopUpButton {
         
     /// The arrow position.
     var arrowPosition: ArrowPosition {
-        get { getAssociatedValue("_arrowPosition", initialValue: (cell as? NSPopUpButtonCell)?.arrowPosition ?? .arrowAtBottom) }
+        get { getAssociatedValue("_arrowPosition", initial: (cell as? NSPopUpButtonCell)?.arrowPosition ?? .arrowAtBottom) }
         set {
             guard newValue != arrowPosition else { return }
-            setAssociatedValue(newValue, key: "_arrowPosition")
+            setAssociatedValue(newValue, for: "_arrowPosition")
             updateArrowVisibility()
         }
     }
@@ -161,7 +161,7 @@ public extension NSPopUpButton {
         set {
             guard newValue != displaysArrowOnlyOnHover else { return }
             if newValue {
-                hoverTrackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeInActiveApp, .inVisibleRect])
+                hoverTrackingArea = TrackingArea(view: self, events: .mouseEnteredAndExited, activation: .inActiveApp)
                 do {
                     hoverHooks += try hook(#selector(NSPopUpButton.updateTrackingAreas), closure: {
                         original, button, selector in
@@ -214,17 +214,17 @@ public extension NSPopUpButton {
     
     private var isMouseInside: Bool {
         get { getAssociatedValue("isMouseInside") ?? false }
-        set { setAssociatedValue(newValue, key: "isMouseInside") }
+        set { setAssociatedValue(newValue, for: "isMouseInside") }
     }
     
     private var hoverTrackingArea: TrackingArea? {
         get { getAssociatedValue("hoverTrackingArea") }
-        set { setAssociatedValue(newValue, key: "hoverTrackingArea") }
+        set { setAssociatedValue(newValue, for: "hoverTrackingArea") }
     }
     
     private var hoverHooks: [Hook] {
         get { getAssociatedValue("hoverHooks") ?? [] }
-        set { setAssociatedValue(newValue, key: "hoverHooks") }
+        set { setAssociatedValue(newValue, for: "hoverHooks") }
     }
         
     /**

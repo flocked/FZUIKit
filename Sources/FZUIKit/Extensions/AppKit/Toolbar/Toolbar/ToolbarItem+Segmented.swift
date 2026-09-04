@@ -12,11 +12,6 @@ import FZSwiftUtils
 extension Toolbar {
     /// A toolbar item that contains a segmented control.
     open class SegmentedControl: ToolbarItem {
-        lazy var groupItem = ValidateToolbarItemGroup(for: self).view(segmentedControl)
-        override var item: NSToolbarItem {
-            groupItem
-        }
-        
         /// The segmented control of the toolbar item.
         public let segmentedControl: NSSegmentedControl
         
@@ -25,7 +20,7 @@ extension Toolbar {
             get { segmentedControl.segments }
             set {
                 segmentedControl.segments = newValue
-                updateSegments()
+                segmentedControl.sizeToFit()
             }
         }
         
@@ -89,45 +84,23 @@ extension Toolbar {
         }
         
         /**
-         The Boolean value indicating whether the toolbar item is displayed as a group of individual toolbar items and labels for each segment.
+         A Boolean value indicating whether the toolbar item should display individual labels for each segment.
          
-         - Note: This property only works if you provide both `title` and `image` for each segment.
+         This display mode requires a different `NSToolbarItemGroup` setup when the toolbar item is created. Use ``Toolbar/LabeledSegmentedControl`` instead.
          */
-        open var displaysIndividualSegmentLabels: Bool = false {
-            didSet {
-                guard oldValue != displaysIndividualSegmentLabels else { return }
-                updateSegments()
-            }
-        }
+        @available(*, deprecated, message: "Use Toolbar.LabeledSegmentedControl instead.")
+        open var displaysIndividualSegmentLabels: Bool = false
         
         /**
-         Sets the Boolean value indicating whether the toolbar item is displayed as a group of individual toolbar items and labels for each segment.
+         Sets the Boolean value indicating whether the toolbar item should display individual labels for each segment.
          
-         - Note: This property only works if you provide `image` for each segment.
+         This display mode requires a different `NSToolbarItemGroup` setup when the toolbar item is created. Use ``Toolbar/LabeledSegmentedControl`` instead.
          */
+        @available(*, deprecated, message: "Use Toolbar.LabeledSegmentedControl instead.")
         @discardableResult
         open func displaysIndividualSegmentLabels(_ displays: Bool) -> Self {
-            self.displaysIndividualSegmentLabels = displays
+            displaysIndividualSegmentLabels = displays
             return self
-        }
-        
-        func updateSegments() {
-            if displaysIndividualSegmentLabels, !segments.contains(where: { $0.image == nil }) {
-                groupItem.label = ""
-                let subitems = segments.compactMap({ $0.toolbarItem(for: self) })
-                segmentedControl.segments = segments.compactMap({ $0.withoutTitle })
-                groupItem.subitems = subitems
-            } else {
-                for val in zip(segmentedControl.segments, groupItem.subitems) {
-                    val.0.title = val.1.label
-                }
-                groupItem.subitems = []
-                segmentedControl.segments = segments
-                if label != "" {
-                    groupItem.label = label
-                }
-            }
-            segmentedControl.sizeToFit()
         }
         
         /**
@@ -164,54 +137,471 @@ extension Toolbar {
         }
         
         private func sharedInit() {
-            segmentedControl.toolbarItem = self
+            item.view = segmentedControl
             segmentedControl.translatesAutoresizingMaskIntoConstraints = false
             segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
             segmentedControl.segmentDistribution = .fillEqually
         }
     }
-}
-
-extension ToolbarItem {
-
-}
-
-fileprivate extension NSSegment {
-    func toolbarItem(for groupItem: Toolbar.SegmentedControl) -> NSToolbarItem {
-        let item = NSToolbarItem(itemIdentifier: .init(title ?? .random()))
-        item.label = title ?? ""
-        item.autovalidates = false
-        item.isEnabled = isEnabled
-        item.toolTip = toolTip
-        item.actionBlock = { [weak self] _ in
-            guard self != nil else { return }
-            groupItem.actionBlock?(groupItem)
-        }
-        if let image = image {
-            item.menuFormRepresentation = NSMenuItem(title, image: image)
-        } else if let title = title {
-            item.menuFormRepresentation = NSMenuItem(title)
-        }
-        return item
-    }
     
-    var withoutTitle: NSSegment {
-        let segment = NSSegment("")
-        segment.title = nil
-        segment.titleAlignment = titleAlignment
-        segment.image = image
-        segment.imageScaling = imageScaling
-        segment.menu = menu
-        segment.showsMenuIndicator = showsMenuIndicator
-        segment.isSelected = isSelected
-        segment.isEnabled = isEnabled
-        segment.width = width
-        segment.toolTip = toolTip
-        segment.tag = tag
-        segment.font = font
-        segment.index = index
-        segment.segmentedControl = segmentedControl
-        return segment
+    /// A toolbar item that displays a segmented control with individual labels below each segment.
+    open class LabeledSegmentedControl: ToolbarItem {
+        lazy var groupItem = ValidateToolbarItemGroup(for: self)
+        override var item: NSToolbarItem {
+            groupItem
+        }
+        
+        private let segmentedControl = NSSegmentedControl {
+            
+        }
+        
+        /// The segments of the toolbar item.
+        open var segments: [Segment] {
+            didSet {
+                for segment in segments {
+                    if let labeledSegmentedControl = segment.labeledSegmentedControl, labeledSegmentedControl !== self {
+                        labeledSegmentedControl.removeSegment(segment)
+                    }
+                }
+                oldValue.filter { oldSegment in
+                    !segments.contains { $0 === oldSegment }
+                }.forEach { segment in
+                    segment.labeledSegmentedControl = nil
+                }
+                segments.forEach { $0.labeledSegmentedControl = self }
+                updateSegments()
+            }
+        }
+        
+        /// The selected segments.
+        open var selectedSegments: [Segment] {
+            selectedIndexes.compactMap { segments[safe: $0] }
+        }
+        
+        /// The index values of the selected segments.
+        open var selectedIndexes: [Int] {
+            get { segmentedControl.indexesOfSelectedSegments }
+            set {
+                for index in 0..<segments.count {
+                    let isSelected = newValue.contains(index)
+                    segments[index].isSelected = isSelected
+                    segmentedControl.setSelected(isSelected, forSegment: index)
+                    groupItem.setSelected(isSelected, at: index)
+                }
+            }
+        }
+        
+        /// The index of the most recently selected segment.
+        open var lastSelectedIndex: Int? {
+            segmentedControl.selectedSegment >= 0 && segmentedControl.selectedSegment < segments.count ? segmentedControl.selectedSegment : nil
+        }
+        
+        /// The most recently selected segment.
+        open var lastSelectedSegment: Segment? {
+            segments[safe: lastSelectedIndex ?? -1]
+        }
+        
+        /// The selection mode of the segmented control.
+        open var selectionMode: SegmentedControl.SelectionMode {
+            get { .init(rawValue: segmentedControl.trackingMode.rawValue) ?? .selectOne }
+            set {
+                segmentedControl.trackingMode = .init(rawValue: newValue.rawValue) ?? .selectOne
+                groupItem.selectionMode = newValue.toolbarItemGroupSelectionMode
+            }
+        }
+        
+        /// Sets the segments of the toolbar item.
+        @discardableResult
+        open func segments(_ segments: [Segment]) -> Self {
+            self.segments = segments
+            return self
+        }
+        
+        /// Sets the segments of the toolbar item.
+        @discardableResult
+        open func segments(@Builder segments: () -> [Segment]) -> Self {
+            self.segments = segments()
+            return self
+        }
+        
+        /// Returns the segment that matches the title.
+        open func segment(withTitle title: String) -> Segment? {
+            segments.first { $0.title == title }
+        }
+        
+        /// Returns the segment that matches the tag.
+        open func segment(withTag tag: Int) -> Segment? {
+            segments.first { $0.tag == tag }
+        }
+        
+        /// Returns the segment at the specified index.
+        open func segment(at index: Int) -> Segment? {
+            segments[safe: index]
+        }
+        
+        /**
+         Removes the specified segment from the toolbar item.
+         
+         If the segment is displayed in the toolbar item, it is detached and the
+         indexes of the remaining segments update automatically.
+         
+         - Parameter segment: The segment to remove.
+         */
+        open func removeSegment(_ segment: Segment) {
+            guard segment.labeledSegmentedControl === self else { return }
+            guard let index = segment.index else { return }
+            removeSegment(at: index)
+        }
+        
+        /**
+         Removes the segment at the specified index.
+         
+         The removed segment is detached from the toolbar item and the indexes
+         of the remaining segments update automatically.
+         
+         - Parameter index: The index of the segment to remove.
+         */
+        open func removeSegment(at index: Int) {
+            guard let segment = segments[safe: index] else { return }
+            segment.labeledSegmentedControl = nil
+            segments.remove(at: index)
+        }
+        
+        /// Sets the index values of the selected segments.
+        @discardableResult
+        open func selectedIndexes(_ indexes: [Int]) -> Self {
+            selectedIndexes = indexes
+            return self
+        }
+        
+        /// Sets the selection mode of the segmented control.
+        @discardableResult
+        open func selectionMode(_ mode: SegmentedControl.SelectionMode) -> Self {
+            selectionMode = mode
+            return self
+        }
+        
+        /**
+         Creates a labeled segmented control toolbar item.
+         
+         - Parameters:
+            - identifier: The item identifier.
+            - selectionMode: The segmented control selection mode.
+            - segments: The segments of the toolbar item.
+         */
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, selectionMode: SegmentedControl.SelectionMode = .selectOne, segments: [Segment]) {
+            self.segments = segments
+            super.init(identifier)
+            sharedInit()
+            self.selectionMode = selectionMode
+            self.segments.forEach { $0.labeledSegmentedControl = self }
+            updateSegments()
+        }
+        
+        /**
+         Creates a labeled segmented control toolbar item.
+         
+         - Parameters:
+            - identifier: The item identifier.
+            - selectionMode: The segmented control selection mode.
+            - segments: The segments of the toolbar item.
+         */
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, selectionMode: SegmentedControl.SelectionMode = .selectOne, @Builder segments: () -> [Segment]) {
+            self.segments = segments()
+            super.init(identifier)
+            sharedInit()
+            self.selectionMode = selectionMode
+            self.segments.forEach { $0.labeledSegmentedControl = self }
+            updateSegments()
+        }
+        
+        private func sharedInit() {
+            segmentedControl.translatesAutoresizingMaskIntoConstraints = false
+            segmentedControl.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+            segmentedControl.segmentDistribution = .fillEqually
+            segmentedControl.actionBlock = { [weak self] _ in
+                guard let self else { return }
+                self.syncSelectionFromControl()
+                self.performAction()
+            }
+        }
+        
+        private func updateSegments() {
+            let subitems = segments.map { $0.makeToolbarItem() }
+            groupItem.subitems = subitems
+            segmentedControl.segments = segments.map { $0.segment() }
+            groupItem.view = segmentedControl
+        //    groupItem.label = label
+            segmentedControl.sizeToFit()
+        }
+        
+        private func syncSelectionFromControl() {
+            let indexes = segmentedControl.indexesOfSelectedSegments
+            for index in 0..<segments.count {
+                let isSelected = indexes.contains(index)
+                segments[index].isSelected = isSelected
+                groupItem.setSelected(isSelected, at: index)
+            }
+        }
+        
+        fileprivate func updateSegment(_ segment: Segment) {
+            guard let index = segment.index else { return }
+            segmentedControl.setImage(segment.image, forSegment: index)
+            if let subitem = groupItem.subitems[safe: index] {
+                segment.update(subitem)
+            }
+            segmentedControl.sizeToFit()
+        }
+        
+        /// A segment displayed by a labeled segmented control toolbar item.
+        open class Segment: NSObject {
+            fileprivate weak var labeledSegmentedControl: LabeledSegmentedControl?
+            
+            /// The title displayed below the segment image.
+            open var title: String {
+                didSet { labeledSegmentedControl?.updateSegment(self) }
+            }
+            
+            /// The image displayed by the segment.
+            open var image: NSImage {
+                didSet { labeledSegmentedControl?.updateSegment(self) }
+            }
+            
+            /// A Boolean value indicating whether the segment is selected.
+            open var isSelected: Bool = false {
+                didSet { labeledSegmentedControl?.updateSegment(self) }
+            }
+            
+            /// A Boolean value indicating whether the segment is enabled.
+            open var isEnabled: Bool = true {
+                didSet { labeledSegmentedControl?.updateSegment(self) }
+            }
+            
+            /**
+             The width of the segment.
+             
+             The default value is `0`, which indicates that the segment is sized automatically to fit the available space.
+             */
+            open var width: CGFloat = 0 {
+                didSet {
+                    width = width.clamped(min: 0)
+                    labeledSegmentedControl?.updateSegment(self)
+                }
+            }
+            
+            /// The tooltip of the segment.
+            open var toolTip: String? {
+                didSet { labeledSegmentedControl?.updateSegment(self) }
+            }
+            
+            /// The menu of the segment.
+            open var menu: NSMenu? {
+                didSet { labeledSegmentedControl?.updateSegment(self) }
+            }
+            
+            /// A Boolean value indicating whether the segment shows a menu indicator.
+            open var showsMenuIndicator: Bool = false {
+                didSet { labeledSegmentedControl?.updateSegment(self) }
+            }
+            
+            /// The tag of the segment.
+            open var tag: Int = 0 {
+                didSet { labeledSegmentedControl?.updateSegment(self) }
+            }
+            
+            /**
+             The object represented by the segment.
+             
+             The represented object functions as a more specific form of tag that allows you to associate any object, not just an arbitrary integer, with the segments in a segmented control.
+             */
+            open var representedObject: Any?
+            
+            /// The index of the segment, or `nil` if the segment isn't displayed in any labeled segmented control.
+            open var index: Int? {
+                labeledSegmentedControl?.segments.firstIndex { $0 === self }
+            }
+            
+            /**
+             Creates a labeled segment with the specified title and image.
+             
+             - Parameters:
+                - title: The title displayed below the segment image.
+                - image: The image displayed by the segment.
+             */
+            public init(_ title: String, image: NSImage) {
+                self.title = title
+                self.image = image
+            }
+            
+            /**
+             Creates a labeled segment with the specified title and image.
+             
+             - Parameters:
+                - title: The title displayed below the segment image.
+                - image: The image displayed by the segment.
+             */
+            public convenience init(title: String, image: NSImage) {
+                self.init(title, image: image)
+            }
+            
+            /**
+             Creates a labeled segment with the specified title and system symbol image.
+             
+             - Parameters:
+                - title: The title displayed below the segment image.
+                - symbolName: The name of the system symbol image.
+             */
+            public convenience init?(title: String, symbolName: String) {
+                guard let image = NSImage(systemSymbolName: symbolName) else { return nil }
+                self.init(title, image: image)
+            }
+            
+            /// Sets the title displayed below the segment image.
+            @discardableResult
+            open func title(_ title: String) -> Self {
+                self.title = title
+                return self
+            }
+            
+            /// Sets the image displayed by the segment.
+            @discardableResult
+            open func image(_ image: NSImage) -> Self {
+                self.image = image
+                return self
+            }
+            
+            /// Sets the symbol image displayed by the segment.
+            @discardableResult
+            open func symbolImage(_ symbolName: String) -> Self {
+                if let image = NSImage(systemSymbolName: symbolName) {
+                    self.image = image
+                }
+                return self
+            }
+            
+            /// Sets the Boolean value indicating whether the segment is selected.
+            @discardableResult
+            open func isSelected(_ isSelected: Bool = true) -> Self {
+                self.isSelected = isSelected
+                return self
+            }
+            
+            /// Sets the Boolean value indicating whether the segment is enabled.
+            @discardableResult
+            open func isEnabled(_ isEnabled: Bool) -> Self {
+                self.isEnabled = isEnabled
+                return self
+            }
+            
+            /**
+             Sets the width of the segment.
+             
+             A value of `0` indicates that the segment is sized automatically to fit the available space.
+             */
+            @discardableResult
+            open func width(_ width: CGFloat) -> Self {
+                self.width = width
+                return self
+            }
+            
+            /// Sets the tooltip of the segment.
+            @discardableResult
+            open func toolTip(_ toolTip: String?) -> Self {
+                self.toolTip = toolTip
+                return self
+            }
+            
+            /// Sets the menu of the segment.
+            @discardableResult
+            open func menu(_ menu: NSMenu?) -> Self {
+                self.menu = menu
+                return self
+            }
+            
+            /// Sets the Boolean value indicating whether the menu indicator is shown.
+            @discardableResult
+            open func showsMenuIndicator(_ shows: Bool) -> Self {
+                showsMenuIndicator = shows
+                return self
+            }
+            
+            /// Sets the tag of the segment.
+            @discardableResult
+            open func tag(_ tag: Int) -> Self {
+                self.tag = tag
+                return self
+            }
+            
+            /// Sets the object represented by the segment.
+            @discardableResult
+            open func representedObject(_ object: Any?) -> Self {
+                representedObject = object
+                return self
+            }
+            
+            fileprivate func segment() -> NSSegment {
+                NSSegment(image)
+            }
+            
+            fileprivate func makeToolbarItem() -> NSToolbarItem {
+                let item = NSToolbarItem(itemIdentifier: .init(UUID().uuidString))
+                update(item)
+                return item
+            }
+            
+            fileprivate func update(_ item: NSToolbarItem) {
+                item.label = title
+            }
+        }
+        
+        /// A function builder type that produces an array of labeled segments.
+        @resultBuilder
+        public enum Builder {
+            public static func buildBlock(_ components: [Segment]...) -> [Segment] {
+                components.flatMap { $0 }
+            }
+            
+            public static func buildExpression(_ expr: Segment) -> [Segment] {
+                [expr]
+            }
+            
+            public static func buildExpression(_ expr: Segment?) -> [Segment] {
+                expr.map { [$0] } ?? []
+            }
+            
+            public static func buildExpression(_ expr: [Segment]) -> [Segment] {
+                expr
+            }
+            
+            public static func buildOptional(_ component: [Segment]?) -> [Segment] {
+                component ?? []
+            }
+            
+            public static func buildEither(first component: [Segment]) -> [Segment] {
+                component
+            }
+            
+            public static func buildEither(second component: [Segment]) -> [Segment] {
+                component
+            }
+            
+            public static func buildArray(_ components: [[Segment]]) -> [Segment] {
+                components.flatMap { $0 }
+            }
+        }
+    }
+}
+
+fileprivate extension Toolbar.SegmentedControl.SelectionMode {
+    var toolbarItemGroupSelectionMode: NSToolbarItemGroup.SelectionMode {
+        switch self {
+        case .selectOne:
+            return .selectOne
+        case .selectAny:
+            return .selectAny
+        case .momentary:
+            return .momentary
+        }
     }
 }
 #endif

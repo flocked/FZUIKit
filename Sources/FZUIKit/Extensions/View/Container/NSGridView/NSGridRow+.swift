@@ -60,7 +60,7 @@ public extension NSGridRow {
     
     internal var autoMerge: Bool {
         get { getAssociatedValue("autoMerge") ?? false }
-        set { setAssociatedValue(newValue, key: "autoMerge") }
+        set { setAssociatedValue(newValue, for: "autoMerge") }
     }
     
     /// The top boundary layout anchor.

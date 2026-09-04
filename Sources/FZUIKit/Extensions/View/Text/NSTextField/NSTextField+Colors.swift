@@ -23,7 +23,7 @@ extension NSTextField {
         get { getAssociatedValue("selectionColor") }
         set {
             guard newValue != selectionColor else { return }
-            setAssociatedValue(newValue, key: "selectionColor")
+            setAssociatedValue(newValue, for: "selectionColor")
             updateSelectionObservation()
         }
     }
@@ -48,7 +48,7 @@ extension NSTextField {
         get { getAssociatedValue("selectionTextColor") }
         set {
             guard newValue != selectionTextColor else { return }
-            setAssociatedValue(newValue, key: "selectionTextColor")
+            setAssociatedValue(newValue, for: "selectionTextColor")
             updateSelectionObservation()
         }
     }
@@ -73,7 +73,7 @@ extension NSTextField {
         get { getAssociatedValue("placeholderTextColor") }
         set {
             guard newValue != placeholderTextColor else { return }
-            setAssociatedValue(newValue, key: "placeholderTextColor")
+            setAssociatedValue(newValue, for: "placeholderTextColor")
             if let color = newValue {
                 setPlaceholderColor(color)
                 guard placeholderObservations.isEmpty else { return }
@@ -140,22 +140,22 @@ extension NSTextField {
 
     private var selectionHook: Hook? {
         get { getAssociatedValue("selectionHook") }
-        set { setAssociatedValue(newValue, key: "selectionHook") }
+        set { setAssociatedValue(newValue, for: "selectionHook") }
     }
     
     private var _placeholderString: String? {
         get { getAssociatedValue("_placeholderString") }
-        set { setAssociatedValue(newValue, key: "_placeholderString") }
+        set { setAssociatedValue(newValue, for: "_placeholderString") }
     }
     
     private var placeholderHook: Hook? {
         get { getAssociatedValue("placeholderHook") }
-        set { setAssociatedValue(newValue, key: "placeholderHook") }
+        set { setAssociatedValue(newValue, for: "placeholderHook") }
     }
 
     private var placeholderObservations: [KeyValueObservation] {
         get { getAssociatedValue("placeholderObservations") ?? [] }
-        set { setAssociatedValue(newValue, key: "placeholderObservations") }
+        set { setAssociatedValue(newValue, for: "placeholderObservations") }
     }
 }
 #endif

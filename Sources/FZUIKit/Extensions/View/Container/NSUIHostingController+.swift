@@ -50,13 +50,13 @@ public extension NSUIHostingController {
 
 fileprivate extension NSUIHostingController {
     var _previousWidth: CGFloat {
-        get { getAssociatedValue("previousWidth", initialValue: 0.0) }
-        set { setAssociatedValue(newValue, key: "previousWidth") }
+        get { getAssociatedValue("previousWidth", initial: 0.0) }
+        set { setAssociatedValue(newValue, for: "previousWidth") }
     }
     
     var _heightAnchor: NSLayoutConstraint {
-        get { getAssociatedValue("heightAnchor", initialValue: view.heightAnchor.constraint(equalToConstant: 1000)) }
-        set { setAssociatedValue(newValue, key: "heightAnchor") }
+        get { getAssociatedValue("heightAnchor", initial: view.heightAnchor.constraint(equalToConstant: 1000)) }
+        set { setAssociatedValue(newValue, for: "heightAnchor") }
     }
     
     var autoAdjustsHeight: Bool {
@@ -147,7 +147,7 @@ public extension NSHostingView {
     }
             
     internal var hostingController: NSHostingController<Content> {
-        getAssociatedValue("hostingController", initialValue: NSHostingController(rootView: rootView))
+        getAssociatedValue("hostingController", initial: NSHostingController(rootView: rootView))
     }
 }
 #endif

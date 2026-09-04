@@ -143,13 +143,13 @@ public extension NSScreen {
     }
 
     private static var _screenSleepIsDisabled: Bool {
-        get { getAssociatedValue("screenSleepIsDisabled", initialValue: false) }
-        set { setAssociatedValue(newValue, key: "screenSleepIsDisabled") }
+        get { getAssociatedValue("screenSleepIsDisabled", initial: false) }
+        set { setAssociatedValue(newValue, for: "screenSleepIsDisabled") }
     }
 
     private static var noSleepAssertionID: IOPMAssertionID {
-        get { getAssociatedValue("noSleepAssertionID", initialValue: 0) }
-        set { setAssociatedValue(newValue, key: "noSleepAssertionID") }
+        get { getAssociatedValue("noSleepAssertionID", initial: 0) }
+        set { setAssociatedValue(newValue, for: "noSleepAssertionID") }
     }
 }
 

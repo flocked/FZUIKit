@@ -20,22 +20,22 @@ public protocol TargetActionProvider: NSObjectProtocol {
     typealias ActionBlock = (Self) -> Void
 }
 
-extension NSControl: TargetActionProvider { }
-extension NSCell: TargetActionProvider { }
-extension NSToolbarItem: TargetActionProvider { }
-extension NSMenuItem: TargetActionProvider { }
-extension NSGestureRecognizer: TargetActionProvider { }
-extension NSColorPanel: TargetActionProvider { }
-extension ToolbarItem: TargetActionProvider { }
+extension NSControl: TargetActionProvider {}
+extension NSCell: TargetActionProvider {}
+extension NSToolbarItem: TargetActionProvider {}
+extension NSMenuItem: TargetActionProvider {}
+extension NSGestureRecognizer: TargetActionProvider {}
+extension NSColorPanel: TargetActionProvider {}
+extension ToolbarItem: TargetActionProvider {}
 
-extension TargetActionProvider {
+public extension TargetActionProvider {
     /**
      Sends the `action` message to the `target` if it responds to the selector.
-     
+
      - Returns: `true` if the message was successfully sent; otherwise, `false`.
      */
     @discardableResult
-    public func performAction() -> Bool {
+    func performAction() -> Bool {
         guard let action = action else { return false }
         if let control = self as? NSControl {
             return control.sendAction(action, to: target)
@@ -43,9 +43,9 @@ extension TargetActionProvider {
             return NSApp.sendAction(action, to: target, from: self)
         }
     }
-    
+
     /// A Boolean value indicating whether the action can currently be performed by a reachable target.
-    public func canPerformAction() -> Bool {
+    func canPerformAction() -> Bool {
         guard let action = action else { return false }
         guard let resolvedTarget = NSApp.target(forAction: action, to: target, from: self) else {
             return false
@@ -63,9 +63,9 @@ extension TargetActionProvider {
     }
 }
 
-extension NSToolbarItem {
+public extension NSToolbarItem {
     /// Returns a Boolean value indicating whether the toolbar item’s action can currently be performed by a reachable target.
-    public func canPerformAction() -> Bool {
+    func canPerformAction() -> Bool {
         guard let action = action else { return false }
         guard let resolvedTarget = NSApp.target(forAction: action, to: target, from: self) else {
             return false
@@ -80,9 +80,9 @@ extension NSToolbarItem {
     }
 }
 
-extension NSMenuItem {
+public extension NSMenuItem {
     /// Returns a Boolean value indicating whether the menu item’s action can currently be performed by a reachable target.
-    public func canPerformAction() -> Bool {
+    func canPerformAction() -> Bool {
         guard let action = action else { return false }
         guard let resolvedTarget = NSApp.target(forAction: action, to: target, from: self) else {
             return false
@@ -99,46 +99,54 @@ extension NSMenuItem {
 
 class ActionTrampoline<T: TargetActionProvider>: NSObject {
     var action: (T) -> Void
-    
-    init(action: @escaping (T) -> Void) {
+
+    public init(action: @escaping (T) -> Void) {
         self.action = action
     }
-    
+
     @objc func performAction(sender: NSObject) {
         guard let sender = sender as? T else { return }
         action(sender)
     }
 }
 
+fileprivate let actionTrampolineSelector = #selector(ActionTrampoline<NSMenuItem>.performAction(sender:))
+
+class MenuActionTrampoline<Item: NSMenuItem>: ActionTrampoline<Item>, NSMenuItemValidation {
+    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        menuItem.updateHandler?(menuItem)
+        return true
+    }
+}
+
 extension ActionTrampoline {
     final class Redirect<Object: AnyObject>: ActionTrampoline {
-          let handler: (Object) -> Void
-          weak var object: Object?
+        let handler: (Object) -> Void
+        weak var object: Object?
 
-          init(to object: Object, handler: @escaping (Object) -> Void) {
-              self.object = object
-              self.handler = handler
-              super.init { _ in }
-              self.action = { [weak self] _ in
-                  guard let self, let object = self.object else { return }
-                  self.handler(object)
-              }
-          }
-      }
+        init(to object: Object, handler: @escaping (Object) -> Void) {
+            self.object = object
+            self.handler = handler
+            super.init { _ in }
+            self.action = { [weak self] _ in
+                guard let self, let object = self.object else { return }
+                self.handler(object)
+            }
+        }
+    }
 }
 
 extension TargetActionProvider {
-    func setRedirectedAction<Object: AnyObject>(to object: Object, handler: ((Object) -> Void)?) {
+    func setRedirectedAction<Object: AnyObject>(_ handler: ((Object) -> Void)?, of object: Object) {
         if let handler {
-            let trampoline = ActionTrampoline<Self>.Redirect(to: object, handler: handler)
-            actionTrampoline = trampoline
-            target = trampoline
-            action = #selector(ActionTrampoline<Self>.performAction(sender:))
+            actionTrampoline = ActionTrampoline<Self>.Redirect(to: object, handler: handler)
+            target = actionTrampoline
+            action = actionTrampolineSelector
         } else if let trampoline = actionTrampoline as? ActionTrampoline<Self>.Redirect<Object>, trampoline.object === object {
             if target === trampoline {
                 target = nil
             }
-            if action == #selector(ActionTrampoline<Self>.performAction(sender:)) {
+            if action == actionTrampolineSelector {
                 action = nil
             }
             actionTrampoline = nil
@@ -147,22 +155,179 @@ extension TargetActionProvider {
 
     func redirectedActionHandler<Object: AnyObject>(for object: Object) -> ((Object) -> Void)? {
         guard let trampoline = actionTrampoline as? ActionTrampoline<Self>.Redirect<Object>,
-              trampoline.object === object else {
+              trampoline.object === object
+        else {
             return nil
         }
         return trampoline.handler
     }
 }
 
-extension TargetActionProvider {
-    var actionBlockID: ObjectIdentifier? {
-        actionTrampoline?.objectID
+extension TargetActionProvider where Self: NSMenuItem {
+    func redirectUpdate() {
+        guard updateHandler != nil, let actionBlock, !(actionTrampoline is MenuActionTrampoline) else { return }
+        let trampoline = MenuActionTrampoline<Self>(action: actionBlock)
     }
 }
 
 public extension TargetActionProvider {
     /// The action handler of the object.
     var actionBlock: ActionBlock? {
+        get {
+            guard let trampoline = actionTrampoline else { return nil }
+            guard target === trampoline, action == actionTrampolineSelector else {
+                actionTrampoline = nil
+                return nil
+            }
+            return trampoline.action
+        }
+        set {
+            if let newValue {
+                actionTrampoline = ActionTrampoline(action: newValue)
+                target = actionTrampoline
+                action = actionTrampolineSelector
+            } else {
+                if target === actionTrampoline {
+                    target = nil
+                }
+                if action == actionTrampolineSelector {
+                    action = nil
+                }
+                actionTrampoline = nil
+            }
+        }
+    }
+
+    /// Sets the action handler of the object.
+    @discardableResult
+    func action(_ action: ActionBlock?) -> Self {
+        actionBlock = action
+        return self
+    }
+
+    /// Sets the action-message selector.
+    @discardableResult
+    func action(_ action: Selector?) -> Self {
+        self.action = action
+        return self
+    }
+
+    /// Sets the target object that receives action messages from the object.
+    @discardableResult
+    func target(_ target: AnyObject?) -> Self {
+        self.target = target
+        return self
+    }
+    
+    internal func removeTrampoline(_ trampoline: ActionTrampoline<Self>?) {
+        if target === trampoline {
+            target = nil
+        }
+        if action == actionTrampolineSelector {
+            action = nil
+        }
+    }
+
+    internal var actionTrampoline: ActionTrampoline<Self>? {
+        get {
+            guard let trampoline: ActionTrampoline<Self> = FZSwiftUtils.getAssociatedValue("actionTrampoline", of: self) else { return nil }
+            guard target === trampoline, action == actionTrampolineSelector else {
+                removeTrampoline(trampoline)
+                FZSwiftUtils.setAssociatedValue(Optional<ActionTrampoline<Self>>.none, for: "actionTrampoline", of: self)
+                return nil
+            }
+            return FZSwiftUtils.getAssociatedValue("actionTrampoline", of: self)
+        }
+        set {
+            if let newValue {
+                target = newValue
+                action = actionTrampolineSelector
+            } else {
+                removeTrampoline(actionTrampoline)
+            }
+            FZSwiftUtils.setAssociatedValue(newValue, for: "actionTrampoline", of: self)
+        }
+    }
+}
+
+/*
+ internal var actionTrampoline: ActionTrampoline<Self>? {
+     get {
+         FZSwiftUtils.getAssociatedValue("actionTrampoline", of: self)
+     }
+     set {
+         let oldValue = actionTrampoline
+
+         if let oldValue,
+            target === oldValue,
+            action == actionTrampolineSelector {
+             target = nil
+             action = nil
+         }
+
+         FZSwiftUtils.setAssociatedValue(
+             newValue,
+             key: "actionTrampoline",
+             object: self
+         )
+
+         if let newValue {
+             target = newValue
+             action = actionTrampolineSelector
+         }
+     }
+ }
+ */
+
+public extension TargetActionProvider where Self: NSGestureRecognizer {
+    /// Initializes the gesture recognizer with the specified action handler.
+    init(action: @escaping ActionBlock) {
+        self.init()
+        actionBlock = action
+    }
+}
+
+public extension TargetActionProvider where Self: NSCell {
+    /// Initializes the cell with the specified action handler.
+    init(action: @escaping ActionBlock) {
+        self.init()
+        actionBlock = action
+    }
+}
+
+protocol ActionRedirecting {
+    func setRedirectedAction<Object: AnyObject>(_ handler: ((Object) -> Void)?, of object: Object)
+    func redirectedActionHandler<Object: AnyObject>(for object: Object) -> ((Object) -> Void)?
+}
+
+extension NSControl: ActionRedirecting {}
+
+extension TargetActionProvider where Self: ToolbarItem {
+    /// Sets the action handler of the object.
+    @discardableResult
+    func action(_ action: ActionBlock?) -> Self {
+        actionBlock = action
+        return self
+    }
+    
+    /// The action handler of the object.
+    public var actionBlock: ActionBlock? {
+        get {
+            if let view = item.resolvedView as? ActionRedirecting {
+                return view.redirectedActionHandler(for: self)
+            }
+            return defaultActionBlock
+        }
+        set {
+            if let view = item.resolvedView as? any ActionRedirecting {
+                view.setRedirectedAction(newValue, of: self)
+            } else {
+                defaultActionBlock = newValue
+            }
+        }
+    }
+
+    var defaultActionBlock: ActionBlock? {
         set {
             if let newValue {
                 let trampoline = ActionTrampoline(action: newValue)
@@ -188,70 +353,32 @@ public extension TargetActionProvider {
             return trampoline.action
         }
     }
-    
-    /// Sets the action handler of the object.
-    @discardableResult
-    func action(_ action: ActionBlock?) -> Self {
-        actionBlock = action
-        return self
-    }
-    
-    /// Sets the action-message selector.
-    @discardableResult
-    func action(_ action: Selector?) -> Self {
-        self.action = action
-        return self
-    }
-    
-    /// Sets the target object that receives action messages from the object.
-    @discardableResult
-    func target(_ target: AnyObject?) -> Self {
-        self.target = target
-        return self
-    }
-    
-    private var actionTrampoline: ActionTrampoline<Self>? {
-        get { FZSwiftUtils.getAssociatedValue("actionTrampoline", object: self) }
-        set { FZSwiftUtils.setAssociatedValue(newValue, key: "actionTrampoline", object: self) }
+}
+fileprivate extension NSToolbarItem {
+    var resolvedView: NSView? {
+        view ?? (self as? NSSearchToolbarItem)?.searchField
     }
 }
-
-public extension TargetActionProvider where Self: NSGestureRecognizer {
-    /// Initializes the gesture recognizer with the specified action handler.
-    init(action: @escaping ActionBlock) {
-        self.init()
-        actionBlock = action
-    }
-}
-
-public extension TargetActionProvider where Self: NSCell {
-    /// Initializes the cell with the specified action handler.
-    init(action: @escaping ActionBlock) {
-        self.init()
-        actionBlock = action
-    }
-}
-
 #elseif os(iOS) || os(tvOS) || os(visionOS)
-import UIKit
 import FZSwiftUtils
+import UIKit
 
 public extension NSObjectProtocol where Self: UIGestureRecognizer {
-    typealias ActionBlock = ((Self) -> Void)
-    
+    typealias ActionBlock = (Self) -> Void
+
     /// Initializes the gesture recognizer with the specified action handler.
     init(action: @escaping ActionBlock) {
         self.init()
         actionBlock = action
     }
-    
+
     /// Sets the action handler of the gesture recognizer.
     @discardableResult
     func action(_ action: ActionBlock?) -> Self {
         actionBlock = action
         return self
     }
-        
+
     /// The action handler of the gesture recognizer.
     var actionBlock: ActionBlock? {
         get { getAssociatedValue("actionBlock") }
@@ -261,7 +388,7 @@ public extension NSObjectProtocol where Self: UIGestureRecognizer {
             } else if newValue == nil, actionBlock != nil {
                 removeTarget(self, action: #selector(performActionBlock(sender:)))
             }
-            setAssociatedValue(newValue, key: "actionBlock")
+            setAssociatedValue(newValue, for: "actionBlock")
         }
     }
 }
@@ -277,7 +404,7 @@ public extension NSObjectProtocol where Self: UIControl {
     func action(for event: UIControl.Event) -> ((Self) -> Void)? {
         actionBlocks[event.rawValue]
     }
-    
+
     /// Sets the action handler for the specific event.
     @discardableResult
     func setAction(for event: UIControl.Event, to action: ((_ control: Self) -> Void)?) -> Self {
@@ -289,10 +416,10 @@ public extension NSObjectProtocol where Self: UIControl {
         actionBlocks[event.rawValue] = action
         return self
     }
-    
-    fileprivate var actionBlocks: [UInt: ((Self) -> Void)] {
+
+    fileprivate var actionBlocks: [UInt: (Self) -> Void] {
         get { getAssociatedValue("actionBlocks") ?? [:] }
-        set { setAssociatedValue(newValue, key: "actionBlocks") }
+        set { setAssociatedValue(newValue, for: "actionBlocks") }
     }
 }
 

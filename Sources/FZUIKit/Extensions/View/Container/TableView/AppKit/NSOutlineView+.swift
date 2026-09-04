@@ -274,7 +274,7 @@ extension NSOutlineView {
     
     fileprivate var centerIndicatorHook: Hook? {
         get { getAssociatedValue("centerIndicatorHook") }
-        set { setAssociatedValue(newValue, key: "centerIndicatorHook") }
+        set { setAssociatedValue(newValue, for: "centerIndicatorHook") }
     }
 
     /// Recursively walks the outline view collecting items based on expansion state.

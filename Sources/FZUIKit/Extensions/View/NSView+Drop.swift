@@ -13,9 +13,9 @@ import UniformTypeIdentifiers
 extension NSView {
     /// The handlers for dropping content into the view.
     public var dropHandlers: DropHandlers {
-        get { getAssociatedValue("dropHandlers", initialValue: DropHandlers()) }
+        get { getAssociatedValue("dropHandlers", initial: DropHandlers()) }
         set {
-            setAssociatedValue(newValue, key: "dropHandlers")
+            setAssociatedValue(newValue, for: "dropHandlers")
             if !newValue.isActive {
                 dropView?.removeFromSuperview()
                 dropView = nil
@@ -168,7 +168,7 @@ extension NSView {
     
     fileprivate var dropView: DropView? {
         get { getAssociatedValue("dropHandlerView") }
-        set { setAssociatedValue(newValue, key: "dropHandlerView") }
+        set { setAssociatedValue(newValue, for: "dropHandlerView") }
     }
 }
 

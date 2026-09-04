@@ -468,7 +468,7 @@ extension NSTableView {
     public var doubleClickHandler: ((_ row: Int?, _ column: Int?) -> ())? {
         get { getAssociatedValue("doubleClickHandler") }
         set {
-            setAssociatedValue(newValue, key: "doubleClickHandler")
+            setAssociatedValue(newValue, for: "doubleClickHandler")
             doubleClickGesture?.removeFromView()
             doubleClickGesture = nil
             guard let handler = newValue else { return }
@@ -485,7 +485,7 @@ extension NSTableView {
     
     fileprivate var doubleClickGesture: DoubleClickGestureRecognizer? {
         get { getAssociatedValue("doubleClickGesture") }
-        set { setAssociatedValue(newValue, key: "doubleClickGesture") }
+        set { setAssociatedValue(newValue, for: "doubleClickGesture") }
     }
     
     /// A Boolean value indicating whether clicking a row toggles its selection instead of replacing the current selection.
@@ -510,7 +510,7 @@ extension NSTableView {
     
     fileprivate var toggleGestureRecognizer: ToggleGestureRecognizer? {
         get { getAssociatedValue("toggleGestureRecognizer") }
-        set { setAssociatedValue(newValue, key: "toggleGestureRecognizer") }
+        set { setAssociatedValue(newValue, for: "toggleGestureRecognizer") }
     }
     
     fileprivate final class ToggleGestureRecognizer: NSGestureRecognizer {
@@ -626,7 +626,7 @@ extension NSTableView {
 
  fileprivate var toggleGestureRecognizer: ToggleGestureRecognizer? {
      get { getAssociatedValue("toggleGestureRecognizer") }
-     set { setAssociatedValue(newValue, key: "toggleGestureRecognizer") }
+     set { setAssociatedValue(newValue, for: "toggleGestureRecognizer") }
  }
 
  fileprivate final class ToggleGestureRecognizer: NSGestureRecognizer {

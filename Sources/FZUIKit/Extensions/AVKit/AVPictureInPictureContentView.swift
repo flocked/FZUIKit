@@ -89,7 +89,7 @@ public extension AVPictureInPictureContentView {
     var pictureInPictureHandlers: AVPictureInPictureContentViewHandlers {
         get { getAssociatedValue("pictureInPictureHandlers") ?? .init() }
         set {
-            setAssociatedValue(newValue, key: "pictureInPictureHandlers")
+            setAssociatedValue(newValue, for: "pictureInPictureHandlers")
             setupIsDisplayingObservation()
         }
     }
@@ -100,7 +100,7 @@ public extension AVPictureInPictureContentView {
     }
 
     var pictureInPicturePlaceholderView: NSUIView? {
-        let placeholderView: PiPPlaceholderView = getAssociatedValue("pictureInPicturePlaceholderView", initialValue: {
+        let placeholderView: PiPPlaceholderView = getAssociatedValue("pictureInPicturePlaceholderView", initial: {
             PiPPlaceholderView(contentView: self)
         })
         placeholderView.contentView = self
@@ -152,7 +152,7 @@ public extension AVPictureInPictureContentView {
 
     private var isDisplayingObservation: KeyValueObservation? {
         get { getAssociatedValue("isDisplayingObservation") }
-        set { setAssociatedValue(newValue, key: "isDisplayingObservation") }
+        set { setAssociatedValue(newValue, for: "isDisplayingObservation") }
     }
 
     ///  The picture in picture controller for this content view.
@@ -161,7 +161,7 @@ public extension AVPictureInPictureContentView {
     }
     
     private var _pictureInPictureController: ContentViewPictureInPictureController {
-        let controller: ContentViewPictureInPictureController = getAssociatedValue("pictureInPictureController", initialValue: {
+        let controller: ContentViewPictureInPictureController = getAssociatedValue("pictureInPictureController", initial: {
             let controller = ContentViewPictureInPictureController(
                 contentView: self,
                 preferredContentSize: preferredPictureInPictureContentSize

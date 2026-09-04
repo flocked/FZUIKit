@@ -147,7 +147,7 @@ extension NSImageView {
         
         let overlayView = NSView().clipsToBounds(true).frame(imageBounds)
         addSubview(overlayView)
-        setAssociatedValue(overlayView, key: "overlayContentView")
+        setAssociatedValue(overlayView, for: "overlayContentView")
 
         overlayImageViewObservation.add(\.frame) { [weak self] _, _ in
             guard let self = self else { return }
@@ -173,7 +173,7 @@ extension NSImageView {
     }
     
     var overlayImageViewObservation: KeyValueObserver<NSImageView> {
-        get { getAssociatedValue("overlayImageViewObservation", initialValue: KeyValueObserver(self)) }
+        get { getAssociatedValue("overlayImageViewObservation", initial: KeyValueObserver(self)) }
     }
 
     /// The transition animation when changing the image.
@@ -181,7 +181,7 @@ extension NSImageView {
         get { getAssociatedValue("TransitionAnimation") ?? .none }
         set {
             guard newValue != transitionAnimation else { return }
-            setAssociatedValue(newValue, key: "TransitionAnimation")
+            setAssociatedValue(newValue, for: "TransitionAnimation")
             if newValue.type == nil  {
                 transitionImageObservation = []
             } else if transitionImageObservation.isEmpty {
@@ -214,7 +214,7 @@ extension NSImageView {
         get { getAssociatedValue("transitionDuration") ?? 0.2 }
         set {
             guard newValue != transitionDuration else { return }
-            setAssociatedValue(newValue, key: "transitionDuration")
+            setAssociatedValue(newValue, for: "transitionDuration")
             updateTransition()
         }
     }
@@ -279,7 +279,7 @@ extension NSImageView {
     
     var transitionImageObservation: [KeyValueObservation] {
         get { getAssociatedValue("transitionImageObservation") ?? [] }
-        set { setAssociatedValue(newValue, key: "transitionImageObservation") }
+        set { setAssociatedValue(newValue, for: "transitionImageObservation") }
     }
     
     func updateTransition() {

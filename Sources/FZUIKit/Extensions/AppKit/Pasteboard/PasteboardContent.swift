@@ -13,7 +13,7 @@ import UniformTypeIdentifiers
 extension NSDraggingInfo {
     /// The content of the drag provided by the dragging pasteboard.
     public var content: NSPasteboardContent {
-        FZSwiftUtils.getAssociatedValue("pasteboardContent", object: self, initialValue: .init(pasteboard: draggingPasteboard))
+        FZSwiftUtils.getAssociatedValue("pasteboardContent", of: self, initial: .init(pasteboard: draggingPasteboard))
     }
 }
 

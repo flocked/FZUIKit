@@ -13,13 +13,13 @@ extension NSTokenField {
     public var handlers: Handlers {
         get { getAssociatedValue("handlers") ?? Handlers() }
         set {
-            setAssociatedValue(newValue, key: "handlers")
+            setAssociatedValue(newValue, for: "handlers")
         }
     }
     
     private var tokenFieldDeleaate: TokenFieldDelegate? {
         get { getAssociatedValue("tokenFieldDeleaate") }
-        set {  setAssociatedValue(newValue, key: "tokenFieldDeleaate") }
+        set {  setAssociatedValue(newValue, for: "tokenFieldDeleaate") }
     }
     
     private class TokenFieldDelegate: NSObject, NSTokenFieldDelegate {

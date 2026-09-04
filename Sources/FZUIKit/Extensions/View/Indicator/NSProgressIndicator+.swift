@@ -158,7 +158,7 @@ extension NSProgressIndicator {
     
     fileprivate var _color: NSColor? {
         get { getAssociatedValue("_color") }
-        set { setAssociatedValue(newValue, key: "_color") }
+        set { setAssociatedValue(newValue, for: "_color") }
     }
     
     /// The range of the progress indicator `[minValue...maxValue]`.

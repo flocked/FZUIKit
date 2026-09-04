@@ -220,8 +220,8 @@ public extension NSBitmapImageRep {
     }
     
     private var _currentFrameDuration: TimeInterval {
-        get { getAssociatedValue("currentFrameDuration", initialValue: 0.0) }
-        set { setAssociatedValue(newValue, key: "currentFrameDuration") }
+        get { getAssociatedValue("currentFrameDuration", initial: 0.0) }
+        set { setAssociatedValue(newValue, for: "currentFrameDuration") }
     }
     
     /// Returns the image source for the bitmap image representation.

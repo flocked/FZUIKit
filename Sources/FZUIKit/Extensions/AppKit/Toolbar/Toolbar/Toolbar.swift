@@ -450,6 +450,8 @@ open class Toolbar: NSObject {
         }
         
         func toolbar(_: NSToolbar, itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier, willBeInsertedIntoToolbar _: Bool) -> NSToolbarItem? {
+            Swift.print("willBeInsertedIntoToolbar", itemIdentifier, items.first(where: { $0.item.itemIdentifier == itemIdentifier && !provided.contains($0.item.objectID) })?.item ?? "nil", items.filter({$0.item.itemIdentifier == itemIdentifier}).count)
+            
             guard let item = items.first(where: { $0.item.itemIdentifier == itemIdentifier && !provided.contains($0.item.objectID) })?.item else { return nil }
             provided.insert(item.objectID)
             Swift.print("itemFor", itemIdentifier.rawValue, items.firstIndex(where: { $0.item === item }) ?? "nil")
@@ -486,7 +488,7 @@ open class Toolbar: NSObject {
         }
     }
     
-    private class MangedToolbar: NSToolbar, NSToolbarDelegate {
+    private class MangedToolbar: NSToolbar {
         weak var toolbar: Toolbar?
         
         init(for toolbar: Toolbar) {
@@ -549,7 +551,7 @@ open class Toolbar: NSObject {
         }
         
         public static func buildExpression(_ expr: ToolbarItem?) -> [ToolbarItem] {
-            expr.map { [$0] } ?? []
+            return expr.map { [$0] } ?? []
         }
     }
 }

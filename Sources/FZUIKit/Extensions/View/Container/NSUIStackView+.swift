@@ -139,7 +139,7 @@ extension NSStackView {
     public var handlers: Handlers {
         get { getAssociatedValue("handlers") ?? Handlers() }
         set {
-            setAssociatedValue(newValue, key: "handlers")
+            setAssociatedValue(newValue, for: "handlers")
             if newValue.willDetach == nil && newValue.didReattach == nil {
                 handlersDelegate?.delegateObservation = nil
                 delegate = handlersDelegate?.delegate
@@ -161,7 +161,7 @@ extension NSStackView {
 
     private var handlersDelegate: Delegate? {
         get { getAssociatedValue("handlersDelegate") }
-        set { setAssociatedValue(newValue, key: "handlersDelegate") }
+        set { setAssociatedValue(newValue, for: "handlersDelegate") }
     }
 
     private class Delegate: NSObject, NSStackViewDelegate {

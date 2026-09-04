@@ -206,8 +206,8 @@ open class ContentConfigurationView: NSView {
         } else if trackingArea == nil {
             _isDescendantFirstResponder = isDescendantFirstResponder
             _isHovered = NSApp.isActive && bounds.contains(mouseLocationOutsideOfEventStream)
-            trackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeInActiveApp])
-            trackingArea?.update()
+            trackingArea = TrackingArea(view: self, events: .mouseEnteredAndExited, activation: .always)
+            updateTrackingAreas()
             windowHandlers.isKey = { [weak self] isKey in
                 guard let self = self else { return }
                 setNeedsAutomaticUpdateConfiguration()

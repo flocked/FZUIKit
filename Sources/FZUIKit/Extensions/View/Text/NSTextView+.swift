@@ -61,9 +61,9 @@ extension NSTextView {
         
     /// The handlers for editing the text.
     public var editingHandlers: EditingHandler {
-        get { getAssociatedValue("editingHandlers", initialValue: EditingHandler()) }
+        get { getAssociatedValue("editingHandlers", initial: EditingHandler()) }
         set {
-            setAssociatedValue(newValue, key: "editingHandlers")
+            setAssociatedValue(newValue, for: "editingHandlers")
             setupTextViewDelegate()
         }
     }
@@ -114,7 +114,7 @@ extension NSTextView {
         get { getAssociatedValue("minimumNumberOfCharacters") }
         set {
             guard newValue != minimumNumberOfCharacters else { return }
-            setAssociatedValue(newValue, key: "minimumNumberOfCharacters")
+            setAssociatedValue(newValue, for: "minimumNumberOfCharacters")
             setupTextViewDelegate()
         }
     }
@@ -131,7 +131,7 @@ extension NSTextView {
         get { getAssociatedValue("minimumNumberOfCharacters") }
         set { 
             guard newValue != maximumNumberOfCharacters else { return }
-            setAssociatedValue(newValue, key: "minimumNumberOfCharacters")
+            setAssociatedValue(newValue, for: "minimumNumberOfCharacters")
             setupTextViewDelegate()
         }
     }
@@ -219,10 +219,10 @@ extension NSTextView {
 
     /// The allowed characters the user can enter when editing.
     public var allowedCharacters: AllowedCharacters {
-        get { getAssociatedValue("allowedCharacters", initialValue: .all) }
+        get { getAssociatedValue("allowedCharacters", initial: .all) }
         set {
             guard newValue != allowedCharacters else { return }
-            setAssociatedValue(newValue, key: "allowedCharacters")
+            setAssociatedValue(newValue, for: "allowedCharacters")
             setupTextViewDelegate()
         }
     }
@@ -488,10 +488,10 @@ extension NSTextView {
         
     /// The action to perform when the user presses the enter key.
     public var actionOnEnterKeyDown: EnterKeyAction {
-        get { getAssociatedValue("actionOnEnterKeyDown", initialValue: .none) }
+        get { getAssociatedValue("actionOnEnterKeyDown", initial: .none) }
         set {
             guard actionOnEnterKeyDown != newValue else { return }
-            setAssociatedValue(newValue, key: "actionOnEnterKeyDown")
+            setAssociatedValue(newValue, for: "actionOnEnterKeyDown")
             setupTextViewDelegate()
         }
     }
@@ -505,10 +505,10 @@ extension NSTextView {
 
     /// The action to perform when the user presses the escape key.
     public var actionOnEscapeKeyDown: EscapeKeyAction {
-        get { getAssociatedValue("actionOnEscapeKeyDown", initialValue: .none) }
+        get { getAssociatedValue("actionOnEscapeKeyDown", initial: .none) }
         set {
             guard actionOnEscapeKeyDown != newValue else { return }
-            setAssociatedValue(newValue, key: "actionOnEscapeKeyDown")
+            setAssociatedValue(newValue, for: "actionOnEscapeKeyDown")
             setupTextViewDelegate()
         }
     }
@@ -542,7 +542,7 @@ extension NSTextView {
             
     fileprivate var textViewDelegate: TextViewDelegate? {
         get { getAssociatedValue("textViewDelegate") }
-        set { setAssociatedValue(newValue, key: "textViewDelegate") }
+        set { setAssociatedValue(newValue, for: "textViewDelegate") }
     }
         
     fileprivate func setupTextViewDelegate() {
@@ -699,7 +699,7 @@ extension NSTextView {
         get { getAssociatedValue("selectionLineHighlightColor") }
         set {
             guard newValue != selectionLineHighlightColor else { return }
-            setAssociatedValue(newValue, key: "selectionLineHighlightColor")
+            setAssociatedValue(newValue, for: "selectionLineHighlightColor")
             if newValue != nil, currentLineHooks.isEmpty, let layoutManager = layoutManager {
                 do {
                     currentLineHooks += try hookAfter(#selector(NSTextView.didChangeText)) { object in
@@ -752,7 +752,7 @@ extension NSTextView {
     
     fileprivate var currentLineHooks: [Hook] {
         get { getAssociatedValue("currentLineHooks") ?? [] }
-        set { setAssociatedValue(newValue, key: "currentLineHooks") }
+        set { setAssociatedValue(newValue, for: "currentLineHooks") }
     }
     
     fileprivate var currentLineRange: NSRange? {
@@ -761,7 +761,7 @@ extension NSTextView {
             if let oldValue = currentLineRange {
                 layoutManager?.invalidateDisplay(forCharacterRange: oldValue)
             }
-            setAssociatedValue(newValue, key: "currentLineRange")
+            setAssociatedValue(newValue, for: "currentLineRange")
             guard let newValue = newValue else { return }
             layoutManager?.invalidateDisplay(forCharacterRange: newValue)
         }

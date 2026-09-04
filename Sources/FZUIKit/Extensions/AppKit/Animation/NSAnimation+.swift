@@ -14,7 +14,7 @@ extension NSAnimation {
     public var handlers: Handlers {
         get { getAssociatedValue("handlers") ?? Handlers() }
         set {
-            setAssociatedValue(newValue, key: "handlers")
+            setAssociatedValue(newValue, for: "handlers")
             if newValue.needsDelegate {
                 if handlers.valueForProgress == nil {
                     animationDelegate = AnimationDelegate(for: self)
@@ -29,7 +29,7 @@ extension NSAnimation {
     
     fileprivate var animationDelegate: AnimationDelegate? {
         get { getAssociatedValue("animationDelegate") }
-        set { setAssociatedValue(newValue, key: "animationDelegate") }
+        set { setAssociatedValue(newValue, for: "animationDelegate") }
     }
     
     /// The handlers for an animation.

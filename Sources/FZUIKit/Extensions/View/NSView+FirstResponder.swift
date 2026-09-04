@@ -68,7 +68,7 @@ extension NSView {
         get { getAssociatedValue("firstResponderResignClickCount") ?? 0 }
         set {
             guard newValue != firstResponderResignClickCount else { return }
-            setAssociatedValue(newValue, key: "firstResponderResignClickCount")
+            setAssociatedValue(newValue, for: "firstResponderResignClickCount")
             if newValue > 0 {
                 resignFirstResponderObservation = observeChanges(for: \.window?.firstResponder) { [weak self] old, new in
                     guard let self = self, old != new else { return }
@@ -100,12 +100,12 @@ extension NSView {
     
     var resignFirstResponderObservation: KeyValueObservation? {
         get { getAssociatedValue("resignFirstResponderObservation") }
-        set { setAssociatedValue(newValue, key: "resignFirstResponderObservation") }
+        set { setAssociatedValue(newValue, for: "resignFirstResponderObservation") }
     }
     
     var resignMouseDownMonitor: NSEvent.Monitor? {
         get { getAssociatedValue("resignMouseDownMonitor") }
-        set { setAssociatedValue(newValue, key: "resignMouseDownMonitor") }
+        set { setAssociatedValue(newValue, for: "resignMouseDownMonitor") }
     }
 }
 

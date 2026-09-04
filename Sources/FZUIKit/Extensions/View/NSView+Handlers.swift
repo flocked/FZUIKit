@@ -40,7 +40,7 @@ extension NSView {
         set {
             menuProviderMenuObservation = nil
             menu?.viewMenuProvider = nil
-            setAssociatedValue(newValue, key: "menuProvider")
+            setAssociatedValue(newValue, for: "menuProvider")
             guard let menuProvider = newValue  else { return }
             let menu = menu ?? NSMenu()
             menu.viewMenuProvider = { [weak self] in
@@ -51,7 +51,7 @@ extension NSView {
             menuProviderMenuObservation = observeChanges(for: \.menu) { [weak self] old, new in
                 guard let self else { return }
                 old?.viewMenuProvider = nil
-                self.setAssociatedValue(nil as ((CGPoint) -> NSMenu?)?, key: "menuProvider")
+                self.setAssociatedValue(nil as ((CGPoint) -> NSMenu?)?, for: "menuProvider")
                 self.menuProviderMenuObservation = nil
             }
         }
@@ -59,14 +59,14 @@ extension NSView {
     
     fileprivate var menuProviderMenuObservation: KeyValueObservation? {
         get { getAssociatedValue("menuProviderMenuObservation") }
-        set { setAssociatedValue(newValue, key: "menuProviderMenuObservation") }
+        set { setAssociatedValue(newValue, for: "menuProviderMenuObservation") }
     }
     
     /// The handlers for the window state.
     public var windowHandlers: WindowHandlers {
-        get { getAssociatedValue("windowHandlers", initialValue: WindowHandlers()) }
+        get { getAssociatedValue("windowHandlers", initial: WindowHandlers()) }
         set {
-            setAssociatedValue(newValue, key: "windowHandlers")
+            setAssociatedValue(newValue, for: "windowHandlers")
             setupObservation()
             setupWindowObservation()
             setupWillMoveToWindow()
@@ -75,9 +75,9 @@ extension NSView {
     
     /// The handlers for mouse events.
     public var mouseHandlers: MouseHandlers {
-        get { getAssociatedValue("mouseHandlers", initialValue: MouseHandlers()) }
+        get { getAssociatedValue("mouseHandlers", initial: MouseHandlers()) }
         set {
-            setAssociatedValue(newValue, key: "mouseHandlers")
+            setAssociatedValue(newValue, for: "mouseHandlers")
             guard !(self is ObserverView) else { return }
             setupObserverView()
             
@@ -133,14 +133,14 @@ extension NSView {
     
     fileprivate var mouseHooks: [String: Hook] {
         get { getAssociatedValue("mouseHooks") ?? [:] }
-        set { setAssociatedValue(newValue, key: "mouseHooks") }
+        set { setAssociatedValue(newValue, for: "mouseHooks") }
     }
     
     /// The handlers for mouse events.
     public var keyHandlers: KeyHandlers {
-        get { getAssociatedValue("keyHandlers", initialValue: KeyHandlers()) }
+        get { getAssociatedValue("keyHandlers", initial: KeyHandlers()) }
         set {
-            setAssociatedValue(newValue, key: "keyHandlers")
+            setAssociatedValue(newValue, for: "keyHandlers")
             keyHooks.values.forEach({ try? $0.revert() })
             keyHooks = [:]
             setupHandler(#selector(NSView.keyDown(with:)), newValue.keyDown, \.keyHooks)
@@ -154,14 +154,14 @@ extension NSView {
     
     fileprivate var keyHooks: [String: Hook] {
         get { getAssociatedValue("keyHooks") ?? [:] }
-        set { setAssociatedValue(newValue, key: "keyHooks") }
+        set { setAssociatedValue(newValue, for: "keyHooks") }
     }
     
     /// The handlers for the view state.
     public var viewHandlers: ViewHandlers {
-        get { getAssociatedValue("viewHandlers", initialValue: ViewHandlers()) }
+        get { getAssociatedValue("viewHandlers", initial: ViewHandlers()) }
         set {
-            setAssociatedValue(newValue, key: "viewHandlers")
+            setAssociatedValue(newValue, for: "viewHandlers")
             guard !(self is ObserverView) else { return }
             setupObservation()
             setupObserverView()
@@ -217,7 +217,7 @@ extension NSView {
     public var touchHandler: ((_ event: TouchEvent)->())? {
         get { getAssociatedValue("touchHandler") }
         set {
-            setAssociatedValue(newValue, key: "touchHandler")
+            setAssociatedValue(newValue, for: "touchHandler")
             guard !(self is TouchRecognizerView) else { return }
             if let newValue = newValue {
                 if touchRecognizerView == nil {
@@ -233,7 +233,7 @@ extension NSView {
     
     private var touchRecognizerView: TouchRecognizerView? {
         get { getAssociatedValue("touchRecognizerView") }
-        set { setAssociatedValue(newValue, key: "touchRecognizerView") }
+        set { setAssociatedValue(newValue, for: "touchRecognizerView") }
     }
     
     /*
@@ -254,12 +254,12 @@ extension NSView {
     
     fileprivate var windowObservation: [String: [NotificationToken]] {
         get { getAssociatedValue("windowObservation") ?? [:] }
-        set { setAssociatedValue(newValue, key: "windowObservation") }
+        set { setAssociatedValue(newValue, for: "windowObservation") }
     }
     
     fileprivate var backgroundStyleObserverView: BackgroundStyleObserverView? {
         get { getAssociatedValue("backgroundStyleObserverView") }
-        set { setAssociatedValue(newValue, key: "backgroundStyleObserverView") }
+        set { setAssociatedValue(newValue, for: "backgroundStyleObserverView") }
     }
     
     fileprivate func setupObservation() {
@@ -344,7 +344,7 @@ extension NSView {
     
     fileprivate var willMoveToWindowHook: Hook? {
         get { getAssociatedValue("willMoveToWindowHook") }
-        set { setAssociatedValue(newValue, key: "willMoveToWindowHook") }
+        set { setAssociatedValue(newValue, for: "willMoveToWindowHook") }
     }
     
     fileprivate func setupWillMoveToSuperview() {
@@ -362,7 +362,7 @@ extension NSView {
     
     fileprivate var willMoveToSuperviewHook: Hook? {
         get { getAssociatedValue("willMoveToSuperviewHook") }
-        set { setAssociatedValue(newValue, key: "willMoveToSuperviewHook") }
+        set { setAssociatedValue(newValue, for: "willMoveToSuperviewHook") }
     }
     
     /// A Boolean value indicating whether the property `inLiveResize` is KVO observable.
@@ -432,30 +432,30 @@ extension NSView {
     
     fileprivate var __backgroundStyle: NSView.BackgroundStyle {
         get { getAssociatedValue("__backgroundStyle") ?? .normal }
-        set { setAssociatedValue(newValue, key: "__backgroundStyle") }
+        set { setAssociatedValue(newValue, for: "__backgroundStyle") }
     }
     
     fileprivate var _inLiveResize: Bool? {
         get { getAssociatedValue("_inLiveResize") }
-        set { setAssociatedValue(newValue, key: "_inLiveResize") }
+        set { setAssociatedValue(newValue, for: "_inLiveResize") }
     }
     
     fileprivate var _isFirstResponder: Bool {
-        get { getAssociatedValue("_isFirstResponder", initialValue: isFirstResponder) }
+        get { getAssociatedValue("_isFirstResponder", initial: isFirstResponder) }
         set { 
             guard newValue != _isFirstResponder else { return }
-            setAssociatedValue(newValue, key: "_isFirstResponder")
+            setAssociatedValue(newValue, for: "_isFirstResponder")
             viewHandlers.isFirstResponder?(newValue)
         }
     }
     
     fileprivate var viewObserver: KeyValueObserver<NSView> {
-        get { getAssociatedValue("viewObserver", initialValue: KeyValueObserver(self)) }
+        get { getAssociatedValue("viewObserver", initial: KeyValueObserver(self)) }
     }
     
     fileprivate var observerView: ObserverView? {
         get { getAssociatedValue("observerView") }
-        set { setAssociatedValue(newValue, key: "observerView") }
+        set { setAssociatedValue(newValue, for: "observerView") }
     }
         
     func setupObserverView() {
@@ -654,25 +654,20 @@ extension NSView {
             moved != nil || entered != nil || exited != nil || isHovering != nil
         }
         
-        var trackingAreaOptions: NSTrackingArea.Options {
-            var options: NSTrackingArea.Options = [.inVisibleRect]
-            options.insert(active.option)
-            if entered != nil || exited != nil {
-                options += .mouseEnteredAndExited
-            }
-            if moved != nil {
-                options += .mouseMoved
-            }
-            return options
+        var trackingAreaEvents: TrackingArea.Events {
+            var events: TrackingArea.Events = []
+            events[.mouseEnteredAndExited] = entered != nil || exited != nil
+            events[.mouseMoved] = moved != nil
+            return events
         }
     }
     
     class ObserverView: NSView {
-        lazy var trackingArea = TrackingArea(for: self, options: [.activeInKeyWindow, .inVisibleRect, .mouseEnteredAndExited])
+        lazy var trackingArea = TrackingArea(view: self, events: .mouseEnteredAndExited, activation: .inKeyWindow)
         
         func setupMouseHandlers(_ handlers: MouseHandlers) {
             mouseHandlers = handlers
-            trackingArea.options = handlers.trackingAreaOptions
+            trackingArea.events = handlers.trackingAreaEvents
         }
         
         override func viewWillStartLiveResize() {
@@ -807,7 +802,7 @@ extension NSView {
     
     fileprivate var subviewIDs: [ObjectIdentifier] {
         get { getAssociatedValue("subviewIDs") ?? [] }
-        set { setAssociatedValue(newValue, key: "subviewIDs") }
+        set { setAssociatedValue(newValue, for: "subviewIDs") }
     }
     
     fileprivate func setSubviewIDs(_ ids: [ObjectIdentifier]) {
@@ -818,7 +813,7 @@ extension NSView {
     
     fileprivate var subviewHooks: [Hook] {
         get { getAssociatedValue("subviewHooks") ?? [] }
-        set { setAssociatedValue(newValue, key: "subviewHooks") }
+        set { setAssociatedValue(newValue, for: "subviewHooks") }
     }
     
     fileprivate func setupSubviewObservation() {

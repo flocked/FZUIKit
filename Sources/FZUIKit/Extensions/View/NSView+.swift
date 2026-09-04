@@ -218,17 +218,17 @@ extension NSView {
     
     private var saveLayerStateHook: Hook? {
         get { getAssociatedValue("saveLayerStateHook") }
-        set { setAssociatedValue(newValue, key: "saveLayerStateHook") }
+        set { setAssociatedValue(newValue, for: "saveLayerStateHook") }
     }
     
     private var restoreLayerStateHook: Hook? {
         get { getAssociatedValue("restoreLayerStateHook") }
-        set { setAssociatedValue(newValue, key: "restoreLayerStateHook") }
+        set { setAssociatedValue(newValue, for: "restoreLayerStateHook") }
     }
     
     private var layerObservation: KeyValueObservation? {
         get { getAssociatedValue("layerObservation") }
-        set { setAssociatedValue(newValue, key: "layerObservation") }
+        set { setAssociatedValue(newValue, for: "layerObservation") }
     }
 
     /**
@@ -475,7 +475,7 @@ extension NSView {
 
     private var shadowShapeView: ShadowShapeView? {
         get { getAssociatedValue("shadowShapeView") }
-        set { setAssociatedValue(newValue, key: "shadowShapeView") }
+        set { setAssociatedValue(newValue, for: "shadowShapeView") }
     }
 
     private class ShadowShapeView: NSUIView {
@@ -802,7 +802,7 @@ extension NSView {
     
     fileprivate var viewAttachment: ViewAttachment? {
         get { getAssociatedValue("viewAttachment") }
-        set { setAssociatedValue(newValue, key: "viewAttachment") }
+        set { setAssociatedValue(newValue, for: "viewAttachment") }
     }
     
     fileprivate class ViewAttachment {
@@ -885,7 +885,7 @@ extension CALayer {
                 borderLayer = nil
             }
             let color = newValue.color
-            setAssociatedValue(color, key: "_borderLayer")
+            setAssociatedValue(color, for: "_borderLayer")
             if let parentView = parentView {
                 if needsBorderLayer {
                     borderLayer?.strokeColor = color?.resolvedColor(for: parentView).cgColor
@@ -925,14 +925,14 @@ extension CALayer {
                 colorObservations[\.borderColor, default: []] += observeChanges(for: \.borderColor) { [weak self] oldValue, newValue in
                     guard newValue != light && newValue != dark else { return }
                     self?.colorObservations[\.borderColor] = []
-                    self?.setAssociatedValue(nil as NSColor?, key: "_borderLayer")
+                    self?.setAssociatedValue(nil as NSColor?, for: "_borderLayer")
                     guard needsBorderLayer else { return }
                 }
             } else {
                 let color = newValue.cgColor
                 colorObservations[\.borderColor, default: []] += observeChanges(for: \.borderColor) { [weak self] oldValue, newValue in
                     self?.colorObservations[\.borderColor] = []
-                    self?.setAssociatedValue(nil as NSColor?, key: "_borderLayer")
+                    self?.setAssociatedValue(nil as NSColor?, for: "_borderLayer")
                 }
             }
              */
@@ -941,7 +941,7 @@ extension CALayer {
     
     var borderColorTransformer: ColorTransformer? {
         get { getAssociatedValue("borderColorTransformer") }
-        set { setAssociatedValue(newValue, key: "borderColorTransformer") }
+        set { setAssociatedValue(newValue, for: "borderColorTransformer") }
     }
     
     var _shaodw: ShadowConfiguration {
@@ -963,7 +963,7 @@ extension CALayer {
     
     var shadowColorTransformer: ColorTransformer? {
         get { getAssociatedValue("shadowColorTransformer") }
-        set { setAssociatedValue(newValue, key: "shadowColorTransformer") }
+        set { setAssociatedValue(newValue, for: "shadowColorTransformer") }
     }
     
     var _backgroundColor: NSUIColor? {
@@ -981,7 +981,7 @@ extension CALayer {
     }
     
     func setColor(_ color: NSUIColor?, for keyPath: ReferenceWritableKeyPath<CALayer, CGColor?>) {
-        setAssociatedValue(color, key: "_" + keyPath.stringValue)
+        setAssociatedValue(color, for: "_" + keyPath.stringValue)
         colorObservations[keyPath] = []
         if let parentView = parentView {
             self[keyPath: keyPath] = color?.resolvedColor(for: parentView).cgColor
@@ -1020,14 +1020,14 @@ extension CALayer {
     
     var colorObservations: [PartialKeyPath<CALayer>: [KeyValueObservation]] {
         get { getAssociatedValue("colorObservations") ?? [:] }
-        set { setAssociatedValue(newValue, key: "colorObservations") }
+        set { setAssociatedValue(newValue, for: "colorObservations") }
     }
 }
 
 fileprivate extension CALayer {
     var layerState: (transform: CATransform3D, position: CGPoint, anchorPoint: CGPoint, roundedCorners: CACornerMask)? {
         get { getAssociatedValue("layerState") }
-        set { setAssociatedValue(newValue, key: "layerState") }
+        set { setAssociatedValue(newValue, for: "layerState") }
     }
 }
 

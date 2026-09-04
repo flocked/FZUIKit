@@ -158,7 +158,7 @@ extension NSUIStackView {
     
     fileprivate var flexibleSpacerConstraints: [NSLayoutConstraint] {
         get { getAssociatedValue("flexibleSpacerConstraints") ?? [] }
-        set { setAssociatedValue(newValue, key: "flexibleSpacerConstraints") }
+        set { setAssociatedValue(newValue, for: "flexibleSpacerConstraints") }
     }
     
     func swizzleOrientation() {
@@ -181,7 +181,7 @@ extension NSUIStackView {
     
     fileprivate var orientationHook: Hook? {
         get { getAssociatedValue("orientationHook") }
-        set { setAssociatedValue(newValue, key: "orientationHook") }
+        set { setAssociatedValue(newValue, for: "orientationHook") }
     }
     
     #if canImport(UIKit)

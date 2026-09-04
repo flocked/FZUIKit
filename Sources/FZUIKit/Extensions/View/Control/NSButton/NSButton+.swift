@@ -652,21 +652,21 @@ public extension NSButton {
     
     internal var stateContentTintColor: [StateValue: NSColor?] {
         get { getAssociatedValue("stateContentTintColor") ?? [:] }
-        set { setAssociatedValue(newValue, key: "stateContentTintColor") }
+        set { setAssociatedValue(newValue, for: "stateContentTintColor") }
     }
     
     internal var stateSymbolConfiguration: [StateValue: NSImage.SymbolConfiguration?] {
         get { getAssociatedValue("stateSymbolConfiguration") ?? [:] }
-        set { setAssociatedValue(newValue, key: "stateSymbolConfiguration") }
+        set { setAssociatedValue(newValue, for: "stateSymbolConfiguration") }
     }
     
     internal var stateObservation: KeyValueObservation? {
         get { getAssociatedValue("stateObservation") }
-        set { setAssociatedValue(newValue, key: "stateObservation") }
+        set { setAssociatedValue(newValue, for: "stateObservation") }
     }
     
     internal var buttonObserver: KeyValueObserver<NSButton> {
-        get { getAssociatedValue("buttonObserver", initialValue: KeyValueObserver(self)) }
+        get { getAssociatedValue("buttonObserver", initial: KeyValueObserver(self)) }
     }
     
     internal func updateStateObservation() {
@@ -992,7 +992,7 @@ extension NSButton {
         get { getAssociatedValue("highlightsOnHover") ?? false }
         set {
             guard newValue != highlightsOnHover else { return }
-            setAssociatedValue(newValue, key: "highlightsOnHover")
+            setAssociatedValue(newValue, for: "highlightsOnHover")
             highlightView = newValue ? highlightView ?? .init(for: self) : nil
         }
     }
@@ -1000,19 +1000,19 @@ extension NSButton {
     var mouseIsInside: Bool {
         get { getAssociatedValue("mouseIsInside") ?? false }
         set {
-            setAssociatedValue(newValue, key: "mouseIsInside")
+            setAssociatedValue(newValue, for: "mouseIsInside")
             updateHighlightColor()
         }
     }
     
     private var highlightSymbolConfiguration: NSImage.SymbolConfiguration? {
         get { getAssociatedValue("highlightSymbolConfiguration") }
-        set { setAssociatedValue(newValue, key: "highlightSymbolConfiguration") }
+        set { setAssociatedValue(newValue, for: "highlightSymbolConfiguration") }
     }
     
     private var didApplyHighlight: Bool {
         get { getAssociatedValue("didApplyHighlight") ?? false }
-        set { setAssociatedValue(newValue, key: "didApplyHighlight") }
+        set { setAssociatedValue(newValue, for: "didApplyHighlight") }
     }
     
     private func updateHighlightColor() {
@@ -1034,12 +1034,11 @@ extension NSButton {
     
     private var highlightView: HighlightMouseView? {
         get { getAssociatedValue("highlightView") }
-        set { setAssociatedValue(newValue, key: "highlightView") }
+        set { setAssociatedValue(newValue, for: "highlightView") }
     }
     
     private class HighlightMouseView: NSView {
-        lazy var trackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeInKeyWindow])
-        
+        lazy var trackingArea = TrackingArea(view: self, events: .mouseEnteredAndExited, activation: .inKeyWindow)
         var observation: KeyValueObservation?
         
         var button: NSButton? { superview as? NSButton }

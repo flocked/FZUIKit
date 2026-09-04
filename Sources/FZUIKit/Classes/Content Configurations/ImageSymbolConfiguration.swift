@@ -563,7 +563,7 @@ public extension NSUIImageView {
     var preferredImageSymbolConfiguration: ImageSymbolConfiguration? {
         get { getAssociatedValue("_imageSymbolConfiguration") }
         set {
-            setAssociatedValue(newValue, key: "_imageSymbolConfiguration")
+            setAssociatedValue(newValue, for: "_imageSymbolConfiguration")
             preferredSymbolConfiguration = newValue?.nsUI()
         }
     }

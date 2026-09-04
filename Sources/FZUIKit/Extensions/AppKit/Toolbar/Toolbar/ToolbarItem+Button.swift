@@ -150,7 +150,7 @@ extension Toolbar {
          - title: The title of the button.
          - action: The handler that is called when the user clicks the button.
          */
-        public init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, action: ((_ item: Toolbar.Button)->())? = nil) {
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, title: String, action: ((_ item: Toolbar.Button) -> ())? = nil) {
             self.button = NSButton.toolbar(title).translatesAutoresizingMaskIntoConstraints(false)
             super.init(identifier)
             sharedInit(action)
@@ -167,7 +167,7 @@ extension Toolbar {
          - image: The image of the button.
          - action: The handler that is called when the user clicks the button.
          */
-        public init(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, image: NSImage, action: ((_ item: Toolbar.Button)->())? = nil) {
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, image: NSImage, action: ((_ item: Toolbar.Button) -> ())? = nil) {
             self.button = NSButton.toolbar(title ?? "", image: image).translatesAutoresizingMaskIntoConstraints(false)
             super.init(identifier)
             sharedInit(action)
@@ -184,7 +184,7 @@ extension Toolbar {
          - symbolName: The name for the symbol image of the button.
          - action: The handler that is called when the user clicks the button.
          */
-        public init?(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, symbolName: String, action: ((_ item: Toolbar.Button)->())? = nil) {
+        public init?(_ identifier: NSToolbarItem.Identifier? = nil, title: String? = nil, symbolName: String, action: ((_ item: Toolbar.Button) -> ())? = nil) {
             guard let image = NSImage(systemSymbolName: symbolName) else { return nil }
             self.button = NSButton.toolbar("", image: image).translatesAutoresizingMaskIntoConstraints(false)
             super.init(identifier)
@@ -201,91 +201,18 @@ extension Toolbar {
          - button: The button.
          - action: The handler that is called when the user clicks the button.
          */
-        public init(_ identifier: NSToolbarItem.Identifier? = nil, button: NSButton, action: ((_ item: Toolbar.Button)->())? = nil) {
+        public init(_ identifier: NSToolbarItem.Identifier? = nil, button: NSButton, action: ((_ item: Toolbar.Button) -> ())? = nil) {
             self.button = button
             super.init(identifier)
             sharedInit(action)
         }
         
-        private func sharedInit(_ action: ((_ item: Toolbar.Button)->())? = nil) {
+        private func sharedInit(_ action: ((_ item: Toolbar.Button) -> ())? = nil) {
             button.invalidateIntrinsicContentSize()
             button.translatesAutoresizingMaskIntoConstraints = false
             item.view = button
             actionBlock = action
         }
     }
-
-        /*
-        public var actionBlockN: ((Button)->())? {
-            get {
-                _actionBlock
-            }
-            set {
-                if let newValue = newValue {
-                    _actionBlock = newValue
-                    button.toolbarItem = self
-                    button.actionBlock = { button in
-                        button.toolbarItem?.callActionBlock()
-                    }
-                }
-            }
-        }
-        
-        var _actionBlock: ((Button)->())?
-        
-        override func callActionBlock() {
-            _actionBlock?(self)
-        }
-    }
-    */
 }
-
-/*
-extension Toolbar.Button {
-    func test() {
-       
-    }
-}
-
-extension NSView {
-    var toolbarItem: ToolbarItem? {
-        get {
-            guard let item: ToolbarItem = getAssociatedValue("toolbarItem") else { return nil }
-            guard item.item.view === self else {
-                self.toolbarItem = nil
-                return nil
-            }
-            return item
-        }
-        set { setAssociatedValue(weak: newValue, key: "toolbarItem") }
-    }
-}
-*/
-
-/*
- /*
-  extension ToolbarItem {
-      func callActionBlock() {
-          
-      }
-  }
-
-  extension Toolbar.Button {
-      func sdsd() {
-          button.enclosingToolBarItem = self
-          button.actionBlock = { button in
-              guard let toolbarItem = button.enclosingToolBarItem, toolbarItem.item.view === self else { return }
-              toolbarItem.callActionBlock()
-          }
-      }
-  }
-
-  extension NSView {
-      var enclosingToolBarItem: ToolbarItem? {
-          get { getAssociatedValue("enclosingToolBarItem") }
-          set { setAssociatedValue(weak: newValue, key: "enclosingToolBarItem") }
-      }
-  }
-  */
- */
 #endif

@@ -78,7 +78,7 @@ extension NSAlert {
      */
     public var helpHandler: (()->())? {
         get { getAssociatedValue("helpHandler") }
-        set { setAssociatedValue(newValue, key: "helpHandler")
+        set { setAssociatedValue(newValue, for: "helpHandler")
             if newValue == nil {
                 helpDelegate = nil
             } else {
@@ -148,7 +148,7 @@ extension NSAlert {
         
     var helpDelegate: HelpDelegate? {
         get { getAssociatedValue("helpDelegate") }
-        set { setAssociatedValue(newValue, key: "helpDelegate") }
+        set { setAssociatedValue(newValue, for: "helpDelegate") }
     }
     
     class HelpDelegate: NSObject, NSAlertDelegate {
@@ -188,7 +188,7 @@ extension NSAlert {
     public var suppressionKey: String? {
         get { getAssociatedValue("suppressionKey") }
         set {
-            setAssociatedValue(newValue, key: "suppressionKey")
+            setAssociatedValue(newValue, for: "suppressionKey")
             swizzleRunModal()
         }
     }

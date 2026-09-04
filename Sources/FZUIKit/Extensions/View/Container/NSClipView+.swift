@@ -68,7 +68,7 @@ extension NSClipView {
     
     var dragScrollGestureRecognizer: DragScrollGestureRecognizer? {
         get { getAssociatedValue("dragScrollGestureRecognizer") }
-        set { setAssociatedValue(newValue, key: "dragScrollGestureRecognizer")
+        set { setAssociatedValue(newValue, for: "dragScrollGestureRecognizer")
         }
     }
     

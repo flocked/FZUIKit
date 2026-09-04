@@ -13,7 +13,7 @@ import FZSwiftUtils
 public extension NSEvent {
     /// The key associated with the event.
     var key: Key? {
-        guard type == .keyDown || type == .keyUp else { return nil }
+        guard type == .keyDown || type == .keyUp || type == .flagsChanged else { return nil }
         return Key(rawValue: keyCode)
     }
     
@@ -293,7 +293,11 @@ public extension NSEvent {
         /// Apostrophe / quote  (')
         public static let quote = Self.apostrophe
         
-        static let modifierFlags: [Self] = [.command, .shift, .capsLock, .option, .control, .rightCommand, .rightShift, .rightOption, .rightControl, .function]
+        public var isModifierFlag: Bool {
+            Self.modifierFlags.contains(self)
+        }
+        
+        static let modifierFlags: Set<Self> = [.command, .shift, .capsLock, .option, .control, .rightCommand, .rightShift, .rightOption, .rightControl, .function, .help]
         
         /// A string representation of the key used for `NSMenuItem` and `NSButton` [keyEquivalent](https://developer.apple.com/documentation/appkit/nsmenuitem/keyequivalent).
         public var keyEquivalent: String? {

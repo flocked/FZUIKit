@@ -64,8 +64,8 @@ public extension NSEvent {
         - isARepeat: A Boolean value indicating whether the event is a repeat caused by the user holding the key down.
         - timestamp: The event timestamp in seconds since system startup. The default value is `now`.
      */
-    static func keyDown(key: UInt16, modifierFlags: NSEvent.ModifierFlags = [], in window: NSWindow, isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
-        keyEvent(keyCode: key, modifierFlags: modifierFlags, location: .zero, keyDown: true, window: window, isARepeat: isARepeat, timestamp: timestamp)
+    static func keyDown(key: UInt16, modifierFlags: ModifierFlags = [], in window: NSWindow, isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+        keyEvent(keyCode: key, modifierFlags: modifierFlags, keyDown: true, window: window, isARepeat: isARepeat, timestamp: timestamp)
     }
     
     /**
@@ -80,9 +80,8 @@ public extension NSEvent {
         - isARepeat: A Boolean value indicating whether the event is a repeat caused by the user holding the key down.
         - timestamp: The event timestamp in seconds since system startup. The default value is `now`.
      */
-    static func keyDown(key: UInt16, modifierFlags: NSEvent.ModifierFlags = [], in view: NSView, isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
-        guard let window = view.window else { return nil }
-        return keyEvent(keyCode: key, modifierFlags: modifierFlags, keyDown: true, window: window, isARepeat: isARepeat, timestamp: timestamp)
+    static func keyDown(key: UInt16, modifierFlags: ModifierFlags = [], in view: NSView, isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+        keyEvent(keyCode: key, modifierFlags: modifierFlags, keyDown: true, window: view.window, isARepeat: isARepeat, timestamp: timestamp)
     }
     
     /**
@@ -95,7 +94,7 @@ public extension NSEvent {
         - isARepeat: A Boolean value indicating whether the event is a repeat caused by the user holding the key down.
         - timestamp: The event timestamp in seconds since system startup. The default value is `now`.
      */
-    static func keyDown(key: UInt16, modifierFlags: NSEvent.ModifierFlags = [], isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+    static func keyDown(key: UInt16, modifierFlags: ModifierFlags = [], isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
         keyEvent(keyCode: key, modifierFlags: modifierFlags, keyDown: true, isARepeat: isARepeat, timestamp: timestamp)
     }
     
@@ -109,8 +108,8 @@ public extension NSEvent {
         - isARepeat: A Boolean value indicating whether the event is a repeat caused by the user holding the key down.
         - timestamp: The event timestamp in seconds since system startup. The default value is `now`.
      */
-    static func keyDown(key: Key, modifierFlags: NSEvent.ModifierFlags = [], in window: NSWindow, isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
-        keyEvent(keyCode: key.rawValue, modifierFlags: modifierFlags, location: .zero, keyDown: true, window: window, isARepeat: isARepeat, timestamp: timestamp)
+    static func keyDown(key: Key, modifierFlags: ModifierFlags = [], in window: NSWindow, isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+        keyEvent(keyCode: key.rawValue, modifierFlags: modifierFlags, keyDown: true, window: window, isARepeat: isARepeat, timestamp: timestamp)
     }
     
     /**
@@ -125,9 +124,8 @@ public extension NSEvent {
         - isARepeat: A Boolean value indicating whether the event is a repeat caused by the user holding the key down.
         - timestamp: The event timestamp in seconds since system startup. The default value is `now`.
      */
-    static func keyDown(key: Key, modifierFlags: NSEvent.ModifierFlags = [], in view: NSView, isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
-        guard let window = view.window else { return nil }
-        return keyEvent(keyCode: key.rawValue, modifierFlags: modifierFlags, keyDown: true, window: window, isARepeat: isARepeat, timestamp: timestamp)
+    static func keyDown(key: Key, modifierFlags: ModifierFlags = [], in view: NSView, isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+        keyEvent(keyCode: key.rawValue, modifierFlags: modifierFlags, keyDown: true, window: view.window, isARepeat: isARepeat, timestamp: timestamp)
     }
     
     /**
@@ -139,7 +137,7 @@ public extension NSEvent {
         - isARepeat: A Boolean value indicating whether the event is a repeat caused by the user holding the key down.
         - timestamp: The event timestamp in seconds since system startup. The default value is `now`.
      */
-    static func keyDown(key: Key, modifierFlags: NSEvent.ModifierFlags = [], isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+    static func keyDown(key: Key, modifierFlags: ModifierFlags = [], isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
         keyEvent(keyCode: key.rawValue, modifierFlags: modifierFlags, keyDown: true, isARepeat: isARepeat, timestamp: timestamp)
     }
     
@@ -152,7 +150,7 @@ public extension NSEvent {
         - window: The window of the event.
         - timestamp: The event timestamp in seconds since system startup. The default value is `now`.
      */
-    static func keyUp(key: UInt16, modifierFlags: NSEvent.ModifierFlags = [], in window: NSWindow, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+    static func keyUp(key: UInt16, modifierFlags: ModifierFlags = [], in window: NSWindow, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
         keyEvent(keyCode: key, modifierFlags: modifierFlags, keyDown: false, window: window, timestamp: timestamp)
     }
     
@@ -167,9 +165,8 @@ public extension NSEvent {
         - view: The view of the event.
         - timestamp: The event timestamp in seconds since system startup. The default value is `now`.
      */
-    static func keyUp(key: UInt16, modifierFlags: NSEvent.ModifierFlags = [], in view: NSView, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
-        guard let window = view.window else { return nil }
-        return keyEvent(keyCode: key, modifierFlags: modifierFlags, keyDown: false, window: window, timestamp: timestamp)
+    static func keyUp(key: UInt16, modifierFlags: ModifierFlags = [], in view: NSView, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+        keyEvent(keyCode: key, modifierFlags: modifierFlags, keyDown: false, window: view.window, timestamp: timestamp)
     }
     
     /**
@@ -181,7 +178,7 @@ public extension NSEvent {
         - location: The cursor location on the screen.
         - timestamp: The event timestamp in seconds since system startup. The default value is `now`.
      */
-    static func keyUp(key: UInt16, modifierFlags: NSEvent.ModifierFlags = [], timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+    static func keyUp(key: UInt16, modifierFlags: ModifierFlags = [], timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
         keyEvent(keyCode: key, modifierFlags: modifierFlags, keyDown: false, timestamp: timestamp)
     }
     
@@ -194,7 +191,7 @@ public extension NSEvent {
         - window: The window of the event.
         - timestamp: The event timestamp in seconds since system startup. The default value is `now`.
      */
-    static func keyUp(key: Key, modifierFlags: NSEvent.ModifierFlags = [], in window: NSWindow, isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+    static func keyUp(key: Key, modifierFlags: ModifierFlags = [], in window: NSWindow, isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
         keyEvent(keyCode: key.rawValue, modifierFlags: modifierFlags, keyDown: false, window: window, timestamp: timestamp)
     }
     
@@ -209,9 +206,8 @@ public extension NSEvent {
         - view: The view of the event.
         - timestamp: The event timestamp in seconds since system startup. The default value is `now`.
      */
-    static func keyUp(key: Key, modifierFlags: NSEvent.ModifierFlags = [], view: NSView, isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
-        guard let window = view.window else { return nil }
-        return keyEvent(keyCode: key.rawValue, modifierFlags: modifierFlags, keyDown: false, window: window, timestamp: timestamp)
+    static func keyUp(key: Key, modifierFlags: ModifierFlags = [], view: NSView, isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+        keyEvent(keyCode: key.rawValue, modifierFlags: modifierFlags, keyDown: false, window: view.window, timestamp: timestamp)
     }
     
     /**
@@ -222,16 +218,68 @@ public extension NSEvent {
         - modifierFlags: The pressed modifier keys.
         - timestamp: The event timestamp in seconds since system startup. The default value is `now`.
      */
-    static func keyUp(key: Key, modifierFlags: NSEvent.ModifierFlags = [], isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+    static func keyUp(key: Key, modifierFlags: ModifierFlags = [], isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
         keyEvent(keyCode: key.rawValue, modifierFlags: modifierFlags, keyDown: false, timestamp: timestamp)
     }
     
-    private static func keyEvent(keyCode: UInt16, modifierFlags: NSEvent.ModifierFlags = [], location: CGPoint = .zero, keyDown: Bool, window: NSWindow? = nil,  isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+    private static func keyEvent(keyCode: UInt16, modifierFlags: ModifierFlags = [], keyDown: Bool, window: NSWindow? = nil,  isARepeat: Bool = false, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+        guard !modifierKeyCodes.contains(keyCode) else { return nil }
         guard let cgEvent = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: keyDown) else { return nil }
         cgEvent.flags = modifierFlags.cgEventFlags
-        cgEvent.location = location
+        cgEvent.location = window.map({ .init(x: 0, y: $0.frame.height) }) ?? .zero
         guard let event = NSEvent(cgEvent: cgEvent) else { return nil }
-        return NSEvent.keyEvent(with: event.type, location: location, modifierFlags: modifierFlags, timestamp: timestamp, windowNumber: window?.windowNumber ?? 0, context: nil, characters: event.characters ?? "", charactersIgnoringModifiers: event.charactersIgnoringModifiers ?? "", isARepeat: isARepeat, keyCode: keyCode) ?? event
+        return try? ObjCRuntime.catchException {
+            NSEvent.keyEvent(with: event.type, location: cgEvent.location, modifierFlags: modifierFlags, timestamp: timestamp, windowNumber: window?.windowNumber ?? 0, context: nil, characters: event.characters ?? "", charactersIgnoringModifiers: event.charactersIgnoringModifiers ?? "", isARepeat: isARepeat, keyCode: keyCode)
+        }
+    }
+    
+    private static let modifierKeyCodes: Set<UInt16> = [54, 55, 56, 57, 58, 59, 60, 61, 62, 63]
+    
+    /**
+     Creates and returns a new flags changed event for the specified modifier key.
+     
+     - Parameters:
+        - modifierKey: The modifier key associated with the event.
+        - isPressed: A Boolean value indicating whether the modifier key is pressed.
+        - modifierFlags: The other pressed modifier keys.
+        - window: The window associated with the event.
+        - timestamp: The event timestamp in seconds since system startup.
+     */
+    static func flagsChangedEvent(for modifierKey: ModifierFlags.Key, isPressed: Bool = true, modifierFlags: ModifierFlags = [], in window: NSWindow, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+        flagsChangedEvent(for: modifierKey, isPressed: isPressed, modifierFlags: modifierFlags, window: window, timestamp: timestamp)
+    }
+    
+    /**
+     Creates and returns a new flags changed event for the specified modifier key.
+     
+     - Parameters:
+        - modifierKey: The modifier key associated with the event.
+        - isPressed: A Boolean value indicating whether the modifier key is pressed.
+        - modifierFlags: The other pressed modifier keys.
+        - view: The view associated with the event.
+        - timestamp: The event timestamp in seconds since system startup.
+     */
+    static func flagsChangedEvent(for modifierKey: ModifierFlags.Key, isPressed: Bool = true, modifierFlags: ModifierFlags = [], in view: NSView, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+        flagsChangedEvent(for: modifierKey, isPressed: isPressed, modifierFlags: modifierFlags, window: view.window, timestamp: timestamp)
+    }
+    
+    /**
+     Creates and returns a new flags changed event for the specified modifier key.
+     
+     - Parameters:
+        - modifierKey: The modifier key associated with the event.
+        - isPressed: A Boolean value indicating whether the modifier key is pressed.
+        - modifierFlags: The other pressed modifier keys.
+        - timestamp: The event timestamp in seconds since system startup.
+     */
+    static func flagsChangedEvent(for modifierKey: ModifierFlags.Key, isPressed: Bool = true, modifierFlags: ModifierFlags = [], timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+        flagsChangedEvent(for: modifierKey, isPressed: isPressed, modifierFlags: modifierFlags, window: nil, timestamp: timestamp)
+    }
+    
+    private static func flagsChangedEvent(for modifierKey: ModifierFlags.Key, isPressed: Bool, modifierFlags: ModifierFlags, window: NSWindow?, timestamp: TimeInterval) -> NSEvent? {
+        var modifierFlags = modifierFlags
+        modifierFlags[modifierKey.flag] = isPressed
+        return keyEvent(with: .flagsChanged, location: window.map({ .init(x: 0, y: $0.frame.height) }) ?? .zero, modifierFlags: modifierFlags, timestamp: timestamp, windowNumber: window?.windowNumber ?? 0, context: nil, characters: "", charactersIgnoringModifiers: "", isARepeat: false, keyCode: modifierKey.rawValue)
     }
     
     /**
@@ -246,7 +294,7 @@ public extension NSEvent {
         - pressure: The pressure (between `0.0` to `1.0`) applied to the input device (such as a graphics tablet).
         - timestamp: The event timestamp in seconds since system startup. The default value is `now`.
      */
-    static func mouse(_ type: MouseEventType, in window: NSWindow, at location: CGPoint, modifierFlags: NSEvent.ModifierFlags = [], clickCount: Int = 1, pressure: Float = 1.0, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+    static func mouse(_ type: MouseEventType, in window: NSWindow, at location: CGPoint, modifierFlags: ModifierFlags = [], clickCount: Int = 1, pressure: Float = 1.0, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
         NSEvent.mouseEvent(with: type.type, location: location, modifierFlags: modifierFlags, timestamp: timestamp, windowNumber: window.windowNumber, context: nil, eventNumber: Int.random(in: 0...Int.max), clickCount: clickCount, pressure: pressure.clamped(max: 1.0))
     }
     
@@ -264,7 +312,7 @@ public extension NSEvent {
         - pressure: The pressure (between `0.0` to `1.0`) applied to the input device (such as a graphics tablet).
         - timestamp: The event timestamp in seconds since system startup. The default value is `now`.
      */
-    static func mouse(_ type: MouseEventType, in view: NSView, at location: CGPoint, modifierFlags: NSEvent.ModifierFlags = [], clickCount: Int = 1, pressure: Float = 1.0, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+    static func mouse(_ type: MouseEventType, in view: NSView, at location: CGPoint, modifierFlags: ModifierFlags = [], clickCount: Int = 1, pressure: Float = 1.0, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
         guard let window = view.window else { return nil }
         return mouse(type, in: window, at: view.convert(location, to: nil), modifierFlags: modifierFlags, clickCount: clickCount, pressure: pressure, timestamp: timestamp)
     }
@@ -280,7 +328,7 @@ public extension NSEvent {
         - pressure: The pressure (between `0.0` to `1.0`) applied to the input device (such as a graphics tablet).
         - timestamp: The event timestamp in seconds since system startup. The default value is `now`.
      */
-    static func mouse(_ type: MouseEventType, at location: CGPoint, modifierFlags: NSEvent.ModifierFlags = [], clickCount: Int = 1, pressure: Float = 1.0, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+    static func mouse(_ type: MouseEventType, at location: CGPoint, modifierFlags: ModifierFlags = [], clickCount: Int = 1, pressure: Float = 1.0, timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
         NSEvent.mouseEvent(with: type.type, location: location, modifierFlags: modifierFlags, timestamp: timestamp, windowNumber: 0, context: nil, eventNumber: Int.random(in: 0...Int.max), clickCount: clickCount, pressure: pressure.clamped(max: 1.0))
     }
     
@@ -293,7 +341,7 @@ public extension NSEvent {
         - modifierFlags: The modifier flags associated with the event.
         - timestamp: The event timestamp in seconds since system startup. The default value is `now`.
      */
-    static func scrollWheel(at location: NSPoint, delta: CGPoint, modifierFlags: NSEvent.ModifierFlags = [], timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+    static func scrollWheel(at location: NSPoint, delta: CGPoint, modifierFlags: ModifierFlags = [], timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
         guard let cgEvent = CGEvent(scrollWheelEvent2Source: nil, units: .pixel, wheelCount: 2, wheel1: Int32(delta.y), wheel2: Int32(delta.x), wheel3: .zero) else {
             return nil
         }
@@ -313,7 +361,7 @@ public extension NSEvent {
         - modifierFlags: The modifier flags associated with the event.
         - timestamp: The event timestamp in seconds since system startup. The default value is `now`.
      */
-    static func scrollWheel(in window: NSWindow, at location: NSPoint, delta: CGPoint, modifierFlags: NSEvent.ModifierFlags = [], timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+    static func scrollWheel(in window: NSWindow, at location: NSPoint, delta: CGPoint, modifierFlags: ModifierFlags = [], timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
         scrollWheel(at: window.convertPoint(toScreen: location), delta: delta, modifierFlags: modifierFlags, timestamp: timestamp)
     }
     
@@ -327,7 +375,7 @@ public extension NSEvent {
         - modifierFlags: The modifier flags associated with the event.
         - timestamp: The event timestamp in seconds since system startup. The default value is `now`.
      */
-    static func scrollWheel(in view: NSView, at location: NSPoint, delta: CGPoint, modifierFlags: NSEvent.ModifierFlags = [], timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
+    static func scrollWheel(in view: NSView, at location: NSPoint, delta: CGPoint, modifierFlags: ModifierFlags = [], timestamp: TimeInterval = ProcessInfo.processInfo.systemUptime) -> NSEvent? {
         scrollWheel(at: view.frameOnScreen.origin, delta: delta, modifierFlags: modifierFlags, timestamp: timestamp)
     }
     
@@ -523,15 +571,15 @@ extension NSEvent.EventType {
 extension NSEvent.EventSubtype: Swift.CustomStringConvertible, Swift.Hashable, Swift.Encodable, Swift.Decodable {
     public var description: String {
         switch self {
-        case .applicationActivated: return "applicationActivated"
-        case .applicationDeactivated: return "applicationDeactivated"
-        case .windowMoved: return "windowMoved"
-        case .screenChanged: return "screenChanged"
-        case .touch: return "touch"
-        case .tabletPoint: return "tabletPoint"
-        case .tabletProximity: return "tabletProximity"
-        case .mouseEvent:  return "mouseEvent"
-        default: return "other(\(rawValue))"
+        case .applicationActivated: return ".applicationActivated"
+        case .applicationDeactivated: return ".applicationDeactivated"
+        case .windowMoved: return ".windowMoved"
+        case .screenChanged: return ".screenChanged"
+        case .touch: return ".touch"
+        case .tabletPoint: return ".tabletPoint"
+        case .tabletProximity: return ".tabletProximity"
+        case .mouseEvent:  return ".mouseEvent"
+        default: return "init.(\(rawValue))"
         }
     }
 }
@@ -781,6 +829,60 @@ extension NSEvent.EventTypeMask: Swift.CustomStringConvertible, Swift.Hashable, 
         if self.contains(.periodic) { strings += ".periodic" }
         if self.contains(.systemDefined) { strings += ".systemDefined" }
         return "[\(strings.joined(separator: ", "))]"
+    }
+}
+
+public extension NSEvent.ModifierFlags {
+    /// A physical key associated with a modifier flag.
+    enum Key: UInt16, Hashable, Codable, Sendable {
+        /// The Command key.
+        case command = 55
+        /// The right Command key.
+        case rightCommand = 54
+        /// The Shift key.
+        case shift = 56
+        /// The right Shift key.
+        case rightShift = 60
+        /// The Option key.
+        case option = 58
+        /// The right Option key.
+        case rightOption = 61
+        /// The Control key.
+        case control = 59
+        /// The right Control key.
+        case rightControl = 62
+        /// The Caps Lock key.
+        case capsLock = 57
+        /// The Function key.
+        case function = 63
+        /// The Help key.
+        case help = 114
+
+        /// The modifier flag associated with the key.
+        var flag: NSEvent.ModifierFlags {
+            switch self {
+            case .command, .rightCommand: .command
+            case .shift, .rightShift: .shift
+            case .option, .rightOption: .option
+            case .control, .rightControl: .control
+            case .capsLock: .capsLock
+            case .function: .function
+            case .help: .help
+            }
+        }
+    }
+
+    /// The keys associated with the modifier flags.
+    var keys: Set<Key> {
+        var keys: Set<Key> = []
+        if contains(.command) { keys.insert(.command) }
+        if contains(.shift) { keys.insert(.shift) }
+        if contains(.option) { keys.insert(.option) }
+        if contains(.control) { keys.insert(.control) }
+        if contains(.capsLock) { keys.insert(.capsLock) }
+        if contains(.function) { keys.insert(.function) }
+        if contains(.help) { keys.insert(.help) }
+        return keys
     }
 }
 #endif

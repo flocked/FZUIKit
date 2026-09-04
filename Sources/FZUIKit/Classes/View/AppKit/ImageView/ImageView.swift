@@ -498,7 +498,7 @@ open class ImageView: NSControl {
                 stopAnimating()
             }
             if animationPlayback == .onMouseHover {
-                trackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeAlways])
+                trackingArea = TrackingArea(view: self, events: .mouseEnteredAndExited, activation: .always)
                 updateTrackingAreas()
             } else {
                 trackingArea = nil

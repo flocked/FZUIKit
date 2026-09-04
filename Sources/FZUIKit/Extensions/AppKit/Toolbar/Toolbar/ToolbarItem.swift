@@ -18,6 +18,9 @@ import AppKit
     var item: NSToolbarItem {
         rootItem
     }
+    public var aItem: NSToolbarItem {
+        item
+    }
     
     /**
      A Boolean value indicating whether the item is available on the 'default' toolbar presented to the user.
@@ -154,9 +157,6 @@ import AppKit
         set {
             guard newValue != label else { return }
             item.label = newValue
-            if newValue == "", let item = self as? Toolbar.SegmentedControl, !item.groupItem.subitems.isEmpty {
-                item.updateSegments()
-            }
         }
     }
     
@@ -348,12 +348,6 @@ import AppKit
         super.init()
         rootItem = NSToolbarItem(itemIdentifier: self.identifier)
     }
-    
-    func callActionBlock() {
-        
-    }
-    
-    var actionBlockID: ObjectIdentifier?
 }
 
 
@@ -425,7 +419,7 @@ extension NSObjectProtocol where Self: ToolbarItem {
      */
     public var validateHandler: ((Self)->())? {
         get { getAssociatedValue("validateHandler" )}
-        set { setAssociatedValue(newValue, key: "validateHandler") }
+        set { setAssociatedValue(newValue, for: "validateHandler") }
     }
     
     /**
@@ -440,6 +434,9 @@ extension NSObjectProtocol where Self: ToolbarItem {
     }
     
     func performValidation(checkOverwrite: Bool = true) {
+        if let menuItem = item as? NSMenuToolbarItem {
+            
+        }
         if let validateHandler = validateHandler {
             validateHandler(self)
         } else if checkOverwrite, Self.overrides(#selector(Self.validate)) {
@@ -450,12 +447,28 @@ extension NSObjectProtocol where Self: ToolbarItem {
                 menuFormRepresentation?.isEnabled = isEnabled
                 guard isEnabled, let menuItem = menuFormRepresentation, let menuValidation = target as? NSMenuItemValidation else { return }
                 menuItem.isEnabled = menuValidation.validateMenuItem(menuItem)
+            } else if item is NSMenuToolbarItem {
+                
+                isEnabled = false
+                menuFormRepresentation?.isEnabled = false
             } else {
                 isEnabled = false
                 menuFormRepresentation?.isEnabled = false
             }
         }
     }
+    
+    var overridesValidate: Bool {
+        Self.overrides(#selector(Self.validate))
+    }
 }
+
+extension NSMenu {
+    var isEnabled: Bool {
+        get { value(forKey: "_isEnabled") ?? false }
+        set { setValue(safely: newValue, forKey: "_isEnabled") }
+    }
+}
+
 
 #endif

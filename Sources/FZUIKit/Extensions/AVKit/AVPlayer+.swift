@@ -93,7 +93,7 @@ public extension AVPlayer {
     var stateHandler: ((State)->())? {
         get { getAssociatedValue("stateHandler") }
         set {
-            setAssociatedValue(newValue, key: "stateHandler")
+            setAssociatedValue(newValue, for: "stateHandler")
             if newValue == nil {
                 playerObserver = nil
             } else if playerObserver == nil {
@@ -126,12 +126,12 @@ public extension AVPlayer {
     
     internal var playerObserver: KeyValueObserver<AVPlayer>? {
         get { getAssociatedValue("playerObserver") }
-        set { setAssociatedValue(newValue, key: "playerObserver") }
+        set { setAssociatedValue(newValue, for: "playerObserver") }
     }
     
     internal var previousState: State {
         get { getAssociatedValue("previousState") ?? .isStopped }
-        set { setAssociatedValue(newValue, key: "previousState") }
+        set { setAssociatedValue(newValue, for: "previousState") }
     }
 
     /// Stops playback of the current item and seeks it to the start.
@@ -220,10 +220,10 @@ public extension AVPlayer {
     
     /// A Boolean value indicating whether the player should restart the playing item when it did finished playing.
     var isLooping: Bool {
-        get { getAssociatedValue("isLooping", initialValue: false) }
+        get { getAssociatedValue("isLooping", initial: false) }
         set {
             guard newValue != isLooping else { return }
-            setAssociatedValue(newValue, key: "isLooping")
+            setAssociatedValue(newValue, for: "isLooping")
             setupCurrentItemObservation()
             setupPlaybackEndedObservation()
         }
@@ -252,9 +252,9 @@ public extension AVPlayer {
     
     /// The handlers for the current item of the player.
     var itemHandlers: ItemHandlers {
-        get { getAssociatedValue("itemHandlers", initialValue: ItemHandlers()) }
+        get { getAssociatedValue("itemHandlers", initial: ItemHandlers()) }
         set {
-            setAssociatedValue(newValue, key: "itemHandlers")
+            setAssociatedValue(newValue, for: "itemHandlers")
             setupCurrentItemObservation()
             setupHandlerObservations()
         }
@@ -303,7 +303,7 @@ public extension AVPlayer {
     
     private var itemNotificationTokens: [Notification.Name : NotificationToken] {
         get { getAssociatedValue("itemNotificationTokens") ?? [:] }
-        set { setAssociatedValue(newValue, key: "itemNotificationTokens") }
+        set { setAssociatedValue(newValue, for: "itemNotificationTokens") }
     }
     
     private func setupCurrentItemObservation() {
@@ -320,13 +320,13 @@ public extension AVPlayer {
     
     private var currentItemObservation: KeyValueObservation? {
         get { getAssociatedValue("currentItemObservation") }
-        set { setAssociatedValue(newValue, key: "currentItemObservation") }
+        set { setAssociatedValue(newValue, for: "currentItemObservation") }
     }
     
     /// The handler that gets changed when the status of the current item changes.
     var itemStatusHandler: ((AVPlayerItem.Status)->())? {
         get { getAssociatedValue("itemStatusHandler") }
-        set { setAssociatedValue(newValue, key: "itemStatusHandler")
+        set { setAssociatedValue(newValue, for: "itemStatusHandler")
             if let statusHandler = newValue {
                 itemStatusObservation = observeChanges(for: \.currentItem?.status) { old, new in
                     guard old != new, let new = new else { return }
@@ -340,7 +340,7 @@ public extension AVPlayer {
     
     private var itemStatusObservation: KeyValueObservation? {
         get { getAssociatedValue("itemStatusObservation") }
-        set { setAssociatedValue(newValue, key: "itemStatusObservation") }
+        set { setAssociatedValue(newValue, for: "itemStatusObservation") }
     }
 }
 
@@ -357,10 +357,10 @@ extension AVPlayer {
     
     /// Playback option when loading a new item.
     public var playbackOption: ItemPlaybackOption {
-        get { getAssociatedValue("videoPlaybackOption", initialValue: .pause) }
+        get { getAssociatedValue("videoPlaybackOption", initial: .pause) }
         set { 
             guard newValue != playbackOption else { return }
-            setAssociatedValue(newValue, key: "videoPlaybackOption")
+            setAssociatedValue(newValue, for: "videoPlaybackOption")
             if newValue == .pause {
                 playerObservation = nil
             } else if playerObservation == nil {
@@ -388,13 +388,13 @@ extension AVPlayer {
     }
     
     var previousItemState: AVPlayer.State {
-        get { getAssociatedValue("previousItemState", initialValue: state) }
-        set { setAssociatedValue(newValue, key: "previousItemState") }
+        get { getAssociatedValue("previousItemState", initial: state) }
+        set { setAssociatedValue(newValue, for: "previousItemState") }
     }
     
     var playerObservation: KeyValueObserver<AVPlayer>? {
         get { getAssociatedValue("playerObservation") }
-        set { setAssociatedValue(newValue, key: "playerObservation") }
+        set { setAssociatedValue(newValue, for: "playerObservation") }
     }
     
     /**

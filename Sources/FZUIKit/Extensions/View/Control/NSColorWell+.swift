@@ -45,7 +45,7 @@ extension NSColorWell {
     public var colorHandler: ((_ color: NSColor)->())? {
         get { getAssociatedValue("colorHandler") }
         set {
-            setAssociatedValue(newValue, key: "colorHandler")
+            setAssociatedValue(newValue, for: "colorHandler")
             if let colorHandler = newValue {
                 colorObservation = observeChanges(for: \.color) { old, new in
                     guard old != new else { return }
@@ -66,14 +66,14 @@ extension NSColorWell {
     
     var colorObservation: KeyValueObservation? {
         get { getAssociatedValue("colorObservation") }
-        set { setAssociatedValue(newValue, key: "colorObservation") }
+        set { setAssociatedValue(newValue, for: "colorObservation") }
     }
     
     /// The pull down action handler.
     @available(macOS 13.0, *)
     public var pulldownActionBlock: ActionBlock? {
         set {
-            setAssociatedValue(newValue, key: "pulldownActionBlock")
+            setAssociatedValue(newValue, for: "pulldownActionBlock")
             if newValue != nil {
                 pulldownTarget = self
                 pulldownAction = #selector(performPulldownAction)

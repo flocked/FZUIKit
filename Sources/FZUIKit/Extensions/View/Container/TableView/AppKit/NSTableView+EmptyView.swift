@@ -21,7 +21,7 @@ extension NSTableView {
         get { getAssociatedValue("emptyContentView") }
         set {
             guard newValue != emptyContentView else { return }
-            setAssociatedValue(newValue, key: "emptyContentView")
+            setAssociatedValue(newValue, for: "emptyContentView")
             if let newValue = newValue {
                 emptyContentConfiguration = nil
                 if emptyView == nil {
@@ -44,7 +44,7 @@ extension NSTableView {
     public var emptyContentConfiguration: NSContentConfiguration? {
         get { getAssociatedValue("emptyContentConfiguration") }
         set {
-            setAssociatedValue(newValue, key: "emptyContentConfiguration")
+            setAssociatedValue(newValue, for: "emptyContentConfiguration")
             if let newValue = newValue {
                 emptyContentView = nil
                 if emptyView == nil {
@@ -63,7 +63,7 @@ extension NSTableView {
     public var emptyContentHandler: ((_ isEmpty: Bool)->())? {
         get { getAssociatedValue("emptyContentHandler") }
         set { 
-            setAssociatedValue(newValue, key: "emptyContentHandler")
+            setAssociatedValue(newValue, for: "emptyContentHandler")
             guard newValue != nil else { return }
             swizzleNumberOfRowsIfNeeded()
         }
@@ -74,7 +74,7 @@ extension NSTableView {
         set {
             guard newValue !== emptyView else { return }
             emptyView?.removeFromSuperview()
-            setAssociatedValue(newValue, key: "emptyView")
+            setAssociatedValue(newValue, for: "emptyView")
         }
     }
     
@@ -100,7 +100,7 @@ extension NSTableView {
     
     fileprivate var numberOfRowsHook: Hook? {
         get { getAssociatedValue("numberOfRowsHook") }
-        set { setAssociatedValue(newValue, key: "numberOfRowsHook") }
+        set { setAssociatedValue(newValue, for: "numberOfRowsHook") }
     }
     
     fileprivate func updateEmptyView() {
@@ -113,10 +113,10 @@ extension NSTableView {
     }
     
     fileprivate var isEmpty: Bool {
-        get { getAssociatedValue("isEmpty", initialValue: numberOfRows == 0) }
+        get { getAssociatedValue("isEmpty", initial: numberOfRows == 0) }
         set {
             guard newValue != isEmpty else { return }
-            setAssociatedValue(newValue, key: "isEmpty")
+            setAssociatedValue(newValue, for: "isEmpty")
             updateEmptyView()
             emptyContentHandler?(newValue)
         }

@@ -61,10 +61,10 @@ extension AVPlayerView {
      The default value is an empty array which indicates that the user can't drop any new media to the player view.
      */
     public var droppableMedia: [AVMediaContent]  {
-        get { getAssociatedValue("dropMediaContent", initialValue: []) }
+        get { getAssociatedValue("dropMediaContent", initial: []) }
         set {
             let newValue = newValue.uniqued()
-            setAssociatedValue(newValue, key: "dropMediaContent")
+            setAssociatedValue(newValue, for: "dropMediaContent")
             guard newValue != droppableMedia else { return }
             if !newValue.isEmpty {
                 dropHandlers.canDrop = { [weak self] dropInfo in
@@ -115,7 +115,7 @@ extension AVPlayerView {
         overlayView.clipsToBounds = true
         overlayView.frame = videoBounds
         (contentOverlayView ?? self).addSubview(overlayView)
-        setAssociatedValue(overlayView, key: "resizingContentOverlayView")
+        setAssociatedValue(overlayView, for: "resizingContentOverlayView")
         videoBoundsObservation = observeChanges(for: \.videoBounds, handler: { [weak self] old, new in
             guard let self = self, old != new else { return }
             self.resizingContentOverlayView.frame = new
@@ -125,7 +125,7 @@ extension AVPlayerView {
     
     private var videoBoundsObservation: KeyValueObservation? {
         get { getAssociatedValue("videoBoundsObservation") }
-        set { setAssociatedValue(newValue, key: "videoBoundsObservation") }
+        set { setAssociatedValue(newValue, for: "videoBoundsObservation") }
     }
     
     /// Cancels trimming.

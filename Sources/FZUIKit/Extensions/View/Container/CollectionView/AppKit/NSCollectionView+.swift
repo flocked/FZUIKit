@@ -243,7 +243,7 @@ public extension NSCollectionView {
     var doubleClickHandler: ((_ indexPath: IndexPath?) -> Void)? {
         get { getAssociatedValue("doubleClickHandler") }
         set {
-            setAssociatedValue(newValue, key: "doubleClickHandler")
+            setAssociatedValue(newValue, for: "doubleClickHandler")
             doubleClickGesture?.removeFromView()
             doubleClickGesture = nil
             guard let handler = newValue else { return }
@@ -296,17 +296,17 @@ public extension NSCollectionView {
     
     private var doubleClickGesture: DoubleClickGestureRecognizer? {
         get { getAssociatedValue("doubleClickGesture") }
-        set { setAssociatedValue(newValue, key: "doubleClickGesture") }
+        set { setAssociatedValue(newValue, for: "doubleClickGesture") }
     }
         
     private var toggleSelectionGestureRecognizer: ToggleSelectionGestureRecognizer? {
         get { getAssociatedValue("toggleSelectionGestureRecognizer") }
-        set { setAssociatedValue(newValue, key: "toggleSelectionGestureRecognizer") }
+        set { setAssociatedValue(newValue, for: "toggleSelectionGestureRecognizer") }
     }
         
     private var dragSelectionGestureRecognizer: DragSelectionGestureRecognizer? {
         get { getAssociatedValue("dragSelectionGestureRecognizer") }
-        set { setAssociatedValue(newValue, key: "dragSelectionGestureRecognizer") }
+        set { setAssociatedValue(newValue, for: "dragSelectionGestureRecognizer") }
     }
         
     private class ToggleSelectionGestureRecognizer: NSGestureRecognizer {

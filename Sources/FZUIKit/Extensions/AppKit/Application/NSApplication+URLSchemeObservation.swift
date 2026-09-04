@@ -43,7 +43,7 @@ extension NSApplication {
     var urlSchemeObservations: Set<Weak<URLSchemeObservation>> {
         get { getAssociatedValue("urlSchemeObservations") ?? [] }
         set {
-            setAssociatedValue(newValue, key: "urlSchemeObservations")
+            setAssociatedValue(newValue, for: "urlSchemeObservations")
             if !newValue.isEmpty, !isURLSchmaObservationEnabled {
                 isURLSchmaObservationEnabled = true
                 NSAppleEventManager.shared().setEventHandler(self, andSelector: #selector(handleURLEvent(_:withReplyEvent:)), forEventClass: AEEventClass(kInternetEventClass), andEventID: AEEventID(kAEGetURL))
@@ -64,7 +64,7 @@ extension NSApplication {
     
     private var isURLSchmaObservationEnabled: Bool {
         get { getAssociatedValue("isURLSchmaObservationEnabled") ?? false }
-        set { setAssociatedValue(newValue, key: "isURLSchmaObservationEnabled") }
+        set { setAssociatedValue(newValue, for: "isURLSchmaObservationEnabled") }
     }
 }
 

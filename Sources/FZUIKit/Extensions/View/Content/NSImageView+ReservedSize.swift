@@ -160,8 +160,8 @@ fileprivate extension NSImageView {
     }
     
     static var symbolConfigurationSizes: [NSImage.SymbolConfiguration: CGSize] {
-        get { getAssociatedValue("symbolConfigurationSizes", initialValue: [.default: NSImage.symbol("theatermasks", withConfiguration: .default)!.size]) }
-        set { setAssociatedValue(newValue, key: "symbolConfigurationSizes") }
+        get { getAssociatedValue("symbolConfigurationSizes", initial: [.default: NSImage.symbol("theatermasks", withConfiguration: .default)!.size]) }
+        set { setAssociatedValue(newValue, for: "symbolConfigurationSizes") }
     }
     
     var currentSymbolConfiguration: NSImage.SymbolConfiguration {
@@ -310,7 +310,7 @@ extension NSUIImage.SymbolConfiguration {
         
     private static var reservedLayoutSizes: [ReservedLayoutSizeKey: CGSize] {
         get { getAssociatedValue("reservedLayoutSizes") ?? [:] }
-        set { setAssociatedValue(newValue, key: "reservedLayoutSizes") }
+        set { setAssociatedValue(newValue, for: "reservedLayoutSizes") }
     }
     
     private var reservedLayoutSizeKey: ReservedLayoutSizeKey {

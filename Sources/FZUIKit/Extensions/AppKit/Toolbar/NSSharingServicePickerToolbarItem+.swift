@@ -48,7 +48,7 @@ extension NSSharingServicePickerToolbarItem {
     public var handlers: Handlers {
         get { getAssociatedValue("handlers") ?? Handlers() }
         set {
-            setAssociatedValue(newValue, key: "handlers")
+            setAssociatedValue(newValue, for: "handlers")
             if !handlers.needsDelegate {
                 handlerDelegate = nil
             } else if handlerDelegate == nil {
@@ -59,7 +59,7 @@ extension NSSharingServicePickerToolbarItem {
     
     private var handlerDelegate: Delegate? {
         get { getAssociatedValue("handlerDelegate") }
-        set { setAssociatedValue(newValue, key: "handlerDelegate") }
+        set { setAssociatedValue(newValue, for: "handlerDelegate") }
     }
     
     private class Delegate: NSObject, NSSharingServicePickerToolbarItemDelegate, NSSharingServiceDelegate {

@@ -17,7 +17,6 @@ extension Toolbar {
      If you don’t set an action, a simple click invokes the menu, and the indicator is purely decorative.
      */
     open class Menu: ToolbarItem {
-        
         fileprivate lazy var menuItem = ValidateMenuToolbarItem(for: self)
         override var item: NSToolbarItem {
             menuItem
@@ -57,7 +56,7 @@ extension Toolbar {
         
         /// Sets the Boolean value that determines whether the toolbar item displays an indicator of additional functionality.
         @discardableResult
-        open func showsIndicator(_ showsIndicator: Bool) -> Self {
+        open func showsIndicator(_ showsIndicator: Bool = true) -> Self {
             menuItem.showsIndicator = showsIndicator
             return self
         }
@@ -82,6 +81,7 @@ extension Toolbar {
         }
         
         /// Sets the menu presented from the toolbar item.
+        @discardableResult
         open func menu(@MenuBuilder _ items: () -> [NSMenuItem]) -> Self {
             menuItem.menu = NSMenu(items: items())
             return self
@@ -150,6 +150,10 @@ extension Toolbar {
             image = NSImage(systemSymbolName: symbolName)
         }
         
+        override public init(_ identifier: NSToolbarItem.Identifier? = nil) {
+            super.init(identifier)
+        }
+        
         /**
          Creates a menu toolbar item.
          
@@ -208,12 +212,33 @@ fileprivate class ValidateMenuToolbarItem: NSMenuToolbarItem {
         self.item = item
     }
     
+    override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        false
+    }
+    
     override func validate() {
-        if isValidatable {
-            item?.performValidation()
+        guard let item else { return }
+        if let validateHandler = item.validateHandler {
+            validateHandler(item)
+        } else if item.overridesValidate {
+            item.validate()
         } else {
             super.validate()
+            isEnabled = menu.hasVisibleContentItem
         }
+    }
+}
+
+fileprivate extension NSMenu {
+    var hasVisibleContentItem: Bool {
+        items.contains { !$0.isHidden && !$0.isSeparatorItem && !$0.isSection }
+    }
+}
+
+fileprivate extension NSMenuItem {
+    var isSection: Bool {
+        guard #available(macOS 14.0, *) else { return false }
+        return isSectionHeader
     }
 }
 

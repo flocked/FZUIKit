@@ -188,17 +188,17 @@ public extension TextProvider {
     }
     
     fileprivate var calculateTextStorage: NSTextStorage {
-        get { getAssociatedValue("calculateTextStorage", initialValue: NSTextStorage(string: "")) }
-        set { setAssociatedValue(newValue, key: "calculateTextStorage") }
+        get { getAssociatedValue("calculateTextStorage", initial: NSTextStorage(string: "")) }
+        set { setAssociatedValue(newValue, for: "calculateTextStorage") }
     }
     
     fileprivate var appliedFont: NSUIFont? {
         get { getAssociatedValue("appliedFont") }
-        set { setAssociatedValue(newValue, key: "appliedFont") }
+        set { setAssociatedValue(newValue, for: "appliedFont") }
     }
     
     fileprivate var calculationLayoutManager: NSLayoutManager {
-        getAssociatedValue("calculationLayoutManager", initialValue: NSLayoutManager(textStorage: calculateTextStorage))
+        getAssociatedValue("calculationLayoutManager", initial: NSLayoutManager(textStorage: calculateTextStorage))
     }
 }
 

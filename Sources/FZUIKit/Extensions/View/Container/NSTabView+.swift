@@ -88,7 +88,7 @@ public extension NSTabView {
     var handler: Handler {
         get { getAssociatedValue("handler") ?? Handler() }
         set {
-            setAssociatedValue(newValue, key: "handler")
+            setAssociatedValue(newValue, for: "handler")
             if newValue.needsDelegate {
                 guard tabViewDelegate == nil else { return }
                 tabViewDelegate = TabViewDelegate(for: self)
@@ -138,7 +138,7 @@ public extension NSTabView {
     
     private var tabViewDelegate: TabViewDelegate? {
         get { getAssociatedValue("tabViewDelegate") }
-        set { setAssociatedValue(newValue, key: "tabViewDelegate") }
+        set { setAssociatedValue(newValue, for: "tabViewDelegate") }
     }
     
     /// A function builder type that produces an array of tab view items.

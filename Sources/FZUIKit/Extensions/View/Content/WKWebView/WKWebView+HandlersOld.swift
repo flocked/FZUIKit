@@ -139,7 +139,7 @@ extension WKWebView {
     public var handlers: Handlers {
         get { getAssociatedValue("handlers") ?? Handlers() }
         set {
-            setAssociatedValue(newValue, key: "handlers")
+            setAssociatedValue(newValue, for: "handlers")
             setupDelegate()
         }
     }
@@ -149,7 +149,7 @@ extension WKWebView {
     public var downloadHanders: DownloadHandlers {
         get { getAssociatedValue("handlers") ?? DownloadHandlers() }
         set {
-            setAssociatedValue(newValue, key: "handlers")
+            setAssociatedValue(newValue, for: "handlers")
             setupDelegate()
         }
     }
@@ -174,14 +174,14 @@ extension WKWebView {
         set {
             downloadsQueue.async(flags: .barrier) {
                 guard Set(self.downloads) != Set(newValue) else { return }
-                self.setAssociatedValue(newValue, key: "downloads")
+                self.setAssociatedValue(newValue, for: "downloads")
                 self.downloadHanders.downloads?(newValue)
             }
         }
     }
     
     private var downloadsQueue: DispatchQueue {
-        getAssociatedValue("downloadsQueue", initialValue: DispatchQueue(label: "com.WKWebView.downloadsQueue", attributes: .concurrent))
+        getAssociatedValue("downloadsQueue", initial: DispatchQueue(label: "com.WKWebView.downloadsQueue", attributes: .concurrent))
     }
     
     /// The default location for downloads.
@@ -193,7 +193,7 @@ extension WKWebView {
             }
             return getAssociatedValue("downloadLocation") ?? FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first!
         }
-        set { setAssociatedValue(newValue, key: "downloadLocation") }
+        set { setAssociatedValue(newValue, for: "downloadLocation") }
     }
     
     private var currentCookies: [HTTPCookie] {
@@ -201,19 +201,19 @@ extension WKWebView {
         set {
             cookiesQueue.async(flags: .barrier) {
                 guard self.currentCookies.count != newValue.count || self.currentCookies.map({ $0.wrapper }) != newValue.map({ $0.wrapper }) else { return }
-                self.setAssociatedValue(newValue, key: "currentCookies")
+                self.setAssociatedValue(newValue, for: "currentCookies")
                 self.handlers.cookies?(newValue)
             }
         }
     }
     
     private var cookiesQueue: DispatchQueue {
-        getAssociatedValue("cookiesQueue", initialValue: DispatchQueue(label: "com.WKWebView.cookiesQueue", attributes: .concurrent))
+        getAssociatedValue("cookiesQueue", initial: DispatchQueue(label: "com.WKWebView.cookiesQueue", attributes: .concurrent))
     }
     
     var _delegate: Delegate? {
         get { getAssociatedValue("_delegate")}
-        set { setAssociatedValue(newValue, key: "_delegate") }
+        set { setAssociatedValue(newValue, for: "_delegate") }
     }
     
     class Delegate: NSObject, WKNavigationDelegate {
@@ -468,17 +468,17 @@ extension WKDownload {
     /// The amount of retries when downloading via ``FZWebView`` fails.
     public var retryAmount: Int {
         get { getAssociatedValue("retryAmount") ?? 0 }
-        set { setAssociatedValue(newValue, key: "retryAmount") }
+        set { setAssociatedValue(newValue, for: "retryAmount") }
     }
     
     var retries: Int {
         get { getAssociatedValue("retries") ?? 0 }
-        set { setAssociatedValue(newValue, key: "retries") }
+        set { setAssociatedValue(newValue, for: "retries") }
     }
 
     var fileDestinationURL: URL? {
         get { getAssociatedValue("fileDestinationURL") }
-        set { setAssociatedValue(newValue, key: "fileDestinationURL") }
+        set { setAssociatedValue(newValue, for: "fileDestinationURL") }
     }
 }
 #endif

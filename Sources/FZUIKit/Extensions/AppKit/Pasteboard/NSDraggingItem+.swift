@@ -84,7 +84,7 @@ public extension NSDraggingItem {
     var view: NSView? {
         get { getAssociatedValue("_view") }
         set {
-            setAssociatedValue(weak: newValue, key: "_view")
+            setAssociatedValue(weak: newValue, for: "_view")
             guard newValue != nil else { return }
             NSView.swizzleBeginDraggingSession()
         }

@@ -220,7 +220,7 @@ extension UIView {
     public var viewHandlers: ViewHandlers {
         get { getAssociatedValue("handlers") ?? ViewHandlers() }
         set {
-            setAssociatedValue(newValue, key: "handlers")
+            setAssociatedValue(newValue, for: "handlers")
             setupTraitObservation()
         }
     }
@@ -287,7 +287,7 @@ extension UIView {
     
     fileprivate var traitObserverView: TraitObserverView? {
         get { getAssociatedValue("traitObserverView") }
-        set { setAssociatedValue(newValue, key: "traitObserverView") }
+        set { setAssociatedValue(newValue, for: "traitObserverView") }
     }
     
     fileprivate class TraitObserverView: UIView {

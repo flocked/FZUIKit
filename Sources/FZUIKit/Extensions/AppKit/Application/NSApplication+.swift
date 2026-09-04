@@ -71,7 +71,7 @@ public extension NSApplication {
         get { getAssociatedValue("keyboardTerminationDelay") ?? 0.0 }
         set {
             let newValue = newValue.clamped(min: 0.0)
-            setAssociatedValue(newValue, key: "keyboardTerminationDelay")
+            setAssociatedValue(newValue, for: "keyboardTerminationDelay")
             delayedTerminationMonitors = []
             delayedTerminationWindow?.close()
             delayedTerminationWindow = nil
@@ -105,7 +105,7 @@ public extension NSApplication {
         get { getAssociatedValue("menuProvider") }
         set {
             guard let delegate = delegate as? NSObject else { return }
-            setAssociatedValue(newValue, key: "menuProvider")
+            setAssociatedValue(newValue, for: "menuProvider")
             try? menuProviderHook?.revert()
             menuProviderHook = nil
             guard let newValue = newValue else { return }
@@ -129,7 +129,7 @@ public extension NSApplication {
     
     private var menuProviderHook: Hook? {
         get { getAssociatedValue("menuProviderHook") }
-        set { setAssociatedValue(newValue, key: "menuProviderHook") }
+        set { setAssociatedValue(newValue, for: "menuProviderHook") }
     }
         
     /// Handlers for the application.
@@ -144,9 +144,9 @@ public extension NSApplication {
         
     /// The handlers for the application.
     var handlers: Handlers {
-        get { getAssociatedValue("handlers", initialValue: Handlers()) }
+        get { getAssociatedValue("handlers", initial: Handlers()) }
         set {
-            setAssociatedValue(newValue, key: "handlers")
+            setAssociatedValue(newValue, for: "handlers")
             if let isHidden = newValue.isHidden {
                 notificationTokens[NSApplication.didHideNotification] = NotificationCenter.default.observe(NSApplication.didHideNotification) { _ in
                     isHidden(true)
@@ -180,23 +180,23 @@ public extension NSApplication {
     }
         
     internal var notificationTokens: [Notification.Name: NotificationToken] {
-        get { getAssociatedValue("notificationTokens", initialValue: [:]) }
-        set { setAssociatedValue(newValue, key: "notificationTokens") }
+        get { getAssociatedValue("notificationTokens", initial: [:]) }
+        set { setAssociatedValue(newValue, for: "notificationTokens") }
     }
     
     internal var delayedTerminationMonitors: [NSEvent.Monitor] {
         get { getAssociatedValue("delayedTerminationMonitors") ?? [] }
-        set { setAssociatedValue(newValue, key: "delayedTerminationMonitors") }
+        set { setAssociatedValue(newValue, for: "delayedTerminationMonitors") }
     }
         
     internal var delayedTerminationStartTime: CFAbsoluteTime {
         get { getAssociatedValue("delayedTerminationStartTime") ?? 0.0 }
-        set { setAssociatedValue(newValue, key: "delayedTerminationStartTime") }
+        set { setAssociatedValue(newValue, for: "delayedTerminationStartTime") }
     }
     
     internal var delayedTerminationWindow: NSWindow? {
         get { getAssociatedValue("delayedTerminationWindow") }
-        set { setAssociatedValue(newValue, key: "delayedTerminationWindow") }
+        set { setAssociatedValue(newValue, for: "delayedTerminationWindow") }
     }
 }
 

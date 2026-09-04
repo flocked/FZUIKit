@@ -127,7 +127,7 @@ extension UIAlertController {
     var suppressionKey: String? {
         get { getAssociatedValue("suppressionKey") }
         set {
-            setAssociatedValue(newValue, key: "suppressionKey")
+            setAssociatedValue(newValue, for: "suppressionKey")
             swizzleRunModal()
         }
     }

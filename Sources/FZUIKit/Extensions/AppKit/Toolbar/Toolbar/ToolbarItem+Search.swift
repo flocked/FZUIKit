@@ -34,7 +34,7 @@ extension Toolbar {
         
         /// The handler that is called when the user changes the text of the search field.
         open var handler: ((_ stringValue: String, _ state: SearchState) -> Void)? {
-            didSet { searchItem.updateSearchFieldObservation() }
+            didSet {  searchItem.updateSearchFieldObservation() }
         }
         
         /// Sets the handler that is called when the user changes the text of the search field.
@@ -203,6 +203,12 @@ extension Toolbar {
             return self
         }
         
+        var textEditingOverrides: (didChange: Bool, didBegin: Bool, didEnd: Bool) {
+            (Self.overrides(#selector(textDidChange)), Self.overrides(#selector(textDidBeginEditing)), Self.overrides(#selector(textDidEndEditing)))
+        }
+        
+        
+        
         /**
          Creates a search toolbar item.
          
@@ -235,50 +241,53 @@ extension Toolbar {
             searchItem.searchField = searchField
         }
     }
-}
-
-fileprivate class ValidateSearchToolbarItem: NSSearchToolbarItem {
-    weak var item: Toolbar.Search?
     
-    private var isOverwrittingTextEditing = false
-    private var searchTokens: [NotificationToken] = []
-    
-    override var searchField: NSSearchField {
-        didSet {
-            guard oldValue !== searchField else { return }
+    fileprivate class ValidateSearchToolbarItem: NSSearchToolbarItem {
+        weak var item: Toolbar.Search?
+        
+        private var searchTokens: [NotificationToken] = []
+        private let textEditingOverrides: (didChange: Bool, didBegin: Bool, didEnd: Bool)
+        
+        func updateSearchFieldObservation() {
+            searchTokens = []
+            let hasHandler = item?.handler != nil
+            if hasHandler || textEditingOverrides.didChange {
+                searchTokens +=  NotificationCenter.default.observe(NSSearchField.textDidChangeNotification, postedBy: searchField) { [weak self] _ in
+                    guard let item = self?.item else { return }
+                    item.textDidChange()
+                    item.handler?(item.stringValue, .didUpdate)
+                }
+            }
+            if hasHandler || textEditingOverrides.didBegin {
+                searchTokens +=  NotificationCenter.default.observe(NSSearchField.textDidBeginEditingNotification, postedBy: searchField) { [weak self] _ in
+                    guard let item = self?.item else { return }
+                    item.textDidBeginEditing()
+                    item.handler?(item.stringValue, .didStart)
+                }
+            }
+            if hasHandler || textEditingOverrides.didEnd {
+                searchTokens +=  NotificationCenter.default.observe(NSSearchField.textDidEndEditingNotification, postedBy: searchField) { [weak self] _ in
+                    guard let item = self?.item else { return }
+                    item.textDidEndEditing()
+                    item.handler?(item.stringValue, .didEnd)
+                }
+            }
+        }
+        
+        init(for item: Toolbar.Search) {
+            self.item = item
+            textEditingOverrides = item.textEditingOverrides
+            super.init(itemIdentifier: item.identifier)
             updateSearchFieldObservation()
         }
-    }
-    
-    func updateSearchFieldObservation() {
-        searchTokens = []
-        guard isOverwrittingTextEditing || item?.handler != nil else { return }
-        searchTokens +=  NotificationCenter.default.observe(NSSearchField.textDidChangeNotification, postedBy: searchField) { [weak self] _ in
-            self?.item?.textDidChange()
-        }
-        searchTokens +=  NotificationCenter.default.observe(NSSearchField.textDidBeginEditingNotification, postedBy: searchField) { [weak self] _ in
-            self?.item?.textDidBeginEditing()
-        }
-        searchTokens +=  NotificationCenter.default.observe(NSSearchField.textDidEndEditingNotification, postedBy: searchField) { [weak self] _ in
-            self?.item?.textDidEndEditing()
-        }
-    }
-    
-    init<V: Toolbar.Search>(for item: V) {
-        super.init(itemIdentifier: item.identifier)
-        self.item = item
         
-        isOverwrittingTextEditing = V.overrides(#selector(Toolbar.Search.textDidChange)) || V.overrides(#selector(Toolbar.Search.textDidBeginEditing)) || V.overrides(#selector(Toolbar.Search.textDidEndEditing))
-        
-        updateSearchFieldObservation()
-    }
-    
-    override func validate() {
-        super.validate()
-        guard let item = item else { return }
-        item.validate()
-        item.validateHandler?(item)
+        override func validate() {
+            if isValidatable {
+                item?.performValidation()
+            } else {
+                super.validate()
+            }
+        }
     }
 }
-
 #endif

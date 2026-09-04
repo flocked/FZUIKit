@@ -39,7 +39,7 @@ extension InteractiveCollectionViewLayout {
 extension NSUICollectionView {
     var columnInteractionGestureRecognizer: ColumnInteractionGestureRecognizer? {
         get { getAssociatedValue("columnInteractionGestureRecognizer") }
-        set { setAssociatedValue(newValue, key: "columnInteractionGestureRecognizer") }
+        set { setAssociatedValue(newValue, for: "columnInteractionGestureRecognizer") }
     }
     
     func setupColumnInteractionGestureRecognizer(_ needsRecognizer: Bool) {

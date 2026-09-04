@@ -30,7 +30,7 @@ extension AVPlayerViewController {
             view.addSubview(overlayView)
         }
         overlayView.frame = videoBounds
-        setAssociatedValue(overlayView, key: "resizingContentOverlayView")
+        setAssociatedValue(overlayView, for: "resizingContentOverlayView")
         #if os(iOS)
         videoBoundsObservation = observeChanges(for: \.videoBounds, handler: { [weak self] old, new in
             guard let self = self, old != new else { return }
@@ -56,11 +56,11 @@ extension AVPlayerViewController {
     #if os(iOS)
     var videoBoundsObservation: KeyValueObservation? {
         get { getAssociatedValue("videoBoundsObservation") }
-        set { setAssociatedValue(newValue, key: "videoBoundsObservation") }
+        set { setAssociatedValue(newValue, for: "videoBoundsObservation") }
     }
     #else
     var videoViewControllerObserver: KeyValueObserver<AVPlayerViewController>? {
-        get { getAssociatedValue("videoBoundsObservation", initialValue: KeyValueObserver(self)) }
+        get { getAssociatedValue("videoBoundsObservation", initial: KeyValueObserver(self)) }
     }
     
     /**

@@ -24,7 +24,7 @@ extension NSTextField {
         get { getAssociatedValue("adjustsFontSizeToFitWidth") ?? false }
         set {
             guard newValue != adjustsFontSizeToFitWidth else { return }
-            setAssociatedValue(newValue, key: "adjustsFontSizeToFitWidth")
+            setAssociatedValue(newValue, for: "adjustsFontSizeToFitWidth")
             setupFontAdjustment()
             adjustFontSize()
         }
@@ -49,7 +49,7 @@ extension NSTextField {
         set {
             let newValue = newValue.clamped(to: 0.0...1.0)
             guard newValue != minimumScaleFactor else { return }
-            setAssociatedValue(newValue, key: "minimumScaleFactor")
+            setAssociatedValue(newValue, for: "minimumScaleFactor")
             setupFontAdjustment()
             adjustFontSize()
         }
@@ -175,12 +175,12 @@ extension NSTextField {
     
     private var fontHooks: [Hook] {
         get { getAssociatedValue("fontHooks") ?? [] }
-        set { setAssociatedValue(newValue, key: "fontHooks") }
+        set { setAssociatedValue(newValue, for: "fontHooks") }
     }
 
     private var _font: NSFont? {
         get { getAssociatedValue("_font") }
-        set { setAssociatedValue(newValue, key: "_font") }
+        set { setAssociatedValue(newValue, for: "_font") }
     }
 }
 

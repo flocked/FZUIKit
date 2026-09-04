@@ -54,14 +54,14 @@ extension NSAnimatablePropertyContainer where Self: NSObject {
     }
     
     var animationDelegate: AnimationDelegate {
-        getAssociatedValue("propertyAnimationDelegate", initialValue: AnimationDelegate(for: self as! AnimatablePropertyProvider))
+        getAssociatedValue("propertyAnimationDelegate", initial: AnimationDelegate(for: self as! AnimatablePropertyProvider))
     }
 }
 
 extension NSAnimationContext {
     fileprivate static var didSwizzleDefaultAnimation: Bool {
         get { getAssociatedValue("didSwizzleDefaultAnimation") ?? false }
-        set { setAssociatedValue(newValue, key: "didSwizzleDefaultAnimation") }
+        set { setAssociatedValue(newValue, for: "didSwizzleDefaultAnimation") }
     }
     
     static func swizzleAll() {
@@ -154,7 +154,7 @@ extension CALayer {
     }
     
     var animationDelegate: AnimationDelegate {
-        getAssociatedValue("propertyAnimationDelegate", initialValue: AnimationDelegate(for: self))
+        getAssociatedValue("propertyAnimationDelegate", initial: AnimationDelegate(for: self))
     }
 }
 
@@ -197,8 +197,8 @@ fileprivate extension CALayer {
     }
     
     static var didSwizzleActionForKey: Bool {
-        get { getAssociatedValue("didSwizzleActionForKey", initialValue: false) }
-        set { setAssociatedValue(newValue, key: "didSwizzleActionForKey") }
+        get { getAssociatedValue("didSwizzleActionForKey", initial: false) }
+        set { setAssociatedValue(newValue, for: "didSwizzleActionForKey") }
     }
 }
 
@@ -218,7 +218,7 @@ extension AnimatablePropertyProvider {
 
     private static var didSwizzleAnimationForKey: Bool {
         get { getAssociatedValue("didSwizzleAnimationForKey") ?? false }
-        set { setAssociatedValue(newValue, key: "didSwizzleAnimationForKey") }
+        set { setAssociatedValue(newValue, for: "didSwizzleAnimationForKey") }
     }
 }
 

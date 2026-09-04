@@ -19,14 +19,14 @@
      var contentUnavailableConfiguration: NSContentConfiguration?   {
          get { getAssociatedValue("NSView_contentUnavailableConfiguration") }
          set {
-             setAssociatedValue(newValue, key: "NSView_contentUnavailableConfiguration")
+             setAssociatedValue(newValue, for: "NSView_contentUnavailableConfiguration")
              self.configurateUnavailableView()
          }
      }
 
      internal var unavailableView: (NSView & NSContentView)?   {
          get { getAssociatedValue("NSView_unavailableView") }
-         set { setAssociatedValue(newValue, key: "NSView_unavailableView")
+         set { setAssociatedValue(newValue, for: "NSView_unavailableView")
          }
      }
 

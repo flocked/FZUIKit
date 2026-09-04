@@ -218,7 +218,7 @@ extension NSDraggingSource where Self: NSObject {
     public var draggingSourceHandlers: NSDraggingSourceHandlers {
         get { getAssociatedValue("draggingSourceHandlers") ?? .init() }
         set {
-            setAssociatedValue(newValue, key: "draggingSourceHandlers")
+            setAssociatedValue(newValue, for: "draggingSourceHandlers")
             if newValue.willBegin != nil {
                 swizzleDraggingSourceWillBegin()
             }
@@ -233,17 +233,17 @@ extension NSDraggingSource where Self: NSObject {
     
     private var didSwizzleDraggingSourceWillBegin: Bool {
         get { getAssociatedValue("didSwizzleDraggingSourceWillBegin") ?? false }
-        set { setAssociatedValue(newValue, key: "didSwizzleDraggingSourceWillBegin") }
+        set { setAssociatedValue(newValue, for: "didSwizzleDraggingSourceWillBegin") }
     }
     
     private var didSwizzleDraggingSourceDidUpdate: Bool {
         get { getAssociatedValue("didSwizzleDraggingSourceDidUpdate") ?? false }
-        set { setAssociatedValue(newValue, key: "didSwizzleDraggingSourceDidUpdate") }
+        set { setAssociatedValue(newValue, for: "didSwizzleDraggingSourceDidUpdate") }
     }
     
     private var didSwizzleDraggingSourceDidEnd: Bool {
         get { getAssociatedValue("didSwizzleDraggingSourceDidEnd") ?? false }
-        set { setAssociatedValue(newValue, key: "didSwizzleDraggingSourceDidEnd") }
+        set { setAssociatedValue(newValue, for: "didSwizzleDraggingSourceDidEnd") }
     }
     
     private func swizzleDraggingSourceWillBegin() {

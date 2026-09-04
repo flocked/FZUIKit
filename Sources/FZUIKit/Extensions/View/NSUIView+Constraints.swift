@@ -350,12 +350,12 @@ public extension NSUIView {
     
     fileprivate var constraintDeinitObservation: DeinitObservation? {
         get { getAssociatedValue("constraintDeinitObservation") }
-        set { setAssociatedValue(newValue, key: "constraintDeinitObservation") }
+        set { setAssociatedValue(newValue, for: "constraintDeinitObservation") }
     }
     
     fileprivate var constraintBoundsObservation: KeyValueObservation? {
         get { getAssociatedValue("constraintBoundsObservation") }
-        set { setAssociatedValue(newValue, key: "constraintBoundsObservation") }
+        set { setAssociatedValue(newValue, for: "constraintBoundsObservation") }
     }
         
 #if os(macOS)

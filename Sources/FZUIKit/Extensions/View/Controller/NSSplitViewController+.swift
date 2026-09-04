@@ -49,7 +49,7 @@ extension NSSplitViewController {
 
 extension NSSplitViewController: AppKit.NSAnimatablePropertyContainer {
     public func animator() -> Self {
-        NSObjectProxy(object: self).asObject()
+        NSObjectProxy(of: self).asObject()
     }
     
     public var animations: [NSAnimatablePropertyKey : Any] {

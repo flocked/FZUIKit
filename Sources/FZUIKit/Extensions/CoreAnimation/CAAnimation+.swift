@@ -14,7 +14,7 @@ extension CAAnimation {
     public var onStart: (() -> Void)? {
         get { getAssociatedValue("didStart") }
         set {
-            setAssociatedValue(newValue, key: "didStart")
+            setAssociatedValue(newValue, for: "didStart")
             updateAnimationDelegate()
         }
     }
@@ -23,7 +23,7 @@ extension CAAnimation {
     public var onStop: (() -> Void)? {
         get { getAssociatedValue("didFinish") }
         set {
-            setAssociatedValue(newValue, key: "didFinish")
+            setAssociatedValue(newValue, for: "didFinish")
             updateAnimationDelegate()
         }
     }

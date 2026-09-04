@@ -37,7 +37,7 @@ extension NSCollectionView {
     public var centeredDropTargetGapIndicator: Bool {
         get { getAssociatedValue("centeredDropTargetGapIndicator") ?? true }
         set {
-            setAssociatedValue(newValue, key: "centeredDropTargetGapIndicator")
+            setAssociatedValue(newValue, for: "centeredDropTargetGapIndicator")
             swizzleDropIndicatorView()
         }
     }
@@ -87,7 +87,7 @@ extension NSCollectionView {
     }
     
     var dragIndicatorView: DragIndicatorView {
-        getAssociatedValue("dragIndicatorView", initialValue: { DragIndicatorView() })
+        getAssociatedValue("dragIndicatorView", initial: { DragIndicatorView() })
     }
     
     class DragIndicatorView: NSView {
@@ -174,7 +174,7 @@ extension NSCollectionViewLayout {
         get { getAssociatedValue("centeredDropTargetGapIndicator") ?? true }
         set {
             guard newValue != centeredInterItemDropTargetGapIndicator else { return }
-            setAssociatedValue(newValue, key: "centeredDropTargetGapIndicator")
+            setAssociatedValue(newValue, for: "centeredDropTargetGapIndicator")
             swizzleInterItemGap()
         }
     }
@@ -183,7 +183,7 @@ extension NSCollectionViewLayout {
         get { getAssociatedValue("interItemDropTargetGapIndicatorColor") }
         set {
             guard newValue != interItemDropTargetGapIndicatorColor else { return }
-            setAssociatedValue(newValue, key: "interItemDropTargetGapIndicatorColor")
+            setAssociatedValue(newValue, for: "interItemDropTargetGapIndicatorColor")
             swizzleInterItemGap()
         }
     }

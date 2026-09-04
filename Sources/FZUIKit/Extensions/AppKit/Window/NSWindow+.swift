@@ -379,10 +379,10 @@ extension NSWindow {
     
     /// The handlers for the window.
     public var handlers: Handlers {
-        get { getAssociatedValue("windowHandlers", initialValue: Handlers()) }
+        get { getAssociatedValue("windowHandlers", initial: Handlers()) }
         set {
             let needsSpaceUpdate = (handlers.isOnActiveSpace == nil && newValue.isOnActiveSpace != nil) || (handlers.isOnActiveSpace != nil && newValue.isOnActiveSpace == nil)
-            setAssociatedValue(newValue, key: "windowHandlers")
+            setAssociatedValue(newValue, for: "windowHandlers")
             
             if needsSpaceUpdate {
                 _isOnActiveSpace = isOnActiveSpace
@@ -474,8 +474,8 @@ extension NSWindow {
     }
     
     var _isOnActiveSpace: Bool {
-        get { getAssociatedValue("isOnActiveSpace", initialValue: isOnActiveSpace) }
-        set { setAssociatedValue(newValue, key: "isOnActiveSpace") }
+        get { getAssociatedValue("isOnActiveSpace", initial: isOnActiveSpace) }
+        set { setAssociatedValue(newValue, for: "isOnActiveSpace") }
     }
     
     func sendOnActiveSpace() {
@@ -496,7 +496,7 @@ extension NSWindow {
     
     static var activeSpaceObservation: NotificationToken? {
         get { getAssociatedValue("activeSpaceObservation") }
-        set { setAssociatedValue(newValue, key: "activeSpaceObservation") }
+        set { setAssociatedValue(newValue, for: "activeSpaceObservation") }
     }
     
     /// Sets the minimum size to which the window’s frame (including its title bar) can be sized.
@@ -640,12 +640,12 @@ extension NSWindow {
     }
     
     fileprivate var windowObserver: KeyValueObserver<NSWindow> {
-        getAssociatedValue("windowObserver", initialValue: KeyValueObserver(self))
+        getAssociatedValue("windowObserver", initial: KeyValueObserver(self))
     }
     
     fileprivate var observations: [String: [NotificationToken]] {
         get { getAssociatedValue("observations") ?? [:] }
-        set { setAssociatedValue(newValue, key: "observations") }
+        set { setAssociatedValue(newValue, for: "observations") }
     }
     
     /// A Boolean value indicating whether the window is fullscreen.
@@ -682,7 +682,7 @@ extension NSWindow {
     
     private var fullscreenTokens: [NotificationToken] {
         get { getAssociatedValue("fullscreenTokens") ?? [] }
-        set { setAssociatedValue(newValue, key: "fullscreenTokens") }
+        set { setAssociatedValue(newValue, for: "fullscreenTokens") }
     }
     
     /// The index of the window tab, or `nil` if the window isn't a tab.

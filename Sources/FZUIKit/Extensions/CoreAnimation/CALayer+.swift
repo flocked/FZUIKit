@@ -358,11 +358,11 @@ extension CALayer {
     
     fileprivate var innerShadowLayer: InnerShadowLayer? {
         get { getAssociatedValue("innerShadowLayer") }
-        set { setAssociatedValue(newValue, key: "innerShadowLayer") }
+        set { setAssociatedValue(newValue, for: "innerShadowLayer") }
     }
     
     fileprivate var _innerShadowLayer: InnerShadowLayer {
-        getAssociatedValue("_innerShadowLayer", initialValue: InnerShadowLayer(for: self) )
+        getAssociatedValue("_innerShadowLayer", initial: InnerShadowLayer(for: self) )
     }
     
     var innerShadowColor: CGColor? {
@@ -403,7 +403,7 @@ extension CALayer {
     
     @objc dynamic var _maskShape: String? {
         get { getAssociatedValue("_maskShape") }
-        set { setAssociatedValue(newValue, key: "_maskShape") }
+        set { setAssociatedValue(newValue, for: "_maskShape") }
     }
     
     /// Sets the shape that is used for masking the layer.
@@ -424,7 +424,7 @@ extension CALayer {
     public var shadowShape: (any Shape)? {
         get { getAssociatedValue("shadowShape") }
         set {
-            setAssociatedValue(newValue, key: "shadowShape")
+            setAssociatedValue(newValue, for: "shadowShape")
             didUpdateShadowShapManually = true
             if let newValue = newValue {
                 shadowShapeObservation = observeChanges(for: \.bounds) { [weak self] old, new in
@@ -443,7 +443,7 @@ extension CALayer {
     
     var didUpdateShadowShapManually: Bool {
         get { getAssociatedValue("didUpdateShadowShapManually") ?? false }
-        set { setAssociatedValue(newValue, key: "didUpdateShadowShapManually") }
+        set { setAssociatedValue(newValue, for: "didUpdateShadowShapManually") }
     }
     
     /// Sets the shape of the shadow.
@@ -455,7 +455,7 @@ extension CALayer {
     
     fileprivate var shadowShapeObservation: KeyValueObservation? {
         get { getAssociatedValue("shadowShapeObservation") }
-        set { setAssociatedValue(newValue, key: "shadowShapeObservation") }
+        set { setAssociatedValue(newValue, for: "shadowShapeObservation") }
     }
     
     /// The border of the layer.
@@ -510,7 +510,7 @@ extension CALayer {
     
     var shadowShapeLayer: ShadowShapeLayer? {
         get { getAssociatedValue("shadowShapeLayer") }
-        set { setAssociatedValue(newValue, key: "shadowShapeLayer") }
+        set { setAssociatedValue(newValue, for: "shadowShapeLayer") }
     }
     
     class ShadowShapeLayer: CALayer {
@@ -752,7 +752,7 @@ extension CALayer {
     }
     
     var configurations: Configurations {
-        getAssociatedValue("LayerConfigurations", initialValue: Configurations(for: self))
+        getAssociatedValue("LayerConfigurations", initial: Configurations(for: self))
     }
     
     var backgroundColorIsVisible: Bool {
@@ -885,12 +885,12 @@ extension CALayer {
     
     private var superLayerObservation: KeyValueObservation? {
         get { getAssociatedValue("superLayerObservation") }
-        set { setAssociatedValue(newValue, key: "superLayerObservation") }
+        set { setAssociatedValue(newValue, for: "superLayerObservation") }
     }
     
     private var constrainLayerObserver: KeyValueObserver<CALayer>? {
         get { getAssociatedValue("constrainLayerObserver") }
-        set { setAssociatedValue(newValue, key: "constrainLayerObserver") }
+        set { setAssociatedValue(newValue, for: "constrainLayerObserver") }
     }
     
     /// The associated view using the layer.

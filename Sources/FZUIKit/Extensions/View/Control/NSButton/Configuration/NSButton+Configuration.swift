@@ -38,7 +38,7 @@ extension NSButton {
     public var configuration: NSButtonConfiguration? {
         get { getAssociatedValue("configuration") }
         set {
-            setAssociatedValue(newValue, key: "configuration")
+            setAssociatedValue(newValue, for: "configuration")
             updateConfiguration()
             setupConfigurationStateObserver()
         }
@@ -50,9 +50,9 @@ extension NSButton {
      Set this property to true to have the button call `updated(for:)` when the button state changes and apply the changes to the button. The default value is true.
      */
     public var automaticallyUpdatesConfiguration: Bool {
-        get { getAssociatedValue("automaticallyUpdatesConfiguration", initialValue: true) }
+        get { getAssociatedValue("automaticallyUpdatesConfiguration", initial: true) }
         set {
-            setAssociatedValue(newValue, key: "automaticallyUpdatesConfiguration")
+            setAssociatedValue(newValue, for: "automaticallyUpdatesConfiguration")
             setupConfigurationStateObserver()
         }
     }
@@ -84,10 +84,10 @@ extension NSButton {
     }
     
     var isHovered: Bool {
-        get { getAssociatedValue("isHovered", initialValue: false) }
+        get { getAssociatedValue("isHovered", initial: false) }
         set {
             guard newValue != isHovered else { return }
-            setAssociatedValue(newValue, key: "isHovered")
+            setAssociatedValue(newValue, for: "isHovered")
             if automaticallyUpdatesConfiguration {
                 updateConfiguration()
             }
@@ -177,7 +177,7 @@ extension NSButton {
     public var configurationUpdateHandler: ConfigurationUpdateHandler? {
         get { getAssociatedValue("NSButton_configurationUpdateHandler") }
         set {
-            setAssociatedValue(newValue, key: "NSButton_configurationUpdateHandler")
+            setAssociatedValue(newValue, for: "NSButton_configurationUpdateHandler")
             setupConfigurationStateObserver()
             setNeedsUpdateConfiguration()
         }
@@ -198,7 +198,7 @@ extension NSButton {
         get { getAssociatedValue("NSButton_contentView") }
         set {
             contentView?.removeFromSuperview()
-            setAssociatedValue(newValue, key: "NSButton_contentView")
+            setAssociatedValue(newValue, for: "NSButton_contentView")
         }
     }
 }

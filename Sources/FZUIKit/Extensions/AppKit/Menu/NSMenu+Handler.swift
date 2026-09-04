@@ -15,15 +15,15 @@ extension NSMenu {
     /// The handlers for the menu.
     public struct Handlers {
         /// The handlers that is called when the menu will open.
-        public var willOpen: (()->())?
+        public var willOpen: (() -> ())?
         /// The handlers that is called when the menu did close.
-        public var didClose: (()->())?
+        public var didClose: (() -> ())?
         /// The handlers that is called when the menu is about to highlight a given item.
-        public var willHighlight: ((NSMenuItem?)->())?
+        public var willHighlight: ((NSMenuItem?) -> ())?
         /// The handler that is called when the appearance changed.
-        public var effectiveAppearance: ((NSAppearance)->())?
+        public var effectiveAppearance: ((NSAppearance) -> ())?
         /// The handler that is called before the menu is displayed allowing you to update it.
-        public var update: ((_ menu: NSMenu)->())?
+        public var update: ((_ menu: NSMenu) -> ())?
 
         var needsDelegate: Bool {
             willOpen != nil || didClose != nil || willHighlight != nil || effectiveAppearance != nil || update != nil
@@ -32,9 +32,9 @@ extension NSMenu {
     
     /// Handlers for the menu.
     public var handlers: Handlers {
-        get { getAssociatedValue("menuHandlers", initialValue: Handlers()) }
-        set { 
-            setAssociatedValue(newValue, key: "menuHandlers")
+        get { getAssociatedValue("menuHandlers", initial: Handlers()) }
+        set {
+            setAssociatedValue(newValue, for: "menuHandlers")
             setupDelegateProxy()
             if newValue.effectiveAppearance != nil {
                 effectiveAppearanceObservation = observeChanges(for: \.effectiveAppearance) { [weak self] old, new in
@@ -49,25 +49,25 @@ extension NSMenu {
     
     /// Sets the handler that is called before the menu is displayed allowing you to update it.
     @discardableResult
-    public func updateHandler(_ handler: ((_ menu: NSMenu)->())?) -> Self {
+    public func updateHandler(_ handler: ((_ menu: NSMenu) -> ())?) -> Self {
         handlers.update = handler
         return self
     }
     
     fileprivate var effectiveAppearanceObservation: KeyValueObservation? {
         get { getAssociatedValue("effectiveAppearanceObservation") }
-        set { setAssociatedValue(newValue, key: "effectiveAppearanceObservation") }
+        set { setAssociatedValue(newValue, for: "effectiveAppearanceObservation") }
     }
     
     var delegateProxy: Delegate? {
         get { getAssociatedValue("delegateProxy") }
-        set { setAssociatedValue(newValue, key: "delegateProxy") }
+        set { setAssociatedValue(newValue, for: "delegateProxy") }
     }
     
     var viewMenuProvider: (() -> NSMenu?)? {
         get { getAssociatedValue("viewMenuProvider") }
         set {
-            setAssociatedValue(newValue, key: "viewMenuProvider")
+            setAssociatedValue(newValue, for: "viewMenuProvider")
             setupDelegateProxy()
         }
     }
@@ -83,7 +83,7 @@ extension NSMenu {
         }
     }
     
-   class Delegate: NSObject, NSMenuDelegate {
+    class Delegate: NSObject, NSMenuDelegate {
         weak var delegate: NSMenuDelegate?
         var providerMenu: NSMenu?
         var eventObserver: CFRunLoopObserver?
@@ -95,7 +95,7 @@ extension NSMenu {
             self.delegate = menu.delegate
             super.init()
             menu.delegate = self
-            delegateObservation = menu.observeChanges(for: \.delegate) { [weak self] old, new in
+            delegateObservation = menu.observeChanges(for: \.delegate) { [weak self] _, new in
                 guard let self = self, new !== self else { return }
                 self.delegate = new
                 menu.delegate = self
@@ -122,14 +122,12 @@ extension NSMenu {
         }
         
         func menuDidClose(_ menu: NSMenu) {
-            menu.items.forEach({ $0.alternateItem?.removeFromMenu() })
+            menu.items.forEach { $0.alternateItem?.removeFromMenu() }
             menu.handlers.didClose?()
             delegate?.menuDidClose?(menu)
             restoreProvidedMenuItems(for: menu)
-            if eventObserver != nil {
-                CFRunLoopObserverInvalidate(eventObserver)
-                eventObserver = nil
-            }
+            eventObserver?.invalidate()
+            eventObserver = nil
             if let minimumWidth = menuMinimumWidth {
                 menu.minimumWidth = minimumWidth
                 menuMinimumWidth = nil
@@ -140,14 +138,19 @@ extension NSMenu {
             updateProvidedMenuItems(for: menu)
             menu.handlers.update?(menu)
             delegate?.menuNeedsUpdate?(menu)
-            let optionPressed = NSEvent.modifierFlags.contains([.option])
-            menu.items.filter({ $0.visibility != .always }).forEach({ $0.isHidden = !optionPressed })
-            if eventObserver == nil, menu.items.contains(where: { $0.visibility == .whileHoldingOption }) {
-                eventObserver = CFRunLoopObserverCreateWithHandler(nil, CFRunLoopActivity.beforeWaiting.rawValue, true, 0, { (observer, activity) in
+            NSEvent.current!.isOptionPressed
+            let optionPressed = NSEvent.modifierFlags.contains(.option)
+            menu.items.filter { !$0.isAlternate && $0.visibility != .automatic }.forEach { $0.isHidden = !optionPressed }
+            if eventObserver == nil, menu.items.contains(where: { !$0.isAlternate && $0.visibility == .whileHoldingOption }) {
+                eventObserver = CFRunLoopObserver(activities: .beforeWaiting, handler: { [weak menu] observer, _ in
+                    guard let menu else {
+                        observer.invalidate()
+                        return
+                    }
                     let optionKeyIsPressed = NSEvent.modifierFlags.contains(.option)
-                    menu.items.filter({ $0.visibility == .whileHoldingOption }).forEach({$0.isHidden = !optionKeyIsPressed})
+                    menu.items.filter { !$0.isAlternate && $0.visibility == .whileHoldingOption }.forEach { $0.isHidden = !optionKeyIsPressed }
                 })
-                CFRunLoopAddObserver(CFRunLoopGetCurrent(), eventObserver, CFRunLoopMode.commonModes)
+                CFRunLoop.main.addObserver(eventObserver!)
             }
  
             let originalItems = menu.items
@@ -160,7 +163,7 @@ extension NSMenu {
                 insertedCount += 1
             }
             
-            menu.items.forEach({ $0.updateHandler?($0) })
+            menu.items.forEach { $0.updateHandler?($0) }
             if menu.autoUpdatesWidth, originalItems.count != menu.items.count {
                 menuMinimumWidth = menu.minimumWidth
                 menu.minimumWidth = max(menu.minimumWidth, menu.size.width)
@@ -192,7 +195,7 @@ extension NSMenu {
         }
         
         func menu(_ menu: NSMenu, willHighlight item: NSMenuItem?) {
-            menu.items.forEach({($0.view as? NSMenuItemView)?.isHighlighted = $0 === item })
+            menu.items.forEach { ($0.view as? NSMenuItemView)?.isHighlighted = $0 === item }
             menu.handlers.willHighlight?(item)
             delegate?.menu?(menu, willHighlight: item)
         }

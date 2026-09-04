@@ -465,20 +465,6 @@ public extension NSMenuItem {
         return self
     }
     
-    /// Sets the menu item’s menu.
-    @discardableResult
-    func menu(_ menu: NSMenu?) -> Self {
-        self.menu = menu
-        return self
-    }
-    
-    /// Sets the menu item’s menu.
-    @discardableResult
-    func menu(@MenuBuilder _ items: () -> [NSMenuItem]) -> Self {
-        menu = NSMenu().items(items)
-        return self
-    }
-    
     /// The submenu of the menu item.
     @discardableResult
     func submenu(_ menu: NSMenu?) -> Self {
@@ -495,8 +481,8 @@ public extension NSMenuItem {
     
     /// The visibility of a menu item.
     enum Visibility: Int {
-        /// The item is always visible.
-        case always
+        /// The item's visibility depends on its `isHidden` property.
+        case automatic
         /// The item is visible only while the Option key is held down.
         case whileHoldingOption
         /// The item is visible only if the Option key is pressed at the moment the menu is opened.
@@ -505,15 +491,21 @@ public extension NSMenuItem {
     
     /**
      The visibility of the menu item.
-     
-     Set this property to restrict the visibility of a menu item depending on whether the Option key is held during interaction.
-     
-     - Note: This property is evaluated in addition to the menu item's `isHidden` property, which must be `false` for the item to be shown.
+
+     Use this property to control the item's visibility based on whether the `Option` key is held during menu interaction.
+
+     The menu item must
+     This property doesn't affect alternate menu items ([isAlternate](https://developer.apple.com/documentation/appkit/nsmenuitem/isalternate)).
+
+     The default value is `always`.
+
+     - Note: This property doesn't override [isHidden](https://developer.apple.com/documentation/appkit/nsmenuitem/ishidden). A menu item must also have `isHidden` set to `false` to be visible.
      */
     var visibility: Visibility {
-        get { getAssociatedValue("visibility") ?? .always }
+        get { getAssociatedValue("visibility") ?? .automatic }
         set {
-            setAssociatedValue(newValue, key: "visibility")
+            guard newValue != visibility else { return }
+            setAssociatedValue(newValue, for: "visibility")
             setupMenuDelegateProxy()
         }
     }
@@ -523,7 +515,7 @@ public extension NSMenuItem {
      
      Use this method to restrict the visibility of a menu item depending on whether the Option key is held during interaction.
      
-     - Note: This property is evaluated in addition to the menu item's `isHidden` property, which must be `false` for the item to be shown.
+     - Note: Setting this value is evaluated in addition to the menu item's [isHidden](https://developer.apple.com/documentation/appkit/nsmenuitem/ishidden) property, which must be `false` for the item to be shown.
      */
     @discardableResult
     func visibility(_ visibility: Visibility) -> Self {
@@ -535,7 +527,7 @@ public extension NSMenuItem {
     var updateHandler: ((_ item: NSMenuItem)->())? {
         get { getAssociatedValue("updateHandler") }
         set {
-            setAssociatedValue(newValue, key: "updateHandler")
+            setAssociatedValue(newValue, for: "updateHandler")
             setupMenuDelegateProxy()
         }
     }
@@ -550,7 +542,7 @@ public extension NSMenuItem {
     /**
      The alternate menu item displayed when the option key is held.
      
-     To change the modifier flag required to hold, use the alternate item's `keyEquivalentModifierMask` property.
+     To change the modifier flag required to hold, use the alternate item's [keyEquivalentModifierMask](https://developer.apple.com/documentation/appkit/nsmenuitem/keyequivalentmodifiermask) property.
      */
     var alternateItem: NSMenuItem? {
         get { getAssociatedValue("alternateItem") }
@@ -563,7 +555,7 @@ public extension NSMenuItem {
             if !alternateItemIsDisplayableWhenHidden {
                 newValue?.keyEquivalentModifierMask = isHidden ? [] : [.option]
             }
-            setAssociatedValue(newValue, key: "alternateItem")
+            setAssociatedValue(newValue, for: "alternateItem")
             setupMenuDelegateProxy()
         }
     }
@@ -585,7 +577,7 @@ public extension NSMenuItem {
     }
     
     /**
-     A Boolean value indicating whether the ``AppKit/NSMenuItem/alternateItem`` can be displayed if the item is hidden.
+     A Boolean value indicating whether the ``AppKit/NSMenuItem/alternateItem`` can be displayed if the item is hidden ([isHidden](https://developer.apple.com/documentation/appkit/nsmenuitem/ishidden)).
      
      The default value is `true`.
      */
@@ -598,8 +590,7 @@ public extension NSMenuItem {
                 alternateItem?.keyEquivalentModifierMask = [.option]
             } else {
                 isHiddenObservationForAlternateItem = observeChanges(for: \.isHidden) { [weak self] old, new in
-                    guard let self = self else { return }
-                    self.alternateItem?.keyEquivalentModifierMask = new ? [] : [.option]
+                    self?.alternateItem?.keyEquivalentModifierMask = new ? [] : [.option]
                 }
                 alternateItem?.keyEquivalentModifierMask = isHidden ? [] : [.option]
             }
@@ -619,7 +610,7 @@ public extension NSMenuItem {
     
     private var isHiddenObservationForAlternateItem: KeyValueObservation? {
         get { getAssociatedValue("isHiddenObservationForAlternateItem") }
-        set { setAssociatedValue(newValue, key: "isHiddenObservationForAlternateItem") }
+        set { setAssociatedValue(newValue, for: "isHiddenObservationForAlternateItem") }
     }
     
     /// Removes the item from it's menu.
@@ -640,12 +631,12 @@ public extension NSMenuItem {
     }
     
     internal var needsDelegateProxy: Bool {
-        (alternateItem != nil || updateHandler != nil || visibility != .always)
+        (alternateItem != nil || updateHandler != nil || visibility != .automatic)
     }
     
     private var menuObservation: KeyValueObservation? {
         get { getAssociatedValue("menuObservation") }
-        set { setAssociatedValue(newValue, key: "menuObservation") }
+        set { setAssociatedValue(newValue, for: "menuObservation") }
     }
 }
 

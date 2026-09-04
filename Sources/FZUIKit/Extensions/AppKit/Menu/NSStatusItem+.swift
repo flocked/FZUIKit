@@ -102,7 +102,7 @@ extension NSStatusItem {
     public var onClick: (()->())? {
         get { getAssociatedValue("onClick") }
         set {
-            setAssociatedValue(newValue, key: "onClick")
+            setAssociatedValue(newValue, for: "onClick")
             updateAction()
         }
     }
@@ -117,7 +117,7 @@ extension NSStatusItem {
     public var onRightClick: (()->())? {
         get { getAssociatedValue("onRightClick") }
         set {
-            setAssociatedValue(newValue, key: "onRightClick")
+            setAssociatedValue(newValue, for: "onRightClick")
             updateAction()
         }
     }
@@ -138,7 +138,7 @@ extension NSStatusItem {
     public var rightClickMenu: NSMenu? {
         get { getAssociatedValue("rightClickMenu") }
         set {
-            setAssociatedValue(newValue, key: "rightClickMenu")
+            setAssociatedValue(newValue, for: "rightClickMenu")
             updateAction()
         }
     }
@@ -250,7 +250,7 @@ extension NSStatusItem {
     /// The handler that is called when the mouse is clicking and holding the item.
     public var onMouseHold: ((_ state: MouseClickState)->())? {
         get { getAssociatedValue("onMouseHold") }
-        set { setAssociatedValue(newValue, key: "onMouseHold")
+        set { setAssociatedValue(newValue, for: "onMouseHold")
             updateAction()
         }
     }
@@ -258,7 +258,7 @@ extension NSStatusItem {
     /// The handler that is called when the mouse is right clicking and holding the item.
     public var onRightMouseHold: ((MouseClickState)->())? {
         get { getAssociatedValue("onRightMouseHold") }
-        set { setAssociatedValue(newValue, key: "onRightMouseHold")
+        set { setAssociatedValue(newValue, for: "onRightMouseHold")
             updateAction()
         }
     }
@@ -390,17 +390,17 @@ extension NSStatusItem {
     
     fileprivate var leftClickMenu: NSMenu? {
         get { getAssociatedValue("leftClickMenu") }
-        set { setAssociatedValue(newValue, key: "leftClickMenu") }
+        set { setAssociatedValue(newValue, for: "leftClickMenu") }
     }
     
     fileprivate var menuObservation: KeyValueObservation? {
         get { getAssociatedValue("menuObservation") }
-        set { setAssociatedValue(newValue, key: "menuObservation") }
+        set { setAssociatedValue(newValue, for: "menuObservation") }
     }
     
     fileprivate var isUpdatingMenu: Bool {
         get { getAssociatedValue("isUpdatingMenu") ?? false }
-        set { setAssociatedValue(newValue, key: "isUpdatingMenu") }
+        set { setAssociatedValue(newValue, for: "isUpdatingMenu") }
     }
     
     fileprivate class MenuProvider: NSMenu, NSMenuDelegate {
@@ -438,7 +438,7 @@ extension NSStatusItem {
     public var popover: NSPopover? {
         get { getAssociatedValue("popover") }
         set {
-            setAssociatedValue(newValue, key: "popover")
+            setAssociatedValue(newValue, for: "popover")
             updateAction()
         }
     }
@@ -454,7 +454,7 @@ extension NSStatusItem {
     public var rightClickPopover: NSPopover? {
         get { getAssociatedValue("rightClickPopover") }
         set {
-            setAssociatedValue(newValue, key: "rightClickPopover")
+            setAssociatedValue(newValue, for: "rightClickPopover")
             updateAction()
         }
     }
@@ -470,7 +470,7 @@ extension NSStatusItem {
 fileprivate extension NSView {
     var isStatusItemView: Bool {
         get { getAssociatedValue("isStatusItemView") ?? false }
-        set { setAssociatedValue(newValue, key: "isStatusItemView") }
+        set { setAssociatedValue(newValue, for: "isStatusItemView") }
     }
 }
 #endif

@@ -9,10 +9,16 @@
 
 import AppKit
 
-/// A segment of a [NSSegmentedControl](https://developer.apple.com/documentation/appkit/nssegmentedcontrol).
+/**
+ A segment of a [NSSegmentedControl](https://developer.apple.com/documentation/appkit/nssegmentedcontrol).
+ 
+ A segment instance can belong to one segmented control at a time. Adding an
+ already displayed segment to another segmented control moves it from the
+ previous control to the new one.
+ */
 public class NSSegment: NSObject, ExpressibleByStringLiteral {
-    internal weak var segmentedControl: NSSegmentedControl?
-    private weak var toolbarItem: Toolbar.SegmentedControl?
+    /// The segmented control displaying the segment, or `nil` if the segment isn't displayed.
+    public internal(set) weak var segmentedControl: NSSegmentedControl?
     
     /// The title of the segment.
     public var title: String? {
@@ -75,7 +81,6 @@ public class NSSegment: NSObject, ExpressibleByStringLiteral {
         didSet {
             guard let index = index else { return }
             segmentedControl?.setEnabled(isEnabled, forSegment: index)
-            toolbarItem?.groupItem.subitems[safe: index]?.isEnabled = isEnabled
         }
     }
     
@@ -115,6 +120,13 @@ public class NSSegment: NSObject, ExpressibleByStringLiteral {
             segmentedControl?.setTag(tag, forSegment: index)
         }
     }
+    
+    /**
+     The object represented by the segment.
+     
+     The represented object functions as a more specific form of tag that allows you to associate any object, not just an arbitrary integer, with the segments in a segmented control.
+     */
+    public var representedObject: Any?
     
     /// Sets the title of the segment.
     @discardableResult
@@ -220,12 +232,21 @@ public class NSSegment: NSObject, ExpressibleByStringLiteral {
         return self
     }
     
+    /// Sets the object represented by the segment.
+    @discardableResult
+    public func representedObject(_ object: Any?) -> Self {
+        representedObject = object
+        return self
+    }
+    
     /// The index of the segment, or `nil` if the segment isn't displayed in any segmented control.
-    public internal(set) var index: Int? = nil
+    public var index: Int? {
+        segmentedControl?.index(of: self)
+    }
     
     /// A Boolean value indicating whether the segment is the last selected segment.
     public var isLastSelected: Bool {
-        segmentedControl?.selectedSegment ?? -2 == index
+        segmentedControl?.selectedSegment == index
     }
     
     /**
@@ -294,9 +315,7 @@ public class NSSegment: NSObject, ExpressibleByStringLiteral {
         self.toolTip = segmentedControl.toolTip(forSegment: index)
         self.tag = segmentedControl.tag(forSegment: index)
         self.font = segmentedControl.font(forSegment: index) ?? segmentedControl.font ?? .system
-        self.index = index
         self.segmentedControl = segmentedControl
-        self.toolbarItem = segmentedControl.toolbarItem
     }
 }
 
@@ -338,12 +357,36 @@ public extension NSSegmentedControl {
         indexesOfSelectedSegments.compactMap { segment(at: $0) }
     }
     
-    /// The segments displayed by the segmented control.
+    /**
+     The segments displayed by the segmented control.
+     
+     Segment instances are retained by the segmented control while displayed.
+     Assigning a segment that already belongs to another segmented control moves
+     it out of the previous control before adding it to this one.
+     */
     @objc dynamic var segments: [NSSegment] {
-        get { (0..<segmentCount).compactMap { segment(at: $0) } }
+        get { synchronizedSegments() }
         set {
+            let oldSegments = storedSegments
+            let removedSegments = oldSegments.filter { oldSegment in
+                !newValue.contains { $0 === oldSegment }
+            }
+            
+            removedSegments.forEach { segment in
+                segment.segmentedControl = nil
+            }
+            
+            for segment in newValue {
+                if let segmentedControl = segment.segmentedControl, segmentedControl !== self {
+                    segmentedControl.removeSegment(segment)
+                }
+            }
+            
+            storedSegments = newValue
             segmentCount = newValue.count
+            
             for (index, segment) in newValue.enumerated() {
+                segment.segmentedControl = self
                 setSegment(segment, for: index)
             }
         }
@@ -363,8 +406,37 @@ public extension NSSegmentedControl {
     
     /// Returns the segment at the specified index.
     func segment(at index: Int) -> NSSegment? {
-        guard index < segmentCount else { return nil }
-        return NSSegment(segmentedControl: self, index: index)
+        guard index >= 0, index < segmentCount else { return nil }
+        return synchronizedSegments()[safe: index]
+    }
+    
+    /**
+     Removes the specified segment from the segmented control.
+     
+     If the segment is displayed in the control, it is detached and the indexes
+     of the remaining segments update automatically.
+     
+     - Parameter segment: The segment to remove.
+     */
+    func removeSegment(_ segment: NSSegment) {
+        guard let index = index(of: segment) else { return }
+        removeSegment(at: index)
+    }
+    
+    /**
+     Removes the segment at the specified index.
+     
+     The removed segment is detached from the segmented control and the indexes
+     of the remaining segments update automatically.
+     
+     - Parameter index: The index of the segment to remove.
+     */
+    func removeSegment(at index: Int) {
+        guard index >= 0, index < segmentCount else { return }
+        var segments = synchronizedSegments()
+        let removedSegment = segments.remove(at: index)
+        removedSegment.segmentedControl = nil
+        self.segments = segments
     }
     
     /**
@@ -375,9 +447,7 @@ public extension NSSegmentedControl {
         - index: The index of the segment
      */
     func setSegment(_ segment: NSSegment, for index: Int) {
-        guard index < segmentCount else { return }
-        segment.segmentedControl = self
-        segment.index = index
+        guard index >= 0, index < segmentCount else { return }
         setLabel(segment.title ?? "", forSegment: index)
         setAlignment(segment.titleAlignment, forSegment: index)
         setImage(segment.image, forSegment: index)
@@ -398,11 +468,6 @@ public extension NSSegmentedControl {
     
     internal func index(forTag tag: Int) -> Int? {
         (0 ..< segmentCount).first(where: { self.tag(forSegment: $0) == tag })
-    }
-    
-    internal var toolbarItem: Toolbar.SegmentedControl? {
-        get { getAssociatedValue("toolbarItem") }
-        set { setAssociatedValue(weak: newValue, key: "toolbarItem")}
     }
     
     /// A function builder type that produces an array of segments.
@@ -457,4 +522,41 @@ public extension NSSegmentedControl {
         }
     }
 }
+
+fileprivate extension NSSegmentedControl {
+    var storedSegments: [NSSegment] {
+        get { getAssociatedValue("storedSegments") ?? [] }
+        set { setAssociatedValue(newValue, for: "storedSegments") }
+    }
+    
+    func index(of segment: NSSegment) -> Int? {
+        synchronizedSegments().firstIndex { $0 === segment }
+    }
+    
+    func synchronizedSegments() -> [NSSegment] {
+        var segments = storedSegments
+        
+        if segments.count > segmentCount {
+            let removedSegments = segments[segmentCount...]
+            removedSegments.forEach { segment in
+                segment.segmentedControl = nil
+            }
+            segments = Array(segments.prefix(segmentCount))
+        }
+        
+        if segments.count < segmentCount {
+            let missingSegments = (segments.count..<segmentCount).map {
+                NSSegment(segmentedControl: self, index: $0)
+            }
+            segments.append(contentsOf: missingSegments)
+        }
+        
+        segments.forEach { segment in
+            segment.segmentedControl = self
+        }
+        storedSegments = segments
+        return segments
+    }
+}
+
 #endif

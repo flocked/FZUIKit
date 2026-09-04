@@ -31,7 +31,7 @@ public extension AVPlayerItem {
     var handlers: Handlers {
         get { getAssociatedValue("handlers") ?? Handlers() }
         set {
-            setAssociatedValue(newValue, key: "handlers")
+            setAssociatedValue(newValue, for: "handlers")
             observe(AVPlayerItem.failedToPlayToEndTimeNotification, handler: handlers.failedToPlayToEnd)
             observe(AVPlayerItem.newAccessLogEntryNotification, handler: handlers.newAccessLog)
             observe(AVPlayerItem.newErrorLogEntryNotification, handler: handlers.newErrorLog)
@@ -59,7 +59,7 @@ public extension AVPlayerItem {
     
     private var handlerNotificationTokens: [Notification.Name : NotificationToken] {
         get { getAssociatedValue("handlerNotificationTokens") ?? [:] }
-        set { setAssociatedValue(newValue, key: "handlerNotificationTokens") }
+        set { setAssociatedValue(newValue, for: "handlerNotificationTokens") }
     }
     
     /// The current playback percentage (between `0.0` and `1.0`).
@@ -70,7 +70,7 @@ public extension AVPlayerItem {
     
     private var statusObservation: KeyValueObservation? {
         get { getAssociatedValue("statusObservation") }
-        set { setAssociatedValue(newValue, key: "statusObservation") }
+        set { setAssociatedValue(newValue, for: "statusObservation") }
     }
     
     /// The duration of the item as `TimeDuration`.

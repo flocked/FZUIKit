@@ -243,7 +243,7 @@ extension NSScrollView {
             var newValue = newValue?.clamped(min: 0.0)
             newValue = newValue == 0.0 ? nil : newValue
             guard newValue != autoScrollSpeed else { return }
-            setAssociatedValue(newValue, key: "autoScrollSpeed")
+            setAssociatedValue(newValue, for: "autoScrollSpeed")
             if let newValue = newValue {
                 autoScrollDisplaylink = DisplayLink(view: self) { [weak self] frame in
                     guard let self = self, let displayLink = self.autoScrollDisplaylink, let documentView = self.documentView else { return }
@@ -282,7 +282,7 @@ extension NSScrollView {
     @available(macOS 14.0, *)
     public var loopsAutoScroll: Bool {
         get { getAssociatedValue("loopsAutoScroll") ?? false }
-        set { setAssociatedValue(newValue, key: "loopsAutoScroll") }
+        set { setAssociatedValue(newValue, for: "loopsAutoScroll") }
     }
     
     /// Sets the Boolean value indicating whether the autoscrolling should loop when the scroll view reached the bottom.
@@ -296,35 +296,35 @@ extension NSScrollView {
     @available(macOS 14.0, *)
     var autoScrollDisplaylink: DisplayLink? {
         get { getAssociatedValue("autoScrollDisplaylink") }
-        set { setAssociatedValue(newValue, key: "autoScrollDisplaylink") }
+        set { setAssociatedValue(newValue, for: "autoScrollDisplaylink") }
     }
     
     @available(macOS 14.0, *)
     var autoScrollDocumentViewObservation: KeyValueObservation? {
         get { getAssociatedValue("autoScrollDocumentViewObservation") }
-        set { setAssociatedValue(newValue, key: "autoScrollDocumentViewObservation") }
+        set { setAssociatedValue(newValue, for: "autoScrollDocumentViewObservation") }
     }
     
     var contentOffsetNotificationToken: NotificationToken? {
         get { getAssociatedValue("contentOffsetNotificationToken") }
-        set { setAssociatedValue(newValue, key: "contentOffsetNotificationToken")}
+        set { setAssociatedValue(newValue, for: "contentOffsetNotificationToken")}
     }
     
     var previousContentOffset: CGPoint {
-        get { getAssociatedValue("previousContentOffset", initialValue: .zero) }
-        set { setAssociatedValue(newValue, key: "previousContentOffset")}
+        get { getAssociatedValue("previousContentOffset", initial: .zero) }
+        set { setAssociatedValue(newValue, for: "previousContentOffset")}
     }
     
     var isChangingContentOffset: Bool {
-        get { getAssociatedValue("isChangingContentOffset", initialValue: false) }
-        set { setAssociatedValue(newValue, key: "isChangingContentOffset")}
+        get { getAssociatedValue("isChangingContentOffset", initial: false) }
+        set { setAssociatedValue(newValue, for: "isChangingContentOffset")}
     }
     
     public var contentOffsetIsObservable: Bool {
-        get { getAssociatedValue("contentOffsetIsObservable", initialValue: false) }
+        get { getAssociatedValue("contentOffsetIsObservable", initial: false) }
         set {
             guard newValue != contentOffsetIsObservable else { return}
-            setAssociatedValue(newValue, key: "contentOffsetIsObservable")
+            setAssociatedValue(newValue, for: "contentOffsetIsObservable")
             if newValue {
                 previousContentOffset = contentOffset
                 contentView.postsBoundsChangedNotifications = true
@@ -528,7 +528,7 @@ extension NSScrollView {
             setupLiveResizeObservation()
             return getAssociatedValue("inLiveScroll") ?? false
         }
-        set { setAssociatedValue(newValue, key: "inLiveScroll") }
+        set { setAssociatedValue(newValue, for: "inLiveScroll") }
     }
     
     /// A Boolean value indicating whether the scroll view is being magnified by the user.
@@ -537,17 +537,17 @@ extension NSScrollView {
             setupLiveMagnifyObservation()
             return getAssociatedValue("inLiveMagnify") ?? false
         }
-        set { setAssociatedValue(newValue, key: "inLiveMagnify") }
+        set { setAssociatedValue(newValue, for: "inLiveMagnify") }
     }
     
     private var liveScrollNotificationTokens: [NotificationToken] {
         get { getAssociatedValue("liveScrollNotificationTokens") ?? [] }
-        set { setAssociatedValue(newValue, key: "liveScrollNotificationTokens") }
+        set { setAssociatedValue(newValue, for: "liveScrollNotificationTokens") }
     }
     
     private var liveMagnifyNotificationTokens: [NotificationToken] {
         get { getAssociatedValue("liveMagnifyNotificationTokens") ?? [] }
-        set { setAssociatedValue(newValue, key: "liveMagnifyNotificationTokens") }
+        set { setAssociatedValue(newValue, for: "liveMagnifyNotificationTokens") }
     }
     
     private func setupLiveResizeObservation() {
@@ -679,10 +679,10 @@ extension NSScrollView {
     
     /// A Boolean value indicating whether the scroll view should automatically manage it's document view.
     @objc open var managesDocumentView: Bool {
-        get { getAssociatedValue("managesDocumentView", initialValue: false) }
+        get { getAssociatedValue("managesDocumentView", initial: false) }
         set {
             guard newValue != managesDocumentView else { return }
-            setAssociatedValue(newValue, key: "managesDocumentView")
+            setAssociatedValue(newValue, for: "managesDocumentView")
             updateScrollViewObserver()
             documentView?.frame = bounds
         }
@@ -697,10 +697,10 @@ extension NSScrollView {
     
     ///A Boolean value indicating whether the scrollers automatically hide if the `magnification` value is `1.0`.
     @objc open var hidesScrollersWhenZoomedOut: Bool {
-        get { getAssociatedValue("hidesScrollersWhenZoomedOut", initialValue: false) }
+        get { getAssociatedValue("hidesScrollersWhenZoomedOut", initial: false) }
         set {
             guard newValue != hidesScrollersWhenZoomedOut else { return }
-            setAssociatedValue(newValue, key: "hidesScrollersWhenZoomedOut")
+            setAssociatedValue(newValue, for: "hidesScrollersWhenZoomedOut")
             updateScrollViewObserver()
             scrollerConfiguration = ScrollerConfiguration(verticalElasticity: verticalScrollElasticity, horizontalElasticity: horizontalScrollElasticity, hasVertical: hasVerticalRuler, hasHorizontal: hasHorizontalScroller)
         }
@@ -715,7 +715,7 @@ extension NSScrollView {
     
     var scrollViewObserver: KeyValueObserver<NSScrollView>? {
         get { getAssociatedValue("scrollViewObserver") }
-        set { setAssociatedValue(newValue, key: "scrollViewObserver") }
+        set { setAssociatedValue(newValue, for: "scrollViewObserver") }
     }
     
     func updateScrollViewObserver() {
@@ -763,16 +763,16 @@ extension NSScrollView {
     }
     
     var scrollerConfiguration: ScrollerConfiguration {
-        get { getAssociatedValue("scrollerConfiguration", initialValue: ScrollerConfiguration(verticalElasticity: verticalScrollElasticity, horizontalElasticity: horizontalScrollElasticity, hasVertical: hasVerticalRuler, hasHorizontal: hasHorizontalScroller)) }
+        get { getAssociatedValue("scrollerConfiguration", initial: ScrollerConfiguration(verticalElasticity: verticalScrollElasticity, horizontalElasticity: horizontalScrollElasticity, hasVertical: hasVerticalRuler, hasHorizontal: hasHorizontalScroller)) }
         set {
-            setAssociatedValue(newValue, key: "scrollerConfiguration")
+            setAssociatedValue(newValue, for: "scrollerConfiguration")
             updateScrollers()
         }
     }
     
     var isUpdatingScrollers: Bool {
-        get { getAssociatedValue("isUpdatingScrollers", initialValue: false) }
-        set { setAssociatedValue(newValue, key: "isUpdatingScrollers") }
+        get { getAssociatedValue("isUpdatingScrollers", initial: false) }
+        set { setAssociatedValue(newValue, for: "isUpdatingScrollers") }
     }
     
     func updateScrollers() {
@@ -829,9 +829,9 @@ extension NSScrollView {
     
     /// The handlers for the scroll view.
     public var handlers: Handlers {
-        get { getAssociatedValue("scrollViewHandlers", initialValue: Handlers()) }
+        get { getAssociatedValue("scrollViewHandlers", initial: Handlers()) }
         set {
-            setAssociatedValue(newValue, key: "scrollViewHandlers")
+            setAssociatedValue(newValue, for: "scrollViewHandlers")
             if let handler = handlers.documentVisibleRect {
                 func setup(for view: NSView?) {
                     if let view = view {
@@ -887,13 +887,13 @@ extension NSScrollView {
     }
     
     var scrollViewTokens: [Notification.Name : NotificationToken] {
-        get { getAssociatedValue("scrollViewTokens", initialValue: [:]) }
-        set { setAssociatedValue(newValue, key: "scrollViewTokens") }
+        get { getAssociatedValue("scrollViewTokens", initial: [:]) }
+        set { setAssociatedValue(newValue, for: "scrollViewTokens") }
     }
     
     var documentViewObservation: KeyValueObservation? {
         get { getAssociatedValue("documentViewObservation") ?? nil }
-        set { setAssociatedValue(newValue, key: "documentViewObservation") }
+        set { setAssociatedValue(newValue, for: "documentViewObservation") }
     }
 }
 
@@ -907,7 +907,7 @@ extension NSScrollView {
         get { getAssociatedValue("mouseClickZoomFactor") }
         set {
             guard newValue != mouseClickZoomFactor else { return }
-            setAssociatedValue(newValue, key: "mouseClickZoomFactor")
+            setAssociatedValue(newValue, for: "mouseClickZoomFactor")
             if newValue == nil {
                 scrollViewGestureRecognizer?.removeFromView()
                 scrollViewGestureRecognizer = nil
@@ -926,7 +926,7 @@ extension NSScrollView {
         get { getAssociatedValue("keyDownZoomFactor") }
         set {
             guard newValue != keyDownZoomFactor else { return }
-            setAssociatedValue(newValue, key: "keyDownZoomFactor")
+            setAssociatedValue(newValue, for: "keyDownZoomFactor")
             try? setupKeyDownHook()
         }
     }
@@ -940,7 +940,7 @@ extension NSScrollView {
         get { getAssociatedValue("spaceKeyZoomFactor") }
         set {
             guard newValue != spaceKeyZoomFactor else { return }
-            setAssociatedValue(newValue, key: "spaceKeyZoomFactor")
+            setAssociatedValue(newValue, for: "spaceKeyZoomFactor")
             if let zoomFactor = newValue {
                 do {
                    try setupKeyDownHook()
@@ -1003,17 +1003,17 @@ extension NSScrollView {
     
     fileprivate var keyDownHook: Hook? {
         get { getAssociatedValue("keyDownHook") }
-        set { setAssociatedValue(newValue, key: "keyDownHook") }
+        set { setAssociatedValue(newValue, for: "keyDownHook") }
     }
     
     fileprivate var keyUpHook: Hook? {
         get { getAssociatedValue("keyUpHook") }
-        set { setAssociatedValue(newValue, key: "keyUpHook") }
+        set { setAssociatedValue(newValue, for: "keyUpHook") }
     }
     
     fileprivate var scrollViewGestureRecognizer: ScrollViewGestureRecognizer? {
         get { getAssociatedValue("scrollViewGestureRecognizer") }
-        set { setAssociatedValue(newValue, key: "scrollViewGestureRecognizer") }
+        set { setAssociatedValue(newValue, for: "scrollViewGestureRecognizer") }
     }
     
     fileprivate class ScrollViewGestureRecognizer: NSGestureRecognizer {

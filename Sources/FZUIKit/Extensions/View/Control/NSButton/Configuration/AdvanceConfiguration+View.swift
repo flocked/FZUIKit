@@ -119,7 +119,7 @@ extension NSButton.AdvanceButtonView {
 extension NSButton {
     public class AdvanceButtonView: NSView, NSContentView {
 
-        lazy var trackingArea = TrackingArea(for: self, options: [.mouseEnteredAndExited, .activeAlways, .inVisibleRect])
+        lazy var trackingArea = TrackingArea(view: self, events: .mouseEnteredAndExited, activation: .always)
         var hostingView: NSHostingView<ContentView>!
         var mouseIsInside = false
         var isPressed: Bool = false {

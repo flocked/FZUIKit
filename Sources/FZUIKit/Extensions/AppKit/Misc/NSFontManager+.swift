@@ -14,7 +14,7 @@ extension NSFontManager {
     public var selectedFontHandler: ((NSFont?)->())? {
         get { getAssociatedValue("selectedFontHandler") }
         set {
-            setAssociatedValue(newValue, key: "selectedFontHandler")
+            setAssociatedValue(newValue, for: "selectedFontHandler")
             if newValue == nil {
                 selectedFontTarget = nil
             } else if selectedFontTarget == nil {
@@ -25,7 +25,7 @@ extension NSFontManager {
     
     var selectedFontTarget: SelectedFontTarget? {
         get {getAssociatedValue("selectedFontTarget") }
-        set { setAssociatedValue(newValue, key: "selectedFontTarget") }
+        set { setAssociatedValue(newValue, for: "selectedFontTarget") }
     }
     
     class SelectedFontTarget: NSObject {

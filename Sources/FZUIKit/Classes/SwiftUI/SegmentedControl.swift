@@ -20,8 +20,9 @@ public struct SegmentedControl: NSViewRepresentable {
     /// Sets the segments displayed by the segmented control.
     public func segments(@NSSegmentedControl.Builder segments: () -> [NSSegment]) -> Self {
         var view = self
-        view.segments = segments()
-        view.selectedSegments = segments().filter({$0.isSelected})
+        let segments = segments()
+        view.segments = segments
+        view.selectedSegments = segments.filter({$0.isSelected})
         return view
     }
 

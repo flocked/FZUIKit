@@ -109,7 +109,7 @@ extension NSUIGestureRecognizer {
     
     fileprivate var reattachViewObservation: KeyValueObservation? {
         get { getAssociatedValue("reattachViewObservation") }
-        set { setAssociatedValue(newValue, key: "reattachViewObservation") }
+        set { setAssociatedValue(newValue, for: "reattachViewObservation") }
     }
 }
 #endif

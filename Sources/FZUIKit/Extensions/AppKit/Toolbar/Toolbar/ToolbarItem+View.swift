@@ -15,7 +15,13 @@ extension Toolbar {
         /// The view of the toolbar item.
         open var view: NSView {
             get { item.view! }
-            set { item.view = newValue }
+            set {
+                guard newValue !== item.view else { return }
+                let actionBlock = actionBlock
+                self.actionBlock = nil
+                item.view = newValue
+                self.actionBlock = actionBlock
+            }
         }
         
         /// Sets the view of the toolbar item.
