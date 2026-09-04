@@ -16,7 +16,7 @@ extension NSCollectionView {
      Applying this property, will set ``AppKit/NSCollectionView/emptyContentConfiguration`` to `nil`.
      */
     public var emptyContentView: NSView? {
-        get { FZSwiftUtils.getAssociatedValue("emptyContentView", of: self) }
+        get { getAssociatedValue("emptyContentView") }
         set {
             guard newValue != emptyContentView else { return }
             setAssociatedValue(newValue, for: "emptyContentView")
@@ -40,7 +40,7 @@ extension NSCollectionView {
      Applying this property, will set ``AppKit/NSCollectionView/emptyContentView`` to `nil`.
      */
     public var emptyContentConfiguration: NSContentConfiguration? {
-        get { FZSwiftUtils.getAssociatedValue("emptyContentConfiguration", of: self) }
+        get { getAssociatedValue("emptyContentConfiguration") }
         set {
             setAssociatedValue(newValue, for: "emptyContentConfiguration")
             if let newValue = newValue {
@@ -63,7 +63,7 @@ extension NSCollectionView {
      - Parameter isEmpty: A Boolean value indicating whether the collection view is empty.
      */
     public var emptyContentHandler: ((_ isEmpty: Bool)->())? {
-        get { FZSwiftUtils.getAssociatedValue("emptyContentHandler", of: self) }
+        get { getAssociatedValue("emptyContentHandler") }
         set { 
             setAssociatedValue(newValue, for: "emptyContentHandler")
             guard newValue != nil else { return }
@@ -72,7 +72,7 @@ extension NSCollectionView {
     }
     
     fileprivate var emptyView: EmptyCollectionTableView? {
-        get { FZSwiftUtils.getAssociatedValue("emptyView", of: self) }
+        get { getAssociatedValue("emptyView") }
         set {
             guard newValue !== emptyView else { return }
             emptyView?.removeFromSuperview()
@@ -111,7 +111,7 @@ extension NSCollectionView {
     }
     
     fileprivate var isEmpty: Bool {
-        get { FZSwiftUtils.getAssociatedValue("isEmpty", of: self) ?? false }
+        get { getAssociatedValue("isEmpty") ?? false }
         set {
             guard newValue != isEmpty else { return }
             setAssociatedValue(newValue, for: "isEmpty")
@@ -121,7 +121,7 @@ extension NSCollectionView {
     }
     
     fileprivate var datasourceObservation: KeyValueObservation? {
-        get { FZSwiftUtils.getAssociatedValue("datasourceObservation", of: self) }
+        get { getAssociatedValue("datasourceObservation") }
         set { setAssociatedValue(newValue, for: "datasourceObservation") }
     }
 }
@@ -246,7 +246,7 @@ fileprivate class EmptyCollectionTableView: NSView {
 /*
 extension NSCollectionView {
     fileprivate var subviewHooks: [Hook] {
-        get { FZSwiftUtils.getAssociatedValue("subviewHooks", of: self) ?? [] }
+        get { getAssociatedValue("subviewHooks") ?? [] }
         set { setAssociatedValue(newValue, for: "subviewHooks") }
     }
     

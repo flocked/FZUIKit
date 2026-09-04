@@ -502,7 +502,7 @@ public extension NSMenuItem {
      - Note: This property doesn't override [isHidden](https://developer.apple.com/documentation/appkit/nsmenuitem/ishidden). A menu item must also have `isHidden` set to `false` to be visible.
      */
     var visibility: Visibility {
-        get { FZSwiftUtils.getAssociatedValue("visibility", of: self) ?? .automatic }
+        get { getAssociatedValue("visibility") ?? .automatic }
         set {
             guard newValue != visibility else { return }
             setAssociatedValue(newValue, for: "visibility")
@@ -525,7 +525,7 @@ public extension NSMenuItem {
     
     /// The handler that is called before the menu item is displayed allowing you to update it.
     var updateHandler: ((_ item: NSMenuItem)->())? {
-        get { FZSwiftUtils.getAssociatedValue("updateHandler", of: self) }
+        get { getAssociatedValue("updateHandler") }
         set {
             setAssociatedValue(newValue, for: "updateHandler")
             setupMenuDelegateProxy()
@@ -545,7 +545,7 @@ public extension NSMenuItem {
      To change the modifier flag required to hold, use the alternate item's [keyEquivalentModifierMask](https://developer.apple.com/documentation/appkit/nsmenuitem/keyequivalentmodifiermask) property.
      */
     var alternateItem: NSMenuItem? {
-        get { FZSwiftUtils.getAssociatedValue("alternateItem", of: self) }
+        get { getAssociatedValue("alternateItem") }
         set {
             guard newValue != alternateItem else { return }
             alternateItem?.isAlternate = false
@@ -609,7 +609,7 @@ public extension NSMenuItem {
     }
     
     private var isHiddenObservationForAlternateItem: KeyValueObservation? {
-        get { FZSwiftUtils.getAssociatedValue("isHiddenObservationForAlternateItem", of: self) }
+        get { getAssociatedValue("isHiddenObservationForAlternateItem") }
         set { setAssociatedValue(newValue, for: "isHiddenObservationForAlternateItem") }
     }
     
@@ -635,7 +635,7 @@ public extension NSMenuItem {
     }
     
     private var menuObservation: KeyValueObservation? {
-        get { FZSwiftUtils.getAssociatedValue("menuObservation", of: self) }
+        get { getAssociatedValue("menuObservation") }
         set { setAssociatedValue(newValue, for: "menuObservation") }
     }
 }

@@ -561,7 +561,7 @@ public extension NSUIImageView {
 #else
     /// The configuration values to use when rendering the image.
     var preferredImageSymbolConfiguration: ImageSymbolConfiguration? {
-        get { FZSwiftUtils.getAssociatedValue("_imageSymbolConfiguration", of: self) }
+        get { getAssociatedValue("_imageSymbolConfiguration") }
         set {
             setAssociatedValue(newValue, for: "_imageSymbolConfiguration")
             preferredSymbolConfiguration = newValue?.nsUI()

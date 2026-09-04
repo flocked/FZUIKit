@@ -35,7 +35,7 @@ extension NSCollectionView {
      The default value is `true`.
      */
     public var centeredDropTargetGapIndicator: Bool {
-        get { FZSwiftUtils.getAssociatedValue("centeredDropTargetGapIndicator", of: self) ?? true }
+        get { getAssociatedValue("centeredDropTargetGapIndicator") ?? true }
         set {
             setAssociatedValue(newValue, for: "centeredDropTargetGapIndicator")
             swizzleDropIndicatorView()
@@ -87,7 +87,7 @@ extension NSCollectionView {
     }
     
     var dragIndicatorView: DragIndicatorView {
-        FZSwiftUtils.getAssociatedValue("dragIndicatorView", of: self, initial: { DragIndicatorView() })
+        getAssociatedValue("dragIndicatorView", initial: { DragIndicatorView() })
     }
     
     class DragIndicatorView: NSView {
@@ -171,7 +171,7 @@ extension NSCollectionViewLayout {
      The default value is `true`.
      */
     public var centeredInterItemDropTargetGapIndicator: Bool {
-        get { FZSwiftUtils.getAssociatedValue("centeredDropTargetGapIndicator", of: self) ?? true }
+        get { getAssociatedValue("centeredDropTargetGapIndicator") ?? true }
         set {
             guard newValue != centeredInterItemDropTargetGapIndicator else { return }
             setAssociatedValue(newValue, for: "centeredDropTargetGapIndicator")
@@ -180,7 +180,7 @@ extension NSCollectionViewLayout {
     }
     
     public var interItemDropTargetGapIndicatorColor: NSColor? {
-        get { FZSwiftUtils.getAssociatedValue("interItemDropTargetGapIndicatorColor", of: self) }
+        get { getAssociatedValue("interItemDropTargetGapIndicatorColor") }
         set {
             guard newValue != interItemDropTargetGapIndicatorColor else { return }
             setAssociatedValue(newValue, for: "interItemDropTargetGapIndicatorColor")

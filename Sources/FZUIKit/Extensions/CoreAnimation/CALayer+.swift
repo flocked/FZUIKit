@@ -357,12 +357,12 @@ extension CALayer {
     }
     
     fileprivate var innerShadowLayer: InnerShadowLayer? {
-        get { FZSwiftUtils.getAssociatedValue("innerShadowLayer", of: self) }
+        get { getAssociatedValue("innerShadowLayer") }
         set { setAssociatedValue(newValue, for: "innerShadowLayer") }
     }
     
     fileprivate var _innerShadowLayer: InnerShadowLayer {
-        FZSwiftUtils.getAssociatedValue("_innerShadowLayer", of: self, initial: InnerShadowLayer(for: self) )
+        getAssociatedValue("_innerShadowLayer", initial: InnerShadowLayer(for: self) )
     }
     
     var innerShadowColor: CGColor? {
@@ -402,7 +402,7 @@ extension CALayer {
     }
     
     @objc dynamic var _maskShape: String? {
-        get { FZSwiftUtils.getAssociatedValue("_maskShape", of: self) }
+        get { getAssociatedValue("_maskShape") }
         set { setAssociatedValue(newValue, for: "_maskShape") }
     }
     
@@ -422,7 +422,7 @@ extension CALayer {
     
     /// The shape of the shadow.
     public var shadowShape: (any Shape)? {
-        get { FZSwiftUtils.getAssociatedValue("shadowShape", of: self) }
+        get { getAssociatedValue("shadowShape") }
         set {
             setAssociatedValue(newValue, for: "shadowShape")
             didUpdateShadowShapManually = true
@@ -442,7 +442,7 @@ extension CALayer {
     }
     
     var didUpdateShadowShapManually: Bool {
-        get { FZSwiftUtils.getAssociatedValue("didUpdateShadowShapManually", of: self) ?? false }
+        get { getAssociatedValue("didUpdateShadowShapManually") ?? false }
         set { setAssociatedValue(newValue, for: "didUpdateShadowShapManually") }
     }
     
@@ -454,7 +454,7 @@ extension CALayer {
     }
     
     fileprivate var shadowShapeObservation: KeyValueObservation? {
-        get { FZSwiftUtils.getAssociatedValue("shadowShapeObservation", of: self) }
+        get { getAssociatedValue("shadowShapeObservation") }
         set { setAssociatedValue(newValue, for: "shadowShapeObservation") }
     }
     
@@ -509,7 +509,7 @@ extension CALayer {
     }
     
     var shadowShapeLayer: ShadowShapeLayer? {
-        get { FZSwiftUtils.getAssociatedValue("shadowShapeLayer", of: self) }
+        get { getAssociatedValue("shadowShapeLayer") }
         set { setAssociatedValue(newValue, for: "shadowShapeLayer") }
     }
     
@@ -752,7 +752,7 @@ extension CALayer {
     }
     
     var configurations: Configurations {
-        FZSwiftUtils.getAssociatedValue("LayerConfigurations", of: self, initial: Configurations(for: self))
+        getAssociatedValue("LayerConfigurations", initial: Configurations(for: self))
     }
     
     var backgroundColorIsVisible: Bool {
@@ -884,12 +884,12 @@ extension CALayer {
     }
     
     private var superLayerObservation: KeyValueObservation? {
-        get { FZSwiftUtils.getAssociatedValue("superLayerObservation", of: self) }
+        get { getAssociatedValue("superLayerObservation") }
         set { setAssociatedValue(newValue, for: "superLayerObservation") }
     }
     
     private var constrainLayerObserver: KeyValueObserver<CALayer>? {
-        get { FZSwiftUtils.getAssociatedValue("constrainLayerObserver", of: self) }
+        get { getAssociatedValue("constrainLayerObserver") }
         set { setAssociatedValue(newValue, for: "constrainLayerObserver") }
     }
     

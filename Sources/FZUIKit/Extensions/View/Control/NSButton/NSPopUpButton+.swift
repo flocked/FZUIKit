@@ -136,7 +136,7 @@ public extension NSPopUpButton {
         
     /// The arrow position.
     var arrowPosition: ArrowPosition {
-        get { FZSwiftUtils.getAssociatedValue("_arrowPosition", of: self, initial: (cell as? NSPopUpButtonCell)?.arrowPosition ?? .arrowAtBottom) }
+        get { getAssociatedValue("_arrowPosition", initial: (cell as? NSPopUpButtonCell)?.arrowPosition ?? .arrowAtBottom) }
         set {
             guard newValue != arrowPosition else { return }
             setAssociatedValue(newValue, for: "_arrowPosition")
@@ -213,17 +213,17 @@ public extension NSPopUpButton {
     }
     
     private var isMouseInside: Bool {
-        get { FZSwiftUtils.getAssociatedValue("isMouseInside", of: self) ?? false }
+        get { getAssociatedValue("isMouseInside") ?? false }
         set { setAssociatedValue(newValue, for: "isMouseInside") }
     }
     
     private var hoverTrackingArea: TrackingArea? {
-        get { FZSwiftUtils.getAssociatedValue("hoverTrackingArea", of: self) }
+        get { getAssociatedValue("hoverTrackingArea") }
         set { setAssociatedValue(newValue, for: "hoverTrackingArea") }
     }
     
     private var hoverHooks: [Hook] {
-        get { FZSwiftUtils.getAssociatedValue("hoverHooks", of: self) ?? [] }
+        get { getAssociatedValue("hoverHooks") ?? [] }
         set { setAssociatedValue(newValue, for: "hoverHooks") }
     }
         

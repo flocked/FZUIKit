@@ -82,7 +82,7 @@ public extension NSDraggingItem {
      When a dragging session begins an image representation of the view is used to provide the dragging image.
      */
     var view: NSView? {
-        get { FZSwiftUtils.getAssociatedValue("_view", of: self) }
+        get { getAssociatedValue("_view") }
         set {
             setAssociatedValue(weak: newValue, for: "_view")
             guard newValue != nil else { return }

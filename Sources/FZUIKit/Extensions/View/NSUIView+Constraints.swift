@@ -349,12 +349,12 @@ public extension NSUIView {
     }
     
     fileprivate var constraintDeinitObservation: DeinitObservation? {
-        get { FZSwiftUtils.getAssociatedValue("constraintDeinitObservation", of: self) }
+        get { getAssociatedValue("constraintDeinitObservation") }
         set { setAssociatedValue(newValue, for: "constraintDeinitObservation") }
     }
     
     fileprivate var constraintBoundsObservation: KeyValueObservation? {
-        get { FZSwiftUtils.getAssociatedValue("constraintBoundsObservation", of: self) }
+        get { getAssociatedValue("constraintBoundsObservation") }
         set { setAssociatedValue(newValue, for: "constraintBoundsObservation") }
     }
         

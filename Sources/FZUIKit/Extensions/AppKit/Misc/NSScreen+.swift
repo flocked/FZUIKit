@@ -143,12 +143,12 @@ public extension NSScreen {
     }
 
     private static var _screenSleepIsDisabled: Bool {
-        get { FZSwiftUtils.getAssociatedValue("screenSleepIsDisabled", of: self, initial: false) }
+        get { getAssociatedValue("screenSleepIsDisabled", initial: false) }
         set { setAssociatedValue(newValue, for: "screenSleepIsDisabled") }
     }
 
     private static var noSleepAssertionID: IOPMAssertionID {
-        get { FZSwiftUtils.getAssociatedValue("noSleepAssertionID", of: self, initial: 0) }
+        get { getAssociatedValue("noSleepAssertionID", initial: 0) }
         set { setAssociatedValue(newValue, for: "noSleepAssertionID") }
     }
 }

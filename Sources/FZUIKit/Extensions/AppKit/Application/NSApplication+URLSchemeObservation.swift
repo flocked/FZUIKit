@@ -41,7 +41,7 @@ extension NSApplication {
     }
     
     var urlSchemeObservations: Set<Weak<URLSchemeObservation>> {
-        get { FZSwiftUtils.getAssociatedValue("urlSchemeObservations", of: self) ?? [] }
+        get { getAssociatedValue("urlSchemeObservations") ?? [] }
         set {
             setAssociatedValue(newValue, for: "urlSchemeObservations")
             if !newValue.isEmpty, !isURLSchmaObservationEnabled {
@@ -63,7 +63,7 @@ extension NSApplication {
     }
     
     private var isURLSchmaObservationEnabled: Bool {
-        get { FZSwiftUtils.getAssociatedValue("isURLSchmaObservationEnabled", of: self) ?? false }
+        get { getAssociatedValue("isURLSchmaObservationEnabled") ?? false }
         set { setAssociatedValue(newValue, for: "isURLSchmaObservationEnabled") }
     }
 }

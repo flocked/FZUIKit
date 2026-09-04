@@ -62,7 +62,7 @@ class AnimationDelegate: NSObject, CAAnimationDelegate {
 
 fileprivate extension CAAnimation {
     var animator: NSAnimator? {
-        get { FZSwiftUtils.getAssociatedValue("animator", of: self) }
+        get { getAssociatedValue("animator") }
         set { setAssociatedValue(weak: newValue, for: "animator") }
     }
 }

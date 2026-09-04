@@ -309,17 +309,17 @@ extension NSPasteboard {
     }
     
     private var lastChangeCount: Int {
-        get { FZSwiftUtils.getAssociatedValue("lastChangeCount", of: self) ?? -1 }
+        get { getAssociatedValue("lastChangeCount") ?? -1 }
         set { setAssociatedValue(newValue, for: "lastChangeCount") }
     }
     
     private var observationTimer: Timer? {
-        get { FZSwiftUtils.getAssociatedValue("observationTimer", of: self) }
+        get { getAssociatedValue("observationTimer") }
         set { setAssociatedValue(newValue, for: "observationTimer") }
     }
     
     var observations: [UUID: PasteboardObservation] {
-        get { FZSwiftUtils.getAssociatedValue("observations", of: self) ?? [:] }
+        get { getAssociatedValue("observations") ?? [:] }
         set {
             setAssociatedValue(newValue, for: "observations")
             if newValue.isEmpty {

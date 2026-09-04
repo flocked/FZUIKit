@@ -238,7 +238,7 @@ extension NSScrollView {
     /// The Autoscroll speed (pixel per second) of the scroll view, or `nil` for no autoscrolling.
     @available(macOS 14.0, *)
     public var autoScrollSpeed: CGFloat? {
-        get { FZSwiftUtils.getAssociatedValue("autoScrollSpeed", of: self) }
+        get { getAssociatedValue("autoScrollSpeed") }
         set {
             var newValue = newValue?.clamped(min: 0.0)
             newValue = newValue == 0.0 ? nil : newValue
@@ -281,7 +281,7 @@ extension NSScrollView {
     /// A Boolean value indicating whether the autoscrolling should loop when the scroll view reached the bottom.
     @available(macOS 14.0, *)
     public var loopsAutoScroll: Bool {
-        get { FZSwiftUtils.getAssociatedValue("loopsAutoScroll", of: self) ?? false }
+        get { getAssociatedValue("loopsAutoScroll") ?? false }
         set { setAssociatedValue(newValue, for: "loopsAutoScroll") }
     }
     
@@ -295,33 +295,33 @@ extension NSScrollView {
     
     @available(macOS 14.0, *)
     var autoScrollDisplaylink: DisplayLink? {
-        get { FZSwiftUtils.getAssociatedValue("autoScrollDisplaylink", of: self) }
+        get { getAssociatedValue("autoScrollDisplaylink") }
         set { setAssociatedValue(newValue, for: "autoScrollDisplaylink") }
     }
     
     @available(macOS 14.0, *)
     var autoScrollDocumentViewObservation: KeyValueObservation? {
-        get { FZSwiftUtils.getAssociatedValue("autoScrollDocumentViewObservation", of: self) }
+        get { getAssociatedValue("autoScrollDocumentViewObservation") }
         set { setAssociatedValue(newValue, for: "autoScrollDocumentViewObservation") }
     }
     
     var contentOffsetNotificationToken: NotificationToken? {
-        get { FZSwiftUtils.getAssociatedValue("contentOffsetNotificationToken", of: self) }
+        get { getAssociatedValue("contentOffsetNotificationToken") }
         set { setAssociatedValue(newValue, for: "contentOffsetNotificationToken")}
     }
     
     var previousContentOffset: CGPoint {
-        get { FZSwiftUtils.getAssociatedValue("previousContentOffset", of: self, initial: .zero) }
+        get { getAssociatedValue("previousContentOffset", initial: .zero) }
         set { setAssociatedValue(newValue, for: "previousContentOffset")}
     }
     
     var isChangingContentOffset: Bool {
-        get { FZSwiftUtils.getAssociatedValue("isChangingContentOffset", of: self, initial: false) }
+        get { getAssociatedValue("isChangingContentOffset", initial: false) }
         set { setAssociatedValue(newValue, for: "isChangingContentOffset")}
     }
     
     public var contentOffsetIsObservable: Bool {
-        get { FZSwiftUtils.getAssociatedValue("contentOffsetIsObservable", of: self, initial: false) }
+        get { getAssociatedValue("contentOffsetIsObservable", initial: false) }
         set {
             guard newValue != contentOffsetIsObservable else { return}
             setAssociatedValue(newValue, for: "contentOffsetIsObservable")
@@ -526,7 +526,7 @@ extension NSScrollView {
     @objc public private(set) var inLiveScroll: Bool {
         get {
             setupLiveResizeObservation()
-            return FZSwiftUtils.getAssociatedValue("inLiveScroll", of: self) ?? false
+            return getAssociatedValue("inLiveScroll") ?? false
         }
         set { setAssociatedValue(newValue, for: "inLiveScroll") }
     }
@@ -535,18 +535,18 @@ extension NSScrollView {
     @objc public private(set) var inLiveMagnify: Bool {
         get {
             setupLiveMagnifyObservation()
-            return FZSwiftUtils.getAssociatedValue("inLiveMagnify", of: self) ?? false
+            return getAssociatedValue("inLiveMagnify") ?? false
         }
         set { setAssociatedValue(newValue, for: "inLiveMagnify") }
     }
     
     private var liveScrollNotificationTokens: [NotificationToken] {
-        get { FZSwiftUtils.getAssociatedValue("liveScrollNotificationTokens", of: self) ?? [] }
+        get { getAssociatedValue("liveScrollNotificationTokens") ?? [] }
         set { setAssociatedValue(newValue, for: "liveScrollNotificationTokens") }
     }
     
     private var liveMagnifyNotificationTokens: [NotificationToken] {
-        get { FZSwiftUtils.getAssociatedValue("liveMagnifyNotificationTokens", of: self) ?? [] }
+        get { getAssociatedValue("liveMagnifyNotificationTokens") ?? [] }
         set { setAssociatedValue(newValue, for: "liveMagnifyNotificationTokens") }
     }
     
@@ -679,7 +679,7 @@ extension NSScrollView {
     
     /// A Boolean value indicating whether the scroll view should automatically manage it's document view.
     @objc open var managesDocumentView: Bool {
-        get { FZSwiftUtils.getAssociatedValue("managesDocumentView", of: self, initial: false) }
+        get { getAssociatedValue("managesDocumentView", initial: false) }
         set {
             guard newValue != managesDocumentView else { return }
             setAssociatedValue(newValue, for: "managesDocumentView")
@@ -697,7 +697,7 @@ extension NSScrollView {
     
     ///A Boolean value indicating whether the scrollers automatically hide if the `magnification` value is `1.0`.
     @objc open var hidesScrollersWhenZoomedOut: Bool {
-        get { FZSwiftUtils.getAssociatedValue("hidesScrollersWhenZoomedOut", of: self, initial: false) }
+        get { getAssociatedValue("hidesScrollersWhenZoomedOut", initial: false) }
         set {
             guard newValue != hidesScrollersWhenZoomedOut else { return }
             setAssociatedValue(newValue, for: "hidesScrollersWhenZoomedOut")
@@ -714,7 +714,7 @@ extension NSScrollView {
     }
     
     var scrollViewObserver: KeyValueObserver<NSScrollView>? {
-        get { FZSwiftUtils.getAssociatedValue("scrollViewObserver", of: self) }
+        get { getAssociatedValue("scrollViewObserver") }
         set { setAssociatedValue(newValue, for: "scrollViewObserver") }
     }
     
@@ -763,7 +763,7 @@ extension NSScrollView {
     }
     
     var scrollerConfiguration: ScrollerConfiguration {
-        get { FZSwiftUtils.getAssociatedValue("scrollerConfiguration", of: self, initial: ScrollerConfiguration(verticalElasticity: verticalScrollElasticity, horizontalElasticity: horizontalScrollElasticity, hasVertical: hasVerticalRuler, hasHorizontal: hasHorizontalScroller)) }
+        get { getAssociatedValue("scrollerConfiguration", initial: ScrollerConfiguration(verticalElasticity: verticalScrollElasticity, horizontalElasticity: horizontalScrollElasticity, hasVertical: hasVerticalRuler, hasHorizontal: hasHorizontalScroller)) }
         set {
             setAssociatedValue(newValue, for: "scrollerConfiguration")
             updateScrollers()
@@ -771,7 +771,7 @@ extension NSScrollView {
     }
     
     var isUpdatingScrollers: Bool {
-        get { FZSwiftUtils.getAssociatedValue("isUpdatingScrollers", of: self, initial: false) }
+        get { getAssociatedValue("isUpdatingScrollers", initial: false) }
         set { setAssociatedValue(newValue, for: "isUpdatingScrollers") }
     }
     
@@ -829,7 +829,7 @@ extension NSScrollView {
     
     /// The handlers for the scroll view.
     public var handlers: Handlers {
-        get { FZSwiftUtils.getAssociatedValue("scrollViewHandlers", of: self, initial: Handlers()) }
+        get { getAssociatedValue("scrollViewHandlers", initial: Handlers()) }
         set {
             setAssociatedValue(newValue, for: "scrollViewHandlers")
             if let handler = handlers.documentVisibleRect {
@@ -887,12 +887,12 @@ extension NSScrollView {
     }
     
     var scrollViewTokens: [Notification.Name : NotificationToken] {
-        get { FZSwiftUtils.getAssociatedValue("scrollViewTokens", of: self, initial: [:]) }
+        get { getAssociatedValue("scrollViewTokens", initial: [:]) }
         set { setAssociatedValue(newValue, for: "scrollViewTokens") }
     }
     
     var documentViewObservation: KeyValueObservation? {
-        get { FZSwiftUtils.getAssociatedValue("documentViewObservation", of: self) ?? nil }
+        get { getAssociatedValue("documentViewObservation") ?? nil }
         set { setAssociatedValue(newValue, for: "documentViewObservation") }
     }
 }
@@ -904,7 +904,7 @@ extension NSScrollView {
      The default value is `nil` and disables zooming via mouse clicks.
      */
     public var mouseClickZoomFactor: CGFloat? {
-        get { FZSwiftUtils.getAssociatedValue("mouseClickZoomFactor", of: self) }
+        get { getAssociatedValue("mouseClickZoomFactor") }
         set {
             guard newValue != mouseClickZoomFactor else { return }
             setAssociatedValue(newValue, for: "mouseClickZoomFactor")
@@ -923,7 +923,7 @@ extension NSScrollView {
      The default value is `nil` and disables zooming via keyboard.
      */
     public var keyDownZoomFactor: CGFloat? {
-        get { FZSwiftUtils.getAssociatedValue("keyDownZoomFactor", of: self) }
+        get { getAssociatedValue("keyDownZoomFactor") }
         set {
             guard newValue != keyDownZoomFactor else { return }
             setAssociatedValue(newValue, for: "keyDownZoomFactor")
@@ -937,7 +937,7 @@ extension NSScrollView {
      The default value is `nil` and disables zooming via space key.
      */
     public var spaceKeyZoomFactor: CGFloat? {
-        get { FZSwiftUtils.getAssociatedValue("spaceKeyZoomFactor", of: self) }
+        get { getAssociatedValue("spaceKeyZoomFactor") }
         set {
             guard newValue != spaceKeyZoomFactor else { return }
             setAssociatedValue(newValue, for: "spaceKeyZoomFactor")
@@ -1002,17 +1002,17 @@ extension NSScrollView {
     }
     
     fileprivate var keyDownHook: Hook? {
-        get { FZSwiftUtils.getAssociatedValue("keyDownHook", of: self) }
+        get { getAssociatedValue("keyDownHook") }
         set { setAssociatedValue(newValue, for: "keyDownHook") }
     }
     
     fileprivate var keyUpHook: Hook? {
-        get { FZSwiftUtils.getAssociatedValue("keyUpHook", of: self) }
+        get { getAssociatedValue("keyUpHook") }
         set { setAssociatedValue(newValue, for: "keyUpHook") }
     }
     
     fileprivate var scrollViewGestureRecognizer: ScrollViewGestureRecognizer? {
-        get { FZSwiftUtils.getAssociatedValue("scrollViewGestureRecognizer", of: self) }
+        get { getAssociatedValue("scrollViewGestureRecognizer") }
         set { setAssociatedValue(newValue, for: "scrollViewGestureRecognizer") }
     }
     

@@ -100,7 +100,7 @@ extension NSStatusItem {
      When using this handler, the `action` and `target` of the item's button is set to `nil` and this handler is used  instead.
      */
     public var onClick: (()->())? {
-        get { FZSwiftUtils.getAssociatedValue("onClick", of: self) }
+        get { getAssociatedValue("onClick") }
         set {
             setAssociatedValue(newValue, for: "onClick")
             updateAction()
@@ -115,7 +115,7 @@ extension NSStatusItem {
      When using this handler, the `action` and `target` of the item's button is set to `nil` and this handler is used  instead.
      */
     public var onRightClick: (()->())? {
-        get { FZSwiftUtils.getAssociatedValue("onRightClick", of: self) }
+        get { getAssociatedValue("onRightClick") }
         set {
             setAssociatedValue(newValue, for: "onRightClick")
             updateAction()
@@ -136,7 +136,7 @@ extension NSStatusItem {
     
     /// The menu that is displayed when the item is right clicked.
     public var rightClickMenu: NSMenu? {
-        get { FZSwiftUtils.getAssociatedValue("rightClickMenu", of: self) }
+        get { getAssociatedValue("rightClickMenu") }
         set {
             setAssociatedValue(newValue, for: "rightClickMenu")
             updateAction()
@@ -249,7 +249,7 @@ extension NSStatusItem {
     
     /// The handler that is called when the mouse is clicking and holding the item.
     public var onMouseHold: ((_ state: MouseClickState)->())? {
-        get { FZSwiftUtils.getAssociatedValue("onMouseHold", of: self) }
+        get { getAssociatedValue("onMouseHold") }
         set { setAssociatedValue(newValue, for: "onMouseHold")
             updateAction()
         }
@@ -257,7 +257,7 @@ extension NSStatusItem {
     
     /// The handler that is called when the mouse is right clicking and holding the item.
     public var onRightMouseHold: ((MouseClickState)->())? {
-        get { FZSwiftUtils.getAssociatedValue("onRightMouseHold", of: self) }
+        get { getAssociatedValue("onRightMouseHold") }
         set { setAssociatedValue(newValue, for: "onRightMouseHold")
             updateAction()
         }
@@ -389,17 +389,17 @@ extension NSStatusItem {
     }
     
     fileprivate var leftClickMenu: NSMenu? {
-        get { FZSwiftUtils.getAssociatedValue("leftClickMenu", of: self) }
+        get { getAssociatedValue("leftClickMenu") }
         set { setAssociatedValue(newValue, for: "leftClickMenu") }
     }
     
     fileprivate var menuObservation: KeyValueObservation? {
-        get { FZSwiftUtils.getAssociatedValue("menuObservation", of: self) }
+        get { getAssociatedValue("menuObservation") }
         set { setAssociatedValue(newValue, for: "menuObservation") }
     }
     
     fileprivate var isUpdatingMenu: Bool {
-        get { FZSwiftUtils.getAssociatedValue("isUpdatingMenu", of: self) ?? false }
+        get { getAssociatedValue("isUpdatingMenu") ?? false }
         set { setAssociatedValue(newValue, for: "isUpdatingMenu") }
     }
     
@@ -436,7 +436,7 @@ extension NSStatusItem {
     
     /// The popover displayed when clicking the item.
     public var popover: NSPopover? {
-        get { FZSwiftUtils.getAssociatedValue("popover", of: self) }
+        get { getAssociatedValue("popover") }
         set {
             setAssociatedValue(newValue, for: "popover")
             updateAction()
@@ -452,7 +452,7 @@ extension NSStatusItem {
     
     /// The popover displayed when right-clicking the item.
     public var rightClickPopover: NSPopover? {
-        get { FZSwiftUtils.getAssociatedValue("rightClickPopover", of: self) }
+        get { getAssociatedValue("rightClickPopover") }
         set {
             setAssociatedValue(newValue, for: "rightClickPopover")
             updateAction()
@@ -469,7 +469,7 @@ extension NSStatusItem {
 
 fileprivate extension NSView {
     var isStatusItemView: Bool {
-        get { FZSwiftUtils.getAssociatedValue("isStatusItemView", of: self) ?? false }
+        get { getAssociatedValue("isStatusItemView") ?? false }
         set { setAssociatedValue(newValue, for: "isStatusItemView") }
     }
 }

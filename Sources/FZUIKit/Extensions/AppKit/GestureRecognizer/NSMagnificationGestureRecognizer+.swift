@@ -14,7 +14,7 @@ extension NSMagnificationGestureRecognizer {
     @objc public private(set) dynamic var velocity: CGFloat {
         get {
             swizzleGestureState()
-            return FZSwiftUtils.getAssociatedValue("velocity", of: self) ?? 1.0
+            return getAssociatedValue("velocity") ?? 1.0
         }
         set { setAssociatedValue(newValue, for: "velocity") }
     }
@@ -33,12 +33,12 @@ extension NSMagnificationGestureRecognizer {
     }
     
     private var time: CFTimeInterval {
-        get { FZSwiftUtils.getAssociatedValue("time", of: self) ?? CACurrentMediaTime() }
+        get { getAssociatedValue("time") ?? CACurrentMediaTime() }
         set { setAssociatedValue(newValue, for: "time") }
     }
     
     private var prevMagnification: CGFloat {
-        get { FZSwiftUtils.getAssociatedValue("prevMagnification", of: self) ?? magnification }
+        get { getAssociatedValue("prevMagnification") ?? magnification }
         set { setAssociatedValue(newValue, for: "prevMagnification") }
     }
     
@@ -56,7 +56,7 @@ extension NSMagnificationGestureRecognizer {
     }
     
     private var stateHook: Hook? {
-        get { FZSwiftUtils.getAssociatedValue("stateHook", of: self) }
+        get { getAssociatedValue("stateHook") }
         set { setAssociatedValue(newValue, for: "stateHook") }
     }
 }

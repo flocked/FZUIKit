@@ -24,7 +24,7 @@ extension CAShapeLayer {
      ```
     */
     public var _shape: (any Shape)? {
-        get { FZSwiftUtils.getAssociatedValue("_shape", of: self) }
+        get { getAssociatedValue("_shape") }
         set {
             setAssociatedValue(newValue, for: "_shape")
             try? layoutSublayersHook?.revert()
@@ -52,7 +52,7 @@ extension CAShapeLayer {
     }
     
     var layoutSublayersHook: Hook? {
-        get { FZSwiftUtils.getAssociatedValue("layoutSublayersHook", of: self) }
+        get { getAssociatedValue("layoutSublayersHook") }
         set { setAssociatedValue(newValue, for: "layoutSublayersHook") }
     }
 }

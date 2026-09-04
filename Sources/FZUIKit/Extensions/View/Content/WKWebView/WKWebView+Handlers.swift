@@ -135,7 +135,7 @@ extension WKWebView {
      Defaults to `resume`.
      */
     public var defaultDownloadStrategy: DownloadStrategy {
-        get { FZSwiftUtils.getAssociatedValue("defaultDownloadStrategy", of: self) ?? .resume }
+        get { getAssociatedValue("defaultDownloadStrategy") ?? .resume }
         set { setAssociatedValue(newValue, for: "defaultDownloadStrategy") }
     }
     
@@ -145,13 +145,13 @@ extension WKWebView {
      Defaults to `0`.
      */
     public var defaultDownloadRetryAmount: Int {
-        get { FZSwiftUtils.getAssociatedValue("defaultDownloadRetryAmount", of: self) ?? 0 }
+        get { getAssociatedValue("defaultDownloadRetryAmount") ?? 0 }
         set { setAssociatedValue(newValue.clamped(min: 0), for: "defaultDownloadRetryAmount") }
     }
     
     /// The handlers of the web view.
     public var handlers: Handlers {
-        get { FZSwiftUtils.getAssociatedValue("handlers", of: self) ?? Handlers() }
+        get { getAssociatedValue("handlers") ?? Handlers() }
         set {
             setAssociatedValue(newValue, for: "handlers")
             setupHandlerDelegate()
@@ -160,13 +160,13 @@ extension WKWebView {
     }
     
     private var cookiesObservation: WKWebViewCookiesObservation? {
-        get { FZSwiftUtils.getAssociatedValue("cookiesObservation", of: self) }
+        get { getAssociatedValue("cookiesObservation") }
         set { setAssociatedValue(newValue, for: "cookiesObservation") }
     }
 
     /// The handlers for downloading files.
     public var downloadHandlers: DownloadHandlers {
-        get { FZSwiftUtils.getAssociatedValue("downloadHandlers", of: self) ?? DownloadHandlers() }
+        get { getAssociatedValue("downloadHandlers") ?? DownloadHandlers() }
         set {
             setAssociatedValue(newValue, for: "downloadHandlers")
             setupHandlerDelegate()
@@ -187,7 +187,7 @@ extension WKWebView {
      }
     
      var _downloads: SynchronizedArray<WKDownload> {
-         get { FZSwiftUtils.getAssociatedValue("downloads", of: self, initial: []) }
+         get { getAssociatedValue("downloads", initial: []) }
          set { setAssociatedValue(newValue, for: "downloads") }
      }
       */
@@ -198,7 +198,7 @@ extension WKWebView {
      Defaults to the user's download directory.
      */
     public var defaultDownloadDirectory: URL? {
-        get { FZSwiftUtils.getAssociatedValue("defaultDownloadDirectory", of: self, initial: {
+        get { getAssociatedValue("defaultDownloadDirectory", initial: {
             if #available(macOS 13.0, iOS 16.0, *) {
                 return .downloadsDirectory
             } else {
@@ -220,7 +220,7 @@ extension WKWebView {
     }
     
     private var handlerDelegate: HandlerDelegate? {
-        get { FZSwiftUtils.getAssociatedValue("handlerDelegate", of: self) }
+        get { getAssociatedValue("handlerDelegate") }
         set { setAssociatedValue(newValue, for: "handlerDelegate") }
     }
     
@@ -401,12 +401,12 @@ extension WKWebView {
 extension WKDownload {
     /// The amount of retries when the download fails.
     public var retryAmount: Int {
-        get { FZSwiftUtils.getAssociatedValue("retryAmount", of: self, initial: -1) }
+        get { getAssociatedValue("retryAmount", initial: -1) }
         set { setAssociatedValue(newValue, for: "retryAmount") }
     }
 
     var fileDestinationURL: URL? {
-        get { FZSwiftUtils.getAssociatedValue("fileDestinationURL", of: self) }
+        get { getAssociatedValue("fileDestinationURL") }
         set { setAssociatedValue(newValue, for: "fileDestinationURL") }
     }
 }
@@ -788,12 +788,12 @@ extension WKDownload {
      extension WKDownload {
          /// The amount of retries when downloading via ``FZWebView`` fails.
          public var retryAmount: Int {
-             get { FZSwiftUtils.getAssociatedValue("retryAmount", of: self, initial: 0) }
+             get { getAssociatedValue("retryAmount", initial: 0) }
              set { setAssociatedValue(newValue, for: "retryAmount") }
          }
 
          var fileDestinationURL: URL? {
-             get { FZSwiftUtils.getAssociatedValue("fileDestinationURL", of: self) }
+             get { getAssociatedValue("fileDestinationURL") }
              set { setAssociatedValue(newValue, for: "fileDestinationURL") }
          }
      }

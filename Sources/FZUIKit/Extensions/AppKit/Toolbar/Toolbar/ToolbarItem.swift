@@ -7,7 +7,6 @@
 
 #if os(macOS)
 import AppKit
-import FZSwiftUtils
 
 /// A toolbar item that can be used with ``Toolbar``.
 @objc open class ToolbarItem: NSObject, NSValidatedUserInterfaceItem {
@@ -419,7 +418,7 @@ extension NSObjectProtocol where Self: ToolbarItem {
      The handler is e.g. called by the toolbar when the toolbar's visibilty or window key state changes.
      */
     public var validateHandler: ((Self)->())? {
-        get { FZSwiftUtils.getAssociatedValue("validateHandler" , of: self)}
+        get { getAssociatedValue("validateHandler" )}
         set { setAssociatedValue(newValue, for: "validateHandler") }
     }
     

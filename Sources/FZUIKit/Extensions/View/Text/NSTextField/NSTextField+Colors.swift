@@ -20,7 +20,7 @@ extension NSTextField {
     }
     
     @objc private var _selectionColor: NSColor? {
-        get { FZSwiftUtils.getAssociatedValue("selectionColor", of: self) }
+        get { getAssociatedValue("selectionColor") }
         set {
             guard newValue != selectionColor else { return }
             setAssociatedValue(newValue, for: "selectionColor")
@@ -45,7 +45,7 @@ extension NSTextField {
     }
     
     @objc private var _selectionTextColor: NSColor? {
-        get { FZSwiftUtils.getAssociatedValue("selectionTextColor", of: self) }
+        get { getAssociatedValue("selectionTextColor") }
         set {
             guard newValue != selectionTextColor else { return }
             setAssociatedValue(newValue, for: "selectionTextColor")
@@ -70,7 +70,7 @@ extension NSTextField {
     }
     
     @objc private var _placeholderTextColor: NSColor? {
-        get { FZSwiftUtils.getAssociatedValue("placeholderTextColor", of: self) }
+        get { getAssociatedValue("placeholderTextColor") }
         set {
             guard newValue != placeholderTextColor else { return }
             setAssociatedValue(newValue, for: "placeholderTextColor")
@@ -139,22 +139,22 @@ extension NSTextField {
     }
 
     private var selectionHook: Hook? {
-        get { FZSwiftUtils.getAssociatedValue("selectionHook", of: self) }
+        get { getAssociatedValue("selectionHook") }
         set { setAssociatedValue(newValue, for: "selectionHook") }
     }
     
     private var _placeholderString: String? {
-        get { FZSwiftUtils.getAssociatedValue("_placeholderString", of: self) }
+        get { getAssociatedValue("_placeholderString") }
         set { setAssociatedValue(newValue, for: "_placeholderString") }
     }
     
     private var placeholderHook: Hook? {
-        get { FZSwiftUtils.getAssociatedValue("placeholderHook", of: self) }
+        get { getAssociatedValue("placeholderHook") }
         set { setAssociatedValue(newValue, for: "placeholderHook") }
     }
 
     private var placeholderObservations: [KeyValueObservation] {
-        get { FZSwiftUtils.getAssociatedValue("placeholderObservations", of: self) ?? [] }
+        get { getAssociatedValue("placeholderObservations") ?? [] }
         set { setAssociatedValue(newValue, for: "placeholderObservations") }
     }
 }

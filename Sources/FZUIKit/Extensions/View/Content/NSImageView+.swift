@@ -141,7 +141,7 @@ extension NSImageView {
      The view in this property clips its subviews to its bounds rectangle by default, but you can change that behavior using the `clipsToBounds` property.
      */
     public var overlayContentView: NSView {
-        if let overlayView: NSView = FZSwiftUtils.getAssociatedValue("overlayContentView", of: self) {
+        if let overlayView: NSView = getAssociatedValue("overlayContentView") {
             return overlayView
         }
         
@@ -173,12 +173,12 @@ extension NSImageView {
     }
     
     var overlayImageViewObservation: KeyValueObserver<NSImageView> {
-        get { FZSwiftUtils.getAssociatedValue("overlayImageViewObservation", of: self, initial: KeyValueObserver(self)) }
+        get { getAssociatedValue("overlayImageViewObservation", initial: KeyValueObserver(self)) }
     }
 
     /// The transition animation when changing the image.
     public var transitionAnimation: TransitionAnimation {
-        get { FZSwiftUtils.getAssociatedValue("TransitionAnimation", of: self) ?? .none }
+        get { getAssociatedValue("TransitionAnimation") ?? .none }
         set {
             guard newValue != transitionAnimation else { return }
             setAssociatedValue(newValue, for: "TransitionAnimation")
@@ -211,7 +211,7 @@ extension NSImageView {
     
     /// The duration of the transition animation when changing the image.
     public var transitionDuration: TimeInterval {
-        get { FZSwiftUtils.getAssociatedValue("transitionDuration", of: self) ?? 0.2 }
+        get { getAssociatedValue("transitionDuration") ?? 0.2 }
         set {
             guard newValue != transitionDuration else { return }
             setAssociatedValue(newValue, for: "transitionDuration")
@@ -278,7 +278,7 @@ extension NSImageView {
     }
     
     var transitionImageObservation: [KeyValueObservation] {
-        get { FZSwiftUtils.getAssociatedValue("transitionImageObservation", of: self) ?? [] }
+        get { getAssociatedValue("transitionImageObservation") ?? [] }
         set { setAssociatedValue(newValue, for: "transitionImageObservation") }
     }
     

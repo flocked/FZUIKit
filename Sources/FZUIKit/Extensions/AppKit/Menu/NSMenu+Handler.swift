@@ -32,7 +32,7 @@ extension NSMenu {
     
     /// Handlers for the menu.
     public var handlers: Handlers {
-        get { FZSwiftUtils.getAssociatedValue("menuHandlers", of: self, initial: Handlers()) }
+        get { getAssociatedValue("menuHandlers", initial: Handlers()) }
         set {
             setAssociatedValue(newValue, for: "menuHandlers")
             setupDelegateProxy()
@@ -55,17 +55,17 @@ extension NSMenu {
     }
     
     fileprivate var effectiveAppearanceObservation: KeyValueObservation? {
-        get { FZSwiftUtils.getAssociatedValue("effectiveAppearanceObservation", of: self) }
+        get { getAssociatedValue("effectiveAppearanceObservation") }
         set { setAssociatedValue(newValue, for: "effectiveAppearanceObservation") }
     }
     
     var delegateProxy: Delegate? {
-        get { FZSwiftUtils.getAssociatedValue("delegateProxy", of: self) }
+        get { getAssociatedValue("delegateProxy") }
         set { setAssociatedValue(newValue, for: "delegateProxy") }
     }
     
     var viewMenuProvider: (() -> NSMenu?)? {
-        get { FZSwiftUtils.getAssociatedValue("viewMenuProvider", of: self) }
+        get { getAssociatedValue("viewMenuProvider") }
         set {
             setAssociatedValue(newValue, for: "viewMenuProvider")
             setupDelegateProxy()

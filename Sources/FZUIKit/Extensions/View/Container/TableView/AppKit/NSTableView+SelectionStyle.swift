@@ -26,7 +26,7 @@ extension NSTableView {
      The default value is `nil` and depends on the [style](https://developer.apple.com/documentation/appkit/nstableview/style-swift.property) of the table view.
      */
     public var selectionColor: NSColor? {
-        get { FZSwiftUtils.getAssociatedValue("selectionColor", of: self) }
+        get { getAssociatedValue("selectionColor") }
         set {
             guard newValue != selectionColor else { return }
             setAssociatedValue(newValue, for: "selectionColor")
@@ -36,7 +36,7 @@ extension NSTableView {
     }
     
     public var selectionBackgroundStyle: NSView.BackgroundStyle? {
-        get { FZSwiftUtils.getAssociatedValue("selectionBackgroundStyle", of: self) }
+        get { getAssociatedValue("selectionBackgroundStyle") }
         set {
             guard newValue != selectionBackgroundStyle else { return }
             setAssociatedValue(newValue, for: "selectionBackgroundStyle")
@@ -65,7 +65,7 @@ extension NSTableView {
     }
     
     private var didAddRowHook: Hook? {
-        get { FZSwiftUtils.getAssociatedValue("didAddRowHook", of: self) }
+        get { getAssociatedValue("didAddRowHook") }
         set { setAssociatedValue(newValue, for: "didAddRowHook") }
     }
     
@@ -102,12 +102,12 @@ extension NSTableView {
     }
     
     private var getSelectionHighlightStyleHook: Hook? {
-         get { FZSwiftUtils.getAssociatedValue("setSelectionHighlightStyleHook", of: self) }
+         get { getAssociatedValue("setSelectionHighlightStyleHook") }
          set { setAssociatedValue(newValue, for: "setSelectionHighlightStyleHook") }
      }
     
     private static var setSelectionHighlightStyleHook: Hook? {
-         get { FZSwiftUtils.getAssociatedValue("setSelectionHighlightStyleHook", of: self) }
+         get { getAssociatedValue("setSelectionHighlightStyleHook") }
          set { setAssociatedValue(newValue, for: "setSelectionHighlightStyleHook") }
      }
 }
@@ -115,7 +115,7 @@ extension NSTableView {
 extension NSTableRowView {
     /// The background color of a selected row.
     public var selectionColor: NSColor? {
-        get { FZSwiftUtils.getAssociatedValue("selectionColor", of: self) }
+        get { getAssociatedValue("selectionColor") }
         set {
             guard newValue != selectionColor else { return }
             setAssociatedValue(newValue, for: "selectionColor")
@@ -221,17 +221,17 @@ extension NSTableRowView {
     }
     
     private var drawSelectionHooks: [Hook] {
-        get { FZSwiftUtils.getAssociatedValue("drawSelectionHooks", of: self) ?? [] }
+        get { getAssociatedValue("drawSelectionHooks") ?? [] }
         set { setAssociatedValue(newValue, for: "drawSelectionHooks") }
     }
     
     private var getSelectionHighlightStyleHook: Hook? {
-         get { FZSwiftUtils.getAssociatedValue("setSelectionHighlightStyleHook", of: self) }
+         get { getAssociatedValue("setSelectionHighlightStyleHook") }
          set { setAssociatedValue(newValue, for: "setSelectionHighlightStyleHook") }
      }
     
     private static var setSelectionHighlightStyleHook: Hook? {
-        get { FZSwiftUtils.getAssociatedValue("setSelectionHighlightStyleHook", of: self) }
+        get { getAssociatedValue("setSelectionHighlightStyleHook") }
         set { setAssociatedValue(newValue, for: "setSelectionHighlightStyleHook") }
     }
 }

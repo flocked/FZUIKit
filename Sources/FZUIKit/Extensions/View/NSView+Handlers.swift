@@ -36,7 +36,7 @@ extension NSView {
      - Returns: A menu for the location or `nil`, if there shouldn't be a menu displayed.
      */
     public var menuProvider: ((CGPoint) -> NSMenu?)? {
-        get { FZSwiftUtils.getAssociatedValue("menuProvider", of: self) }
+        get { getAssociatedValue("menuProvider") }
         set {
             menuProviderMenuObservation = nil
             menu?.viewMenuProvider = nil
@@ -58,13 +58,13 @@ extension NSView {
     }
     
     fileprivate var menuProviderMenuObservation: KeyValueObservation? {
-        get { FZSwiftUtils.getAssociatedValue("menuProviderMenuObservation", of: self) }
+        get { getAssociatedValue("menuProviderMenuObservation") }
         set { setAssociatedValue(newValue, for: "menuProviderMenuObservation") }
     }
     
     /// The handlers for the window state.
     public var windowHandlers: WindowHandlers {
-        get { FZSwiftUtils.getAssociatedValue("windowHandlers", of: self, initial: WindowHandlers()) }
+        get { getAssociatedValue("windowHandlers", initial: WindowHandlers()) }
         set {
             setAssociatedValue(newValue, for: "windowHandlers")
             setupObservation()
@@ -75,7 +75,7 @@ extension NSView {
     
     /// The handlers for mouse events.
     public var mouseHandlers: MouseHandlers {
-        get { FZSwiftUtils.getAssociatedValue("mouseHandlers", of: self, initial: MouseHandlers()) }
+        get { getAssociatedValue("mouseHandlers", initial: MouseHandlers()) }
         set {
             setAssociatedValue(newValue, for: "mouseHandlers")
             guard !(self is ObserverView) else { return }
@@ -132,13 +132,13 @@ extension NSView {
     }
     
     fileprivate var mouseHooks: [String: Hook] {
-        get { FZSwiftUtils.getAssociatedValue("mouseHooks", of: self) ?? [:] }
+        get { getAssociatedValue("mouseHooks") ?? [:] }
         set { setAssociatedValue(newValue, for: "mouseHooks") }
     }
     
     /// The handlers for mouse events.
     public var keyHandlers: KeyHandlers {
-        get { FZSwiftUtils.getAssociatedValue("keyHandlers", of: self, initial: KeyHandlers()) }
+        get { getAssociatedValue("keyHandlers", initial: KeyHandlers()) }
         set {
             setAssociatedValue(newValue, for: "keyHandlers")
             keyHooks.values.forEach({ try? $0.revert() })
@@ -153,13 +153,13 @@ extension NSView {
     }
     
     fileprivate var keyHooks: [String: Hook] {
-        get { FZSwiftUtils.getAssociatedValue("keyHooks", of: self) ?? [:] }
+        get { getAssociatedValue("keyHooks") ?? [:] }
         set { setAssociatedValue(newValue, for: "keyHooks") }
     }
     
     /// The handlers for the view state.
     public var viewHandlers: ViewHandlers {
-        get { FZSwiftUtils.getAssociatedValue("viewHandlers", of: self, initial: ViewHandlers()) }
+        get { getAssociatedValue("viewHandlers", initial: ViewHandlers()) }
         set {
             setAssociatedValue(newValue, for: "viewHandlers")
             guard !(self is ObserverView) else { return }
@@ -215,7 +215,7 @@ extension NSView {
     
     /// The handler for touch events.
     public var touchHandler: ((_ event: TouchEvent)->())? {
-        get { FZSwiftUtils.getAssociatedValue("touchHandler", of: self) }
+        get { getAssociatedValue("touchHandler") }
         set {
             setAssociatedValue(newValue, for: "touchHandler")
             guard !(self is TouchRecognizerView) else { return }
@@ -232,7 +232,7 @@ extension NSView {
     }
     
     private var touchRecognizerView: TouchRecognizerView? {
-        get { FZSwiftUtils.getAssociatedValue("touchRecognizerView", of: self) }
+        get { getAssociatedValue("touchRecognizerView") }
         set { setAssociatedValue(newValue, for: "touchRecognizerView") }
     }
     
@@ -253,12 +253,12 @@ extension NSView {
      */
     
     fileprivate var windowObservation: [String: [NotificationToken]] {
-        get { FZSwiftUtils.getAssociatedValue("windowObservation", of: self) ?? [:] }
+        get { getAssociatedValue("windowObservation") ?? [:] }
         set { setAssociatedValue(newValue, for: "windowObservation") }
     }
     
     fileprivate var backgroundStyleObserverView: BackgroundStyleObserverView? {
-        get { FZSwiftUtils.getAssociatedValue("backgroundStyleObserverView", of: self) }
+        get { getAssociatedValue("backgroundStyleObserverView") }
         set { setAssociatedValue(newValue, for: "backgroundStyleObserverView") }
     }
     
@@ -343,7 +343,7 @@ extension NSView {
     }
     
     fileprivate var willMoveToWindowHook: Hook? {
-        get { FZSwiftUtils.getAssociatedValue("willMoveToWindowHook", of: self) }
+        get { getAssociatedValue("willMoveToWindowHook") }
         set { setAssociatedValue(newValue, for: "willMoveToWindowHook") }
     }
     
@@ -361,7 +361,7 @@ extension NSView {
     }
     
     fileprivate var willMoveToSuperviewHook: Hook? {
-        get { FZSwiftUtils.getAssociatedValue("willMoveToSuperviewHook", of: self) }
+        get { getAssociatedValue("willMoveToSuperviewHook") }
         set { setAssociatedValue(newValue, for: "willMoveToSuperviewHook") }
     }
     
@@ -431,17 +431,17 @@ extension NSView {
     }
     
     fileprivate var __backgroundStyle: NSView.BackgroundStyle {
-        get { FZSwiftUtils.getAssociatedValue("__backgroundStyle", of: self) ?? .normal }
+        get { getAssociatedValue("__backgroundStyle") ?? .normal }
         set { setAssociatedValue(newValue, for: "__backgroundStyle") }
     }
     
     fileprivate var _inLiveResize: Bool? {
-        get { FZSwiftUtils.getAssociatedValue("_inLiveResize", of: self) }
+        get { getAssociatedValue("_inLiveResize") }
         set { setAssociatedValue(newValue, for: "_inLiveResize") }
     }
     
     fileprivate var _isFirstResponder: Bool {
-        get { FZSwiftUtils.getAssociatedValue("_isFirstResponder", of: self, initial: isFirstResponder) }
+        get { getAssociatedValue("_isFirstResponder", initial: isFirstResponder) }
         set { 
             guard newValue != _isFirstResponder else { return }
             setAssociatedValue(newValue, for: "_isFirstResponder")
@@ -450,11 +450,11 @@ extension NSView {
     }
     
     fileprivate var viewObserver: KeyValueObserver<NSView> {
-        get { FZSwiftUtils.getAssociatedValue("viewObserver", of: self, initial: KeyValueObserver(self)) }
+        get { getAssociatedValue("viewObserver", initial: KeyValueObserver(self)) }
     }
     
     fileprivate var observerView: ObserverView? {
-        get { FZSwiftUtils.getAssociatedValue("observerView", of: self) }
+        get { getAssociatedValue("observerView") }
         set { setAssociatedValue(newValue, for: "observerView") }
     }
         
@@ -801,7 +801,7 @@ extension NSView {
     }
     
     fileprivate var subviewIDs: [ObjectIdentifier] {
-        get { FZSwiftUtils.getAssociatedValue("subviewIDs", of: self) ?? [] }
+        get { getAssociatedValue("subviewIDs") ?? [] }
         set { setAssociatedValue(newValue, for: "subviewIDs") }
     }
     
@@ -812,7 +812,7 @@ extension NSView {
     }
     
     fileprivate var subviewHooks: [Hook] {
-        get { FZSwiftUtils.getAssociatedValue("subviewHooks", of: self) ?? [] }
+        get { getAssociatedValue("subviewHooks") ?? [] }
         set { setAssociatedValue(newValue, for: "subviewHooks") }
     }
     

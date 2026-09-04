@@ -7,7 +7,6 @@
 
 #if os(macOS)
 import AppKit
-import FZSwiftUtils
 import UniformTypeIdentifiers
 
 public extension NSDraggingInfo {
@@ -193,7 +192,7 @@ public extension NSDraggingInfo {
     
     
     internal var view: NSView? {
-        get { (self as? NSObject)?.FZSwiftUtils.getAssociatedValue("destinationView", of: self) }
+        get { (self as? NSObject)?.getAssociatedValue("destinationView") }
         set { (self as? NSObject)?.setAssociatedValue(weak: newValue, for: "destinationView") }
     }
 }

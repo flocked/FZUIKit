@@ -88,7 +88,7 @@ public extension NSTabViewItem {
     }
     
     private var tabViewObservation: KeyValueObservation? {
-        get { FZSwiftUtils.getAssociatedValue("tabViewObservation", of: self) }
+        get { getAssociatedValue("tabViewObservation") }
         set { setAssociatedValue(newValue, for: "tabViewObservation") }
     }
 }

@@ -282,7 +282,7 @@ extension BorderConfiguration.Dash.AnimationSpeed: ExpressibleByFloatLiteral {
 
 extension NSUIView {
     var dashedBorderView: DashedBorderView? {
-        get { FZSwiftUtils.getAssociatedValue("dashedBorderView", of: self) }
+        get { getAssociatedValue("dashedBorderView") }
         set { setAssociatedValue(newValue, for: "dashedBorderView") }
     }
 }

@@ -36,7 +36,7 @@ extension NSButton {
      ```
      */
     public var configuration: NSButtonConfiguration? {
-        get { FZSwiftUtils.getAssociatedValue("configuration", of: self) }
+        get { getAssociatedValue("configuration") }
         set {
             setAssociatedValue(newValue, for: "configuration")
             updateConfiguration()
@@ -50,7 +50,7 @@ extension NSButton {
      Set this property to true to have the button call `updated(for:)` when the button state changes and apply the changes to the button. The default value is true.
      */
     public var automaticallyUpdatesConfiguration: Bool {
-        get { FZSwiftUtils.getAssociatedValue("automaticallyUpdatesConfiguration", of: self, initial: true) }
+        get { getAssociatedValue("automaticallyUpdatesConfiguration", initial: true) }
         set {
             setAssociatedValue(newValue, for: "automaticallyUpdatesConfiguration")
             setupConfigurationStateObserver()
@@ -84,7 +84,7 @@ extension NSButton {
     }
     
     var isHovered: Bool {
-        get { FZSwiftUtils.getAssociatedValue("isHovered", of: self, initial: false) }
+        get { getAssociatedValue("isHovered", initial: false) }
         set {
             guard newValue != isHovered else { return }
             setAssociatedValue(newValue, for: "isHovered")
@@ -175,7 +175,7 @@ extension NSButton {
      Use this property as an alternative to overriding ``updateConfiguration()``. Set a closure to respond to button state changes by updating the button configuration.
      */
     public var configurationUpdateHandler: ConfigurationUpdateHandler? {
-        get { FZSwiftUtils.getAssociatedValue("NSButton_configurationUpdateHandler", of: self) }
+        get { getAssociatedValue("NSButton_configurationUpdateHandler") }
         set {
             setAssociatedValue(newValue, for: "NSButton_configurationUpdateHandler")
             setupConfigurationStateObserver()
@@ -195,7 +195,7 @@ extension NSButton {
     }
     
     var contentView: (NSView & NSContentView)? {
-        get { FZSwiftUtils.getAssociatedValue("NSButton_contentView", of: self) }
+        get { getAssociatedValue("NSButton_contentView") }
         set {
             contentView?.removeFromSuperview()
             setAssociatedValue(newValue, for: "NSButton_contentView")

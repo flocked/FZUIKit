@@ -67,7 +67,7 @@ extension NSClipView {
     }
     
     var dragScrollGestureRecognizer: DragScrollGestureRecognizer? {
-        get { FZSwiftUtils.getAssociatedValue("dragScrollGestureRecognizer", of: self) }
+        get { getAssociatedValue("dragScrollGestureRecognizer") }
         set { setAssociatedValue(newValue, for: "dragScrollGestureRecognizer")
         }
     }

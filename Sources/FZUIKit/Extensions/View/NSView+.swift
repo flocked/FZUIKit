@@ -217,17 +217,17 @@ extension NSView {
     }
     
     private var saveLayerStateHook: Hook? {
-        get { FZSwiftUtils.getAssociatedValue("saveLayerStateHook", of: self) }
+        get { getAssociatedValue("saveLayerStateHook") }
         set { setAssociatedValue(newValue, for: "saveLayerStateHook") }
     }
     
     private var restoreLayerStateHook: Hook? {
-        get { FZSwiftUtils.getAssociatedValue("restoreLayerStateHook", of: self) }
+        get { getAssociatedValue("restoreLayerStateHook") }
         set { setAssociatedValue(newValue, for: "restoreLayerStateHook") }
     }
     
     private var layerObservation: KeyValueObservation? {
-        get { FZSwiftUtils.getAssociatedValue("layerObservation", of: self) }
+        get { getAssociatedValue("layerObservation") }
         set { setAssociatedValue(newValue, for: "layerObservation") }
     }
 
@@ -474,7 +474,7 @@ extension NSView {
     }
 
     private var shadowShapeView: ShadowShapeView? {
-        get { FZSwiftUtils.getAssociatedValue("shadowShapeView", of: self) }
+        get { getAssociatedValue("shadowShapeView") }
         set { setAssociatedValue(newValue, for: "shadowShapeView") }
     }
 
@@ -801,7 +801,7 @@ extension NSView {
     }
     
     fileprivate var viewAttachment: ViewAttachment? {
-        get { FZSwiftUtils.getAssociatedValue("viewAttachment", of: self) }
+        get { getAssociatedValue("viewAttachment") }
         set { setAssociatedValue(newValue, for: "viewAttachment") }
     }
     
@@ -866,7 +866,7 @@ extension NSView {
 extension CALayer {
     var _border: BorderConfiguration {
         get {
-            .init(color: FZSwiftUtils.getAssociatedValue("_borderColor", of: self) ?? borderLayer.configuration.color ?? __borderColor, colorTransformer: borderColorTransformer, width: borderLayer.configuration.width, dash: borderLayer.configuration.dash, insets: borderLayer.configuration.insets)
+            .init(color: getAssociatedValue("_borderColor") ?? borderLayer.configuration.color ?? __borderColor, colorTransformer: borderColorTransformer, width: borderLayer.configuration.width, dash: borderLayer.configuration.dash, insets: borderLayer.configuration.insets)
         }
         set {
             /*
@@ -940,7 +940,7 @@ extension CALayer {
     }
     
     var borderColorTransformer: ColorTransformer? {
-        get { FZSwiftUtils.getAssociatedValue("borderColorTransformer", of: self) }
+        get { getAssociatedValue("borderColorTransformer") }
         set { setAssociatedValue(newValue, for: "borderColorTransformer") }
     }
     
@@ -962,7 +962,7 @@ extension CALayer {
     }
     
     var shadowColorTransformer: ColorTransformer? {
-        get { FZSwiftUtils.getAssociatedValue("shadowColorTransformer", of: self) }
+        get { getAssociatedValue("shadowColorTransformer") }
         set { setAssociatedValue(newValue, for: "shadowColorTransformer") }
     }
     
@@ -977,7 +977,7 @@ extension CALayer {
     }
     
     func getColor(for keyPath: ReferenceWritableKeyPath<CALayer, CGColor?>) -> NSUIColor? {
-        FZSwiftUtils.getAssociatedValue("_" + keyPath.stringValue, of: self) ?? self[keyPath: keyPath]?.nsUIColor
+        getAssociatedValue("_" + keyPath.stringValue) ?? self[keyPath: keyPath]?.nsUIColor
     }
     
     func setColor(_ color: NSUIColor?, for keyPath: ReferenceWritableKeyPath<CALayer, CGColor?>) {
@@ -1019,14 +1019,14 @@ extension CALayer {
     }
     
     var colorObservations: [PartialKeyPath<CALayer>: [KeyValueObservation]] {
-        get { FZSwiftUtils.getAssociatedValue("colorObservations", of: self) ?? [:] }
+        get { getAssociatedValue("colorObservations") ?? [:] }
         set { setAssociatedValue(newValue, for: "colorObservations") }
     }
 }
 
 fileprivate extension CALayer {
     var layerState: (transform: CATransform3D, position: CGPoint, anchorPoint: CGPoint, roundedCorners: CACornerMask)? {
-        get { FZSwiftUtils.getAssociatedValue("layerState", of: self) }
+        get { getAssociatedValue("layerState") }
         set { setAssociatedValue(newValue, for: "layerState") }
     }
 }

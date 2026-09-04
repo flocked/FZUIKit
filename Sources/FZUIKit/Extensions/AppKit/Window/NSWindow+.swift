@@ -379,7 +379,7 @@ extension NSWindow {
     
     /// The handlers for the window.
     public var handlers: Handlers {
-        get { FZSwiftUtils.getAssociatedValue("windowHandlers", of: self, initial: Handlers()) }
+        get { getAssociatedValue("windowHandlers", initial: Handlers()) }
         set {
             let needsSpaceUpdate = (handlers.isOnActiveSpace == nil && newValue.isOnActiveSpace != nil) || (handlers.isOnActiveSpace != nil && newValue.isOnActiveSpace == nil)
             setAssociatedValue(newValue, for: "windowHandlers")
@@ -474,7 +474,7 @@ extension NSWindow {
     }
     
     var _isOnActiveSpace: Bool {
-        get { FZSwiftUtils.getAssociatedValue("isOnActiveSpace", of: self, initial: isOnActiveSpace) }
+        get { getAssociatedValue("isOnActiveSpace", initial: isOnActiveSpace) }
         set { setAssociatedValue(newValue, for: "isOnActiveSpace") }
     }
     
@@ -495,7 +495,7 @@ extension NSWindow {
     }
     
     static var activeSpaceObservation: NotificationToken? {
-        get { FZSwiftUtils.getAssociatedValue("activeSpaceObservation", of: self) }
+        get { getAssociatedValue("activeSpaceObservation") }
         set { setAssociatedValue(newValue, for: "activeSpaceObservation") }
     }
     
@@ -640,11 +640,11 @@ extension NSWindow {
     }
     
     fileprivate var windowObserver: KeyValueObserver<NSWindow> {
-        FZSwiftUtils.getAssociatedValue("windowObserver", of: self, initial: KeyValueObserver(self))
+        getAssociatedValue("windowObserver", initial: KeyValueObserver(self))
     }
     
     fileprivate var observations: [String: [NotificationToken]] {
-        get { FZSwiftUtils.getAssociatedValue("observations", of: self) ?? [:] }
+        get { getAssociatedValue("observations") ?? [:] }
         set { setAssociatedValue(newValue, for: "observations") }
     }
     
@@ -681,7 +681,7 @@ extension NSWindow {
     }
     
     private var fullscreenTokens: [NotificationToken] {
-        get { FZSwiftUtils.getAssociatedValue("fullscreenTokens", of: self) ?? [] }
+        get { getAssociatedValue("fullscreenTokens") ?? [] }
         set { setAssociatedValue(newValue, for: "fullscreenTokens") }
     }
     

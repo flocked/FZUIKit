@@ -103,7 +103,7 @@ extension NSCollectionViewItem {
     }
     
     private static var transformHooks: [Hook] {
-        get { FZSwiftUtils.getAssociatedValue("transformHooks", of: self) ?? [] }
+        get { getAssociatedValue("transformHooks") ?? [] }
         set { setAssociatedValue(newValue, for: "transformHooks") }
     }
 }

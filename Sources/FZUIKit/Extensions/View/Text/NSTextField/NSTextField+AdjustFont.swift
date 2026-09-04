@@ -21,7 +21,7 @@ extension NSTextField {
      - Note: If you have ``AppKit/NSTextField/automaticallyResizesToFit`` set to `true`, this property is ignored.
      */
     public var adjustsFontSizeToFitWidth: Bool {
-        get { FZSwiftUtils.getAssociatedValue("adjustsFontSizeToFitWidth", of: self) ?? false }
+        get { getAssociatedValue("adjustsFontSizeToFitWidth") ?? false }
         set {
             guard newValue != adjustsFontSizeToFitWidth else { return }
             setAssociatedValue(newValue, for: "adjustsFontSizeToFitWidth")
@@ -45,7 +45,7 @@ extension NSTextField {
      - Note: If you have ``AppKit/NSTextField/automaticallyResizesToFit`` set to `true`, this property is ignored.
      */
     public var minimumScaleFactor: CGFloat {
-        get { FZSwiftUtils.getAssociatedValue("minimumScaleFactor", of: self) ?? 0.0 }
+        get { getAssociatedValue("minimumScaleFactor") ?? 0.0 }
         set {
             let newValue = newValue.clamped(to: 0.0...1.0)
             guard newValue != minimumScaleFactor else { return }
@@ -174,12 +174,12 @@ extension NSTextField {
     }
     
     private var fontHooks: [Hook] {
-        get { FZSwiftUtils.getAssociatedValue("fontHooks", of: self) ?? [] }
+        get { getAssociatedValue("fontHooks") ?? [] }
         set { setAssociatedValue(newValue, for: "fontHooks") }
     }
 
     private var _font: NSFont? {
-        get { FZSwiftUtils.getAssociatedValue("_font", of: self) }
+        get { getAssociatedValue("_font") }
         set { setAssociatedValue(newValue, for: "_font") }
     }
 }

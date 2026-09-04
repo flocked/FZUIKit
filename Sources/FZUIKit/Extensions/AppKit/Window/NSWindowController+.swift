@@ -51,7 +51,7 @@ public extension NSWindowController {
     }
     
     private static var retainedWindowControllers: [ObjectIdentifier: (windowController: NSWindowController, token: NotificationToken)]  {
-        get { FZSwiftUtils.getAssociatedValue("retainedWindowControllers", of: self) ?? [:] }
+        get { getAssociatedValue("retainedWindowControllers") ?? [:] }
         set { setAssociatedValue(newValue, for: "retainedWindowControllers") }
     }
 }

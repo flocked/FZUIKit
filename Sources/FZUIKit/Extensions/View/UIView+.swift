@@ -218,7 +218,7 @@ extension UIView {
     
     /// The handlers for the view.
     public var viewHandlers: ViewHandlers {
-        get { FZSwiftUtils.getAssociatedValue("handlers", of: self) ?? ViewHandlers() }
+        get { getAssociatedValue("handlers") ?? ViewHandlers() }
         set {
             setAssociatedValue(newValue, for: "handlers")
             setupTraitObservation()
@@ -286,7 +286,7 @@ extension UIView {
     }
     
     fileprivate var traitObserverView: TraitObserverView? {
-        get { FZSwiftUtils.getAssociatedValue("traitObserverView", of: self) }
+        get { getAssociatedValue("traitObserverView") }
         set { setAssociatedValue(newValue, for: "traitObserverView") }
     }
     

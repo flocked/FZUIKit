@@ -14,7 +14,7 @@ extension NSRotationGestureRecognizer {
     @objc public internal(set) dynamic var velocity: CGFloat {
         get {
             swizzleGestureState()
-            return FZSwiftUtils.getAssociatedValue("velocity", of: self) ?? 1.0
+            return getAssociatedValue("velocity") ?? 1.0
         }
         set { setAssociatedValue(newValue, for: "velocity") }
     }
@@ -33,12 +33,12 @@ extension NSRotationGestureRecognizer {
     }
     
     private var time: CFTimeInterval {
-        get { FZSwiftUtils.getAssociatedValue("time", of: self) ?? CACurrentMediaTime() }
+        get { getAssociatedValue("time") ?? CACurrentMediaTime() }
         set { setAssociatedValue(newValue, for: "time") }
     }
     
     private var prevRotation: CGFloat {
-        get { FZSwiftUtils.getAssociatedValue("prevRotation", of: self) ?? rotation }
+        get { getAssociatedValue("prevRotation") ?? rotation }
         set { setAssociatedValue(newValue, for: "prevRotation") }
     }
     
@@ -56,7 +56,7 @@ extension NSRotationGestureRecognizer {
     }
     
     private var stateHook: Hook? {
-        get { FZSwiftUtils.getAssociatedValue("stateHook", of: self) }
+        get { getAssociatedValue("stateHook") }
         set { setAssociatedValue(newValue, for: "stateHook") }
     }
 }

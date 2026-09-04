@@ -50,12 +50,12 @@ public extension NSUIHostingController {
 
 fileprivate extension NSUIHostingController {
     var _previousWidth: CGFloat {
-        get { FZSwiftUtils.getAssociatedValue("previousWidth", of: self, initial: 0.0) }
+        get { getAssociatedValue("previousWidth", initial: 0.0) }
         set { setAssociatedValue(newValue, for: "previousWidth") }
     }
     
     var _heightAnchor: NSLayoutConstraint {
-        get { FZSwiftUtils.getAssociatedValue("heightAnchor", of: self, initial: view.heightAnchor.constraint(equalToConstant: 1000)) }
+        get { getAssociatedValue("heightAnchor", initial: view.heightAnchor.constraint(equalToConstant: 1000)) }
         set { setAssociatedValue(newValue, for: "heightAnchor") }
     }
     
@@ -147,7 +147,7 @@ public extension NSHostingView {
     }
             
     internal var hostingController: NSHostingController<Content> {
-        FZSwiftUtils.getAssociatedValue("hostingController", of: self, initial: NSHostingController(rootView: rootView))
+        getAssociatedValue("hostingController", initial: NSHostingController(rootView: rootView))
     }
 }
 #endif

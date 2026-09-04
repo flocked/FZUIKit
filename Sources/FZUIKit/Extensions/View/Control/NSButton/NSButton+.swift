@@ -651,22 +651,22 @@ public extension NSButton {
     }
     
     internal var stateContentTintColor: [StateValue: NSColor?] {
-        get { FZSwiftUtils.getAssociatedValue("stateContentTintColor", of: self) ?? [:] }
+        get { getAssociatedValue("stateContentTintColor") ?? [:] }
         set { setAssociatedValue(newValue, for: "stateContentTintColor") }
     }
     
     internal var stateSymbolConfiguration: [StateValue: NSImage.SymbolConfiguration?] {
-        get { FZSwiftUtils.getAssociatedValue("stateSymbolConfiguration", of: self) ?? [:] }
+        get { getAssociatedValue("stateSymbolConfiguration") ?? [:] }
         set { setAssociatedValue(newValue, for: "stateSymbolConfiguration") }
     }
     
     internal var stateObservation: KeyValueObservation? {
-        get { FZSwiftUtils.getAssociatedValue("stateObservation", of: self) }
+        get { getAssociatedValue("stateObservation") }
         set { setAssociatedValue(newValue, for: "stateObservation") }
     }
     
     internal var buttonObserver: KeyValueObserver<NSButton> {
-        get { FZSwiftUtils.getAssociatedValue("buttonObserver", of: self, initial: KeyValueObserver(self)) }
+        get { getAssociatedValue("buttonObserver", initial: KeyValueObserver(self)) }
     }
     
     internal func updateStateObservation() {
@@ -989,7 +989,7 @@ extension NSButton {
      If the value is set to `true`, the button displays a highlighted variant of the `contentTintColor` or `systemBlue` color.
      */
     public var highlightsOnHover: Bool {
-        get { FZSwiftUtils.getAssociatedValue("highlightsOnHover", of: self) ?? false }
+        get { getAssociatedValue("highlightsOnHover") ?? false }
         set {
             guard newValue != highlightsOnHover else { return }
             setAssociatedValue(newValue, for: "highlightsOnHover")
@@ -998,7 +998,7 @@ extension NSButton {
     }
     
     var mouseIsInside: Bool {
-        get { FZSwiftUtils.getAssociatedValue("mouseIsInside", of: self) ?? false }
+        get { getAssociatedValue("mouseIsInside") ?? false }
         set {
             setAssociatedValue(newValue, for: "mouseIsInside")
             updateHighlightColor()
@@ -1006,12 +1006,12 @@ extension NSButton {
     }
     
     private var highlightSymbolConfiguration: NSImage.SymbolConfiguration? {
-        get { FZSwiftUtils.getAssociatedValue("highlightSymbolConfiguration", of: self) }
+        get { getAssociatedValue("highlightSymbolConfiguration") }
         set { setAssociatedValue(newValue, for: "highlightSymbolConfiguration") }
     }
     
     private var didApplyHighlight: Bool {
-        get { FZSwiftUtils.getAssociatedValue("didApplyHighlight", of: self) ?? false }
+        get { getAssociatedValue("didApplyHighlight") ?? false }
         set { setAssociatedValue(newValue, for: "didApplyHighlight") }
     }
     
@@ -1033,7 +1033,7 @@ extension NSButton {
     }
     
     private var highlightView: HighlightMouseView? {
-        get { FZSwiftUtils.getAssociatedValue("highlightView", of: self) }
+        get { getAssociatedValue("highlightView") }
         set { setAssociatedValue(newValue, for: "highlightView") }
     }
     

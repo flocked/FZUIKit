@@ -16,7 +16,7 @@ extension NSTextField {
      If you you set this property to `true`, ``AppKit/NSTextField/adjustsFontSizeToFitWidth`` is ignored.
      */
     @objc open var automaticallyResizesToFit: Bool {
-        get { FZSwiftUtils.getAssociatedValue("automaticallyResizesToFit", of: self) ?? false }
+        get { getAssociatedValue("automaticallyResizesToFit") ?? false }
         set {
             guard newValue != automaticallyResizesToFit else { return }
             setAssociatedValue(newValue, for: "automaticallyResizesToFit")
@@ -48,7 +48,7 @@ extension NSTextField {
      The default value is `[.bottom , .right]`
      */
     public var preferredResizingEdges: RectEdge {
-        get { FZSwiftUtils.getAssociatedValue("preferredResizingEdges", of: self) ?? [.bottom, .right] }
+        get { getAssociatedValue("preferredResizingEdges") ?? [.bottom, .right] }
         set { setAssociatedValue(newValue, for: "preferredResizingEdges") }
     }
     
@@ -67,7 +67,7 @@ extension NSTextField {
      To always use the placeholder width as minimum width, specify the constant ``AppKit/NSTextField/placeholderWidth``.
      */
     @objc open var preferredMinLayoutWidth: CGFloat {
-        get { FZSwiftUtils.getAssociatedValue("preferredMinLayoutWidth", of: self) ?? 0 }
+        get { getAssociatedValue("preferredMinLayoutWidth") ?? 0 }
         set {
             guard newValue != preferredMinLayoutWidth else { return }
             swizzleIntrinsicContentSize()
@@ -118,7 +118,7 @@ extension NSTextField {
     }
     
     var intrinsicContentSizeHook: Hook? {
-        get { FZSwiftUtils.getAssociatedValue("intrinsicContentSizeHook", of: self) }
+        get { getAssociatedValue("intrinsicContentSizeHook") }
         set { setAssociatedValue(newValue, for: "intrinsicContentSizeHook") }
     }
 

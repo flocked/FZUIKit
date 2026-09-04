@@ -43,7 +43,7 @@ public extension NSWorkspace {
     
     /// The handlers for the workspace.
     var handlers: Handlers {
-        get { FZSwiftUtils.getAssociatedValue("handlers", of: self, initial: Handlers()) }
+        get { getAssociatedValue("handlers", initial: Handlers()) }
         set {
             setAssociatedValue(newValue, for: "handlers")
             func setup(_ name: Notification.Name, keyPath: KeyPath<NSWorkspace.Handlers, (()->())?>) {
@@ -115,12 +115,12 @@ public extension NSWorkspace {
     }
     
     internal var notificationTokens: [Notification.Name: NotificationToken] {
-        get { FZSwiftUtils.getAssociatedValue("notificationTokens", of: self) ?? [:] }
+        get { getAssociatedValue("notificationTokens") ?? [:] }
         set { setAssociatedValue(newValue, for: "notificationTokens") }
     }
     
     internal var keyValueObservations: [PartialKeyPath<NSWorkspace>: KeyValueObservation] {
-        get { FZSwiftUtils.getAssociatedValue("keyValueObservations", of: self) ?? [:] }
+        get { getAssociatedValue("keyValueObservations") ?? [:] }
         set { setAssociatedValue(newValue, for: "keyValueObservations") }
     }
     
