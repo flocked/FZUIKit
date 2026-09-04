@@ -13,7 +13,7 @@ import UniformTypeIdentifiers
 extension NSView {
     /// The handlers for dragging content outside the view.
     public var dragHandlers: DragHandlers {
-        get { getAssociatedValue("dragHandlers", initial: DragHandlers()) }
+        get { FZSwiftUtils.getAssociatedValue("dragHandlers", of: self, initial: DragHandlers()) }
         set {
             setAssociatedValue(newValue, for: "dragHandlers")
             setupObserverView()
@@ -90,7 +90,7 @@ extension NSView {
     }
     
     fileprivate var dragGestureRecognizer: DragGestureRecognizer? {
-        get { getAssociatedValue("dragGestureRecognizer") }
+        get { FZSwiftUtils.getAssociatedValue("dragGestureRecognizer", of: self) }
         set { setAssociatedValue(newValue, for: "dragGestureRecognizer") }
     }
 }

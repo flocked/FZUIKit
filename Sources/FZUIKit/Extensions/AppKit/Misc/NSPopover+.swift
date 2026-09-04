@@ -44,7 +44,7 @@ extension NSPopover {
     
     /// Handlers for the popover.
     public var handlers: Handlers {
-        get { getAssociatedValue("handlers", initial: Handlers()) }
+        get { FZSwiftUtils.getAssociatedValue("handlers", of: self, initial: Handlers()) }
         set {
             setAssociatedValue(newValue, for: "handlers")
             swizzlePopover()
@@ -158,7 +158,7 @@ extension NSPopover {
     
     /// A Boolean value indicating whether the popover is detachable by the user.
     @objc open var isDetachable: Bool {
-        get { getAssociatedValue("isDetachable", initial: false) }
+        get { FZSwiftUtils.getAssociatedValue("isDetachable", of: self, initial: false) }
         set { setAssociatedValue(newValue, for: "isDetachable")
             swizzlePopover()
         }
@@ -180,7 +180,7 @@ extension NSPopover {
     
     /// A Boolean value indicating whether the popover's close button is hidden when detached.
     @objc open var hidesDetachedCloseButton: Bool {
-        get { getAssociatedValue("hidesDetachedCloseButton", initial: false) }
+        get { FZSwiftUtils.getAssociatedValue("hidesDetachedCloseButton", of: self, initial: false) }
         set {
             setAssociatedValue(newValue, for: "hidesDetachedCloseButton")
             if isDetached {
@@ -462,47 +462,47 @@ extension NSPopover {
     }
     
     private var viewTrackingOptions: ViewTrackingOptions? {
-        get { getAssociatedValue("viewTrackingOptions") }
+        get { FZSwiftUtils.getAssociatedValue("viewTrackingOptions", of: self) }
         set { setAssociatedValue(newValue, for: "viewTrackingOptions") }
     }
     
     private var willCloseObservation: NotificationToken? {
-        get { getAssociatedValue("willCloseObservation") }
+        get { FZSwiftUtils.getAssociatedValue("willCloseObservation", of: self) }
         set { setAssociatedValue(newValue, for: "willCloseObservation") }
     }
     
     private var didShowObservation: NotificationToken? {
-        get { getAssociatedValue("didShowObservation") }
+        get { FZSwiftUtils.getAssociatedValue("didShowObservation", of: self) }
         set { setAssociatedValue(newValue, for: "didShowObservation") }
     }
     
     private var noArrowView: NSView? {
-        get { getAssociatedValue("noArrowView") }
+        get { FZSwiftUtils.getAssociatedValue("noArrowView", of: self) }
         set { setAssociatedValue(newValue, for: "noArrowView") }
     }
     
     private var isClosing: Bool {
-        get { getAssociatedValue("isClosing", initial: false) }
+        get { FZSwiftUtils.getAssociatedValue("isClosing", of: self, initial: false) }
         set { setAssociatedValue(newValue, for: "isClosing") }
     }
     
     private var effectiveAppearanceObservation: KeyValueObservation? {
-        get { getAssociatedValue("effectiveAppearanceObservation") }
+        get { FZSwiftUtils.getAssociatedValue("effectiveAppearanceObservation", of: self) }
         set { setAssociatedValue(newValue, for: "effectiveAppearanceObservation") }
     }
     
     private var contentViewFrameObservation: KeyValueObservation? {
-        get { getAssociatedValue("contentViewFrameObservation") }
+        get { FZSwiftUtils.getAssociatedValue("contentViewFrameObservation", of: self) }
         set { setAssociatedValue(newValue, for: "contentViewFrameObservation") }
     }
     
     private var positionObservations: [KeyValueObservation] {
-        get { getAssociatedValue("positionObservations", initial: []) }
+        get { FZSwiftUtils.getAssociatedValue("positionObservations", of: self, initial: []) }
         set { setAssociatedValue(newValue, for: "positionObservations") }
     }
     
     private var popoverDelegate: Delegate? {
-        get { getAssociatedValue("popoverDelegate") }
+        get { FZSwiftUtils.getAssociatedValue("popoverDelegate", of: self) }
         set { setAssociatedValue(newValue, for: "popoverDelegate") }
     }
     

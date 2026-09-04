@@ -6,6 +6,8 @@
 //
 
 #if os(macOS) || os(iOS) || os(tvOS) || os(visionOS)
+import FZSwiftUtils
+
 #if os(macOS)
 import AppKit
 #elseif canImport(UIKit)
@@ -188,17 +190,17 @@ public extension TextProvider {
     }
     
     fileprivate var calculateTextStorage: NSTextStorage {
-        get { getAssociatedValue("calculateTextStorage", initial: NSTextStorage(string: "")) }
+        get { FZSwiftUtils.getAssociatedValue("calculateTextStorage", of: self, initial: NSTextStorage(string: "")) }
         set { setAssociatedValue(newValue, for: "calculateTextStorage") }
     }
     
     fileprivate var appliedFont: NSUIFont? {
-        get { getAssociatedValue("appliedFont") }
+        get { FZSwiftUtils.getAssociatedValue("appliedFont", of: self) }
         set { setAssociatedValue(newValue, for: "appliedFont") }
     }
     
     fileprivate var calculationLayoutManager: NSLayoutManager {
-        getAssociatedValue("calculationLayoutManager", initial: NSLayoutManager(textStorage: calculateTextStorage))
+        FZSwiftUtils.getAssociatedValue("calculationLayoutManager", of: self, initial: NSLayoutManager(textStorage: calculateTextStorage))
     }
 }
 

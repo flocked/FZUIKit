@@ -157,7 +157,7 @@ extension NSProgressIndicator {
     }
     
     fileprivate var _color: NSColor? {
-        get { getAssociatedValue("_color") }
+        get { FZSwiftUtils.getAssociatedValue("_color", of: self) }
         set { setAssociatedValue(newValue, for: "_color") }
     }
     

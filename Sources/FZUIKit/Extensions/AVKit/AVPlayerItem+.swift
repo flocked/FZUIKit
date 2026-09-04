@@ -29,7 +29,7 @@ public extension AVPlayerItem {
     
     /// The handlers of the item.
     var handlers: Handlers {
-        get { getAssociatedValue("handlers") ?? Handlers() }
+        get { FZSwiftUtils.getAssociatedValue("handlers", of: self) ?? Handlers() }
         set {
             setAssociatedValue(newValue, for: "handlers")
             observe(AVPlayerItem.failedToPlayToEndTimeNotification, handler: handlers.failedToPlayToEnd)
@@ -58,7 +58,7 @@ public extension AVPlayerItem {
     }
     
     private var handlerNotificationTokens: [Notification.Name : NotificationToken] {
-        get { getAssociatedValue("handlerNotificationTokens") ?? [:] }
+        get { FZSwiftUtils.getAssociatedValue("handlerNotificationTokens", of: self) ?? [:] }
         set { setAssociatedValue(newValue, for: "handlerNotificationTokens") }
     }
     
@@ -69,7 +69,7 @@ public extension AVPlayerItem {
     }
     
     private var statusObservation: KeyValueObservation? {
-        get { getAssociatedValue("statusObservation") }
+        get { FZSwiftUtils.getAssociatedValue("statusObservation", of: self) }
         set { setAssociatedValue(newValue, for: "statusObservation") }
     }
     

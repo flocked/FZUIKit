@@ -43,7 +43,7 @@ extension NSColorWell {
         
     /// Handler that is called when the color changes.
     public var colorHandler: ((_ color: NSColor)->())? {
-        get { getAssociatedValue("colorHandler") }
+        get { FZSwiftUtils.getAssociatedValue("colorHandler", of: self) }
         set {
             setAssociatedValue(newValue, for: "colorHandler")
             if let colorHandler = newValue {
@@ -65,7 +65,7 @@ extension NSColorWell {
     }
     
     var colorObservation: KeyValueObservation? {
-        get { getAssociatedValue("colorObservation") }
+        get { FZSwiftUtils.getAssociatedValue("colorObservation", of: self) }
         set { setAssociatedValue(newValue, for: "colorObservation") }
     }
     
@@ -86,7 +86,7 @@ extension NSColorWell {
                 }
             }
         }
-        get { getAssociatedValue("pulldownActionBlock") }
+        get { FZSwiftUtils.getAssociatedValue("pulldownActionBlock", of: self) }
     }
     
     /// Sets the pull down action handler.

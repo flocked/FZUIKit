@@ -216,7 +216,7 @@ public struct NSDraggingSourceHandlers {
 extension NSDraggingSource where Self: NSObject {
     /// The handlers of the dragging source.
     public var draggingSourceHandlers: NSDraggingSourceHandlers {
-        get { getAssociatedValue("draggingSourceHandlers") ?? .init() }
+        get { FZSwiftUtils.getAssociatedValue("draggingSourceHandlers", of: self) ?? .init() }
         set {
             setAssociatedValue(newValue, for: "draggingSourceHandlers")
             if newValue.willBegin != nil {
@@ -232,17 +232,17 @@ extension NSDraggingSource where Self: NSObject {
     }
     
     private var didSwizzleDraggingSourceWillBegin: Bool {
-        get { getAssociatedValue("didSwizzleDraggingSourceWillBegin") ?? false }
+        get { FZSwiftUtils.getAssociatedValue("didSwizzleDraggingSourceWillBegin", of: self) ?? false }
         set { setAssociatedValue(newValue, for: "didSwizzleDraggingSourceWillBegin") }
     }
     
     private var didSwizzleDraggingSourceDidUpdate: Bool {
-        get { getAssociatedValue("didSwizzleDraggingSourceDidUpdate") ?? false }
+        get { FZSwiftUtils.getAssociatedValue("didSwizzleDraggingSourceDidUpdate", of: self) ?? false }
         set { setAssociatedValue(newValue, for: "didSwizzleDraggingSourceDidUpdate") }
     }
     
     private var didSwizzleDraggingSourceDidEnd: Bool {
-        get { getAssociatedValue("didSwizzleDraggingSourceDidEnd") ?? false }
+        get { FZSwiftUtils.getAssociatedValue("didSwizzleDraggingSourceDidEnd", of: self) ?? false }
         set { setAssociatedValue(newValue, for: "didSwizzleDraggingSourceDidEnd") }
     }
     

@@ -466,7 +466,7 @@ extension NSTableView {
      The handler provides the row that is double clicked.
      */
     public var doubleClickHandler: ((_ row: Int?, _ column: Int?) -> ())? {
-        get { getAssociatedValue("doubleClickHandler") }
+        get { FZSwiftUtils.getAssociatedValue("doubleClickHandler", of: self) }
         set {
             setAssociatedValue(newValue, for: "doubleClickHandler")
             doubleClickGesture?.removeFromView()
@@ -484,7 +484,7 @@ extension NSTableView {
     }
     
     fileprivate var doubleClickGesture: DoubleClickGestureRecognizer? {
-        get { getAssociatedValue("doubleClickGesture") }
+        get { FZSwiftUtils.getAssociatedValue("doubleClickGesture", of: self) }
         set { setAssociatedValue(newValue, for: "doubleClickGesture") }
     }
     
@@ -509,7 +509,7 @@ extension NSTableView {
     }
     
     fileprivate var toggleGestureRecognizer: ToggleGestureRecognizer? {
-        get { getAssociatedValue("toggleGestureRecognizer") }
+        get { FZSwiftUtils.getAssociatedValue("toggleGestureRecognizer", of: self) }
         set { setAssociatedValue(newValue, for: "toggleGestureRecognizer") }
     }
     
@@ -625,7 +625,7 @@ extension NSTableView {
  }
 
  fileprivate var toggleGestureRecognizer: ToggleGestureRecognizer? {
-     get { getAssociatedValue("toggleGestureRecognizer") }
+     get { FZSwiftUtils.getAssociatedValue("toggleGestureRecognizer", of: self) }
      set { setAssociatedValue(newValue, for: "toggleGestureRecognizer") }
  }
 

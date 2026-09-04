@@ -378,7 +378,7 @@ extension NSMenu {
      The default value is `false`.
      */
     public var autoUpdatesWidth: Bool {
-        get { getAssociatedValue("autoUpdatesWidth") ?? false }
+        get { FZSwiftUtils.getAssociatedValue("autoUpdatesWidth", of: self) ?? false }
         set { setAssociatedValue(newValue, for: "autoUpdatesWidth") }
     }
     
@@ -458,7 +458,7 @@ extension NSMenu {
     }
     
     private var mappedFonts: [ObjectIdentifier: NSFont] {
-        get { getAssociatedValue("mappedFonts") ?? [:] }
+        get { FZSwiftUtils.getAssociatedValue("mappedFonts", of: self) ?? [:] }
         set { setAssociatedValue(newValue, for: "mappedFonts")} 
     }
     

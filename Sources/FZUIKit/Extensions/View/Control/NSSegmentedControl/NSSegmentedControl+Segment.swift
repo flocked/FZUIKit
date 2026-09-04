@@ -8,6 +8,7 @@
 #if os(macOS)
 
 import AppKit
+import FZSwiftUtils
 
 /**
  A segment of a [NSSegmentedControl](https://developer.apple.com/documentation/appkit/nssegmentedcontrol).
@@ -525,7 +526,7 @@ public extension NSSegmentedControl {
 
 fileprivate extension NSSegmentedControl {
     var storedSegments: [NSSegment] {
-        get { getAssociatedValue("storedSegments") ?? [] }
+        get { FZSwiftUtils.getAssociatedValue("storedSegments", of: self) ?? [] }
         set { setAssociatedValue(newValue, for: "storedSegments") }
     }
     

@@ -12,7 +12,7 @@ import FZSwiftUtils
 extension NSFontManager {
     /// The handler that is called when the selected font changes.
     public var selectedFontHandler: ((NSFont?)->())? {
-        get { getAssociatedValue("selectedFontHandler") }
+        get { FZSwiftUtils.getAssociatedValue("selectedFontHandler", of: self) }
         set {
             setAssociatedValue(newValue, for: "selectedFontHandler")
             if newValue == nil {
@@ -24,7 +24,7 @@ extension NSFontManager {
     }
     
     var selectedFontTarget: SelectedFontTarget? {
-        get {getAssociatedValue("selectedFontTarget") }
+        get {FZSwiftUtils.getAssociatedValue("selectedFontTarget", of: self) }
         set { setAssociatedValue(newValue, for: "selectedFontTarget") }
     }
     

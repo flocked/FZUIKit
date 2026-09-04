@@ -13,7 +13,7 @@ import UniformTypeIdentifiers
 extension NSView {
     /// The handlers for dropping content into the view.
     public var dropHandlers: DropHandlers {
-        get { getAssociatedValue("dropHandlers", initial: DropHandlers()) }
+        get { FZSwiftUtils.getAssociatedValue("dropHandlers", of: self, initial: DropHandlers()) }
         set {
             setAssociatedValue(newValue, for: "dropHandlers")
             if !newValue.isActive {
@@ -167,7 +167,7 @@ extension NSView {
     }
     
     fileprivate var dropView: DropView? {
-        get { getAssociatedValue("dropHandlerView") }
+        get { FZSwiftUtils.getAssociatedValue("dropHandlerView", of: self) }
         set { setAssociatedValue(newValue, for: "dropHandlerView") }
     }
 }

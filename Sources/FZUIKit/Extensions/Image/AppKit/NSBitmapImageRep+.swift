@@ -220,7 +220,7 @@ public extension NSBitmapImageRep {
     }
     
     private var _currentFrameDuration: TimeInterval {
-        get { getAssociatedValue("currentFrameDuration", initial: 0.0) }
+        get { FZSwiftUtils.getAssociatedValue("currentFrameDuration", of: self, initial: 0.0) }
         set { setAssociatedValue(newValue, for: "currentFrameDuration") }
     }
     

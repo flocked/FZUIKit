@@ -59,7 +59,7 @@ extension NSColorPanel {
     
     /// The handler that is called when the color changes.
     public var colorHandler: ((NSColor)->())? {
-        get { getAssociatedValue("colorHandler") }
+        get { FZSwiftUtils.getAssociatedValue("colorHandler", of: self) }
         set {
             setAssociatedValue(newValue, for: "colorHandler")
             if let colorHandler = newValue {
@@ -81,7 +81,7 @@ extension NSColorPanel {
     }
     
     var colorObservation: KeyValueObservation? {
-        get { getAssociatedValue("colorObservation") }
+        get { FZSwiftUtils.getAssociatedValue("colorObservation", of: self) }
         set { setAssociatedValue(newValue, for: "colorObservation") }
     }
 }

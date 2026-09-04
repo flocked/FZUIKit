@@ -61,7 +61,7 @@ extension NSTextView {
         
     /// The handlers for editing the text.
     public var editingHandlers: EditingHandler {
-        get { getAssociatedValue("editingHandlers", initial: EditingHandler()) }
+        get { FZSwiftUtils.getAssociatedValue("editingHandlers", of: self, initial: EditingHandler()) }
         set {
             setAssociatedValue(newValue, for: "editingHandlers")
             setupTextViewDelegate()
@@ -111,7 +111,7 @@ extension NSTextView {
         
     /// The minimum numbers of characters needed when the user edits the string value.
     public var minimumNumberOfCharacters: Int? {
-        get { getAssociatedValue("minimumNumberOfCharacters") }
+        get { FZSwiftUtils.getAssociatedValue("minimumNumberOfCharacters", of: self) }
         set {
             guard newValue != minimumNumberOfCharacters else { return }
             setAssociatedValue(newValue, for: "minimumNumberOfCharacters")
@@ -128,7 +128,7 @@ extension NSTextView {
         
     /// The maximum numbers of characters allowed when the user edits the string value.
     public var maximumNumberOfCharacters: Int? {
-        get { getAssociatedValue("minimumNumberOfCharacters") }
+        get { FZSwiftUtils.getAssociatedValue("minimumNumberOfCharacters", of: self) }
         set { 
             guard newValue != maximumNumberOfCharacters else { return }
             setAssociatedValue(newValue, for: "minimumNumberOfCharacters")
@@ -219,7 +219,7 @@ extension NSTextView {
 
     /// The allowed characters the user can enter when editing.
     public var allowedCharacters: AllowedCharacters {
-        get { getAssociatedValue("allowedCharacters", initial: .all) }
+        get { FZSwiftUtils.getAssociatedValue("allowedCharacters", of: self, initial: .all) }
         set {
             guard newValue != allowedCharacters else { return }
             setAssociatedValue(newValue, for: "allowedCharacters")
@@ -488,7 +488,7 @@ extension NSTextView {
         
     /// The action to perform when the user presses the enter key.
     public var actionOnEnterKeyDown: EnterKeyAction {
-        get { getAssociatedValue("actionOnEnterKeyDown", initial: .none) }
+        get { FZSwiftUtils.getAssociatedValue("actionOnEnterKeyDown", of: self, initial: .none) }
         set {
             guard actionOnEnterKeyDown != newValue else { return }
             setAssociatedValue(newValue, for: "actionOnEnterKeyDown")
@@ -505,7 +505,7 @@ extension NSTextView {
 
     /// The action to perform when the user presses the escape key.
     public var actionOnEscapeKeyDown: EscapeKeyAction {
-        get { getAssociatedValue("actionOnEscapeKeyDown", initial: .none) }
+        get { FZSwiftUtils.getAssociatedValue("actionOnEscapeKeyDown", of: self, initial: .none) }
         set {
             guard actionOnEscapeKeyDown != newValue else { return }
             setAssociatedValue(newValue, for: "actionOnEscapeKeyDown")
@@ -541,7 +541,7 @@ extension NSTextView {
     }
             
     fileprivate var textViewDelegate: TextViewDelegate? {
-        get { getAssociatedValue("textViewDelegate") }
+        get { FZSwiftUtils.getAssociatedValue("textViewDelegate", of: self) }
         set { setAssociatedValue(newValue, for: "textViewDelegate") }
     }
         
@@ -696,7 +696,7 @@ extension NSTextView {
     
     /// The highlight color used to indicate the selection line.
     public var selectionLineHighlightColor: NSColor? {
-        get { getAssociatedValue("selectionLineHighlightColor") }
+        get { FZSwiftUtils.getAssociatedValue("selectionLineHighlightColor", of: self) }
         set {
             guard newValue != selectionLineHighlightColor else { return }
             setAssociatedValue(newValue, for: "selectionLineHighlightColor")
@@ -751,12 +751,12 @@ extension NSTextView {
     }
     
     fileprivate var currentLineHooks: [Hook] {
-        get { getAssociatedValue("currentLineHooks") ?? [] }
+        get { FZSwiftUtils.getAssociatedValue("currentLineHooks", of: self) ?? [] }
         set { setAssociatedValue(newValue, for: "currentLineHooks") }
     }
     
     fileprivate var currentLineRange: NSRange? {
-        get { getAssociatedValue("currentLineRange") }
+        get { FZSwiftUtils.getAssociatedValue("currentLineRange", of: self) }
         set {
             if let oldValue = currentLineRange {
                 layoutManager?.invalidateDisplay(forCharacterRange: oldValue)

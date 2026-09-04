@@ -22,7 +22,7 @@ extension NSPredicateEditorRowTemplate {
     
     /// The initial value of the row template. The default value is `nil`.
     public var initialValue: Any? {
-        get { getAssociatedValue("initialValue") }
+        get { FZSwiftUtils.getAssociatedValue("initialValue", of: self) }
         set { setAssociatedValue(newValue, for: "initialValue") }
     }
     

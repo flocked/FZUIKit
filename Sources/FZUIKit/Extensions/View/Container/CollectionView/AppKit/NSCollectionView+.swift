@@ -241,7 +241,7 @@ public extension NSCollectionView {
      The handler provides the index path of the double clicked item.
      */
     var doubleClickHandler: ((_ indexPath: IndexPath?) -> Void)? {
-        get { getAssociatedValue("doubleClickHandler") }
+        get { FZSwiftUtils.getAssociatedValue("doubleClickHandler", of: self) }
         set {
             setAssociatedValue(newValue, for: "doubleClickHandler")
             doubleClickGesture?.removeFromView()
@@ -295,17 +295,17 @@ public extension NSCollectionView {
     }
     
     private var doubleClickGesture: DoubleClickGestureRecognizer? {
-        get { getAssociatedValue("doubleClickGesture") }
+        get { FZSwiftUtils.getAssociatedValue("doubleClickGesture", of: self) }
         set { setAssociatedValue(newValue, for: "doubleClickGesture") }
     }
         
     private var toggleSelectionGestureRecognizer: ToggleSelectionGestureRecognizer? {
-        get { getAssociatedValue("toggleSelectionGestureRecognizer") }
+        get { FZSwiftUtils.getAssociatedValue("toggleSelectionGestureRecognizer", of: self) }
         set { setAssociatedValue(newValue, for: "toggleSelectionGestureRecognizer") }
     }
         
     private var dragSelectionGestureRecognizer: DragSelectionGestureRecognizer? {
-        get { getAssociatedValue("dragSelectionGestureRecognizer") }
+        get { FZSwiftUtils.getAssociatedValue("dragSelectionGestureRecognizer", of: self) }
         set { setAssociatedValue(newValue, for: "dragSelectionGestureRecognizer") }
     }
         

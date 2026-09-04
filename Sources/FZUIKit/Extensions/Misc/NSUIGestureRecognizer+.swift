@@ -108,7 +108,7 @@ extension NSUIGestureRecognizer {
     }
     
     fileprivate var reattachViewObservation: KeyValueObservation? {
-        get { getAssociatedValue("reattachViewObservation") }
+        get { FZSwiftUtils.getAssociatedValue("reattachViewObservation", of: self) }
         set { setAssociatedValue(newValue, for: "reattachViewObservation") }
     }
 }

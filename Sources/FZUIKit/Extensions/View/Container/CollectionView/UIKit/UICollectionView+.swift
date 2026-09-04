@@ -88,7 +88,7 @@ extension UICollectionView {
      The handlers get called whenever the collection view is displaying new cells (e.g. when the enclosing scrollview gets scrolled to new cells).
      */
     public var displayingCellsHandlers: DisplayingItemsHandlers {
-        get { getAssociatedValue("displayingItemsHandlers", initial: DisplayingItemsHandlers()) }
+        get { FZSwiftUtils.getAssociatedValue("displayingItemsHandlers", of: self, initial: DisplayingItemsHandlers()) }
         set {
             setAssociatedValue(newValue, for: "displayingItemsHandlers")
             setupDisplayingItemsTracking()
@@ -108,14 +108,14 @@ extension UICollectionView {
     }
 
     var previousDisplayingIndexPaths: [IndexPath] {
-        get { getAssociatedValue("previousDisplayingIndexPaths", initial: []) }
+        get { FZSwiftUtils.getAssociatedValue("previousDisplayingIndexPaths", of: self, initial: []) }
         set {
             setAssociatedValue(newValue, for: "previousDisplayingIndexPaths")
         }
     }
 
     var contentOffsetObserver: KeyValueObservation? {
-        get { getAssociatedValue("contentOffsetObserver") }
+        get { FZSwiftUtils.getAssociatedValue("contentOffsetObserver", of: self) }
         set { setAssociatedValue(newValue, for: "contentOffsetObserver") }
     }
 

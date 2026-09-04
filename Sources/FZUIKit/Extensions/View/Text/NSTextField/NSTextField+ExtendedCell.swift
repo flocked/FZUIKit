@@ -347,7 +347,7 @@ class ExtendedTextFieldCell: NSTextFieldCell {
 
  extension NSTextFieldCell {
      var _isEditingOrSelecting: Bool {
-         get { getAssociatedValue("isEditingOrSelecting") ?? false }
+         get { FZSwiftUtils.getAssociatedValue("isEditingOrSelecting", of: self) ?? false }
          set { setAssociatedValue(newValue, for: "isEditingOrSelecting") }
      }
  }

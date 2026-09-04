@@ -46,7 +46,7 @@ extension NSSharingServicePickerToolbarItem {
     
     /// The handlers for the item.
     public var handlers: Handlers {
-        get { getAssociatedValue("handlers") ?? Handlers() }
+        get { FZSwiftUtils.getAssociatedValue("handlers", of: self) ?? Handlers() }
         set {
             setAssociatedValue(newValue, for: "handlers")
             if !handlers.needsDelegate {
@@ -58,7 +58,7 @@ extension NSSharingServicePickerToolbarItem {
     }
     
     private var handlerDelegate: Delegate? {
-        get { getAssociatedValue("handlerDelegate") }
+        get { FZSwiftUtils.getAssociatedValue("handlerDelegate", of: self) }
         set { setAssociatedValue(newValue, for: "handlerDelegate") }
     }
     

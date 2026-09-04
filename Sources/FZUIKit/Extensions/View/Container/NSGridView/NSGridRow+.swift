@@ -59,7 +59,7 @@ public extension NSGridRow {
      */
     
     internal var autoMerge: Bool {
-        get { getAssociatedValue("autoMerge") ?? false }
+        get { FZSwiftUtils.getAssociatedValue("autoMerge", of: self) ?? false }
         set { setAssociatedValue(newValue, for: "autoMerge") }
     }
     

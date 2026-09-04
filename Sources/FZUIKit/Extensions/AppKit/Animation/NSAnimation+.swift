@@ -12,7 +12,7 @@ import FZSwiftUtils
 extension NSAnimation {
     /// The handlers for the animation.
     public var handlers: Handlers {
-        get { getAssociatedValue("handlers") ?? Handlers() }
+        get { FZSwiftUtils.getAssociatedValue("handlers", of: self) ?? Handlers() }
         set {
             setAssociatedValue(newValue, for: "handlers")
             if newValue.needsDelegate {
@@ -28,7 +28,7 @@ extension NSAnimation {
     }
     
     fileprivate var animationDelegate: AnimationDelegate? {
-        get { getAssociatedValue("animationDelegate") }
+        get { FZSwiftUtils.getAssociatedValue("animationDelegate", of: self) }
         set { setAssociatedValue(newValue, for: "animationDelegate") }
     }
     

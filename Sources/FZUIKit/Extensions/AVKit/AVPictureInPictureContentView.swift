@@ -87,7 +87,7 @@ public struct AVPictureInPictureContentViewHandlers {
 public extension AVPictureInPictureContentView {
     /// The handlers for picture in picture.
     var pictureInPictureHandlers: AVPictureInPictureContentViewHandlers {
-        get { getAssociatedValue("pictureInPictureHandlers") ?? .init() }
+        get { FZSwiftUtils.getAssociatedValue("pictureInPictureHandlers", of: self) ?? .init() }
         set {
             setAssociatedValue(newValue, for: "pictureInPictureHandlers")
             setupIsDisplayingObservation()
@@ -100,7 +100,7 @@ public extension AVPictureInPictureContentView {
     }
 
     var pictureInPicturePlaceholderView: NSUIView? {
-        let placeholderView: PiPPlaceholderView = getAssociatedValue("pictureInPicturePlaceholderView", initial: {
+        let placeholderView: PiPPlaceholderView = FZSwiftUtils.getAssociatedValue("pictureInPicturePlaceholderView", of: self, initial: {
             PiPPlaceholderView(contentView: self)
         })
         placeholderView.contentView = self
@@ -147,11 +147,11 @@ public extension AVPictureInPictureContentView {
     }
 
     private var pipController: ContentViewPictureInPictureController? {
-        getAssociatedValue("pictureInPictureController")
+        FZSwiftUtils.getAssociatedValue("pictureInPictureController", of: self)
     }
 
     private var isDisplayingObservation: KeyValueObservation? {
-        get { getAssociatedValue("isDisplayingObservation") }
+        get { FZSwiftUtils.getAssociatedValue("isDisplayingObservation", of: self) }
         set { setAssociatedValue(newValue, for: "isDisplayingObservation") }
     }
 
@@ -161,7 +161,7 @@ public extension AVPictureInPictureContentView {
     }
     
     private var _pictureInPictureController: ContentViewPictureInPictureController {
-        let controller: ContentViewPictureInPictureController = getAssociatedValue("pictureInPictureController", initial: {
+        let controller: ContentViewPictureInPictureController = FZSwiftUtils.getAssociatedValue("pictureInPictureController", of: self, initial: {
             let controller = ContentViewPictureInPictureController(
                 contentView: self,
                 preferredContentSize: preferredPictureInPictureContentSize

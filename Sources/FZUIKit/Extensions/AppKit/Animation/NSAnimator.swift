@@ -287,7 +287,7 @@ public class NSAnimator: NSObject {
 
 extension NSAnimationContext {
     var animator: NSAnimator? {
-        get { getAssociatedValue("animator") }
+        get { FZSwiftUtils.getAssociatedValue("animator", of: self) }
         set { setAssociatedValue(newValue, for: "animator") }
     }
 }

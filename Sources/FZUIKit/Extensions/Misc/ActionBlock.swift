@@ -381,7 +381,7 @@ public extension NSObjectProtocol where Self: UIGestureRecognizer {
 
     /// The action handler of the gesture recognizer.
     var actionBlock: ActionBlock? {
-        get { getAssociatedValue("actionBlock") }
+        get { FZSwiftUtils.getAssociatedValue("actionBlock", of: self) }
         set {
             if newValue != nil, actionBlock == nil {
                 addTarget(self, action: #selector(performActionBlock(sender:)))
@@ -418,7 +418,7 @@ public extension NSObjectProtocol where Self: UIControl {
     }
 
     fileprivate var actionBlocks: [UInt: (Self) -> Void] {
-        get { getAssociatedValue("actionBlocks") ?? [:] }
+        get { FZSwiftUtils.getAssociatedValue("actionBlocks", of: self) ?? [:] }
         set { setAssociatedValue(newValue, for: "actionBlocks") }
     }
 }

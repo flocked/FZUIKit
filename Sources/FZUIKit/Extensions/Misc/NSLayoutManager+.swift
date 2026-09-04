@@ -191,7 +191,7 @@ extension NSLayoutManager {
     }
     
     var textOffset: CGPoint {
-        get { getAssociatedValue("textOffset") ?? .zero }
+        get { FZSwiftUtils.getAssociatedValue("textOffset", of: self) ?? .zero }
         set { setAssociatedValue(newValue, for: "textOffset") }
     }
 }
