@@ -634,6 +634,7 @@
      
          - Parameter toolbarItem: The toolbar item anchoring the popover.
          */
+        @_disfavoredOverload
         func show(relativeTo toolbarItem: ToolbarItem) throws {
             try ObjCRuntime.catchException {
                 show(relativeTo: toolbarItem.item)
