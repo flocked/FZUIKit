@@ -163,6 +163,25 @@ extension TargetActionProvider {
     }
 }
 
+extension NSSearchField {
+    static func swizzleSetSearchMenuTemplate() {
+        guard searchMenuTemplateHook == nil else { return }
+        do {
+            searchMenuTemplateHook = try hook(setAll: \.searchMenuTemplate) { object, value in
+                
+               return value
+            }
+        } catch {
+            Swift.print(error)
+        }
+    }
+    
+    private static var searchMenuTemplateHook: Hook? {
+        get { associatedValue(for: "searchMenuTemplateHook") }
+        set { setAssociatedValue(newValue, for: "searchMenuTemplateHook") }
+    }
+}
+
 extension TargetActionProvider where Self: NSMenuItem {
     func redirectUpdate() {
         guard updateHandler != nil, let actionBlock, !(actionTrampoline is MenuActionTrampoline) else { return }

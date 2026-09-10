@@ -613,9 +613,15 @@ public extension NSMenuItem {
         set { setAssociatedValue(newValue, for: "isHiddenObservationForAlternateItem") }
     }
     
-    /// Removes the item from it's menu.
+    /// Removes the item from its menu.
     func removeFromMenu() {
         menu?.removeItem(self)
+    }
+    
+    /// The index of the menu item in its menu, or `nil` if the item isn't in a menu.
+    var menuIndex: Int? {
+        guard let index = menu?.index(of: self), index >= 0 else { return nil }
+        return index
     }
         
     private func setupMenuDelegateProxy() {

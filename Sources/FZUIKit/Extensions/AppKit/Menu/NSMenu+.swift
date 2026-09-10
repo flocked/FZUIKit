@@ -149,7 +149,7 @@ extension NSMenu {
      - index: An integer index identifying the location of the menu item in the menu.
      */
     public func insertItems(_ items: [NSMenuItem], at index: Int) {
-        items.reversed().forEach({ insertItem($0, at: index) })
+        items.reversed().forEach { insertItem($0, at: index) }
     }
     
     /**
@@ -159,7 +159,7 @@ extension NSMenu {
      */
     @objc open func items(depth: Int) -> [NSMenuItem] {
         if depth > 0 {
-            return items + items.compactMap({ $0.submenu }).flatMap { $0.items(depth: depth - 1) }
+            return items + items.compactMap { $0.submenu }.flatMap { $0.items(depth: depth - 1) }
         } else {
             return items
         }
@@ -286,7 +286,7 @@ extension NSMenu {
     
     /// The submenus of the menu.
     @objc open var submenus: [NSMenu] {
-        items.compactMap({ $0.submenu })
+        items.compactMap { $0.submenu }
     }
     
     /**
@@ -296,10 +296,10 @@ extension NSMenu {
      */
     @objc open func submenus(depth: Int) -> [NSMenu] {
         if depth > 0 {
-            return items.flatMap({ if let submenu = $0.submenu { return submenu + submenu.submenus(depth: depth-1)
-            } else { return [] } })
+            return items.flatMap { if let submenu = $0.submenu { return submenu + submenu.submenus(depth: depth - 1)
+            } else { return [] } }
         } else {
-            return items.compactMap({ $0.submenu })
+            return items.compactMap { $0.submenu }
         }
     }
     
@@ -355,7 +355,7 @@ extension NSMenu {
      - depth: The number of submenu levels to match. Use `0` for only top-level submenus and `.max` for unlimited depth.
      */
     @objc open func firstSubmenu(where predicate: (NSMenu) -> Bool, depth: Int) -> NSMenu? {
-        let submenus = items.compactMap({ $0.submenu })
+        let submenus = items.compactMap { $0.submenu }
         if let submenu = submenus.first(where: predicate) {
             return submenu
         } else if depth > 0 {
@@ -431,7 +431,7 @@ extension NSMenu {
      */
     @discardableResult
     public func popUp(positioning item: NSMenuItem? = nil, at location: CGPoint, in view: NSView? = nil, with font: NSFont) -> Bool {
-        handlers.update = { [weak self] menu in
+        handlers.update = { [weak self] _ in
             guard let self = self else { return }
             self.updateFonts(to: font)
         }
@@ -445,13 +445,13 @@ extension NSMenu {
     
     private func updateFonts(to font: NSFont?) {
         if let font = font {
-            (self + submenus(depth: .max)).forEach {
-                mappedFonts[ObjectIdentifier($0)] = $0.font
-                $0.font = font
+            for item in self + submenus(depth: .max) {
+                mappedFonts[ObjectIdentifier(item)] = item.font
+                item.font = font
             }
         } else {
-            (self + submenus(depth: .max)).forEach {
-                $0.font = mappedFonts[ObjectIdentifier($0)]
+            for item in self + submenus(depth: .max) {
+                item.font = mappedFonts[ObjectIdentifier(item)]
             }
             mappedFonts = [:]
         }
@@ -459,7 +459,7 @@ extension NSMenu {
     
     private var mappedFonts: [ObjectIdentifier: NSFont] {
         get { associatedValue(for: "mappedFonts") ?? [:] }
-        set { setAssociatedValue(newValue, for: "mappedFonts")} 
+        set { setAssociatedValue(newValue, for: "mappedFonts") }
     }
     
     /**
@@ -629,19 +629,19 @@ public extension NSMenu {
         - selectionMode: The selection mode of the menu.
         - onSelectionChange: The closure to invoke when someone selects the menu item.
      */
-    static func palette(_ items: [PaletteItem], image: NSImage? = nil, onImage: NSImage? = nil, selectionMode: SelectionMode = .automatic, onSelectionChange: ((NSMenu) -> Void)? = nil) -> NSMenu {
-        let menu = NSMenu.palette(colors: items.map({$0.color}), titles: items.map({$0.title}), template: image, onSelectionChange: onSelectionChange)
+    static func palette(_ items: [PaletteItem], image: NSImage? = nil, onImage: NSImage? = nil, selectionMode: SelectionMode = .automatic, onSelectionChange: ((NSMenu) -> ())? = nil) -> NSMenu {
+        let menu = NSMenu.palette(colors: items.map { $0.color }, titles: items.map { $0.title }, template: image, onSelectionChange: onSelectionChange)
         menu.selectionMode = selectionMode
-        items.indexed().forEach({
-            if let image = $0.element.image {
-                menu.items[safe: $0.index]?.image = image
+        for item in items.indexed() {
+            if let image = item.element.image {
+                menu.items[safe: item.index]?.image = image
             }
-            if let onImage = $0.element.onImage {
-                menu.items[safe: $0.index]?.onStateImage = onImage
+            if let onImage = item.element.onImage {
+                menu.items[safe: item.index]?.onStateImage = onImage
             }
-        })
+        }
         if let onImage = onImage {
-            menu.items.forEach({ $0.onStateImage = onImage })
+            menu.items.forEach { $0.onStateImage = onImage }
         }
         return menu
     }
@@ -660,7 +660,7 @@ public extension NSMenu {
         - selectionMode: The selection mode of the menu.
         - onSelectionChange: The closure to invoke when someone selects the menu item.
      */
-    static func palette(_ items: [PaletteItem], symbolImage symbolName: String, onImage: String? = nil, selectionMode: SelectionMode = .automatic, onSelectionChange: ((NSMenu) -> Void)? = nil) -> NSMenu {
+    static func palette(_ items: [PaletteItem], symbolImage symbolName: String, onImage: String? = nil, selectionMode: SelectionMode = .automatic, onSelectionChange: ((NSMenu) -> ())? = nil) -> NSMenu {
         if let onImage = onImage {
             return palette(items, image: .symbol(symbolName), onImage: .symbol(onImage), selectionMode: selectionMode, onSelectionChange: onSelectionChange)
         }

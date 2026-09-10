@@ -10,6 +10,40 @@ import AppKit
 import FZSwiftUtils
 
 extension NSWindow {
+    /**
+     The window that currently receives keyboard events.
+     
+     The value of this property is `nil` when there is no window receiving keyboard events. The property might be `nil` because the app’s storyboard file has not yet finished loading or when the receiver is not active.
+     */
+    public static var keyWindow: NSWindow? {
+        NSApp.keyWindow
+    }
+    
+    /**
+     The app’s main window.
+
+     The value in this property is `nil` when the app’s storyboard or nib file has not yet finished loading. It might also be `nil` when the app is inactive or hidden.
+     */
+    public static var mainWindow: NSWindow? {
+        NSApp.mainWindow
+    }
+    
+    /// Returns the frontmost visible window on the specified screen, defaulting to the main or first available screen.
+    static func frontMost(on screen: NSScreen? = nil) -> NSWindow? {
+        guard let screen = screen ?? .main ?? .screens.first else { return nil }
+        return NSApp.orderedWindows.first { $0.screen == screen && $0.isVisible }
+    }
+    
+    /// Positions the window so that it is cascaded from the specified window.
+    public func cascade(from window: NSWindow) {
+        cascadeTopLeft(from: window.cascadeTopLeft(from: .zero))
+    }
+
+    /// Positions the window at the next cascading position.
+    public func cascade() {
+        cascadeTopLeft(from: cascadeTopLeft(from: .zero))
+    }
+    
     /// Repositions the window below the other specified window.
     @objc open func order(below window: NSWindow) {
         order(.below, relativeTo: window.windowNumber)
@@ -33,11 +67,6 @@ extension NSWindow {
             offsetFrame.origin.y = screen.visibleFrame.maxY - frame.height - spacing
         }
         setFrame(offsetFrame, display: false)
-    }
-    
-    /// Repositions the window’s origin with an offset from the specified window.
-    func cascade(from window: NSWindow) {
-        cascade(from: window.frame)
     }
     
     /**

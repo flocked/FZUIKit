@@ -18,9 +18,6 @@ import AppKit
     var item: NSToolbarItem {
         rootItem
     }
-    public var aItem: NSToolbarItem {
-        item
-    }
     
     /**
      A Boolean value indicating whether the item is available on the 'default' toolbar presented to the user.
