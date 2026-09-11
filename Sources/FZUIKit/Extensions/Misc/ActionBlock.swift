@@ -10,6 +10,13 @@
 import AppKit
 import FZSwiftUtils
 
+extension NSTitlebarAccessoryViewController {
+    func removeFromWindow() {
+        guard let window = view.window else { return }
+        view.window?.titlebarAccessoryViewControllers
+    }
+}
+
 /// An object that sends action-messages using `target` and `action`.
 public protocol TargetActionProvider: NSObjectProtocol {
     /// The target object that receives action messages from the object.
@@ -186,6 +193,10 @@ extension TargetActionProvider where Self: NSMenuItem {
     func redirectUpdate() {
         guard updateHandler != nil, let actionBlock, !(actionTrampoline is MenuActionTrampoline) else { return }
         let trampoline = MenuActionTrampoline<Self>(action: actionBlock)
+    }
+    
+    func sdsds() {
+        action { _ in }
     }
 }
 

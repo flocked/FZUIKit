@@ -102,24 +102,20 @@ extension NSMenu {
             }
         }
         
-        override func responds(to selector: Selector!) -> Bool {
-            if Self.supportedSelectors.contains(selector) {
-                return true
-            }
-            return delegate?.responds(to: selector) ?? false
-        }
-        
-        override func forwardingTarget(for selector: Selector!) -> Any? {
-            if delegate?.responds(to: selector) == true {
-                return delegate
-            }
-            return super.forwardingTarget(for: selector)
-        }
-        
         func menuWillOpen(_ menu: NSMenu) {
             menu.handlers.willOpen?()
             delegate?.menuWillOpen?(menu)
         }
+        
+        func menu(_ menu: NSMenu, update item: NSMenuItem, at index: Int, shouldCancel: Bool) -> Bool {
+            delegate?.menu?(menu, update: item, at: index, shouldCancel: shouldCancel) ?? true
+        }
+        
+        /*
+        func menuHasKeyEquivalent(_ menu: NSMenu, for event: NSEvent, target: AutoreleasingUnsafeMutablePointer<AnyObject?>, action: UnsafeMutablePointer<Selector?>) -> Bool {
+            delegate?.menuHasKeyEquivalent?(menu, for: event, target: target, action: action) ?? true
+        }
+         */
         
         func menuDidClose(_ menu: NSMenu) {
             menu.items.forEach { $0.alternateItem?.removeFromMenu() }
@@ -138,7 +134,6 @@ extension NSMenu {
             updateProvidedMenuItems(for: menu)
             menu.handlers.update?(menu)
             delegate?.menuNeedsUpdate?(menu)
-            NSEvent.current!.isOptionPressed
             let optionPressed = NSEvent.modifierFlags.contains(.option)
             menu.items.filter { !$0.isAlternate && $0.visibility != .automatic }.forEach { $0.isHidden = !optionPressed }
             if eventObserver == nil, menu.items.contains(where: { !$0.isAlternate && $0.visibility == .whileHoldingOption }) {

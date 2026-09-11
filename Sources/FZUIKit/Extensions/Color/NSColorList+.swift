@@ -12,7 +12,7 @@ import FZSwiftUtils
 extension NSColorList {
     /// All colors of the color list.
     public var colors: [NSColor] {
-        value(forKeySafely: "_colorArray") as? [NSColor] ?? allKeys.compactMap({ color(withKey: $0) })
+        value(forKey: "_colorArray") ?? allKeys.compactMap({ color(withKey: $0) })
     }
     
     /// All colors and their corresponding keys of the color list.

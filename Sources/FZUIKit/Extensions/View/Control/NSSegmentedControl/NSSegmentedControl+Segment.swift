@@ -19,6 +19,9 @@ import AppKit
 public class NSSegment: NSObject, ExpressibleByStringLiteral {
     /// The segmented control displaying the segment, or `nil` if the segment isn't displayed.
     public internal(set) weak var segmentedControl: NSSegmentedControl?
+    internal var toolbarItem: NSToolbarItemGroup? {
+        segmentedControl?.toolbarItem
+    }
     
     /// The title of the segment.
     public var title: String? {
@@ -367,6 +370,10 @@ public extension NSSegmentedControl {
     @objc dynamic var segments: [NSSegment] {
         get { synchronizedSegments() }
         set {
+            var newValue = newValue
+            if toolbarItem != nil {
+                newValue = newValue.filter({ $0.image != nil && $0.title != nil })
+            }
             let oldSegments = storedSegments
             let removedSegments = oldSegments.filter { oldSegment in
                 !newValue.contains { $0 === oldSegment }
@@ -468,6 +475,18 @@ public extension NSSegmentedControl {
     
     internal func index(forTag tag: Int) -> Int? {
         (0 ..< segmentCount).first(where: { self.tag(forSegment: $0) == tag })
+    }
+    
+    internal var toolbarItem: NSToolbarItemGroup? {
+        get {
+            guard let item: NSToolbarItemGroup = associatedValue(for: "_toolbarItem") else { return nil }
+            if item.view !== self {
+                self.toolbarItem = nil
+                return nil
+            }
+            return item
+        }
+        set { setAssociatedValue(weak: newValue, for: "_toolbarItem") }
     }
     
     /// A function builder type that produces an array of segments.
