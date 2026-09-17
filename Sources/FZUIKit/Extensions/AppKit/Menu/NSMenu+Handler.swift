@@ -75,7 +75,11 @@ extension NSMenu {
     func setupDelegateProxy() {
         if handlers.needsDelegate || viewMenuProvider != nil || items.contains(where: { $0.needsDelegateProxy }) {
             guard delegateProxy == nil else { return }
-            delegateProxy = .init(self)
+            if let delegate = delegate as? Delegate {
+                delegateProxy = delegate
+            } else {
+                delegateProxy = .init(self)
+            }
         } else if delegateProxy != nil {
             let _delegate = delegateProxy?.delegate
             delegateProxy = nil
@@ -89,17 +93,38 @@ extension NSMenu {
         var eventObserver: CFRunLoopObserver?
         var delegateObservation: KeyValueObservation?
         var menuMinimumWidth: CGFloat?
+        private var isRestoringDelegate = false
         static let supportedSelectors = [#selector(NSMenuDelegate.menuWillOpen(_:)), #selector(NSMenuDelegate.menuDidClose(_:)), #selector(NSMenuDelegate.menuNeedsUpdate(_:)), #selector(NSMenuDelegate.menu(_:willHighlight:))]
 
         init(_ menu: NSMenu) {
-            self.delegate = menu.delegate
+            if let delegate = menu.delegate as? Delegate {
+                self.delegate = delegate.delegate
+            } else {
+                self.delegate = menu.delegate
+            }
             super.init()
             menu.delegate = self
             delegateObservation = menu.observeChanges(for: \.delegate) { [weak self] _, new in
-                guard let self = self, new !== self else { return }
-                self.delegate = new
+                guard let self = self, !self.isRestoringDelegate, new !== self else { return }
+                self.delegate = (new as? Delegate)?.delegate ?? new
+                self.isRestoringDelegate = true
                 menu.delegate = self
+                self.isRestoringDelegate = false
             }
+        }
+        
+        override func responds(to selector: Selector!) -> Bool {
+            if Self.supportedSelectors.contains(selector) {
+                return true
+            }
+            return delegate?.responds(to: selector) ?? false
+        }
+        
+        override func forwardingTarget(for selector: Selector!) -> Any? {
+            if delegate?.responds(to: selector) == true {
+                return delegate
+            }
+            return super.forwardingTarget(for: selector)
         }
         
         func menuWillOpen(_ menu: NSMenu) {

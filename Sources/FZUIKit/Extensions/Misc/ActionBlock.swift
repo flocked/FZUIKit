@@ -119,54 +119,40 @@ class ActionTrampoline<T: TargetActionProvider>: NSObject {
 
 fileprivate let actionTrampolineSelector = #selector(ActionTrampoline<NSMenuItem>.performAction(sender:))
 
+private protocol AnyRedirectedActionTrampoline: AnyObject {
+    var object: AnyObject? { get }
+    func handler<Object: AnyObject>(for object: Object) -> ((Object) -> Void)?
+}
+
+private final class RedirectedActionTrampoline<Object: AnyObject>: NSObject, AnyRedirectedActionTrampoline {
+    weak var object: AnyObject? {
+        redirectedObject
+    }
+    weak var redirectedObject: Object?
+    let handler: (Object) -> Void
+
+    init(to object: Object, handler: @escaping (Object) -> Void) {
+        self.redirectedObject = object
+        self.handler = handler
+    }
+
+    @objc func performAction(sender: NSObject) {
+        guard let redirectedObject else { return }
+        handler(redirectedObject)
+    }
+
+    func handler<T: AnyObject>(for object: T) -> ((T) -> Void)? {
+        guard redirectedObject === object, let handler = handler as? (T) -> Void else { return nil }
+        return handler
+    }
+}
+
+private let redirectedActionTrampolineSelector = #selector(RedirectedActionTrampoline<NSObject>.performAction(sender:))
+
 class MenuActionTrampoline<Item: NSMenuItem>: ActionTrampoline<Item>, NSMenuItemValidation {
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         menuItem.updateHandler?(menuItem)
         return true
-    }
-}
-
-extension ActionTrampoline {
-    final class Redirect<Object: AnyObject>: ActionTrampoline {
-        let handler: (Object) -> Void
-        weak var object: Object?
-
-        init(to object: Object, handler: @escaping (Object) -> Void) {
-            self.object = object
-            self.handler = handler
-            super.init { _ in }
-            self.action = { [weak self] _ in
-                guard let self, let object = self.object else { return }
-                self.handler(object)
-            }
-        }
-    }
-}
-
-extension TargetActionProvider {
-    func setRedirectedAction<Object: AnyObject>(_ handler: ((Object) -> Void)?, of object: Object) {
-        if let handler {
-            actionTrampoline = ActionTrampoline<Self>.Redirect(to: object, handler: handler)
-            target = actionTrampoline
-            action = actionTrampolineSelector
-        } else if let trampoline = actionTrampoline as? ActionTrampoline<Self>.Redirect<Object>, trampoline.object === object {
-            if target === trampoline {
-                target = nil
-            }
-            if action == actionTrampolineSelector {
-                action = nil
-            }
-            actionTrampoline = nil
-        }
-    }
-
-    func redirectedActionHandler<Object: AnyObject>(for object: Object) -> ((Object) -> Void)? {
-        guard let trampoline = actionTrampoline as? ActionTrampoline<Self>.Redirect<Object>,
-              trampoline.object === object
-        else {
-            return nil
-        }
-        return trampoline.handler
     }
 }
 
@@ -204,6 +190,10 @@ public extension TargetActionProvider {
     /// The action handler of the object.
     var actionBlock: ActionBlock? {
         get {
+            if let toolbarItem = self as? ToolbarItem,
+               let view = toolbarItem.item.resolvedView as? ActionRedirecting {
+                return view.redirectedActionHandler(for: self)
+            }
             guard let trampoline = actionTrampoline else { return nil }
             guard target === trampoline, action == actionTrampolineSelector else {
                 actionTrampoline = nil
@@ -212,6 +202,11 @@ public extension TargetActionProvider {
             return trampoline.action
         }
         set {
+            if let toolbarItem = self as? ToolbarItem,
+               let view = toolbarItem.item.resolvedView as? any ActionRedirecting {
+                view.setRedirectedAction(newValue, of: self)
+                return
+            }
             if let newValue {
                 actionTrampoline = ActionTrampoline(action: newValue)
                 target = actionTrampoline
@@ -330,60 +325,34 @@ protocol ActionRedirecting {
     func redirectedActionHandler<Object: AnyObject>(for object: Object) -> ((Object) -> Void)?
 }
 
-extension NSControl: ActionRedirecting {}
-
-extension TargetActionProvider where Self: ToolbarItem {
-    /// Sets the action handler of the object.
-    @discardableResult
-    func action(_ action: ActionBlock?) -> Self {
-        actionBlock = action
-        return self
-    }
-    
-    /// The action handler of the object.
-    public var actionBlock: ActionBlock? {
-        get {
-            if let view = item.resolvedView as? ActionRedirecting {
-                return view.redirectedActionHandler(for: self)
+extension NSControl: ActionRedirecting {
+    func setRedirectedAction<Object: AnyObject>(_ handler: ((Object) -> Void)?, of object: Object) {
+        if let handler {
+            let trampoline = RedirectedActionTrampoline(to: object, handler: handler)
+            redirectedActionTrampoline = trampoline
+            target = trampoline
+            action = redirectedActionTrampolineSelector
+        } else if redirectedActionTrampoline?.object === object {
+            if target === redirectedActionTrampoline {
+                target = nil
             }
-            return defaultActionBlock
-        }
-        set {
-            if let view = item.resolvedView as? any ActionRedirecting {
-                view.setRedirectedAction(newValue, of: self)
-            } else {
-                defaultActionBlock = newValue
+            if action == redirectedActionTrampolineSelector {
+                action = nil
             }
+            redirectedActionTrampoline = nil
         }
     }
 
-    var defaultActionBlock: ActionBlock? {
-        set {
-            if let newValue {
-                let trampoline = ActionTrampoline(action: newValue)
-                actionTrampoline = trampoline
-                target = trampoline
-                action = #selector(ActionTrampoline<Self>.performAction(sender:))
-            } else if let trampoline = actionTrampoline {
-                if target === trampoline {
-                    target = nil
-                }
-                if action == #selector(ActionTrampoline<Self>.performAction(sender:)) {
-                    action = nil
-                }
-                actionTrampoline = nil
-            }
-        }
-        get {
-            guard let trampoline = actionTrampoline, target === trampoline, action == #selector(ActionTrampoline<Self>.performAction(sender:))
-            else {
-                actionTrampoline = nil
-                return nil
-            }
-            return trampoline.action
-        }
+    func redirectedActionHandler<Object: AnyObject>(for object: Object) -> ((Object) -> Void)? {
+        redirectedActionTrampoline?.handler(for: object)
+    }
+
+    private var redirectedActionTrampoline: (NSObject & AnyRedirectedActionTrampoline)? {
+        get { associatedValue(for: "redirectedActionTrampoline") }
+        set { setAssociatedValue(newValue, for: "redirectedActionTrampoline") }
     }
 }
+
 fileprivate extension NSToolbarItem {
     var resolvedView: NSView? {
         view ?? (self as? NSSearchToolbarItem)?.searchField

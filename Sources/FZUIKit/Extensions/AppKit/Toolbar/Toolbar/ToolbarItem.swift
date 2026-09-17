@@ -445,9 +445,11 @@ extension NSObjectProtocol where Self: ToolbarItem {
                 guard isEnabled, let menuItem = menuFormRepresentation, let menuValidation = target as? NSMenuItemValidation else { return }
                 menuItem.isEnabled = menuValidation.validateMenuItem(menuItem)
             } else if item is NSMenuToolbarItem {
-                
                 isEnabled = false
                 menuFormRepresentation?.isEnabled = false
+            } else if item.view != nil || item is NSSearchToolbarItem {
+                isEnabled = true
+                menuFormRepresentation?.isEnabled = true
             } else {
                 isEnabled = false
                 menuFormRepresentation?.isEnabled = false

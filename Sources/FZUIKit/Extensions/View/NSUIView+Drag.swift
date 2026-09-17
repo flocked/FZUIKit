@@ -133,8 +133,8 @@ public extension NSUIView {
                     }
                 }
                 gesture.handlers.shouldBegin = { [weak self] in
-                    guard let self = self, let superview = self.superview else { return false }
-                    let location = gesture.location(in: superview)
+                    guard let self = self else { return false }
+                    let location = gesture.location(in: self)
                     return self.hitTest(location)?.isInteractive ?? false == false
                 }
                 panGesture = gesture

@@ -147,8 +147,10 @@ fileprivate class DragGestureRecognizer: NSGestureRecognizer, NSDraggingSource {
     }
     
     override func responds(to selector: Selector!) -> Bool {
-        guard selector == #selector(NSDraggingSource.ignoreModifierKeys(for:)) else { return true }
-        return view?.dragHandlers.ignoreModifierKeys != nil
+        if selector == #selector(NSDraggingSource.ignoreModifierKeys(for:)) {
+            return view?.dragHandlers.ignoreModifierKeys != nil
+        }
+        return super.responds(to: selector)
     }
     
     func ignoreModifierKeys(for session: NSDraggingSession) -> Bool {

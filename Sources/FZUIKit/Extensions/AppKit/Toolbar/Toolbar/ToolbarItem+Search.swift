@@ -203,11 +203,22 @@ extension Toolbar {
             return self
         }
         
+        /// A Boolean value indicating whether the search field can be represented as button.
+        public var allowsButtonRepresentation: Bool {
+            get { searchItem.allowsButtonRepresentation }
+            set { searchItem.allowsButtonRepresentation = newValue }
+        }
+        
+        /// Sets the Boolean value indicating whether the search field can be represented as button.
+        @discardableResult
+        public func allowsButtonRepresentation(_ allows: Bool) -> Self {
+            self.allowsButtonRepresentation = allows
+            return self
+        }
+        
         var textEditingOverrides: (didChange: Bool, didBegin: Bool, didEnd: Bool) {
             (Self.overrides(#selector(textDidChange)), Self.overrides(#selector(textDidBeginEditing)), Self.overrides(#selector(textDidEndEditing)))
         }
-        
-        
         
         /**
          Creates a search toolbar item.

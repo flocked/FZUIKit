@@ -54,7 +54,7 @@ public extension NSAppearance {
     /**
      A Boolean value indicating whether the appearance is light.
 
-     The following appearances are light: ``aqua``, ``vibrantLight``, ``accessibilityHighContrastAqua`` and ``accessibilityHighContrastVibrantLight``.
+     The following appearances are light: ``AppKit/NSAppearance/aqua``, ``AppKit/NSAppearance/vibrantLight``, ``AppKit/NSAppearance/accessibilityHighContrastAqua`` and ``AppKit/NSAppearance/accessibilityHighContrastVibrantLight``.
      */
     var isLight: Bool {
         bestMatch(from: [.darkAqua, .aqua]) == .aqua
@@ -63,7 +63,7 @@ public extension NSAppearance {
     /**
      A Boolean value indicating whether the appearance is dark.
 
-     The following appearances are dark: ``darkAqua``, ``vibrantDark``, ``accessibilityHighContrastDarkAqua`` and ``accessibilityHighContrastVibrantDark``.
+     The following appearances are dark: ``AppKit/NSAppearance/darkAqua``, ``AppKit/NSAppearance/vibrantDark``, ``AppKit/NSAppearance/accessibilityHighContrastDarkAqua`` and ``AppKit/NSAppearance/accessibilityHighContrastVibrantDark``.
      */
     var isDark: Bool {
         !isLight

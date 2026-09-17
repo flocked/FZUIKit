@@ -13,25 +13,69 @@ import FZSwiftUtils
 public class FinderTagsView: NSView {
     /// The Finder tags.
     public var tags: [FinderTag] = [] {
+        didSet { updateVisibleTags() }
+    }
+    
+    private func reload() {
+        invalidateIntrinsicContentSize()
+        needsDisplay = true
+    }
+    
+    private var visibleTags: [FinderTag] = [] {
         didSet {
-            guard oldValue != tags else { return }
+            guard oldValue != visibleTags else { return }
             toolTip = visibleTags.map(\.name).formatted(.list(type: .and, width: .short))
-            invalidateIntrinsicContentSize()
-            needsDisplay = true
+            reload()
         }
     }
     
-    private var visibleTags: [FinderTag] {
-        tags.filter { $0.color != .none }
+    private func updateVisibleTags() {
+        visibleTags = Array((displaysTagsWithoutColor ? tags : tags.filter({ $0.color != nil })).prefix(maxTags ?? .max))
+    }
+    
+    /// The maximum number of tags to display.
+    public var maxTags: Int? = nil {
+        didSet {
+            guard oldValue != maxTags else { return }
+            updateVisibleTags()
+        }
+    }
+    
+    /// Sets the maximum number of tags to display.
+    @discardableResult
+    public func maxTags(_ maxTags: Int) -> Self {
+        self.maxTags = maxTags
+        return self
+    }
+    
+    /// A Boolean value indicating whether to display tags without color.
+    public var displaysTagsWithoutColor = false {
+        didSet {
+            guard oldValue != displaysTagsWithoutColor else { return }
+            updateVisibleTags()
+        }
+    }
+    
+    /// Sets the Boolean value indicating whether to display tags without color.
+    @discardableResult
+    public func displaysTagsWithoutColor(_ displays: Bool) -> Self {
+        self.displaysTagsWithoutColor = displays
+        return self
     }
     
     /// The offset between the Finder tag circles.
     public var offset: CGFloat = 6 {
         didSet {
             guard oldValue != offset else { return }
-            invalidateIntrinsicContentSize()
-            needsDisplay = true
+            reload()
         }
+    }
+    
+    /// Sets the offset between the Finder tag circles.
+    @discardableResult
+    public func offset(_ offset: CGFloat) -> Self {
+        self.offset = offset
+        return self
     }
     
     /// The spacing between the Finder tag circles.
@@ -42,6 +86,13 @@ public class FinderTagsView: NSView {
         }
     }
     
+    /// Sets the spacing between the Finder tag circles.
+    @discardableResult
+    public func spacing(_ spacing: CGFloat) -> Self {
+        self.spacing = spacing
+        return self
+    }
+    
     /// The border width of the Finder tag circles.
     public var borderWidth: CGFloat = 1.0 {
         didSet {
@@ -50,30 +101,50 @@ public class FinderTagsView: NSView {
         }
     }
     
+    /// Sets the border width of the Finder tag circles.
+    @discardableResult
+    public func borderWidth(_ width: CGFloat) -> Self {
+        self.borderWidth = width
+        return self
+    }
+    
     /// The diameter of the Finder tag circles.
     public var diameter: CGFloat = 12 {
         didSet {
             guard oldValue != diameter else { return }
-            invalidateIntrinsicContentSize()
-            needsDisplay = true
+            reload()
         }
     }
     
-    public var backgroundStyle: NSView.BackgroundStyle = .normal {
+    /// Sets the diameter of the Finder tag circles.
+    @discardableResult
+    public func diameter(_ diameter: CGFloat) -> Self {
+        self.diameter = diameter
+        return self
+    }
+    
+    public var isEmphasized: Bool {
+        get { backgroundStyle == .emphasized }
+        set { backgroundStyle = newValue ? .emphasized : .normal }
+    }
+    
+    /// The background Style of the view.
+    public var backgroundStyle: BackgroundStyle = .normal {
         didSet {
-            guard oldValue != backgroundStyle else { return }
+            guard (oldValue == .emphasized) != (backgroundStyle == .emphasized) else { return }
             needsDisplay = true
         }
     }
     
-    public override func setBackgroundStyle(_ backgroundStyle: NSView.BackgroundStyle) {
+    public override func setBackgroundStyle(_ backgroundStyle: BackgroundStyle) {
         self.backgroundStyle = backgroundStyle
     }
     
     /// Creates a Finder tags view with the specified tags.
-    public init(tags: [FinderTag]) {
+    public init(tags: [FinderTag] = []) {
         self.tags = tags
         super.init(frame: .zero)
+        updateVisibleTags()
         frame.size = fittingSize
         wantsLayer = true
     }
@@ -111,7 +182,6 @@ public class FinderTagsView: NSView {
     public override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         
-        let visibleTags = visibleTags
         guard !visibleTags.isEmpty else { return }
                 
         guard let context = NSGraphicsContext.current?.cgContext else { return }
