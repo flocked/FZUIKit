@@ -10,13 +10,6 @@
 import AppKit
 import FZSwiftUtils
 
-extension NSTitlebarAccessoryViewController {
-    func removeFromWindow() {
-        guard let window = view.window else { return }
-        view.window?.titlebarAccessoryViewControllers
-    }
-}
-
 /// An object that sends action-messages using `target` and `action`.
 public protocol TargetActionProvider: NSObjectProtocol {
     /// The target object that receives action messages from the object.
@@ -105,19 +98,27 @@ public extension NSMenuItem {
 }
 
 class ActionTrampoline<T: TargetActionProvider>: NSObject {
-    var action: (T) -> Void
+    var action: ((T) -> Void)?
+    var doubleAction: ((T) -> Void)?
 
-    public init(action: @escaping (T) -> Void) {
+    public init(action: ((T) -> Void)? = nil, doubleAction: ((T) -> Void)? = nil) {
         self.action = action
+        self.doubleAction = doubleAction
     }
 
     @objc func performAction(sender: NSObject) {
         guard let sender = sender as? T else { return }
-        action(sender)
+        action?(sender)
+    }
+    
+    @objc func performDoubleAction(sender: NSObject) {
+        guard let sender = sender as? T else { return }
+        doubleAction?(sender)
     }
 }
 
 fileprivate let actionTrampolineSelector = #selector(ActionTrampoline<NSMenuItem>.performAction(sender:))
+fileprivate let doubleActionTrampolineSelector = #selector(ActionTrampoline<NSMenuItem>.performDoubleAction(sender:))
 
 private protocol AnyRedirectedActionTrampoline: AnyObject {
     var object: AnyObject? { get }
@@ -175,17 +176,6 @@ extension NSSearchField {
     }
 }
 
-extension TargetActionProvider where Self: NSMenuItem {
-    func redirectUpdate() {
-        guard updateHandler != nil, let actionBlock, !(actionTrampoline is MenuActionTrampoline) else { return }
-        let trampoline = MenuActionTrampoline<Self>(action: actionBlock)
-    }
-    
-    func sdsds() {
-        action { _ in }
-    }
-}
-
 public extension TargetActionProvider {
     /// The action handler of the object.
     var actionBlock: ActionBlock? {
@@ -195,8 +185,14 @@ public extension TargetActionProvider {
                 return view.redirectedActionHandler(for: self)
             }
             guard let trampoline = actionTrampoline else { return nil }
-            guard target === trampoline, action == actionTrampolineSelector else {
+            guard target === trampoline else {
                 actionTrampoline = nil
+                return nil
+            }
+            guard action == actionTrampolineSelector else {
+                if trampoline.doubleAction == nil {
+                    actionTrampoline = nil
+                }
                 return nil
             }
             return trampoline.action
@@ -208,20 +204,23 @@ public extension TargetActionProvider {
                 return
             }
             if let newValue {
-                actionTrampoline = ActionTrampoline(action: newValue)
+                actionTrampoline = ActionTrampoline(action: newValue, doubleAction: actionTrampoline?.doubleAction)
                 target = actionTrampoline
                 action = actionTrampolineSelector
             } else {
-                if target === actionTrampoline {
-                    target = nil
-                }
                 if action == actionTrampolineSelector {
                     action = nil
+                }
+                guard actionTrampoline?.doubleAction == nil else { return }
+                if target === actionTrampoline {
+                    target = nil
                 }
                 actionTrampoline = nil
             }
         }
     }
+    
+    
 
     /// Sets the action handler of the object.
     @discardableResult
@@ -251,12 +250,17 @@ public extension TargetActionProvider {
         if action == actionTrampolineSelector {
             action = nil
         }
+        if (self as? any DoubleActionProvider)?.doubleAction == doubleActionTrampolineSelector {
+            (self as? any DoubleActionProvider)?.doubleAction = nil
+        }
     }
 
     internal var actionTrampoline: ActionTrampoline<Self>? {
         get {
             guard let trampoline: ActionTrampoline<Self> = FZSwiftUtils.getAssociatedValue("actionTrampoline", of: self) else { return nil }
-            guard target === trampoline, action == actionTrampolineSelector else {
+            let hasAction = action == actionTrampolineSelector
+            let hasDoubleAction = (self as? any DoubleActionProvider)?.doubleAction == doubleActionTrampolineSelector
+            guard target === trampoline, hasAction || hasDoubleAction else {
                 removeTrampoline(trampoline)
                 FZSwiftUtils.setAssociatedValue(Optional<ActionTrampoline<Self>>.none, for: "actionTrampoline", of: self)
                 return nil
@@ -274,35 +278,6 @@ public extension TargetActionProvider {
         }
     }
 }
-
-/*
- internal var actionTrampoline: ActionTrampoline<Self>? {
-     get {
-         FZSwiftUtils.associatedValue(for: "actionTrampoline", of: self)
-     }
-     set {
-         let oldValue = actionTrampoline
-
-         if let oldValue,
-            target === oldValue,
-            action == actionTrampolineSelector {
-             target = nil
-             action = nil
-         }
-
-         FZSwiftUtils.setAssociatedValue(
-             newValue,
-             key: "actionTrampoline",
-             object: self
-         )
-
-         if let newValue {
-             target = newValue
-             action = actionTrampolineSelector
-         }
-     }
- }
- */
 
 public extension TargetActionProvider where Self: NSGestureRecognizer {
     /// Initializes the gesture recognizer with the specified action handler.
@@ -358,6 +333,98 @@ fileprivate extension NSToolbarItem {
         view ?? (self as? NSSearchToolbarItem)?.searchField
     }
 }
+
+/// An object that sends double action-messages using `target` and `doubleAction`.
+public protocol DoubleActionProvider: TargetActionProvider {
+    /// The double action-message selector.
+    var doubleAction: Selector? { get set }
+}
+
+extension NSTableView: DoubleActionProvider { }
+extension NSBrowser: DoubleActionProvider { }
+extension NSMatrix: DoubleActionProvider { }
+extension NSPathControl: DoubleActionProvider { }
+extension NSPathCell: DoubleActionProvider { }
+
+public extension DoubleActionProvider {
+    /// The double action handler of the object.
+    var doubleActionBlock: ActionBlock? {
+        get {
+            guard let trampoline = actionTrampoline else { return nil }
+            guard target === trampoline else {
+                actionTrampoline = nil
+                return nil
+            }
+            guard doubleAction == doubleActionTrampolineSelector else {
+                if trampoline.action == nil {
+                    actionTrampoline = nil
+                }
+                return nil
+            }
+            return trampoline.doubleAction
+        }
+        set {
+            if let newValue {
+                let action = actionTrampoline?.action
+                actionTrampoline = ActionTrampoline(action: action, doubleAction: newValue)
+                target = actionTrampoline
+                self.action = action == nil ? nil : actionTrampolineSelector
+                doubleAction = doubleActionTrampolineSelector
+            } else {
+                if doubleAction == doubleActionTrampolineSelector {
+                    doubleAction = nil
+                }
+                guard actionTrampoline?.action == nil else { return }
+                if target === actionTrampoline {
+                    target = nil
+                }
+                actionTrampoline = nil
+            }
+        }
+    }
+    
+    /// Sets the double action handler of the object.
+    @discardableResult
+    func doubleAction(_ action: ActionBlock?) -> Self {
+        doubleActionBlock = action
+        return self
+    }
+    
+    /**
+     Sends the `doubleAction` message to the `target` if it responds to the selector.
+
+     - Returns: `true` if the message was successfully sent; otherwise, `false`.
+     */
+    @discardableResult
+    func performDoubleAction() -> Bool {
+        guard let action = doubleAction else { return false }
+        if let control = self as? NSControl {
+            return control.sendAction(action, to: target)
+        } else {
+            return NSApp.sendAction(action, to: target, from: self)
+        }
+    }
+
+    /// A Boolean value indicating whether the `doubleAction` can currently be performed by a reachable target.
+    func canPerformDoubleAction() -> Bool {
+        guard let action = doubleAction else { return false }
+        guard let resolvedTarget = NSApp.target(forAction: action, to: target, from: self) else {
+            return false
+        }
+        if let item = self as? NSValidatedUserInterfaceItem, let validation = resolvedTarget as? NSUserInterfaceValidations {
+            return validation.validateUserInterfaceItem(item)
+        }
+        return true
+    }
+    
+    /// Sets the action-message selector.
+    @discardableResult
+    func doubleAction(_ action: Selector?) -> Self {
+        self.doubleAction = action
+        return self
+    }
+}
+
 #elseif os(iOS) || os(tvOS) || os(visionOS)
 import FZSwiftUtils
 import UIKit
