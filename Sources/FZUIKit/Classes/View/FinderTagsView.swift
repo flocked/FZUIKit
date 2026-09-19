@@ -24,8 +24,9 @@ public class FinderTagsView: NSView {
     private var visibleTags: [FinderTag] = [] {
         didSet {
             guard oldValue != visibleTags else { return }
-            toolTip = visibleTags.map(\.name).formatted(.list(type: .and, width: .short))
             reload()
+            guard displaysToolTip else { return }
+            toolTip = visibleTags.map(\.name).formatted(.list(type: .and, width: .short))
         }
     }
     
@@ -63,6 +64,14 @@ public class FinderTagsView: NSView {
         return self
     }
     
+    ///  A Boolean value indicating whether the view displays a tooltip representing the finder tags.
+    public var displaysToolTip = true {
+        didSet {
+            guard oldValue != displaysToolTip else { return }
+            toolTip = displaysToolTip ? visibleTags.map(\.name).formatted(.list(type: .and, width: .short)) : nil
+        }
+    }
+
     /// The offset between the Finder tag circles.
     public var offset: CGFloat = 6 {
         didSet {
@@ -194,9 +203,7 @@ public class FinderTagsView: NSView {
                         
             if index < visibleTags.count - 1 {
                 context.beginTransparencyLayer(auxiliaryInfo: nil)
-                
-                drawTagCircle(in: context, rect: rect, color: tag.color?.color ?? .clear)
-                
+                drawTagCircle(in: context, rect: rect, color: tag.color?.color)
                 let neighborX = bounds.width - diameter - (CGFloat(index + 1) * offset)
                 let cutoutRect = CGRect(x: neighborX, y: yOffset, width: diameter, height: diameter)
                     .insetBy(dx: -spacing, dy: -spacing)
@@ -207,20 +214,46 @@ public class FinderTagsView: NSView {
                 
                 context.endTransparencyLayer()
             } else {
-                drawTagCircle(in: context, rect: rect, color: tag.color?.color ?? .clear)
+                drawTagCircle(in: context, rect: rect, color: tag.color?.color)
             }
             
             context.restoreGState()
         }
     }
     
-    private func drawTagCircle(in context: CGContext, rect: CGRect, color: NSColor) {
+    private func drawTagCircle(in context: CGContext, rect: CGRect, color: NSColor?) {
+        guard let color else {
+            drawNoColorTagCircle(in: context, rect: rect)
+            return
+        }
+
         context.setFillColor(color.withAlphaComponent(0.82).cgColor)
         context.fillEllipse(in: rect)
         context.setStrokeColor(color.cgColor)
         context.setLineWidth(1.0)
         context.strokeEllipse(in: rect.insetBy(dx: 0.5, dy: 0.5))
         
+        guard backgroundStyle == .emphasized else { return }
+        context.setStrokeColor(NSColor.white.withAlphaComponent(0.9).cgColor)
+        context.setLineWidth(borderWidth)
+        let inset = borderWidth / 2.0
+        context.strokeEllipse(in: rect.insetBy(dx: inset, dy: inset))
+    }
+
+    private func drawNoColorTagCircle(in context: CGContext, rect: CGRect) {
+        context.setFillColor(NSColor.controlBackgroundColor.cgColor)
+        context.fillEllipse(in: rect)
+
+        let strokeColor = NSColor.secondaryLabelColor
+        context.setStrokeColor(strokeColor.cgColor)
+        context.setLineWidth(1.0)
+        context.strokeEllipse(in: rect.insetBy(dx: 0.5, dy: 0.5))
+
+        context.beginPath()
+        context.move(to: CGPoint(x: rect.minX + rect.width * 0.28, y: rect.minY + rect.height * 0.28))
+        context.addLine(to: CGPoint(x: rect.maxX - rect.width * 0.28, y: rect.maxY - rect.height * 0.28))
+        context.strokePath()
+
         guard backgroundStyle == .emphasized else { return }
         context.setStrokeColor(NSColor.white.withAlphaComponent(0.9).cgColor)
         context.setLineWidth(borderWidth)

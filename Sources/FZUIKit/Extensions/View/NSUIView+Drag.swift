@@ -135,7 +135,9 @@ public extension NSUIView {
                 gesture.handlers.shouldBegin = { [weak self] in
                     guard let self = self else { return false }
                     let location = gesture.location(in: self)
-                    return self.hitTest(location)?.isInteractive ?? false == false
+                    guard let hitView = self.hitTest(location), hitView !== self else { return true }
+                    return !(hitView is InteractiveView || hitView.hasSuperview(where: { $0 is NSUIControl }))
+                  //  return !(hitView is InteractiveView || hitView.hasSuperview(where: { $0 is InteractiveView }))
                 }
                 panGesture = gesture
                 addGestureRecognizer(gesture)
@@ -156,7 +158,7 @@ public extension NSUIView {
         if self is NSUICollectionView { return true }
         return false
     }
-
+    
     private var dragPoint: CGPoint {
         get { associatedValue(for: "dragPoint", initial: .zero) }
         set { setAssociatedValue(newValue, for: "dragPoint") }
@@ -168,4 +170,9 @@ public extension NSUIView {
     }
 }
 
+fileprivate protocol InteractiveView: NSUIView { }
+extension NSUIControl: InteractiveView { }
+extension NSUIScrollView: InteractiveView { }
+extension NSUITextView: InteractiveView { }
+extension NSUICollectionView: InteractiveView { }
 #endif

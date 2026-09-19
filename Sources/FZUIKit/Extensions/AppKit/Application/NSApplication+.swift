@@ -11,6 +11,14 @@ import AppKit
 import FZSwiftUtils
 
 public extension NSApplication {
+    /// An array of windows (including panels) arranged according to their front-to-back ordering on the screen.
+    var orderedWindowsIncludingPanels: [NSWindow] {
+        Self.windowsMethod?(self, Self.windowsSelector, true) ?? orderedWindows
+    }
+    
+    private static let windowsMethod = instanceMethod(for: windowsSelector, as: (@convention(c) (AnyObject, Selector, Bool) -> [NSWindow]).self)
+    private static let windowsSelector: Selector = .string("_orderedWindowsWithPanels:")
+    
     /// Returns the visible window at the specified screen location.
     func visibleWindow(at screenLoaction: CGPoint, below window: NSWindow) -> NSWindow? {
         visibleWindow(at: screenLoaction, below: window.windowNumber)
@@ -227,5 +235,4 @@ fileprivate class HudView: NSVisualEffectView {
         fatalError("init(coder:) has not been implemented")
     }
 }
-
 #endif

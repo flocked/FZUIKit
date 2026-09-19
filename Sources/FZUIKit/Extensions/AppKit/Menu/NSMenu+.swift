@@ -142,14 +142,96 @@ extension NSMenu {
     }
     
     /**
-     Inserts menu items into the menu at a specific location.
-     
+     Inserts the specified menu items at the specified index.
+
      - Parameters:
-     - items: The menu items to insert.
-     - index: An integer index identifying the location of the menu item in the menu.
+       - newItems: The menu items to insert.
+       - index: The index at which to insert the menu items.
+     - Returns: `true` if the menu items were inserted; otherwise, `false`.
      */
-    public func insertItems(_ items: [NSMenuItem], at index: Int) {
-        items.reversed().forEach { insertItem($0, at: index) }
+    @discardableResult
+    func insertItems(_ newItems: [NSMenuItem], at index: Int) -> Bool {
+        let newItems = newItems.uniqued()
+        let existingCount = newItems.count { $0.menu === self }
+        guard index >= 0, index <= numberOfItems - existingCount else { return false }
+        newItems.forEach { $0.removeFromMenu() }
+        newItems.reversed().forEach { insertItem($0, at: index) }
+        return true
+    }
+
+    /**
+     Inserts the specified menu items before another menu item.
+
+     - Parameters:
+       - newItems: The menu items to insert.
+       - item: The menu item before which to insert the items.
+     - Returns: `true` if the menu items were inserted; otherwise, `false`.
+     */
+    @discardableResult
+    func insertItems(_ newItems: [NSMenuItem], before item: NSMenuItem) -> Bool {
+        let newItems = newItems.uniqued()
+        guard !newItems.contains(where: { $0 === item }), item.menu === self else { return false }
+        newItems.forEach { $0.removeFromMenu() }
+        guard let index = itemIndex(of: item) else { return false }
+        newItems.reversed().forEach { insertItem($0, at: index) }
+        return true
+    }
+
+    /**
+     Inserts the specified menu items after another menu item.
+
+     - Parameters:
+       - newItems: The menu items to insert.
+       - item: The menu item after which to insert the items.
+     - Returns: `true` if the menu items were inserted; otherwise, `false`.
+     */
+    @discardableResult
+    func insertItems(_ newItems: [NSMenuItem], after item: NSMenuItem) -> Bool {
+        let newItems = newItems.uniqued()
+        guard !newItems.contains(where: { $0 === item }), item.menu === self else { return false }
+        newItems.forEach { $0.removeFromMenu() }
+        guard let index = itemIndex(of: item) else { return false }
+        newItems.reversed().forEach { insertItem($0, at: index + 1) }
+        return true
+    }
+
+    /**
+     Inserts a menu item before another menu item.
+
+     - Parameters:
+       - newItem: The menu item to insert.
+       - item: The menu item before which to insert the new item.
+     - Returns: `true` if the menu item was inserted; otherwise, `false`.
+     */
+    @discardableResult
+    func insertItem(_ newItem: NSMenuItem, before item: NSMenuItem) -> Bool {
+        guard newItem !== item, item.menu === self else { return false }
+        newItem.removeFromMenu()
+        guard let index = itemIndex(of: item) else { return false }
+        insertItem(newItem, at: index)
+        return true
+    }
+
+    /**
+     Inserts a menu item after another menu item.
+
+     - Parameters:
+       - newItem: The menu item to insert.
+       - item: The menu item after which to insert the new item.
+     - Returns: `true` if the menu item was inserted; otherwise, `false`.
+     */
+    @discardableResult
+    func insertItem(_ newItem: NSMenuItem, after item: NSMenuItem) -> Bool {
+        guard newItem !== item, item.menu === self else { return false }
+        newItem.removeFromMenu()
+        guard let index = itemIndex(of: item) else { return false }
+        insertItem(newItem, at: index + 1)
+        return true
+    }
+
+    private func itemIndex(of item: NSMenuItem) -> Int? {
+        let index = index(of: item)
+        return index >= 0 ? index : nil
     }
     
     /**
@@ -711,3 +793,118 @@ fileprivate extension [NSMenuItem] {
     }
 }
 #endif
+
+extension Collection {
+    /**
+     Returns an array by interleaving the elements of this collection with the elements of the specified collection.
+     
+     Elements are alternated between both collections, starting with an element from this collection. If one collection ontains more elements, the remaining elements are appended to the end.
+     
+     - Parameter other: The collection whose elements to interleave.
+     - Returns: An array containing the interleaved elements of both collections.
+     */
+    func interleaved<C: Collection<Element>>(with other: C) -> [Element] {
+        var result: [Element] = []
+        result.reserveCapacity(count + other.count)
+
+        for (first, second) in zip(self, other) {
+            result.append(first)
+            result.append(second)
+        }
+
+        let commonCount = Swift.min(count, other.count)
+        result.append(contentsOf: dropFirst(commonCount))
+        result.append(contentsOf: other.dropFirst(commonCount))
+        return result
+    }
+}
+
+extension Sequence {
+    /**
+     Returns an array by interleaving the elements of this sequence with the elements of the specified sequence.
+     
+     Elements are alternated between both sequences, starting with an element from this sequence. If one sequence contains more elements, the remaining elements are appended to the end.
+     
+     - Parameter other: The sequence whose elements to interleave.
+     - Returns: An array containing the interleaved elements of both sequences.
+     */
+    func interleaved<C: Sequence<Element>>(with other: C) -> [Element] {
+        var result: [Element] = []
+        var first = makeIterator()
+        var second = other.makeIterator()
+
+        while true {
+            let firstElement = first.next()
+            let secondElement = second.next()
+
+            if let firstElement {
+                result.append(firstElement)
+            }
+
+            if let secondElement {
+                result.append(secondElement)
+            }
+
+            if firstElement == nil && secondElement == nil {
+                return result
+            }
+        }
+    }
+}
+
+extension RangeReplaceableCollection {
+    /**
+     Interleaves the elements of this collection with the elements of the specified collection.
+     
+     Elements are alternated between both collections, starting with an element from this collection. If one collection contains more elements, the remaining elements are appended to the end.
+     
+     - Parameter other: The collection whose elements to interleave.
+     */
+    mutating func interleave<C: Collection<Element>>(with other: C) {
+        var result = Self()
+        result.reserveCapacity(count + other.count)
+
+        for (first, second) in zip(self, other) {
+            result.append(first)
+            result.append(second)
+        }
+
+        let commonCount = Swift.min(count, other.count)
+        result.append(contentsOf: dropFirst(commonCount))
+        result.append(contentsOf: other.dropFirst(commonCount))
+        self = result
+    }
+
+    /**
+     Interleaves the elements of this collection with the elements of the specified sequence.
+     
+     Elements are alternated between both sequences, starting with an element from this collection. If one sequence contains more elements, the remaining elements are appended to the end.
+     
+     - Parameter other: The sequence whose elements to interleave.
+     */
+    mutating func interleave<S: Sequence<Element>>(with other: S) {
+        var result = Self()
+        result.reserveCapacity(underestimatedCount + other.underestimatedCount)
+
+        var first = makeIterator()
+        var second = other.makeIterator()
+
+        while true {
+            let firstElement = first.next()
+            let secondElement = second.next()
+
+            if let firstElement {
+                result.append(firstElement)
+            }
+
+            if let secondElement {
+                result.append(secondElement)
+            }
+
+            guard firstElement != nil || secondElement != nil else {
+                self = result
+                return
+            }
+        }
+    }
+}

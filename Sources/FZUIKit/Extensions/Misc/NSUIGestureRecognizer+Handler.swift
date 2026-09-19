@@ -20,13 +20,13 @@ extension NSUIGestureRecognizer {
         public var shouldBegin: (()->(Bool))?
         
         /// The handler that determines whether the gesture recognizer must wait to recognize it's gesture until the other gesture recognizer fails.
-        public var shouldRequireFailure: ((NSUIGestureRecognizer)->(Bool))?
+        public var shouldRequireFailure: ((_ gestureRecognizer: NSUIGestureRecognizer)->(Bool))?
         
         /// The handler that determines whether the gesture recognizer must fail before the other gesture recognizer is allowed to recognize its gesture.
-        public var shouldBeRequiredToFail: ((NSUIGestureRecognizer)->(Bool))?
+        public var shouldBeRequiredToFail: ((_ gestureRecognizer: NSUIGestureRecognizer)->(Bool))?
         
         /// The handler that determines whether the gesture recognizer should be allowed to recognize it's gesture simultaneously with the other one.
-        public var shouldRecognizeSimultaneously: ((NSUIGestureRecognizer)->(Bool))?
+        public var shouldRecognizeSimultaneously: ((_ gestureRecognizer: NSUIGestureRecognizer)->(Bool))?
         
         #if os(macOS)
         /// The handler that determines whether the gesture recognizer should process an event.

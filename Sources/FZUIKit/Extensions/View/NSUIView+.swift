@@ -283,6 +283,11 @@ extension NSUIView {
         }
         return nil
     }
+    
+    /// Returns a Boolan value indicating whether the view has a superview that matches the specificed predicate.
+    @objc open func hasSuperview(where predicate: (NSUIView) -> (Bool)) -> Bool {
+        firstSuperview(where: predicate) != nil
+    }
 
     /// An array of all enclosing superviews.
     @objc open func superviewChain() -> [NSUIView] {
