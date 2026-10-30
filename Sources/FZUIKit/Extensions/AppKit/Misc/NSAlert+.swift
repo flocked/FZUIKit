@@ -30,12 +30,14 @@ extension NSAlert {
      - Parameters:
         - title: The title of the alert.
         - message: The message of the alert.
+        - buttons: The button titles of the alert.
      */
-    public static func critical(_ title: String, message: String) -> NSAlert {
+    public static func critical(_ title: String, message: String, buttons: [String] = []) -> NSAlert {
         let alert = NSAlert()
         alert.alertStyle = .critical
         alert.messageText = title
         alert.informativeText = message
+        buttons.forEach({ alert.addButton(withTitle: $0) })
         return alert
     }
     
@@ -45,12 +47,14 @@ extension NSAlert {
      - Parameters:
         - title: The title of the alert.
         - message: The message of the alert.
+        - buttons: The button titles of the alert.
      */
-    public static func informational(_ title: String, message: String) -> NSAlert {
+    public static func informational(_ title: String, message: String, buttons: [String] = []) -> NSAlert {
         let alert = NSAlert()
         alert.alertStyle = .informational
         alert.messageText = title
         alert.informativeText = message
+        buttons.forEach({ alert.addButton(withTitle: $0) })
         return alert
     }
     
@@ -60,12 +64,14 @@ extension NSAlert {
      - Parameters:
         - title: The title of the alert.
         - message: The message of the alert.
+        - buttons: The button titles of the alert.
      */
-    public static func warning(_ title: String, message: String) -> NSAlert {
+    public static func warning(_ title: String, message: String, buttons: [String] = []) -> NSAlert {
         let alert = NSAlert()
         alert.alertStyle = .warning
         alert.messageText = title
         alert.informativeText = message
+        buttons.forEach({ alert.addButton(withTitle: $0) })
         return alert
     }
     
