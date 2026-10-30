@@ -737,12 +737,24 @@ extension NSWindow {
     /**
      Sets the window’s location to the center of the specified screen.
      
-     - Parameter screen: The screen for centering the window.
+     - Parameters:
+        - screen: The screen on which to center the window.
+        - usingVisibleFrame: A Boolean value indicating whether to use the screen’s visible frame instead of its full frame.
      */
-    @objc open func center(on screen: NSScreen) {
+    @objc open func center(on screen: NSScreen, usingVisibleFrame: Bool = true) {
         var frame = frame
-        frame.center = screen.frame.center
-        setFrame(frame, display: true)
+        frame.center = (usingVisibleFrame ? screen.visibleFrame : screen.frame).center
+        setFrameOrigin(frame.origin)
+    }
+    
+    /**
+     Sets the window’s location to the center of its current screen.
+     
+     - Parameter usingVisibleFrame: A Boolean value indicating whether to use the screen’s visible frame instead of its full frame.
+     */
+    @objc open func center(usingVisibleFrame: Bool = true) {
+        guard let screen else { return }
+        center(on: screen, usingVisibleFrame: usingVisibleFrame)
     }
     
     /**
@@ -794,7 +806,7 @@ extension NSWindow {
         return frame.height - contentRect(forFrameRect: frame).height
     }
     
-    /// A Boolean value indicating whether window currently displays a tab bar.
+    /// A Boolean value indicating whether the window currently displays a tab bar.
     @objc open var isTabBarVisible: Bool {
         get { tabGroup?.isTabBarVisible ?? false }
         set {
@@ -979,7 +991,7 @@ public extension Collection where Element == NSWindow {
 
 extension NSWindow.CollectionBehavior: Swift.CustomStringConvertible {
     public var description: String {
-        "[\(elements().map { $0.string }.joined(separator: ", "))]"
+        "[\(elements.map { $0.string }.joined(separator: ", "))]"
     }
     
     private var string: String {
@@ -1009,3 +1021,35 @@ extension NSWindow.CollectionBehavior: Swift.CustomStringConvertible {
     }
 }
 #endif
+
+extension CGRect {
+    /// Returns the rectangle divided vertically into the specified number of equally sized rectangles.
+    func dividedVertically(into count: Int, spacing: CGFloat = 0) -> [CGRect] {
+        let count = max(count, 1)
+        let height = (height - spacing * CGFloat(count - 1)) / CGFloat(count)
+
+        return (0..<count).map { index in
+            CGRect(
+                x: minX,
+                y: minY + CGFloat(index) * (height + spacing),
+                width: width,
+                height: height
+            )
+        }
+    }
+
+    /// Returns the rectangle divided horizontally into the specified number of equally sized rectangles.
+    func dividedHorizontally(into count: Int, spacing: CGFloat = 0) -> [CGRect] {
+        let count = max(count, 1)
+        let width = (width - spacing * CGFloat(count - 1)) / CGFloat(count)
+
+        return (0..<count).map { index in
+            CGRect(
+                x: minX + CGFloat(index) * (width + spacing),
+                y: minY,
+                width: width,
+                height: height
+            )
+        }
+    }
+}

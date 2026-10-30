@@ -21,7 +21,7 @@ extension NSFontCollection.ActionTypeKey: Swift.CustomStringConvertible {
 
 extension NSFontCollection.Visibility: Swift.CustomStringConvertible {
     public var description: String {
-        let strings = elements().map {
+        let strings = elements.map {
             switch $0 {
             case .computer: (".computer", UInt.zero)
             case .user: (".user", UInt.zero)

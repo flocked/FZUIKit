@@ -10,7 +10,7 @@ import AppKit
 
 extension NSDragOperation: Swift.CustomStringConvertible {
     public var description: String {
-        "[\((self == .every ? NSDragOperation(rawValue: 63) : self).elements().compactMap({$0.string}).joined(separator: ", "))]"
+        "[\((self == .every ? NSDragOperation(rawValue: 63) : self).elements.compactMap({$0.string}).joined(separator: ", "))]"
     }
     
     fileprivate var string: String {

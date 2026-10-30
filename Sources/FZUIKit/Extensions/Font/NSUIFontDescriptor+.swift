@@ -372,7 +372,7 @@ extension NSUIFontDescriptor.SymbolicTraits: Swift.Hashable, Swift.CustomStringC
     
     public var description: String {
         var strings: [String] = []
-        for element in elements() {
+        for element in elements {
             switch element {
             #if os(macOS)
             case .bold: strings += "bold"

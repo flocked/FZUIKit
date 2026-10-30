@@ -68,80 +68,45 @@ public extension NSAppearance {
     var isDark: Bool {
         !isLight
     }
-    
-    /*
-    internal func performAsCurrentDrawing(_ block: () -> Void) {
-        if #available(macOS 11.0, *) {
-            performAsCurrentDrawingAppearance(block)
-        } else {
-            let current = NSAppearance.current
-            NSAppearance.current = self
-            block()
-            NSAppearance.current = current
-        }
-    }
-     */
-    
+
     /**
-     Sets the appearance to be the active drawing appearance and returns teh value of the specified block.
+     Sets the appearance as the current drawing appearance and returns the value of the specified block.
      
      This method saves and restores the previous current appearance.
-     
-     - Parameter block: The block to invoke after setting the appearance to be the current drawing appearance.
-     - Returns: The value that the `block` returns.
+
+     - Parameter block: The block to invoke after setting the appearance as the current drawing appearance.
+     - Returns: The value returned by `block`.
      */
     @_disfavoredOverload
     func performAsCurrentDrawingAppearance<V>(_ block: () -> V) -> V {
-         var result: V?
-        if #available(macOS 11.0, *) {
-            performAsCurrentDrawingAppearance {
-                result = block()
-            }
-        } else {
-            let current = NSAppearance.current
-            NSAppearance.current = self
+        var result: V?
+        performAsCurrentDrawingAppearance {
             result = block()
-            NSAppearance.current = current
         }
-         return result!
-     }
-    
+        return result!
+    }
+
     /**
-     Sets the appearance to be the active drawing appearance and returns teh value of the specified block.
-     
+     Sets the appearance as the current drawing appearance and returns the value of the specified block.
+
      This method saves and restores the previous current appearance.
-     
-     - Parameter block: The block to invoke after setting the appearance to be the current drawing appearance.
-     - Returns: The value that the `block` returns.
+
+     - Parameter block: The block to invoke after setting the appearance as the current drawing appearance.
+     - Returns: The value returned by `block`.
+     - Throws: Any error thrown by `block`.
      */
     @_disfavoredOverload
-    func performAsCurrentDrawingAppearance<V>(_ block: () throws -> V) throws -> V {
-        let result: Result<V, Error> = performAsCurrentDrawingAppearance {
-            do {
-                return .success(try block())
-            } catch {
-                return .failure(error)
-            }
-        }
-        switch result {
-        case .success(let value):
-            return value
-        case .failure(let error):
-            throw error
-        }
-      }
-    
-    internal static func current() -> NSAppearance {
-        if #available(macOS 11.0, *) {
-            return .currentDrawing()
-        } else {
-            return .current
-        }
+    func performAsCurrentDrawingAppearance<V, E: Error>(_ block: () throws(E) -> V) rethrows -> V {
+        let current = NSAppearance.currentAppearance
+        NSAppearance.currentAppearance = self
+        defer { NSAppearance.currentAppearance = current }
+        return try block()
     }
-}
-
-extension NSAppearance {
     
+    fileprivate static var currentAppearance: NSAppearance? {
+        get { value(forKey: "currentAppearance") }
+        set { setValue(safely: newValue, forKey: "currentAppearance") }
+    }
 }
 
 extension NSAppearance: Swift.Encodable, Swift.Decodable {
@@ -151,14 +116,14 @@ extension NSAppearance: Swift.Encodable, Swift.Decodable {
     }
 }
 
-extension Decodable where Self: NSAppearance {
+public extension Decodable where Self: NSAppearance {
     /// Decodes a value of the given type from a sing
-    public init(from decoder: Decoder) throws {
-        self.init(named: try decoder.singleValueContainer().decode())!
+    init(from decoder: Decoder) throws {
+        try self.init(named: decoder.singleValueContainer().decode())!
     }
 }
 
-extension NSAppearance.Name: Swift.Encodable, Swift.Decodable { }
+extension NSAppearance.Name: Swift.Encodable, Swift.Decodable {}
 
 extension NSAppearance.Name: Swift.CustomStringConvertible {
     public var description: String {
@@ -184,6 +149,5 @@ public extension NSAppearanceCustomization {
         return self
     }
 }
-
 
 #endif

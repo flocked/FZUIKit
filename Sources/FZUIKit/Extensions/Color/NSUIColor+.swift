@@ -24,8 +24,8 @@ public extension NSUIColor {
     }
     
     /// Creates a new color object that has the same color space and component values as the current color object, but with the specified alpha value.
-    func opacity(_ opacity:  CGFloat) -> NSUIColor {
-        withAlphaComponent(opacity.clamped(to: 0...1.0))
+    func opacity(_ opacity: CGFloat) -> NSUIColor {
+        withAlphaComponent(opacity.clamped(to: 0 ... 1.0))
     }
     
     /**
@@ -221,8 +221,18 @@ public extension NSUIColor {
         #if os(macOS)
         isSubclass(of: Self.dynamicColorClass)
         #else
-        value(forKey: "_isDynamic") ?? false
+        value(forKey: "isDynamic") ?? false
         #endif
+    }
+    
+    var isDynamic1: Bool {
+        guard type == .catalog else { return false }
+        let appearance = NSAppearance.currentDrawing()
+        return (NSAppearance.aqua.performAsCurrentDrawingAppearance {
+            NSColor(cgColor: cgColor)
+        }) !=  (NSAppearance.darkAqua.performAsCurrentDrawingAppearance {
+            NSColor(cgColor: cgColor)
+        })
     }
     
     private static let dynamicColorClass: AnyClass = NSClassFromString("NSDynamicNamedColor")!
@@ -240,6 +250,18 @@ public extension NSUIColor {
             light != dark
         }
         
+        init(_ color: NSUIColor) {
+            if color.isDynamic {
+                #if os(macOS)
+                self.init(color.resolvedColor(for: .aqua), color.resolvedColor(for: .darkAqua))
+                #else
+                self.init(color.resolvedColor(with: .light), color.resolvedColor(with: .dark))
+                #endif
+            } else {
+                self.init(color, color)
+            }
+        }
+        
         init(_ light: NSUIColor, _ dark: NSUIColor) {
             self.light = light
             self.dark = dark
@@ -254,8 +276,8 @@ extension NSUIColor: Swift.Encodable, Swift.Decodable {
     }
 }
 
-extension Decodable where Self: NSUIColor {
-    public init(from decoder: Decoder) throws {
+public extension Decodable where Self: NSUIColor {
+    init(from decoder: Decoder) throws {
         self = try Self.unarchive(decoder.decodeSingle())
     }
 }

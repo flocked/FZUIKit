@@ -18,7 +18,7 @@ extension NSPopover {
         /// Handler that is called whenever the popover did show.
         public var didShow: (() -> Void)?
         /// Handler that is called whenever the popover is about to close.
-        public var willClose: (() -> Void)?
+        public var willClose: ((_ reason: CloseReason) -> Void)?
         /// Handler that is called whenever the popover did close.
         public var didClose: (() -> Void)?
         /// Handler that determines whether the popover should close.
@@ -547,7 +547,7 @@ extension NSPopover {
         
         func popoverWillClose(_ notification: Notification) {
             delegate?.popoverWillClose?(notification)
-            popover?.handlers.willClose?()
+            popover?.handlers.willClose?(notification.userInfo?[typed: NSPopover.closeReasonUserInfoKey] ?? .standard)
         }
         
         func popoverShouldClose(_ popover: NSPopover) -> Bool {

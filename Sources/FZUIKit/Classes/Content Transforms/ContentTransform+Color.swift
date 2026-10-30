@@ -20,15 +20,19 @@ public struct ColorTransformer: ContentTransform {
 
     /// Creates a color transformer with the specified identifier and block that transforms a color.
     public init(_ identifier: String, _ transform: @escaping @Sendable (NSUIColor) -> NSUIColor) {
+#if os(macOS) || os(iOS) || os(visionOS)
         self.transform = {
-            #if os(macOS) || os(iOS) || os(visionOS)
+            guard $0.isDynamic else { return transform($0) }
             let dynamicColors = $0.dynamicColors
             if dynamicColors.light != dynamicColors.dark {
                 return NSUIColor(light: transform(dynamicColors.light), dark: transform(dynamicColors.dark))
             }
-            #endif
             return transform($0)
         }
+        #else
+        self.transform = transform
+        #endif
+       
         id = identifier
     }
     

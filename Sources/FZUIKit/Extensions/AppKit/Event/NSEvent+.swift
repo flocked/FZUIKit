@@ -773,25 +773,34 @@ extension NSEvent.EventTypeMask: Swift.CustomStringConvertible, Swift.Hashable, 
     }
     
     /// A mask for user interaction events  (`keyboard`, `mouse`, `mouseMovements`, `magnify`, `scrollWheel`, `swipe` or `rotate`).
-    public static let userInteraction: NSEvent.EventTypeMask = keyboard + mouse + mouseMovements + [.magnify, .scrollWheel, .swipe, .rotate]
+    public static let userInteraction: Self = keyboard + mouse + mouseMovements + [.magnify, .scrollWheel, .swipe, .rotate]
     
     /// A mask for keyboard events (`keyDown`, `keyUp` or `flagsChanged`).
-    public static let keyboard: NSEvent.EventTypeMask = [.keyDown, .keyUp, .flagsChanged]
+    public static let keyboard: Self = [.keyDown, .keyUp, .flagsChanged]
     
     /// A mask for mouse click events (`left`, `right` or `other`).
-    public static let mouse: NSEvent.EventTypeMask = leftMouse + rightMouse + otherMouse
+    public static let mouse: Self = leftMouse + rightMouse + otherMouse
     
     /// A mask for left mouse click events  (`leftMouseDown`, `leftMouseUp` or `leftMouseDragged`).
-    public static let leftMouse: NSEvent.EventTypeMask = [.leftMouseDown, .leftMouseUp, .leftMouseDragged]
+    public static let leftMouse: Self = [.leftMouseDown, .leftMouseUp, .leftMouseDragged]
     
     /// A mask for right mouse click events  (`rightMouseDown`, `rightMouseUp` or `rightMouseDragged`).
-    public static let rightMouse: NSEvent.EventTypeMask = [.rightMouseDown, .rightMouseUp, .rightMouseDragged]
+    public static let rightMouse: Self = [.rightMouseDown, .rightMouseUp, .rightMouseDragged]
     
     /// A mask for other mouse click events (`otherMouseDown`, `otherMouseUp` or `otherMouseDragged`).
-    public static let otherMouse: NSEvent.EventTypeMask = [.otherMouseDown, .otherMouseUp, .otherMouseDragged]
+    public static let otherMouse: Self = [.otherMouseDown, .otherMouseUp, .otherMouseDragged]
+    
+    /// A mask for mouse button-down events  (`leftMouseDown`, `rightMouseDown` or `otherMouseDown`).
+    public static let mouseDown: Self = [.leftMouseDown, .rightMouseDown, .otherMouseDown]
+
+    /// A mask for mouse button-up events  (`leftMouseUp`, `rightMouseUp` or `otherMouseUp`).
+    public static let mouseUp: Self = [.leftMouseUp, .rightMouseUp, .otherMouseUp]
+
+    /// A mask for mouse dragging events  (`leftMouseDragged`, `rightMouseDragged` or `otherMouseDragged`).
+    public static let mouseDragged: Self = [.leftMouseDragged, .rightMouseDragged, .otherMouseDragged]
     
     /// A mask for mouse movement events (`mouseEntered`, `mouseMoved` or `mouseExited`).
-    public static let mouseMovements: NSEvent.EventTypeMask = [.mouseEntered, .mouseMoved, .mouseExited]
+    public static let mouseMovements: Self = [.mouseEntered, .mouseMoved, .mouseExited]
     
     public var description: String {
         var strings: [String] = []

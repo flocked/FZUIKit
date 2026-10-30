@@ -94,7 +94,7 @@ extension NSEvent {
         
         /// The virtual key codes represented by the modifier flags.
         public var keyCodes: [UInt16] {
-            elements().compactMap({
+            elements.compactMap({
                 switch $0 {
                 case .shift:
                     UInt16(kVK_Shift)
