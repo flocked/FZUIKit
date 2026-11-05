@@ -730,6 +730,7 @@ public extension NSButton {
     
     /// Sets the symbol configuration for the image.
     @discardableResult
+    @_disfavoredOverload
     func symbolConfiguration(_ symbolConfiguration: ImageSymbolConfiguration?) -> Self {
         self.symbolConfiguration = symbolConfiguration?.nsUI()
         return self
