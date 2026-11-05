@@ -450,17 +450,12 @@
             }
         
             func toolbar(_: NSToolbar, itemForItemIdentifier itemIdentifier: NSToolbarItem.Identifier, willBeInsertedIntoToolbar _: Bool) -> NSToolbarItem? {
-                Swift.print("willBeInsertedIntoToolbar", itemIdentifier, items.first(where: { $0.item.itemIdentifier == itemIdentifier && !provided.contains($0.item.objectID) })?.item ?? "nil", items.filter { $0.item.itemIdentifier == itemIdentifier }.count)
-            
                 guard let item = items.first(where: { $0.item.itemIdentifier == itemIdentifier && !provided.contains($0.item.objectID) })?.item else { return nil }
                 provided.insert(item.objectID)
-                Swift.print("itemFor", itemIdentifier.rawValue, items.firstIndex(where: { $0.item === item }) ?? "nil")
-                // Swift.print("itemFor", itemIdentifier.rawValue, items.firstIndex(of: item) ?? "nil", toolbar?.displayingItems.count ?? "nil")
                 return item
             }
         
             func toolbarWillAddItem(_ notification: Notification) {
-                Swift.print("WillAdd", notification.userInfo?["item"] as? NSToolbarItem != nil)
                 guard let toolbarItem = notification.userInfo?["item"] as? NSToolbarItem else { return }
                 provided.insert(toolbarItem.objectID)
                 //    currentItems.insert(toolbarItem)

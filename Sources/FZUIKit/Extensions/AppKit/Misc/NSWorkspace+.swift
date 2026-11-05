@@ -14,7 +14,7 @@ public extension NSWorkspace {
     /// Handlers for the workspace.
     struct Handlers {
         /// Handler that is called whenever the application hides/unhides.
-        public var isHidden: ((Bool)->())?
+        public var isHidden: ((_ hidden: Bool)->())?
         /// Handler that is called whenever the active space changed.
         public var activeSpaceChanged: (()->())?
         /// Handler that is called whenever the device wakes from sleep.
@@ -26,19 +26,19 @@ public extension NSWorkspace {
         /// Handler that is called whenever the Finder is about to unmount a device.
         public var didMount: (()->())?
         /// Handler that is called whenever the Finder is about to unmount a device.
-        public var willUnmount: ((URL)->())?
+        public var willUnmount: ((_ volume: URL)->())?
         /// Handler that is called whenever the Finder unmounts a device.
-        public var didUnmount: ((URL)->())?
+        public var didUnmount: ((_ volume: URL)->())?
         /// Handler that is called whenever the device’s screen goes to sleep.
         public var screensDidSleep: (()->())?
         /// Handler that is called whenever the device’s screens wake.
         public var screensDidWake: (()->())?
         /// Handler that is called whenever the running applications change.
-        public var runningApplications: (([NSRunningApplication])->())?
+        public var runningApplications: ((_ applications: [NSRunningApplication])->())?
         /// Handler that is called whenever the frontmost application changes.
-        public var frontmostApplication: ((NSRunningApplication?)->())?
+        public var frontmostApplication: ((_ application: NSRunningApplication?)->())?
         /// Handler that is called whenever the menubar owning application. changes.
-        public var menuBarOwningApplication: ((NSRunningApplication?)->())?
+        public var menuBarOwningApplication: ((_ application: NSRunningApplication?)->())?
     }
     
     /// The handlers for the workspace.

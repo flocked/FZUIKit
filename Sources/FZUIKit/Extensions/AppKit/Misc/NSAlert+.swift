@@ -15,10 +15,10 @@ public extension NSApplication.ModalResponse {
      
      See ``AppKit/NSAlert/suppressionKey`` for more information.
      */
-    static let suppress = NSApplication.ModalResponse((1 << 14))
+    static let suppress = NSApplication.ModalResponse(888)
     
-    /// The index of the button, counted from the right edge, that the user clicked in the dialog or sheet.
-    var clickedButtonIndex: Int? {
+    /// The zero-based index of the button clicked in the alert or sheet, counted from the right edge.
+    var alertButtonIndex: Int? {
         rawValue >= 1000 ? rawValue - 1000 : nil
     }
 }
@@ -33,12 +33,7 @@ extension NSAlert {
         - buttons: The button titles of the alert.
      */
     public static func critical(_ title: String, message: String, buttons: [String] = []) -> NSAlert {
-        let alert = NSAlert()
-        alert.alertStyle = .critical
-        alert.messageText = title
-        alert.informativeText = message
-        buttons.forEach({ alert.addButton(withTitle: $0) })
-        return alert
+        alert(style: .critical, title: title, message: message, buttons: buttons)
     }
     
     /**
@@ -50,12 +45,7 @@ extension NSAlert {
         - buttons: The button titles of the alert.
      */
     public static func informational(_ title: String, message: String, buttons: [String] = []) -> NSAlert {
-        let alert = NSAlert()
-        alert.alertStyle = .informational
-        alert.messageText = title
-        alert.informativeText = message
-        buttons.forEach({ alert.addButton(withTitle: $0) })
-        return alert
+        alert(style: .informational, title: title, message: message, buttons: buttons)
     }
     
     /**
@@ -67,8 +57,12 @@ extension NSAlert {
         - buttons: The button titles of the alert.
      */
     public static func warning(_ title: String, message: String, buttons: [String] = []) -> NSAlert {
+        alert(style: .warning, title: title, message: message, buttons: buttons)
+    }
+    
+    fileprivate static func alert(style: Style, title: String, message: String, buttons: [String]) -> NSAlert {
         let alert = NSAlert()
-        alert.alertStyle = .warning
+        alert.alertStyle = style
         alert.messageText = title
         alert.informativeText = message
         buttons.forEach({ alert.addButton(withTitle: $0) })
@@ -225,15 +219,15 @@ extension NSAlert {
     private func swizzleRunModal() {
         guard !isMethodHooked(#selector(runModal)) else { return }
         do {
-            try hook(#selector(runModal), closure: { original, alert, sel in
+            try hook(#selector(runModal), closure: { original, alert, selector in
                 guard let suppressionKey = alert.suppressionKey else {
-                    return original(alert, sel)
+                    return original(alert, selector)
                 }
                 if NSAlert.supressionKeys.contains(suppressionKey) {
                     return .suppress
                 }
                 alert.showsSuppressionButton = true
-                let runModal = original(alert, sel)
+                let runModal = original(alert, selector)
                 if alert.suppressionButton?.state == .on {
                     NSAlert.supressionKeys.insert(suppressionKey)
                 }
@@ -249,13 +243,12 @@ extension NSAlert {
                     handler?(.suppress)
                 } else {
                     alert.showsSuppressionButton = true
-                    let wrappedHandler: ((NSApplication.ModalResponse) -> Void) = { response in
+                    original(alert, sel, window, { response in
                         if alert.suppressionButton?.state == .on {
                             NSAlert.supressionKeys.insert(suppressionKey)
                         }
                         handler?(response)
-                    }
-                    original(alert, sel, window, wrappedHandler)
+                    })
                 }
             } as @convention(block) ((NSAlert, Selector, NSWindow, ((NSApplication.ModalResponse) -> Void)?) -> Void, NSAlert, Selector, NSWindow, ((NSApplication.ModalResponse) -> Void)?) -> Void)
         } catch {

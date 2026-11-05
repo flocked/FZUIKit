@@ -100,15 +100,23 @@ public extension NSMenuItem {
 class ActionTrampoline<T: TargetActionProvider>: NSObject {
     var action: ((T) -> Void)?
     var doubleAction: ((T) -> Void)?
+    private weak var senderOverride: T?
 
-    public init(action: ((T) -> Void)? = nil, doubleAction: ((T) -> Void)? = nil) {
+    public init(action: ((T) -> Void)? = nil, doubleAction: ((T) -> Void)? = nil, senderOverride: T? = nil) {
         self.action = action
         self.doubleAction = doubleAction
+        self.senderOverride = senderOverride
     }
 
     @objc func performAction(sender: NSObject) {
-        guard let sender = sender as? T else { return }
+        guard let sender = senderOverride ?? (sender as? T) else { return }
         action?(sender)
+    }
+
+    // Keep toolbar handlers separate from the control's own actionBlock.
+    @objc fileprivate func performToolbarAction(sender: NSObject) {
+        guard let senderOverride else { return }
+        action?(senderOverride)
     }
     
     @objc func performDoubleAction(sender: NSObject) {
@@ -119,36 +127,21 @@ class ActionTrampoline<T: TargetActionProvider>: NSObject {
 
 fileprivate let actionTrampolineSelector = #selector(ActionTrampoline<NSMenuItem>.performAction(sender:))
 fileprivate let doubleActionTrampolineSelector = #selector(ActionTrampoline<NSMenuItem>.performDoubleAction(sender:))
+private let toolbarActionSelector = #selector(ActionTrampoline<NSControl>.performToolbarAction(sender:))
 
-private protocol AnyRedirectedActionTrampoline: AnyObject {
-    var object: AnyObject? { get }
-    func handler<Object: AnyObject>(for object: Object) -> ((Object) -> Void)?
+private protocol ToolbarActionTrampoline: AnyObject {
+    var toolbarActionOwner: AnyObject? { get }
+    func toolbarActionHandler<Object: AnyObject>(for object: Object) -> ((Object) -> Void)?
 }
 
-private final class RedirectedActionTrampoline<Object: AnyObject>: NSObject, AnyRedirectedActionTrampoline {
-    weak var object: AnyObject? {
-        redirectedObject
-    }
-    weak var redirectedObject: Object?
-    let handler: (Object) -> Void
+extension ActionTrampoline: ToolbarActionTrampoline {
+    fileprivate var toolbarActionOwner: AnyObject? { senderOverride }
 
-    init(to object: Object, handler: @escaping (Object) -> Void) {
-        self.redirectedObject = object
-        self.handler = handler
-    }
-
-    @objc func performAction(sender: NSObject) {
-        guard let redirectedObject else { return }
-        handler(redirectedObject)
-    }
-
-    func handler<T: AnyObject>(for object: T) -> ((T) -> Void)? {
-        guard redirectedObject === object, let handler = handler as? (T) -> Void else { return nil }
-        return handler
+    fileprivate func toolbarActionHandler<Object: AnyObject>(for object: Object) -> ((Object) -> Void)? {
+        guard senderOverride === object else { return nil }
+        return action as? (Object) -> Void
     }
 }
-
-private let redirectedActionTrampolineSelector = #selector(RedirectedActionTrampoline<NSObject>.performAction(sender:))
 
 class MenuActionTrampoline<Item: NSMenuItem>: ActionTrampoline<Item>, NSMenuItemValidation {
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
@@ -181,8 +174,8 @@ public extension TargetActionProvider {
     var actionBlock: ActionBlock? {
         get {
             if let toolbarItem = self as? ToolbarItem,
-               let view = toolbarItem.item.resolvedView as? ActionRedirecting {
-                return view.redirectedActionHandler(for: self)
+               let control = toolbarItem.item.resolvedView as? NSControl {
+                return control.toolbarActionTrampoline?.toolbarActionHandler(for: self)
             }
             guard let trampoline = actionTrampoline else { return nil }
             guard target === trampoline else {
@@ -199,12 +192,14 @@ public extension TargetActionProvider {
         }
         set {
             if let toolbarItem = self as? ToolbarItem,
-               let view = toolbarItem.item.resolvedView as? any ActionRedirecting {
-                view.setRedirectedAction(newValue, of: self)
+               let control = toolbarItem.item.resolvedView as? NSControl {
+                control.setToolbarAction(newValue, of: self)
                 return
             }
             if let newValue {
-                actionTrampoline = ActionTrampoline(action: newValue, doubleAction: actionTrampoline?.doubleAction)
+                // AppKit sends the native toolbar item, but the handler takes its wrapper.
+                let senderOverride = self is ToolbarItem ? self : nil
+                actionTrampoline = ActionTrampoline(action: newValue, doubleAction: actionTrampoline?.doubleAction, senderOverride: senderOverride)
                 target = actionTrampoline
                 action = actionTrampolineSelector
             } else {
@@ -295,36 +290,27 @@ public extension TargetActionProvider where Self: NSCell {
     }
 }
 
-protocol ActionRedirecting {
-    func setRedirectedAction<Object: AnyObject>(_ handler: ((Object) -> Void)?, of object: Object)
-    func redirectedActionHandler<Object: AnyObject>(for object: Object) -> ((Object) -> Void)?
-}
-
-extension NSControl: ActionRedirecting {
-    func setRedirectedAction<Object: AnyObject>(_ handler: ((Object) -> Void)?, of object: Object) {
+private extension NSControl {
+    func setToolbarAction<Object: TargetActionProvider>(_ handler: ((Object) -> Void)?, of object: Object) {
         if let handler {
-            let trampoline = RedirectedActionTrampoline(to: object, handler: handler)
-            redirectedActionTrampoline = trampoline
+            let trampoline = ActionTrampoline(action: handler, senderOverride: object)
+            toolbarActionTrampoline = trampoline
             target = trampoline
-            action = redirectedActionTrampolineSelector
-        } else if redirectedActionTrampoline?.object === object {
-            if target === redirectedActionTrampoline {
+            action = toolbarActionSelector
+        } else if let trampoline = toolbarActionTrampoline, trampoline.toolbarActionOwner === object {
+            if target === trampoline {
                 target = nil
             }
-            if action == redirectedActionTrampolineSelector {
+            if action == toolbarActionSelector {
                 action = nil
             }
-            redirectedActionTrampoline = nil
+            toolbarActionTrampoline = nil
         }
     }
 
-    func redirectedActionHandler<Object: AnyObject>(for object: Object) -> ((Object) -> Void)? {
-        redirectedActionTrampoline?.handler(for: object)
-    }
-
-    private var redirectedActionTrampoline: (NSObject & AnyRedirectedActionTrampoline)? {
-        get { associatedValue(for: "redirectedActionTrampoline") }
-        set { setAssociatedValue(newValue, for: "redirectedActionTrampoline") }
+    var toolbarActionTrampoline: (NSObject & ToolbarActionTrampoline)? {
+        get { associatedValue(for: "toolbarActionTrampoline") }
+        set { setAssociatedValue(newValue, for: "toolbarActionTrampoline") }
     }
 }
 
