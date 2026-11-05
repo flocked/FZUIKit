@@ -637,6 +637,7 @@ public extension NSButton {
         - state: The state that uses the specified symbol configuration.
      */
     @discardableResult
+    @_disfavoredOverload
     func setSymbolConfiguration(_ configuration: ImageSymbolConfiguration, for state: StateValue) -> Self {
         setSymbolConfiguration(configuration.nsUI(), for: state)
     }
