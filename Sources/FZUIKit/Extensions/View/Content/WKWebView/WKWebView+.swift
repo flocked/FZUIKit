@@ -7,6 +7,7 @@
 
 #if os(macOS) || os(iOS) || os(visionOS)
 import WebKit
+import FZSwiftUtils
 
 public extension WKWebView {
     /**
@@ -21,6 +22,11 @@ public extension WKWebView {
     @discardableResult
     func load(_ url: URL) -> WKNavigation? {
         load(URLRequest(url: url))
+    }
+    
+    /// The user agent of the web view.
+    var userAgent: String? {
+        value(forKey: "userAgent")
     }
 
     /**
