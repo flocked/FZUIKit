@@ -639,7 +639,6 @@ public extension NSButton {
     @discardableResult
     @_disfavoredOverload
     func setSymbolConfiguration(_ configuration: ImageSymbolConfiguration, for state: StateValue) -> Self {
-        
         setSymbolConfiguration(configuration.nsUI(), for: state)
     }
 
