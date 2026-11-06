@@ -41,7 +41,7 @@
             - option: The value that specifies the advance option.
             - animationDuration: The animation duration for transitioning to the new page. A value of `0.0` won't animate the transition. The default value is `0.2`.
          */
-        func advancePage(to type: AdvanceOption, animationDuration: CGFloat = 0.0) {
+        func advancePage(to type: SelectionOption, animationDuration: CGFloat = 0.0) {
             if arrangedObjects.isEmpty == false {
                 var newIndex = selectedIndex
                 switch type {

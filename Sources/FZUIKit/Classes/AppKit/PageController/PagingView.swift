@@ -33,7 +33,7 @@
             - option: The value that specifies the advance option.
             - animationDuration: The animation duration for transitioning to the new page. A value of `0.0` won't animate the transition. The default value is `0.2`.
          */
-        public func advancePage(to option: AdvanceOption, animationDuration: CGFloat = 0.2) {
+        public func advancePage(to option: SelectionOption, animationDuration: CGFloat = 0.2) {
             pageController.advancePage(to: option, animationDuration: animationDuration)
         }
 
@@ -133,7 +133,7 @@
                 keyDown(with: event)
                 return
             }
-            var type: AdvanceOption?
+            var type: SelectionOption?
             switch event.keyCode {
             case 123:
                 if event.modifierFlags.contains(.command) {

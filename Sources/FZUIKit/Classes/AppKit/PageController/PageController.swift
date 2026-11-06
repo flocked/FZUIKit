@@ -65,7 +65,7 @@
 
         override public func performKeyEquivalent(with event: NSEvent) -> Bool {
             if elements.isEmpty == false, keyboardControl.isEnabled {
-                var type: AdvanceOption?
+                var type: SelectionOption?
                 switch event.keyCode {
                 case 123:
                     if event.modifierFlags.contains(.command) {
